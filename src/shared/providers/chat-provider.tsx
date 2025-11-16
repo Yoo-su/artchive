@@ -8,7 +8,6 @@ import { useChatEvents } from "@/features/chat/hooks/use-chat-events";
 export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const user = useAuthStore((state) => state.user);
 
-  // Initialize chat event listeners if the user is logged in
   useChatEvents();
 
   return (

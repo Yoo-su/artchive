@@ -3,6 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
+import { useAuthStore } from "@/features/auth/store";
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { useSocketContext } from "@/shared/providers/socket-provider";
 
@@ -16,12 +17,14 @@ type InfiniteMessagesData = {
 
 export const useChatEvents = () => {
   const { socket, isConnected } = useSocketContext();
+  const user = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
   const { isChatOpen, activeChatRoomId, setTyping, setRoomInactive } =
     useChatStore();
 
   useEffect(() => {
-    if (!socket || !isConnected) return;
+    // Only run if the user is logged in and the socket is connected
+    if (!socket || !isConnected || !user) return;
 
     const handleNewMessage = (newMessage: ChatMessage) => {
       const roomId = newMessage.chatRoom.id;
@@ -155,6 +158,7 @@ export const useChatEvents = () => {
   }, [
     socket,
     isConnected,
+    user,
     queryClient,
     isChatOpen,
     activeChatRoomId,
