@@ -11,6 +11,7 @@ interface ChatState {
   activeChatRoomId: number | null;
   typingUsers: { [roomId: number]: string };
   isRoomInactive: { [roomId: number]: boolean };
+  hasJoinedRooms: boolean;
 
   toggleChat: () => void;
   openChatRoom: (roomId: number, queryClient: QueryClient) => void;
@@ -18,6 +19,7 @@ interface ChatState {
   setTyping: (roomId: number, nickname: string) => void;
   setRoomInactive: (roomId: number, isInactive: boolean) => void;
   markRoomAsRead: (roomId: number, queryClient: QueryClient) => void;
+  setHasJoinedRooms: (hasJoined: boolean) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -25,6 +27,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   activeChatRoomId: null,
   typingUsers: {},
   isRoomInactive: {},
+  hasJoinedRooms: false,
 
   toggleChat: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
 
@@ -74,5 +77,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
         queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
       });
     }
+  },
+
+  setHasJoinedRooms: (hasJoined: boolean) => {
+    set({ hasJoinedRooms: hasJoined });
   },
 }));

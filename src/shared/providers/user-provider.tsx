@@ -24,8 +24,6 @@ export default function UserProvider({ children }: UesrProviderProps) {
         try {
           const user = await getUserProfile();
           setUser(user);
-        } catch (error) {
-          setUser(null);
         } finally {
           setIsLoading(false);
         }
