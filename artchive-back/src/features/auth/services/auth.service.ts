@@ -18,25 +18,42 @@ export class AuthService {
   async validateUser(socialLoginDto: {
     provider: string;
     providerId: string;
-    username: string;
+    nickname: string;
     profileImg: string;
   }) {
-    const { provider, providerId, username, profileImg } = socialLoginDto;
+    const { provider, providerId, nickname, profileImg } = socialLoginDto;
     const user = await this.userService.findByProviderId(provider, providerId);
     if (user) {
+      let isChanged = false;
+
+      // 프로필 이미지가 변경되었다면 업데이트
+      if (profileImg && user.profileImageUrl !== profileImg) {
+        user.profileImageUrl = profileImg;
+        isChanged = true;
+      }
+
+      // 닉네임이 변경되었다면 업데이트
+      if (nickname && user.nickname !== nickname) {
+        user.nickname = nickname;
+        isChanged = true;
+      }
+
+      if (isChanged) {
+        await this.userService.updateUser(user);
+      }
       return user;
     }
     const newUser = await this.userService.createUser({
       provider,
       providerId,
-      nickname: username,
+      nickname,
       profileImageUrl: profileImg,
     });
     return newUser;
   }
 
-  async getTokens(userId: number, username: string) {
-    const payload: JwtPayload = { sub: userId, username };
+  async getTokens(userId: number, userNickname: string) {
+    const payload: JwtPayload = { sub: userId, nickname: userNickname };
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: process.env.JWT_SECRET,

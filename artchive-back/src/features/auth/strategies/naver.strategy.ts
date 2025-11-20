@@ -23,16 +23,18 @@ export class NaverStrategy extends PassportStrategy(Strategy, 'naver') {
     profile: Profile,
     done: any,
   ) {
-    const { id, nickname, profile_image: profileImg } = profile._json;
+    const {
+      id: providerId,
+      nickname,
+      profile_image: profileImg,
+    } = profile._json;
     const provider = 'naver';
-    const providerId = id;
-    const username = nickname;
 
     try {
       const user = await this.authService.validateUser({
         provider,
         providerId,
-        username,
+        nickname,
         profileImg,
       });
       done(null, user);
