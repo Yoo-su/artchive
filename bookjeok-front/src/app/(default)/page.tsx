@@ -2,6 +2,8 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 
 import { getPopularBooks, getRecentBookSales } from "@/features/book/apis";
+import { getPublisherBooksServer } from "@/features/book/apis/server";
+import { HOME_PUBLISHERS } from "@/features/book/constants";
 import { getReviews } from "@/features/review/apis";
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
@@ -32,6 +34,14 @@ export default async function Page() {
     queryClient.prefetchQuery({
       queryKey: QUERY_KEYS.reviewKeys.list({ page: 1, limit: 10 }).queryKey,
       queryFn: () => getReviews({ page: 1, limit: 10 }),
+    }),
+    // 첫 번째 출판사(민음사) 책 목록 prefetch - MainBookSlider 초기 로딩 최적화
+    queryClient.prefetchQuery({
+      queryKey: QUERY_KEYS.bookKeys.list({
+        query: HOME_PUBLISHERS[0],
+        display: 10,
+      }).queryKey,
+      queryFn: () => getPublisherBooksServer(HOME_PUBLISHERS[0], 10),
     }),
   ]);
 
