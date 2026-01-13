@@ -137,7 +137,7 @@ export const MainBookSlider = () => {
                       priority={true}
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
                     />
-                    <div className="book-info-overlay absolute inset-0 bg-black bg-opacity-0 flex flex-col justify-end items-center p-6 text-center opacity-0">
+                    <div className="book-info-overlay absolute inset-0 bg-black/0 flex flex-col justify-end items-center p-6 text-center opacity-0">
                       <h3 className="text-white font-bold text-xl md:text-2xl mb-2 drop-shadow-lg">
                         {book.title}
                       </h3>

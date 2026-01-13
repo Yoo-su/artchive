@@ -78,7 +78,7 @@ export function ReadingLogControls({
                   onValueChange={handleYearChange}
                   disabled={isLoading}
                 >
-                  <SelectTrigger className="h-8 w-[80px] border-none shadow-none focus:ring-0 font-bold text-lg px-1 bg-transparent hover:bg-gray-100">
+                  <SelectTrigger className="h-8 w-[90px] border-none shadow-none focus:ring-0 font-bold text-lg px-1 bg-transparent hover:bg-gray-100">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

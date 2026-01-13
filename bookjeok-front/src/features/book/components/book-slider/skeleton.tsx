@@ -35,10 +35,7 @@ export const RecentSalesSliderSkeleton = () => {
     <div className="w-full overflow-hidden px-4">
       <div className="flex gap-8 animate-pulse">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div
-            key={i}
-            className="flex flex-col items-center flex-shrink-0 w-40"
-          >
+          <div key={i} className="flex flex-col items-center shrink-0 w-40">
             {/* 실제 카드 이미지 영역과 동일한 크기 및 여백 */}
             <div className="w-40 h-40 mb-4">
               <Skeleton className="w-full h-full rounded-full" />
