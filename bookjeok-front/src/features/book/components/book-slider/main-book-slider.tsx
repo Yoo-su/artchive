@@ -128,7 +128,7 @@ export const MainBookSlider = () => {
                 className="w-[240px]! md:w-[300px]!"
               >
                 <Link href={PATHS.BOOK_DETAIL(book.isbn)} passHref>
-                  <div className="group relative w-full h-[360px] md:h-[450px] rounded-lg overflow-hidden shadow-2xl transform transition-transform duration-500">
+                  <div className="group relative w-full h-[360px] md:h-[450px] rounded-lg overflow-hidden shadow-2xl transform transition-transform duration-500 bg-gray-200">
                     <Image
                       src={book.image || "/images/placeholder-book.svg"}
                       alt={book.title}
