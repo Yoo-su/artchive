@@ -55,7 +55,7 @@ export const metadata: Metadata = {
   ],
   // 표준(canonical) URL 명시 - Google 중복 페이지 문제 해결
   alternates: {
-    canonical: "https://bookjeok.com",
+    canonical: "./",
   },
   openGraph: {
     title: "북적 - 책과 사람을 잇는 독서 플랫폼",
