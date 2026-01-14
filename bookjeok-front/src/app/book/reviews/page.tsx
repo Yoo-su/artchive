@@ -21,13 +21,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: "도서 리뷰 | 북적",
     description: "솔직한 책 리뷰를 읽고 나만의 독서 기록을 남겨보세요",
-    images: ["/logo.png"],
+    images: ["/logo-og.png"],
   },
   twitter: {
     card: "summary",
     title: "도서 리뷰 | 북적",
     description: "솔직한 책 리뷰를 읽고 나만의 독서 기록을 남겨보세요",
-    images: ["/logo.png"],
+    images: ["/logo-og.png"],
   },
 };
 

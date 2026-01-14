@@ -84,7 +84,7 @@ export const FullScreenLoader = () => {
             }}
           >
             <Image
-              src="/logo.svg"
+              src="/logo-square.svg"
               alt="북적"
               fill
               className="object-contain drop-shadow-lg"
@@ -147,7 +147,7 @@ const PopcornLogo = ({ index, total }: { index: number; total: number }) => {
     >
       <div className="relative w-6 h-6 opacity-80">
         <Image
-          src="/logo.svg"
+          src="/logo-square.svg"
           alt="mini-logo"
           fill
           className="object-contain"

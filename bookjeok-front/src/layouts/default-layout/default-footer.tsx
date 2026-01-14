@@ -16,7 +16,7 @@ export const DefaultFooter = () => {
           <div className="space-y-4 md:max-w-xs">
             <Link href={PATHS.HOME} className="flex items-center gap-1.5">
               <Image
-                src="/logo.svg"
+                src="/logo-square.svg"
                 alt="북적"
                 width={28}
                 height={28}

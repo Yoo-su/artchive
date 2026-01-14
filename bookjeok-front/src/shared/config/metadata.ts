@@ -13,8 +13,12 @@ export const metadata: Metadata = {
   },
   icons: {
     // 캐시 버스팅을 위해 버전 쿼리 추가 (Google favicon 업데이트 유도)
-    icon: "/favicon.ico?v=2",
-    apple: "/logo.png",
+    icon: [
+      { url: "/logo-square.svg", type: "image/svg+xml" },
+      { url: "/logo-square.png", type: "image/png", sizes: "512x512" },
+      { url: "/favicon.ico?v=2", sizes: "any" },
+    ],
+    apple: [{ url: "/logo-square.png", sizes: "512x512", type: "image/png" }],
   },
   description:
     "책과 사람을 잇는 북적. 솔직한 도서 리뷰를 공유하고, 중고책을 거래하며 새로운 독서 경험을 발견하세요.",
@@ -65,7 +69,7 @@ export const metadata: Metadata = {
     siteName: "북적",
     images: [
       {
-        url: "/logo.png",
+        url: "/logo-og.png",
         width: 1200,
         height: 630,
         alt: "북적 - 도서 리뷰와 중고책 거래 플랫폼",
@@ -79,7 +83,7 @@ export const metadata: Metadata = {
     title: "북적 - 책과 사람을 잇는 독서 플랫폼",
     description:
       "솔직한 도서 리뷰 공유, 중고책 거래까지. 북적에서 독서의 즐거움을 나눠보세요.",
-    images: ["/logo.png"],
+    images: ["/logo-og.png"],
   },
 
   robots: {
