@@ -3,6 +3,7 @@ import "@/styles/swiper.css";
 
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import Script from "next/script";
 
 import { Toaster } from "@/shared/components/shadcn/sonner";
 import { jsonLd } from "@/shared/config/json-ld";
@@ -36,11 +37,19 @@ export default async function Layout({
           <SpeedInsights />
         </QueryProvider>
         <Toaster position="bottom-center" />
-        <Toaster position="bottom-center" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        {process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID && (
+          <Script
+            id="google-adsense"
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID}`}
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
+        )}
       </body>
     </html>
   );
