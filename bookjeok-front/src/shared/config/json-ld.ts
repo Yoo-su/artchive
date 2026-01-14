@@ -15,6 +15,18 @@ export const jsonLd = {
       },
     },
     {
+      "@type": "Organization",
+      name: "북적",
+      url: "https://bookjeok.com",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://bookjeok.com/logo-square.svg",
+        width: "766",
+        height: "766",
+        encodingFormat: "image/svg+xml",
+      },
+    },
+    {
       "@type": "SiteNavigationElement",
       name: "중고마켓",
       url: "https://bookjeok.com/book/market",

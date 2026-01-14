@@ -19,7 +19,7 @@ export const Logo = () => {
     >
       <div className="relative w-9 h-9 transition-transform duration-500 ease-out group-hover:rotate-[-5deg] group-hover:scale-105">
         <Image
-          src="/logo.svg"
+          src="/logo-square.svg"
           alt="북적"
           width={36}
           height={36}

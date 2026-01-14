@@ -25,13 +25,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: "중고책 마켓 | 북적",
     description: "중고책을 사고파는 가장 쉬운 방법",
-    images: ["/logo.png"],
+    images: ["/logo-og.png"],
   },
   twitter: {
     card: "summary",
     title: "중고책 마켓 | 북적",
     description: "중고책을 사고파는 가장 쉬운 방법",
-    images: ["/logo.png"],
+    images: ["/logo-og.png"],
   },
 };
 
