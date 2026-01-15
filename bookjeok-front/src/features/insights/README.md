@@ -12,8 +12,9 @@
   - `useInsightsQuery`: 인사이트 데이터 조회 훅
 
 - **`components/`**: 인사이트 관련 UI 컴포넌트들
-  - `insights-header.tsx`: 대시보드 헤더 (요약 통계)
-  - `insights-map.tsx`: 지역별 거래 현황 지도
+  - `insight-card/index.tsx`: 각 차트 및 통계를 감싸는 카드 UI 컴포넌트
+  - `insights-header/index.tsx`: 대시보드 헤더 (요약 통계)
+  - `insights-map/index.tsx`: 지역별 거래 현황 지도
   - `insights-category-chart.tsx`: 카테고리별 리뷰 분포 차트
   - `insights-price-chart.tsx`: 가격대별 판매글 분포 차트
   - `insights-activity-chart.tsx`: 최근 30일 활동 추이 차트

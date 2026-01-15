@@ -4,19 +4,16 @@
 
 ## 1. 주요 파일 및 역할
 
--   **`features/auth/store.ts`**: **Zustand**를 사용하여 인증 상태를 관리하는 스토어입니다.
-    -   `user`: 로그인한 사용자 정보 객체.
-    -   `accessToken`, `refreshToken`: 백엔드로부터 받은 JWT.
-    -   `setUser`, `setTokens`, `clearAuth`: 상태를 변경하는 액션 함수.
-    -   `persist` 미들웨어를 사용하여 인증 상태를 `localStorage`에 저장하여 브라우저를 새로고침해도 로그인 상태가 유지되도록 합니다.
--   **`features/auth/apis.ts`**: 인증 관련 API를 호출하는 함수가 정의되어 있습니다. `getUserProfile` 함수는 저장된 Access Token을 이용해 현재 로그인된 사용자의 프로필 정보를 백엔드로부터 가져옵니다.
--   **`features/auth/components/auth-guard.tsx`**: 인증된 사용자만 접근할 수 있는 페이지를 보호하는 **HOC (Higher-Order Component)** 입니다.
-    -   `useAuthStore`를 통해 `user` 상태를 확인합니다.
-    -   사용자 정보가 없으면(로그인하지 않은 상태) 로그인 페이지(`/login`)로 강제 리다이렉트합니다.
--   **`features/auth/components/guest-guard.tsx`**: 인증되지 않은 사용자만 접근해야 하는 페이지(e.g., 로그인 페이지)를 위한 HOC입니다.
-    -   사용자 정보가 있으면(로그인한 상태) 메인 페이지(`/home`)로 리다이렉트합니다.
--   **`app/(auth)/login/page.tsx`**: 로그인 UI를 보여주는 페이지입니다. `guest-guard`로 감싸져 있습니다.
--   **`app/(auth)/callback/page.tsx`**: 소셜 로그인 후 백엔드 서버로부터 리다이렉트되는 콜백 페이지입니다. URL의 쿼리 파라미터로 전달된 `accessToken`, `refreshToken`, `user` 정보를 파싱하여 `useAuthStore`에 저장하고, 사용자를 홈 화면으로 이동시킵니다.
+- **`features/auth/store.ts`**: **Zustand**를 사용하여 인증 상태를 관리하는 스토어입니다.
+  - `user`: 로그인한 사용자 정보 객체.
+  - `accessToken`, `refreshToken`: 백엔드로부터 받은 JWT.
+  - `setUser`, `setTokens`, `clearAuth`: 상태를 변경하는 액션 함수.
+  - `persist` 미들웨어를 사용하여 인증 상태를 `localStorage`에 저장하여 브라우저를 새로고침해도 로그인 상태가 유지되도록 합니다.
+- **`features/auth/apis.ts`**: 인증 관련 API를 호출하는 함수가 정의되어 있습니다. `getUserProfile` 함수는 저장된 Access Token을 이용해 현재 로그인된 사용자의 프로필 정보를 백엔드로부터 가져옵니다.
+- **`features/auth/components/auth-guard/index.tsx`**: 인증된 사용자만 접근할 수 있는 페이지를 보호하는 **HOC (Higher-Order Component)** 입니다.
+- **`features/auth/components/guest-guard/index.tsx`**: 인증되지 않은 사용자만 접근해야 하는 페이지(e.g., 로그인 페이지)를 위한 HOC입니다.
+- **`app/(auth)/login/page.tsx`**: 로그인 UI를 보여주는 페이지입니다. `guest-guard`로 감싸져 있습니다.
+- **`app/(auth)/callback/page.tsx`**: 소셜 로그인 후 백엔드 서버로부터 리다이렉트되는 콜백 페이지입니다. URL의 쿼리 파라미터로 전달된 `accessToken`, `refreshToken`, `user` 정보를 파싱하여 `useAuthStore`에 저장하고, 사용자를 홈 화면으로 이동시킵니다.
 
 ## 2. 핵심 로직 흐름
 
@@ -35,14 +32,14 @@ sequenceDiagram
 
     User->>LoginPage: 1. 소셜 로그인 버튼 클릭 (e.g., Kakao)
     LoginPage->>Backend: 2. `window.location.href` 변경으로<br/>`GET /auth/kakao` 요청
-    
+
     Note over Backend: 서버 측 소셜 로그인 처리 (이전 문서 참고)
 
     Backend-->>CallbackPage: 3. 토큰과 사용자 정보를 쿼리에 담아 리다이렉트
-    
+
     CallbackPage->>CallbackPage: 4. URL 쿼리 파라미터 파싱
     CallbackPage->>AuthStore: 5. `setTokens()`, `setUser()` 호출하여 상태 저장
-    
+
     CallbackPage->>HomePage: 6. `router.replace('/home')`로 페이지 이동
 
     User->>HomePage: 7. 인증이 필요한 페이지/컴포넌트 렌더링
