@@ -6,6 +6,7 @@ import { MainBookSlider } from "@/features/book/components/book-slider/main-book
 import { PopularBookSlider } from "@/features/book/components/book-slider/popular-book-slider";
 import { RecentSalesSlider } from "@/features/book/components/book-slider/recent-sale-slider";
 import { RecentReviewSlider } from "@/features/review/components/recent-review-slider";
+import { AdBanner } from "@/shared/components/ads/ad-banner";
 
 export const MainView = () => {
   return (
@@ -15,6 +16,13 @@ export const MainView = () => {
       <PopularBookSlider />
 
       <RecentSalesSlider />
+
+      {/* 광고 배너 */}
+      <AdBanner
+        dataAdSlot="9804554356"
+        dataAdFormat="horizontal"
+        className="w-full my-4"
+      />
 
       <RecentReviewSlider />
 

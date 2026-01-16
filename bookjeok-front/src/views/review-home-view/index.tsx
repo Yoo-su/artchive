@@ -8,6 +8,7 @@ import { ReviewFeedList } from "@/features/review/components/review-feed-list";
 import { ReviewGridList } from "@/features/review/components/review-grid-list";
 import { ReviewHomeFilters } from "@/features/review/components/review-home-filters";
 import { ReviewHomeHero } from "@/features/review/components/review-home-hero";
+import { AdBanner } from "@/shared/components/ads/ad-banner";
 import { PATHS } from "@/shared/constants/paths";
 
 export const ReviewHomeView = () => {
@@ -63,6 +64,13 @@ export const ReviewHomeView = () => {
       />
 
       <section className="mb-20 container mx-auto">
+        {/* 광고 배너 */}
+        <AdBanner
+          dataAdSlot="6903058843"
+          dataAdFormat="horizontal"
+          className="w-full mb-8"
+        />
+
         {!isFiltered ? (
           <>
             <PopularReviewList />

@@ -8,6 +8,7 @@ import { CommentSection } from "@/features/comment/components/comment-section";
 import { CommentTargetType } from "@/features/comment/types";
 import { useReviewDetailQuery } from "@/features/review/queries";
 import { Review } from "@/features/review/types";
+import { AdBanner } from "@/shared/components/ads/ad-banner";
 import { Button } from "@/shared/components/shadcn/button";
 import { NotFoundRedirect } from "@/shared/components/ui/not-found-redirect";
 import { ScrollTopButton } from "@/shared/components/ui/scroll-top-button";
@@ -57,6 +58,13 @@ export const ReviewDetail = ({ id, initialReview }: ReviewDetailProps) => {
         <ReviewDetailActions
           reviewId={String(id)}
           reactionCounts={review.reactionCounts}
+        />
+
+        {/* 광고 배너 */}
+        <AdBanner
+          dataAdSlot="3367138518"
+          dataAdFormat="horizontal"
+          className="w-full my-8"
         />
 
         {/* 댓글 섹션 */}
