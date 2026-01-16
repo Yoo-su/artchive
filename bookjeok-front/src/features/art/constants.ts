@@ -2,16 +2,16 @@ import { ArtDomain, CityCode, Genre, PrfState } from "./types";
 
 export const DEFAULT_ROWS = "100";
 export const DEFAULT_PAGE = "1";
-export const DEFAULT_GENRE: Genre = "AAAA";
+export const DEFAULT_GENRE: Genre = "CCCA";
 export const DEFAULT_PRFSTATE: PrfState = "01";
 export const DEFAULT_CITY_CODE: CityCode = "11";
 
 export const MAIN_ARTS: Array<ArtDomain> = [
-  //{ genreCode: "AAAA", title: "연극" },
-  { genreCode: "BBBC", title: "서양/한국 무용" },
-  { genreCode: "BBBE", title: "대중무용" },
   { genreCode: "CCCA", title: "서양음악" },
   { genreCode: "CCCD", title: "대중음악" },
+  { genreCode: "BBBE", title: "대중무용" },
+  { genreCode: "AAAA", title: "연극" },
+  { genreCode: "BBBC", title: "서양/한국 무용" },
 ];
 
 /**
