@@ -12,7 +12,7 @@ export const RecommendReviewsSkeleton = () => {
         <Skeleton className="h-9 w-16" />
       </div>
 
-      <div className="flex gap-4 overflow-hidden">
+      <div className="flex gap-4 overflow-hidden p-1">
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="min-w-[280px] sm:min-w-[320px]">
             <ReviewCardSkeleton />
