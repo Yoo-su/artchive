@@ -2,6 +2,7 @@
 
 import { BookMarket } from "@/features/book/components/book-market";
 import { PopularBookSaleList } from "@/features/book/components/book-market/popular-book-sale-list";
+import { AdBanner } from "@/shared/components/ads/ad-banner";
 
 export const BookMarketView = () => {
   return (
@@ -14,6 +15,13 @@ export const BookMarketView = () => {
           원하는 책을 찾아보세요! 다양한 중고 서적들이 있습니다.
         </p>
       </section>
+
+      {/* 광고 배너 */}
+      <AdBanner
+        dataAdSlot="4727503402"
+        dataAdFormat="horizontal"
+        className="w-full mb-8"
+      />
 
       <div className="mb-8">
         <PopularBookSaleList />
