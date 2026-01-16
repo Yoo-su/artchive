@@ -14,6 +14,7 @@ function makeQueryClient() {
         gcTime: 30 * 60 * 1000,
         retry: 1,
         refetchOnWindowFocus: false,
+        refetchOnMount: false,
       },
       dehydrate: {
         // dehydration 시 pending 상태인 쿼리도 포함합니다.
