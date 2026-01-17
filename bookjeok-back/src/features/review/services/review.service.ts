@@ -293,7 +293,7 @@ export class ReviewService {
     const SCORE_FORMULA = `
       ((COALESCE(review.viewCount, 0) * 1 + 
         COALESCE(review.reactionCount, 0) * 3 + 
-        COALESCE("commentCount", 0) * 5) 
+        COUNT(comment.id) * 5) 
       / POW((EXTRACT(EPOCH FROM (NOW() - review.createdAt)) / 3600) + 2, 1.5)) 
       * (RANDOM() * 0.5 + 0.8)
     `;
@@ -302,23 +302,20 @@ export class ReviewService {
     // Raw Result 타입 정의
     interface PopularReviewRawResult {
       id: number;
-      commentCount: string;
       score: number;
     }
 
     const idResults = await this.reviewsRepository
       .createQueryBuilder('review')
       .select('review.id', 'id')
-      // Comment Count Subquery
-      .addSelect((subQuery) => {
-        return subQuery
-          .select('COUNT(comment.id)', 'commentCount')
-          .from('comments', 'comment')
-          .where("comment.targetType = 'REVIEW'")
-          .andWhere('comment.targetId = CAST(review.id AS VARCHAR)');
-      }, 'commentCount')
+      .leftJoin(
+        'comments',
+        'comment',
+        "comment.targetType = 'REVIEW' AND comment.targetId = CAST(review.id AS VARCHAR)",
+      )
       .addSelect(SCORE_FORMULA, 'score')
       .where('review.createdAt >= :cutoffDate', { cutoffDate: sixMonthsAgo })
+      .groupBy('review.id')
       .orderBy('score', 'DESC')
       .take(5)
       .getRawMany<PopularReviewRawResult>();
