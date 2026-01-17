@@ -80,7 +80,10 @@ export const RelatedReviews = ({ isbn }: RelatedReviewsProps) => {
           className="w-full overflow-visible! [clip-path:inset(-100px_-10px)]"
         >
           {reviews.map((review, index) => (
-            <SwiperSlide key={review.id} className="w-[320px]! sm:w-[380px]!">
+            <SwiperSlide
+              key={review.id}
+              className="w-[320px]! sm:w-[380px]! select-none"
+            >
               <ReviewCard review={review} priority={index < 2} />
             </SwiperSlide>
           ))}

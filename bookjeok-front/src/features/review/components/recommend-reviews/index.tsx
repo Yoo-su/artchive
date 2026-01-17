@@ -89,7 +89,7 @@ export const RecommendReviews = ({ id, category }: RecommendReviewsProps) => {
         {reviews.map((review, index) => (
           <SwiperSlide
             key={review.id}
-            className="w-[280px]! sm:w-[320px]! h-auto"
+            className="w-[280px]! sm:w-[320px]! h-auto select-none"
           >
             <ReviewCard review={review} priority={index < 2} />
           </SwiperSlide>

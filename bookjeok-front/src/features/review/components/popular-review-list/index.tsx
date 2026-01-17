@@ -58,7 +58,7 @@ export function PopularReviewList() {
           className="w-full px-1! pt-2! pb-4!"
         >
           {reviews.map((review) => (
-            <SwiperSlide key={review.id} className="h-auto!">
+            <SwiperSlide key={review.id} className="h-auto! select-none">
               <PopularReviewItem review={review} />
             </SwiperSlide>
           ))}

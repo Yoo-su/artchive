@@ -79,7 +79,7 @@ export function ReviewFeedList() {
             {feed.reviews.map((review) => (
               <SwiperSlide
                 key={review.id}
-                className="w-[280px]! sm:w-[320px]! h-auto"
+                className="w-[280px]! sm:w-[320px]! h-auto select-none"
               >
                 <ReviewCard review={review} />
               </SwiperSlide>

@@ -1,5 +1,6 @@
 "use client";
 
+import { FreeMode } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { BookSaleCard } from "@/features/book/components/common/book-sale-card";
@@ -57,6 +58,8 @@ export function PopularBookSaleList() {
       </div>
 
       <Swiper
+        modules={[FreeMode]}
+        freeMode={true}
         spaceBetween={16}
         slidesPerView={1.3}
         breakpoints={{
@@ -64,10 +67,10 @@ export function PopularBookSaleList() {
           768: { slidesPerView: 3.2 },
           1024: { slidesPerView: 4.2 },
         }}
-        className="w-full px-1! pb-4!"
+        className="w-full px-1! py-4!"
       >
         {sales.map((sale, index) => (
-          <SwiperSlide key={sale.id}>
+          <SwiperSlide key={sale.id} className="select-none">
             <BookSaleCard
               sale={sale}
               rank={index + 1}
