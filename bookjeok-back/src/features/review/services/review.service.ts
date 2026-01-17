@@ -283,27 +283,65 @@ export class ReviewService {
 
   /**
    * 인기 리뷰를 조회합니다.
-   * 인기 점수 = (조회수 * 1) + (리액션 수 * 3)
    */
   async findPopular(): Promise<ReviewResponseDto[]> {
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-    const reviews = await this.reviewsRepository
+    // 1. 점수 계산 공식
+    // (조회수 + 리액션*3 + 댓글*5) / (시간감가^1.5) * 랜덤요소
+    const SCORE_FORMULA = `
+      ((COALESCE(review.viewCount, 0) * 1 + 
+        COALESCE(review.reactionCount, 0) * 3 + 
+        COALESCE("commentCount", 0) * 5) 
+      / POW((EXTRACT(EPOCH FROM (NOW() - review.createdAt)) / 3600) + 2, 1.5)) 
+      * (RANDOM() * 0.5 + 0.8)
+    `;
+
+    // 2. 점수 계산 및 ID 조회 (Join 최소화하여 정확한 5개 추출)
+    // Raw Result 타입 정의
+    interface PopularReviewRawResult {
+      id: number;
+      commentCount: string;
+      score: number;
+    }
+
+    const idResults = await this.reviewsRepository
       .createQueryBuilder('review')
-      .leftJoinAndSelect('review.user', 'user')
-      .leftJoinAndSelect('review.book', 'book')
-      .leftJoinAndSelect('review.tagEntities', 'tagEntities')
+      .select('review.id', 'id')
+      // Comment Count Subquery
+      .addSelect((subQuery) => {
+        return subQuery
+          .select('COUNT(comment.id)', 'commentCount')
+          .from('comments', 'comment')
+          .where("comment.targetType = 'REVIEW'")
+          .andWhere('comment.targetId = CAST(review.id AS VARCHAR)');
+      }, 'commentCount')
+      .addSelect(SCORE_FORMULA, 'score')
       .where('review.createdAt >= :cutoffDate', { cutoffDate: sixMonthsAgo })
-      .addSelect(
-        '((COALESCE(review.viewCount, 0) * 1 + COALESCE(review.reactionCount, 0) * 3) / POW((EXTRACT(EPOCH FROM (NOW() - review.createdAt)) / 3600) + 2, 1.5)) * (RANDOM() * 0.5 + 0.8)',
-        'score',
-      )
       .orderBy('score', 'DESC')
       .take(5)
-      .getMany();
+      .getRawMany<PopularReviewRawResult>();
 
-    return this.attachReactionCounts(reviews);
+    if (idResults.length === 0) {
+      return [];
+    }
+
+    const ids = idResults.map((r) => r.id);
+
+    // 3. 엔티티 상세 조회 (Join 포함)
+    const reviews = await this.reviewsRepository.find({
+      where: { id: In(ids) },
+      relations: ['user', 'book', 'tagEntities'],
+    });
+
+    // 4. 점수 순서대로 재정렬 (DB에서 가져온 순서는 보장되지 않으므로)
+    const reviewMap = new Map(reviews.map((r) => [r.id, r]));
+    const sortedReviews = ids
+      .map((id) => reviewMap.get(id))
+      .filter((r): r is Review => !!r);
+
+    return this.attachReactionCounts(sortedReviews);
   }
 
   /**
