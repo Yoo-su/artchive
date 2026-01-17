@@ -2,40 +2,63 @@
 
 import debounce from "lodash/debounce";
 import { Search } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { Input } from "@/shared/components/shadcn/input";
 
-import { useBookSearchStore } from "../../stores/use-book-search-store";
+interface BookSearchInputProps {
+  /** 쿼리 파라미터 이름 (기본값: "q") */
+  paramName?: string;
+}
 
-export const BookSearchInput = () => {
-  const query = useBookSearchStore((state) => state.query);
-  const setQuery = useBookSearchStore((state) => state.setQuery);
-  const [inputValue, setInputValue] = useState(query);
+/**
+ * 도서 검색 인풋 컴포넌트
+ * - URL search params 기반으로 검색어 관리
+ * - debounce 적용으로 타이핑 중 불필요한 URL 업데이트 방지
+ */
+export const BookSearchInput = ({ paramName = "q" }: BookSearchInputProps) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const debouncedSetQuery = useMemo(
+  // URL에서 현재 검색어 가져오기
+  const queryFromUrl = searchParams.get(paramName) || "";
+  const [inputValue, setInputValue] = useState(queryFromUrl);
+
+  // URL 변경 시 인풋 값 동기화 (뒤로가기/앞으로가기 지원)
+  useEffect(() => {
+    setInputValue(queryFromUrl);
+  }, [queryFromUrl]);
+
+  // debounce된 URL 업데이트
+  const debouncedUpdateUrl = useMemo(
     () =>
       debounce((value: string) => {
-        setQuery(value);
+        const params = new URLSearchParams(searchParams.toString());
+        if (value) {
+          params.set(paramName, value);
+        } else {
+          params.delete(paramName);
+        }
+        const queryString = params.toString();
+        router.replace(`${pathname}${queryString ? `?${queryString}` : ""}`, {
+          scroll: false,
+        });
       }, 500),
-    [setQuery]
+    [router, pathname, searchParams, paramName],
   );
-
-  // 외부 쿼리 변경 시 인풋 값 동기화 (Sticky Search Bar 등과 연동)
-  useEffect(() => {
-    setInputValue(query);
-  }, [query]);
 
   useEffect(() => {
     return () => {
-      debouncedSetQuery.cancel();
+      debouncedUpdateUrl.cancel();
     };
-  }, [debouncedSetQuery]);
+  }, [debouncedUpdateUrl]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
-    debouncedSetQuery(value);
+    debouncedUpdateUrl(value);
   };
 
   return (

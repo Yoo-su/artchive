@@ -1,17 +1,31 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
 import { useInfiniteBookSearch } from "@/features/book/queries";
-import { useBookSearchStore } from "@/features/book/stores/use-book-search-store";
 
 import { BookCard } from "../../common/book-card";
 import { BookSearchResultListSkeleton } from "./skeleton";
 
-export const BookSearchResultList = () => {
-  const query = useBookSearchStore((state) => state.query);
+interface BookSearchResultListProps {
+  /** 쿼리 파라미터 이름 (기본값: "q") */
+  paramName?: string;
+}
+
+/**
+ * 도서 검색 결과 목록
+ * - URL search params에서 검색어를 읽어 쿼리 실행
+ * - 무한 스크롤 지원
+ */
+export const BookSearchResultList = ({
+  paramName = "q",
+}: BookSearchResultListProps) => {
+  const searchParams = useSearchParams();
+  const query = searchParams.get(paramName) || "";
+
   const {
     data,
     error,
@@ -51,7 +65,9 @@ export const BookSearchResultList = () => {
   if (query && status === "success" && data?.pages[0].items.length === 0) {
     return (
       <div className="py-20 text-center text-gray-500">
-        <p className="text-lg">'{query}'에 대한 검색 결과가 없습니다.</p>
+        <p className="text-lg">
+          &apos;{query}&apos;에 대한 검색 결과가 없습니다.
+        </p>
         <p className="mt-2 text-sm">
           오타가 없는지 확인하거나 다른 검색어로 검색해보세요.
         </p>
@@ -79,7 +95,7 @@ export const BookSearchResultList = () => {
               key={book.isbn || `book-${pageIndex}-${bookIndex}`}
               book={book}
             />
-          ))
+          )),
         )}
       </div>
 

@@ -2,53 +2,80 @@
 
 import debounce from "lodash/debounce";
 import { Search, X } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { useBookSearchStore } from "@/features/book/stores/use-book-search-store";
 import { Input } from "@/shared/components/shadcn/input";
 import { cn } from "@/shared/utils/cn";
 
 interface StickyBookSearchBarProps {
   isVisible: boolean;
+  /** 쿼리 파라미터 이름 (기본값: "q") */
+  paramName?: string;
 }
 
+/**
+ * 스크롤 시 나타나는 Sticky 검색바
+ * - URL search params 기반으로 검색어 관리
+ * - 메인 검색 인풋과 URL을 통해 자동 동기화
+ */
 export const StickyBookSearchBar = ({
   isVisible,
+  paramName = "q",
 }: StickyBookSearchBarProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const query = useBookSearchStore((state) => state.query);
-  const setQuery = useBookSearchStore((state) => state.setQuery);
-  const [inputValue, setInputValue] = useState(query);
+  // URL에서 현재 검색어 가져오기
+  const queryFromUrl = searchParams.get(paramName) || "";
+  const [inputValue, setInputValue] = useState(queryFromUrl);
 
-  // 메인 검색어와 동기화
+  // URL 변경 시 인풋 값 동기화 (뒤로가기/앞으로가기 지원)
   useEffect(() => {
-    setInputValue(query);
-  }, [query]);
+    setInputValue(queryFromUrl);
+  }, [queryFromUrl]);
 
-  const debouncedSetQuery = useMemo(
+  // debounce된 URL 업데이트
+  const debouncedUpdateUrl = useMemo(
     () =>
       debounce((value: string) => {
-        setQuery(value);
+        const params = new URLSearchParams(searchParams.toString());
+        if (value) {
+          params.set(paramName, value);
+        } else {
+          params.delete(paramName);
+        }
+        const queryString = params.toString();
+        router.replace(`${pathname}${queryString ? `?${queryString}` : ""}`, {
+          scroll: false,
+        });
       }, 500),
-    [setQuery]
+    [router, pathname, searchParams, paramName],
   );
 
   useEffect(() => {
     return () => {
-      debouncedSetQuery.cancel();
+      debouncedUpdateUrl.cancel();
     };
-  }, [debouncedSetQuery]);
+  }, [debouncedUpdateUrl]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
-    debouncedSetQuery(value);
+    debouncedUpdateUrl(value);
   };
 
   const handleClear = () => {
     setInputValue("");
-    setQuery("");
+    // 즉시 URL 업데이트 (debounce 없이)
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(paramName);
+    const queryString = params.toString();
+    router.replace(`${pathname}${queryString ? `?${queryString}` : ""}`, {
+      scroll: false,
+    });
     inputRef.current?.focus();
   };
 
@@ -58,7 +85,7 @@ export const StickyBookSearchBar = ({
         "fixed top-0 left-0 right-0 z-50 flex items-center justify-center py-4 px-4 transition-all duration-500 ease-in-out transform",
         isVisible
           ? "translate-y-0 opacity-100"
-          : "-translate-y-full opacity-0 pointer-events-none"
+          : "-translate-y-full opacity-0 pointer-events-none",
       )}
     >
       <div className="absolute inset-x-0 top-0 h-full bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100/50" />
