@@ -8,7 +8,7 @@ import { RecentSalesSlider } from "@/features/book/components/book-slider/recent
 import { RecentReviewSlider } from "@/features/review/components/recent-review-slider";
 import { AdBanner } from "@/shared/components/ads/ad-banner";
 
-export const MainView = () => {
+export const HomeView = () => {
   return (
     <div className="flex flex-col gap-8">
       <MainBookSlider />
@@ -45,4 +45,4 @@ export const MainView = () => {
   );
 };
 
-export default MainView;
+export default HomeView;

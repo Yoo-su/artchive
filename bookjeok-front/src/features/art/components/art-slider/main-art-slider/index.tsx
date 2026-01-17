@@ -104,7 +104,7 @@ export const MainArtSlider = ({
             {items.map((item) => (
               <SwiperSlide
                 key={item.mt20id}
-                className="w-[260px]! sm:w-[300px]!"
+                className="w-[260px]! sm:w-[300px]! select-none"
               >
                 <MainArtCard item={item} />
               </SwiperSlide>

@@ -72,7 +72,7 @@ export const RecentReviewSlider = () => {
         className="px-4! overflow-visible! [clip-path:inset(-100px_-10px)]"
       >
         {reviews.map((review) => (
-          <SwiperSlide key={review.id} className="w-[260px]! py-4">
+          <SwiperSlide key={review.id} className="w-[260px]! py-4 select-none">
             <SliderReviewCard review={review} />
           </SwiperSlide>
         ))}

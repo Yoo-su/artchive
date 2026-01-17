@@ -7,7 +7,7 @@ export function RelatedSalesSkeleton() {
     <div className="mt-8">
       <Swiper spaceBetween={16} slidesPerView={"auto"} className="p-1!">
         {[...Array(4)].map((_, i) => (
-          <SwiperSlide key={i} className="w-[250px]! py-8">
+          <SwiperSlide key={i} className="w-[250px]! py-8 select-none">
             <BookSaleCard.Skeleton />
           </SwiperSlide>
         ))}

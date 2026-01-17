@@ -7,7 +7,7 @@ import { HOME_PUBLISHERS } from "@/features/book/constants";
 import { getReviews } from "@/features/review/apis";
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
-import { MainView } from "@/views/main-view";
+import { HomeView } from "@/views/home-view";
 
 export const revalidate = 60;
 
@@ -47,7 +47,7 @@ export default async function Page() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <MainView />
+      <HomeView />
     </HydrationBoundary>
   );
 }

@@ -62,7 +62,7 @@ export function ReviewHomeFilters({
           className="w-full"
         >
           {BOOK_DOMAINS.map((category) => (
-            <SwiperSlide key={category} className="w-auto!">
+            <SwiperSlide key={category} className="w-auto! select-none">
               <Badge
                 variant={selectedCategory === category ? "default" : "outline"}
                 className={cn(

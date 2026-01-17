@@ -213,7 +213,7 @@ export const ArtDetail = ({ artId }: ArtDetailProps) => {
                 className="rounded-2xl overflow-hidden shadow-sm"
               >
                 {introImages.map((imgSrc, index) => (
-                  <SwiperSlide key={index} className="aspect-video">
+                  <SwiperSlide key={index} className="aspect-video select-none">
                     <a href={imgSrc} target="_blank" rel="noopener noreferrer">
                       <Image
                         src={imgSrc}

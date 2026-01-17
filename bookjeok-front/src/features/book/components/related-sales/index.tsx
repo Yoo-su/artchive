@@ -80,7 +80,7 @@ export const RelatedSales = ({ isbn }: RelatedSalesProps) => {
           className="w-full overflow-visible! [clip-path:inset(-100px_-10px)]"
         >
           {sales.map((sale, index) => (
-            <SwiperSlide key={sale.id} className="w-[260px]!">
+            <SwiperSlide key={sale.id} className="w-[260px]! select-none">
               <BookSaleCard sale={sale} idx={index} />
             </SwiperSlide>
           ))}

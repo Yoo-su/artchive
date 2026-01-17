@@ -52,7 +52,10 @@ export const PopularBookSlider = () => {
           className="w-full"
         >
           {books.map((book, index) => (
-            <SwiperSlide key={book.isbn} className="w-[140px]! sm:w-[160px]!">
+            <SwiperSlide
+              key={book.isbn}
+              className="w-[140px]! sm:w-[160px]! select-none"
+            >
               <Link href={PATHS.BOOK_DETAIL(book.isbn)} passHref>
                 <div className="group">
                   {/* 책 표지 */}
