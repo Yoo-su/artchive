@@ -190,17 +190,17 @@ export class BookService {
    * 조회수 내림차순, 최신순으로 정렬하여 상위 6개를 반환합니다.
    */
   async findPopularSales(): Promise<UsedBookSale[]> {
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
     return await this.usedBookSaleRepository
       .createQueryBuilder('sale')
       .leftJoinAndSelect('sale.user', 'user')
       .leftJoinAndSelect('sale.book', 'book')
       .where('sale.status = :status', { status: SaleStatus.FOR_SALE })
-      .andWhere('sale.createdAt >= :cutoffDate', { cutoffDate: threeMonthsAgo })
+      .andWhere('sale.createdAt >= :cutoffDate', { cutoffDate: sixMonthsAgo })
       .addSelect(
-        '(COALESCE(sale.viewCount, 0)) / POW((EXTRACT(EPOCH FROM (NOW() - sale.createdAt)) / 3600) + 2, 1.8)',
+        '((COALESCE(sale.viewCount, 0)) / POW((EXTRACT(EPOCH FROM (NOW() - sale.createdAt)) / 3600) + 2, 1.5)) * (RANDOM() * 0.5 + 0.8)',
         'score',
       )
       .orderBy('score', 'DESC')
