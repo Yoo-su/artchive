@@ -14,7 +14,6 @@
   - `useUpdateBookSaleStatusMutation`: 판매글의 상태(판매중, 예약중, 판매완료)를 변경합니다. **낙관적 업데이트(Optimistic Update)**를 적용하여 빠른 UI 반응성을 제공합니다.
   - `useDeleteBookSaleMutation`: 판매글과 연결된 이미지를 함께 삭제합니다.
 - **`features/book/stores/`**: 도서 관련 클라이언트 상태를 관리하는 Zustand 스토어입니다.
-  - `useBookSearchStore`: 도서 검색 페이지의 검색어(`query`) 상태를 관리합니다.
   - `useRecentBookStore`: 최근 본 책 목록을 `sessionStorage`에 저장하고 관리합니다.
 - **`views/`**: `book` 기능과 관련된 주요 페이지 UI 컴포넌트입니다.
   - `book-search-view`: 도서 검색 페이지 UI.
