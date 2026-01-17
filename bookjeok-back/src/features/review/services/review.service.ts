@@ -317,7 +317,7 @@ export class ReviewService {
       .where('review.createdAt >= :cutoffDate', { cutoffDate: sixMonthsAgo })
       .groupBy('review.id')
       .orderBy('score', 'DESC')
-      .take(5)
+      .limit(6)
       .getRawMany<PopularReviewRawResult>();
 
     if (idResults.length === 0) {
