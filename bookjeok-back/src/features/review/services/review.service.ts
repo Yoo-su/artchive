@@ -286,13 +286,17 @@ export class ReviewService {
    * 인기 점수 = (조회수 * 1) + (리액션 수 * 3)
    */
   async findPopular(): Promise<ReviewResponseDto[]> {
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
     const reviews = await this.reviewsRepository
       .createQueryBuilder('review')
       .leftJoinAndSelect('review.user', 'user')
       .leftJoinAndSelect('review.book', 'book')
       .leftJoinAndSelect('review.tagEntities', 'tagEntities')
+      .where('review.createdAt >= :cutoffDate', { cutoffDate: threeMonthsAgo })
       .addSelect(
-        '(COALESCE(review.viewCount, 0) * 1 + COALESCE(review.reactionCount, 0) * 3)',
+        '(COALESCE(review.viewCount, 0) * 1 + COALESCE(review.reactionCount, 0) * 3) / POW((EXTRACT(EPOCH FROM (NOW() - review.createdAt)) / 3600) + 2, 1.8)',
         'score',
       )
       .orderBy('score', 'DESC')
