@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { BookOpen, Pencil, Trash2 } from "lucide-react";
+import { BookOpen, Lock, Pencil, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -69,6 +69,13 @@ export function ReviewCard({
             </div>
           )}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
+          {/* 비공개 뱃지 */}
+          {!review.isPublic && (
+            <div className="absolute top-2 left-2 flex items-center gap-1 bg-stone-700/80 text-white text-[10px] px-2 py-0.5 rounded-full">
+              <Lock className="h-2.5 w-2.5" />
+              비공개
+            </div>
+          )}
         </div>
 
         {/* 콘텐츠 (우측) */}

@@ -30,7 +30,7 @@ export function ReviewGridList({
   onEditReview,
   userId,
 }: ReviewGridListProps) {
-  // 1. 데이터 조회
+  // 데이터 조회
   const {
     data,
     isLoading,
@@ -45,7 +45,7 @@ export function ReviewGridList({
     userId,
   });
 
-  // 2. 무한 스크롤
+  // 무한 스크롤 감지
   const { ref, inView } = useInView();
 
   useEffect(() => {
@@ -54,12 +54,12 @@ export function ReviewGridList({
     }
   }, [inView, hasNextPage, fetchNextPage]);
 
-  // 3. 로딩 가드 (초기 로딩)
+  // 로딩 상태
   if (isLoading) {
     return <ReviewGridListSkeleton />;
   }
 
-  // 4. 에러 가드
+  // 에러 발생 시
   if (isError) {
     return (
       <div className="py-32 flex flex-col items-center justify-center text-red-500">
@@ -73,7 +73,7 @@ export function ReviewGridList({
 
   const reviews = data?.pages.flatMap((page) => page.reviews) || [];
 
-  // 5. 빈 상태 가드
+  // 결과 없음
   if (reviews.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-32 text-center">
@@ -111,7 +111,6 @@ export function ReviewGridList({
     );
   }
 
-  // 6. 성공 렌더링
   return (
     <div className="space-y-10">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">

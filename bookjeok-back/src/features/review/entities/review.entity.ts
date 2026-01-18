@@ -61,6 +61,9 @@ export class Review {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Column({ default: true })
+  isPublic: boolean;
+
   @OneToMany(() => ReviewReaction, (reaction) => reaction.review)
   reactions: ReviewReaction[];
 

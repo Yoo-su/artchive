@@ -42,7 +42,7 @@ export const ReviewEdit = ({ id }: ReviewEditProps) => {
 
   const handleSubmit = async (
     data: ReviewFormValues,
-    deletedImageUrls?: string[]
+    deletedImageUrls?: string[],
   ) => {
     await updateReview({ id, data, deletedImageUrls });
     router.push(PATHS.REVIEW_DETAIL(id));
@@ -66,6 +66,7 @@ export const ReviewEdit = ({ id }: ReviewEditProps) => {
     category: review.category || "",
     tags: review.tags || [],
     rating: review.rating || 0,
+    isPublic: review.isPublic,
     book: review.book,
   };
 

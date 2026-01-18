@@ -1,14 +1,11 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useInView } from "react-intersection-observer";
 
 import { useAuthStore } from "@/features/auth/store";
 import { ReviewGridList } from "@/features/review/components/review-grid-list";
 import { useDeleteReviewMutation } from "@/features/review/mutations";
-import { useReviewsInfiniteQuery } from "@/features/review/queries";
 import { PATHS } from "@/shared/constants/paths";
 
 export const MyReviewList = () => {

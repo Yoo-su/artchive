@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BookOpen, Loader2 } from "lucide-react";
+import { BookOpen, Info, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -31,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/shadcn/select";
+import { Switch } from "@/shared/components/shadcn/switch";
 import { StarRating } from "@/shared/components/ui/star-rating";
 import { useEditorImageHandler } from "@/shared/hooks/use-editor-image-handler";
 
@@ -44,11 +45,12 @@ interface ReviewFormProps {
     category: string;
     tags: string[];
     rating: number;
+    isPublic?: boolean;
     book?: Book;
   };
   onSubmit: (
     data: ReviewFormValues,
-    deletedImageUrls?: string[]
+    deletedImageUrls?: string[],
   ) => Promise<void>;
   submitLabel?: string;
   isSubmitting?: boolean;
@@ -68,7 +70,7 @@ export const ReviewForm = ({
 }: ReviewFormProps) => {
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState<Book | null>(
-    initialData?.book || null
+    initialData?.book || null,
   );
   const [tagInput, setTagInput] = useState("");
   const { user } = useAuthStore();
@@ -88,6 +90,7 @@ export const ReviewForm = ({
       category: initialData?.category || "",
       tags: initialData?.tags || [],
       rating: initialData?.rating || 0,
+      isPublic: initialData?.isPublic ?? true,
     },
   });
 
@@ -120,7 +123,7 @@ export const ReviewForm = ({
     const currentTags = form.getValues("tags");
     form.setValue(
       "tags",
-      currentTags.filter((tag) => tag !== tagToRemove)
+      currentTags.filter((tag) => tag !== tagToRemove),
     );
   };
 
@@ -137,7 +140,7 @@ export const ReviewForm = ({
     form.setValue("bookIsbn", "");
   };
 
-  const handleSubmit = async (data: ReviewFormValues) => {
+  const handleSubmit = async (data: ReviewSchemaValues) => {
     const { content, deletedImageUrls } = await uploadImages(data.content);
 
     await onSubmit(
@@ -155,7 +158,7 @@ export const ReviewForm = ({
             }
           : undefined,
       },
-      deletedImageUrls
+      deletedImageUrls,
     );
   };
 
@@ -371,6 +374,45 @@ export const ReviewForm = ({
                 </FormControl>
                 <FormMessage />
               </FormItem>
+            )}
+          />
+
+          {/* 공개 여부 설정 */}
+          <FormField
+            control={form.control}
+            name="isPublic"
+            render={({ field }) => (
+              <>
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-muted/30">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">리뷰 공개 설정</FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      {field.value
+                        ? "모든 사용자가 이 리뷰를 볼 수 있습니다"
+                        : "이 리뷰는 나만 볼 수 있습니다"}
+                    </p>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={isProcessing}
+                    />
+                  </FormControl>
+                </FormItem>
+                <div className="mt-3 flex gap-2 rounded-md bg-blue-50 p-3 text-sm text-blue-700">
+                  <Info className="h-4 w-4 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="font-medium">공개 설정 변경 시 유의사항</p>
+                    <p className="text-blue-600/90 text-xs leading-relaxed">
+                      서비스 성능 향상을 위해 목록 페이지는 주기적으로
+                      갱신됩니다. 설정을 변경하더라도 목록이나 피드에
+                      반영되기까지 최대 5분이 소요될 수 있습니다. (단, 비공개
+                      리뷰의 상세 내용은 즉시 차단되므로 안심하세요.)
+                    </p>
+                  </div>
+                </div>
+              </>
             )}
           />
 

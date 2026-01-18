@@ -16,8 +16,13 @@ interface Props {
 }
 
 // React.cache를 사용하여 API 요청 중복 제거 (Request Memoization)
+// 비공개 리뷰나 존재하지 않는 리뷰에 대해 403/404 에러 발생 시 null 반환
 const getCachedReview = cache(async (id: number) => {
-  return await getReview(id);
+  try {
+    return await getReview(id);
+  } catch {
+    return null;
+  }
 });
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -30,6 +35,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: "리뷰를 찾을 수 없습니다",
       description: "요청하신 리뷰가 존재하지 않습니다.",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 
@@ -70,7 +79,7 @@ export default async function Page({ params }: Props) {
   if (review) {
     queryClient.setQueryData(
       QUERY_KEYS.reviewKeys.detail(reviewId).queryKey,
-      review
+      review,
     );
   }
 
