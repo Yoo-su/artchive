@@ -16,7 +16,7 @@ interface Props {
 }
 
 // React.cache를 사용하여 API 요청 중복 제거 (Request Memoization)
-// 비공개 리뷰나 존재하지 않는 리뷰에 대해 403/404 에러 발생 시 null 반환
+// 존재하지 않는 리뷰 조회 시 null 반환
 const getCachedReview = cache(async (id: number) => {
   try {
     return await getReview(id);
