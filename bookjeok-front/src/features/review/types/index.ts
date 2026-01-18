@@ -29,6 +29,7 @@ export interface Review {
   userId: number;
   reactionCount?: number;
   reactionCounts?: ReviewReactionCounts;
+  isPublic: boolean;
 
   user: ReviewUser;
   book: BookInfo;
@@ -68,6 +69,7 @@ export interface ReviewFormValues {
   category: string;
   tags: string[];
   rating: number;
+  isPublic: boolean;
   book?: {
     isbn: string;
     title: string;

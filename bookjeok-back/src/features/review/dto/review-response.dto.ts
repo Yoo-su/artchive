@@ -18,6 +18,12 @@ export class ReviewResponseDto extends Review {
     required: false,
   })
   tags?: string[];
+
+  @ApiProperty({
+    description: '공개 여부',
+    example: true,
+  })
+  isPublic: boolean;
 }
 
 export class GetReviewsResponseDto {

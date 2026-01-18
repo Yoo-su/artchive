@@ -1,6 +1,7 @@
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsNumber,
   IsOptional,
   IsString,
@@ -41,4 +42,8 @@ export class CreateReviewDto {
   @Max(10)
   @IsOptional()
   rating?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  isPublic?: boolean;
 }

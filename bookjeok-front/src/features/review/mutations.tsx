@@ -43,7 +43,7 @@ export const useToggleReviewReactionMutation = (reviewId: number) => {
 
       // 이전 값 스냅샷 저장
       const previousReview = queryClient.getQueryData<Review>(
-        QUERY_KEYS.reviewKeys.detail(reviewId).queryKey
+        QUERY_KEYS.reviewKeys.detail(reviewId).queryKey,
       );
       const previousMyReaction =
         queryClient.getQueryData<ReviewReactionType | null>([
@@ -68,7 +68,7 @@ export const useToggleReviewReactionMutation = (reviewId: number) => {
         if (previousMyReaction) {
           newReactionCounts[previousMyReaction] = Math.max(
             0,
-            newReactionCounts[previousMyReaction] - 1
+            newReactionCounts[previousMyReaction] - 1,
           );
         }
 
@@ -83,11 +83,11 @@ export const useToggleReviewReactionMutation = (reviewId: number) => {
           {
             ...previousReview,
             reactionCounts: newReactionCounts,
-          }
+          },
         );
         queryClient.setQueryData(
           [...QUERY_KEYS.reviewKeys.detail(reviewId).queryKey, "reaction"],
-          newMyReaction
+          newMyReaction,
         );
       }
 
@@ -98,13 +98,13 @@ export const useToggleReviewReactionMutation = (reviewId: number) => {
       if (context?.previousReview) {
         queryClient.setQueryData(
           QUERY_KEYS.reviewKeys.detail(reviewId).queryKey,
-          context.previousReview
+          context.previousReview,
         );
       }
       if (context?.previousMyReaction !== undefined) {
         queryClient.setQueryData(
           [...QUERY_KEYS.reviewKeys.detail(reviewId).queryKey, "reaction"],
-          context.previousMyReaction
+          context.previousMyReaction,
         );
       }
     },
@@ -121,11 +121,12 @@ export const useCreateReviewMutation = () => {
   return useMutation({
     mutationFn: (data: ReviewFormValues) => createReview(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.reviewKeys.feeds.queryKey,
-      });
+      // 목록 및 피드 갱신
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.reviewKeys.list._def,
+      });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.reviewKeys.feeds.queryKey,
       });
       toast.success("리뷰가 작성되었습니다.");
     },
@@ -157,15 +158,25 @@ export const useUpdateReviewMutation = () => {
       return updateReview(id, data);
     },
     onSuccess: (data) => {
+      // 상세 정보 갱신
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.reviewKeys.detail(data.id).queryKey,
+      });
+      // 목록 및 피드 갱신 (내 리뷰 목록 포함)
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.reviewKeys.list._def,
       });
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.reviewKeys.feeds.queryKey,
       });
+      // 인기/추천 목록 갱신
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.reviewKeys.list._def,
+        queryKey: QUERY_KEYS.reviewKeys.popular.queryKey,
       });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.reviewKeys.recommend(data.id).queryKey,
+      });
+
       toast.success("리뷰가 수정되었습니다!");
     },
     onError: (error: any) => {
@@ -183,11 +194,15 @@ export const useDeleteReviewMutation = () => {
   return useMutation({
     mutationFn: deleteReview,
     onSuccess: () => {
+      // 목록, 피드, 인기 목록 갱신
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.reviewKeys.list._def,
+      });
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.reviewKeys.feeds.queryKey,
       });
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.reviewKeys.list._def,
+        queryKey: QUERY_KEYS.reviewKeys.popular.queryKey,
       });
       toast.success("리뷰가 삭제되었습니다.");
     },

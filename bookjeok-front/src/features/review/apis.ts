@@ -17,7 +17,7 @@ import { privateAxios, publicAxios } from "@/shared/libs/axios";
 export const createReview = async (formValues: ReviewFormValues) => {
   const { data } = await privateAxios.post<Review>(
     API_PATHS.review.base,
-    formValues
+    formValues,
   );
   return data;
 };
@@ -30,11 +30,11 @@ export const createReview = async (formValues: ReviewFormValues) => {
  */
 export const updateReview = async (
   id: number,
-  formValues: ReviewFormValues
+  formValues: ReviewFormValues,
 ) => {
   const { data } = await privateAxios.patch<Review>(
     API_PATHS.review.detail(id),
-    formValues
+    formValues,
   );
   return data;
 };
@@ -46,7 +46,7 @@ export const updateReview = async (
  */
 export const deleteReview = async (id: number) => {
   const { data } = await privateAxios.delete<Review>(
-    API_PATHS.review.detail(id)
+    API_PATHS.review.detail(id),
   );
   return data;
 };
@@ -77,7 +77,7 @@ export const getReviews = async ({
   if (excludeId) params.append("excludeId", excludeId.toString());
 
   const { data } = await publicAxios.get<GetReviewsResponse>(
-    `${API_PATHS.review.base}?${params.toString()}`
+    `${API_PATHS.review.base}?${params.toString()}`,
   );
   return data;
 };
@@ -111,6 +111,17 @@ export const getReview = async (id: number) => {
 };
 
 /**
+ * 인증된 상태로 리뷰 상세 정보를 조회합니다.
+ * 비공개 리뷰의 경우 본인만 조회 가능합니다.
+ * @param id 리뷰 ID
+ * @returns 리뷰 상세 정보
+ */
+export const getReviewAuthenticated = async (id: number) => {
+  const { data } = await privateAxios.get<Review>(API_PATHS.review.detail(id));
+  return data;
+};
+
+/**
  * 수정을 위한 리뷰 조회 (본인 리뷰만 조회 가능)
  * 본인 리뷰가 아닌 경우 403 Forbidden 에러가 발생합니다.
  * @param id 리뷰 ID
@@ -128,7 +139,7 @@ export const getReviewForEdit = async (id: number) => {
  */
 export const getRecommendedReviews = async (id: number) => {
   const { data } = await publicAxios.get<Review[]>(
-    API_PATHS.review.recommend(id)
+    API_PATHS.review.recommend(id),
   );
   return data;
 };
@@ -140,7 +151,7 @@ export const getRecommendedReviews = async (id: number) => {
  */
 export const getMyReviewReaction = async (id: number) => {
   const { data } = await privateAxios.get<ReviewReactionType | null>(
-    API_PATHS.review.myReaction(id)
+    API_PATHS.review.myReaction(id),
   );
   return data;
 };
@@ -153,11 +164,11 @@ export const getMyReviewReaction = async (id: number) => {
  */
 export const toggleReviewReaction = async (
   id: number,
-  type: ReviewReactionType
+  type: ReviewReactionType,
 ) => {
   const { data } = await privateAxios.post<Review>(
     API_PATHS.review.toggleReaction(id),
-    { type }
+    { type },
   );
   return data;
 };

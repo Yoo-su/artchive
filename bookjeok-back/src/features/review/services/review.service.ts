@@ -141,7 +141,11 @@ export class ReviewService {
     }
 
     if (userId) {
+      // 특정 사용자의 리뷰 목록 조회 (본인 리뷰 포함 비공개도 보임)
       qb.andWhere('review.userId = :userId', { userId });
+    } else {
+      // 일반 리뷰 목록 조회 시 공개 리뷰만 표시
+      qb.andWhere('review.isPublic = :isPublic', { isPublic: true });
     }
 
     if (excludeId) {
@@ -201,7 +205,7 @@ export class ReviewService {
 
     const feedPromises = categories.map(async (category) => {
       const reviews = await this.reviewsRepository.find({
-        where: { category },
+        where: { category, isPublic: true },
         relations: ['user', 'book', 'tagEntities'],
         order: { createdAt: 'DESC' },
         take: 4,
@@ -228,11 +232,12 @@ export class ReviewService {
 
   /**
    * ID로 리뷰를 조회합니다.
+   * 비공개 리뷰는 작성자 본인만 조회 가능합니다.
    * @param id 리뷰 ID
-   * @param userId 요청한 유저 ID (옵션)
+   * @param userId 요청한 유저 ID (옵션, 비공개 리뷰 접근 권한 확인용)
    * @returns 리뷰 엔티티 (리액션 정보 포함)
    */
-  async findOne(id: number): Promise<ReviewResponseDto> {
+  async findOne(id: number, userId?: number): Promise<ReviewResponseDto> {
     const review = await this.reviewsRepository.findOne({
       where: { id },
       relations: ['user', 'book', 'tagEntities'],
@@ -240,6 +245,11 @@ export class ReviewService {
 
     if (!review) {
       throw new BusinessException('REVIEW_NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
+
+    // 비공개 리뷰 접근 권한 체크: 작성자 본인만 조회 가능
+    if (!review.isPublic && review.userId !== userId) {
+      throw new BusinessException('REVIEW_PRIVATE', HttpStatus.FORBIDDEN);
     }
 
     const [reviewWithCounts] = await this.attachReactionCounts([review]);
@@ -315,6 +325,7 @@ export class ReviewService {
       )
       .addSelect(SCORE_FORMULA, 'score')
       .where('review.createdAt >= :cutoffDate', { cutoffDate: sixMonthsAgo })
+      .andWhere('review.isPublic = :isPublic', { isPublic: true })
       .groupBy('review.id')
       .orderBy('score', 'DESC')
       .limit(6)
@@ -371,6 +382,7 @@ export class ReviewService {
         .where('review.id != :id', { id })
         .andWhere('book.author = :author', { author })
         .andWhere('book.isbn != :isbn', { isbn: book.isbn }) // 같은 책 제외
+        .andWhere('review.isPublic = :isPublic', { isPublic: true })
         .orderBy('review.createdAt', 'DESC')
         .take(2)
         .getMany();
@@ -391,6 +403,7 @@ export class ReviewService {
         .leftJoinAndSelect('review.tagEntities', 'tagEntities')
         .where('review.id NOT IN (:...ids)', { ids: excludedIds })
         .andWhere('review.category = :category', { category })
+        .andWhere('review.isPublic = :isPublic', { isPublic: true })
         .orderBy('review.createdAt', 'DESC')
         .take(remainingLimit)
         .getMany();

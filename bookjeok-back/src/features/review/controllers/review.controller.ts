@@ -16,6 +16,8 @@ import { ViewCountInterceptor } from '../interceptors/view-count.interceptor';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiTags, ApiResponse, ApiParam } from '@nestjs/swagger';
 
+import { OptionalJwtAuthGuard } from '@/features/auth/guards/optional-jwt-auth.guard';
+
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { User } from '@/features/user/entities/user.entity';
 
@@ -132,10 +134,12 @@ export class ReviewController {
   }
 
   @Get(':id')
+  @UseGuards(OptionalJwtAuthGuard)
   @UseInterceptors(ViewCountInterceptor)
   @ApiOperation({
     summary: '리뷰 상세 조회',
-    description: '특정 리뷰의 상세 정보를 조회합니다.',
+    description:
+      '특정 리뷰의 상세 정보를 조회합니다. 비공개 리뷰는 작성자 본인만 조회 가능합니다.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -146,11 +150,16 @@ export class ReviewController {
     status: HttpStatus.NOT_FOUND,
     description: '리뷰를 찾을 수 없습니다.',
   })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: '비공개 리뷰입니다.',
+  })
   @ApiParam({ name: 'id', description: '리뷰 ID' })
   async findOne(
     @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: User | null,
   ): Promise<ReviewResponseDto> {
-    return await this.reviewService.findOne(id);
+    return await this.reviewService.findOne(id, user?.id);
   }
 
   @Get(':id/recommend')
