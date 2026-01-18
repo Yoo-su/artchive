@@ -21,14 +21,26 @@
   - **역할**: 서버로부터 오는 각종 웹소켓 이벤트를 수신하고, 그에 따라 TanStack Query 캐시를 업데이트하는 로직을 모아놓은 커스텀 훅입니다.
   - **로직**: `newMessage` 이벤트를 받으면 `queryClient.setQueryData`를 사용해 해당 채팅방의 메시지 목록 캐시를 수동으로 업데이트하여 실시간으로 메시지가 보이는 것처럼 처리합니다. 또한 채팅방 목록의 마지막 메시지와 안 읽은 개수도 업데이트합니다.
 
+- **`features/chat/hooks/use-typing-indicator.ts`**:
+  - **역할**: 채팅방에서 타이핑 상태를 관리하는 커스텀 훅입니다.
+  - **로직**: `debounce`와 `throttle`을 사용하여 타이핑 시작/중지 이벤트를 효율적으로 서버에 전송합니다.
+
+- **`features/chat/hooks/use-chat-scroll.ts`**:
+  - **역할**: 채팅 스크롤 동작을 관리하는 커스텀 훅입니다.
+  - **로직**: 이전 메시지 로드 시 스크롤 위치 유지, 새 메시지 도착 시 자동 스크롤, 무한 스크롤 핸들러를 제공합니다.
+
 - **`features/chat/stores/use-chat-store.ts`**:
   - **역할**: 채팅 위젯의 UI 상태를 관리하는 Zustand 스토어입니다.
   - **상태**: `isChatOpen`(위젯 열림/닫힘), `activeChatRoomId`(현재 열려있는 채팅방 ID), `typingUsers`(입력 중인 사용자 정보) 등을 관리합니다.
 
 - **`features/chat/components/`**:
   - `chat-widget/index.tsx`: 채팅 위젯의 전체적인 레이아웃을 담당하며, `activeChatRoomId` 상태에 따라 `ChatList` 또는 `ChatRoom` 컴포넌트를 조건부 렌더링합니다.
-  - `chat-list.tsx`: `useMyChatRoomsQuery` 훅을 사용해 채팅방 목록을 가져와 렌더링합니다.
-  - `chat-room.tsx`: `useInfiniteChatMessagesQuery` 훅으로 메시지 목록을 가져와 무한 스크롤로 보여주며, `sendMessage` 이벤트를 통해 메시지를 전송합니다.
+  - `chat-list/index.tsx`: `useMyChatRoomsQuery` 훅을 사용해 채팅방 목록을 가져와 렌더링합니다.
+  - `chat-room/`:
+    - `index.tsx`: 채팅방의 메인 컴포넌트로, 하위 컴포넌트들을 조합합니다.
+    - `header.tsx`: 헤더 영역 (뒤로가기, 상대방 정보, 타이핑 인디케이터, 나가기 버튼)
+    - `message-list.tsx`: 메시지 목록 영역 (무한 스크롤, 메시지 버블)
+    - `input.tsx`: 메시지 입력 영역 (낙관적 업데이트 포함)
 
 ## 2. 핵심 로직 흐름
 
