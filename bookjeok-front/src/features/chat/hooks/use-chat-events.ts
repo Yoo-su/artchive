@@ -36,10 +36,10 @@ export const useChatEvents = () => {
             messages: [message, ...newPages[0].messages],
           };
           return { ...oldData, pages: newPages };
-        }
+        },
       );
     },
-    [queryClient]
+    [queryClient],
   );
 
   const handleNewChatRoom = useCallback(
@@ -55,10 +55,10 @@ export const useChatEvents = () => {
             return [newRoom, ...oldData];
           }
           return [newRoom];
-        }
+        },
       );
     },
-    [queryClient]
+    [queryClient],
   );
 
   const handleNewMessage = useCallback(
@@ -84,25 +84,39 @@ export const useChatEvents = () => {
         (oldData) => {
           if (!oldData) return oldData;
 
-          // 내가 보낸 메시지라면, 기존 낙관적 메시지(음수 ID) 중 하나를 교체
+          // 내가 보낸 메시지라면, 기존 낙관적 메시지(음수 ID) 중 '가장 먼저 보낸 것'을 찾아 교체합니다.
           if (isMyMessage) {
-            const hasOptimisticMessage = oldData.pages.some((page) =>
-              page.messages.some((msg) => msg.id < 0)
-            );
+            // 메시지 배열은 최신순(내림차순)으로 정렬되어 있습니다.
+            // 예: [최신 메시지(낙관적 ID: -2), 이전 메시지(낙관적 ID: -1), ...]
+            // 따라서 배열의 뒤쪽(인덱스가 큰 쪽)에 있는 낙관적 메시지가 더 오래된(먼저 보낸) 메시지입니다.
+            // 먼저 보낸 메시지의 응답이 먼저 오므로, 뒤에서부터 탐색하여 첫 번째로 발견되는 낙관적 메시지를 교체해야 합니다 (FIFO 방식).
 
-            if (hasOptimisticMessage) {
-              // 첫 번째 낙관적 메시지를 실제 메시지로 교체
-              let replaced = false;
-              const newPages = oldData.pages.map((page) => ({
-                ...page,
-                messages: page.messages.map((msg) => {
-                  if (!replaced && msg.id < 0) {
-                    replaced = true;
-                    return newMessage;
-                  }
-                  return msg;
-                }),
-              }));
+            let targetPageParamsIndex = -1;
+            let targetMessageIndex = -1;
+
+            // 1. 가장 오래된 낙관적 메시지의 위치 찾기 (배열의 뒤에서부터 역순 탐색)
+            for (let i = oldData.pages.length - 1; i >= 0; i--) {
+              const page = oldData.pages[i];
+              for (let j = page.messages.length - 1; j >= 0; j--) {
+                if (page.messages[j].id < 0) {
+                  targetPageParamsIndex = i;
+                  targetMessageIndex = j;
+                  break; // 가장 오래된 것을 찾았으므로 내부 루프 종료
+                }
+              }
+              if (targetPageParamsIndex !== -1) break; // 찾았으므로 외부 루프 종료
+            }
+
+            // 2. 찾은 경우 해당 메시지만 실제 서버 응답 메시지로 교체
+            if (targetPageParamsIndex !== -1 && targetMessageIndex !== -1) {
+              const newPages = [...oldData.pages];
+              const targetPage = { ...newPages[targetPageParamsIndex] };
+              const newMessages = [...targetPage.messages];
+
+              newMessages[targetMessageIndex] = newMessage;
+              targetPage.messages = newMessages;
+              newPages[targetPageParamsIndex] = targetPage;
+
               return { ...oldData, pages: newPages };
             }
           }
@@ -114,7 +128,7 @@ export const useChatEvents = () => {
             messages: [newMessage, ...newPages[0].messages],
           };
           return { ...oldData, pages: newPages };
-        }
+        },
       );
 
       // 채팅방 목록 업데이트: 마지막 메시지 & 안읽음 카운트 갱신
@@ -130,19 +144,19 @@ export const useChatEvents = () => {
                   lastMessage: newMessage,
                   unreadCount: isChatVisible ? 0 : (room.unreadCount || 0) + 1,
                 }
-              : room
+              : room,
           );
 
           // 최신 메시지 기준으로 정렬
           return updatedRooms.sort(
             (a, b) =>
               new Date(b.lastMessage?.createdAt ?? 0).getTime() -
-              new Date(a.lastMessage?.createdAt ?? 0).getTime()
+              new Date(a.lastMessage?.createdAt ?? 0).getTime(),
           );
-        }
+        },
       );
     },
-    [queryClient, socket]
+    [queryClient, socket],
   );
 
   const handleUserLeft = useCallback(
@@ -150,7 +164,7 @@ export const useChatEvents = () => {
       prependMessageToCache(roomId, message);
       setRoomInactive(roomId, true);
     },
-    [prependMessageToCache, setRoomInactive]
+    [prependMessageToCache, setRoomInactive],
   );
 
   const handleUserRejoined = useCallback(
@@ -161,7 +175,7 @@ export const useChatEvents = () => {
         queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
       });
     },
-    [queryClient, prependMessageToCache, setRoomInactive]
+    [queryClient, prependMessageToCache, setRoomInactive],
   );
 
   const handleTyping = useCallback(
@@ -171,7 +185,7 @@ export const useChatEvents = () => {
         setTyping(activeChatRoomId, isTyping ? nickname : "");
       }
     },
-    [setTyping]
+    [setTyping],
   );
 
   const registerChatEventListeners = useCallback(() => {

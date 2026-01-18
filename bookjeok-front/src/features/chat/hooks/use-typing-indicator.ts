@@ -16,7 +16,8 @@ interface UseTypingIndicatorProps {
 
 /**
  * 채팅방에서 타이핑 상태를 관리하는 커스텀 훅입니다.
- * 입력 시작/중지 이벤트를 서버에 전송하며, debounce/throttle을 적용합니다.
+ * - throttle: 타이핑 시작 이벤트('./startTyping')를 과도하게 보내지 않도록 조절합니다 (3초 간격).
+ * - debounce: 타이핑이 멈춘 후 일정 시간(1.5초) 뒤에 중지 이벤트('stopTyping')를 보냅니다.
  */
 export const useTypingIndicator = ({ roomId }: UseTypingIndicatorProps) => {
   const { socket } = useSocketContext();

@@ -18,8 +18,10 @@ import { MessageList } from "./message-list";
 import { ChatRoomSkeleton } from "./skeleton";
 
 /**
- * 채팅방 컴포넌트입니다.
- * 헤더, 메시지 목록, 입력 영역을 조합하여 전체 채팅방 UI를 구성합니다.
+ * 채팅방 메인 컴포넌트입니다.
+ * - 헤더, 메시지 목록, 입력 영역의 레이아웃을 잡고 하위 컴포넌트들을 조합합니다.
+ * - 채팅방 데이터(useMyChatRoomsQuery)와 메시지 데이터(useInfiniteChatMessagesQuery)를 관리합니다.
+ * - 소켓 연결 상태에 따라 읽음 처리를 수행합니다.
  */
 export const ChatRoom = () => {
   const { activeChatRoomId, typingUsers, isRoomInactive } = useChatStore();
