@@ -84,30 +84,31 @@ export const useChatEvents = () => {
         (oldData) => {
           if (!oldData) return oldData;
 
-          // 내가 보낸 메시지라면, 기존 낙관적 메시지(음수 ID) 중 '가장 먼저 보낸 것'을 찾아 교체합니다.
+          // 내가 보낸 메시지인 경우, 낙관적 메시지(전송 중)를 찾아 실제 응답 메시지로 교체합니다.
           if (isMyMessage) {
-            // 메시지 배열은 최신순(내림차순)으로 정렬되어 있습니다.
-            // 예: [최신 메시지(낙관적 ID: -2), 이전 메시지(낙관적 ID: -1), ...]
-            // 따라서 배열의 뒤쪽(인덱스가 큰 쪽)에 있는 낙관적 메시지가 더 오래된(먼저 보낸) 메시지입니다.
-            // 먼저 보낸 메시지의 응답이 먼저 오므로, 뒤에서부터 탐색하여 첫 번째로 발견되는 낙관적 메시지를 교체해야 합니다 (FIFO 방식).
-
+            /**
+             * [낙관적 메시지 교체 로직: FIFO 적용]
+             * 메시지 목록은 최신순(내림차순)으로 정렬되어 있으므로, 배열의 뒤쪽에 있는 메시지가 먼저 보낸 메시지입니다.
+             * 따라서 배열의 역순(오래된 순)으로 탐색하여 가장 먼저 발견되는 낙관적 메시지(ID < 0)를 교체해야 합니다.
+             * 이렇게 해야 연속 전송 시 순서가 꼬이는 문제를 방지할 수 있습니다.
+             */
             let targetPageParamsIndex = -1;
             let targetMessageIndex = -1;
 
-            // 1. 가장 오래된 낙관적 메시지의 위치 찾기 (배열의 뒤에서부터 역순 탐색)
+            // 1. 가장 오래된 낙관적 메시지 탐색 (역순 순회)
             for (let i = oldData.pages.length - 1; i >= 0; i--) {
               const page = oldData.pages[i];
               for (let j = page.messages.length - 1; j >= 0; j--) {
                 if (page.messages[j].id < 0) {
                   targetPageParamsIndex = i;
                   targetMessageIndex = j;
-                  break; // 가장 오래된 것을 찾았으므로 내부 루프 종료
+                  break; // 찾음 (가장 오래된 메시지)
                 }
               }
-              if (targetPageParamsIndex !== -1) break; // 찾았으므로 외부 루프 종료
+              if (targetPageParamsIndex !== -1) break;
             }
 
-            // 2. 찾은 경우 해당 메시지만 실제 서버 응답 메시지로 교체
+            // 2. 메시지 교체 실행
             if (targetPageParamsIndex !== -1 && targetMessageIndex !== -1) {
               const newPages = [...oldData.pages];
               const targetPage = { ...newPages[targetPageParamsIndex] };
