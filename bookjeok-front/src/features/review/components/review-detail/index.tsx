@@ -33,29 +33,32 @@ interface ReviewDetailProps {
 export const ReviewDetail = ({ id, initialReview }: ReviewDetailProps) => {
   const { user } = useAuthStore();
 
-  // 1. 공개 리뷰 조회
+  // 공개 리뷰 조회
   const {
     data: publicReview,
     isLoading: isPublicLoading,
     error: publicError,
   } = useReviewDetailQuery(id, true, initialReview ?? undefined);
 
-  // 2. 비공개 리뷰 자동 조회 조건 (403 에러 && 로그인 상태)
+  // 비공개 리뷰 접근(403) 시 로그인 상태라면 자동 인증 조회 시도
   const isPrivateError = (publicError as AxiosError)?.response?.status === 403;
   const shouldFetchPrivate = isPrivateError && !!user;
 
-  // 3. 인증된 리뷰 조회 (조건부 실행)
-  const { data: authenticatedReview, isLoading: isAuthLoading } =
-    useAuthenticatedReviewQuery(id, shouldFetchPrivate);
+  const {
+    data: authenticatedReview,
+    isLoading: isAuthLoading,
+    error: authError,
+  } = useAuthenticatedReviewQuery(id, shouldFetchPrivate);
 
-  // 4. 최종 데이터 및 로딩 상태 결정
   const finalReview = publicReview || authenticatedReview;
 
-  // 로딩 상태: 공개 로딩 중 OR (비공개 조회 조건 만족 시 데이터 도착 전까지 로딩 유지)
-  // shouldFetchPrivate가 true가 되는 순간(=403확인 직후)부터 데이터가 올 때까지 로딩을 유지해야 플리커링 방지됨
+  // 로딩 상태 처리:
+  // 1. 공개/비공개 쿼리가 로딩 중이거나
+  // 2. 비공개 조회를 해야 하는데 아직 데이터나 에러 결과가 없는 대기 상태일 때
   const isLoading =
     isPublicLoading ||
-    (shouldFetchPrivate && (!authenticatedReview || isAuthLoading));
+    isAuthLoading ||
+    (shouldFetchPrivate && !authenticatedReview && !authError);
 
   if (isLoading) {
     return <ReviewDetailSkeleton />;
