@@ -48,10 +48,19 @@ export const ChatRoom = () => {
     if (!messagesData) return [];
     return messagesData.pages
       .flatMap((page) => page.messages)
-      .sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-      );
+      .sort((a, b) => {
+        // 1. 전송 중인 메시지(ID < 0)는 항상 전송 완료된 메시지보다 뒤로 보냄
+        const isASending = a.id < 0;
+        const isBSending = b.id < 0;
+
+        if (isASending && !isBSending) return 1;
+        if (!isASending && isBSending) return -1;
+
+        // 2. 둘 다 같은 상태(둘 다 전송 중이거나 둘 다 완료)라면 시간순 정렬
+        return (
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+      });
   }, [messagesData]);
 
   // 타이핑 인디케이터 훅
