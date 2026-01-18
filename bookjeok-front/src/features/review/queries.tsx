@@ -107,7 +107,7 @@ export const useAuthenticatedReviewQuery = (
   enabled: boolean = false,
 ) => {
   return useQuery({
-    queryKey: QUERY_KEYS.reviewKeys.detail(id).queryKey,
+    queryKey: [...QUERY_KEYS.reviewKeys.detail(id).queryKey, "auth"],
     queryFn: () => getReviewAuthenticated(id),
     enabled,
     retry: false,
