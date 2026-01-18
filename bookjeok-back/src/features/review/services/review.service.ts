@@ -247,9 +247,10 @@ export class ReviewService {
       throw new BusinessException('REVIEW_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
 
-    // 비공개 리뷰 접근 권한 체크: 작성자 본인만 조회 가능
+    // 비공개 리뷰 접근 시 마스킹 처리 (에러 X)
+    // 작성자 본인이 아니면 내용을 가려서 반환
     if (!review.isPublic && review.userId !== userId) {
-      throw new BusinessException('REVIEW_PRIVATE', HttpStatus.FORBIDDEN);
+      review.content = '';
     }
 
     const [reviewWithCounts] = await this.attachReactionCounts([review]);

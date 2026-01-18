@@ -5,7 +5,6 @@ import {
   getPopularReviews,
   getRecommendedReviews,
   getReview,
-  getReviewAuthenticated,
   getReviewFeeds,
   getReviewForEdit,
   getReviews,
@@ -72,17 +71,11 @@ export const usePopularReviewsQuery = (enabled: boolean = true) => {
 /**
  * 리뷰 상세 조회
  */
-export const useReviewDetailQuery = (
-  id: number,
-  enabled: boolean = true,
-  initialData?: Review,
-) => {
+export const useReviewDetailQuery = (id: number, initialData?: Review) => {
   return useQuery({
     queryKey: QUERY_KEYS.reviewKeys.detail(id).queryKey,
     queryFn: () => getReview(id),
-    enabled,
     initialData,
-    retry: false, // 비공개 리뷰 접근(403) 시 불필요한 재시도 방지
   });
 };
 
@@ -96,21 +89,6 @@ export const useReviewForEditQuery = (id: number) => {
     queryFn: () => getReviewForEdit(id),
     enabled: !!id,
     retry: false, // 권한 부족(403) 시 재시도 방지
-  });
-};
-
-/**
- * 인증된 리뷰 상세 조회 (비공개 리뷰용)
- */
-export const useAuthenticatedReviewQuery = (
-  id: number,
-  enabled: boolean = false,
-) => {
-  return useQuery({
-    queryKey: [...QUERY_KEYS.reviewKeys.detail(id).queryKey, "auth"],
-    queryFn: () => getReviewAuthenticated(id),
-    enabled,
-    retry: false,
   });
 };
 

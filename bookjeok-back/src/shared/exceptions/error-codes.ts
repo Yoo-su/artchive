@@ -80,10 +80,6 @@ export const ERROR_CODES = {
     code: 'REVIEW_002',
     message: '리뷰를 수정하거나 삭제할 권한이 없습니다.',
   },
-  REVIEW_PRIVATE: {
-    code: 'REVIEW_003',
-    message: '비공개 리뷰입니다.',
-  },
 
   // ============================================
   // 댓글 관련 에러 (COMMENT)
