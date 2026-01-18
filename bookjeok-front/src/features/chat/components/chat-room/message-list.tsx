@@ -100,7 +100,9 @@ interface MessageListProps {
 
 /**
  * 메시지 목록을 표시하는 컴포넌트입니다.
- * 무한 스크롤과 메시지 버블을 포함합니다.
+ * - `MessageBubble` 컴포넌트를 사용하여 개별 메시지를 렌더링합니다.
+ * - 무한 스크롤 기능을 지원하며, 스크롤이 상단에 도달하면 이전 메시지를 불러옵니다.
+ * - 로딩 시 `Loader2` 스피너를 표시합니다.
  */
 export const MessageList = ({
   messages,
