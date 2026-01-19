@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, In } from 'typeorm';
 import { Book } from '../entities/book.entity';
 import { SaleStatus, UsedBookSale } from '../entities/used-book-sale.entity';
 import { CreateBookSaleDto } from '../dtos/create-book-sale.dto';
@@ -187,25 +187,43 @@ export class BookService {
 
   /**
    * 인기 판매글을 조회합니다.
-   * 조회수 내림차순, 최신순으로 정렬하여 상위 6개를 반환합니다.
+   * 최근 2주 내 조회수 높은 순으로 6개 반환
    */
   async findPopularSales(): Promise<UsedBookSale[]> {
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    const twoWeeksAgo = new Date();
+    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
 
-    return await this.usedBookSaleRepository
+    interface PopularSaleRawResult {
+      id: number;
+    }
+
+    // 최근 인기 판매글 (최근 2주, 조회수 순, 6개)
+    const idResults = await this.usedBookSaleRepository
       .createQueryBuilder('sale')
-      .leftJoinAndSelect('sale.user', 'user')
-      .leftJoinAndSelect('sale.book', 'book')
+      .select('sale.id', 'id')
       .where('sale.status = :status', { status: SaleStatus.FOR_SALE })
-      .andWhere('sale.createdAt >= :cutoffDate', { cutoffDate: sixMonthsAgo })
-      .addSelect(
-        '((COALESCE(sale.viewCount, 0)) / POW((EXTRACT(EPOCH FROM (NOW() - sale.createdAt)) / 3600) + 2, 1.5)) * (RANDOM() * 0.5 + 0.8)',
-        'score',
-      )
-      .orderBy('score', 'DESC')
-      .take(6)
-      .getMany();
+      .andWhere('sale.createdAt >= :twoWeeksAgo', { twoWeeksAgo })
+      .orderBy('sale.viewCount', 'DESC')
+      .limit(6)
+      .getRawMany<PopularSaleRawResult>();
+
+    if (idResults.length === 0) {
+      return [];
+    }
+
+    const ids = idResults.map((r) => r.id);
+
+    // 엔티티 상세 조회
+    const sales = await this.usedBookSaleRepository.find({
+      where: { id: In(ids) },
+      relations: ['user', 'book'],
+    });
+
+    // 순서 유지
+    const saleMap = new Map(sales.map((s) => [s.id, s]));
+    return ids
+      .map((id) => saleMap.get(id))
+      .filter((s): s is UsedBookSale => !!s);
   }
 
   /**

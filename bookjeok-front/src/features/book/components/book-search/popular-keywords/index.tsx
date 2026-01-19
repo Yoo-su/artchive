@@ -55,12 +55,12 @@ export const PopularKeywords = () => {
 
   return (
     <div
-      className="relative inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-50 to-red-50 rounded-full border border-orange-100 cursor-pointer transition-all hover:shadow-md"
+      className="relative inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-orange-50 to-red-50 rounded-full border border-orange-100 cursor-pointer transition-all hover:shadow-md"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* 불꽃 아이콘 */}
-      <Flame className="w-4 h-4 text-orange-500 flex-shrink-0" />
+      <Flame className="w-4 h-4 text-orange-500 shrink-0" />
 
       {/* 라벨 */}
       <span className="text-xs text-orange-600 font-medium whitespace-nowrap">
@@ -104,7 +104,7 @@ export const PopularKeywords = () => {
             onMouseLeave={() => setIsPaused(false)}
           >
             {/* 헤더 */}
-            <div className="px-4 py-3 bg-gradient-to-r from-orange-50 to-red-50 border-b border-orange-100">
+            <div className="px-4 py-3 bg-linear-to-r from-orange-50 to-red-50 border-b border-orange-100">
               <div className="flex items-center gap-2">
                 <Flame className="w-4 h-4 text-orange-500" />
                 <span className="text-sm font-semibold text-gray-800">
