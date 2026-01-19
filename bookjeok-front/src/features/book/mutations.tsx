@@ -15,6 +15,7 @@ import { uploadImages } from "./actions/upload-action";
 import {
   createBookSale,
   deleteBookSale,
+  recordSearchKeyword,
   updateBookSale,
   updateBookSaleStatus,
 } from "./apis";
@@ -49,7 +50,7 @@ export const useCreateBookSaleMutation = () => {
             access: "public",
             handleUploadUrl: "/api/upload",
           });
-        })
+        }),
       );
       const imageUrls = blobs.map((blob) => blob.url);
 
@@ -89,9 +90,9 @@ export const useUpdateBookSaleStatusMutation = () => {
       queryClient.setQueryData<UsedBookSale[]>(queryKey, (old) =>
         old
           ? old.map((sale) =>
-              sale.id === saleId ? { ...sale, status: status as any } : sale
+              sale.id === saleId ? { ...sale, status: status as any } : sale,
             )
-          : []
+          : [],
       );
 
       return { previousSales };
@@ -206,5 +207,16 @@ export const useDeleteBookSaleMutation = () => {
     onError: (error) => {
       toast.error(`삭제 중 오류가 발생했습니다: ${error.message}`);
     },
+  });
+};
+
+/**
+ * 검색어 기록을 위한 뮤테이션 훅입니다.
+ * fire-and-forget 방식으로 사용하여 UI 블로킹 없이 검색어를 기록합니다.
+ */
+export const useRecordSearchKeywordMutation = () => {
+  return useMutation({
+    mutationFn: recordSearchKeyword,
+    // fire-and-forget: 성공/실패 핸들러 불필요
   });
 };

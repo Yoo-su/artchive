@@ -19,6 +19,7 @@ import { CommentModule } from '@/features/comment/comment.module';
 import { InsightsModule } from '@/features/insights/insights.module';
 import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
 import { ReadingLogModule } from '@/features/reading-log/reading-log.module';
+import { SearchKeywordModule } from '@/features/search-keyword/search-keyword.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { ReadingLogModule } from '@/features/reading-log/reading-log.module';
     CommentModule,
     InsightsModule,
     ReadingLogModule,
+    SearchKeywordModule,
   ],
   controllers: [],
   providers: [

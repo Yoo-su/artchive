@@ -29,4 +29,5 @@ export const bookKeys = createQueryKeys("book", {
   saleForEdit: (saleId: string | number) => ["edit", saleId],
   recentSales: null,
   popularBooks: null,
+  popularKeywords: null, // 인기 검색어
 });
