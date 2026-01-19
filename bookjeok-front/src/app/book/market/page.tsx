@@ -39,7 +39,6 @@ export default async function Page() {
   const queryClient = getQueryClient();
 
   // 인기 판매글 및 초기 판매글 목록 prefetch
-  // 인기 판매글 및 초기 판매글 목록 prefetch
   try {
     await Promise.all([
       queryClient.prefetchQuery({

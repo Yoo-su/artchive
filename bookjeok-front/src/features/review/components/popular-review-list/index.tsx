@@ -34,7 +34,7 @@ export function PopularReviewList() {
   }
 
   // 5. 성공 렌더링
-  // 5. 성공 렌더링
+
   return (
     <section className="mb-12">
       <div className="flex items-center gap-2 mb-6">

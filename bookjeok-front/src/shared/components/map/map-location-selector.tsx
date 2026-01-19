@@ -53,7 +53,7 @@ export const MapLocationSelector = ({
         (pos) => {
           const { latitude, longitude } = pos.coords;
           setPosition({ lat: latitude, lng: longitude });
-          setPosition({ lat: latitude, lng: longitude });
+
           onLocationSelect(latitude, longitude); // 좌표 전달
           updateAddress(latitude, longitude); // 주소 상세 정보 업데이트
         },
