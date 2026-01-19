@@ -25,9 +25,8 @@ export const MainBookSlider = () => {
     isError,
   } = useBookListQuery({ query: activePublisher, display: 10 });
 
-  useEffect(() => {
-    // 출판사가 변경되면 Swiper 인스턴스를 업데이트하여 루프 상태 등을 재설정
-    // requestAnimationFrame을 사용하여 DOM이 완전히 렌더링된 후 업데이트
+  // Swiper 업데이트 함수 (출판사 변경 시 슬라이드 위치 조정용)
+  const updateSwiper = () => {
     if (swiperRef.current) {
       requestAnimationFrame(() => {
         if (swiperRef.current) {
@@ -35,11 +34,16 @@ export const MainBookSlider = () => {
           swiperRef.current.slideTo(
             Math.floor((books?.length || 0) / 2),
             0,
-            false
+            false,
           );
         }
       });
     }
+  };
+
+  // 출판사(데이터) 변경 시 Swiper 업데이트
+  useEffect(() => {
+    updateSwiper();
   }, [books]);
 
   return (
@@ -102,7 +106,9 @@ export const MainBookSlider = () => {
             slidesPerView={"auto"}
             spaceBetween={-50}
             initialSlide={Math.floor(books.length / 2)}
-            watchSlidesProgress={true} // 슬라이드 진행 상태 감시
+            watchSlidesProgress={true}
+            observer={true}
+            observeParents={true}
             coverflowEffect={{
               rotate: 0,
               stretch: 80,

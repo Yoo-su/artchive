@@ -22,7 +22,5 @@ export const useLocationSalesQuery = (city: string, district: string) => {
     queryKey: QUERY_KEYS.insightsKeys.locationSales(city, district).queryKey,
     queryFn: () => getLocationSales(city, district),
     enabled: !!city && !!district,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
   });
 };
