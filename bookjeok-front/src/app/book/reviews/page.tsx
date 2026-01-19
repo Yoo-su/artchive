@@ -37,16 +37,21 @@ export default async function Page() {
   const queryClient = getQueryClient();
 
   // 인기 리뷰 및 피드 prefetch
-  await Promise.all([
-    queryClient.prefetchQuery({
-      queryKey: QUERY_KEYS.reviewKeys.popular.queryKey,
-      queryFn: getPopularReviews,
-    }),
-    queryClient.prefetchQuery({
-      queryKey: QUERY_KEYS.reviewKeys.feeds.queryKey,
-      queryFn: getReviewFeeds,
-    }),
-  ]);
+  // 인기 리뷰 및 피드 prefetch
+  try {
+    await Promise.all([
+      queryClient.prefetchQuery({
+        queryKey: QUERY_KEYS.reviewKeys.popular.queryKey,
+        queryFn: getPopularReviews,
+      }),
+      queryClient.prefetchQuery({
+        queryKey: QUERY_KEYS.reviewKeys.feeds.queryKey,
+        queryFn: getReviewFeeds,
+      }),
+    ]);
+  } catch (error) {
+    console.error("리뷰 홈 데이터 프리패치 중 오류 발생:", error);
+  }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

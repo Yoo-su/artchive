@@ -39,10 +39,14 @@ export default async function Page() {
   const queryClient = getQueryClient();
 
   // 인기 검색어 prefetch (5분 캐싱)
-  await queryClient.prefetchQuery({
-    queryKey: QUERY_KEYS.bookKeys.popularKeywords.queryKey,
-    queryFn: getPopularKeywords,
-  });
+  try {
+    await queryClient.prefetchQuery({
+      queryKey: QUERY_KEYS.bookKeys.popularKeywords.queryKey,
+      queryFn: getPopularKeywords,
+    });
+  } catch (error) {
+    console.error("인기 검색어 프리패치 중 오류 발생:", error);
+  }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

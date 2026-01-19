@@ -23,55 +23,72 @@ const getCachedBookSale = cache(async (id: string) => {
 // 동적 메타데이터 생성
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const sale = await getCachedBookSale(id);
 
-  if (!sale) {
+  try {
+    const sale = await getCachedBookSale(id);
+
+    if (!sale) {
+      return {
+        title: "판매글을 찾을 수 없습니다",
+        description: "요청하신 판매글이 존재하지 않습니다.",
+      };
+    }
+
+    const title = sale.title;
+    const description = `${sale.book.title} | ${sale.price.toLocaleString()}원 | ${sale.city} ${sale.district}`;
+    const images =
+      sale.imageUrls.length > 0
+        ? [sale.imageUrls[0]]
+        : sale.book.image
+          ? [sale.book.image]
+          : [];
+
     return {
-      title: "판매글을 찾을 수 없습니다",
-      description: "요청하신 판매글이 존재하지 않습니다.",
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        images,
+        type: "article",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images,
+      },
+      alternates: {
+        canonical: `https://bookjeok.com/book/sales/${id}`,
+      },
+    };
+  } catch {
+    return {
+      title: "중고책 판매",
+      description: "중고책 판매 상세 정보",
     };
   }
-
-  const title = sale.title;
-  const description = `${sale.book.title} | ${sale.price.toLocaleString()}원 | ${sale.city} ${sale.district}`;
-  const images =
-    sale.imageUrls.length > 0
-      ? [sale.imageUrls[0]]
-      : sale.book.image
-        ? [sale.book.image]
-        : [];
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      images,
-      type: "article",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images,
-    },
-    alternates: {
-      canonical: `https://bookjeok.com/book/sales/${id}`,
-    },
-  };
 }
 
 export default async function Page({ params }: Props) {
   const { id } = await params;
   const queryClient = getQueryClient();
 
-  // 캐시된 API 호출 (generateMetadata와 공유, 중복 호출 없음)
-  const sale = await getCachedBookSale(id);
+  let sale = null;
 
-  // 이미 가져온 데이터를 QueryClient에 직접 설정 (추가 API 호출 없음)
-  if (sale) {
-    queryClient.setQueryData(QUERY_KEYS.bookKeys.saleDetail(id).queryKey, sale);
+  try {
+    // 캐시된 API 호출 (generateMetadata와 공유, 중복 호출 없음)
+    sale = await getCachedBookSale(id);
+
+    // 이미 가져온 데이터를 QueryClient에 직접 설정 (추가 API 호출 없음)
+    if (sale) {
+      queryClient.setQueryData(
+        QUERY_KEYS.bookKeys.saleDetail(id).queryKey,
+        sale,
+      );
+    }
+  } catch (error) {
+    console.error("판매글 상세 정보 조회 중 오류 발생:", error);
   }
 
   return (

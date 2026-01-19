@@ -24,10 +24,14 @@ export default async function InsightsPage() {
   const queryClient = getQueryClient();
 
   // 인사이트 데이터 서버사이드 프리페치
-  await queryClient.prefetchQuery({
-    queryKey: QUERY_KEYS.insightsKeys.all.queryKey,
-    queryFn: getInsights,
-  });
+  try {
+    await queryClient.prefetchQuery({
+      queryKey: QUERY_KEYS.insightsKeys.all.queryKey,
+      queryFn: getInsights,
+    });
+  } catch (error) {
+    console.error("인사이트 데이터 프리패치 중 오류 발생:", error);
+  }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
