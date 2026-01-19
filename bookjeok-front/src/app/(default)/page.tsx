@@ -19,31 +19,35 @@ export const metadata: Metadata = {
 export default async function Page() {
   const queryClient = getQueryClient();
 
-  await Promise.all([
-    // 최근 판매글 prefetch
-    queryClient.prefetchQuery({
-      queryKey: QUERY_KEYS.bookKeys.recentSales.queryKey,
-      queryFn: getRecentBookSales,
-    }),
-    // 인기책 prefetch
-    queryClient.prefetchQuery({
-      queryKey: QUERY_KEYS.bookKeys.popularBooks.queryKey,
-      queryFn: getPopularBooks,
-    }),
-    // 최신 리뷰 prefetch (page: 1, limit: 10)
-    queryClient.prefetchQuery({
-      queryKey: QUERY_KEYS.reviewKeys.list({ page: 1, limit: 10 }).queryKey,
-      queryFn: () => getReviews({ page: 1, limit: 10 }),
-    }),
-    // 첫 번째 출판사(민음사) 책 목록 prefetch - MainBookSlider 초기 로딩 최적화
-    queryClient.prefetchQuery({
-      queryKey: QUERY_KEYS.bookKeys.list({
-        query: HOME_PUBLISHERS[0],
-        display: 10,
-      }).queryKey,
-      queryFn: () => getPublisherBooksServer(HOME_PUBLISHERS[0], 10),
-    }),
-  ]);
+  try {
+    await Promise.all([
+      // 최근 판매글 prefetch
+      queryClient.prefetchQuery({
+        queryKey: QUERY_KEYS.bookKeys.recentSales.queryKey,
+        queryFn: getRecentBookSales,
+      }),
+      // 인기책 prefetch
+      queryClient.prefetchQuery({
+        queryKey: QUERY_KEYS.bookKeys.popularBooks.queryKey,
+        queryFn: getPopularBooks,
+      }),
+      // 최신 리뷰 prefetch (page: 1, limit: 10)
+      queryClient.prefetchQuery({
+        queryKey: QUERY_KEYS.reviewKeys.list({ page: 1, limit: 10 }).queryKey,
+        queryFn: () => getReviews({ page: 1, limit: 10 }),
+      }),
+      // 첫 번째 출판사(민음사) 책 목록 prefetch - MainBookSlider 초기 로딩 최적화
+      queryClient.prefetchQuery({
+        queryKey: QUERY_KEYS.bookKeys.list({
+          query: HOME_PUBLISHERS[0],
+          display: 10,
+        }).queryKey,
+        queryFn: () => getPublisherBooksServer(HOME_PUBLISHERS[0], 10),
+      }),
+    ]);
+  } catch (error) {
+    console.error("홈 페이지 데이터 프리패치 중 오류 발생:", error);
+  }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

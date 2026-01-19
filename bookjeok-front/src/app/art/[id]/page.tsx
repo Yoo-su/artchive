@@ -21,10 +21,14 @@ export default async function Page({ params }: Props) {
   const queryClient = getQueryClient();
 
   // 서버에서 공연/전시 상세 정보 prefetch
-  await queryClient.prefetchQuery({
-    queryKey: QUERY_KEYS.artKeys.detail(id).queryKey,
-    queryFn: () => getArtDetail(id),
-  });
+  try {
+    await queryClient.prefetchQuery({
+      queryKey: QUERY_KEYS.artKeys.detail(id).queryKey,
+      queryFn: () => getArtDetail(id),
+    });
+  } catch (error) {
+    console.error("공연/전시 상세 정보 프리패치 중 오류 발생:", error);
+  }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

@@ -39,17 +39,22 @@ export default async function Page() {
   const queryClient = getQueryClient();
 
   // 인기 판매글 및 초기 판매글 목록 prefetch
-  await Promise.all([
-    queryClient.prefetchQuery({
-      queryKey: QUERY_KEYS.bookKeys.popularSales.queryKey,
-      queryFn: getPopularBookSales,
-    }),
-    queryClient.prefetchInfiniteQuery({
-      queryKey: QUERY_KEYS.bookKeys.marketSales({}).queryKey,
-      queryFn: ({ pageParam = 1 }) => searchBookSales({ page: pageParam }),
-      initialPageParam: 1,
-    }),
-  ]);
+  // 인기 판매글 및 초기 판매글 목록 prefetch
+  try {
+    await Promise.all([
+      queryClient.prefetchQuery({
+        queryKey: QUERY_KEYS.bookKeys.popularSales.queryKey,
+        queryFn: getPopularBookSales,
+      }),
+      queryClient.prefetchInfiniteQuery({
+        queryKey: QUERY_KEYS.bookKeys.marketSales({}).queryKey,
+        queryFn: ({ pageParam = 1 }) => searchBookSales({ page: pageParam }),
+        initialPageParam: 1,
+      }),
+    ]);
+  } catch (error) {
+    console.error("중고마켓 홈 데이터 프리패치 중 오류 발생:", error);
+  }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
