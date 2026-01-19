@@ -1,9 +1,12 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/store";
+import { User } from "@/features/auth/types";
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { privateAxios } from "@/shared/libs/axios";
 
@@ -29,14 +32,14 @@ export const useWithdrawMutation = () => {
     },
     onSuccess: () => {
       toast.success(
-        "회원 탈퇴가 완료되었습니다. 그동안 이용해 주셔서 감사합니다."
+        "회원 탈퇴가 완료되었습니다. 그동안 이용해 주셔서 감사합니다.",
       );
       clearAuth();
       location.href = "/";
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<{ message: string }>) => {
       toast.error(
-        error.response?.data?.message || "회원 탈퇴 중 오류가 발생했습니다."
+        error.response?.data?.message || "회원 탈퇴 중 오류가 발생했습니다.",
       );
     },
   });
@@ -68,7 +71,7 @@ export const useAddToWishlistMutation = () => {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.userKeys.wishlistCheck(
           variables.type,
-          variables.id
+          variables.id,
         ).queryKey,
       });
     },
@@ -99,7 +102,7 @@ export const useRemoveFromWishlistMutation = () => {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.userKeys.wishlistCheck(
           variables.type,
-          variables.id
+          variables.id,
         ).queryKey,
       });
     },
@@ -121,13 +124,13 @@ export const useUpdateUserMutation = () => {
       // 내 프로필 캐시 업데이트
       queryClient.setQueryData(
         QUERY_KEYS.userKeys.me.queryKey,
-        (oldData: any) => {
+        (oldData: User | undefined) => {
           if (!oldData) return data;
           return { ...oldData, ...data };
-        }
+        },
       );
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError) => {
       toast.error("프로필 수정 중 오류가 발생했습니다.");
       console.error(error);
     },
