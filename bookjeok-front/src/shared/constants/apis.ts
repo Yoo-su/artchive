@@ -30,6 +30,11 @@ export const API_PATHS = {
     summary: "/llm/book-summary",
     popularSales: "/book/sales/popular",
   },
+  // 인기 검색어 (독립 도메인)
+  searchKeyword: {
+    record: "/search-keywords",
+    popular: "/search-keywords/popular",
+  },
   art: {
     list: "/art-list",
     detail: (artId: string) => `/art-detail/${artId}`,

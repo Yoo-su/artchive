@@ -1,12 +1,13 @@
 "use client";
 
-import debounce from "lodash/debounce";
 import { Search, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Input } from "@/shared/components/shadcn/input";
 import { cn } from "@/shared/utils/cn";
+
+import { useRecordSearchKeywordMutation } from "../../mutations";
 
 interface StickyBookSearchBarProps {
   isVisible: boolean;
@@ -17,7 +18,7 @@ interface StickyBookSearchBarProps {
 /**
  * 스크롤 시 나타나는 Sticky 검색바
  * - URL search params 기반으로 검색어 관리
- * - 메인 검색 인풋과 URL을 통해 자동 동기화
+ * - 엔터키로 검색 실행
  */
 export const StickyBookSearchBar = ({
   isVisible,
@@ -28,6 +29,9 @@ export const StickyBookSearchBar = ({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  // 검색어 기록 뮤테이션 (fire-and-forget)
+  const { mutate: recordKeyword } = useRecordSearchKeywordMutation();
+
   // URL에서 현재 검색어 가져오기
   const queryFromUrl = searchParams.get(paramName) || "";
   const [inputValue, setInputValue] = useState(queryFromUrl);
@@ -37,43 +41,45 @@ export const StickyBookSearchBar = ({
     setInputValue(queryFromUrl);
   }, [queryFromUrl]);
 
-  // debounce된 URL 업데이트
-  const debouncedUpdateUrl = useMemo(
-    () =>
-      debounce((value: string) => {
-        const params = new URLSearchParams(searchParams.toString());
-        if (value) {
-          params.set(paramName, value);
-        } else {
-          params.delete(paramName);
-        }
-        const queryString = params.toString();
-        router.replace(`${pathname}${queryString ? `?${queryString}` : ""}`, {
-          scroll: false,
-        });
-      }, 500),
-    [router, pathname, searchParams, paramName],
-  );
+  // 검색 실행 함수
+  const executeSearch = useCallback(() => {
+    const trimmedValue = inputValue.trim();
+    const params = new URLSearchParams(searchParams.toString());
 
-  useEffect(() => {
-    return () => {
-      debouncedUpdateUrl.cancel();
-    };
-  }, [debouncedUpdateUrl]);
+    if (trimmedValue) {
+      params.set(paramName, trimmedValue);
+      // 검색어 기록 (fire-and-forget)
+      recordKeyword(trimmedValue);
+    } else {
+      params.delete(paramName);
+    }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setInputValue(value);
-    debouncedUpdateUrl(value);
+    const queryString = params.toString();
+    router.push(`${pathname}${queryString ? `?${queryString}` : ""}`, {
+      scroll: false,
+    });
+  }, [inputValue, router, pathname, searchParams, paramName, recordKeyword]);
+
+  // 엔터키 핸들러
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      executeSearch();
+    }
   };
 
+  // 입력값 변경 핸들러
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  };
+
+  // 검색어 초기화
   const handleClear = () => {
     setInputValue("");
-    // 즉시 URL 업데이트 (debounce 없이)
     const params = new URLSearchParams(searchParams.toString());
     params.delete(paramName);
     const queryString = params.toString();
-    router.replace(`${pathname}${queryString ? `?${queryString}` : ""}`, {
+    router.push(`${pathname}${queryString ? `?${queryString}` : ""}`, {
       scroll: false,
     });
     inputRef.current?.focus();
@@ -92,13 +98,21 @@ export const StickyBookSearchBar = ({
 
       <div className="relative w-full max-w-2xl z-10 animate-in fade-in slide-in-from-top-4 duration-500">
         <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-300" />
+          {/* 왼쪽 아이콘을 클릭 가능한 검색 버튼으로 변경 */}
+          <button
+            onClick={executeSearch}
+            className="absolute left-4 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition-colors"
+            aria-label="검색"
+          >
+            <Search className="w-5 h-5" />
+          </button>
           <Input
             ref={inputRef}
             type="text"
             value={inputValue}
             onChange={handleChange}
-            placeholder="어떤 책을 찾고 계신가요?"
+            onKeyDown={handleKeyDown}
+            placeholder="검색어 입력 후 엔터..."
             className="w-full pl-12 pr-10 py-6 text-lg bg-white/50 border-gray-200 focus:bg-white focus:border-blue-500/50 hover:bg-white/80 rounded-full shadow-sm focus:shadow-lg focus:ring-4 focus:ring-blue-500/10 transition-all duration-300"
           />
           {inputValue && (

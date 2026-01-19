@@ -4,6 +4,7 @@ import { useInView } from "react-intersection-observer";
 
 import { BookSearchInput } from "@/features/book/components/book-search/book-search-input";
 import { BookSearchResultList } from "@/features/book/components/book-search/book-search-result-list";
+import { PopularKeywords } from "@/features/book/components/book-search/popular-keywords";
 import { StickyBookSearchBar } from "@/features/book/components/book-search/sticky-book-search-bar";
 import { ScrollTopButton } from "@/shared/components/ui/scroll-top-button";
 
@@ -31,6 +32,11 @@ export default function BookSearchView() {
       {/* 메인 검색 영역 감시 */}
       <div ref={ref}>
         <BookSearchInput />
+      </div>
+
+      {/* 인기 검색어 */}
+      <div className="flex justify-center mb-8">
+        <PopularKeywords />
       </div>
 
       <BookSearchResultList />

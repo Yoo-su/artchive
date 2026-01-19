@@ -10,6 +10,7 @@ import {
   getMyBookSales,
   getPopularBooks,
   getPopularBookSales,
+  getPopularKeywords,
   getRecentBookSales,
   getRelatedSales,
   getSaleForEdit,
@@ -217,7 +218,7 @@ export const useBookSummaryQuery = (
   title: string,
   author: string,
   enabled: boolean,
-  description?: string
+  description?: string,
 ) => {
   return useQuery({
     queryKey: ["bookSummary", title, author],
@@ -230,5 +231,17 @@ export const useBookSummaryQuery = (
     },
     enabled: enabled,
     retry: false,
+  });
+};
+
+/**
+ * 인기 검색어 목록
+ * 최근 3일 기준 Top 10, 5분 캐싱
+ */
+export const usePopularKeywordsQuery = () => {
+  return useQuery({
+    queryKey: QUERY_KEYS.bookKeys.popularKeywords.queryKey,
+    queryFn: getPopularKeywords,
+    staleTime: 5 * 60 * 1000, // 5분 캐싱\n    refetchOnMount: true, // 기본값 false 오버라이드, stale 시 마운트 때 refetch
   });
 };

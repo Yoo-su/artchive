@@ -26,7 +26,7 @@ import {
  * @returns 책 목록 또는 에러 응답
  */
 export const getBookList = async (
-  params: GetBookListParams
+  params: GetBookListParams,
 ): Promise<GetBookListSuccessResponse | GetBookListErrorResponse> => {
   const displayParam = (params.display ?? DEFAULT_DISPLAY).toString();
   const startParam = (params.start ?? DEFAULT_START).toString();
@@ -50,7 +50,7 @@ export const getBookList = async (
  * @returns 책 상세 정보 또는 에러 응답
  */
 export const getBookDetail = async (
-  isbn: string
+  isbn: string,
 ): Promise<GetBookDetailSuccessResponse | GetBookDetailErrorResponse> => {
   const { data } = await internalAxios.get(API_PATHS.book.detail, {
     params: {
@@ -67,11 +67,11 @@ export const getBookDetail = async (
  * @returns 생성된 판매글 정보
  */
 export const createBookSale = async (
-  payload: CreateBookSaleParams
+  payload: CreateBookSaleParams,
 ): Promise<CommonBookSaleResponse> => {
   const { data } = await privateAxios.post<CommonBookSaleResponse>(
     API_PATHS.book.sale,
-    payload
+    payload,
   );
 
   return data;
@@ -83,7 +83,7 @@ export const createBookSale = async (
  */
 export const getMyBookSales = async (): Promise<GetMyBookSalesResponse> => {
   const { data } = await privateAxios.get<GetMyBookSalesResponse>(
-    API_PATHS.book.mySales
+    API_PATHS.book.mySales,
   );
   return data;
 };
@@ -105,7 +105,7 @@ export const updateBookSaleStatus = async ({
     API_PATHS.book.saleStatus(saleId),
     {
       status,
-    }
+    },
   );
   return data;
 };
@@ -117,7 +117,7 @@ export const updateBookSaleStatus = async ({
  */
 export const getBookSaleDetail = async (saleId: string) => {
   const { data } = await publicAxios.get<UsedBookSale>(
-    API_PATHS.book.saleDetail(saleId)
+    API_PATHS.book.saleDetail(saleId),
   );
   return data;
 };
@@ -129,10 +129,10 @@ export const getBookSaleDetail = async (saleId: string) => {
  * @returns 판매글 상세 정보 (본인 글만)
  */
 export const getSaleForEdit = async (
-  saleId: string | number
+  saleId: string | number,
 ): Promise<UsedBookSale> => {
   const { data } = await privateAxios.get<UsedBookSale>(
-    API_PATHS.book.saleForEdit(saleId)
+    API_PATHS.book.saleForEdit(saleId),
   );
   return data;
 };
@@ -158,7 +158,7 @@ export const getRelatedSales = async ({
 
   const { data } = await publicAxios.get<GetRelatedSalesResponse>(
     API_PATHS.book.relatedSales(isbn),
-    { params }
+    { params },
   );
   return data;
 };
@@ -178,7 +178,7 @@ export const updateBookSale = async ({
 }) => {
   const { data } = await privateAxios.patch<CommonBookSaleResponse>(
     API_PATHS.book.updateSale(saleId),
-    payload
+    payload,
   );
   return data;
 };
@@ -197,7 +197,7 @@ export const deleteBookSale = async (saleId: number) => {
  */
 export const getRecentBookSales = async (): Promise<UsedBookSale[]> => {
   const { data } = await publicAxios.get<UsedBookSale[]>(
-    API_PATHS.book.recentSales
+    API_PATHS.book.recentSales,
   );
   return data;
 };
@@ -207,7 +207,7 @@ export const getRecentBookSales = async (): Promise<UsedBookSale[]> => {
  */
 export const getPopularBookSales = async (): Promise<UsedBookSale[]> => {
   const { data } = await publicAxios.get<UsedBookSale[]>(
-    API_PATHS.book.popularSales
+    API_PATHS.book.popularSales,
   );
   return data;
 };
@@ -228,7 +228,7 @@ export const recordBookView = async (isbn: string): Promise<void> => {
  */
 export const getPopularBooks = async (): Promise<BaseBookInfo[]> => {
   const { data } = await publicAxios.get<BaseBookInfo[]>(
-    API_PATHS.book.popularBooks
+    API_PATHS.book.popularBooks,
   );
   return data;
 };
@@ -243,7 +243,7 @@ export const getPopularBooks = async (): Promise<BaseBookInfo[]> => {
 export const getBookSummary = async (
   title: string,
   author: string,
-  description?: string
+  description?: string,
 ) => {
   const { data } = await privateAxios.post(API_PATHS.book.summary, {
     title,
@@ -259,7 +259,7 @@ export const getBookSummary = async (
  * @returns 검색 결과
  */
 export const searchBookSales = async (
-  params: SearchBookSalesParams
+  params: SearchBookSalesParams,
 ): Promise<SearchBookSalesResponse> => {
   const queryParams = new URLSearchParams();
 
@@ -280,5 +280,34 @@ export const searchBookSales = async (
     : API_PATHS.book.sales;
 
   const { data } = await publicAxios.get<SearchBookSalesResponse>(url);
+  return data;
+};
+
+// ===== 인기 검색어 관련 API =====
+
+/** 인기 검색어 응답 타입 */
+export interface PopularKeyword {
+  keyword: string;
+  searchCount: number;
+}
+
+/**
+ * 검색어를 기록합니다.
+ * 인기 검색어 집계에 사용됩니다. (fire-and-forget 방식 권장)
+ * @param keyword 검색어
+ */
+export const recordSearchKeyword = async (keyword: string): Promise<void> => {
+  await publicAxios.post(API_PATHS.searchKeyword.record, { keyword });
+};
+
+/**
+ * 인기 검색어 목록을 조회합니다.
+ * 최근 3일 기준 Top 10을 반환합니다.
+ * @returns 인기 검색어 목록
+ */
+export const getPopularKeywords = async (): Promise<PopularKeyword[]> => {
+  const { data } = await publicAxios.get<PopularKeyword[]>(
+    API_PATHS.searchKeyword.popular,
+  );
   return data;
 };
