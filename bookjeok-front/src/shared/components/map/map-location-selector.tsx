@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Map, MapMarker, useKakaoLoader } from "react-kakao-maps-sdk";
 
 import { Button } from "@/shared/components/shadcn/button";
+import { config } from "@/shared/config/env";
 
 interface MapLocationSelectorProps {
   onLocationSelect: (
@@ -13,7 +14,7 @@ interface MapLocationSelectorProps {
       city: string;
       district: string;
       placeName?: string;
-    }
+    },
   ) => void;
   defaultLat?: number;
   defaultLng?: number;
@@ -31,7 +32,7 @@ export const MapLocationSelector = ({
   const [isMapLoaded, setIsMapLoaded] = useState(false);
 
   const [loading, error] = useKakaoLoader({
-    appkey: process.env.NEXT_PUBLIC_KAKAO_APP_KEY!,
+    appkey: config.NEXT_PUBLIC_KAKAO_APP_KEY,
     libraries: ["services", "clusterer"],
   });
 
@@ -52,13 +53,14 @@ export const MapLocationSelector = ({
         (pos) => {
           const { latitude, longitude } = pos.coords;
           setPosition({ lat: latitude, lng: longitude });
-          onLocationSelect(latitude, longitude); // 기본 좌표만 먼저 전달 (선택적)
-          updateAddress(latitude, longitude); // 주소 찾아서 다시 상세 전달
+          setPosition({ lat: latitude, lng: longitude });
+          onLocationSelect(latitude, longitude); // 좌표 전달
+          updateAddress(latitude, longitude); // 주소 상세 정보 업데이트
         },
         (err) => {
           console.error(err);
           alert("현재 위치를 가져올 수 없습니다.");
-        }
+        },
       );
     } else {
       alert("Geolocation이 지원되지 않는 브라우저입니다.");
@@ -68,7 +70,7 @@ export const MapLocationSelector = ({
   const updateAddress = (
     lat: number,
     lng: number,
-    shouldNotifyParent: boolean = true
+    shouldNotifyParent: boolean = true,
   ) => {
     const geocoder = new kakao.maps.services.Geocoder();
     geocoder.coord2Address(lng, lat, (result, status) => {
@@ -84,12 +86,12 @@ export const MapLocationSelector = ({
           ? roadAddr.region_2depth_name
           : jibunAddr.region_2depth_name;
 
-        // 부모 컴포넌트에 주소 정보 전달 (초기 로딩 시에는 전달하지 않음)
+        // 초기 로딩 시에는 부모에게 전달하지 않음
         if (shouldNotifyParent) {
           onLocationSelect(lat, lng, {
             city,
             district,
-            placeName: "", // updateAddress는 주로 좌표 이동/현재위치 등에서 불리므로 장소명은 초기화
+            placeName: "", // 좌표 이동 시 장소명 초기화
           });
         }
 
@@ -130,7 +132,7 @@ export const MapLocationSelector = ({
 
   useEffect(() => {
     if (isMapLoaded && defaultLat && defaultLng) {
-      // 초기 로딩 시에는 부모에게 알리지 않고(이미 부모가 데이터를 줌), 마커와 주소 정보만 업데이트
+      // 초기 로딩 시 마커 및 주소 정보 업데이트 (부모 알림 제외)
       updateAddress(defaultLat, defaultLng, false);
     }
   }, [isMapLoaded, defaultLat, defaultLng]);
@@ -160,9 +162,6 @@ export const MapLocationSelector = ({
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              // debounce가 느릴 경우를 대비해 즉시 검색을 트리거할 수 있지만,
-              // 현재 debounce 로직은 onChange에 의존합니다.
-              // useEffect 흐름에 맡깁니다.
             }
           }}
           placeholder="장소 검색 (예: 강남역)"
@@ -231,7 +230,7 @@ export const MapLocationSelector = ({
               const lng = mouseEvent.latLng.getLng();
               setPosition({ lat, lng });
 
-              // 지도 클릭 시 역지오코딩 수행 후 부모에게 전달
+              // 지도 클릭 시 역지오코딩 수행
               const geocoder = new kakao.maps.services.Geocoder();
               geocoder.coord2Address(lng, lat, (result, status) => {
                 if (status === kakao.maps.services.Status.OK) {

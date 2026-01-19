@@ -12,6 +12,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
+import { User } from "@/features/auth/types";
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
 
 import {
@@ -55,7 +56,7 @@ const extractYearMonth = (dateStr: string) => {
 export const useReadingLogsQuery = (
   year: number,
   month: number,
-  options?: { enabled?: boolean }
+  options?: { enabled?: boolean },
 ) => {
   return useQuery({
     queryKey: QUERY_KEYS.readingLog.list(year, month).queryKey,
@@ -122,7 +123,7 @@ export const useUpdateReadingLogSettingsMutation = () => {
 
       // 2. 이전 값 스냅샷 저장
       const previousSettings = queryClient.getQueryData(
-        QUERY_KEYS.readingLog.settings.queryKey
+        QUERY_KEYS.readingLog.settings.queryKey,
       );
 
       // 3. 낙관적 업데이트 적용
@@ -132,15 +133,18 @@ export const useUpdateReadingLogSettingsMutation = () => {
 
       // 내 프로필 캐시도 낙관적 업데이트 (선택적)
       const previousProfile = queryClient.getQueryData(
-        QUERY_KEYS.userKeys.me.queryKey
+        QUERY_KEYS.userKeys.me.queryKey,
       );
       if (previousProfile) {
         queryClient.setQueryData(
           QUERY_KEYS.userKeys.me.queryKey,
-          (old: any) => ({
-            ...old,
-            isReadingLogPublic: newIsPublic,
-          })
+          (old: User | undefined) =>
+            old
+              ? {
+                  ...old,
+                  isReadingLogPublic: newIsPublic,
+                }
+              : old,
         );
       }
 
@@ -152,13 +156,13 @@ export const useUpdateReadingLogSettingsMutation = () => {
       if (context?.previousSettings) {
         queryClient.setQueryData(
           QUERY_KEYS.readingLog.settings.queryKey,
-          context.previousSettings
+          context.previousSettings,
         );
       }
       if (context?.previousProfile) {
         queryClient.setQueryData(
           QUERY_KEYS.userKeys.me.queryKey,
-          context.previousProfile
+          context.previousProfile,
         );
       }
     },
@@ -166,10 +170,16 @@ export const useUpdateReadingLogSettingsMutation = () => {
       // 성공 시 서버에서 받은 최신 데이터로 캐시 확정 (Refetch 방지)
       queryClient.setQueryData(QUERY_KEYS.readingLog.settings.queryKey, data);
 
-      queryClient.setQueryData(QUERY_KEYS.userKeys.me.queryKey, (old: any) => ({
-        ...old,
-        isReadingLogPublic: data.isReadingLogPublic,
-      }));
+      queryClient.setQueryData(
+        QUERY_KEYS.userKeys.me.queryKey,
+        (old: User | undefined) =>
+          old
+            ? {
+                ...old,
+                isReadingLogPublic: data.isReadingLogPublic,
+              }
+            : old,
+      );
     },
   });
 };

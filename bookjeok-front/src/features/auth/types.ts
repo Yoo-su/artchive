@@ -25,4 +25,7 @@ export interface User {
 
   /** 계정 수정일 (ISO 8601 형식의 문자열) */
   updatedAt: string;
+
+  /** 독서 기록 공개 여부 */
+  isReadingLogPublic: boolean;
 }

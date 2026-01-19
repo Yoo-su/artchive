@@ -18,17 +18,17 @@ const ImageSchema = z
   .refine((file) => file.size > 0, "이미지 파일이 필요합니다.")
   .refine(
     (file) => file.size <= MAX_UPLOAD_SIZE,
-    "이미지 크기는 10MB를 초과할 수 없습니다."
+    "이미지 크기는 10MB를 초과할 수 없습니다.",
   )
   .refine(
     (file) => ALLOWED_IMAGE_TYPES.includes(file.type),
-    "지원되지 않는 이미지 형식입니다."
+    "지원되지 않는 이미지 형식입니다.",
   );
 
 export async function uploadImages(
   formData: FormData,
   provider: string,
-  id: number
+  id: number,
 ) {
   const imageFiles = formData.getAll("images") as File[];
 
@@ -37,7 +37,7 @@ export async function uploadImages(
     const validationResult = z.array(ImageSchema).safeParse(imageFiles);
     if (!validationResult.success) {
       throw new Error(
-        validationResult.error.issues.map((e) => e.message).join(", ")
+        validationResult.error.issues.map((e) => e.message).join(", "),
       );
     }
 
@@ -48,14 +48,17 @@ export async function uploadImages(
         return put(`${provider}-${id}/sales-images/${file.name}`, file, {
           access: "public", // 업로드된 파일을 공개적으로 접근 가능하게 설정
         });
-      })
+      }),
     );
 
     return { success: true, blobs };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return { success: false, error: error.message };
+    }
     return {
       success: false,
-      error: error.message || "이미지 업로드에 실패했습니다.",
+      error: "이미지 업로드에 실패했습니다.",
     };
   }
 }

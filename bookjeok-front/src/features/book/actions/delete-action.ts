@@ -10,10 +10,13 @@ export async function deleteImages(urls: string[]) {
   try {
     await del(urls);
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return { success: false, error: error.message };
+    }
     return {
       success: false,
-      error: error.message || "이미지 삭제에 실패했습니다.",
+      error: "이미지 삭제에 실패했습니다.",
     };
   }
 }

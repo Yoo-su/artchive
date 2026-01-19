@@ -5,11 +5,9 @@ import axios, {
 } from "axios";
 
 import { useAuthStore } from "@/features/auth/store";
+import { config } from "@/shared/config/env";
 
-const baseURL =
-  typeof window === "undefined"
-    ? process.env.API_URL || process.env.NEXT_PUBLIC_API_URL
-    : process.env.NEXT_PUBLIC_API_URL;
+const baseURL = config.NEXT_PUBLIC_API_URL;
 
 export const publicAxios = axios.create({
   baseURL,
@@ -29,18 +27,20 @@ privateAxios.interceptors.request.use(
   },
   (error: AxiosError): Promise<AxiosError> => {
     return Promise.reject(error);
-  }
+  },
 );
 
+interface PendingRequest {
+  resolve: (value: unknown) => void;
+  reject: (reason?: unknown) => void;
+}
+
 let isRefreshing = false;
-let failedQueue: {
-  resolve: (value?: unknown) => void;
-  reject: (reason?: any) => void;
-}[] = [];
+let failedQueue: PendingRequest[] = [];
 
 const processQueue = (
   error: AxiosError | null,
-  token: string | null = null
+  token: string | null = null,
 ) => {
   failedQueue.forEach((prom) => {
     if (error) {
@@ -123,7 +123,7 @@ privateAxios.interceptors.response.use(
             headers: {
               Authorization: `Bearer ${refreshToken}`,
             },
-          }
+          },
         );
 
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
@@ -155,7 +155,7 @@ privateAxios.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export const internalAxios = axios.create({

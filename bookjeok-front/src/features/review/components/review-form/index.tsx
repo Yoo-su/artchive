@@ -100,7 +100,7 @@ export const ReviewForm = ({
     }
   }, [initialData, form]);
 
-  const handleBookSelect = (book: any) => {
+  const handleBookSelect = (book: Book) => {
     setSelectedBook(book);
     form.setValue("bookIsbn", book.isbn, { shouldValidate: true });
     setIsBookModalOpen(false);
@@ -133,11 +133,6 @@ export const ReviewForm = ({
       e.preventDefault();
       handleAddTag();
     }
-  };
-
-  const handleRemoveBook = () => {
-    setSelectedBook(null);
-    form.setValue("bookIsbn", "");
   };
 
   const handleSubmit = async (data: ReviewSchemaValues) => {

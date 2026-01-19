@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
 import { useAuthStore } from "@/features/auth/store";
+import { config } from "@/shared/config/env";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -29,10 +30,9 @@ export const SocketProvider = ({
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const accessToken = useAuthStore((state) => state.accessToken);
-
   useEffect(() => {
     if (accessToken) {
-      const newSocket = io(`${process.env.NEXT_PUBLIC_API_URL!}${namespace}`, {
+      const newSocket = io(`${config.NEXT_PUBLIC_API_URL}${namespace}`, {
         transports: ["websocket"],
         auth: {
           token: accessToken,
@@ -46,25 +46,23 @@ export const SocketProvider = ({
       });
 
       newSocket.on("connect", () => {
-        console.log(`Socket connected to ${namespace}:`, newSocket.id);
         setIsConnected(true);
       });
 
       newSocket.on("disconnect", (reason) => {
-        console.log(`Socket disconnected from ${namespace}:`, reason);
         setIsConnected(false);
       });
 
       // 재연결 관련 이벤트 핸들러
       newSocket.on("reconnect", (attemptNumber) => {
         console.log(
-          `Socket reconnected to ${namespace} after ${attemptNumber} attempts`
+          `Socket reconnected to ${namespace} after ${attemptNumber} attempts`,
         );
       });
 
       newSocket.on("reconnect_attempt", (attemptNumber) => {
         console.log(
-          `Socket reconnection attempt ${attemptNumber} to ${namespace}`
+          `Socket reconnection attempt ${attemptNumber} to ${namespace}`,
         );
       });
 
@@ -77,9 +75,7 @@ export const SocketProvider = ({
         setIsConnected(false);
       });
 
-      newSocket.on("connected", (data) => {
-        console.log(data.message);
-      });
+      newSocket.on("connected", (data) => {});
 
       newSocket.on("error", (error) => {
         console.error(`Socket error on ${namespace}:`, error.message);
@@ -88,7 +84,6 @@ export const SocketProvider = ({
       setSocket(newSocket);
 
       return () => {
-        console.log(`Disconnecting socket from ${namespace}...`);
         newSocket.disconnect();
         setSocket(null);
         setIsConnected(false);
