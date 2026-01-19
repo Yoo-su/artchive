@@ -294,28 +294,25 @@ export class ReviewService {
 
   /**
    * 인기 리뷰를 조회합니다.
+   * 최근 2주 내 참여도(조회수+리액션+댓글) 높은 순으로 6개 반환
    */
   async findPopular(): Promise<ReviewResponseDto[]> {
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    const twoWeeksAgo = new Date();
+    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
 
-    // 1. 점수 계산 공식
-    // (조회수 + 리액션*3 + 댓글*5) / (시간감가^1.5) * 랜덤요소
-    const SCORE_FORMULA = `
-      ((COALESCE(review.viewCount, 0) * 1 + 
-        COALESCE(review.reactionCount, 0) * 3 + 
-        COUNT(comment.id) * 5) 
-      / POW((EXTRACT(EPOCH FROM (NOW() - review.createdAt)) / 3600) + 2, 1.5)) 
-      * (RANDOM() * 0.5 + 0.8)
+    // 참여도 점수 공식
+    const ENGAGEMENT_SCORE = `
+      (COALESCE(review.viewCount, 0) + 
+       COALESCE(review.reactionCount, 0) * 3 + 
+       COUNT(comment.id) * 5)
     `;
 
-    // 2. 점수 계산 및 ID 조회 (Join 최소화하여 정확한 5개 추출)
-    // Raw Result 타입 정의
     interface PopularReviewRawResult {
       id: number;
       score: number;
     }
 
+    // 최근 인기 리뷰 (최근 2주, 참여도 순, 6개)
     const idResults = await this.reviewsRepository
       .createQueryBuilder('review')
       .select('review.id', 'id')
@@ -324,8 +321,8 @@ export class ReviewService {
         'comment',
         "comment.targetType = 'REVIEW' AND comment.targetId = CAST(review.id AS VARCHAR)",
       )
-      .addSelect(SCORE_FORMULA, 'score')
-      .where('review.createdAt >= :cutoffDate', { cutoffDate: sixMonthsAgo })
+      .addSelect(ENGAGEMENT_SCORE, 'score')
+      .where('review.createdAt >= :twoWeeksAgo', { twoWeeksAgo })
       .andWhere('review.isPublic = :isPublic', { isPublic: true })
       .groupBy('review.id')
       .orderBy('score', 'DESC')
@@ -338,13 +335,13 @@ export class ReviewService {
 
     const ids = idResults.map((r) => r.id);
 
-    // 3. 엔티티 상세 조회 (Join 포함)
+    // 엔티티 상세 조회
     const reviews = await this.reviewsRepository.find({
       where: { id: In(ids) },
       relations: ['user', 'book', 'tagEntities'],
     });
 
-    // 4. 점수 순서대로 재정렬 (DB에서 가져온 순서는 보장되지 않으므로)
+    // 순서 유지
     const reviewMap = new Map(reviews.map((r) => [r.id, r]));
     const sortedReviews = ids
       .map((id) => reviewMap.get(id))
