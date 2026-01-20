@@ -95,7 +95,7 @@ export function ReadingLogCalendar({
       />
 
       {viewMode === "list" ? (
-        <ReadingLogListView theme={theme} />
+        <ReadingLogListView />
       ) : isFetching ? (
         <ReadingLogCalendarSkeleton />
       ) : (
