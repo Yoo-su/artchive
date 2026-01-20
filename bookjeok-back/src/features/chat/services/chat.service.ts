@@ -311,14 +311,13 @@ export class ChatService {
 
     const messages = await queryBuilder.getMany();
 
-    // 다음 커서 계산
+    // 페이지네이션 정보 계산
+    const hasNextPage = messages.length === limit;
     let nextCursor: number | null = null;
-    if (messages.length > 0) {
+
+    if (hasNextPage && messages.length > 0) {
       nextCursor = messages[messages.length - 1].id;
     }
-
-    // 다음 페이지 존재 여부는 limit만큼 가져왔는지로 판단
-    const hasNextPage = messages.length === limit;
 
     return {
       messages,

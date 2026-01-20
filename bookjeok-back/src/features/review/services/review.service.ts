@@ -197,14 +197,13 @@ export class ReviewService {
       tags: review.tagEntities?.map((t) => t.name) || [],
     })) as ReviewResponseDto[];
 
-    // 다음 커서 계산
+    // 페이지네이션 정보 계산
+    const hasNextPage = reviews.length === limit;
     let nextCursor: number | null = null;
-    if (reviews.length > 0) {
+
+    if (hasNextPage && reviews.length > 0) {
       nextCursor = reviews[reviews.length - 1].id;
     }
-
-    // 커서 방식일 때 hasNextPage 계산은 limit만큼 가져왔는지로 판단
-    const hasNextPage = reviews.length === limit;
 
     return {
       reviews: reviewDtos,
