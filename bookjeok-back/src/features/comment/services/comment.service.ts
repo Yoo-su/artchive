@@ -31,16 +31,28 @@ export class CommentService {
    * @param userId 현재 로그인한 사용자 ID (옵션, 좋아요 상태 확인용)
    */
   async getComments(dto: GetCommentsDto, userId?: number) {
-    const { targetType, targetId, page = 1, limit = 10 } = dto;
-    const skip = (page - 1) * limit;
+    const { targetType, targetId, page = 1, limit = 10, cursorId } = dto;
 
-    const [comments, total] = await this.commentRepository.findAndCount({
-      where: { targetType, targetId },
-      relations: ['user'],
-      order: { createdAt: 'DESC' },
-      skip,
-      take: limit,
-    });
+    // QueryBuilder 생성
+    const qb = this.commentRepository.createQueryBuilder('comment');
+    qb.leftJoinAndSelect('comment.user', 'user');
+    qb.where('comment.targetType = :targetType', { targetType });
+    qb.andWhere('comment.targetId = :targetId', { targetId });
+
+    // 커서 기반 페이지네이션을 위해 ID 역순 정렬 사용
+    qb.orderBy('comment.id', 'DESC');
+
+    // 커서 기반 페이지네이션
+    if (cursorId) {
+      qb.andWhere('comment.id < :cursorId', { cursorId });
+    } else {
+      // 오프셋 기반 (fallback)
+      qb.skip((page - 1) * limit);
+    }
+
+    qb.take(limit);
+
+    const [comments, total] = await qb.getManyAndCount();
 
     // 로그인한 사용자의 좋아요 상태 확인
     let likedCommentIds: Set<number> = new Set();
@@ -58,6 +70,15 @@ export class CommentService {
       isLiked: likedCommentIds.has(comment.id),
     }));
 
+    // 다음 커서 계산
+    let nextCursor: number | null = null;
+    if (comments.length > 0) {
+      nextCursor = comments[comments.length - 1].id;
+    }
+
+    // 커서 방식일 때 hasNextPage 계산은 limit만큼 가져왔는지로 판단
+    const hasNextPage = comments.length === limit;
+
     return {
       data: commentsWithLikeStatus,
       meta: {
@@ -65,6 +86,8 @@ export class CommentService {
         page,
         limit,
         totalPages: Math.ceil(total / limit),
+        hasNextPage,
+        nextCursor: nextCursor ?? undefined,
       },
     };
   }
@@ -76,15 +99,29 @@ export class CommentService {
    * @param page 페이지 번호
    * @param limit 페이지당 항목 수
    */
-  async getMyComments(userId: number, page: number = 1, limit: number = 10) {
-    const skip = (page - 1) * limit;
+  async getMyComments(
+    userId: number,
+    page: number = 1,
+    limit: number = 10,
+    cursorId?: number,
+  ) {
+    const qb = this.commentRepository.createQueryBuilder('comment');
+    qb.where('comment.userId = :userId', { userId });
 
-    const [comments, total] = await this.commentRepository.findAndCount({
-      where: { userId },
-      order: { createdAt: 'DESC' },
-      skip,
-      take: limit,
-    });
+    // 커서 기반 페이지네이션을 위해 ID 역순 정렬 사용
+    qb.orderBy('comment.id', 'DESC');
+
+    // 커서 기반 페이지네이션
+    if (cursorId) {
+      qb.andWhere('comment.id < :cursorId', { cursorId });
+    } else {
+      // 오프셋 기반 (fallback)
+      qb.skip((page - 1) * limit);
+    }
+
+    qb.take(limit);
+
+    const [comments, total] = await qb.getManyAndCount();
 
     // 대상 정보 조회를 위한 데이터 구성
     const commentsWithTargetInfo = await Promise.all(
@@ -125,6 +162,15 @@ export class CommentService {
       }),
     );
 
+    // 다음 커서 계산
+    let nextCursor: number | null = null;
+    if (comments.length > 0) {
+      nextCursor = comments[comments.length - 1].id;
+    }
+
+    // 커서 방식일 때 hasNextPage 계산은 limit만큼 가져왔는지로 판단
+    const hasNextPage = comments.length === limit;
+
     return {
       data: commentsWithTargetInfo,
       meta: {
@@ -132,6 +178,8 @@ export class CommentService {
         page,
         limit,
         totalPages: Math.ceil(total / limit),
+        hasNextPage,
+        nextCursor: nextCursor ?? undefined,
       },
     };
   }

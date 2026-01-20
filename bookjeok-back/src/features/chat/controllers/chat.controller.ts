@@ -62,11 +62,18 @@ export class ChatController {
   @ApiParam({ name: 'roomId', description: '채팅방 ID' })
   async getMessages(
     @Param('roomId', ParseIntPipe) roomId: number,
+    @CurrentUser() user: User,
     @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
-    @CurrentUser() user: User,
+    @Query('cursorId', new ParseIntPipe({ optional: true })) cursorId?: number,
   ) {
-    return await this.chatService.getChatMessages(roomId, user.id, page, limit);
+    return await this.chatService.getChatMessages(
+      roomId,
+      user.id,
+      page,
+      limit,
+      cursorId,
+    );
   }
 
   @Post('rooms')

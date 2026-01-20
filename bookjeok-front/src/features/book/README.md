@@ -8,11 +8,15 @@
 - **`features/book/queries.tsx`**: `apis.ts`의 함수를 사용하여 TanStack Query 훅을 생성합니다. 데이터 캐싱, 서버 상태 동기화, 무한 스크롤 로직 등을 담당합니다.
   - `useBookDetailQuery`: ISBN으로 특정 책의 상세 정보를 조회합니다.
   - `useInfiniteBookSearch`: 검색어에 따라 도서 목록을 무한 스크롤로 조회합니다.
+  - `useInfiniteBookSalesQuery`: 중고책 판매글 목록을 **커서 기반 페이지네이션**으로 조회합니다.
   - `useMyBookSalesQuery`: 내가 등록한 판매글 목록을 조회합니다.
 - **`features/book/mutations.tsx`**: 데이터 생성/수정/삭제(CUD)를 위한 TanStack Query 뮤테이션 훅을 정의합니다.
   - `useCreateBookSaleMutation`: 판매글을 생성합니다. 이미지 업로드 로직을 포함합니다.
   - `useUpdateBookSaleStatusMutation`: 판매글의 상태(판매중, 예약중, 판매완료)를 변경합니다. **낙관적 업데이트(Optimistic Update)**를 적용하여 빠른 UI 반응성을 제공합니다.
   - `useDeleteBookSaleMutation`: 판매글과 연결된 이미지를 함께 삭제합니다.
+- **`features/book/hooks/`**: 커스텀 훅들
+  - `useBookSaleSearchParams`: URL search params에서 필터 조건 추출 (lat/lng 제외)
+  - `useUserLocation`: 사용자 위치(geolocation) 관리 훅. 거리순 정렬 시 위치 권한 요청 및 상태 관리를 담당합니다.
 - **`features/book/stores/`**: 도서 관련 클라이언트 상태를 관리하는 Zustand 스토어입니다.
   - `useRecentBookStore`: 최근 본 책 목록을 `sessionStorage`에 저장하고 관리합니다.
 - **`views/`**: `book` 기능과 관련된 주요 페이지 UI 컴포넌트입니다.

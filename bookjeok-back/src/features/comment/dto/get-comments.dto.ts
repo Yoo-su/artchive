@@ -20,4 +20,8 @@ export class GetCommentsDto {
   @IsOptional()
   @Type(() => Number)
   limit?: number = 10;
+
+  @IsOptional()
+  @Type(() => Number)
+  cursorId?: number;
 }

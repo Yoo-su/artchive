@@ -189,6 +189,7 @@ export interface SearchBookSalesParams {
   lat?: number;
   lng?: number;
   radius?: number;
+  cursor?: string;
 }
 
 export interface SearchBookSalesResponse {
@@ -197,6 +198,7 @@ export interface SearchBookSalesResponse {
   page: number;
   limit: number;
   hasNextPage: boolean;
+  nextCursor?: string;
 }
 
 /**

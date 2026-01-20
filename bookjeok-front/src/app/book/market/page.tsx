@@ -47,8 +47,12 @@ export default async function Page() {
       }),
       queryClient.prefetchInfiniteQuery({
         queryKey: QUERY_KEYS.bookKeys.marketSales({}).queryKey,
-        queryFn: ({ pageParam = 1 }) => searchBookSales({ page: pageParam }),
-        initialPageParam: 1,
+        queryFn: ({ pageParam }) =>
+          searchBookSales({
+            page: 1,
+            cursor: pageParam as string | undefined,
+          }),
+        initialPageParam: undefined,
       }),
     ]);
   } catch (error) {

@@ -51,6 +51,7 @@ export interface GetReviewsParams {
   category?: string | null;
   userId?: number;
   excludeId?: number;
+  cursorId?: number;
   enabled?: boolean;
 }
 
@@ -60,6 +61,8 @@ export interface GetReviewsResponse {
   page: number;
   limit: number;
   totalPages: number;
+  hasNextPage?: boolean;
+  nextCursor?: number;
 }
 
 export interface ReviewFormValues {

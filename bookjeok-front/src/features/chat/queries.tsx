@@ -16,7 +16,7 @@ import { ChatRoom } from "./types";
  * 소켓으로 실시간 업데이트, React Query는 폴백용
  */
 export const useMyChatRoomsQuery = (
-  options?: Omit<UseQueryOptions<ChatRoom[]>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<ChatRoom[]>, "queryKey" | "queryFn">,
 ) => {
   return useQuery({
     queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
@@ -34,10 +34,11 @@ export const useMyChatRoomsQuery = (
 export const useInfiniteChatMessagesQuery = (roomId: number | null) => {
   return useInfiniteQuery({
     queryKey: QUERY_KEYS.chatKeys.messages(roomId!).queryKey,
-    queryFn: ({ pageParam = 1 }) => getChatMessages(roomId!, pageParam),
-    initialPageParam: 1,
-    getPreviousPageParam: (firstPage, allPages) => {
-      return firstPage.hasNextPage ? allPages.length + 1 : undefined;
+    queryFn: ({ pageParam }) =>
+      getChatMessages(roomId!, 1, 20, pageParam as number | undefined),
+    initialPageParam: undefined as number | undefined,
+    getPreviousPageParam: (firstPage) => {
+      return firstPage.nextCursor ?? undefined;
     },
     getNextPageParam: () => undefined,
     enabled: !!roomId,

@@ -48,4 +48,12 @@ export class GetReviewsQueryDto {
   @Type(() => Number)
   @IsInt()
   excludeId?: number;
+
+  @ApiPropertyOptional({
+    description: '커서 ID (이전 페이지의 마지막 항목 ID)',
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  cursorId?: number;
 }

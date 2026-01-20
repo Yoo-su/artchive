@@ -17,7 +17,8 @@
 
 - **`queries.tsx`**: TanStack Query 쿼리 훅을 정의합니다.
   - `useReviewDetailQuery`: 리뷰 상세 조회
-  - `useReviewsQuery`: 리뷰 목록 조회
+  - `useReviewsQuery`: 리뷰 목록 조회 (단일 페이지)
+  - `useReviewsInfiniteQuery`: 리뷰 목록 무한 스크롤 조회 (**커서 기반 페이지네이션**: `cursorId` 사용)
   - `usePopularReviewsQuery`: 인기 리뷰 조회
   - `useReviewFeedsQuery`: 카테고리별 피드 조회
   - `useMyReactionQuery`: 내 리액션 상태 조회

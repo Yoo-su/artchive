@@ -49,39 +49,48 @@ export const BookSaleFilter = ({
   onApply,
   onReset,
 }: BookSaleFilterProps) => {
+  // initialParams에서 직접 초기값 계산 (useEffect 대신)
+  const getDefaultValues = (): FilterFormInputs => ({
+    search: initialParams.search || "",
+    city: initialParams.city || "all",
+    district: initialParams.district || "all",
+    status: initialParams.status || [],
+    priceRange: [
+      initialParams.minPrice ?? 0,
+      initialParams.maxPrice ?? MAX_MARKET_PRICE,
+    ],
+    sort:
+      initialParams.sortBy === "distance"
+        ? "distance_ASC"
+        : `${initialParams.sortBy || "createdAt"}_${
+            initialParams.sortOrder || "DESC"
+          }`,
+  });
+
   const { register, handleSubmit, control, watch, reset, setValue } =
     useForm<FilterFormInputs>({
-      defaultValues: {
-        search: "",
-        city: "all",
-        district: "all",
-        status: [],
-        priceRange: [0, MAX_MARKET_PRICE],
-        sort: "createdAt_DESC",
-      },
+      defaultValues: getDefaultValues(),
     });
 
   const city = watch("city");
   const priceRange = watch("priceRange");
 
+  // URL 파라미터가 변경될 때 폼 동기화
   useEffect(() => {
-    reset({
-      search: initialParams.search || "",
-      city: initialParams.city || "all",
-      district: initialParams.district || "all",
-      status: initialParams.status || [],
-      priceRange: [
-        initialParams.minPrice ?? 0,
-        initialParams.maxPrice ?? MAX_MARKET_PRICE,
-      ],
-      sort:
-        initialParams.sortBy === "distance"
-          ? "distance_ASC"
-          : `${initialParams.sortBy || "createdAt"}_${
-              initialParams.sortOrder || "DESC"
-            }`,
-    });
-  }, [initialParams, reset]);
+    reset(getDefaultValues());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    initialParams.search,
+    initialParams.city,
+    initialParams.district,
+    initialParams.sortBy,
+    initialParams.sortOrder,
+    initialParams.minPrice,
+    initialParams.maxPrice,
+    // status는 배열이므로 JSON.stringify로 비교
+    JSON.stringify(initialParams.status),
+    reset,
+  ]);
 
   const handleCityChange = (newCity: string) => {
     setValue("city", newCity);
