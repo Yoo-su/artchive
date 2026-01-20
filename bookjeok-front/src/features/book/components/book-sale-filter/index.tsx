@@ -78,7 +78,6 @@ export const BookSaleFilter = ({
   // URL 파라미터가 변경될 때 폼 동기화
   useEffect(() => {
     reset(getDefaultValues());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     initialParams.search,
     initialParams.city,
