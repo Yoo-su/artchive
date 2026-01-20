@@ -5,7 +5,7 @@ import { DataSource } from 'typeorm';
 import { ChatRoom } from '../entities/chat-room.entity';
 import { ChatParticipant } from '../entities/chat-participant.entity';
 import { ChatMessage } from '../entities/chat-message.entity';
-import { UsedBookSale } from '@/features/book/entities/used-book-sale.entity';
+import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { ReadReceipt } from '../entities/read-receipt.entity';
 import { UserService } from '@/features/user/services/user.service';
 import { BookService } from '@/features/book/services/book.service';

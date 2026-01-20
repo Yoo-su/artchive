@@ -43,5 +43,5 @@ export class GetBookSalesQueryDto {
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
-  radius?: number = 5000; // Default 5km (meter unit?) or let's use meters. 5000m.
+  radius?: number = 5000; // Default 5km
 }

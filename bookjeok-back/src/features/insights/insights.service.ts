@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import {
   UsedBookSale,
   SaleStatus,
-} from '@/features/book/entities/used-book-sale.entity';
+} from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { Review } from '@/features/review/entities/review.entity';
 import {
   ReviewReaction,

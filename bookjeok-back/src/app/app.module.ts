@@ -9,7 +9,8 @@ import { AuthModule } from '@/features/auth/auth.module';
 import { UserModule } from '@/features/user/user.module';
 import { User } from '@/features/user/entities/user.entity';
 import { BookModule } from '@/features/book/book.module';
-import { UsedBookSale } from '@/features/book/entities/used-book-sale.entity';
+import { UsedBookSaleModule } from '@/features/used-book-sale/used-book-sale.module';
+import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { Book } from '@/features/book/entities/book.entity';
 import { ChatModule } from '@/features/chat/chat.module';
 import { LlmModule } from '@/features/llm/llm.module';
@@ -63,6 +64,7 @@ import { SearchKeywordModule } from '@/features/search-keyword/search-keyword.mo
     AuthModule,
     UserModule,
     BookModule,
+    UsedBookSaleModule,
     ChatModule,
     LlmModule,
     ReviewModule,

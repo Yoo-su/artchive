@@ -1,30 +1,14 @@
 import {
   Controller,
   Post,
-  Body,
-  UseGuards,
-  Patch,
-  Param,
-  ParseIntPipe,
   Get,
   Query,
-  Delete,
   HttpCode,
   HttpStatus,
   UseInterceptors,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { BookService } from '../services/book.service';
-import { UsedBookViewCountInterceptor } from '../interceptors/used-book-view-count.interceptor';
 import { BookViewCountInterceptor } from '../interceptors/book-view-count.interceptor';
-import { CreateBookSaleDto } from '../dtos/create-book-sale.dto';
-import { UpdateSaleStatusDto } from '../../user/dtos/update-sale-status.dto';
-import { GetBookSalesQueryDto } from '../dtos/get-book-sales-query.dto';
-import { UpdateBookSaleDto } from '../dtos/update-book-sale.dto';
-import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
-import { User } from '@/features/user/entities/user.entity';
-import { QueryBookSaleDto } from '../dtos/query-book-sale.dto';
-
 import {
   ApiTags,
   ApiOperation,
@@ -38,83 +22,6 @@ import {
 export class BookController {
   constructor(private readonly bookService: BookService) {}
 
-  @Post('sale')
-  @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({
-    summary: '중고책 판매글 작성',
-    description: '새로운 중고책 판매글을 작성합니다.',
-  })
-  @ApiResponse({
-    status: 201,
-    description: '판매글이 성공적으로 생성되었습니다.',
-  })
-  async createUsedBookSale(
-    @Body() createBookSaleDto: CreateBookSaleDto,
-    @CurrentUser() user: User,
-  ) {
-    const userId = user.id;
-    const newSale = await this.bookService.createUsedBookSale(
-      createBookSaleDto,
-      userId,
-    );
-    return newSale;
-  }
-
-  @Get('sales')
-  @ApiOperation({
-    summary: '판매글 검색 및 목록 조회',
-    description: '필터링, 검색, 정렬 조건에 따라 판매글 목록을 조회합니다.',
-  })
-  @ApiResponse({ status: 200, description: '판매글 목록을 반환합니다.' })
-  async searchSales(@Query() query: QueryBookSaleDto) {
-    return await this.bookService.searchSales(query);
-  }
-
-  @Patch('sales/:id/status')
-  @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({
-    summary: '판매글 상태 변경',
-    description: '판매글의 상태(판매중, 예약중, 판매완료)를 변경합니다.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: '상태가 성공적으로 변경되었습니다.',
-  })
-  @ApiParam({ name: 'id', description: '판매글 ID' })
-  async updateBookSaleStatus(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: User,
-    @Body() updateSaleStatusDto: UpdateSaleStatusDto,
-  ) {
-    const userId = user.id;
-    const updatedSale = await this.bookService.updateSaleStatus(
-      id,
-      userId,
-      updateSaleStatusDto.status,
-    );
-    return updatedSale;
-  }
-
-  @Get('sales/recent')
-  @ApiOperation({
-    summary: '최근 판매글 조회',
-    description: '최근 등록된 판매글 목록을 조회합니다.',
-  })
-  @ApiResponse({ status: 200, description: '최근 판매글 목록을 반환합니다.' })
-  async getRecentSales() {
-    return await this.bookService.findRecentSales();
-  }
-
-  @Get('sales/popular')
-  @ApiOperation({
-    summary: '인기 판매글 조회',
-    description: '조회수가 높은 상위 판매글 목록을 조회합니다.',
-  })
-  @ApiResponse({ status: 200, description: '인기 판매글 목록을 반환합니다.' })
-  async getPopularSales() {
-    return await this.bookService.findPopularSales();
-  }
-
   @Get('popular')
   @ApiOperation({
     summary: '인기책 조회',
@@ -123,24 +30,6 @@ export class BookController {
   @ApiResponse({ status: 200, description: '인기책 목록을 반환합니다.' })
   async getPopularBooks() {
     return await this.bookService.findPopularBooks();
-  }
-
-  @Get('sales/:id/edit')
-  @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({
-    summary: '판매글 수정용 데이터 조회',
-    description:
-      '본인의 판매글 데이터만 반환합니다. 본인 글이 아니면 403 Forbidden.',
-  })
-  @ApiResponse({ status: 200, description: '판매글 수정 데이터를 반환합니다.' })
-  @ApiResponse({ status: 403, description: '수정 권한이 없습니다.' })
-  @ApiResponse({ status: 404, description: '판매글을 찾을 수 없습니다.' })
-  @ApiParam({ name: 'id', description: '판매글 ID' })
-  async getSaleForEdit(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: User,
-  ) {
-    return await this.bookService.findSaleForEdit(id, user.id);
   }
 
   @Post(':isbn/view')
@@ -157,80 +46,6 @@ export class BookController {
     // 인터셉터가 조회수 처리, 204 No Content 응답
   }
 
-  @Get('sales/:id')
-  @UseInterceptors(UsedBookViewCountInterceptor)
-  @ApiOperation({
-    summary: '판매글 상세 조회',
-    description: '특정 판매글의 상세 정보를 조회합니다.',
-  })
-  @ApiResponse({ status: 200, description: '판매글 상세 정보를 반환합니다.' })
-  @ApiResponse({ status: 404, description: '판매글을 찾을 수 없습니다.' })
-  @ApiParam({ name: 'id', description: '판매글 ID' })
-  async getSaleById(@Param('id', ParseIntPipe) id: number) {
-    return await this.bookService.findSaleById(id);
-  }
-
-  @Get(':isbn/sales')
-  @ApiOperation({
-    summary: 'ISBN별 판매글 조회',
-    description: '특정 책(ISBN)에 대한 판매글 목록을 조회합니다.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: '해당 책의 판매글 목록을 반환합니다.',
-  })
-  @ApiParam({ name: 'isbn', description: '책 ISBN' })
-  async getBookSales(
-    @Param('isbn') isbn: string,
-    @Query() query: GetBookSalesQueryDto,
-  ) {
-    return await this.bookService.findSalesByIsbn(isbn, query);
-  }
-
-  @Patch('sales/:id')
-  @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({
-    summary: '판매글 수정',
-    description: '판매글의 내용을 수정합니다.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: '판매글이 성공적으로 수정되었습니다.',
-  })
-  @ApiParam({ name: 'id', description: '판매글 ID' })
-  async updateBookSale(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: User,
-    @Body() updateBookSaleDto: UpdateBookSaleDto,
-  ) {
-    const userId = user.id;
-    const updatedSale = await this.bookService.updateUsedBookSale(
-      id,
-      userId,
-      updateBookSaleDto,
-    );
-    return {
-      sale: updatedSale,
-    };
-  }
-
-  @Delete('sales/:id')
-  @UseGuards(AuthGuard('jwt'))
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: '판매글 삭제', description: '판매글을 삭제합니다.' })
-  @ApiResponse({
-    status: 204,
-    description: '판매글이 성공적으로 삭제되었습니다.',
-  })
-  @ApiParam({ name: 'id', description: '판매글 ID' })
-  async deleteBookSale(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: User,
-  ) {
-    const userId = user.id;
-    await this.bookService.deleteUsedBookSale(id, userId);
-    return;
-  }
   @Get('search')
   @ApiOperation({
     summary: '책 검색',

@@ -5,7 +5,7 @@ import { ChatRoom } from '../entities/chat-room.entity';
 import { ChatParticipant } from '../entities/chat-participant.entity';
 import { ChatMessage } from '../entities/chat-message.entity';
 import { User } from '@/features/user/entities/user.entity';
-import { UsedBookSale } from '@/features/book/entities/used-book-sale.entity';
+import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { ReadReceipt } from '../entities/read-receipt.entity';
 import { ChatGateway } from '../gateways/chat.gateway';
 import { BusinessException } from '@/shared/exceptions/business.exception';
