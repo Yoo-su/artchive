@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ReactNode, useState } from "react";
 
+import { config } from "@/shared/config/env";
 import { getQueryClient } from "@/shared/libs/query-client";
 
 interface QueryProviderProps {
@@ -18,9 +19,7 @@ export const QueryProvider = ({ children }: QueryProviderProps) => {
     <QueryClientProvider client={queryClientState}>
       {children}
       {/* 개발 환경에서만 DevTools 표시 */}
-      {process.env.NODE_ENV === "development" && (
-        <ReactQueryDevtools initialIsOpen={false} />
-      )}
+      {config.isDev && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   );
 };

@@ -1,7 +1,10 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 
-import { getPopularBookSales, searchBookSales } from "@/features/book/apis";
+import {
+  getPopularBookSales,
+  searchBookSales,
+} from "@/features/book-sale/apis";
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { BookMarketView } from "@/views/book-market-view";

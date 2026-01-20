@@ -10,6 +10,7 @@ import {
   InsightCard,
 } from "@/features/insights/components/insight-card";
 import { LocationSales, LocationStat } from "@/features/insights/types";
+import { config } from "@/shared/config/env";
 
 // 색상 팔레트
 const COLORS = {
@@ -33,7 +34,7 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
   const mapRef = useRef<kakao.maps.Map | null>(null);
   const geocoderRef = useRef<kakao.maps.services.Geocoder | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<LocationStat | null>(
-    null
+    null,
   );
   const [sales, setSales] = useState<LocationSales[]>([]);
   const [isLoadingSales, setIsLoadingSales] = useState(false);
@@ -41,7 +42,7 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
   const [selectedSale, setSelectedSale] = useState<LocationSales | null>(null);
 
   const [loading, error] = useKakaoLoader({
-    appkey: process.env.NEXT_PUBLIC_KAKAO_APP_KEY!,
+    appkey: config.NEXT_PUBLIC_KAKAO_APP_KEY!,
     libraries: ["services", "clusterer"],
   });
 
@@ -77,7 +78,7 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
         });
       });
     },
-    []
+    [],
   );
 
   // 장소 버튼 클릭 핸들러
@@ -91,7 +92,7 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
         // 1. 해당 지역 판매글 조회
         const salesData = await getLocationSales(
           location.city,
-          location.district
+          location.district,
         );
         setSales(salesData);
 
@@ -109,7 +110,7 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
         setIsLoadingSales(false);
       }
     },
-    [searchAddressToCoords]
+    [searchAddressToCoords],
   );
 
   // 초기 로딩 시 첫 번째 장소 선택

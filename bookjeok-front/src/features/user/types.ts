@@ -1,4 +1,5 @@
-import { BookInfo, UsedBookSale } from "../book/types";
+import { BookInfo } from "../book/types";
+import { UsedBookSale } from "../book-sale/types";
 import { ReadingLog } from "../reading-log/types";
 
 // ...

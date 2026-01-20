@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Input } from "@/shared/components/shadcn/input";
 
-import { useRecordSearchKeywordMutation } from "../../mutations";
+import { useRecordSearchKeywordMutation } from "../../hooks/use-record-search-keyword";
 
 interface BookSearchInputProps {
   /** 쿼리 파라미터 이름 (기본값: "q") */

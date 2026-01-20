@@ -4,7 +4,7 @@
 
 ## 1. 주요 파일 및 역할
 
-- **`apis.ts`**: 백엔드 `/reviews` 엔드포인트와 통신하는 API 함수들을 정의합니다.
+- **`apis/index.ts`**: 백엔드 `/reviews` 엔드포인트와 통신하는 API 함수들을 정의합니다.
   - `getReviews`: 리뷰 목록 조회 (필터링/페이지네이션)
   - `getReviewDetail`: 리뷰 상세 조회
   - `getPopularReviews`: 인기 리뷰 목록 조회
@@ -41,7 +41,7 @@
   - `revalidate-action.ts`: 리뷰 관련 캐시 무효화
 
 - **`server/`**: 서버 사이드 데이터 페칭
-- **`types/`**: 리뷰 관련 TypeScript 타입 정의
+- **`types.ts`**: 리뷰 관련 TypeScript 타입 정의
 - **`constants.ts`**: 리뷰 카테고리, 리액션 타입 등 상수 정의
 - **`schemas.ts`**: Zod 스키마 (폼 유효성 검사)
 

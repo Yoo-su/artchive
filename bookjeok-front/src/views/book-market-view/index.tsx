@@ -2,8 +2,8 @@
 
 import { Suspense } from "react";
 
-import { BookMarket } from "@/features/book/components/book-market";
-import { PopularBookSaleList } from "@/features/book/components/book-market/popular-book-sale-list";
+import { BookMarket } from "@/features/book-sale/components/book-market";
+import { PopularBookSaleList } from "@/features/book-sale/components/book-market/popular-book-sale-list";
 import { AdBanner } from "@/shared/components/ads/ad-banner";
 
 export const BookMarketView = () => {

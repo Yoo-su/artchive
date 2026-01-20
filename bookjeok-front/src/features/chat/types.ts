@@ -1,4 +1,4 @@
-import { SaleAuthor, UsedBookSale } from "../book/types";
+import { SaleAuthor, UsedBookSale } from "../book-sale/types";
 
 // 채팅 메시지 타입
 export interface ChatMessage {

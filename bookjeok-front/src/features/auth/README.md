@@ -4,12 +4,12 @@
 
 ## 1. 주요 파일 및 역할
 
-- **`features/auth/store.ts`**: **Zustand**를 사용하여 인증 상태를 관리하는 스토어입니다.
+- **`features/auth/stores/use-auth-store.ts`**: **Zustand**를 사용하여 인증 상태를 관리하는 스토어입니다.
   - `user`: 로그인한 사용자 정보 객체.
   - `accessToken`, `refreshToken`: 백엔드로부터 받은 JWT.
   - `setUser`, `setTokens`, `clearAuth`: 상태를 변경하는 액션 함수.
   - `persist` 미들웨어를 사용하여 인증 상태를 `localStorage`에 저장하여 브라우저를 새로고침해도 로그인 상태가 유지되도록 합니다.
-- **`features/auth/apis.ts`**: 인증 관련 API를 호출하는 함수가 정의되어 있습니다. `getUserProfile` 함수는 저장된 Access Token을 이용해 현재 로그인된 사용자의 프로필 정보를 백엔드로부터 가져옵니다.
+- **`features/auth/apis/index.ts`**: 인증 관련 API를 호출하는 함수가 정의되어 있습니다. `getUserProfile` 함수는 저장된 Access Token을 이용해 현재 로그인된 사용자의 프로필 정보를 백엔드로부터 가져옵니다.
 - **`features/auth/components/auth-guard/index.tsx`**: 인증된 사용자만 접근할 수 있는 페이지를 보호하는 **HOC (Higher-Order Component)** 입니다.
 - **`features/auth/components/guest-guard/index.tsx`**: 인증되지 않은 사용자만 접근해야 하는 페이지(e.g., 로그인 페이지)를 위한 HOC입니다.
 - **`app/(auth)/login/page.tsx`**: 로그인 UI를 보여주는 페이지입니다. `guest-guard`로 감싸져 있습니다.

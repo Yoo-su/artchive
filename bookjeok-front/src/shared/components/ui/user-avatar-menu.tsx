@@ -3,7 +3,7 @@
 import { User as UserIcon } from "lucide-react";
 import Link from "next/link";
 
-import { useAuthStore } from "@/features/auth/store";
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import {
   Avatar,
   AvatarFallback,

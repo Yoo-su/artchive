@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { deleteImages } from "@/features/book/actions/delete-action";
+import { deleteImages } from "@/features/book-sale/actions/delete-action";
 import {
   createReview,
   deleteReview,

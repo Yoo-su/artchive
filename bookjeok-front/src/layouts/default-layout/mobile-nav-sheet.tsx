@@ -14,7 +14,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 
-import { useAuthStore } from "@/features/auth/store";
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Sheet,

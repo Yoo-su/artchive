@@ -6,7 +6,7 @@ import { ko } from "date-fns/locale";
 import { motion } from "framer-motion";
 import { MessageSquareText } from "lucide-react";
 
-import { useAuthStore } from "@/features/auth/store";
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import {
   Avatar,
   AvatarFallback,

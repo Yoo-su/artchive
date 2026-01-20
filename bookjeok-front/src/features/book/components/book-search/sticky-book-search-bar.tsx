@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Input } from "@/shared/components/shadcn/input";
 import { cn } from "@/shared/utils/cn";
 
-import { useRecordSearchKeywordMutation } from "../../mutations";
+import { useRecordSearchKeywordMutation } from "../../hooks/use-record-search-keyword";
 
 interface StickyBookSearchBarProps {
   isVisible: boolean;

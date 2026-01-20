@@ -1,6 +1,14 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["NAVER_CLIENT_ID", "NAVER_CLIENT_SECRET"],
+  "globalEnv": [
+    "NAVER_CLIENT_ID",
+    "NAVER_CLIENT_SECRET",
+    "CULTURE_SERVICE_KEY",
+    "NEXT_PUBLIC_API_URL",
+    "NEXT_PUBLIC_KAKAO_APP_KEY",
+    "NEXT_PUBLIC_GOOGLE_ADSENSE_ID",
+    "NODE_ENV"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

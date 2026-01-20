@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import { useAuthStore } from "@/features/auth/store";
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { ReviewGridList } from "@/features/review/components/review-grid-list";
 import { useDeleteReviewMutation } from "@/features/review/mutations";
 import { PATHS } from "@/shared/constants/paths";

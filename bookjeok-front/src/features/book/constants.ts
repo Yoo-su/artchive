@@ -13,5 +13,3 @@ export const HOME_PUBLISHERS = [
 ];
 
 export const RECENT_BOOKS_KEY = "recentBooks";
-
-export const MAX_MARKET_PRICE = 100000;

@@ -2,7 +2,7 @@ import { ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { SaleStatusBadge } from "@/features/book/components/common/sale-status-badge";
+import { SaleStatusBadge } from "@/features/book-sale/components/sale-status-badge";
 import { WishlistButton } from "@/features/user/components/wishlist-button";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";

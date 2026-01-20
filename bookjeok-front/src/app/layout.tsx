@@ -14,6 +14,7 @@ import UserProvider from "@/shared/providers/user-provider";
 import { bitcount, nanum_gothic, pretendard } from "@/styles/fonts";
 
 export { metadata } from "@/shared/config/metadata";
+import { config } from "@/shared/config/env";
 
 export default async function Layout({
   children,
@@ -41,11 +42,11 @@ export default async function Layout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID && (
+        {config.NEXT_PUBLIC_GOOGLE_ADSENSE_ID && (
           <Script
-            id="google-adsense"
+            id="adsense-init"
             async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID}`}
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${config.NEXT_PUBLIC_GOOGLE_ADSENSE_ID}`}
             crossOrigin="anonymous"
             strategy="afterInteractive"
           />

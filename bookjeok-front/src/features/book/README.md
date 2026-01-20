@@ -4,7 +4,7 @@
 
 ## 1. 주요 파일 및 역할
 
-- **`features/book/apis.ts`**: 백엔드 `/book` 및 `/user` 엔드포인트와 통신하는 모든 API 요청 함수를 정의합니다. (e.g., `getBookList`, `createBookSale`, `getMyBookSales`)
+- **`features/book/apis/index.ts`**: 백엔드 `/book` 및 `/user` 엔드포인트와 통신하는 모든 API 요청 함수를 정의합니다. (e.g., `getBookList`, `createBookSale`, `getMyBookSales`)
 - **`features/book/queries.tsx`**: `apis.ts`의 함수를 사용하여 TanStack Query 훅을 생성합니다. 데이터 캐싱, 서버 상태 동기화, 무한 스크롤 로직 등을 담당합니다.
   - `useBookDetailQuery`: ISBN으로 특정 책의 상세 정보를 조회합니다.
   - `useInfiniteBookSearch`: 검색어에 따라 도서 목록을 무한 스크롤로 조회합니다.

@@ -5,7 +5,7 @@ import { ReactNode, useEffect } from "react";
 
 import { PATHS } from "@/shared/constants/paths";
 
-import { useAuthStore } from "../../store";
+import { useAuthStore } from "../../stores/use-auth-store";
 
 interface AuthGuardProps {
   children: ReactNode;

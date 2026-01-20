@@ -10,6 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/shared/components/shadcn/popover";
+import { config } from "@/shared/config/env";
 import { cn } from "@/shared/utils";
 
 // 카카오 SDK 타입 선언
@@ -78,7 +79,7 @@ export const ShareButton = ({
   // 카카오 SDK 초기화
   useEffect(() => {
     const initKakao = () => {
-      const appKey = process.env.NEXT_PUBLIC_KAKAO_APP_KEY;
+      const appKey = config.NEXT_PUBLIC_KAKAO_APP_KEY;
 
       if (!appKey) {
         return;
@@ -103,7 +104,7 @@ export const ShareButton = ({
       } else {
         // 이미 스크립트가 로드 중인지 확인
         const existingScript = document.querySelector(
-          'script[src*="kakao_js_sdk"]'
+          'script[src*="kakao_js_sdk"]',
         );
         if (existingScript) {
           existingScript.addEventListener("load", initKakao);
@@ -146,7 +147,7 @@ export const ShareButton = ({
   const handleKakaoShare = () => {
     if (!window.Kakao || !kakaoReady) {
       toast.error(
-        "카카오 공유를 불러오는 중입니다. 잠시 후 다시 시도해주세요."
+        "카카오 공유를 불러오는 중입니다. 잠시 후 다시 시도해주세요.",
       );
       return;
     }
@@ -184,7 +185,7 @@ export const ShareButton = ({
           className={cn(
             "text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-full",
             showLabel ? "h-8 px-3 gap-1.5" : "h-8 w-8 p-0",
-            className
+            className,
           )}
         >
           <Share2 className="w-4 h-4" />
@@ -221,7 +222,7 @@ export const ShareButton = ({
             size="sm"
             className={cn(
               "h-9 w-9 p-0 rounded-full",
-              copied ? "bg-emerald-100 text-emerald-600" : "hover:bg-stone-100"
+              copied ? "bg-emerald-100 text-emerald-600" : "hover:bg-stone-100",
             )}
             onClick={handleCopyLink}
             title="링크 복사"

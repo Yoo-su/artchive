@@ -1,6 +1,6 @@
 "use client";
 
-import { BookSaleHistoryList } from "@/features/book/components/book-sale-history-list";
+import { BookSaleHistoryList } from "@/features/book-sale/components/book-sale-history-list";
 
 export const BookSaleHistoryView = () => {
   return (
