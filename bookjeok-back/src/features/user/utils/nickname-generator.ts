@@ -54,10 +54,10 @@ export class NicknameGenerator {
   }
 
   /**
-   * 랜덤 기본 프로필 이미지 번호를 반환합니다. (1~5)
-   * @returns 1부터 5 사이의 숫자
+   * 기본 프로필 이미지 번호를 랜덤으로 반환합니다. (1-10)
+   * @returns 1에서 10 사이의 랜덤 숫자
    */
   static getRandomProfileNumber(): number {
-    return Math.floor(Math.random() * 5) + 1;
+    return Math.floor(Math.random() * 10) + 1;
   }
 }
