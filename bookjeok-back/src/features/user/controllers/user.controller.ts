@@ -69,6 +69,35 @@ export class UserController {
     return new MyProfileResponseDto(user);
   }
 
+  @Get('check-nickname')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({
+    summary: '닉네임 중복 검사',
+    description:
+      '닉네임이 사용 가능한지 확인합니다. 본인의 현재 닉네임은 사용 가능으로 처리됩니다.',
+  })
+  @ApiQuery({ name: 'nickname', description: '확인할 닉네임' })
+  @ApiResponse({
+    status: 200,
+    description: '닉네임 사용 가능 여부를 반환합니다.',
+    schema: {
+      type: 'object',
+      properties: {
+        available: { type: 'boolean' },
+      },
+    },
+  })
+  async checkNickname(
+    @CurrentUser() user: User,
+    @Query('nickname') nickname: string,
+  ) {
+    const available = await this.userService.checkNicknameAvailability(
+      nickname,
+      user.id,
+    );
+    return { available };
+  }
+
   @Patch()
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({

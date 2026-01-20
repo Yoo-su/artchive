@@ -19,6 +19,7 @@ import {
 } from "@/shared/components/shadcn/popover";
 import { Separator } from "@/shared/components/shadcn/separator";
 import { PATHS } from "@/shared/constants/paths";
+import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 export default function UserPopover() {
   const user = useAuthStore((state) => state.user);
@@ -55,7 +56,10 @@ export default function UserPopover() {
           className="relative w-10 h-10 transition-transform duration-200 rounded-full hover:scale-105"
         >
           <Avatar className="w-10 h-10" data-nosnippet>
-            <AvatarImage src={user.profileImageUrl || ""} alt={user.nickname} />
+            <AvatarImage
+              src={getProfileImageUrl(user.profileImageUrl)}
+              alt={user.nickname}
+            />
             <AvatarFallback>
               {user.nickname.slice(0, 2).toUpperCase()}
             </AvatarFallback>

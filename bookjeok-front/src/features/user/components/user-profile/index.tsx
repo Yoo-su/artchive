@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader } from "@/shared/components/shadcn/card";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { NotFoundRedirect } from "@/shared/components/ui/not-found-redirect";
 import { PATHS } from "@/shared/constants/paths";
+import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 interface UserProfileProps {
   handle: string;
@@ -80,9 +81,9 @@ const UserProfileHeader = ({ profile }: UserProfileHeaderProps) => (
   <Card className="mb-8">
     <CardContent className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6">
       <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-stone-100 flex items-center justify-center overflow-hidden shrink-0">
-        {profile.profileImageUrl ? (
+        {getProfileImageUrl(profile.profileImageUrl) ? (
           <Image
-            src={profile.profileImageUrl}
+            src={getProfileImageUrl(profile.profileImageUrl)!}
             alt={profile.nickname}
             fill
             sizes="(max-width: 640px) 80px, 96px"

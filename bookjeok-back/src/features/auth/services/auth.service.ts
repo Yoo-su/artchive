@@ -6,6 +6,7 @@ import { User } from '@/features/user/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from '../types/jwt-payload.type';
 import { TOKEN_EXPIRY } from '../auth.constants';
+import { NicknameGenerator } from '@/features/user/utils/nickname-generator';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +18,8 @@ export class AuthService {
 
   /**
    * 소셜 로그인 정보를 검증하고 유저를 생성하거나 반환합니다.
+   * - 기존 유저: 그대로 반환 (provider 정보로 덮어쓰지 않음)
+   * - 신규 유저: 랜덤 닉네임 + 기본 프로필 이미지 번호로 생성
    * @param socialLoginDto 소셜 로그인 정보
    * @returns 유저 정보
    */
@@ -26,30 +29,24 @@ export class AuthService {
     nickname: string;
     profileImg: string;
   }) {
-    const { provider, providerId, nickname, profileImg } = socialLoginDto;
+    const { provider, providerId } = socialLoginDto;
     const user = await this.userService.findByProviderId(provider, providerId);
+
+    // 기존 유저인 경우: 더 이상 provider 정보로 덮어쓰지 않고 그대로 반환
     if (user) {
-      const updates: Partial<User> = {};
-
-      // 프로필 이미지 및 닉네임이 변경되었다면 업데이트
-      if (profileImg && user.profileImageUrl !== profileImg) {
-        updates.profileImageUrl = profileImg;
-      }
-
-      if (nickname && user.nickname !== nickname) {
-        updates.nickname = nickname;
-      }
-
-      if (Object.keys(updates).length > 0) {
-        return await this.userService.updateUser(user.id, updates);
-      }
       return user;
     }
+
+    // 신규 유저인 경우: 랜덤 닉네임 + 기본 프로필 이미지 번호 부여
+    const randomNickname = NicknameGenerator.generate();
+    const profileNumber = NicknameGenerator.getRandomProfileNumber();
+
     const newUser = await this.userService.createUser({
       provider,
       providerId,
-      nickname,
-      profileImageUrl: profileImg,
+      nickname: randomNickname,
+      // 기본 프로필 이미지 번호 저장 (프런트에서 해당 번호의 이미지 표시)
+      profileImageUrl: `default_profile${profileNumber}`,
     });
     return newUser;
   }

@@ -12,6 +12,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/shared/components/shadcn/avatar";
+import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 import { useChatStore } from "../../stores/use-chat-store";
 import { ChatRoom } from "../../types";
@@ -29,7 +30,7 @@ export const ChatItem = ({ room }: { room: ChatRoom }) => {
   const queryClient = useQueryClient();
 
   const opponent = room.participants.find(
-    (p) => p.user.id !== currentUser?.id
+    (p) => p.user.id !== currentUser?.id,
   )?.user;
 
   const handleOpenRoom = () => {
@@ -42,7 +43,7 @@ export const ChatItem = ({ room }: { room: ChatRoom }) => {
       onClick={handleOpenRoom}
     >
       <Avatar className="h-14 w-14" data-nosnippet>
-        <AvatarImage src={opponent?.profileImageUrl || ""} />
+        <AvatarImage src={getProfileImageUrl(opponent?.profileImageUrl)} />
         <AvatarFallback>{opponent?.nickname.slice(0, 1)}</AvatarFallback>
       </Avatar>
       <div className="grow overflow-hidden">

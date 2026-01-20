@@ -55,6 +55,21 @@ export const updateProfile = async (params: UpdateUserProfileParams) => {
 };
 
 /**
+ * 닉네임 사용 가능 여부를 확인합니다.
+ * @param nickname 확인할 닉네임
+ * @returns 사용 가능 여부
+ */
+export const checkNickname = async (
+  nickname: string,
+): Promise<{ available: boolean }> => {
+  const { data } = await privateAxios.get<{ available: boolean }>(
+    API_PATHS.user.checkNickname,
+    { params: { nickname } },
+  );
+  return data;
+};
+
+/**
  * 위시리스트에 항목을 추가합니다.
  * @param type 타입 (BOOK, SALE)
  * @param id 대상 ID

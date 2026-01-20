@@ -17,6 +17,7 @@ import {
 } from "@/shared/components/shadcn/dropdown-menu";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";
+import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 interface UserInfo {
   id: number;
@@ -75,12 +76,12 @@ export function UserAvatarMenu({
       className={cn(
         "flex items-center gap-2",
         isLoggedIn && "cursor-pointer",
-        className
+        className,
       )}
     >
       <Avatar className={cn(sizeClasses[size], "border border-stone-200")}>
         <AvatarImage
-          src={user.profileImageUrl || undefined}
+          src={getProfileImageUrl(user.profileImageUrl)}
           alt={user.nickname}
         />
         <AvatarFallback className="bg-stone-100 text-stone-500 text-xs font-medium">
@@ -93,7 +94,7 @@ export function UserAvatarMenu({
             <span
               className={cn(
                 "font-medium text-stone-900",
-                textSizeClasses[size]
+                textSizeClasses[size],
               )}
             >
               {user.nickname}
