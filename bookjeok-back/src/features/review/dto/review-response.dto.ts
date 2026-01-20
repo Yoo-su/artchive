@@ -40,7 +40,14 @@ export class GetReviewsResponseDto {
   limit: number;
 
   @ApiProperty()
+  @ApiProperty()
   totalPages: number;
+
+  @ApiProperty({ required: false })
+  nextCursor?: number;
+
+  @ApiProperty()
+  hasNextPage: boolean;
 }
 
 export class ReviewFeedDto {

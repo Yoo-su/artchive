@@ -16,7 +16,7 @@ export const useCommentsQuery = (
   targetType: CommentTargetType,
   targetId: string,
   page: number = 1,
-  enabled: boolean = true
+  enabled: boolean = true,
 ) => {
   return useQuery({
     queryKey: QUERY_KEYS.commentKeys.list(targetType, targetId, page).queryKey,
@@ -37,12 +37,12 @@ export const useCommentsQuery = (
 export const useMyCommentsInfiniteQuery = (limit: number = 10) => {
   return useInfiniteQuery({
     queryKey: commentKeys.my.queryKey,
-    queryFn: ({ pageParam = 1 }) => getMyComments(pageParam, limit),
+    queryFn: ({ pageParam }) =>
+      getMyComments(1, limit, pageParam as number | undefined),
     getNextPageParam: (lastPage) => {
-      const { page, totalPages } = lastPage.meta;
-      return page < totalPages ? page + 1 : undefined;
+      return lastPage.meta.nextCursor ?? undefined;
     },
-    initialPageParam: 1,
+    initialPageParam: undefined as number | undefined,
     staleTime: 60 * 1000,
   });
 };

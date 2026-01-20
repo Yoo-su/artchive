@@ -42,11 +42,12 @@ export class CommentController {
     description: '내 댓글 목록을 반환합니다.',
   })
   async getMyComments(
+    @CurrentUser() user: User,
     @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 10,
-    @CurrentUser() user: User,
+    @Query('cursorId', new ParseIntPipe({ optional: true })) cursorId?: number,
   ) {
-    return this.commentService.getMyComments(user.id, page, limit);
+    return this.commentService.getMyComments(user.id, page, limit, cursorId);
   }
 
   /**

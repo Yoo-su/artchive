@@ -40,6 +40,8 @@ export interface CommentsMeta {
   page: number;
   limit: number;
   totalPages: number;
+  hasNextPage?: boolean;
+  nextCursor?: number;
 }
 
 /**
@@ -74,6 +76,7 @@ export interface GetCommentsParams {
   targetId: string;
   page?: number;
   limit?: number;
+  cursorId?: number;
 }
 
 /**

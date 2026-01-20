@@ -39,7 +39,6 @@ export default async function Page() {
   const queryClient = getQueryClient();
 
   // 인기 판매글 및 초기 판매글 목록 prefetch
-  // 인기 판매글 및 초기 판매글 목록 prefetch
   try {
     await Promise.all([
       queryClient.prefetchQuery({
@@ -48,8 +47,12 @@ export default async function Page() {
       }),
       queryClient.prefetchInfiniteQuery({
         queryKey: QUERY_KEYS.bookKeys.marketSales({}).queryKey,
-        queryFn: ({ pageParam = 1 }) => searchBookSales({ page: pageParam }),
-        initialPageParam: 1,
+        queryFn: ({ pageParam }) =>
+          searchBookSales({
+            page: 1,
+            cursor: pageParam as string | undefined,
+          }),
+        initialPageParam: undefined,
       }),
     ]);
   } catch (error) {

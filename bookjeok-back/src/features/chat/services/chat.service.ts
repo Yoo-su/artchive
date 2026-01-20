@@ -282,6 +282,7 @@ export class ChatService {
     userId: number,
     page: number,
     limit: number,
+    cursorId?: number,
   ) {
     // 채팅방 참여자 검증
     const participant = await this.chatParticipantRepository.findOne({
@@ -292,19 +293,37 @@ export class ChatService {
       throw new BusinessException('CHAT_FORBIDDEN', HttpStatus.FORBIDDEN);
     }
 
-    const [messages, total] = await this.chatMessageRepository.findAndCount({
-      where: { chatRoom: { id: roomId } },
-      relations: ['sender'],
-      order: { createdAt: 'DESC' }, // 최신 메시지가 먼저 오도록 정렬
-      take: limit,
-      skip: (page - 1) * limit,
-    });
+    const queryBuilder = this.chatMessageRepository
+      .createQueryBuilder('message')
+      .leftJoinAndSelect('message.sender', 'sender')
+      .where('message.chatRoom.id = :roomId', { roomId })
+      .orderBy('message.createdAt', 'DESC');
 
-    const hasNextPage = page * limit < total;
+    // 커서 기반 페이지네이션
+    if (cursorId) {
+      queryBuilder.andWhere('message.id < :cursorId', { cursorId });
+    } else {
+      // 오프셋 기반 (fallback)
+      queryBuilder.skip((page - 1) * limit);
+    }
+
+    queryBuilder.take(limit);
+
+    const messages = await queryBuilder.getMany();
+
+    // 다음 커서 계산
+    let nextCursor: number | null = null;
+    if (messages.length > 0) {
+      nextCursor = messages[messages.length - 1].id;
+    }
+
+    // 다음 페이지 존재 여부는 limit만큼 가져왔는지로 판단
+    const hasNextPage = messages.length === limit;
 
     return {
-      messages: messages,
+      messages,
       hasNextPage,
+      nextCursor,
     };
   }
 

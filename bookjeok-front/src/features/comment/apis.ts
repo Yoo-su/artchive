@@ -17,11 +17,11 @@ import {
  * @returns 댓글 목록 및 메타 정보
  */
 export const getComments = async (
-  params: GetCommentsParams
+  params: GetCommentsParams,
 ): Promise<GetCommentsResponse> => {
   const { data } = await privateAxios.get<GetCommentsResponse>(
     API_PATHS.comment.base,
-    { params }
+    { params },
   );
   return data;
 };
@@ -32,11 +32,11 @@ export const getComments = async (
  * @returns 생성된 댓글
  */
 export const createComment = async (
-  params: CreateCommentParams
+  params: CreateCommentParams,
 ): Promise<Comment> => {
   const { data } = await privateAxios.post<Comment>(
     API_PATHS.comment.base,
-    params
+    params,
   );
   return data;
 };
@@ -49,11 +49,11 @@ export const createComment = async (
  */
 export const updateComment = async (
   id: number,
-  params: UpdateCommentParams
+  params: UpdateCommentParams,
 ): Promise<Comment> => {
   const { data } = await privateAxios.patch<Comment>(
     API_PATHS.comment.detail(id),
-    params
+    params,
   );
   return data;
 };
@@ -72,10 +72,10 @@ export const deleteComment = async (id: number): Promise<void> => {
  * @returns 업데이트된 댓글 (isLiked 포함)
  */
 export const toggleCommentLike = async (
-  id: number
+  id: number,
 ): Promise<Comment & { isLiked: boolean }> => {
   const { data } = await privateAxios.post<Comment & { isLiked: boolean }>(
-    API_PATHS.comment.like(id)
+    API_PATHS.comment.like(id),
   );
   return data;
 };
@@ -87,7 +87,7 @@ export const toggleCommentLike = async (
  */
 export const getMyLikeStatus = async (id: number): Promise<boolean> => {
   const { data } = await privateAxios.get<{ isLiked: boolean }>(
-    API_PATHS.comment.like(id)
+    API_PATHS.comment.like(id),
   );
   return data.isLiked;
 };
@@ -100,11 +100,12 @@ export const getMyLikeStatus = async (id: number): Promise<boolean> => {
  */
 export const getMyComments = async (
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
+  cursorId?: number,
 ): Promise<GetMyCommentsResponse> => {
   const { data } = await privateAxios.get<GetMyCommentsResponse>(
     API_PATHS.comment.my,
-    { params: { page, limit } }
+    { params: { page, limit, cursorId } },
   );
   return data;
 };

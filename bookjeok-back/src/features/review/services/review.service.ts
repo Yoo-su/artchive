@@ -120,18 +120,15 @@ export class ReviewService {
       category,
       userId,
       excludeId,
+      cursorId,
     } = query;
-    const skip = (page - 1) * limit;
 
     const qb = this.reviewsRepository.createQueryBuilder('review');
     qb.leftJoinAndSelect('review.user', 'user');
     qb.leftJoinAndSelect('review.book', 'book');
     qb.leftJoinAndSelect('review.tagEntities', 'tags');
-    qb.orderBy('review.createdAt', 'DESC');
-    qb.skip(skip);
-    qb.take(limit);
 
-    // 필터링
+    // 1. 필터링 조건 먼저 적용
     if (bookIsbn) {
       qb.andWhere('review.bookIsbn = :bookIsbn', { bookIsbn });
     }
@@ -180,6 +177,19 @@ export class ReviewService {
       );
     }
 
+    // 2. 정렬 조건 (커서 기반 페이지네이션을 위해 ID 역순 정렬)
+    qb.orderBy('review.id', 'DESC');
+
+    // 3. 커서 기반 페이지네이션 (필터 조건 적용 후)
+    if (cursorId) {
+      qb.andWhere('review.id < :cursorId', { cursorId });
+    } else {
+      // 오프셋 기반 (fallback)
+      qb.skip((page - 1) * limit);
+    }
+
+    qb.take(limit);
+
     const [reviews, total] = await qb.getManyAndCount();
 
     const reviewDtos = reviews.map((review) => ({
@@ -187,12 +197,23 @@ export class ReviewService {
       tags: review.tagEntities?.map((t) => t.name) || [],
     })) as ReviewResponseDto[];
 
+    // 다음 커서 계산
+    let nextCursor: number | null = null;
+    if (reviews.length > 0) {
+      nextCursor = reviews[reviews.length - 1].id;
+    }
+
+    // 커서 방식일 때 hasNextPage 계산은 limit만큼 가져왔는지로 판단
+    const hasNextPage = reviews.length === limit;
+
     return {
       reviews: reviewDtos,
       total,
       page: +page,
       limit: +limit,
       totalPages: Math.ceil(total / limit),
+      hasNextPage,
+      nextCursor: nextCursor ?? undefined,
     };
   }
 

@@ -23,4 +23,5 @@ export interface ChatRoom {
 export interface GetChatMessagesResponse {
   messages: ChatMessage[];
   hasNextPage: boolean;
+  nextCursor?: number;
 }

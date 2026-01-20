@@ -89,11 +89,14 @@ export const useInfiniteBookSearch = (query: string) => {
 export const useInfiniteBookSalesQuery = (params: SearchBookSalesParams) => {
   return useInfiniteQuery({
     queryKey: QUERY_KEYS.bookKeys.marketSales(params).queryKey,
-    queryFn: ({ pageParam = 1 }) =>
-      searchBookSales({ ...params, page: pageParam }),
-    initialPageParam: 1,
-    getNextPageParam: (lastPage, allPages) => {
-      return lastPage.hasNextPage ? allPages.length + 1 : undefined;
+    queryFn: ({ pageParam }) =>
+      searchBookSales({
+        ...params,
+        cursor: pageParam ? (pageParam as string) : undefined,
+      }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => {
+      return lastPage.nextCursor ?? undefined;
     },
   });
 };

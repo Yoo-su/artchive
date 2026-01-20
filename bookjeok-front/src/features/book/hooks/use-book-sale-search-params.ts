@@ -5,6 +5,10 @@ import { useMemo } from "react";
 
 import { SaleStatus, SearchBookSalesParams } from "@/features/book/types";
 
+/**
+ * URL search params에서 중고책 검색 필터를 추출하는 훅
+ * 참고: lat/lng는 URL에 포함하지 않고 useUserLocation 훅에서 관리합니다.
+ */
 export const useBookSaleSearchParams = (): SearchBookSalesParams => {
   const searchParams = useSearchParams();
 
@@ -26,16 +30,9 @@ export const useBookSaleSearchParams = (): SearchBookSalesParams => {
     if (sortBy) params.sortBy = sortBy;
     if (sortOrder) params.sortOrder = sortOrder;
     if (minPrice) params.minPrice = Number(minPrice);
-    if (minPrice) params.minPrice = Number(minPrice);
     if (maxPrice) params.maxPrice = Number(maxPrice);
 
-    const lat = searchParams.get("lat");
-    const lng = searchParams.get("lng");
-    const radius = searchParams.get("radius");
-
-    if (lat) params.lat = Number(lat);
-    if (lng) params.lng = Number(lng);
-    if (radius) params.radius = Number(radius);
+    // lat/lng/radius는 더 이상 URL에서 읽지 않음 (useUserLocation 훅에서 관리)
 
     return params;
   }, [searchParams]);

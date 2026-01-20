@@ -37,7 +37,7 @@ export default async function Page() {
   const queryClient = getQueryClient();
 
   // 인기 리뷰 및 피드 prefetch
-  // 인기 리뷰 및 피드 prefetch
+
   try {
     await Promise.all([
       queryClient.prefetchQuery({

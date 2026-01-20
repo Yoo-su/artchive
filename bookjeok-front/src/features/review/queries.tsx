@@ -33,13 +33,16 @@ export const useReviewsQuery = (params: GetReviewsParams) => {
 export const useReviewsInfiniteQuery = (params: GetReviewsParams) => {
   return useInfiniteQuery({
     queryKey: QUERY_KEYS.reviewKeys.list(params).queryKey,
-    queryFn: ({ pageParam = 1 }) => getReviews({ ...params, page: pageParam }),
-    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      getReviews({
+        ...params,
+        cursorId: pageParam as number | undefined,
+        // pageParam이 없으면(undefined) page=1(기본값)로 동작하거나, backend에서 처리.
+        // cursorId가 있으면 page 값은 무시되거나 fallback으로 사용됨.
+      }),
+    initialPageParam: undefined as number | undefined,
     getNextPageParam: (lastPage: GetReviewsResponse) => {
-      if (lastPage.page < lastPage.totalPages) {
-        return lastPage.page + 1;
-      }
-      return undefined;
+      return lastPage.nextCursor ?? undefined;
     },
     enabled: params.enabled !== false,
     refetchOnMount: true,

@@ -11,8 +11,10 @@ import { UpdateBookSaleDto } from '../dtos/update-book-sale.dto';
 import { BookSaleSortBy, QueryBookSaleDto } from '../dtos/query-book-sale.dto';
 import {
   applyCommonFilters,
+  applyCursorFilter,
   applyLocationFilter,
   applySorting,
+  encodeCursor,
 } from '../utils/book-query.builder';
 import { BusinessException } from '@/shared/exceptions';
 
@@ -277,23 +279,49 @@ export class BookService {
       page = 1,
       limit = 12,
       sortBy = BookSaleSortBy.CREATED_AT,
-      sortOrder = 'DESC',
-      lat,
-      lng,
     } = queryDto;
 
     const queryBuilder = this.createBaseSearchQuery();
 
     applyCommonFilters(queryBuilder, queryDto);
     applyLocationFilter(queryBuilder, queryDto);
-    applySorting(queryBuilder, sortBy, sortOrder, lat, lng);
+    applySorting(
+      queryBuilder,
+      sortBy,
+      queryDto.sortOrder || 'DESC',
+      queryDto.lat,
+      queryDto.lng,
+    );
+    applyCursorFilter(queryBuilder, queryDto);
 
-    // 페이지네이션
-    queryBuilder.skip((page - 1) * limit).take(limit);
+    queryBuilder.take(limit);
 
-    const [sales, total] = await queryBuilder.getManyAndCount();
+    // getRawAndEntities를 사용하여 계산된 컬럼(distance 등)도 가져옴
+    const { entities: sales, raw } = await queryBuilder.getRawAndEntities();
+    const total = await queryBuilder.getCount();
 
-    const hasNextPage = page * limit < total;
+    // 다음 커서 계산
+    let nextCursor: string | null = null;
+
+    if (sales.length > 0) {
+      const lastItem = sales[sales.length - 1];
+      const lastRaw = raw[raw.length - 1]; // items 순서가 entities와 일치함
+
+      let cursorValue: string | number = lastItem.id;
+
+      if (sortBy === BookSaleSortBy.PRICE) {
+        cursorValue = lastItem.price;
+      } else if (sortBy === BookSaleSortBy.DISTANCE) {
+        // raw 결과에서 distance 컬럼 찾기 (별칭이 'distance'로 지정됨)
+        cursorValue = Number(lastRaw.distance);
+      }
+      // CREATED_AT의 경우 ID를 커서로 사용 (auto-increment ID는 생성 시간 순서와 일치)
+
+      nextCursor = encodeCursor({ value: cursorValue, id: lastItem.id });
+    }
+
+    // 커서 방식일 때 hasNextPage 계산
+    const hasNextPage = sales.length === limit;
 
     return {
       sales,
@@ -301,6 +329,7 @@ export class BookService {
       page,
       limit,
       hasNextPage,
+      nextCursor,
     };
   }
 

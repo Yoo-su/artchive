@@ -34,11 +34,12 @@ export const getMyChatRooms = async (): Promise<ChatRoom[]> => {
 export const getChatMessages = async (
   roomId: number,
   page: number,
-  limit: number = 20
+  limit: number = 20,
+  cursorId?: number,
 ): Promise<GetChatMessagesResponse> => {
   const { data } = await privateAxios.get<GetChatMessagesResponse>(
     API_PATHS.chat.messages(roomId),
-    { params: { page, limit } }
+    { params: { page, limit, cursorId } },
   );
   return data;
 };

@@ -65,6 +65,7 @@ export const getReviews = async ({
   category,
   userId,
   excludeId,
+  cursorId,
 }: GetReviewsParams) => {
   const params = new URLSearchParams();
   params.append("page", page.toString());
@@ -75,6 +76,7 @@ export const getReviews = async ({
   if (category) params.append("category", category);
   if (userId) params.append("userId", userId.toString());
   if (excludeId) params.append("excludeId", excludeId.toString());
+  if (cursorId) params.append("cursorId", cursorId.toString());
 
   const { data } = await publicAxios.get<GetReviewsResponse>(
     `${API_PATHS.review.base}?${params.toString()}`,

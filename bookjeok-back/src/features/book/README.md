@@ -30,6 +30,22 @@
 | `PATCH`     | `/sales/:id/status` | 특정 판매글의 판매 상태를 변경합니다.            | ✅ (Access-Token) |
 | `GET`       | `/:isbn/sales`      | 특정 도서(ISBN)에 대한 판매글 목록을 조회합니다. | ❌                | \n  | `POST` | `/search-keywords` | 검색어를 기록합니다 (인기 검색어 집계용). | ❌  | \n  | `GET` | `/search-keywords/popular` | 최근 3일 기준 인기 검색어 Top 10을 조회합니다. | ❌  |
 
+### 2.1. 커서 기반 페이지네이션
+
+`GET /sales` 엔드포인트는 **커서 기반 페이지네이션**을 지원합니다. 기존 offset 방식(`page`)도 fallback으로 지원됩니다.
+
+| 파라미터    | 타입     | 설명                                               |
+| ----------- | -------- | -------------------------------------------------- |
+| `cursor`    | `string` | Base64 인코딩된 커서 (이전 응답의 `nextCursor` 값) |
+| `sortBy`    | `enum`   | 정렬 기준: `createdAt`, `price`, `distance`        |
+| `sortOrder` | `enum`   | 정렬 방향: `ASC`, `DESC`                           |
+
+**커서 동작 방식:**
+
+- `createdAt` 정렬: ID 기반 커서 (auto-increment ID가 생성 시간 순서와 일치)
+- `price` 정렬: 튜플 커서 `(price, id)` - 동일 가격 항목 처리
+- `distance` 정렬: 튜플 커서 `(distance, id)` + `lat`/`lng` 필수
+
 ## 3. 엔티티 스키마
 
 ### 3.1. `Book` (도서 마스터)
