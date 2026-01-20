@@ -37,8 +37,33 @@ export class AuthService {
       return user;
     }
 
-    // 신규 유저인 경우: 랜덤 닉네임 + 기본 프로필 이미지 번호 부여
-    const randomNickname = NicknameGenerator.generate();
+    // 신규 유저인 경우: 랜덤 닉네임 생성 (중복 시 재시도) + 기본 프로필 이미지 번호 부여
+    let randomNickname = NicknameGenerator.generate();
+    let isUnique = false;
+    let retryCount = 0;
+    const MAX_RETRIES = 5;
+
+    while (!isUnique && retryCount < MAX_RETRIES) {
+      if (retryCount > 0) {
+        // 첫 시도 실패 시 뒤에 랜덤 숫자(1000~9999)를 붙여 중복 확률 최소화
+        const suffix = Math.floor(1000 + Math.random() * 9000);
+        randomNickname = `${NicknameGenerator.generate()}${suffix}`;
+      }
+
+      const existingUser =
+        await this.userService.findByNickname(randomNickname);
+      if (!existingUser) {
+        isUnique = true;
+      } else {
+        retryCount++;
+      }
+    }
+
+    if (!isUnique) {
+      // 5번 재시도 후에도 중복이면 타임스탬프를 붙여서 강제 유니크 생성
+      randomNickname = `${NicknameGenerator.generate()}${Date.now().toString().slice(-4)}`;
+    }
+
     const profileNumber = NicknameGenerator.getRandomProfileNumber();
 
     const newUser = await this.userService.createUser({
