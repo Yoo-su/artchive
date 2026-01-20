@@ -296,32 +296,28 @@ export class BookService {
 
     queryBuilder.take(limit);
 
-    // getRawAndEntities를 사용하여 계산된 컬럼(distance 등)도 가져옴
+    // 계산된 컬럼(distance 등)도 가져오기 위해 getRawAndEntities 사용
     const { entities: sales, raw } = await queryBuilder.getRawAndEntities();
     const total = await queryBuilder.getCount();
 
-    // 다음 커서 계산
+    // 페이지네이션 정보 계산
+    const hasNextPage = sales.length === limit;
     let nextCursor: string | null = null;
 
-    if (sales.length > 0) {
+    if (hasNextPage && sales.length > 0) {
       const lastItem = sales[sales.length - 1];
-      const lastRaw = raw[raw.length - 1]; // items 순서가 entities와 일치함
+      const lastRaw = raw[raw.length - 1];
 
+      // 정렬 기준에 따른 커서 값 결정
       let cursorValue: string | number = lastItem.id;
-
       if (sortBy === BookSaleSortBy.PRICE) {
         cursorValue = lastItem.price;
       } else if (sortBy === BookSaleSortBy.DISTANCE) {
-        // raw 결과에서 distance 컬럼 찾기 (별칭이 'distance'로 지정됨)
         cursorValue = Number(lastRaw.distance);
       }
-      // CREATED_AT의 경우 ID를 커서로 사용 (auto-increment ID는 생성 시간 순서와 일치)
 
       nextCursor = encodeCursor({ value: cursorValue, id: lastItem.id });
     }
-
-    // 커서 방식일 때 hasNextPage 계산
-    const hasNextPage = sales.length === limit;
 
     return {
       sales,
