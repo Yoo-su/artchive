@@ -13,7 +13,10 @@ import {
 } from "date-fns";
 import { useState } from "react";
 
+import { cn } from "@/shared/utils";
+
 import { useReadingLogPrefetch } from "../../hooks/use-reading-log-prefetch";
+import { useSeasonalTheme } from "../../hooks/use-seasonal-theme";
 import { useReadingLogsQuery } from "../../queries";
 import { DayDetailsDialog } from "../day-details-dialog";
 import { ReadingLogCalendarSkeleton } from "../reading-log-calendar-skeleton";
@@ -25,11 +28,22 @@ import { ReadingLogDayCell } from "../reading-log-day-cell";
 import { ReadingLogListView } from "../reading-log-list-view";
 import { ReadingLogStats } from "../reading-log-stats";
 
-export function ReadingLogCalendar() {
-  const [currentDate, setCurrentDate] = useState(new Date());
+interface ReadingLogCalendarProps {
+  currentDate: Date;
+  onDateChange: (date: Date) => void;
+}
+
+export function ReadingLogCalendar({
+  currentDate,
+  onDateChange,
+}: ReadingLogCalendarProps) {
+  // 내부 상태는 선택된 날짜와 다이얼로그, 뷰 모드만 관리
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ReadingLogViewMode>("calendar");
+
+  // 계절 테마 훅 사용
+  const theme = useSeasonalTheme(currentDate);
 
   // 인접한 월 데이터 prefetch
   useReadingLogPrefetch(currentDate.getFullYear(), currentDate.getMonth() + 1);
@@ -38,11 +52,11 @@ export function ReadingLogCalendar() {
   const { data: logs = [], isFetching } = useReadingLogsQuery(
     currentDate.getFullYear(),
     currentDate.getMonth() + 1,
-    { enabled: viewMode === "calendar" }
+    { enabled: viewMode === "calendar" },
   );
 
-  const handlePrevMonth = () => setCurrentDate(subMonths(currentDate, 1));
-  const handleNextMonth = () => setCurrentDate(addMonths(currentDate, 1));
+  const handlePrevMonth = () => onDateChange(subMonths(currentDate, 1));
+  const handleNextMonth = () => onDateChange(addMonths(currentDate, 1));
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(monthStart);
@@ -68,36 +82,47 @@ export function ReadingLogCalendar() {
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6">
-      <ReadingLogStats currentDate={currentDate} />
+      <ReadingLogStats currentDate={currentDate} theme={theme} />
 
       <ReadingLogControls
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         currentDate={currentDate}
-        onDateChange={setCurrentDate}
+        onDateChange={onDateChange}
         onPrevMonth={handlePrevMonth}
         onNextMonth={handleNextMonth}
         isLoading={isFetching}
       />
 
       {viewMode === "list" ? (
-        <ReadingLogListView />
+        <ReadingLogListView theme={theme} />
       ) : isFetching ? (
         <ReadingLogCalendarSkeleton />
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          {/* 요일 헤더 */}
-          <div className="grid grid-cols-7 border-b border-gray-100 bg-gray-50/50">
+        <div
+          className={cn(
+            "bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl shadow-stone-200/50 border border-white/60 overflow-hidden ring-1 transition-all duration-500",
+            theme.ring, // ring-color
+          )}
+        >
+          {/* 요일 헤더 - 그라데이션 배경 (Dynamic Theme) */}
+          <div
+            className={cn(
+              "grid grid-cols-7 border-b border-stone-100/50 transition-all duration-500 bg-linear-to-r",
+              theme.gradient,
+            )}
+          >
             {weekDayNames.map((day, i) => (
               <div
                 key={day}
-                className={`py-3 text-center text-sm font-semibold ${
+                className={cn(
+                  "py-4 text-center text-sm font-semibold tracking-wide transition-colors duration-500",
                   i === 0
-                    ? "text-rose-500"
+                    ? theme.primary // 일요일 (Primary Color)
                     : i === 6
-                      ? "text-blue-500"
-                      : "text-gray-500"
-                }`}
+                      ? theme.activeText // 토요일 (Active/Dark Color)
+                      : theme.accent, // 평일 (Accent/Gray Color)
+                )}
               >
                 {day}
               </div>
@@ -113,6 +138,7 @@ export function ReadingLogCalendar() {
                 logs={getLogsForDate(day)}
                 isCurrentMonth={isSameMonth(day, monthStart)}
                 onClick={() => handleDayClick(day)}
+                theme={theme}
               />
             ))}
           </div>

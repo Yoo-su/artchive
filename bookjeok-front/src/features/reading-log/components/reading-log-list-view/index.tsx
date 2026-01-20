@@ -7,12 +7,17 @@ import { Fragment, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
+import { cn } from "@/shared/utils";
 
-import { READING_LOG_COLORS } from "../../constants";
+import { READING_LOG_COLORS, SeasonalTheme } from "../../constants";
 import { useReadingLogsInfiniteQuery } from "../../queries";
 import { DayDetailsDialog } from "../day-details-dialog";
 
-export function ReadingLogListView() {
+interface ReadingLogListViewProps {
+  theme: SeasonalTheme;
+}
+
+export function ReadingLogListView({ theme }: ReadingLogListViewProps) {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useReadingLogsInfiniteQuery();
 
@@ -25,6 +30,7 @@ export function ReadingLogListView() {
   }, [inView, hasNextPage, fetchNextPage]);
 
   if (status === "pending") {
+    // 스켈레톤에도 테마 적용하면 좋겠지만 일단 유지
     return <ReadingLogListSkeleton />;
   }
 
@@ -59,44 +65,63 @@ export function ReadingLogListView() {
         return (
           <Fragment key={log.id}>
             {showHeader && (
-              <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm py-2 border-b border-gray-100 mb-4">
-                <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-teal-500" />
+              <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm py-3 border-b border-stone-100 mb-4 transition-all">
+                <h3 className="text-lg font-bold text-stone-800 flex items-center gap-2">
+                  <span
+                    className={cn(
+                      "w-2.5 h-2.5 rounded-full shadow-sm",
+                      theme.todayBg,
+                    )}
+                  />
                   {format(currentDate, "yyyy년 M월", { locale: ko })}
                 </h3>
               </div>
             )}
-            <div className="flex gap-4 p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-              <div className="relative w-20 h-28 shrink-0 rounded-md overflow-hidden bg-gray-100">
+            <div
+              className={cn(
+                "flex gap-4 p-4 bg-white rounded-2xl border border-stone-100 shadow-sm transition-all group",
+                "hover:shadow-md hover:-translate-y-0.5",
+                // 동적 테두리 색상 (hover)
+                `hover:${theme.border}`,
+              )}
+            >
+              <div className="relative w-24 h-32 shrink-0 rounded-lg overflow-hidden bg-stone-100 shadow-md ring-1 ring-black/5">
                 <Image
                   src={log.bookImage}
                   alt={log.bookTitle}
                   fill
-                  className="object-cover"
-                  sizes="80px"
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  sizes="100px"
                 />
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 flex flex-col justify-center">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h4 className="font-bold text-gray-900 line-clamp-1 mb-1">
+                    <h4 className="font-bold text-stone-900 line-clamp-1 mb-1 text-lg font-serif tracking-tight">
                       {log.bookTitle}
                     </h4>
-                    <p className="text-sm text-gray-500 line-clamp-1 mb-2">
+                    <p className="text-sm text-stone-500 line-clamp-1 mb-3 font-medium">
                       {log.bookAuthor}
                     </p>
                   </div>
-                  <span className="text-xs font-medium px-2 py-1 rounded-full bg-stone-100 text-stone-600">
+                  <span
+                    className={cn(
+                      "text-xs font-medium px-2.5 py-1 rounded-full border",
+                      theme.bg,
+                      theme.primary,
+                      theme.border,
+                    )}
+                  >
                     {format(currentDate, "d일 (iii)", { locale: ko })}
                   </span>
                 </div>
                 {log.memo && (
                   <div
-                    className="p-3 rounded-lg text-sm mt-1 whitespace-pre-wrap leading-relaxed"
-                    style={{
-                      backgroundColor: READING_LOG_COLORS.matcha.bg,
-                      color: READING_LOG_COLORS.matcha.dark,
-                    }}
+                    className={cn(
+                      "p-3.5 rounded-xl text-sm mt-1 whitespace-pre-wrap leading-relaxed font-medium",
+                      theme.bg,
+                      theme.activeText,
+                    )}
                   >
                     {log.memo}
                   </div>
@@ -123,17 +148,17 @@ export function ReadingLogListView() {
 function ReadingLogListSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="h-8 w-32 bg-gray-200 rounded animate-pulse mb-4" />
+      <div className="h-8 w-32 bg-stone-200 rounded animate-pulse mb-4" />
       {Array.from({ length: 3 }).map((_, i) => (
         <div
           key={i}
-          className="flex gap-4 p-4 bg-white rounded-xl border border-gray-100"
+          className="flex gap-4 p-4 bg-white rounded-2xl border border-stone-100"
         >
-          <Skeleton className="w-20 h-28 rounded-md" />
-          <div className="flex-1 space-y-2">
-            <Skeleton className="h-5 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-16 w-full rounded-lg mt-2" />
+          <Skeleton className="w-24 h-32 shrink-0 rounded-lg bg-stone-100" />
+          <div className="flex-1 space-y-2 py-1">
+            <Skeleton className="h-6 w-3/4 bg-stone-100" />
+            <Skeleton className="h-4 w-1/2 bg-stone-50" />
+            <Skeleton className="h-16 w-full rounded-xl mt-3 bg-stone-50" />
           </div>
         </div>
       ))}

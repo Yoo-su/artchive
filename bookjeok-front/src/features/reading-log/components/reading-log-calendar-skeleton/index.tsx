@@ -23,18 +23,18 @@ export function ReadingLogCalendarSkeleton() {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl shadow-stone-200/50 border border-white/60 overflow-hidden ring-1 ring-stone-100">
         {/* 요일 헤더 */}
-        <div className="grid grid-cols-7 border-b border-gray-100 bg-gray-50/50">
+        <div className="grid grid-cols-7 border-b border-stone-100/50 bg-linear-to-r from-stone-50 via-amber-50/50 to-stone-50">
           {weekDayNames.map((day, i) => (
             <div
               key={day}
-              className={`py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold ${
+              className={`py-4 text-center text-sm font-semibold tracking-wide ${
                 i === 0
                   ? "text-rose-500/50"
                   : i === 6
-                    ? "text-blue-500/50"
-                    : "text-gray-500/50"
+                    ? "text-amber-600/50"
+                    : "text-stone-500/50"
               }`}
             >
               {day}
@@ -50,15 +50,15 @@ export function ReadingLogCalendarSkeleton() {
               className="p-1 sm:p-2 flex flex-col gap-1 sm:gap-2 h-full"
             >
               <div className="flex justify-between items-start">
-                <Skeleton className="h-5 w-5 sm:h-6 sm:w-6 rounded-full" />
+                <Skeleton className="h-5 w-5 sm:h-7 sm:w-7 rounded-full bg-stone-100" />
               </div>
               {/* 모바일: 중앙 뱃지만, 데스크탑: 책 목록 */}
               <div className="flex-1 flex items-center justify-center sm:hidden">
-                <Skeleton className="h-4 w-8 rounded-full" />
+                <Skeleton className="h-5 w-10 rounded-full bg-stone-100" />
               </div>
-              <div className="hidden sm:flex flex-1 flex-col gap-1">
-                <Skeleton className="h-10 w-full rounded-md" />
-                <Skeleton className="h-10 w-full rounded-md" />
+              <div className="hidden sm:flex flex-1 flex-col gap-1.5 px-1 pb-1">
+                <Skeleton className="h-12 w-full rounded-2xl bg-stone-50" />
+                <Skeleton className="h-12 w-full rounded-2xl bg-stone-50/50" />
               </div>
             </div>
           ))}

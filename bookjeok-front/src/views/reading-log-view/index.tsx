@@ -1,11 +1,23 @@
+"use client";
+
+import { useState } from "react";
+
 import { ReadingLogCalendar } from "@/features/reading-log/components/reading-log-calendar";
-import { ReadingLogHeader } from "@/features/reading-log/components/reading-log-header";
+import { ReadingLogHero } from "@/features/reading-log/components/reading-log-hero";
 
 export function ReadingLogView() {
+  const [currentDate, setCurrentDate] = useState(new Date());
+
   return (
-    <div className="container py-8 md:py-12 space-y-8">
-      <ReadingLogHeader />
-      <ReadingLogCalendar />
+    <div className="relative min-h-screen pb-20">
+      <ReadingLogHero currentDate={currentDate} />
+
+      <div className="container relative z-10">
+        <ReadingLogCalendar
+          currentDate={currentDate}
+          onDateChange={setCurrentDate}
+        />
+      </div>
     </div>
   );
 }

@@ -93,7 +93,7 @@ export function DayDetailsDialog({
         onError: () => {
           toast.error("기록 저장 중 오류가 발생했습니다.");
         },
-      }
+      },
     );
   };
 
@@ -117,7 +117,7 @@ export function DayDetailsDialog({
         onError: () => {
           toast.error("수정 중 오류가 발생했습니다.");
         },
-      }
+      },
     );
   };
 
@@ -132,7 +132,7 @@ export function DayDetailsDialog({
           onError: () => {
             toast.error("삭제 중 오류가 발생했습니다.");
           },
-        }
+        },
       );
     }
   };
@@ -143,26 +143,26 @@ export function DayDetailsDialog({
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle
-              className="flex items-center gap-2 text-xl font-bold"
-              style={{ color: READING_LOG_COLORS.matcha.dark }}
+              className="flex items-center gap-3 text-xl font-bold font-serif tracking-tight"
+              style={{ color: READING_LOG_COLORS.cozy.dark }}
             >
               <span
-                className="flex items-center justify-center w-8 h-8 rounded-lg"
+                className="flex items-center justify-center w-9 h-9 rounded-xl shadow-sm"
                 style={{
-                  backgroundColor: READING_LOG_COLORS.matcha.bg,
-                  color: READING_LOG_COLORS.matcha.dark,
+                  backgroundColor: READING_LOG_COLORS.cozy.soft,
+                  color: READING_LOG_COLORS.cozy.text,
                 }}
               >
                 <CalendarIcon className="w-5 h-5" />
               </span>
               {format(date, "M월 d일 eeee", { locale: ko })}
             </DialogTitle>
-            <DialogDescription className="text-gray-500">
+            <DialogDescription className="text-stone-500">
               오늘 읽은 책들의 감상을 남겨보세요.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mt-2">
+          <div className="mt-4 mb-2">
             <BookSearchModal
               open={isSearchOpen}
               onOpenChange={setIsSearchOpen}
@@ -170,10 +170,10 @@ export function DayDetailsDialog({
               trigger={
                 <Button
                   variant="outline"
-                  className="w-full justify-center h-12 border-dashed transition-colors"
+                  className="w-full justify-center h-12 border-dashed transition-all hover:bg-amber-50/50 hover:border-amber-200"
                   style={{
-                    borderColor: READING_LOG_COLORS.matcha.light,
-                    color: READING_LOG_COLORS.matcha.medium,
+                    borderColor: READING_LOG_COLORS.cozy.soft,
+                    color: READING_LOG_COLORS.cozy.medium,
                     backgroundColor: "#fff",
                   }}
                   onClick={() => setIsSearchOpen(true)}
@@ -185,9 +185,9 @@ export function DayDetailsDialog({
             />
           </div>
 
-          <ScrollArea className="max-h-[60vh] mt-4 -mx-6 px-6">
+          <ScrollArea className="max-h-[60vh] mt-2 -mx-6 px-6">
             {logs.length === 0 ? (
-              <div className="py-12 text-center text-gray-400 bg-gray-50/50 rounded-xl border border-dashed text-sm">
+              <div className="py-12 text-center text-stone-400 bg-stone-50/50 rounded-xl border border-dashed border-stone-200 text-sm mx-1">
                 <p>아직 기록된 책이 없습니다.</p>
                 <p className="mt-1">위 버튼을 눌러 독서 기록을 시작해보세요!</p>
               </div>
@@ -196,23 +196,23 @@ export function DayDetailsDialog({
                 {logs.map((log) => (
                   <div
                     key={log.id}
-                    className="group relative flex gap-4 p-4 border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md hover:border-teal-100 transition-all"
+                    className="group relative flex gap-4 p-4 border border-stone-100 rounded-2xl bg-white shadow-sm hover:shadow-md hover:border-amber-100 transition-all hover:-translate-y-0.5"
                   >
-                    <div className="relative w-20 h-28 shrink-0 rounded-lg overflow-hidden shadow-inner bg-gray-100">
+                    <div className="relative w-20 h-28 shrink-0 rounded-lg overflow-hidden shadow-md bg-stone-100 ring-1 ring-black/5">
                       <Image
                         src={log.bookImage}
                         alt={log.bookTitle}
                         fill
-                        className="object-cover transition-transform group-hover:scale-105"
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                     </div>
                     <div className="flex-1 min-w-0 flex flex-col">
                       <div className="flex justify-between items-start gap-2">
                         <div>
-                          <h4 className="font-bold text-gray-900 line-clamp-1 text-base">
+                          <h4 className="font-bold text-stone-800 line-clamp-1 text-base font-serif tracking-tight">
                             {log.bookTitle}
                           </h4>
-                          <p className="text-xs text-gray-500 font-medium mt-0.5">
+                          <p className="text-xs text-stone-500 font-medium mt-0.5">
                             {log.bookAuthor}
                           </p>
                         </div>
@@ -220,7 +220,7 @@ export function DayDetailsDialog({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-colors"
+                            className="h-8 w-8 text-stone-400 hover:text-amber-600 hover:bg-amber-50 transition-colors"
                             onClick={() => handleEditClick(log)}
                           >
                             <Pencil className="w-4 h-4" />
@@ -228,7 +228,7 @@ export function DayDetailsDialog({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                            className="h-8 w-8 text-stone-400 hover:text-rose-500 hover:bg-rose-50 transition-colors"
                             onClick={() => handleRemoveLog(log)}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -237,16 +237,16 @@ export function DayDetailsDialog({
                       </div>
 
                       {log.memo && (
-                        <div className="mt-auto pt-3 border-t border-gray-50/80">
-                          <div className="flex items-start gap-2">
+                        <div className="mt-auto pt-3 border-t border-stone-50">
+                          <div className="flex items-start gap-2.5">
                             <StickyNote
                               className="w-3.5 h-3.5 mt-0.5 shrink-0"
                               style={{
-                                color: READING_LOG_COLORS.matcha.medium,
+                                color: READING_LOG_COLORS.cozy.light,
                               }}
                             />
                             {/* 전체 메모 표시 (line-clamp 제거) */}
-                            <p className="text-sm text-gray-600 leading-relaxed break-all">
+                            <p className="text-sm text-stone-600 leading-relaxed break-all font-medium">
                               {log.memo}
                             </p>
                           </div>
