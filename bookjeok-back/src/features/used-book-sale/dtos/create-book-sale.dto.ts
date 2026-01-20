@@ -10,7 +10,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { BookInfoDto } from './book-info.dto';
+import { BookInfoDto } from '@/features/book/dtos/book-info.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateBookSaleDto {

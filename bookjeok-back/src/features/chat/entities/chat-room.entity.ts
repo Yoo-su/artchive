@@ -6,7 +6,7 @@ import {
   ManyToOne,
   UpdateDateColumn,
 } from 'typeorm';
-import { UsedBookSale } from '@/features/book/entities/used-book-sale.entity';
+import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { ChatParticipant } from './chat-participant.entity';
 import { ChatMessage } from './chat-message.entity';
 

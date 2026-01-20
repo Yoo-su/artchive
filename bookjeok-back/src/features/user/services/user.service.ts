@@ -6,7 +6,7 @@ import { SocialLoginDto } from '@/features/auth/dtos/social-login.dto';
 import {
   UsedBookSale,
   SaleStatus,
-} from '@/features/book/entities/used-book-sale.entity';
+} from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { ChatParticipant } from '@/features/chat/entities/chat-participant.entity';
 import { Wishlist } from '../entities/wishlist.entity';
 import { Book } from '@/features/book/entities/book.entity';

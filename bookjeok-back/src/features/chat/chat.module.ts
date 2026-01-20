@@ -9,7 +9,7 @@ import { ChatMessage } from './entities/chat-message.entity';
 import { AuthModule } from '../auth/auth.module';
 import { UserModule } from '../user/user.module';
 import { BookModule } from '../book/book.module';
-import { UsedBookSale } from '../book/entities/used-book-sale.entity';
+import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { ReadReceipt } from './entities/read-receipt.entity';
 import { SocketAuthGuard } from './guards/socket-auth.guard';
 

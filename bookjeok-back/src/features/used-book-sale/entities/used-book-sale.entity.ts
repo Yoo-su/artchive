@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '@/features/user/entities/user.entity';
-import { Book } from './book.entity';
+import { Book } from '@/features/book/entities/book.entity';
 import { ChatRoom } from '@/features/chat/entities/chat-room.entity';
 
 export enum SaleStatus {

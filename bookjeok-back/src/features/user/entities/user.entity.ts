@@ -1,4 +1,4 @@
-import { UsedBookSale } from '@/features/book/entities/used-book-sale.entity';
+import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { ChatParticipant } from '@/features/chat/entities/chat-participant.entity';
 import { ReadReceipt } from '@/features/chat/entities/read-receipt.entity';
 import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
