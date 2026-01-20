@@ -317,8 +317,8 @@ export class ReviewService {
    * 최근 2주 내 참여도(조회수+리액션+댓글) 높은 순으로 6개 반환
    */
   async findPopular(): Promise<ReviewResponseDto[]> {
-    const twoWeeksAgo = new Date();
-    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
     // 참여도 점수 공식
     const ENGAGEMENT_SCORE = `
@@ -332,7 +332,7 @@ export class ReviewService {
       score: number;
     }
 
-    // 최근 인기 리뷰 (최근 2주, 참여도 순, 6개)
+    // 최근 인기 리뷰 (최근 3개월, 참여도 순, 6개)
     const idResults = await this.reviewsRepository
       .createQueryBuilder('review')
       .select('review.id', 'id')
@@ -342,7 +342,7 @@ export class ReviewService {
         "comment.targetType = 'REVIEW' AND comment.targetId = CAST(review.id AS VARCHAR)",
       )
       .addSelect(ENGAGEMENT_SCORE, 'score')
-      .where('review.createdAt >= :twoWeeksAgo', { twoWeeksAgo })
+      .where('review.createdAt >= :threeMonthsAgo', { threeMonthsAgo })
       .andWhere('review.isPublic = :isPublic', { isPublic: true })
       .groupBy('review.id')
       .orderBy('score', 'DESC')

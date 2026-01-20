@@ -103,8 +103,8 @@ export class UsedBookSaleService {
    * 최근 2주 내 조회수 높은 순으로 6개 반환
    */
   async findPopularSales(): Promise<UsedBookSale[]> {
-    const twoWeeksAgo = new Date();
-    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
     interface PopularSaleRawResult {
       id: number;
@@ -114,7 +114,7 @@ export class UsedBookSaleService {
       .createQueryBuilder('sale')
       .select('sale.id', 'id')
       .where('sale.status = :status', { status: SaleStatus.FOR_SALE })
-      .andWhere('sale.createdAt >= :twoWeeksAgo', { twoWeeksAgo })
+      .andWhere('sale.createdAt >= :threeMonthsAgo', { threeMonthsAgo })
       .orderBy('sale.viewCount', 'DESC')
       .limit(6)
       .getRawMany<PopularSaleRawResult>();
