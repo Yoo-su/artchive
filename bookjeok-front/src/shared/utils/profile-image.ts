@@ -4,7 +4,7 @@
  */
 
 // 기본 프로필 이미지 개수
-const DEFAULT_PROFILE_COUNT = 5;
+const DEFAULT_PROFILE_COUNT = 10;
 
 /**
  * 기본 프로필 이미지 식별자인지 확인합니다.
@@ -13,7 +13,8 @@ const DEFAULT_PROFILE_COUNT = 5;
  */
 export function isDefaultProfileImage(url: string | null | undefined): boolean {
   if (!url) return false;
-  return /^default_profile[1-5]$/.test(url);
+  // default_profile1 ~ default_profile10
+  return /^default_profile([1-9]|10)$/.test(url);
 }
 
 /**
@@ -41,10 +42,9 @@ export function getProfileImageUrl(
 
 /**
  * 랜덤 기본 프로필 이미지 경로를 반환합니다.
- * profileImageUrl이 없을 때 fallback으로 사용합니다.
- * @returns 랜덤 기본 프로필 이미지 경로
+ * @returns 기본 프로필 이미지 경로 (1-10 중 랜덤)
  */
 export function getRandomDefaultProfileImage(): string {
-  const randomNumber = Math.floor(Math.random() * DEFAULT_PROFILE_COUNT) + 1;
-  return `/images/avatars/default_profile${randomNumber}.svg`;
+  const randomNum = Math.floor(Math.random() * 10) + 1;
+  return `/images/avatars/default_profile${randomNum}.svg`;
 }

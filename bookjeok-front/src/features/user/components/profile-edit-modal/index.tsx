@@ -38,6 +38,11 @@ const DEFAULT_PROFILE_IMAGES = [
   "default_profile3",
   "default_profile4",
   "default_profile5",
+  "default_profile6",
+  "default_profile7",
+  "default_profile8",
+  "default_profile9",
+  "default_profile10",
 ];
 
 interface ProfileEditModalProps {
@@ -312,23 +317,23 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
             </div>
 
             {/* 기본 이미지 선택 */}
-            <div className="flex gap-2">
+            <div className="grid grid-cols-5 gap-3 sm:gap-4 w-full max-w-[320px] mx-auto sm:max-w-none">
               {DEFAULT_PROFILE_IMAGES.map((imageId) => (
                 <button
                   key={imageId}
                   type="button"
                   onClick={() => handleDefaultImageSelect(imageId)}
-                  className={`relative w-10 h-10 rounded-full overflow-hidden border-2 transition-all ${
+                  className={`relative aspect-square rounded-full overflow-hidden border-2 transition-all hover:scale-105 active:scale-95 ${
                     selectedImage === imageId && !customImageFile
-                      ? "border-emerald-500 ring-2 ring-emerald-200"
-                      : "border-stone-200 hover:border-stone-400"
+                      ? "border-emerald-500 ring-2 ring-emerald-200 ring-offset-1"
+                      : "border-stone-100 hover:border-stone-300"
                   }`}
                 >
                   <Image
                     src={getProfileImageUrl(imageId) || ""}
                     alt={imageId}
                     fill
-                    sizes="40px"
+                    sizes="(max-width: 640px) 20vw, 40px"
                     className="object-cover"
                   />
                 </button>
@@ -336,48 +341,48 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
             </div>
           </div>
 
-          {/* 닉네임 */}
-          <div className="space-y-2">
+          <div className="grid gap-2">
             <Label htmlFor="nickname">닉네임</Label>
             <div className="relative">
               <Input
                 id="nickname"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
-                placeholder="닉네임을 입력하세요"
+                placeholder="닉네임을 입력하세요 (2-10자)"
                 maxLength={20}
-                className={nicknameError ? "border-red-500" : ""}
+                className={
+                  nicknameError
+                    ? "border-red-500 focus-visible:ring-red-200"
+                    : nicknameAvailable
+                      ? "border-emerald-500 focus-visible:ring-emerald-200"
+                      : ""
+                }
               />
-              <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                {isCheckingNickname && (
+              {isCheckingNickname && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
                   <Loader2 className="w-4 h-4 animate-spin text-stone-400" />
-                )}
-                {!isCheckingNickname &&
-                  nicknameAvailable === true &&
-                  nickname !== user.nickname && (
-                    <Check className="w-4 h-4 text-emerald-500" />
-                  )}
-                {!isCheckingNickname &&
-                  nicknameAvailable === false &&
-                  nickname !== user.nickname && (
-                    <X className="w-4 h-4 text-red-500" />
-                  )}
-              </div>
-            </div>
-            {nicknameError && (
-              <p className="text-xs text-red-500">{nicknameError}</p>
-            )}
-            {!nicknameError &&
-              nicknameAvailable &&
-              nickname !== user.nickname && (
-                <p className="text-xs text-emerald-600">
-                  사용 가능한 닉네임입니다.
-                </p>
+                </div>
               )}
+            </div>
+            {nicknameError ? (
+              <p className="text-sm text-red-500 flex items-center gap-1">
+                <span className="inline-block w-1 h-1 rounded-full bg-red-500" />
+                {nicknameError}
+              </p>
+            ) : nicknameAvailable && nickname !== user.nickname ? (
+              <p className="text-sm text-emerald-600 flex items-center gap-1">
+                <span className="inline-block w-1 h-1 rounded-full bg-emerald-500" />
+                사용 가능한 닉네임입니다.
+              </p>
+            ) : (
+              <p className="text-xs text-stone-500">
+                한글, 영문, 숫자 포함 2-10자
+              </p>
+            )}
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={() => setOpen(false)}>
             취소
           </Button>
