@@ -14,6 +14,7 @@ import { Card, CardContent } from "@/shared/components/shadcn/card";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";
+import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 import { UsedBookSale } from "../types";
 import { SaleStatusBadge } from "./sale-status-badge";
@@ -103,7 +104,9 @@ export const BookSaleCard = ({
             <div className="mt-auto flex items-center justify-between pt-3 border-t border-dashed border-gray-100">
               <div className="flex items-center gap-1.5">
                 <Avatar className="h-5 w-5" data-nosnippet>
-                  <AvatarImage src={sale.user.profileImageUrl || ""} />
+                  <AvatarImage
+                    src={getProfileImageUrl(sale.user.profileImageUrl)}
+                  />
                   <AvatarFallback className="text-[9px]">
                     {sale.user.nickname.slice(0, 1)}
                   </AvatarFallback>

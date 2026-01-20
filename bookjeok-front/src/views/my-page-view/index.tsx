@@ -8,6 +8,7 @@ import {
   ChevronRight,
   Heart,
   MessageSquare,
+  Pencil,
   ShoppingBag,
   User,
 } from "lucide-react";
@@ -15,10 +16,13 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { ProfileEditModal } from "@/features/user/components/profile-edit-modal";
 import { UserStatsDashboard } from "@/features/user/components/user-stats-dashboard";
 import { WithdrawalModal } from "@/features/user/components/withdrawal-modal";
+import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
 import { PATHS } from "@/shared/constants/paths";
+import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 // 활동 메뉴 정의
 const activityMenus = [
@@ -63,6 +67,9 @@ export const MyPageView = () => {
     return null;
   }
 
+  // 프로필 이미지 URL 변환 (기본 프로필 식별자 → 실제 경로)
+  const profileImageSrc = getProfileImageUrl(user.profileImageUrl);
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <h1 className="text-3xl font-bold mb-8">마이 페이지</h1>
@@ -76,9 +83,9 @@ export const MyPageView = () => {
               className="relative w-24 h-24 rounded-full bg-stone-100 flex items-center justify-center shrink-0 overflow-hidden"
               data-nosnippet
             >
-              {user.profileImageUrl ? (
+              {profileImageSrc ? (
                 <Image
-                  src={user.profileImageUrl}
+                  src={profileImageSrc}
                   alt={user.nickname}
                   fill
                   sizes="96px"
@@ -91,9 +98,22 @@ export const MyPageView = () => {
 
             {/* 사용자 정보 */}
             <div className="flex-1 text-center sm:text-left">
-              <h2 className="text-xl font-semibold text-stone-900">
-                {user.nickname}
-              </h2>
+              <div className="flex items-center justify-center sm:justify-start gap-2">
+                <h2 className="text-xl font-semibold text-stone-900">
+                  {user.nickname}
+                </h2>
+                <ProfileEditModal
+                  trigger={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-stone-400 hover:text-stone-600"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                  }
+                />
+              </div>
               <p className="text-stone-500 text-sm mt-1">{user.email}</p>
               {user.createdAt && (
                 <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs text-stone-400 mt-2">

@@ -74,6 +74,7 @@ export class UserService {
 
   /**
    * 유저 정보를 업데이트합니다.
+   * 닉네임 변경 시 중복 검사를 수행합니다.
    * @param userId 유저 ID
    * @param updateUserDto 업데이트할 유저 정보
    * @returns 업데이트된 유저
@@ -86,8 +87,46 @@ export class UserService {
     if (!user) {
       throw new BusinessException('USER_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
+
+    // 닉네임 변경 시 중복 검사
+    if (updateUserDto.nickname && updateUserDto.nickname !== user.nickname) {
+      const existingUser = await this.findByNickname(updateUserDto.nickname);
+      if (existingUser) {
+        throw new BusinessException(
+          'NICKNAME_ALREADY_EXISTS',
+          HttpStatus.CONFLICT,
+        );
+      }
+    }
+
     const updatedUser = this.userRepository.merge(user, updateUserDto);
     return await this.userRepository.save(updatedUser);
+  }
+
+  /**
+   * 닉네임으로 유저를 조회합니다.
+   * @param nickname 닉네임
+   * @returns 유저 엔티티 또는 null
+   */
+  async findByNickname(nickname: string): Promise<User | null> {
+    return await this.userRepository.findOne({ where: { nickname } });
+  }
+
+  /**
+   * 닉네임 사용 가능 여부를 확인합니다.
+   * @param nickname 확인할 닉네임
+   * @param currentUserId 현재 사용자 ID (본인 닉네임은 사용 가능)
+   * @returns 사용 가능 여부
+   */
+  async checkNicknameAvailability(
+    nickname: string,
+    currentUserId?: number,
+  ): Promise<boolean> {
+    const existingUser = await this.findByNickname(nickname);
+    if (!existingUser) return true;
+    // 본인의 현재 닉네임이면 사용 가능
+    if (currentUserId && existingUser.id === currentUserId) return true;
+    return false;
   }
 
   /**

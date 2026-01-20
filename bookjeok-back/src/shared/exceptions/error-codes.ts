@@ -44,6 +44,10 @@ export const ERROR_CODES = {
     code: 'USER_002',
     message: '이미 존재하는 사용자입니다.',
   },
+  NICKNAME_ALREADY_EXISTS: {
+    code: 'USER_003',
+    message: '이미 사용 중인 닉네임입니다.',
+  },
 
   // ============================================
   // 책 관련 에러 (BOOK)

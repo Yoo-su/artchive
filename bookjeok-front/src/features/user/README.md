@@ -8,6 +8,7 @@
   - `getUserProfile`: 내 프로필 조회
   - `getPublicProfile`: 공개 프로필 조회 (handle 기반)
   - `updateProfile`: 프로필 수정
+  - `checkNickname`: 닉네임 중복 검사
   - `getWishlist`: 위시리스트 조회
   - `addToWishlist`: 위시리스트 추가
   - `removeFromWishlist`: 위시리스트 제거
@@ -27,14 +28,19 @@
   - `useWithdrawMutation`: 회원 탈퇴
 
 - **`components/`**: 사용자 관련 UI 컴포넌트들
-  - `profile-card.tsx`: 프로필 카드
-  - `profile-edit-form.tsx`: 프로필 수정 폼
-  - `wishlist-button.tsx`: 위시리스트(찜) 버튼
-  - `wishlist-item.tsx`: 위시리스트 아이템
-  - `user-avatar.tsx`: 사용자 아바타
-  - `withdrawal-modal.tsx`: 회원탈퇴 확인 모달
+  - `profile-edit-modal/`: 프로필 수정 모달 (닉네임 변경, 이미지 선택/업로드)
+  - `user-profile/`: 사용자 프로필 표시
+  - `user-stats-dashboard/`: 사용자 통계 대시보드
+  - `wishlist-button/`: 위시리스트(찜) 버튼
+  - `wishlist-item/`: 위시리스트 아이템
+  - `wishlist-list/`: 위시리스트 목록
+  - `withdrawal-modal/`: 회원탈퇴 확인 모달
 
 - **`types.ts`**: 사용자 관련 TypeScript 타입 정의
+
+- **`shared/utils/profile-image.ts`**: 프로필 이미지 URL 변환 유틸리티
+  - `getProfileImageUrl`: 기본 프로필 식별자를 실제 경로로 변환
+  - `isDefaultProfileImage`: 기본 프로필 이미지인지 확인
 
 ## 2. 위시리스트 시스템
 

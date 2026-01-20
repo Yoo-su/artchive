@@ -14,6 +14,7 @@ import {
 import { Button } from "@/shared/components/shadcn/button";
 import { StarRating } from "@/shared/components/ui/star-rating";
 import { PATHS } from "@/shared/constants/paths";
+import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 interface ReviewCardProps {
   review: Review;
@@ -121,7 +122,7 @@ export function ReviewCard({
                 data-nosnippet
               >
                 <AvatarImage
-                  src={review.user?.profileImageUrl || undefined}
+                  src={getProfileImageUrl(review.user?.profileImageUrl)}
                   alt={review.user?.nickname}
                 />
                 <AvatarFallback className="bg-stone-100 text-[9px] font-bold text-stone-500">

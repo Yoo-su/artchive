@@ -7,6 +7,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/shared/components/shadcn/avatar";
+import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 import { ChatMessage } from "../../types";
 
@@ -39,7 +40,9 @@ const MessageBubble = ({ message, isMine }: MessageBubbleProps) => {
     >
       {!isMine && (
         <Avatar className="h-8 w-8" data-nosnippet>
-          <AvatarImage src={message.sender.profileImageUrl || ""} />
+          <AvatarImage
+            src={getProfileImageUrl(message.sender.profileImageUrl)}
+          />
           <AvatarFallback>{message.sender.nickname.slice(0, 1)}</AvatarFallback>
         </Avatar>
       )}

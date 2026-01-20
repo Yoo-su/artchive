@@ -11,6 +11,7 @@ export const API_PATHS = {
     stats: "/user/stats",
     wishlist: "/user/wishlist",
     wishlistCheck: "/user/wishlist/check",
+    checkNickname: "/user/check-nickname",
   },
   book: {
     list: "/book-list",

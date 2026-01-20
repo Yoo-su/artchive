@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/shared/components/shadcn/card";
 import { PATHS } from "@/shared/constants/paths";
+import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 interface PopularReviewItemProps {
   review: Review;
@@ -62,7 +63,9 @@ export function PopularReviewItem({ review }: PopularReviewItemProps) {
                 className="w-6 h-6 border border-stone-100"
                 data-nosnippet
               >
-                <AvatarImage src={review.user?.profileImageUrl || undefined} />
+                <AvatarImage
+                  src={getProfileImageUrl(review.user?.profileImageUrl)}
+                />
                 <AvatarFallback className="text-[9px] bg-stone-100 text-stone-500">
                   {review.user?.nickname?.[0]}
                 </AvatarFallback>

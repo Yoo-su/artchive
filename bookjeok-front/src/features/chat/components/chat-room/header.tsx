@@ -13,6 +13,7 @@ import {
 import { Button } from "@/shared/components/shadcn/button";
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { useSocketContext } from "@/shared/providers/socket-provider";
+import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 import { useChatStore } from "../../stores/use-chat-store";
 import { ChatRoom } from "../../types";
@@ -89,7 +90,9 @@ export const ChatRoomHeader = ({
           <div className="flex items-center gap-2">
             {opponentProfileImageUrl && (
               <Avatar className="h-6 w-6">
-                <AvatarImage src={opponentProfileImageUrl} />
+                <AvatarImage
+                  src={getProfileImageUrl(opponentProfileImageUrl)}
+                />
                 <AvatarFallback>{opponentNickname?.slice(0, 1)}</AvatarFallback>
               </Avatar>
             )}

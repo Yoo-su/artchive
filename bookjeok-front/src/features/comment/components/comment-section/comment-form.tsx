@@ -14,6 +14,7 @@ import { Spinner } from "@/shared/components/shadcn/spinner";
 import { Textarea } from "@/shared/components/shadcn/textarea";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils";
+import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 import { MAX_COMMENT_LENGTH } from "../../constants";
 import { useCreateCommentMutation } from "../../mutations";
@@ -33,7 +34,7 @@ export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
   const isAuthenticated = !!user;
   const { mutate: createComment, isPending } = useCreateCommentMutation(
     targetType,
-    targetId
+    targetId,
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -69,7 +70,7 @@ export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
           {/* 사용자 아바타 */}
           <Avatar className="w-10 h-10 shrink-0">
             <AvatarImage
-              src={user?.profileImageUrl || ""}
+              src={getProfileImageUrl(user?.profileImageUrl)}
               alt={user?.nickname}
             />
             <AvatarFallback className="bg-primary/10 text-primary">
@@ -87,7 +88,7 @@ export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
               className={cn(
                 "min-h-[80px] resize-none bg-background/50",
                 "border-border/50 focus:border-primary/50",
-                "placeholder:text-muted-foreground/50"
+                "placeholder:text-muted-foreground/50",
               )}
             />
 

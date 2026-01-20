@@ -12,6 +12,7 @@ import {
   AvatarImage,
 } from "@/shared/components/shadcn/avatar";
 import { PATHS } from "@/shared/constants/paths";
+import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 interface SliderReviewCardProps {
   review: Review;
@@ -106,7 +107,7 @@ export const SliderReviewCard = ({ review }: SliderReviewCardProps) => {
             <div className="flex items-center gap-2">
               <Avatar className="w-6 h-6 ring-1 ring-gray-100" data-nosnippet>
                 <AvatarImage
-                  src={review.user?.profileImageUrl || undefined}
+                  src={getProfileImageUrl(review.user?.profileImageUrl)}
                   alt={review.user?.nickname}
                 />
                 <AvatarFallback className="bg-sky-100 text-[10px] font-bold text-sky-600">

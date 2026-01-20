@@ -8,10 +8,10 @@ import { Button } from "@/shared/components/shadcn/button";
 import { PATHS } from "@/shared/constants/paths";
 
 const HERO_IMAGES = [
-  "/imgs/review_list_cover.jpg",
-  "/imgs/review_list_cover2.jpg",
-  "/imgs/review_list_cover3.jpg",
-  "/imgs/review_list_cover4.jpg",
+  "/images/review_home_covers/review_list_cover.jpg",
+  "/images/review_home_covers/review_list_cover2.jpg",
+  "/images/review_home_covers/review_list_cover3.jpg",
+  "/images/review_home_covers/review_list_cover4.jpg",
 ];
 
 export function ReviewHomeHero() {
