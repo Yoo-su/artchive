@@ -2,6 +2,7 @@
 
 import {
   BarChart3,
+  CalendarDays,
   List,
   Menu,
   PenLine,
@@ -112,6 +113,17 @@ export const MobileNavSheet = () => {
         },
       ],
     },
+    {
+      title: "나의 활동",
+      items: [
+        {
+          href: PATHS.READING_LOG,
+          label: "독서 기록",
+          icon: <CalendarDays className="h-4 w-4" />,
+          requiresAuth: true,
+        },
+      ],
+    },
   ];
 
   const handleLinkClick = () => {
@@ -143,7 +155,7 @@ export const MobileNavSheet = () => {
           {navSections.map((section) => {
             // 인증이 필요한 아이템만 있는 섹션은 로그인 시에만 표시
             const visibleItems = section.items.filter(
-              (item) => !item.requiresAuth || user
+              (item) => !item.requiresAuth || user,
             );
 
             if (visibleItems.length === 0) return null;

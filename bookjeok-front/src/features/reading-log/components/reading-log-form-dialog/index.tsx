@@ -81,15 +81,15 @@ export function ReadingLogFormDialog({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle
-            className="text-xl font-bold text-center"
-            style={{ color: READING_LOG_COLORS.matcha.dark }}
+            className="text-xl font-bold text-center font-serif"
+            style={{ color: READING_LOG_COLORS.cozy.dark }}
           >
             {mode === "create" ? "책 기록하기" : "메모 수정하기"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex gap-4 p-4 bg-gray-50 rounded-xl mb-2 items-center">
-          <div className="relative w-14 h-20 shrink-0 rounded-md overflow-hidden shadow-sm border border-black/5">
+        <div className="flex gap-4 p-4 bg-stone-50 rounded-2xl mb-2 items-center border border-stone-100/50">
+          <div className="relative w-14 h-20 shrink-0 rounded-md overflow-hidden shadow-sm border border-stone-200">
             <Image
               src={book.image}
               alt={book.title}
@@ -98,10 +98,10 @@ export function ReadingLogFormDialog({
             />
           </div>
           <div className="min-w-0">
-            <h4 className="font-bold text-gray-800 line-clamp-1">
+            <h4 className="font-bold text-stone-800 line-clamp-1 font-serif tracking-tight">
               {book.title}
             </h4>
-            <p className="text-sm text-gray-500 line-clamp-1">{book.author}</p>
+            <p className="text-sm text-stone-500 line-clamp-1">{book.author}</p>
           </div>
         </div>
 
@@ -115,23 +115,23 @@ export function ReadingLogFormDialog({
               name="memo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-600 font-medium">
+                  <FormLabel className="text-stone-600 font-medium">
                     한 줄 메모{" "}
-                    <span className="text-xs text-gray-400 font-normal">
+                    <span className="text-xs text-stone-400 font-normal">
                       (선택)
                     </span>
                   </FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="이 책은 어떠셨나요? 짧은 감상을 남겨주세요."
-                      className="resize-none h-24 focus-visible:ring-1 focus-visible:ring-offset-0 disabled:opacity-50"
-                      style={{ borderColor: READING_LOG_COLORS.matcha.light }}
+                      className="resize-none h-24 focus-visible:ring-1 focus-visible:ring-offset-0 disabled:opacity-50 focus-visible:ring-amber-200"
+                      style={{ borderColor: READING_LOG_COLORS.cozy.soft }}
                       maxLength={MAX_MEMO_LENGTH}
                       disabled={isPending}
                       {...field}
                     />
                   </FormControl>
-                  <div className="text-right text-xs text-gray-400">
+                  <div className="text-right text-xs text-stone-400">
                     {field.value.length} / {MAX_MEMO_LENGTH}
                   </div>
                   <FormMessage />
@@ -143,15 +143,15 @@ export function ReadingLogFormDialog({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                className="h-11"
+                className="h-11 border-stone-200 text-stone-600 hover:bg-stone-50"
                 disabled={isPending}
               >
                 취소
               </Button>
               <Button
                 type="submit"
-                className="h-11 font-bold text-white hover:opacity-90 transition-opacity"
-                style={{ backgroundColor: READING_LOG_COLORS.matcha.medium }}
+                className="h-11 font-bold text-white hover:opacity-90 transition-opacity shadow-sm"
+                style={{ backgroundColor: READING_LOG_COLORS.cozy.medium }}
                 disabled={isPending}
               >
                 {isPending ? (
