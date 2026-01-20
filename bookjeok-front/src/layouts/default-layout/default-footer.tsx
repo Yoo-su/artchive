@@ -70,7 +70,7 @@ export const DefaultFooter = () => {
               <ul className="space-y-2.5 text-sm text-stone-500">
                 <li>rhan0871@naver.com</li>
                 <li>Seoul, Republic of Korea</li>
-                <li>
+                {/* <li>
                   <a
                     href="https://github.com/Yoo-su"
                     target="_blank"
@@ -81,7 +81,7 @@ export const DefaultFooter = () => {
                     <Github className="h-4 w-4" />
                     <span>GitHub</span>
                   </a>
-                </li>
+                </li> */}
               </ul>
             </div>
           </div>
