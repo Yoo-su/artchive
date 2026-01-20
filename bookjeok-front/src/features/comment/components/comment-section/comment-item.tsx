@@ -5,7 +5,7 @@ import { ko } from "date-fns/locale";
 import { Heart, Loader2, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 
-import { useAuthStore } from "@/features/auth/store";
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   DropdownMenu,

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import { useAuthStore } from "@/features/auth/store";
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { ChatToggleButton } from "@/features/chat/components/chat-toggle-button";
 import { ChatWidget } from "@/features/chat/components/chat-widget";
 import { useChatEvents } from "@/features/chat/hooks/use-chat-events";

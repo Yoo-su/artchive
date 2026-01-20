@@ -4,6 +4,7 @@ import { RefreshCw } from "lucide-react";
 import { useEffect } from "react";
 
 import { Button } from "@/shared/components/shadcn/button";
+import { config } from "@/shared/config/env";
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };
@@ -38,7 +39,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
             홈으로 이동
           </Button>
         </div>
-        {process.env.NODE_ENV === "development" && (
+        {config.isDev && (
           <details className="mt-8 text-left">
             <summary className="cursor-pointer text-sm text-gray-500">
               에러 상세 정보 (개발 모드)

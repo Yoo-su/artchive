@@ -1,9 +1,11 @@
 import { XMLParser } from "fast-xml-parser";
 import { NextRequest } from "next/server";
 
+import { config } from "@/shared/config/env";
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params; // 동적 경로의 파라미터를 가져옵니다.
@@ -12,7 +14,7 @@ export async function GET(
       throw new Error("공연 ID가 필요합니다.");
     }
 
-    const apiUrl = `http://www.kopis.or.kr/openApi/restful/pblprfr/${id}?service=${process.env.CULTURE_SERVICE_KEY}`;
+    const apiUrl = `http://www.kopis.or.kr/openApi/restful/pblprfr/${id}?service=${config.CULTURE_SERVICE_KEY}`;
 
     const response = await fetch(apiUrl, {
       method: "GET",
@@ -33,7 +35,7 @@ export async function GET(
     if (!jsonData.dbs || !jsonData.dbs.db) {
       return Response.json(
         { success: false, message: "해당 ID의 공연 정보를 찾을 수 없습니다." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -51,7 +53,7 @@ export async function GET(
             ? error.message
             : "공연 정보를 가져올 수 없습니다.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

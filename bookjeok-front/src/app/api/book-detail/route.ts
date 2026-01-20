@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { fetchBookDetail } from "@/features/book/server/service";
+import { fetchBookDetail } from "@/features/book/apis/server";
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     if (!isbn) {
       return NextResponse.json(
         { success: false, message: "ISBN is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
             ? error.message
             : "책 목록을 가져오는 데 실패했습니다.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

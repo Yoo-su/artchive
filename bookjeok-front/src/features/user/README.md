@@ -4,7 +4,7 @@
 
 ## 1. 주요 파일 및 역할
 
-- **`apis.ts`**: 백엔드 `/user` 엔드포인트와 통신하는 API 함수들을 정의합니다.
+- **`apis/index.ts`**: 백엔드 `/user` 엔드포인트와 통신하는 API 함수들을 정의합니다.
   - `getUserProfile`: 내 프로필 조회
   - `getPublicProfile`: 공개 프로필 조회 (handle 기반)
   - `updateProfile`: 프로필 수정
@@ -14,13 +14,13 @@
   - `checkWishlistStatus`: 위시리스트 상태 확인
   - `withdraw`: 회원 탈퇴
 
-- **`queries.ts`**: TanStack Query 쿼리 훅을 정의합니다.
+- **`queries.tsx`**: TanStack Query 쿼리 훅을 정의합니다.
   - `useUserProfileQuery`: 내 프로필 조회
   - `usePublicProfileQuery`: 공개 프로필 조회
   - `useWishlistQuery`: 위시리스트 조회
   - `useWishlistStatusQuery`: 특정 항목 위시리스트 상태 확인
 
-- **`mutations.ts`**: TanStack Query 뮤테이션 훅을 정의합니다.
+- **`mutations.tsx`**: TanStack Query 뮤테이션 훅을 정의합니다.
   - `useUpdateProfileMutation`: 프로필 수정
   - `useAddToWishlistMutation`: 위시리스트 추가
   - `useRemoveFromWishlistMutation`: 위시리스트 제거

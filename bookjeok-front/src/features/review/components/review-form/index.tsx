@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { useAuthStore } from "@/features/auth/store";
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { BookSearchModal } from "@/features/book/components/common/book-search-modal";
 import { Book } from "@/features/book/types";
 import { reviewSchema, ReviewSchemaValues } from "@/features/review/schemas";

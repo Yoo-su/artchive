@@ -1,10 +1,11 @@
 "use client";
 
 import { Logo } from "@/layouts/common/logo";
+import { config } from "@/shared/config/env";
 
 export const LoginForm = () => {
   const handleSocialLogin = (callbackUrl: string) => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/${callbackUrl}`;
+    window.location.href = `${config.NEXT_PUBLIC_API_URL}/${callbackUrl}`;
   };
 
   return (

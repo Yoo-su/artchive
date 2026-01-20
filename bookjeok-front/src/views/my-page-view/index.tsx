@@ -14,7 +14,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 
-import { useAuthStore } from "@/features/auth/store";
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { UserStatsDashboard } from "@/features/user/components/user-stats-dashboard";
 import { WithdrawalModal } from "@/features/user/components/withdrawal-modal";
 import { Card, CardContent } from "@/shared/components/shadcn/card";

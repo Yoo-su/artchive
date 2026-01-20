@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
-import { useAuthStore } from "@/features/auth/store";
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { User } from "@/features/auth/types";
 import { PATHS } from "@/shared/constants/paths";
 

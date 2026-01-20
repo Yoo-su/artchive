@@ -1,6 +1,8 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
+import { config } from "@/shared/config/env";
+
 export async function GET(request: NextRequest) {
   try {
     // 클라이언트에서 보낸 쿼리 파라미터를 추출합니다.
@@ -20,10 +22,10 @@ export async function GET(request: NextRequest) {
           sort,
         },
         headers: {
-          "X-Naver-Client-Id": process.env.NAVER_CLIENT_ID,
-          "X-Naver-Client-Secret": process.env.NAVER_CLIENT_SECRET,
+          "X-Naver-Client-Id": config.NAVER_CLIENT_ID,
+          "X-Naver-Client-Secret": config.NAVER_CLIENT_SECRET,
         },
-      }
+      },
     );
 
     // 성공적으로 데이터를 받으면 클라이언트에 반환합니다.
@@ -45,7 +47,7 @@ export async function GET(request: NextRequest) {
             ? error.message
             : "책 목록을 가져오는 데 실패했습니다.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

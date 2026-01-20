@@ -5,7 +5,7 @@ import { Edit } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
 
-import { useAuthStore } from "@/features/auth/store";
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { CommentSection } from "@/features/comment/components/comment-section";
 import { CommentTargetType } from "@/features/comment/types";
 import { getReviewAuthenticated } from "@/features/review/apis";

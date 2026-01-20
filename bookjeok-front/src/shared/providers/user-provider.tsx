@@ -3,7 +3,7 @@
 import { ReactNode, useEffect, useState } from "react";
 
 import { getUserProfile } from "@/features/auth/apis";
-import { useAuthStore } from "@/features/auth/store";
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { FullScreenLoader } from "@/shared/components/ui/full-screen-loader";
 
 interface UesrProviderProps {

@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
 
-import { searchBookSales } from "@/features/book/apis";
+import { searchBookSales } from "@/features/book-sale/apis";
 import { getReviews } from "@/features/review/apis";
 export const dynamic = "force-dynamic";
 

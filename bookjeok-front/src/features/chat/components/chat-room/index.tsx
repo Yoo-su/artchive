@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 
-import { useAuthStore } from "@/features/auth/store";
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { useSocketContext } from "@/shared/providers/socket-provider";
 
 import { useChatScroll } from "../../hooks/use-chat-scroll";

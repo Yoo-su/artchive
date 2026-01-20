@@ -1,10 +1,10 @@
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 
+import { GetBookListParams } from "@/features/book/types";
 import {
-  GetBookListParams,
   SearchBookSalesParams,
   UseInfiniteRelatedSalesQueryProps,
-} from "@/features/book/types";
+} from "@/features/book-sale/types";
 
 export const bookKeys = createQueryKeys("book", {
   // 객체 대신 개별 값으로 구성하여 서버/클라이언트 간 키 일치 보장

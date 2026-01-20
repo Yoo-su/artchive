@@ -6,8 +6,8 @@ import { BookOpen, Calendar, ShoppingBag, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { SaleStatusBadge } from "@/features/book/components/common/sale-status-badge";
-import { SaleStatus } from "@/features/book/types";
+import { SaleStatusBadge } from "@/features/book-sale/components/sale-status-badge";
+import { SaleStatus } from "@/features/book-sale/types";
 import { ReadingTimeline } from "@/features/reading-log/components/reading-timeline";
 import { usePublicProfileQuery } from "@/features/user/queries";
 import { PublicUserProfile } from "@/features/user/types";

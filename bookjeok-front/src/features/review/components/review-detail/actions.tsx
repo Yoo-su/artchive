@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
-import { useAuthStore } from "@/features/auth/store";
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { useToggleReviewReactionMutation } from "@/features/review/mutations";
 import { useMyReviewReactionQuery } from "@/features/review/queries";
 import { ReviewReactionType } from "@/features/review/types";

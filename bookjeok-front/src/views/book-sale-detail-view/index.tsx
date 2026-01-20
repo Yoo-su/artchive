@@ -1,6 +1,6 @@
 "use client";
 
-import { BookSaleDetail } from "@/features/book/components/book-sale-detail";
+import { BookSaleDetail } from "@/features/book-sale/components/book-sale-detail";
 
 interface BookSaleDetailViewProps {
   saleId: string;

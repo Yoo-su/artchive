@@ -85,9 +85,16 @@ src/
 └── 📁 shared/      # 전역적으로 재사용되는 컴포넌트, 유틸리티, 타입 등
 ```
 
-- **`features`**: 각 도메인의 비즈니스 로직, API 연동, 상태 관리를 담당합니다. 예를 들어 `features/book`에는 책 관련 API 함수, 커스텀 훅, 타입 정의 등이 포함됩니다.
+- **`features`**: 각 도메인의 비즈니스 로직, API 연동, 상태 관리를 담당합니다.
+  - **Standardized Structure**: 모든 feature는 일관된 구조를 따릅니다.
+    - `apis/index.ts`: API 함수 모음
+    - `stores/use-xxx-store.ts`: 전역 상태 관리 (Zustand)
+    - `queries.tsx`: React Query 훅
+    - `types.ts`: 타입 정의
+    - `components/`: 도메인 전용 컴포넌트
 - **`views`**: 특정 페이지 또는 페이지의 큰 섹션을 구성하는 컴포넌트들의 조합을 담당합니다. `features`와 `shared`의 컴포넌트와 훅을 사용하여 UI를 완성합니다.
 - **`shared`**: 여러 도메인에서 공통적으로 사용되는 UI 컴포넌트(e.g., Button, Input), 유틸리티 함수, 타입, 상수 등을 포함하여 코드 재사용성을 극대화합니다.
+  - **Config (`shared/config/env.ts`)**: 환경변수는 `process.env`를 직접 사용하지 않고, Zod 검증이 적용된 `config` 객체를 통해 안전하게 접근합니다.
 
 ### Next.js App Router와 라우트 그룹
 
@@ -146,6 +153,14 @@ Next.js의 **ISR(Incremental Static Regeneration)**과 TanStack Query의 **Serve
 - **`staleTime` 동기화**: 클라이언트 `staleTime`을 서버 `revalidate`와 일치시켜 불필요한 클라이언트 refetch를 방지합니다.
 - **HydrationBoundary**: 서버에서 prefetch한 데이터를 클라이언트로 전달하여 네트워크 요청 없이 즉시 렌더링합니다.
 - **On-Demand Revalidation**: 판매글/리뷰 작성 시 `revalidatePath`를 호출하여 서버 캐시를 즉시 무효화, 새로고침해도 작성한 글이 바로 보이도록 처리했습니다.
+
+### 6. 안전한 환경변수 관리 (Centralized Env Config)
+
+`process.env`를 코드 곳곳에서 직접 호출하는 대신, **`shared/config/env.ts`** 에서 Zod를 사용해 런타임 검증을 수행한 후 `config` 객체로 export합니다.
+
+- **타입 안전성**: 환경변수의 존재 여부와 타입을 보장합니다.
+- **서버/클라이언트 분리**: `NEXT_PUBLIC_` 접두사가 없는 서버 전용 변수가 클라이언트 번들에 포함되지 않도록 관리합니다.
+- **중앙 집중화**: 환경변수 변경 시 한 곳만 수정하면 되므로 유지보수성이 뛰어납니다.
 
 ## 🏁 시작하기 (Getting Started)
 

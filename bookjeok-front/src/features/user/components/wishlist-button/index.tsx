@@ -4,7 +4,7 @@ import { Heart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { useAuthStore } from "@/features/auth/store";
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { BookInfo } from "@/features/book/types";
 import {
   useAddToWishlistMutation,

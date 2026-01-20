@@ -3,6 +3,7 @@ import { XMLParser } from "fast-xml-parser";
 import { NextRequest } from "next/server";
 
 import { CityCode, Genre, PrfState } from "@/features/art/types";
+import { config } from "@/shared/config/env";
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
     const signgucode = searchParams.get("signgucode") as CityCode;
 
     // 외부 API 호출
-    const apiUrl = `http://www.kopis.or.kr/openApi/restful/pblprfr?service=${process.env.CULTURE_SERVICE_KEY}&stdate=${startDate}&eddate=${endDate}&cpage=${cpage}&rows=${rows}&prfstate=${prfstate}&signgucode=${signgucode}&shcate=${genreCode}`;
+    const apiUrl = `http://www.kopis.or.kr/openApi/restful/pblprfr?service=${config.CULTURE_SERVICE_KEY}&stdate=${startDate}&eddate=${endDate}&cpage=${cpage}&rows=${rows}&prfstate=${prfstate}&signgucode=${signgucode}&shcate=${genreCode}`;
 
     const response = await fetch(apiUrl, {
       method: "GET",
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest) {
             ? error.message
             : "공연 목록을 가져올 수 없습니다.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
