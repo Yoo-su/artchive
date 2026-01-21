@@ -130,7 +130,7 @@ export function ReadingLogCalendar({
           </div>
 
           {/* 캘린더 그리드 */}
-          <div className="grid grid-cols-7 auto-rows-[160px] divide-x divide-y divide-gray-100">
+          <div className="grid grid-cols-7 auto-rows-[100px] sm:auto-rows-[160px] divide-x divide-y divide-gray-100">
             {calendarDays.map((day) => (
               <ReadingLogDayCell
                 key={day.toISOString()}
