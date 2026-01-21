@@ -20,6 +20,12 @@ export class MyProfileResponseDto {
   @ApiProperty({ description: '독서 기록 공개 여부' })
   isReadingLogPublic: boolean;
 
+  @ApiProperty({ description: '소셜 로그인 제공자' })
+  provider: string;
+
+  @ApiProperty({ description: '소셜 로그인 제공자 ID' })
+  providerId: string;
+
   constructor(user: User) {
     this.id = user.id;
     this.email = user.email;
@@ -27,5 +33,7 @@ export class MyProfileResponseDto {
     this.handle = user.handle;
     this.profileImageUrl = user.profileImageUrl;
     this.isReadingLogPublic = user.isReadingLogPublic;
+    this.provider = user.provider;
+    this.providerId = user.providerId;
   }
 }
