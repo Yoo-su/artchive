@@ -5,6 +5,7 @@ import { ko } from "date-fns/locale";
 import {
   BookOpen,
   Calendar,
+  CalendarDays,
   ChevronRight,
   Heart,
   MessageSquare,
@@ -26,6 +27,14 @@ import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 // 활동 메뉴 정의
 const activityMenus = [
+  {
+    icon: CalendarDays,
+    label: "나의 독서 기록",
+    description: "월별 독서 캘린더 및 통계",
+    href: PATHS.READING_LOG,
+    color: "text-indigo-500",
+    bgColor: "bg-indigo-50",
+  },
   {
     icon: ShoppingBag,
     label: "나의 판매 내역",

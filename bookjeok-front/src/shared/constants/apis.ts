@@ -3,6 +3,8 @@ export const API_PATHS = {
     login: (provider: "naver" | "kakao") => `/auth/${provider}`,
     logout: "/auth/logout",
     refresh: "/auth/refresh",
+    emailRegister: "/auth/signup",
+    emailLogin: "/auth/login",
   },
   user: {
     base: "/user",

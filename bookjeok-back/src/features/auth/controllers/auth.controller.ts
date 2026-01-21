@@ -1,4 +1,4 @@
-import { Controller, Get, Post, UseGuards, Res } from '@nestjs/common';
+import { Controller, Get, Post, UseGuards, Res, Body } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
 
@@ -7,6 +7,9 @@ import { ConfigService } from '@nestjs/config';
 import { SocialAuth } from '../decorators/social-auth.decorator';
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { User } from '@/features/user/entities/user.entity';
+
+import { RegisterDto } from '../dtos/register.dto';
+import { LoginDto } from '../dtos/login.dto';
 
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
@@ -108,5 +111,23 @@ export class AuthController {
     const { id: userId, nickname } = user;
     const tokens = await this.authService.refresh(userId, nickname);
     return tokens;
+  }
+
+  @Post('signup')
+  @ApiOperation({
+    summary: '이메일 회원가입',
+    description: '이메일과 비밀번호로 회원가입을 진행합니다.',
+  })
+  async signup(@Body() registerDto: RegisterDto) {
+    return await this.authService.register(registerDto);
+  }
+
+  @Post('login')
+  @ApiOperation({
+    summary: '이메일 로그인',
+    description: '이메일과 비밀번호로 로그인을 진행합니다.',
+  })
+  async login(@Body() loginDto: LoginDto) {
+    return await this.authService.login(loginDto);
   }
 }

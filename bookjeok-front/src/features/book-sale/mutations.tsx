@@ -35,6 +35,7 @@ interface CreateSaleVariables {
 export const useCreateBookSaleMutation = () => {
   const router = useRouter();
   const { provider, id } = useAuthStore((state) => state.user)!;
+  const accessToken = useAuthStore((state) => state.accessToken);
 
   return useMutation<UsedBookSale, Error, CreateSaleVariables>({
     mutationFn: async ({ imageFiles, payload }) => {
@@ -46,6 +47,9 @@ export const useCreateBookSaleMutation = () => {
           return upload(filePath, file, {
             access: "public",
             handleUploadUrl: "/api/upload",
+            clientPayload: JSON.stringify({
+              token: accessToken,
+            }),
           });
         }),
       );
@@ -118,6 +122,7 @@ export const useUpdateBookSaleMutation = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { provider, id } = useAuthStore((state) => state.user)!;
+  const accessToken = useAuthStore((state) => state.accessToken);
 
   return useMutation<UsedBookSale, Error, UpdateSaleVariables>({
     mutationFn: async ({
@@ -136,7 +141,15 @@ export const useUpdateBookSaleMutation = () => {
 
         const formData = new FormData();
         compressedFiles.forEach((file) => formData.append("images", file));
-        const uploadResult = await uploadImages(formData, provider, id);
+        if (!accessToken) {
+          throw new Error("인증 정보가 없습니다.");
+        }
+        const uploadResult = await uploadImages(
+          formData,
+          provider,
+          id,
+          accessToken,
+        );
         if (!uploadResult.success || !uploadResult.blobs) {
           throw new Error("새 이미지 업로드에 실패했습니다.");
         }
