@@ -19,14 +19,14 @@ export const RecentSalesSlider = () => {
   // 최소 8개 이상의 슬라이드가 있어야 loop가 자연스럽게 작동
   const displaySales = useMemo(() => {
     if (!sales || sales.length === 0) return [];
-    if (sales.length >= 8) return sales;
+    if (sales.length >= 15) return sales;
 
-    // 아이템이 8개 미만이면 복제해서 최소 8개로 만듦
-    const multiplier = Math.ceil(8 / sales.length);
+    // 아이템이 15개 미만이면 복제해서 최소 15개로 만듦 (Loop 안정성 확보)
+    const multiplier = Math.ceil(15 / sales.length);
     return Array(multiplier)
       .fill(sales)
       .flat()
-      .slice(0, Math.max(8, sales.length * 2));
+      .slice(0, Math.max(15, sales.length * 2));
   }, [sales]);
 
   const SliderHeader = () => (
@@ -75,6 +75,7 @@ export const RecentSalesSlider = () => {
         slidesPerView={"auto"}
         spaceBetween={24}
         loop={true}
+        loopAdditionalSlides={5} // 데이터 복제 + 적절한 버퍼로 완벽한 Loop 구현
         centeredSlides={true}
         speed={800}
         autoplay={{
@@ -82,6 +83,8 @@ export const RecentSalesSlider = () => {
           disableOnInteraction: false,
           pauseOnMouseEnter: true,
         }}
+        observer={true}
+        observeParents={true}
         className="px-4! overflow-visible! [clip-path:inset(-100px_-10px)]"
       >
         {displaySales.map((sale, index) => (

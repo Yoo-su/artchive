@@ -69,6 +69,8 @@ export const RecentReviewSlider = () => {
           disableOnInteraction: false,
           pauseOnMouseEnter: true,
         }}
+        observer={true}
+        observeParents={true}
         className="px-4! overflow-visible! [clip-path:inset(-100px_-10px)]"
       >
         {reviews.map((review) => (

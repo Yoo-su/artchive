@@ -49,6 +49,8 @@ export const PopularBookSlider = () => {
           slidesPerView="auto"
           spaceBetween={16}
           autoplay={{ delay: 4000, disableOnInteraction: false }}
+          observer={true}
+          observeParents={true}
           className="w-full"
         >
           {books.map((book, index) => (
