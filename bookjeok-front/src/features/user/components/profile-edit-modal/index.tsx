@@ -58,6 +58,7 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
   const [open, setOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
+  const accessToken = useAuthStore((state) => state.accessToken);
 
   // 폼 상태
   const [nickname, setNickname] = useState("");
@@ -222,6 +223,9 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
         const blob = await upload(filePath, customImageFile, {
           access: "public",
           handleUploadUrl: "/api/upload",
+          clientPayload: JSON.stringify({
+            token: accessToken,
+          }),
         });
         updateData.profileImageUrl = blob.url;
       } else if (selectedImage !== user.profileImageUrl) {

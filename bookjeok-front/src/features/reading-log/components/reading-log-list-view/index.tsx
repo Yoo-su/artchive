@@ -9,15 +9,11 @@ import { useInView } from "react-intersection-observer";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { cn } from "@/shared/utils";
 
-import { READING_LOG_COLORS, SeasonalTheme } from "../../constants";
+import { getSeasonalTheme } from "../../hooks/use-seasonal-theme";
 import { useReadingLogsInfiniteQuery } from "../../queries";
 import { DayDetailsDialog } from "../day-details-dialog";
 
-interface ReadingLogListViewProps {
-  theme: SeasonalTheme;
-}
-
-export function ReadingLogListView({ theme }: ReadingLogListViewProps) {
+export function ReadingLogListView() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useReadingLogsInfiniteQuery();
 
@@ -58,6 +54,9 @@ export function ReadingLogListView({ theme }: ReadingLogListViewProps) {
         const currentDate = parseISO(log.date);
         const prevDate = index > 0 ? parseISO(allLogs[index - 1].date) : null;
 
+        // 아이템별 동적 테마 적용
+        const theme = getSeasonalTheme(currentDate);
+
         const showHeader =
           !prevDate ||
           format(currentDate, "yyyy-MM") !== format(prevDate, "yyyy-MM");
@@ -73,6 +72,7 @@ export function ReadingLogListView({ theme }: ReadingLogListViewProps) {
                       theme.todayBg,
                     )}
                   />
+                  {/* 헤더도 해당 월의 테마를 따라감 */}
                   {format(currentDate, "yyyy년 M월", { locale: ko })}
                 </h3>
               </div>

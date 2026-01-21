@@ -1,6 +1,24 @@
-"use client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
+import { emailLogin } from "@/features/auth/apis";
+import { LoginSchema, LoginSchemaType } from "@/features/auth/schema"; // Using centralized schema
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { Logo } from "@/layouts/common/logo";
+import { Button } from "@/shared/components/shadcn/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/shared/components/shadcn/form";
+import { Input } from "@/shared/components/shadcn/input";
 import { config } from "@/shared/config/env";
 
 export const LoginForm = () => {
@@ -9,22 +27,35 @@ export const LoginForm = () => {
   };
 
   return (
-    <div className="w-full max-w-sm p-8 mx-4 space-y-8 bg-white border border-gray-200 rounded-2xl shadow-sm">
+    <div className="w-full max-w-sm p-8 mx-4 space-y-6 bg-white border border-gray-200 rounded-2xl shadow-sm">
       <div className="flex flex-col items-center gap-2">
         <Logo />
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-          시작하기
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+          로그인
         </h1>
-        <p className="mt-2 text-sm text-gray-600">
-          SNS 계정으로 3초만에 간편하게 로그인하세요.
+        <p className="text-sm text-gray-500">
+          북적 서비스 이용을 위해 로그인해주세요.
         </p>
+      </div>
+
+      <EmailLoginForm />
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-gray-200" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-white px-2 text-gray-500">
+            또는 소셜 계정으로 로그인
+          </span>
+        </div>
       </div>
 
       <div className="flex flex-col gap-3">
         {/* 카카오 로그인 버튼 */}
         <button
           onClick={() => handleSocialLogin("auth/kakao")}
-          className="w-full h-12 flex items-center justify-center gap-2 bg-[#FEE500] hover:bg-[#FDD835] transition-colors rounded-lg font-medium text-[#000000] text-[15px]"
+          className="w-full h-11 flex items-center justify-center gap-2 bg-[#FEE500] hover:bg-[#FDD835] transition-colors rounded-lg font-medium text-[#000000] text-[15px]"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
             <path
@@ -40,7 +71,7 @@ export const LoginForm = () => {
         {/* 네이버 로그인 버튼 */}
         <button
           onClick={() => handleSocialLogin("auth/naver")}
-          className="w-full h-12 flex items-center justify-center gap-2 bg-[#03C75A] hover:bg-[#02B350] transition-colors rounded-lg font-medium text-white text-[15px]"
+          className="w-full h-11 flex items-center justify-center gap-2 bg-[#03C75A] hover:bg-[#02B350] transition-colors rounded-lg font-medium text-white text-[15px]"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
             <path
@@ -52,14 +83,95 @@ export const LoginForm = () => {
         </button>
       </div>
 
-      <p className="px-8 text-xs text-center text-gray-500">
-        로그인은{" "}
-        <label className="underline hover:text-gray-700">이용약관</label> 및{" "}
-        <label className="underline hover:text-gray-700">
-          개인정보처리방침
-        </label>
-        에 동의하는 것으로 간주됩니다.
-      </p>
+      <div className="text-center text-sm">
+        <span className="text-gray-500">계정이 없으신가요? </span>
+        <Link
+          href="/signup"
+          className="font-medium text-emerald-600 hover:text-emerald-500"
+        >
+          이메일로 회원가입
+        </Link>
+      </div>
     </div>
   );
 };
+
+function EmailLoginForm() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const setAuth = useAuthStore((state) => state.setAuth);
+
+  const form = useForm<LoginSchemaType>({
+    resolver: zodResolver(LoginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (values: LoginSchemaType) => {
+    try {
+      setIsLoading(true);
+      const data = await emailLogin(values);
+      setAuth(data);
+      toast.success("로그인되었습니다.");
+      router.push("/");
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        form.setError("root", {
+          message: "이메일 또는 비밀번호가 일치하지 않습니다.",
+        });
+      } else {
+        toast.error("로그인 중 오류가 발생했습니다.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder="이메일" type="email" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder="비밀번호" type="password" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {form.formState.errors.root && (
+          <div className="text-[13px] font-medium text-destructive text-center">
+            {form.formState.errors.root.message}
+          </div>
+        )}
+
+        <Button
+          type="submit"
+          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+          disabled={isLoading}
+        >
+          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          이메일로 로그인
+        </Button>
+      </form>
+    </Form>
+  );
+}

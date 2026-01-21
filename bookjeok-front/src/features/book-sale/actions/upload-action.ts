@@ -29,10 +29,28 @@ export async function uploadImages(
   formData: FormData,
   provider: string,
   id: number,
+  accessToken: string,
 ) {
   const imageFiles = formData.getAll("images") as File[];
 
   try {
+    // 토큰 유효성 검증
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+    const response = await fetch(`${apiUrl}/user/profile`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Unauthorized: Invalid token");
+    }
+
+    // 사용자 ID 검증 (본인 확인)
+    const user = await response.json();
+    if (user.data.id !== id) {
+      throw new Error("Unauthorized: User mismatch");
+    }
     // 각 파일 유효성 검사
     const validationResult = z.array(ImageSchema).safeParse(imageFiles);
     if (!validationResult.success) {

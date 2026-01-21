@@ -2,6 +2,7 @@ import { upload } from "@vercel/blob/client";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import {
   compressImage,
   validateImageForUpload,
@@ -34,6 +35,8 @@ export const useEditorImageHandler = ({
 
   const uploadImages = async (content: string) => {
     setIsUploading(true);
+    const accessToken = useAuthStore.getState().accessToken;
+
     try {
       let newContent = content;
       const imagesToUpload: File[] = [];
@@ -56,8 +59,11 @@ export const useEditorImageHandler = ({
             return upload(uploadPath(compressedFile), compressedFile, {
               access: "public",
               handleUploadUrl: "/api/upload",
+              clientPayload: JSON.stringify({
+                token: accessToken,
+              }),
             });
-          })
+          }),
         );
 
         // blob URL을 실제 Vercel Blob URL로 교체
@@ -84,7 +90,7 @@ export const useEditorImageHandler = ({
       const initialUrls = extractImageUrls(initialContent);
       const finalUrls = extractImageUrls(newContent);
       const deletedImageUrls = initialUrls.filter(
-        (url) => !finalUrls.includes(url)
+        (url) => !finalUrls.includes(url),
       );
 
       return { content: newContent, deletedImageUrls };

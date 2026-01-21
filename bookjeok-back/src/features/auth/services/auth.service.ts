@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '@/features/user/services/user.service';
 
@@ -119,5 +124,70 @@ export class AuthService {
    */
   async refresh(userId: number, nickname: string) {
     return await this.getTokens(userId, nickname);
+  }
+
+  /**
+   * 이메일 회원가입을 처리합니다.
+   * @param registerDto 회원가입 정보
+   * @returns 생성된 유저
+   */
+  async register(registerDto: {
+    email: string;
+    password: string;
+    nickname: string;
+  }) {
+    const { email, password, nickname } = registerDto;
+
+    // 1. 이메일 중복 체크
+    const existingEmail = await this.userService.findByEmail(email);
+    if (existingEmail) {
+      throw new ConflictException('EMAIL_ALREADY_EXISTS');
+    }
+
+    // 2. 닉네임 중복 체크
+    const isNicknameAvailable =
+      await this.userService.checkNicknameAvailability(nickname);
+    if (!isNicknameAvailable) {
+      throw new ConflictException('NICKNAME_ALREADY_EXISTS');
+    }
+
+    // 3. 비밀번호 해싱
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 4. 유저 생성
+    return await this.userService.createEmailUser(
+      email,
+      hashedPassword,
+      nickname,
+    );
+  }
+
+  /**
+   * 이메일 로그인을 처리합니다.
+   * @param loginDto 로그인 정보
+   * @returns 토큰과 유저 정보
+   */
+  async login(loginDto: { email: string; password: string }) {
+    const { email, password } = loginDto;
+
+    // 1. 이메일로 유저 찾기
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException('INVALID_CREDENTIALS');
+    }
+
+    // 2. 소셜 로그인 유저인지 확인 (비밀번호가 없는 경우)
+    if (!user.password) {
+      throw new UnauthorizedException('SOCIAL_LOGIN_USER');
+    }
+
+    // 3. 비밀번호 검증
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('INVALID_CREDENTIALS');
+    }
+
+    // 4. 토큰 발급
+    return await this.socialLogin(user);
   }
 }

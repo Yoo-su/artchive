@@ -103,7 +103,35 @@ export const DefaultHeader = () => {
 
             <div className="w-px h-3 bg-stone-200 mx-1" />
 
-            {/* 2. 중고마켓 그룹 */}
+            <div className="w-px h-3 bg-stone-200 mx-1" />
+
+            {/* 2. 독서 기록 (로그인 전용) - 우선 순위 조정 */}
+            {user && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      asChild
+                      className={getButtonClass(PATHS.READING_LOG)}
+                      aria-label="독서 기록"
+                    >
+                      <Link href={PATHS.READING_LOG} className="group">
+                        <CalendarDays
+                          className={getIconClass(PATHS.READING_LOG)}
+                        />
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>나의 독서 기록</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+
+            {/* 3. 중고마켓 그룹 */}
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -270,32 +298,6 @@ export const DefaultHeader = () => {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-
-            {/* 5. 독서 기록 (로그인 전용) */}
-            {user && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      asChild
-                      className={getButtonClass(PATHS.READING_LOG)}
-                      aria-label="독서 기록"
-                    >
-                      <Link href={PATHS.READING_LOG} className="group">
-                        <CalendarDays
-                          className={getIconClass(PATHS.READING_LOG)}
-                        />
-                      </Link>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>나의 독서 기록</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
           </nav>
         </div>
 

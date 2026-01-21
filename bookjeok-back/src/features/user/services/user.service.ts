@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThanOrEqual, DataSource } from 'typeorm';
 import { User } from '../entities/user.entity';
@@ -20,7 +20,7 @@ import { ReadReceipt } from '@/features/chat/entities/read-receipt.entity';
 import { BusinessException } from '@/shared/exceptions/business.exception';
 
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -36,6 +36,20 @@ export class UserService {
     private readonly reviewRepository: Repository<Review>,
     private readonly dataSource: DataSource,
   ) {}
+
+  async onModuleInit() {
+    // 개발 환경 편의성을 위해 서버 시작 시 유저 ID 시퀀스를 동기화합니다.
+    if (process.env.NODE_ENV !== 'production') {
+      try {
+        await this.dataSource.query(
+          `SELECT setval(pg_get_serial_sequence('users', 'id'), COALESCE((SELECT MAX(id) + 1 FROM users), 1), false)`,
+        );
+        console.log('User ID sequence synchronized.');
+      } catch (e) {
+        console.warn('Failed to sync user sequence:', e);
+      }
+    }
+  }
 
   /**
    * 소셜 제공자 ID로 유저를 조회합니다.
@@ -61,6 +75,59 @@ export class UserService {
     const handle = `user_${Math.random().toString(36).substring(2, 10)}`;
     const newUser = this.userRepository.create({ ...socialLoginDto, handle });
     return await this.userRepository.save(newUser);
+  }
+
+  /**
+   * 이메일 기반 유저를 생성합니다.
+   * @param email 이메일
+   * @param password 암호화된 비밀번호
+   * @param nickname 닉네임
+   * @returns 생성된 유저
+   */
+  async createEmailUser(
+    email: string,
+    password: string,
+    nickname: string,
+  ): Promise<User> {
+    let handle = `user_${Math.random().toString(36).substring(2, 10)}`;
+    let isUnique = false;
+    let retryCount = 0;
+
+    // 핸들 중복 검사 및 재생성 (최대 3회)
+    while (!isUnique && retryCount < 3) {
+      const existing = await this.userRepository.findOne({ where: { handle } });
+      if (!existing) {
+        isUnique = true;
+      } else {
+        handle = `user_${Math.random().toString(36).substring(2, 10)}`;
+        retryCount++;
+      }
+    }
+
+    if (!isUnique) {
+      // 3회 실패 시 타임스탬프 추가
+      handle = `${handle}_${Date.now().toString().slice(-4)}`;
+    }
+
+    const newUser = this.userRepository.create({
+      provider: 'local',
+      providerId: email,
+      email,
+      password,
+      nickname,
+      handle,
+      profileImageUrl: `default_profile${Math.floor(Math.random() * 10) + 1}`,
+    });
+    return await this.userRepository.save(newUser);
+  }
+
+  /**
+   * 이메일로 유저를 조회합니다.
+   * @param email 이메일
+   * @returns 유저 엔티티 또는 null
+   */
+  async findByEmail(email: string): Promise<User | null> {
+    return await this.userRepository.findOne({ where: { email } });
   }
 
   /**
