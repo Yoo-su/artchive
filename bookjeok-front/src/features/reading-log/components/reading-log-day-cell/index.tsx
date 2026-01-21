@@ -11,7 +11,7 @@ import {
 } from "@/shared/components/shadcn/tooltip";
 import { cn } from "@/shared/utils";
 
-import { READING_LOG_COLORS, SeasonalTheme } from "../../constants";
+import { SeasonalTheme } from "../../constants";
 import { ReadingLog } from "../../types";
 
 interface ReadingLogDayCellProps {
@@ -88,10 +88,8 @@ export function ReadingLogDayCell({
               "text-[10px] font-medium px-2 py-0.5 rounded-full border hidden sm:inline-block shadow-sm transition-colors duration-300",
               theme.border,
               theme.bg,
+              theme.activeText,
             )}
-            style={{
-              color: READING_LOG_COLORS.cozy.dark, // 텍스트는 가독성 위해 그대로 유지하거나 theme.activeText 사용
-            }}
           >
             {logs.length}권
           </span>
@@ -105,10 +103,8 @@ export function ReadingLogDayCell({
             className={cn(
               "text-[10px] font-medium px-2 py-0.5 rounded-full border bg-white shadow-sm",
               theme.border,
+              theme.activeText,
             )}
-            style={{
-              color: READING_LOG_COLORS.cozy.dark,
-            }}
           >
             {logs.length}권
           </span>
@@ -175,8 +171,10 @@ export function ReadingLogDayCell({
         ))}
         {logs.length > 2 && (
           <div
-            className="text-[10px] pl-1 pt-0.5 font-medium"
-            style={{ color: READING_LOG_COLORS.gray.subText }}
+            className={cn(
+              "text-[10px] pl-1 pt-0.5 font-medium transition-colors duration-300",
+              theme.accent,
+            )}
           >
             + {logs.length - 2}권 더보기
           </div>

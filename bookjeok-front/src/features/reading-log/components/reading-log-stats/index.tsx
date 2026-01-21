@@ -1,3 +1,6 @@
+"use client";
+
+import { AnimatePresence, motion } from "framer-motion";
 import { BookOpen, Library } from "lucide-react";
 
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
@@ -9,6 +12,32 @@ import { useReadingLogStatsQuery } from "../../queries";
 interface ReadingLogStatsProps {
   currentDate: Date;
   theme: SeasonalTheme;
+}
+
+function AnimatedNumber({ value }: { value: number }) {
+  return (
+    <div className="relative inline-flex h-[1.1em] overflow-hidden items-center justify-center min-w-[0.7em]">
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.span
+          key={value}
+          initial={{ y: "60%", opacity: 0, filter: "blur(4px)" }}
+          animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+          exit={{ y: "-60%", opacity: 0, filter: "blur(4px)" }}
+          transition={{
+            type: "spring",
+            stiffness: 400,
+            damping: 30,
+            mass: 0.8,
+          }}
+          className="absolute inset-0 flex items-center justify-center"
+        >
+          {value}
+        </motion.span>
+      </AnimatePresence>
+      {/* 공간 확보용 투명 텍스트 */}
+      <span className="invisible">{value}</span>
+    </div>
+  );
 }
 
 export function ReadingLogStats({ currentDate, theme }: ReadingLogStatsProps) {
@@ -69,7 +98,7 @@ export function ReadingLogStats({ currentDate, theme }: ReadingLogStatsProps) {
                   theme.activeText, // text-color
                 )}
               >
-                {stats.monthlyCount}
+                <AnimatedNumber value={stats.monthlyCount} />
               </span>
               <span className="text-sm font-medium text-stone-500">권</span>
             </div>
@@ -99,7 +128,7 @@ export function ReadingLogStats({ currentDate, theme }: ReadingLogStatsProps) {
             </p>
             <div className="flex items-baseline gap-1.5">
               <span className="text-4xl font-bold font-serif text-stone-700 transition-transform duration-200 group-hover:scale-105">
-                {stats.yearlyCount}
+                <AnimatedNumber value={stats.yearlyCount} />
               </span>
               <span className="text-sm font-medium text-stone-500">권</span>
             </div>

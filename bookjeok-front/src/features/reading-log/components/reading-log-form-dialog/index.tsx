@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { CoolMode } from "@/shared/components/magic-ui/cool-mode";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,
@@ -144,22 +145,24 @@ export function ReadingLogFormDialog({
               >
                 취소
               </Button>
-              <Button
-                type="submit"
-                className="h-11 font-bold text-white hover:opacity-90 transition-opacity shadow-sm bg-stone-900 hover:bg-stone-800"
-                disabled={isPending}
-              >
-                {isPending ? (
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    <span>처리중...</span>
-                  </div>
-                ) : mode === "create" ? (
-                  "기록하기"
-                ) : (
-                  "수정하기"
-                )}
-              </Button>
+              <CoolMode>
+                <Button
+                  type="submit"
+                  className="h-11 font-bold text-white hover:opacity-90 transition-opacity shadow-sm bg-stone-900 hover:bg-stone-800"
+                  disabled={isPending}
+                >
+                  {isPending ? (
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      <span>처리중...</span>
+                    </div>
+                  ) : mode === "create" ? (
+                    "기록하기"
+                  ) : (
+                    "수정하기"
+                  )}
+                </Button>
+              </CoolMode>
             </DialogFooter>
           </form>
         </Form>
