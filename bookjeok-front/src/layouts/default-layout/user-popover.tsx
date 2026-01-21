@@ -1,6 +1,6 @@
 "use client";
 
-import { LogIn } from "lucide-react";
+import { User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -44,9 +44,9 @@ export default function UserPopover() {
   if (!user) {
     return (
       <Link href={PATHS.LOGIN}>
-        <Button className="bg-white cursor-pointer hover:bg-white text-gray-600 border-[0.5px] rounded-full border-gray-100 p-2">
-          <LogIn />
-          로그인
+        <Button className="rounded-full bg-white hover:bg-stone-50 border border-stone-200 shadow-sm hover:shadow text-stone-600 px-4 h-8 text-xs font-semibold transition-all flex items-center gap-1.5">
+          <User className="w-3.5 h-3.5" />
+          <span>로그인</span>
         </Button>
       </Link>
     );

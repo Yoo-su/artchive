@@ -95,8 +95,8 @@ export function ReadingLogListView() {
                 />
               </div>
               <div className="flex-1 min-w-0 flex flex-col justify-center">
-                <div className="flex justify-between items-start">
-                  <div>
+                <div className="flex justify-between items-start gap-4">
+                  <div className="min-w-0 flex-1">
                     <h4 className="font-bold text-stone-900 line-clamp-1 mb-1 text-lg font-serif tracking-tight">
                       {log.bookTitle}
                     </h4>
@@ -106,7 +106,7 @@ export function ReadingLogListView() {
                   </div>
                   <span
                     className={cn(
-                      "text-xs font-medium px-2.5 py-1 rounded-full border",
+                      "text-xs font-medium px-2.5 py-1 rounded-full border shrink-0 whitespace-nowrap",
                       theme.bg,
                       theme.primary,
                       theme.border,
