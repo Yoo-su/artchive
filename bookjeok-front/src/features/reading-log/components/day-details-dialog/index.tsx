@@ -25,7 +25,6 @@ import {
 } from "@/shared/components/shadcn/dialog";
 import { ScrollArea } from "@/shared/components/shadcn/scroll-area";
 
-import { READING_LOG_COLORS } from "../../constants";
 import {
   useCreateReadingLogMutation,
   useDeleteReadingLogMutation,
@@ -142,17 +141,8 @@ export function DayDetailsDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle
-              className="flex items-center gap-3 text-xl font-bold font-serif tracking-tight"
-              style={{ color: READING_LOG_COLORS.cozy.dark }}
-            >
-              <span
-                className="flex items-center justify-center w-9 h-9 rounded-xl shadow-sm"
-                style={{
-                  backgroundColor: READING_LOG_COLORS.cozy.soft,
-                  color: READING_LOG_COLORS.cozy.text,
-                }}
-              >
+            <DialogTitle className="flex items-center gap-3 text-xl font-bold font-serif tracking-tight text-stone-900">
+              <span className="flex items-center justify-center w-9 h-9 rounded-xl shadow-sm bg-stone-100 text-stone-600">
                 <CalendarIcon className="w-5 h-5" />
               </span>
               {format(date, "M월 d일 eeee", { locale: ko })}
@@ -170,12 +160,7 @@ export function DayDetailsDialog({
               trigger={
                 <Button
                   variant="outline"
-                  className="w-full justify-center h-12 border-dashed transition-all hover:bg-amber-50/50 hover:border-amber-200"
-                  style={{
-                    borderColor: READING_LOG_COLORS.cozy.soft,
-                    color: READING_LOG_COLORS.cozy.medium,
-                    backgroundColor: "#fff",
-                  }}
+                  className="w-full justify-center h-12 border-dashed transition-all hover:bg-stone-50 hover:border-stone-300 border-stone-200 text-stone-500 bg-white"
                   onClick={() => setIsSearchOpen(true)}
                 >
                   <Plus className="w-4 h-4 mr-2" />
@@ -196,7 +181,7 @@ export function DayDetailsDialog({
                 {logs.map((log) => (
                   <div
                     key={log.id}
-                    className="group relative flex gap-4 p-4 border border-stone-100 rounded-2xl bg-white shadow-sm hover:shadow-md hover:border-amber-100 transition-all hover:-translate-y-0.5"
+                    className="group relative flex gap-4 p-4 border border-stone-100 rounded-2xl bg-white shadow-sm hover:shadow-md hover:border-stone-200 transition-all hover:-translate-y-0.5"
                   >
                     <div className="relative w-20 h-28 shrink-0 rounded-lg overflow-hidden shadow-md bg-stone-100 ring-1 ring-black/5">
                       <Image
@@ -220,7 +205,7 @@ export function DayDetailsDialog({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-stone-400 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                            className="h-8 w-8 text-stone-400 hover:text-stone-700 hover:bg-stone-50 transition-colors"
                             onClick={() => handleEditClick(log)}
                           >
                             <Pencil className="w-4 h-4" />
@@ -239,12 +224,7 @@ export function DayDetailsDialog({
                       {log.memo && (
                         <div className="mt-auto pt-3 border-t border-stone-50">
                           <div className="flex items-start gap-2.5">
-                            <StickyNote
-                              className="w-3.5 h-3.5 mt-0.5 shrink-0"
-                              style={{
-                                color: READING_LOG_COLORS.cozy.light,
-                              }}
-                            />
+                            <StickyNote className="w-3.5 h-3.5 mt-0.5 shrink-0 text-stone-400" />
                             {/* 전체 메모 표시 (line-clamp 제거) */}
                             <p className="text-sm text-stone-600 leading-relaxed break-all font-medium">
                               {log.memo}

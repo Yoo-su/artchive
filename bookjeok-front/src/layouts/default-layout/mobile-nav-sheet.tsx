@@ -57,6 +57,12 @@ export const MobileNavSheet = () => {
           label: "도서 검색",
           icon: <Search className="h-4 w-4" />,
         },
+        {
+          href: PATHS.READING_LOG,
+          label: "독서 기록",
+          icon: <CalendarDays className="h-4 w-4" />,
+          requiresAuth: true,
+        },
       ],
     },
     {
@@ -110,17 +116,6 @@ export const MobileNavSheet = () => {
           href: PATHS.INSIGHTS,
           label: "서비스 인사이트",
           icon: <BarChart3 className="h-4 w-4" />,
-        },
-      ],
-    },
-    {
-      title: "나의 활동",
-      items: [
-        {
-          href: PATHS.READING_LOG,
-          label: "독서 기록",
-          icon: <CalendarDays className="h-4 w-4" />,
-          requiresAuth: true,
         },
       ],
     },

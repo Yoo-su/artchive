@@ -101,10 +101,6 @@ export const DefaultHeader = () => {
               </Tooltip>
             </TooltipProvider>
 
-            <div className="w-px h-3 bg-stone-200 mx-1" />
-
-            <div className="w-px h-3 bg-stone-200 mx-1" />
-
             {/* 2. 독서 기록 (로그인 전용) - 우선 순위 조정 */}
             {user && (
               <TooltipProvider>
@@ -130,6 +126,8 @@ export const DefaultHeader = () => {
                 </Tooltip>
               </TooltipProvider>
             )}
+
+            <div className="w-px h-3 bg-stone-200 mx-1" />
 
             {/* 3. 중고마켓 그룹 */}
             <DropdownMenu modal={false}>

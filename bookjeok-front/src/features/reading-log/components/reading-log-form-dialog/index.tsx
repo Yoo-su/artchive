@@ -24,7 +24,7 @@ import {
 } from "@/shared/components/shadcn/form";
 import { Textarea } from "@/shared/components/shadcn/textarea";
 
-import { MAX_MEMO_LENGTH, READING_LOG_COLORS } from "../../constants";
+import { MAX_MEMO_LENGTH } from "../../constants";
 
 const formSchema = z.object({
   memo: z.string().max(MAX_MEMO_LENGTH, {
@@ -80,10 +80,7 @@ export function ReadingLogFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle
-            className="text-xl font-bold text-center font-serif"
-            style={{ color: READING_LOG_COLORS.cozy.dark }}
-          >
+          <DialogTitle className="text-xl font-bold text-center font-serif text-stone-900">
             {mode === "create" ? "책 기록하기" : "메모 수정하기"}
           </DialogTitle>
         </DialogHeader>
@@ -124,8 +121,7 @@ export function ReadingLogFormDialog({
                   <FormControl>
                     <Textarea
                       placeholder="이 책은 어떠셨나요? 짧은 감상을 남겨주세요."
-                      className="resize-none h-24 focus-visible:ring-1 focus-visible:ring-offset-0 disabled:opacity-50 focus-visible:ring-amber-200"
-                      style={{ borderColor: READING_LOG_COLORS.cozy.soft }}
+                      className="resize-none h-24 focus-visible:ring-1 focus-visible:ring-offset-0 disabled:opacity-50 focus-visible:ring-stone-400 border-stone-200"
                       maxLength={MAX_MEMO_LENGTH}
                       disabled={isPending}
                       {...field}
@@ -150,8 +146,7 @@ export function ReadingLogFormDialog({
               </Button>
               <Button
                 type="submit"
-                className="h-11 font-bold text-white hover:opacity-90 transition-opacity shadow-sm"
-                style={{ backgroundColor: READING_LOG_COLORS.cozy.medium }}
+                className="h-11 font-bold text-white hover:opacity-90 transition-opacity shadow-sm bg-stone-900 hover:bg-stone-800"
                 disabled={isPending}
               >
                 {isPending ? (
