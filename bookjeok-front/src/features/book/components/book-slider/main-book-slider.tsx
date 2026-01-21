@@ -3,7 +3,7 @@
 import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Autoplay, EffectCoverflow, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
@@ -24,6 +24,21 @@ export const MainBookSlider = () => {
     isLoading,
     isError,
   } = useBookListQuery({ query: activePublisher, display: 10 });
+
+  // 슬라이드가 충분히 많도록 데이터 복제 (Loop 안정성 및 빈 공간 방지)
+  const displayBooks = useMemo(() => {
+    if (!books || books.length === 0) return [];
+
+    // 최소 15개 이상 확보
+    const minCount = 15;
+    if (books.length >= minCount) return books;
+
+    const multiplier = Math.ceil(minCount / books.length);
+    return Array(multiplier)
+      .fill(books)
+      .flat()
+      .slice(0, Math.max(minCount, books.length * 3)); // 넉넉하게 복제
+  }, [books]);
 
   // Swiper 업데이트 함수 (출판사 변경 시 슬라이드 위치 조정용)
   const updateSwiper = () => {
@@ -101,11 +116,11 @@ export const MainBookSlider = () => {
             effect={"coverflow"}
             grabCursor={true}
             centeredSlides={true}
-            loop={books.length > 3} // 슬라이드가 충분히 많을 때만 루프
-            loopAdditionalSlides={3} // 빠른 스와이프 시 충분한 복제 슬라이드 확보
+            loop={displayBooks.length > 5}
+            loopAdditionalSlides={5} // 데이터 복제 + 적절한 버퍼로 완벽한 Loop 구현
             slidesPerView={"auto"}
             spaceBetween={-50}
-            initialSlide={Math.floor(books.length / 2)}
+            initialSlide={Math.floor(displayBooks.length / 2)}
             watchSlidesProgress={true}
             observer={true}
             observeParents={true}
@@ -128,7 +143,7 @@ export const MainBookSlider = () => {
             modules={[EffectCoverflow, Navigation, Autoplay]}
             className="book-swiper"
           >
-            {books.map((book, index) => (
+            {displayBooks.map((book, index) => (
               <SwiperSlide
                 key={`${book.isbn}-${index}`} // 고유한 키 보장
                 className="w-[240px]! md:w-[300px]! select-none"
