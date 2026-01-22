@@ -1,13 +1,73 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 
 import { ChatBubble } from "@/features/recommend/components/chat-bubble";
+import { NEOGULIP_THEME } from "@/features/recommend/constants/neogulip-theme";
 import { useRecommendStore } from "@/features/recommend/stores/recommend-store";
 
 interface MessageListProps {
   isPending: boolean;
 }
+
+const LoadingIndicator = () => {
+  const [text, setText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [loopNum, setLoopNum] = useState(0);
+  const [typingSpeed, setTypingSpeed] = useState(100);
+
+  const messages = NEOGULIP_THEME.TEXTS.LOADING_MESSAGES;
+
+  useEffect(() => {
+    const handleTyping = () => {
+      const i = loopNum % messages.length;
+      const fullText = messages[i];
+
+      setText(
+        isDeleting
+          ? fullText.substring(0, text.length - 1)
+          : fullText.substring(0, text.length + 1),
+      );
+
+      setTypingSpeed(isDeleting ? 30 : 100);
+
+      if (!isDeleting && text === fullText) {
+        setTimeout(() => setIsDeleting(true), 1500); // 1.5s wait before deleting
+      } else if (isDeleting && text === "") {
+        setIsDeleting(false);
+        setLoopNum(loopNum + 1);
+      }
+    };
+
+    const timer = setTimeout(handleTyping, typingSpeed);
+    return () => clearTimeout(timer);
+  }, [text, isDeleting, loopNum, typingSpeed, messages]);
+
+  return (
+    <div className="flex w-full justify-start animate-fade-in pl-2">
+      <div className="flex items-center space-x-3 bg-white border border-neogulip-border px-5 py-3.5 rounded-2xl rounded-tl-none shadow-sm min-h-[52px]">
+        {/* Raccoon Icon */}
+        <div className="text-xl animate-bounce">🦝</div>
+        {/* Typewriter Text */}
+        <div className="flex items-center">
+          <motion.span
+            key={loopNum}
+            className="text-sm text-neogulip-brown-primary font-medium"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            {text}
+            <span className="animate-pulse ml-0.5 text-neogulip-primary">
+              |
+            </span>
+          </motion.span>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const TasteFinderMessageList = ({ isPending }: MessageListProps) => {
   const { messages } = useRecommendStore();
@@ -28,15 +88,7 @@ export const TasteFinderMessageList = ({ isPending }: MessageListProps) => {
       {messages.map((msg) => (
         <ChatBubble key={msg.id} message={msg.text} isAi={msg.isAi} />
       ))}
-      {isPending && (
-        <div className="flex w-full justify-start animate-fade-in pl-2">
-          <div className="flex items-center space-x-1.5 bg-white border border-neogulip-border px-4 py-3 rounded-2xl rounded-tl-none shadow-sm">
-            <div className="w-1.5 h-1.5 bg-neogulip-brown-light rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-            <div className="w-1.5 h-1.5 bg-neogulip-brown-light rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-            <div className="w-1.5 h-1.5 bg-neogulip-brown-light rounded-full animate-bounce"></div>
-          </div>
-        </div>
-      )}
+      {isPending && <LoadingIndicator />}
     </div>
   );
 };
