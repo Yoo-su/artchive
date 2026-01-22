@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { CoolMode } from "@/shared/components/magic-ui/cool-mode";
+import { CoolMode } from "@/shared/components/magicui/cool-mode";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,

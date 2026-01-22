@@ -10,6 +10,17 @@ import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { findOrCreateRoom } from "@/features/chat/apis";
 import { useChatStore } from "@/features/chat/stores/use-chat-store";
 import { WishlistButton } from "@/features/user/components/wishlist-button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/shared/components/shadcn/alert-dialog";
 import { Button } from "@/shared/components/shadcn/button";
 import { Separator } from "@/shared/components/shadcn/separator";
 import { ShareButton } from "@/shared/components/ui/share-button";
@@ -49,16 +60,6 @@ export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
             100,
         )
       : 0;
-
-  const handleDelete = () => {
-    if (
-      window.confirm(
-        "정말로 이 판매글을 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.",
-      )
-    ) {
-      deleteSale({ saleId: sale.id, imageUrls: sale.imageUrls });
-    }
-  };
 
   const handleStartChat = async () => {
     setIsCreatingChat(true);
@@ -135,15 +136,34 @@ export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
                 수정
               </Link>
             </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={handleDelete}
-              disabled={isDeleting}
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              {isDeleting ? "삭제 중..." : "삭제"}
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm" disabled={isDeleting}>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  {isDeleting ? "삭제 중..." : "삭제"}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>판매글 삭제</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    정말로 이 판매글을 삭제하시겠습니까?
+                    <br />
+                    삭제된 데이터는 복구할 수 없습니다.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>취소</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() =>
+                      deleteSale({ saleId: sale.id, imageUrls: sale.imageUrls })
+                    }
+                  >
+                    삭제
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         ) : (
           <div className="flex flex-col gap-2 w-full sm:w-auto">
