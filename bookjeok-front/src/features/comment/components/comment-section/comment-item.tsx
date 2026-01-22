@@ -6,6 +6,17 @@ import { Heart, Loader2, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/shared/components/shadcn/alert-dialog";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   DropdownMenu,
@@ -75,15 +86,8 @@ export const CommentItem = ({
     if (!editContent.trim() || isUpdatePending) return;
     updateComment(
       { id: comment.id, content: editContent.trim() },
-      { onSuccess: () => setIsEditing(false) }
+      { onSuccess: () => setIsEditing(false) },
     );
-  };
-
-  const handleDelete = () => {
-    if (isDeletePending) return;
-    if (window.confirm("정말 삭제하시겠습니까?")) {
-      deleteComment(comment.id);
-    }
   };
 
   return (
@@ -97,7 +101,7 @@ export const CommentItem = ({
         menuAlign="center"
         className={cn(
           "shrink-0",
-          isOwner && "ring-2 ring-sky-200 rounded-full"
+          isOwner && "ring-2 ring-sky-200 rounded-full",
         )}
       />
 
@@ -111,7 +115,7 @@ export const CommentItem = ({
             "backdrop-blur-sm",
             "transition-all duration-200",
             "hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)]",
-            "bg-linear-to-br from-white/80 to-white/60 dark:from-white/10 dark:to-white/5"
+            "bg-linear-to-br from-white/80 to-white/60 dark:from-white/10 dark:to-white/5",
           )}
         >
           {/* 헤더 */}
@@ -132,39 +136,59 @@ export const CommentItem = ({
 
             {/* 드롭다운 메뉴 */}
             {isOwner && !isEditing && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-full"
-                  >
-                    <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-[100px]">
-                  <DropdownMenuItem
-                    onClick={() => setIsEditing(true)}
-                    disabled={isDeletePending}
-                    className="text-xs"
-                  >
-                    <Pencil className="h-3 w-3 mr-1.5" />
-                    수정
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={handleDelete}
-                    disabled={isDeletePending}
-                    className="text-xs text-destructive focus:text-destructive"
-                  >
-                    {isDeletePending ? (
-                      <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-3 w-3 mr-1.5" />
-                    )}
-                    삭제
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <AlertDialog>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-full"
+                    >
+                      <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="min-w-[100px]">
+                    <DropdownMenuItem
+                      onClick={() => setIsEditing(true)}
+                      disabled={isDeletePending}
+                      className="text-xs"
+                    >
+                      <Pencil className="h-3 w-3 mr-1.5" />
+                      수정
+                    </DropdownMenuItem>
+                    <AlertDialogTrigger asChild>
+                      <DropdownMenuItem
+                        disabled={isDeletePending}
+                        onSelect={(e) => e.preventDefault()}
+                        className="text-xs text-destructive focus:text-destructive"
+                      >
+                        {isDeletePending ? (
+                          <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-3 w-3 mr-1.5" />
+                        )}
+                        삭제
+                      </DropdownMenuItem>
+                    </AlertDialogTrigger>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>댓글 삭제</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      정말 삭제하시겠습니까?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>취소</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => deleteComment(comment.id)}
+                    >
+                      삭제
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
           </div>
 
@@ -203,7 +227,7 @@ export const CommentItem = ({
             <p
               className={cn(
                 "text-[13px] leading-relaxed text-foreground/85 whitespace-pre-wrap break-all",
-                !isExpanded && isLongComment && "line-clamp-3"
+                !isExpanded && isLongComment && "line-clamp-3",
               )}
             >
               {comment.content}
@@ -232,13 +256,13 @@ export const CommentItem = ({
                 comment.isLiked
                   ? "text-rose-500"
                   : "text-muted-foreground/50 hover:text-rose-400",
-                !isAuthenticated && "cursor-not-allowed"
+                !isAuthenticated && "cursor-not-allowed",
               )}
             >
               <Heart
                 className={cn(
                   "h-3.5 w-3.5 transition-transform",
-                  comment.isLiked && "fill-current scale-110"
+                  comment.isLiked && "fill-current scale-110",
                 )}
               />
               {comment.likeCount > 0 && <span>{comment.likeCount}</span>}

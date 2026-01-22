@@ -16,6 +16,17 @@ import { useCallback } from "react";
 import { useDeleteMyCommentMutation } from "@/features/comment/mutations";
 import { useMyCommentsInfiniteQuery } from "@/features/comment/queries";
 import { CommentTargetType } from "@/features/comment/types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/shared/components/shadcn/alert-dialog";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
@@ -154,23 +165,36 @@ export const MyCommentList = () => {
                     </div>
 
                     {/* 삭제 버튼 */}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="w-8 h-8 text-stone-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
-                      disabled={isDeleting}
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            "이 댓글을 삭제하시겠습니까?\n삭제된 댓글은 복구할 수 없습니다.",
-                          )
-                        ) {
-                          handleDelete(comment.id);
-                        }
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="w-8 h-8 text-stone-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                          disabled={isDeleting}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>댓글 삭제</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            이 댓글을 삭제하시겠습니까?
+                            <br />
+                            삭제된 댓글은 복구할 수 없습니다.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>취소</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(comment.id)}
+                          >
+                            삭제
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               </CardContent>

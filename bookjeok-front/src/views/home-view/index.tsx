@@ -5,6 +5,7 @@ import { MAIN_ARTS } from "@/features/art/constants";
 import { MainBookSlider } from "@/features/book/components/book-slider/main-book-slider";
 import { PopularBookSlider } from "@/features/book/components/book-slider/popular-book-slider";
 import { RecentSalesSlider } from "@/features/book-sale/components/recent-sale-slider";
+import { TasteFinderWidget } from "@/features/recommend/components/taste-finder-widget";
 import { RecentReviewSlider } from "@/features/review/components/recent-review-slider";
 import { AdBanner } from "@/shared/components/ads/ad-banner";
 
@@ -12,6 +13,8 @@ export const HomeView = () => {
   return (
     <div className="flex flex-col gap-8">
       <MainBookSlider />
+
+      <TasteFinderWidget />
 
       <PopularBookSlider />
 
