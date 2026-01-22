@@ -35,7 +35,7 @@ export function ReadingLogDayCell({
       className={cn(
         "relative p-2 h-full flex flex-col transition-all duration-300 cursor-pointer group hover:z-10",
         // 기본 배경: 투명 -> 호버 시 약간의 테마 색상 (아주 연하게)
-        "hover:bg-opacity-10",
+        // 기본 배경: 투명 -> 호버 시 약간의 테마 색상 (아주 연하게)
         theme.hoverBg, // hover bg color
         !isCurrentMonth && "opacity-30 pointer-events-none bg-stone-50/50",
         // 오늘 날짜 배경 강조 (선택적)
@@ -71,7 +71,7 @@ export function ReadingLogDayCell({
             {/* 책 표지 이미지 (메인) */}
             <div
               className={cn(
-                "relative h-[85%] sm:h-full w-auto aspect-[2/3] shadow-md rounded-sm sm:rounded-md overflow-hidden transition-transform duration-300 ease-out group-hover:scale-105 group-hover:-translate-y-1 ring-1 ring-black/5 bg-stone-100",
+                "relative h-[85%] sm:h-full w-auto aspect-2/3 shadow-md rounded-sm sm:rounded-md overflow-hidden transition-transform duration-300 ease-out group-hover:scale-105 group-hover:-translate-y-1 ring-1 ring-black/5 bg-stone-100",
                 // 테마에 따른 은은한 그림자 색상
                 `group-hover:shadow-[0_8px_16px_-4px_rgba(0,0,0,0.1),0_0_0_1px_${theme.border.replace(
                   "border-",
