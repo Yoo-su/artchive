@@ -27,7 +27,7 @@ export function ChatBubble({
     >
       <div
         className={cn(
-          "max-w-[85%] rounded-2xl px-5 py-3.5 leading-relaxed shadow-sm transition-all text-[15px] break-words",
+          "max-w-[85%] rounded-2xl px-5 py-3.5 leading-relaxed shadow-sm transition-all text-[15px] wrap-break-word",
           isAi
             ? "rounded-tl-none bg-white text-[#5D4037] border border-[#C8E6C9]"
             : "rounded-tr-none bg-[#66BB6A] text-white shadow-[#A5D6A7]",
@@ -40,7 +40,7 @@ export function ChatBubble({
             a: ({ node, ...props }) => (
               <a
                 {...props}
-                className="underline font-medium hover:text-opacity-80"
+                className="underline font-medium hover:text-current/80"
                 target="_blank"
                 rel="noopener noreferrer"
               />
@@ -49,7 +49,7 @@ export function ChatBubble({
             strong: ({ node, ...props }) => (
               <strong
                 {...props}
-                className="font-bold border-b border-current border-opacity-30"
+                className="font-bold border-b border-current/30"
               />
             ),
             // Ensure lists render properly

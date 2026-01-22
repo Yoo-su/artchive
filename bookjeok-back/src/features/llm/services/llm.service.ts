@@ -138,11 +138,20 @@ export class LlmService {
         })
         .catch((e) => console.error('Log Save Error:', e));
 
-      if (recommendedBooks) {
+      if (recommendedBooks && recommendedBooks.length > 0) {
         return {
           message: llmResult.message,
           isFinal: true,
           recommendedBooks,
+        };
+      }
+
+      // 검색 결과가 하나도 없는 경우 (LLM은 추천했으나 API에서 못 찾음)
+      if (llmResult.type === 'RECOMMENDATION') {
+        return {
+          message:
+            '추천해드리고 싶은 책 제목을 찾았는데, 도서관(검색 엔진)에서 실물 책을 찾을 수가 없네요구리... 🍃\n다른 키워드로 다시 말씀해 주시겠어요?',
+          isFinal: false,
         };
       }
 
