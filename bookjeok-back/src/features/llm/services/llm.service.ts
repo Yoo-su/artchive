@@ -59,11 +59,9 @@ export class LlmService {
       const response = result.response;
       const text = response.text();
 
-      // JSON 파싱 시도
+      // JSON 파싱 시도 (Use unified helper)
       try {
-        // 마크다운 코드 블록 제거 (```json ... ```)
-        const cleanedText = text.replace(/```json\n|\n```/g, '').trim();
-        return JSON.parse(cleanedText) as BookSummaryResponseDto;
+        return this.extractJson<BookSummaryResponseDto>(text);
       } catch (e) {
         console.warn('JSON 파싱 실패, 원본 텍스트 반환', e);
         return { summary: text };
@@ -98,8 +96,7 @@ export class LlmService {
         .save({
           userMessage: message,
           aiMessage: curationResult.message,
-          analysis: 'PURE_LLM',
-          recommendedTitles: recommendedBooks.map((b) => b.title),
+          recommendedBooks: recommendedBooks,
           model: MODEL_NAME,
           latency: duration,
           userId: userId ?? 'anonymous',
@@ -156,25 +153,47 @@ export class LlmService {
     const text = result.response.text();
 
     try {
-      // 1. 순수 JSON 파싱 시도
-      return JSON.parse(text) as CurationResult;
-    } catch {
-      try {
-        // 2. 마크다운 코드 블록 제거 및 텍스트 정리
-        // 정규식으로 가장 바깥쪽의 { ... } 객체만 추출
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-          throw new Error('No JSON found');
-        }
-        return JSON.parse(jsonMatch[0]) as CurationResult;
-      } catch {
-        console.warn('LLM Response Parsing Failed:', text);
-        return {
-          message:
-            '죄송해요, 책을 고르다가 잠들었어요구리... 💤 (JSON Parsing Error)',
-          recommendedBooks: [],
-        };
-      }
+      return this.extractJson<CurationResult>(text);
+    } catch (e) {
+      console.warn('LLM Response Parsing Failed:', text);
+      // Fallback for parsing error
+      return {
+        message: '잠시 나뭇잎이 엉켜버렸어요. 다시 한 번 말씀해 주시겠어요? 🍂',
+        recommendedBooks: [],
+      };
     }
+  }
+
+  /**
+   * Robust JSON Extractor
+   * 1. Tries to parse raw text
+   * 2. Tries to find markdown code blocks (```json ... ```)
+   * 3. Tries to find the first/last brace pair
+   */
+  private extractJson<T>(text: string): T {
+    // 1. Try raw parsing first
+    try {
+      return JSON.parse(text);
+    } catch {}
+
+    // 2. Try Markdown code blocks
+    const match = text.match(/```(?:json)?([\s\S]*?)```/);
+    if (match && match[1]) {
+      try {
+        return JSON.parse(match[1]);
+      } catch {}
+    }
+
+    // 3. Try to find the outermost braces
+    const firstOpen = text.indexOf('{');
+    const lastClose = text.lastIndexOf('}');
+    if (firstOpen !== -1 && lastClose !== -1 && lastClose > firstOpen) {
+      const jsonStr = text.substring(firstOpen, lastClose + 1);
+      try {
+        return JSON.parse(jsonStr);
+      } catch {}
+    }
+
+    throw new Error('Failed to extract JSON from response');
   }
 }
