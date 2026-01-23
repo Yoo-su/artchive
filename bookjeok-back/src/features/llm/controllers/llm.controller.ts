@@ -50,7 +50,10 @@ export class LlmController {
     status: 201,
     description: '대화 응답(질문 또는 추천)을 반환합니다.',
   })
-  talk(@Body() dto: TalkRequestDto, @Req() req: any): Promise<TalkResponseDto> {
+  talk(
+    @Body() dto: TalkRequestDto,
+    @Req() req: { user?: { id: string } },
+  ): Promise<TalkResponseDto> {
     return this.llmService.processTalk(dto, req.user?.id);
   }
 }
