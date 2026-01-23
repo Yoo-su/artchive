@@ -1,6 +1,6 @@
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 
-import { CityCode, Genre, PrfState } from "@/features/art/types";
+import { CityCode, Genre, PrfState } from "../types";
 
 interface Params {
   cpage?: string; // 시작페이지 번호
@@ -11,6 +11,7 @@ interface Params {
   prfstate?: PrfState; // 공연 상태 코드
   signgucode?: CityCode; // 도시 코드
 }
+
 export const artKeys = createQueryKeys("art", {
   list: (params: Params) => [params],
   detail: (id: string) => [id],

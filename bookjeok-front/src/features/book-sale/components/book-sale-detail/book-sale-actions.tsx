@@ -7,6 +7,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { chatKeys } from "@/features/chat";
 import { findOrCreateRoom } from "@/features/chat/apis";
 import { useChatStore } from "@/features/chat/stores/use-chat-store";
 import { WishlistButton } from "@/features/user/components/wishlist-button";
@@ -26,7 +27,6 @@ import { Separator } from "@/shared/components/shadcn/separator";
 import { ShareButton } from "@/shared/components/ui/share-button";
 import { UserAvatarMenu } from "@/shared/components/ui/user-avatar-menu";
 import { PATHS } from "@/shared/constants/paths";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { useSocketContext } from "@/shared/providers/socket-provider";
 import { formatPostDate } from "@/shared/utils/date";
 
@@ -74,7 +74,7 @@ export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
 
       // 3. 채팅방 목록 쿼리를 무효화하여 최신 목록을 다시 불러옵니다.
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
+        queryKey: chatKeys.rooms.queryKey,
       });
 
       // 4. 채팅 위젯에서 해당 채팅방을 엽니다.

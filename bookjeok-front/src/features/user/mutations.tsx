@@ -7,7 +7,6 @@ import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { User } from "@/features/auth/types";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { privateAxios } from "@/shared/libs/axios";
 
 import { BookInfo } from "../book/types";
@@ -17,6 +16,7 @@ import {
   updateProfile,
   UpdateUserProfileParams,
 } from "./apis";
+import { userKeys } from "./constants/query-keys";
 
 /**
  * 회원 탈퇴를 처리하는 뮤테이션 훅입니다.
@@ -65,14 +65,11 @@ export const useAddToWishlistMutation = () => {
     onSuccess: (_, variables) => {
       // 위시리스트 목록 캐시 무효화
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.userKeys.wishlist.queryKey,
+        queryKey: userKeys.wishlist.queryKey,
       });
       // 해당 아이템의 위시리스트 상태 캐시 무효화
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.userKeys.wishlistCheck(
-          variables.type,
-          variables.id,
-        ).queryKey,
+        queryKey: userKeys.wishlistCheck(variables.type, variables.id).queryKey,
       });
     },
   });
@@ -96,14 +93,11 @@ export const useRemoveFromWishlistMutation = () => {
     onSuccess: (_, variables) => {
       // 위시리스트 목록 캐시 무효화
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.userKeys.wishlist.queryKey,
+        queryKey: userKeys.wishlist.queryKey,
       });
       // 해당 아이템의 위시리스트 상태 캐시 무효화
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.userKeys.wishlistCheck(
-          variables.type,
-          variables.id,
-        ).queryKey,
+        queryKey: userKeys.wishlistCheck(variables.type, variables.id).queryKey,
       });
     },
   });
@@ -123,7 +117,7 @@ export const useUpdateUserMutation = () => {
 
       // 내 프로필 캐시 업데이트
       queryClient.setQueryData(
-        QUERY_KEYS.userKeys.me.queryKey,
+        userKeys.me.queryKey,
         (oldData: User | undefined) => {
           if (!oldData) return data;
           return { ...oldData, ...data };

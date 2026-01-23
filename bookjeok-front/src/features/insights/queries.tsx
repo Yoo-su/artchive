@@ -1,15 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
-
 import { getInsights, getLocationSales } from "./apis";
+import { insightsKeys } from "./constants/query-keys";
 
 /**
  * 서비스 인사이트 데이터 조회 (SSR prefetch)
  */
 export const useInsightsQuery = () => {
   return useQuery({
-    queryKey: QUERY_KEYS.insightsKeys.all.queryKey,
+    queryKey: insightsKeys.all.queryKey,
     queryFn: getInsights,
   });
 };
@@ -19,7 +18,7 @@ export const useInsightsQuery = () => {
  */
 export const useLocationSalesQuery = (city: string, district: string) => {
   return useQuery({
-    queryKey: QUERY_KEYS.insightsKeys.locationSales(city, district).queryKey,
+    queryKey: insightsKeys.locationSales(city, district).queryKey,
     queryFn: () => getLocationSales(city, district),
     enabled: !!city && !!district,
   });

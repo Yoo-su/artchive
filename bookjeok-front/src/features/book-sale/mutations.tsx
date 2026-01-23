@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { bookKeys } from "@/features/book";
 import { PATHS } from "@/shared/constants/paths";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { compressImages } from "@/shared/utils/compress-image";
 
 import { deleteImages } from "./actions/delete-action";
@@ -79,7 +79,7 @@ export const useCreateBookSaleMutation = () => {
  */
 export const useUpdateBookSaleStatusMutation = () => {
   const queryClient = useQueryClient();
-  const queryKey = QUERY_KEYS.bookKeys.mySales.queryKey;
+  const queryKey = bookKeys.mySales.queryKey;
 
   return useMutation({
     mutationFn: updateBookSaleStatus,
@@ -103,7 +103,7 @@ export const useUpdateBookSaleStatusMutation = () => {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bookKeys._def });
+      queryClient.invalidateQueries({ queryKey: bookKeys._def });
     },
   });
 };
@@ -168,10 +168,10 @@ export const useUpdateBookSaleMutation = () => {
     onSuccess: (data) => {
       toast.success("판매글이 성공적으로 수정되었습니다.");
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.bookKeys.mySales.queryKey,
+        queryKey: bookKeys.mySales.queryKey,
       });
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.bookKeys.saleDetail(String(data.id)).queryKey,
+        queryKey: bookKeys.saleDetail(String(data.id)).queryKey,
       });
       router.push(PATHS.MY_PAGE_SALES);
     },
@@ -197,7 +197,7 @@ export const useDeleteBookSaleMutation = () => {
     },
     onSuccess: (_, { saleId }) => {
       toast.success("판매글이 삭제되었습니다.");
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bookKeys._def });
+      queryClient.invalidateQueries({ queryKey: bookKeys._def });
       if (window.location.pathname.includes(`/book/sales/${saleId}`)) {
         router.push(PATHS.MY_PAGE_SALES);
       }

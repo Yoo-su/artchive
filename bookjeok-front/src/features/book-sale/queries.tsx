@@ -2,7 +2,7 @@
 
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
+import { bookKeys } from "@/features/book";
 
 import {
   getBookSaleDetail,
@@ -23,7 +23,7 @@ import {
  */
 export const useInfiniteBookSalesQuery = (params: SearchBookSalesParams) => {
   return useInfiniteQuery({
-    queryKey: QUERY_KEYS.bookKeys.marketSales(params).queryKey,
+    queryKey: bookKeys.marketSales(params).queryKey,
     queryFn: ({ pageParam }) =>
       searchBookSales({
         ...params,
@@ -41,7 +41,7 @@ export const useInfiniteBookSalesQuery = (params: SearchBookSalesParams) => {
  */
 export const useMyBookSalesQuery = () => {
   return useQuery({
-    queryKey: QUERY_KEYS.bookKeys.mySales.queryKey,
+    queryKey: bookKeys.mySales.queryKey,
     queryFn: async () => {
       const result = await getMyBookSales();
       return result;
@@ -55,7 +55,7 @@ export const useMyBookSalesQuery = () => {
  */
 export const useBookSaleDetailQuery = (saleId: string) => {
   return useQuery({
-    queryKey: QUERY_KEYS.bookKeys.saleDetail(saleId).queryKey,
+    queryKey: bookKeys.saleDetail(saleId).queryKey,
     queryFn: async () => {
       const result = await getBookSaleDetail(saleId);
       return result;
@@ -69,7 +69,7 @@ export const useBookSaleDetailQuery = (saleId: string) => {
  */
 export const useBookSaleForEditQuery = (saleId: string) => {
   return useQuery({
-    queryKey: QUERY_KEYS.bookKeys.saleForEdit(saleId).queryKey,
+    queryKey: bookKeys.saleForEdit(saleId).queryKey,
     queryFn: () => getSaleForEdit(saleId),
     enabled: !!saleId,
     retry: false,
@@ -87,8 +87,7 @@ export const useInfiniteRelatedSalesQuery = ({
   enabled = true,
 }: UseInfiniteRelatedSalesQueryProps) => {
   return useInfiniteQuery({
-    queryKey: QUERY_KEYS.bookKeys.relatedSales({ isbn, city, district, limit })
-      .queryKey,
+    queryKey: bookKeys.relatedSales({ isbn, city, district, limit }).queryKey,
     queryFn: ({ pageParam = 1 }) =>
       getRelatedSales({ isbn, page: pageParam, limit, city, district }),
     initialPageParam: 1,
@@ -112,7 +111,7 @@ export const useRelatedSalesQuery = ({
   enabled?: boolean;
 }) => {
   return useQuery({
-    queryKey: QUERY_KEYS.bookKeys.relatedSales({ isbn, limit }).queryKey,
+    queryKey: bookKeys.relatedSales({ isbn, limit }).queryKey,
     queryFn: () => getRelatedSales({ isbn, page: 1, limit }),
     enabled: !!isbn && enabled,
   });
@@ -123,7 +122,7 @@ export const useRelatedSalesQuery = ({
  */
 export const useRecentBookSalesQuery = () => {
   return useQuery({
-    queryKey: QUERY_KEYS.bookKeys.recentSales.queryKey,
+    queryKey: bookKeys.recentSales.queryKey,
     queryFn: getRecentBookSales,
   });
 };
@@ -133,7 +132,7 @@ export const useRecentBookSalesQuery = () => {
  */
 export const usePopularBookSalesQuery = () => {
   return useQuery({
-    queryKey: QUERY_KEYS.bookKeys.popularSales.queryKey,
+    queryKey: bookKeys.popularSales.queryKey,
     queryFn: getPopularBookSales,
   });
 };

@@ -1,6 +1,6 @@
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 
-import { GetReviewsParams } from "@/features/review/types";
+import { GetReviewsParams } from "../types";
 
 export const reviewKeys = createQueryKeys("review", {
   list: (params: GetReviewsParams) => ({

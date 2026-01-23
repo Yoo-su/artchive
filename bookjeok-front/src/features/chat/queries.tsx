@@ -6,9 +6,8 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query";
 
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
-
 import { getChatMessages, getMyChatRooms } from "./apis";
+import { chatKeys } from "./constants/query-keys";
 import { ChatRoom } from "./types";
 
 /**
@@ -19,7 +18,7 @@ export const useMyChatRoomsQuery = (
   options?: Omit<UseQueryOptions<ChatRoom[]>, "queryKey" | "queryFn">,
 ) => {
   return useQuery({
-    queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
+    queryKey: chatKeys.rooms.queryKey,
     queryFn: getMyChatRooms,
     staleTime: 30 * 1000,
     refetchOnWindowFocus: true,
@@ -33,7 +32,7 @@ export const useMyChatRoomsQuery = (
  */
 export const useInfiniteChatMessagesQuery = (roomId: number | null) => {
   return useInfiniteQuery({
-    queryKey: QUERY_KEYS.chatKeys.messages(roomId!).queryKey,
+    queryKey: chatKeys.messages(roomId!).queryKey,
     queryFn: ({ pageParam }) =>
       getChatMessages(roomId!, 1, 20, pageParam as number | undefined),
     initialPageParam: undefined as number | undefined,

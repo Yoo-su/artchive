@@ -5,13 +5,13 @@ import Image from "next/image";
 import { useCallback } from "react";
 import { toast } from "sonner";
 
+import { chatKeys } from "@/features/chat";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@/shared/components/shadcn/avatar";
 import { Button } from "@/shared/components/shadcn/button";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { useSocketContext } from "@/shared/providers/socket-provider";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
@@ -56,7 +56,7 @@ export const ChatRoomHeader = ({
       (response: { status: string; error?: string }) => {
         if (response.status === "ok") {
           queryClient.invalidateQueries({
-            queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
+            queryKey: chatKeys.rooms.queryKey,
           });
           closeChatRoom();
         } else {

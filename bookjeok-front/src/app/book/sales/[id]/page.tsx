@@ -2,9 +2,9 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 import { cache } from "react";
 
+import { bookKeys } from "@/features/book";
 import { getBookSaleDetail } from "@/features/book-sale/apis";
 import { BookSaleJsonLd } from "@/features/book-sale/components/book-sale-json-ld";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { BookSaleDetailView } from "@/views/book-sale-detail-view";
 
@@ -82,10 +82,7 @@ export default async function Page({ params }: Props) {
 
     // 이미 가져온 데이터를 QueryClient에 직접 설정 (추가 API 호출 없음)
     if (sale) {
-      queryClient.setQueryData(
-        QUERY_KEYS.bookKeys.saleDetail(id).queryKey,
-        sale,
-      );
+      queryClient.setQueryData(bookKeys.saleDetail(id).queryKey, sale);
     }
   } catch (error) {
     console.error("판매글 상세 정보 조회 중 오류 발생:", error);

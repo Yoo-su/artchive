@@ -3,14 +3,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
-
 import {
   createComment,
   deleteComment,
   toggleCommentLike,
   updateComment,
 } from "./apis";
+import { commentKeys } from "./constants/query-keys";
 import { Comment, CommentTargetType } from "./types";
 
 /**
@@ -18,7 +17,7 @@ import { Comment, CommentTargetType } from "./types";
  */
 export const useCreateCommentMutation = (
   targetType: CommentTargetType,
-  targetId: string
+  targetId: string,
 ) => {
   const queryClient = useQueryClient();
 
@@ -28,7 +27,7 @@ export const useCreateCommentMutation = (
     onSuccess: () => {
       // 첫 페이지 목록 새로고침
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.commentKeys.list(targetType, targetId, 1).queryKey,
+        queryKey: commentKeys.list(targetType, targetId, 1).queryKey,
       });
       toast.success("댓글이 작성되었습니다.");
     },
@@ -44,7 +43,7 @@ export const useCreateCommentMutation = (
 export const useUpdateCommentMutation = (
   targetType: CommentTargetType,
   targetId: string,
-  page: number
+  page: number,
 ) => {
   const queryClient = useQueryClient();
 
@@ -53,8 +52,7 @@ export const useUpdateCommentMutation = (
       updateComment(id, { content }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.commentKeys.list(targetType, targetId, page)
-          .queryKey,
+        queryKey: commentKeys.list(targetType, targetId, page).queryKey,
       });
       toast.success("댓글이 수정되었습니다.");
     },
@@ -70,7 +68,7 @@ export const useUpdateCommentMutation = (
 export const useDeleteCommentMutation = (
   targetType: CommentTargetType,
   targetId: string,
-  page: number
+  page: number,
 ) => {
   const queryClient = useQueryClient();
 
@@ -78,8 +76,7 @@ export const useDeleteCommentMutation = (
     mutationFn: deleteComment,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.commentKeys.list(targetType, targetId, page)
-          .queryKey,
+        queryKey: commentKeys.list(targetType, targetId, page).queryKey,
       });
       toast.success("댓글이 삭제되었습니다.");
     },
@@ -95,14 +92,10 @@ export const useDeleteCommentMutation = (
 export const useToggleCommentLikeMutation = (
   targetType: CommentTargetType,
   targetId: string,
-  page: number
+  page: number,
 ) => {
   const queryClient = useQueryClient();
-  const queryKey = QUERY_KEYS.commentKeys.list(
-    targetType,
-    targetId,
-    page
-  ).queryKey;
+  const queryKey = commentKeys.list(targetType, targetId, page).queryKey;
 
   return useMutation({
     mutationFn: toggleCommentLike,
@@ -129,10 +122,10 @@ export const useToggleCommentLikeMutation = (
                       ? comment.likeCount - 1
                       : comment.likeCount + 1,
                   }
-                : comment
+                : comment,
             ),
           };
-        }
+        },
       );
 
       return { previousData };
@@ -159,7 +152,7 @@ export const useDeleteMyCommentMutation = () => {
     onSuccess: () => {
       // 내 댓글 목록 새로고침
       queryClient.invalidateQueries({
-        queryKey: ["comment", "my"],
+        queryKey: commentKeys.my.queryKey,
       });
       toast.success("댓글이 삭제되었습니다.");
     },
