@@ -91,11 +91,11 @@ export const ReviewDetail = ({ id, initialReview }: ReviewDetailProps) => {
         )}
 
         {/* 광고 배너 */}
-        <AdBanner
+        {/* <AdBanner
           dataAdSlot="3367138518"
           dataAdFormat="horizontal"
           className="w-full my-8"
-        />
+        /> */}
 
         {/* 댓글 섹션 */}
         <CommentSection

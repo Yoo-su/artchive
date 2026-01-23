@@ -2,10 +2,12 @@ import {
   Body,
   Controller,
   Post,
+  Req,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { OptionalJwtAuthGuard } from '@/features/auth/guards/optional-jwt-auth.guard';
 import { LlmService } from '../services/llm.service';
 import { BookSummaryDto } from '../dtos/book-summary.dto';
 import { TalkRequestDto } from '../dtos/talk-request.dto';
@@ -38,6 +40,7 @@ export class LlmController {
   }
 
   @Post('talk')
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({
     summary: 'AI 사서와 대화 (추천)',
     description:
@@ -47,7 +50,7 @@ export class LlmController {
     status: 201,
     description: '대화 응답(질문 또는 추천)을 반환합니다.',
   })
-  talk(@Body() dto: TalkRequestDto): Promise<TalkResponseDto> {
-    return this.llmService.processTalk(dto);
+  talk(@Body() dto: TalkRequestDto, @Req() req: any): Promise<TalkResponseDto> {
+    return this.llmService.processTalk(dto, req.user?.id);
   }
 }

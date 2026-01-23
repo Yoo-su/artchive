@@ -46,7 +46,7 @@ export class QueryBookSaleDto {
   maxPrice?: number;
 
   @IsOptional()
-  @Transform(({ value }) =>
+  @Transform(({ value }: { value: string | string[] }) =>
     Array.isArray(value) ? (value as SaleStatus[]) : [value],
   )
   @IsEnum(SaleStatus, { each: true })

@@ -30,8 +30,15 @@ bookjeok의 백엔드 서버는 **NestJS**를 기반으로 구축되었으며, �
 
 ### 5. LLM (Large Language Model)
 
-- **AI 기반 도서 요약:** Google Generative AI 모델을 활용하여 도서의 핵심 내용을 요약하는 기능을 제공합니다.
-- **프롬프트 관리:** AI 모델에 최적화된 프롬프트를 생성하고 관리합니다.
+### 5. LLM (Large Language Model) & RAG-lite
+
+- **AI 기반 도서 요약:** Google Generative AI(Gemini)를 활용하여 도서의 핵심 내용을 요약합니다.
+- **너굴잎(Neogulip) 도서 추천 (RAG-lite):**  
+  단순한 텍스트 생성이 아닌, **"검색(Search) → 선별(Select)"** 방식의 RAG-lite 아키텍처를 도입하여 할루시네이션 없는 정확한 도서 추천을 제공합니다.
+  1. **의도 분석 (Search Analyst):** 사용자의 모호한 요청을 구체적인 검색 쿼리로 변환합니다.
+  2. **정보 검색 (Information Retrieval):** 네이버 책 검색 API를 병렬 호출하여 실존하는 도서 후보군을 확보합니다.
+  3. **큐레이션 (Curation):** 확보된 후보군 중 의도에 가장 적합한 책을 선별하고, '너굴잎' 페르소나를 입혀 추천합니다.
+- **프롬프트 엔지니어링:** 역할(Role), 제약조건(Constraint), 페르소나(Persona)가 명확히 분리된 시스템 프롬프트를 관리합니다.
 
 ### 6. 리뷰 (Review)
 

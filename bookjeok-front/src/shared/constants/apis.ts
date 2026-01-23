@@ -30,7 +30,6 @@ export const API_PATHS = {
     recentSales: "/book/sales/recent",
     popularBooks: "/book/popular",
     recordView: (isbn: string) => `/book/${isbn}/view`,
-    summary: "/llm/book-summary",
     popularSales: "/book/sales/popular",
   },
   // 인기 검색어 (독립 도메인)
@@ -41,6 +40,10 @@ export const API_PATHS = {
   art: {
     list: "/art-list",
     detail: (artId: string) => `/art-detail/${artId}`,
+  },
+  llm: {
+    talk: "/llm/talk",
+    summary: "/llm/book-summary",
   },
   chat: {
     rooms: "/chat/rooms",
