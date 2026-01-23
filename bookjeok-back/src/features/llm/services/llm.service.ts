@@ -112,9 +112,6 @@ export class LlmService {
           title: b.title,
           author: b.author,
           description: b.description,
-          isbn: '', // LLM generated placeholder
-          image: '', // LLM generated placeholder
-          publisher: '', // LLM generated placeholder
         })),
       };
     } catch (error) {

@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { BookSearchModal } from "@/features/book/components/common/book-search-modal";
-import { Book } from "@/features/book/types";
+import { BookInfo } from "@/features/book/types";
 import { reviewSchema, ReviewSchemaValues } from "@/features/review/schemas";
 import { ReviewFormValues } from "@/features/review/types";
 import { TiptapEditor } from "@/shared/components/editor/tiptap-editor";
@@ -46,7 +46,7 @@ interface ReviewFormProps {
     tags: string[];
     rating: number;
     isPublic?: boolean;
-    book?: Book;
+    book?: BookInfo;
   };
   onSubmit: (
     data: ReviewFormValues,
@@ -69,7 +69,7 @@ export const ReviewForm = ({
   isEditMode = false,
 }: ReviewFormProps) => {
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
-  const [selectedBook, setSelectedBook] = useState<Book | null>(
+  const [selectedBook, setSelectedBook] = useState<BookInfo | null>(
     initialData?.book || null,
   );
   const [tagInput, setTagInput] = useState("");
@@ -100,7 +100,7 @@ export const ReviewForm = ({
     }
   }, [initialData, form]);
 
-  const handleBookSelect = (book: Book) => {
+  const handleBookSelect = (book: BookInfo) => {
     setSelectedBook(book);
     form.setValue("bookIsbn", book.isbn, { shouldValidate: true });
     setIsBookModalOpen(false);

@@ -20,6 +20,7 @@ import {
 } from "./apis";
 import {
   CreateBookSaleParams,
+  SaleStatus,
   UpdateBookSaleParams,
   UsedBookSale,
 } from "./types";
@@ -89,9 +90,7 @@ export const useUpdateBookSaleStatusMutation = () => {
 
       queryClient.setQueryData<UsedBookSale[]>(queryKey, (old) =>
         old
-          ? old.map((sale) =>
-              sale.id === saleId ? { ...sale, status: status as any } : sale,
-            )
+          ? old.map((sale) => (sale.id === saleId ? { ...sale, status } : sale))
           : [],
       );
 

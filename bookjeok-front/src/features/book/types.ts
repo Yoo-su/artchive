@@ -31,8 +31,6 @@ export interface BookInfo extends BaseBookInfo {
   pubdate: string;
 }
 
-export type Book = BookInfo;
-
 /**
  * Book List 조회 관련 타입
  */
