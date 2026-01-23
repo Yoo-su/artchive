@@ -13,7 +13,7 @@ import {
 } from "@tanstack/react-query";
 
 import { User } from "@/features/auth/types";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
+import { userKeys } from "@/features/user";
 
 import {
   createReadingLog,
@@ -25,6 +25,7 @@ import {
   updateReadingLog,
   updateReadingLogSettings,
 } from "./apis";
+import { readingLogKeys } from "./constants/query-keys";
 import { CreateReadingLogParams, UpdateReadingLogParams } from "./types";
 
 /**
@@ -59,7 +60,7 @@ export const useReadingLogsQuery = (
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: QUERY_KEYS.readingLog.list(year, month).queryKey,
+    queryKey: readingLogKeys.list(year, month).queryKey,
     queryFn: () => getReadingLogs(year, month),
     enabled: options?.enabled,
   });
@@ -80,7 +81,7 @@ export const useReadingLogsQuery = (
  */
 export const useReadingLogStatsQuery = (year: number, month: number) => {
   return useQuery({
-    queryKey: QUERY_KEYS.readingLog.stats(year, month).queryKey,
+    queryKey: readingLogKeys.stats(year, month).queryKey,
     queryFn: () => getReadingLogStats(year, month),
   });
 };
@@ -98,7 +99,7 @@ export const useReadingLogStatsQuery = (year: number, month: number) => {
  */
 export const useReadingLogSettingsQuery = () => {
   return useQuery({
-    queryKey: QUERY_KEYS.readingLog.settings.queryKey,
+    queryKey: readingLogKeys.settings.queryKey,
     queryFn: getReadingLogSettings,
   });
 };
@@ -118,26 +119,24 @@ export const useUpdateReadingLogSettingsMutation = () => {
     onMutate: async (newIsPublic) => {
       // 1. 진행 중인 쿼리 취소
       await queryClient.cancelQueries({
-        queryKey: QUERY_KEYS.readingLog.settings.queryKey,
+        queryKey: readingLogKeys.settings.queryKey,
       });
 
       // 2. 이전 값 스냅샷 저장
       const previousSettings = queryClient.getQueryData(
-        QUERY_KEYS.readingLog.settings.queryKey,
+        readingLogKeys.settings.queryKey,
       );
 
       // 3. 낙관적 업데이트 적용
-      queryClient.setQueryData(QUERY_KEYS.readingLog.settings.queryKey, {
+      queryClient.setQueryData(readingLogKeys.settings.queryKey, {
         isReadingLogPublic: newIsPublic,
       });
 
       // 내 프로필 캐시도 낙관적 업데이트 (선택적)
-      const previousProfile = queryClient.getQueryData(
-        QUERY_KEYS.userKeys.me.queryKey,
-      );
+      const previousProfile = queryClient.getQueryData(userKeys.me.queryKey);
       if (previousProfile) {
         queryClient.setQueryData(
-          QUERY_KEYS.userKeys.me.queryKey,
+          userKeys.me.queryKey,
           (old: User | undefined) =>
             old
               ? {
@@ -155,30 +154,25 @@ export const useUpdateReadingLogSettingsMutation = () => {
       // 실패 시 롤백
       if (context?.previousSettings) {
         queryClient.setQueryData(
-          QUERY_KEYS.readingLog.settings.queryKey,
+          readingLogKeys.settings.queryKey,
           context.previousSettings,
         );
       }
       if (context?.previousProfile) {
-        queryClient.setQueryData(
-          QUERY_KEYS.userKeys.me.queryKey,
-          context.previousProfile,
-        );
+        queryClient.setQueryData(userKeys.me.queryKey, context.previousProfile);
       }
     },
     onSuccess: (data) => {
       // 성공 시 서버에서 받은 최신 데이터로 캐시 확정 (Refetch 방지)
-      queryClient.setQueryData(QUERY_KEYS.readingLog.settings.queryKey, data);
+      queryClient.setQueryData(readingLogKeys.settings.queryKey, data);
 
-      queryClient.setQueryData(
-        QUERY_KEYS.userKeys.me.queryKey,
-        (old: User | undefined) =>
-          old
-            ? {
-                ...old,
-                isReadingLogPublic: data.isReadingLogPublic,
-              }
-            : old,
+      queryClient.setQueryData(userKeys.me.queryKey, (old: User | undefined) =>
+        old
+          ? {
+              ...old,
+              isReadingLogPublic: data.isReadingLogPublic,
+            }
+          : old,
       );
     },
   });
@@ -197,7 +191,7 @@ export const useUpdateReadingLogSettingsMutation = () => {
  */
 export const useReadingLogsInfiniteQuery = () => {
   return useInfiniteQuery({
-    queryKey: QUERY_KEYS.readingLog.infinite.queryKey,
+    queryKey: readingLogKeys.infinite.queryKey,
     queryFn: getReadingLogsInfinite,
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -229,14 +223,14 @@ export const useCreateReadingLogMutation = () => {
       // 생성된 기록의 날짜에서 년/월을 추출하여 해당 쿼리만 무효화
       const { year, month } = extractYearMonth(data.date);
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.readingLog.list(year, month).queryKey,
+        queryKey: readingLogKeys.list(year, month).queryKey,
       });
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.readingLog.stats(year, month).queryKey,
+        queryKey: readingLogKeys.stats(year, month).queryKey,
       });
       // 리스트 뷰용 infinite 쿼리도 무효화
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.readingLog.infinite.queryKey,
+        queryKey: readingLogKeys.infinite.queryKey,
       });
     },
   });
@@ -263,13 +257,13 @@ export const useDeleteReadingLogMutation = () => {
       // 삭제된 기록의 날짜에서 년/월을 추출하여 해당 쿼리만 무효화
       const { year, month } = extractYearMonth(variables.date);
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.readingLog.list(year, month).queryKey,
+        queryKey: readingLogKeys.list(year, month).queryKey,
       });
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.readingLog.stats(year, month).queryKey,
+        queryKey: readingLogKeys.stats(year, month).queryKey,
       });
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.readingLog.infinite.queryKey,
+        queryKey: readingLogKeys.infinite.queryKey,
       });
     },
   });
@@ -296,13 +290,13 @@ export const useUpdateReadingLogMutation = () => {
       // 수정된 기록의 날짜에서 년/월을 추출하여 해당 쿼리만 무효화
       const { year, month } = extractYearMonth(data.date);
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.readingLog.list(year, month).queryKey,
+        queryKey: readingLogKeys.list(year, month).queryKey,
       });
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.readingLog.stats(year, month).queryKey,
+        queryKey: readingLogKeys.stats(year, month).queryKey,
       });
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.readingLog.infinite.queryKey,
+        queryKey: readingLogKeys.infinite.queryKey,
       });
     },
   });

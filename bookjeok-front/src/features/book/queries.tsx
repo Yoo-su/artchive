@@ -1,7 +1,5 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
-
 import {
   getBookDetail,
   getBookList,
@@ -10,6 +8,7 @@ import {
   getPopularKeywords,
 } from "./apis";
 import { DEFAULT_DISPLAY } from "./constants";
+import { bookKeys } from "./constants/query-keys";
 import { BookInfo, GetBookListParams } from "./types";
 
 /**
@@ -17,7 +16,7 @@ import { BookInfo, GetBookListParams } from "./types";
  */
 export const useBookListQuery = (params: GetBookListParams) => {
   return useQuery({
-    queryKey: QUERY_KEYS.bookKeys.list(params).queryKey,
+    queryKey: bookKeys.list(params).queryKey,
     queryFn: async () => {
       const result = await getBookList(params);
       if (!result.success) return [] as BookInfo[];
@@ -31,7 +30,7 @@ export const useBookListQuery = (params: GetBookListParams) => {
  */
 export const useBookDetailQuery = (isbn: string) => {
   return useQuery({
-    queryKey: QUERY_KEYS.bookKeys.detail(isbn).queryKey,
+    queryKey: bookKeys.detail(isbn).queryKey,
     queryFn: async () => {
       const response = await getBookDetail(isbn);
       if (!response.success) return null;
@@ -45,7 +44,7 @@ export const useBookDetailQuery = (isbn: string) => {
  */
 export const useInfiniteBookSearch = (query: string) => {
   return useInfiniteQuery({
-    queryKey: QUERY_KEYS.bookKeys.search(query).queryKey,
+    queryKey: bookKeys.search(query).queryKey,
     queryFn: async ({ pageParam = 1 }) => {
       const params: GetBookListParams = {
         query,
@@ -76,7 +75,7 @@ export const useInfiniteBookSearch = (query: string) => {
  */
 export const usePopularBooksQuery = () => {
   return useQuery({
-    queryKey: QUERY_KEYS.bookKeys.popularBooks.queryKey,
+    queryKey: bookKeys.popularBooks.queryKey,
     queryFn: getPopularBooks,
   });
 };
@@ -110,7 +109,7 @@ export const useBookSummaryQuery = (
  */
 export const usePopularKeywordsQuery = () => {
   return useQuery({
-    queryKey: QUERY_KEYS.bookKeys.popularKeywords.queryKey,
+    queryKey: bookKeys.popularKeywords.queryKey,
     queryFn: getPopularKeywords,
     staleTime: 5 * 60 * 1000,
     refetchOnMount: true,

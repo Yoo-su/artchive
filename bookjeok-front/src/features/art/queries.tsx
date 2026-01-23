@@ -1,8 +1,7 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
 
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
-
 import { getArtDetail, getArtList } from "./apis";
+import { artKeys } from "./constants/query-keys";
 import { ArtItem, Genre, GetArtListParams } from "./types";
 
 /**
@@ -10,7 +9,7 @@ import { ArtItem, Genre, GetArtListParams } from "./types";
  */
 export const useArtListQuery = (params: GetArtListParams) => {
   return useQuery({
-    queryKey: QUERY_KEYS.artKeys.list(params).queryKey,
+    queryKey: artKeys.list(params).queryKey,
     queryFn: async () => {
       const result = await getArtList(params);
 
@@ -32,7 +31,7 @@ export const useArtListQuery = (params: GetArtListParams) => {
  */
 export const useArtDetailQuery = (artId: string) => {
   return useQuery({
-    queryKey: QUERY_KEYS.artKeys.detail(artId).queryKey,
+    queryKey: artKeys.detail(artId).queryKey,
     queryFn: async () => {
       const result = await getArtDetail(artId);
       if (!result.success) {
@@ -48,11 +47,11 @@ export const useArtDetailQuery = (artId: string) => {
  * 메인 페이지용 공연 목록 (여러 장르 병렬 조회)
  */
 export const useMainArtsQueries = (
-  mainArts: { genreCode: Genre; title: string }[]
+  mainArts: { genreCode: Genre; title: string }[],
 ) => {
   return useQueries({
     queries: mainArts.map(({ genreCode }) => ({
-      queryKey: QUERY_KEYS.artKeys.list({ genreCode }).queryKey,
+      queryKey: artKeys.list({ genreCode }).queryKey,
       queryFn: async () => {
         const result = await getArtList({ genreCode, rows: "20" });
 

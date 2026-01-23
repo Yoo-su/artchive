@@ -1,8 +1,8 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 
+import { insightsKeys } from "@/features/insights";
 import { getInsights } from "@/features/insights/apis";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
 import InsightsView from "@/views/insights-view";
 
@@ -26,7 +26,7 @@ export default async function InsightsPage() {
   // 인사이트 데이터 서버사이드 프리페치
   try {
     await queryClient.prefetchQuery({
-      queryKey: QUERY_KEYS.insightsKeys.all.queryKey,
+      queryKey: insightsKeys.all.queryKey,
       queryFn: getInsights,
     });
   } catch (error) {

@@ -1,8 +1,8 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 
+import { bookKeys } from "@/features/book";
 import { fetchBookDetail } from "@/features/book/apis/server";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { BookDetailView } from "@/views/book-detail-view";
 
@@ -44,10 +44,7 @@ export default async function Page({ params }: Props) {
   try {
     const data = await fetchBookDetail(isbn);
     if (data.items && data.items.length > 0) {
-      queryClient.setQueryData(
-        QUERY_KEYS.bookKeys.detail(isbn).queryKey,
-        data.items[0],
-      );
+      queryClient.setQueryData(bookKeys.detail(isbn).queryKey, data.items[0]);
     }
   } catch {
     // API 호출 실패 시 조용한 실패 혹은 별도 처리 (여기서는 Hydration 생략)

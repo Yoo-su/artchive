@@ -1,8 +1,8 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 
+import { reviewKeys } from "@/features/review";
 import { getPopularReviews, getReviewFeeds } from "@/features/review/apis";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { ReviewHomeView } from "@/views/review-home-view";
 
@@ -41,11 +41,11 @@ export default async function Page() {
   try {
     await Promise.all([
       queryClient.prefetchQuery({
-        queryKey: QUERY_KEYS.reviewKeys.popular.queryKey,
+        queryKey: reviewKeys.popular.queryKey,
         queryFn: getPopularReviews,
       }),
       queryClient.prefetchQuery({
-        queryKey: QUERY_KEYS.reviewKeys.feeds.queryKey,
+        queryKey: reviewKeys.feeds.queryKey,
         queryFn: getReviewFeeds,
       }),
     ]);

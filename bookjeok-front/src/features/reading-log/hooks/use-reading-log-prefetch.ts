@@ -2,9 +2,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { addMonths, subMonths } from "date-fns";
 import { useEffect } from "react";
 
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
-
 import { getReadingLogs, getReadingLogStats } from "../apis";
+import { readingLogKeys } from "../constants/query-keys";
 
 export const useReadingLogPrefetch = (year: number, month: number) => {
   const queryClient = useQueryClient();
@@ -21,13 +20,13 @@ export const useReadingLogPrefetch = (year: number, month: number) => {
       const targetMonth = date.getMonth() + 1;
 
       queryClient.prefetchQuery({
-        queryKey: QUERY_KEYS.readingLog.list(targetYear, targetMonth).queryKey,
+        queryKey: readingLogKeys.list(targetYear, targetMonth).queryKey,
         queryFn: () => getReadingLogs(targetYear, targetMonth),
         staleTime: 1000 * 60 * 5,
       });
 
       queryClient.prefetchQuery({
-        queryKey: QUERY_KEYS.readingLog.stats(targetYear, targetMonth).queryKey,
+        queryKey: readingLogKeys.stats(targetYear, targetMonth).queryKey,
         queryFn: () => getReadingLogStats(targetYear, targetMonth),
         staleTime: 1000 * 60 * 5,
       });

@@ -3,9 +3,9 @@ import { SendHorizontal } from "lucide-react";
 import { FormEvent, useCallback, useState } from "react";
 import { toast } from "sonner";
 
+import { chatKeys } from "@/features/chat";
 import { Button } from "@/shared/components/shadcn/button";
 import { Input } from "@/shared/components/shadcn/input";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { useSocketContext } from "@/shared/providers/socket-provider";
 
 import { ChatMessage } from "../../types";
@@ -76,7 +76,7 @@ export const ChatInput = ({
       queryClient.setQueryData<{
         pages: { messages: ChatMessage[] }[];
         pageParams: (number | undefined)[];
-      }>(QUERY_KEYS.chatKeys.messages(roomId).queryKey, (oldData) => {
+      }>(chatKeys.messages(roomId).queryKey, (oldData) => {
         if (!oldData) return oldData;
         const newPages = [...oldData.pages];
         newPages[0] = {
@@ -103,7 +103,7 @@ export const ChatInput = ({
             queryClient.setQueryData<{
               pages: { messages: ChatMessage[] }[];
               pageParams: (number | undefined)[];
-            }>(QUERY_KEYS.chatKeys.messages(roomId).queryKey, (oldData) => {
+            }>(chatKeys.messages(roomId).queryKey, (oldData) => {
               if (!oldData) return oldData;
               const newPages = oldData.pages.map((page) => ({
                 ...page,

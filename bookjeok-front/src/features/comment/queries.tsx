@@ -2,11 +2,9 @@
 
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
-import { commentKeys } from "@/shared/constants/query-keys/comment";
-
 import { getComments, getMyComments } from "./apis";
 import { COMMENTS_PER_PAGE } from "./constants";
+import { commentKeys } from "./constants/query-keys";
 import { CommentTargetType } from "./types";
 
 /**
@@ -19,7 +17,7 @@ export const useCommentsQuery = (
   enabled: boolean = true,
 ) => {
   return useQuery({
-    queryKey: QUERY_KEYS.commentKeys.list(targetType, targetId, page).queryKey,
+    queryKey: commentKeys.list(targetType, targetId, page).queryKey,
     queryFn: () =>
       getComments({
         targetType,

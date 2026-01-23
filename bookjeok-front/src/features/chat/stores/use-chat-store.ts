@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import { create } from "zustand";
 
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
+import { chatKeys } from "@/features/chat";
 
 import { markMessagesAsRead } from "../apis";
 import { ChatRoom } from "../types";
@@ -88,13 +88,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   markRoomAsRead: async (roomId, queryClient) => {
     queryClient.setQueryData<ChatRoom[]>(
-      QUERY_KEYS.chatKeys.rooms.queryKey,
+      chatKeys.rooms.queryKey,
       (oldRooms) => {
         if (!oldRooms) return [];
         return oldRooms.map((room) =>
-          room.id === roomId ? { ...room, unreadCount: 0 } : room
+          room.id === roomId ? { ...room, unreadCount: 0 } : room,
         );
-      }
+      },
     );
 
     try {
@@ -102,7 +102,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     } catch (error) {
       console.error("Failed to mark messages as read on server:", error);
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
+        queryKey: chatKeys.rooms.queryKey,
       });
     }
   },

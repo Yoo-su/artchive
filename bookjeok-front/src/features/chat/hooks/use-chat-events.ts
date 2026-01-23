@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
+import { chatKeys } from "@/features/chat";
 import { useSocketContext } from "@/shared/providers/socket-provider";
 
 import { useChatStore } from "../stores/use-chat-store";
@@ -27,7 +27,7 @@ export const useChatEvents = () => {
   const prependMessageToCache = useCallback(
     (roomId: number, message: ChatMessage) => {
       queryClient.setQueryData<InfiniteMessagesData>(
-        QUERY_KEYS.chatKeys.messages(roomId).queryKey,
+        chatKeys.messages(roomId).queryKey,
         (oldData) => {
           if (!oldData) return oldData;
           const newPages = [...oldData.pages];
@@ -45,7 +45,7 @@ export const useChatEvents = () => {
   const handleNewChatRoom = useCallback(
     (newRoom: ChatRoom) => {
       queryClient.setQueryData<ChatRoom[]>(
-        QUERY_KEYS.chatKeys.rooms.queryKey,
+        chatKeys.rooms.queryKey,
         (oldData) => {
           if (oldData) {
             // 이미 존재하는 방이면 추가하지 않음
@@ -80,7 +80,7 @@ export const useChatEvents = () => {
       const isMyMessage = newMessage.sender?.id === currentUserId;
 
       queryClient.setQueryData<InfiniteMessagesData>(
-        QUERY_KEYS.chatKeys.messages(roomId).queryKey,
+        chatKeys.messages(roomId).queryKey,
         (oldData) => {
           if (!oldData) return oldData;
 
@@ -134,7 +134,7 @@ export const useChatEvents = () => {
 
       // 채팅방 목록 업데이트: 마지막 메시지 & 안읽음 카운트 갱신
       queryClient.setQueryData<ChatRoom[]>(
-        QUERY_KEYS.chatKeys.rooms.queryKey,
+        chatKeys.rooms.queryKey,
         (oldRooms) => {
           if (!oldRooms) return [];
 
@@ -173,7 +173,7 @@ export const useChatEvents = () => {
       prependMessageToCache(roomId, message);
       setRoomInactive(roomId, false);
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
+        queryKey: chatKeys.rooms.queryKey,
       });
     },
     [queryClient, prependMessageToCache, setRoomInactive],

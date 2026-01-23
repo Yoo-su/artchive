@@ -1,11 +1,11 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 
+import { bookKeys } from "@/features/book";
 import {
   getPopularBookSales,
   searchBookSales,
 } from "@/features/book-sale/apis";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { BookMarketView } from "@/views/book-market-view";
 
@@ -45,11 +45,11 @@ export default async function Page() {
   try {
     await Promise.all([
       queryClient.prefetchQuery({
-        queryKey: QUERY_KEYS.bookKeys.popularSales.queryKey,
+        queryKey: bookKeys.popularSales.queryKey,
         queryFn: getPopularBookSales,
       }),
       queryClient.prefetchInfiniteQuery({
-        queryKey: QUERY_KEYS.bookKeys.marketSales({}).queryKey,
+        queryKey: bookKeys.marketSales({}).queryKey,
         queryFn: ({ pageParam }) =>
           searchBookSales({
             page: 1,

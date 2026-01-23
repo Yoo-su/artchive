@@ -1,8 +1,8 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 
+import { bookKeys } from "@/features/book";
 import { getPopularKeywords } from "@/features/book/apis";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
 import BookSearchView from "@/views/book-search-view";
 
@@ -41,7 +41,7 @@ export default async function Page() {
   // 인기 검색어 prefetch (5분 캐싱)
   try {
     await queryClient.prefetchQuery({
-      queryKey: QUERY_KEYS.bookKeys.popularKeywords.queryKey,
+      queryKey: bookKeys.popularKeywords.queryKey,
       queryFn: getPopularKeywords,
     });
   } catch (error) {

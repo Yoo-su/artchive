@@ -2,8 +2,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
-
 import {
   checkWishlistStatus,
   getMyProfile,
@@ -11,6 +9,7 @@ import {
   getUserStats,
   getWishlist,
 } from "./apis";
+import { userKeys } from "./constants/query-keys";
 import { PublicUserProfile, WishlistItem } from "./types";
 
 export interface UserStats {
@@ -30,7 +29,7 @@ export interface UserStats {
  */
 export const useMyStatsQuery = () => {
   return useQuery<UserStats>({
-    queryKey: QUERY_KEYS.userKeys.stats.queryKey,
+    queryKey: userKeys.stats.queryKey,
     queryFn: getUserStats,
     staleTime: 60 * 1000,
   });
@@ -41,10 +40,10 @@ export const useMyStatsQuery = () => {
  */
 export const usePublicProfileQuery = (
   handle: string,
-  enabled: boolean = true
+  enabled: boolean = true,
 ) => {
   return useQuery<PublicUserProfile>({
-    queryKey: QUERY_KEYS.userKeys.profile(handle).queryKey,
+    queryKey: userKeys.profile(handle).queryKey,
     queryFn: () => getPublicProfile(handle),
     enabled: enabled && !!handle,
   });
@@ -55,7 +54,7 @@ export const usePublicProfileQuery = (
  */
 export const useMyProfileQuery = () => {
   return useQuery({
-    queryKey: QUERY_KEYS.userKeys.me.queryKey,
+    queryKey: userKeys.me.queryKey,
     queryFn: getMyProfile,
   });
 };
@@ -65,7 +64,7 @@ export const useMyProfileQuery = () => {
  */
 export const useWishlistQuery = () => {
   return useQuery<WishlistItem[]>({
-    queryKey: QUERY_KEYS.userKeys.wishlist.queryKey,
+    queryKey: userKeys.wishlist.queryKey,
     queryFn: getWishlist,
     staleTime: 30 * 1000,
   });
@@ -77,10 +76,10 @@ export const useWishlistQuery = () => {
 export const useWishlistStatusQuery = (
   type: "BOOK" | "SALE",
   id: string | number,
-  enabled: boolean = true
+  enabled: boolean = true,
 ) => {
   return useQuery({
-    queryKey: QUERY_KEYS.userKeys.wishlistCheck(type, id).queryKey,
+    queryKey: userKeys.wishlistCheck(type, id).queryKey,
     queryFn: () => checkWishlistStatus(type, id),
     enabled,
     staleTime: 30 * 1000,

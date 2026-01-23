@@ -1,6 +1,6 @@
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 
-import { CommentTargetType } from "@/features/comment/types";
+import { CommentTargetType } from "../types";
 
 export const commentKeys = createQueryKeys("comment", {
   list: (targetType: CommentTargetType, targetId: string, page: number) => ({

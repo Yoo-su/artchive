@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { CommentSection } from "@/features/comment/components/comment-section";
 import { CommentTargetType } from "@/features/comment/types";
+import { reviewKeys } from "@/features/review";
 import { getReviewAuthenticated } from "@/features/review/apis";
 import { useReviewDetailQuery } from "@/features/review/queries";
 import { Review } from "@/features/review/types";
@@ -16,7 +17,6 @@ import { Button } from "@/shared/components/shadcn/button";
 import { NotFoundRedirect } from "@/shared/components/ui/not-found-redirect";
 import { ScrollTopButton } from "@/shared/components/ui/scroll-top-button";
 import { PATHS } from "@/shared/constants/paths";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
 
 import { RecommendReviews } from "../recommend-reviews";
 import { ReviewDetailActions } from "./actions";
@@ -47,10 +47,7 @@ export const ReviewDetail = ({ id, initialReview }: ReviewDetailProps) => {
   useEffect(() => {
     if (isPrivateMasked && isAuthor) {
       getReviewAuthenticated(id).then((fullReview) => {
-        queryClient.setQueryData(
-          QUERY_KEYS.reviewKeys.detail(id).queryKey,
-          fullReview,
-        );
+        queryClient.setQueryData(reviewKeys.detail(id).queryKey, fullReview);
       });
     }
   }, [id, isPrivateMasked, isAuthor, queryClient]);

@@ -1,9 +1,9 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 
+import { artKeys } from "@/features/art";
 import { getArtDetail } from "@/features/art/apis";
 import { DefaultLayout } from "@/layouts/default-layout";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { ArtDetailView } from "@/views/art-detail-view";
 
@@ -23,7 +23,7 @@ export default async function Page({ params }: Props) {
   // 서버에서 공연/전시 상세 정보 prefetch
   try {
     await queryClient.prefetchQuery({
-      queryKey: QUERY_KEYS.artKeys.detail(id).queryKey,
+      queryKey: artKeys.detail(id).queryKey,
       queryFn: () => getArtDetail(id),
     });
   } catch (error) {

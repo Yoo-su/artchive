@@ -2,9 +2,9 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 import { cache } from "react";
 
+import { reviewKeys } from "@/features/review";
 import { getReview } from "@/features/review/apis";
 import { ReviewJsonLd } from "@/features/review/components/review-json-ld";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { ReviewDetailView } from "@/views/review-detail-view";
 
@@ -77,10 +77,7 @@ export default async function Page({ params }: Props) {
 
   // 이미 가져온 데이터를 QueryClient에 직접 설정 (추가 API 호출 없음)
   if (review) {
-    queryClient.setQueryData(
-      QUERY_KEYS.reviewKeys.detail(reviewId).queryKey,
-      review,
-    );
+    queryClient.setQueryData(reviewKeys.detail(reviewId).queryKey, review);
   }
 
   return (
