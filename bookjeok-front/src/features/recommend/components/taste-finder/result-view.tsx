@@ -1,12 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 
-import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { NEOGULIP_THEME } from "@/features/recommend/constants/neogulip-theme";
 import { useRecommendStore } from "@/features/recommend/stores/recommend-store";
-import { useAddToWishlistMutation } from "@/features/user/mutations";
 import { NeogulipIcon } from "@/shared/components/icons/neogulip-icon";
 import {
   AlertDialog,
@@ -19,16 +16,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/shared/components/shadcn/alert-dialog";
-import { cn } from "@/shared/utils/cn";
 
 interface BookItem {
   title: string;
   author: string;
   publisher: string;
   description: string;
-  image: string;
-  isbn: string;
-  pubdate: string;
+  // Reduced set of fields for Pure LLM
 }
 
 interface ResultViewProps {
@@ -37,43 +31,7 @@ interface ResultViewProps {
 
 export const TasteFinderResultView = ({ setInput }: ResultViewProps) => {
   const router = useRouter();
-  const user = useAuthStore((state) => state.user);
   const { isFinal, recommendedBooks, clearMessages } = useRecommendStore();
-  const addToWishlist = useAddToWishlistMutation();
-
-  const handleAddToWishlist = (book: BookItem) => {
-    if (!user) {
-      toast.error("로그인이 필요한 기능입니다.");
-      router.push("/login");
-      return;
-    }
-
-    addToWishlist.mutate(
-      {
-        type: "BOOK",
-        id: book.isbn,
-        bookData: {
-          isbn: book.isbn,
-          title: book.title,
-          author: book.author,
-          publisher: book.publisher,
-          image: book.image,
-          description: book.description,
-          pubdate: book.pubdate,
-          link: "",
-          discount: "",
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success(`'${book.title}'이(가) 내 서재에 담겼어요! 📚`);
-        },
-        onError: () => {
-          toast.error("이미 담겨있거나 오류가 발생했어요.");
-        },
-      },
-    );
-  };
 
   if (!isFinal) {
     return (
@@ -109,91 +67,50 @@ export const TasteFinderResultView = ({ setInput }: ResultViewProps) => {
         </p>
       </div>
 
-      <div
-        className={cn(
-          "grid gap-6 pb-4 relative",
-          !user && "h-[400px] overflow-hidden",
-        )}
-      >
-        {/* Auth Gating Overlay */}
-        {!user && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-4 bg-white/60 backdrop-blur-[2px] rounded-2xl border border-neogulip-border/50">
-            <div className="bg-white/90 p-8 rounded-3xl shadow-xl border border-neogulip-border text-center max-w-sm animate-in zoom-in-95 duration-500">
-              <div className="mx-auto w-16 h-16 bg-neogulip-bg rounded-full flex items-center justify-center mb-4">
-                <span className="text-3xl">🔒</span>
-              </div>
-              <h4 className="text-xl font-bold text-neogulip-brown-primary mb-2">
-                {NEOGULIP_THEME.TEXTS.LOGIN_CTA_TITLE}
-              </h4>
-              <p className="text-neogulip-brown-secondary mb-6 whitespace-pre-wrap leading-relaxed">
-                {NEOGULIP_THEME.TEXTS.LOGIN_CTA_DESC}
-              </p>
-              <button
-                onClick={() => router.push("/login")}
-                className="w-full py-3.5 bg-neogulip-primary text-white font-bold rounded-xl shadow-lg hover:bg-neogulip-dark hover:shadow-xl hover:-translate-y-0.5 transition-all text-base flex items-center justify-center gap-2"
-              >
-                {NEOGULIP_THEME.TEXTS.LOGIN_BTN}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Book List (Blurred if no user) */}
-        <div
-          className={cn(
-            "space-y-6",
-            !user &&
-              "filter blur-md pointer-events-none select-none opacity-60",
-          )}
-        >
+      <div className="grid gap-6 pb-4 relative">
+        <div className="space-y-6">
           {recommendedBooks?.map((book: BookItem, idx: number) => (
             <div
               key={idx}
-              className="group relative bg-white rounded-2xl p-4 border border-neogulip-bg-accent shadow-sm hover:shadow-lg hover:border-neogulip-border transition-all duration-300"
+              onClick={() =>
+                router.push(`/book/search?q=${encodeURIComponent(book.title)}`)
+              }
+              className="group relative bg-white rounded-2xl p-6 border border-neogulip-bg-accent shadow-sm hover:shadow-lg hover:border-neogulip-border transition-all duration-300 cursor-pointer"
             >
-              <div className="flex gap-5">
-                <div
-                  className="h-32 w-24 shrink-0 overflow-hidden rounded-lg bg-neogulip-bg shadow-inner cursor-pointer"
-                  onClick={() => router.push(`/book/${book.isbn}`)}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={book.image}
-                    alt={book.title}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                </div>
-                <div className="flex flex-col justify-between flex-1 min-w-0 py-1">
-                  <div
-                    className="cursor-pointer"
-                    onClick={() => router.push(`/book/${book.isbn}`)}
-                  >
-                    <h5 className="font-bold text-neogulip-brown-dark text-lg line-clamp-1 group-hover:text-neogulip-text transition-colors">
-                      {book.title}
-                    </h5>
-                    <p className="text-sm text-neogulip-brown-primary mt-1 font-medium">
-                      {book.author} · {book.publisher}
-                    </p>
-                    <p className="text-sm text-neogulip-brown-text mt-2 line-clamp-2 leading-relaxed">
-                      {book.description}
-                    </p>
-                  </div>
-                  <div className="flex justify-end mt-3">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddToWishlist(book);
-                      }}
-                      className="flex items-center gap-1.5 text-sm font-bold text-neogulip-text hover:text-neogulip-deep bg-neogulip-btn hover:bg-neogulip-btn-hover px-4 py-2 rounded-xl transition-all active:scale-95"
+              <div className="flex gap-5 items-start">
+                <div className="flex flex-col flex-1 min-w-0">
+                  <h5 className="font-bold text-neogulip-brown-dark text-xl line-clamp-1 group-hover:text-neogulip-text transition-colors">
+                    {book.title}
+                  </h5>
+                  <p className="text-sm text-neogulip-brown-primary mt-1 font-medium">
+                    {book.author}
+                  </p>
+                  <p className="text-sm text-neogulip-brown-text mt-3 leading-relaxed line-clamp-3">
+                    {book.description}
+                  </p>
+
+                  <div className="mt-4 flex items-center text-xs font-bold text-neogulip-text/80 group-hover:text-neogulip-text transition-colors">
+                    <span>도서 검색하러 가기</span>
+                    <svg
+                      className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      {NEOGULIP_THEME.TEXTS.ADD_TO_WISHLIST}
-                    </button>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
                   </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
+
         <div className="text-center pt-6">
           <AlertDialog>
             <AlertDialogTrigger asChild>

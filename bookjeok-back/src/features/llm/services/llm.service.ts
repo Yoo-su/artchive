@@ -7,13 +7,19 @@ import { MODEL_NAME } from '../constants/llm-model';
 import { BookSummaryResponseDto } from '../dtos/book-summary-response.dto';
 import { getPromptText } from '../utils/get-prompt-text';
 
-import { NaverBookSearchService } from '@/features/book/services/naver-book-search.service';
 import { TalkRequestDto } from '../dtos/talk-request.dto';
 import { TalkResponseDto } from '../dtos/talk-response.dto';
 import { LlmTalkLog } from '../entities/llm-talk-log.entity';
-import { NEOGULIP_SEARCH_SYS_PROMPT } from '../constants/neogulip-search-prompt';
 import { NEOGULIP_CURATION_SYS_PROMPT } from '../constants/neogulip-curation-prompt';
-import { Book } from '@/features/book/entities/book.entity';
+
+interface CurationResult {
+  message: string;
+  recommendedBooks: {
+    title: string;
+    author: string;
+    description: string;
+  }[];
+}
 
 @Injectable()
 export class LlmService {
@@ -25,7 +31,6 @@ export class LlmService {
    */
   constructor(
     private readonly configService: ConfigService,
-    private readonly naverBookSearchService: NaverBookSearchService,
     @InjectRepository(LlmTalkLog)
     private readonly logRepository: Repository<LlmTalkLog>,
   ) {
@@ -73,91 +78,50 @@ export class LlmService {
   /**
    * 유저의 입력에 대해 적응형 대화(Adaptive Flow)를 수행하고, 추천이 필요하면 책 검색까지 수행합니다.
    */
-  async processTalk(dto: TalkRequestDto): Promise<TalkResponseDto> {
+  async processTalk(
+    dto: TalkRequestDto,
+    userId?: string,
+  ): Promise<TalkResponseDto> {
     const { message, history } = dto;
     const startTime = Date.now();
 
     try {
-      // 1. [의도 분석]: 사용자 의도 파악 및 검색 쿼리 생성
-      const searchAnalysis = await this.analyzeIntent(message, history);
-
-      // 2. [질문 흐름]: 단순 질문이나 일상 대화인 경우 (검색 불필요)
-      if (
-        searchAnalysis.type === 'QUESTION' ||
-        searchAnalysis.queries.length === 0
-      ) {
-        // 후보 도서 없이 큐레이션 프롬프트로 자연스러운 대화 생성
-        const chatResult = await this.curateRecommendations(message, []);
-        return {
-          message: chatResult.message,
-          isFinal: false,
-        };
-      }
-
-      // 3. [정보 검색]: 네이버 책 검색 API를 통해 후보 도서 수집
-      // 응답 속도 및 쿼터 제한을 고려하여 최대 3개의 쿼리만 병렬로 실행
-      const queries = searchAnalysis.queries.slice(0, 3);
-      const searchPromises = queries.map((q) =>
-        this.naverBookSearchService.search(q, 5, 1, 'sim'),
-      );
-
-      const rawResults = await Promise.all(searchPromises);
-
-      // 검색 결과 병합 및 ISBN 기준 중복 제거
-      const candidateMap = new Map<string, Partial<Book>>();
-      rawResults.flat().forEach((book) => {
-        if (book && book.isbn) {
-          candidateMap.set(book.isbn, book);
-        }
-      });
-      const candidates = Array.from(candidateMap.values());
-
-      // 4. [큐레이션]: 수집된 후보군 중에서 LLM이 베스트 도서 선별
-      const curationResult = await this.curateRecommendations(
-        message,
-        candidates,
-      );
-
-      // 5. [응답 생성]: 선별된 ISBN을 전체 도서 객체로 변환
-      const finalBooks = curationResult.recommendedIsbns
-        .map((isbn) => candidateMap.get(isbn))
-        .filter((b): b is Partial<Book> => b !== undefined);
+      // 1. [순수 지식 큐레이션]: 검색 과정 없이 바로 LLM이 추천
+      // 히스토리와 사용자 메시지를 기반으로 너굴잎이 직접 판단
+      const curationResult = await this.curateRecommendations(message, history);
 
       const duration = Date.now() - startTime;
+      const recommendedBooks = curationResult.recommendedBooks || [];
 
       // 로그 저장
       this.logRepository
         .save({
           userMessage: message,
           aiMessage: curationResult.message,
-          analysis: JSON.stringify(searchAnalysis),
-          recommendedTitles: finalBooks
-            .map((b) => b.title)
-            .filter((t): t is string => !!t),
+          analysis: 'PURE_LLM',
+          recommendedTitles: recommendedBooks.map((b) => b.title),
           model: MODEL_NAME,
           latency: duration,
-          userId: 'anonymous',
+          userId: userId ?? 'anonymous',
         })
         .catch((e) => console.error(e));
 
-      // 6. 결과 반환
-      if (finalBooks.length > 0) {
-        return {
-          message: curationResult.message,
-          isFinal: true,
-          recommendedBooks: finalBooks,
-        };
-      } else {
-        // 큐레이션 결과가 없거나 검색된 책이 없는 경우에 대한 처리 (사과 메시지 등)
-        return {
-          message: curationResult.message, // 캐릭터 톤으로 사과 메시지가 이미 포함되어 있음
-          isFinal: false,
-        };
-      }
+      // 결과 반환
+      return {
+        message: curationResult.message,
+        isFinal: recommendedBooks.length > 0,
+        recommendedBooks: recommendedBooks.map((b) => ({
+          title: b.title,
+          author: b.author,
+          description: b.description,
+          isbn: '', // LLM generated placeholder
+          image: '', // LLM generated placeholder
+          publisher: '', // LLM generated placeholder
+        })),
+      };
     } catch (error: any) {
       console.error('LlmService ProcessTalk Error:', error);
 
-      // 구글 Gemini API 503 (Service Unavailable) 또는 429 (Too Many Requests) 처리
       if (
         error.status === 503 ||
         error.status === 429 ||
@@ -179,65 +143,38 @@ export class LlmService {
 
   // --- 헬퍼 메서드 ---
 
-  async analyzeIntent(
+  async curateRecommendations(
     message: string,
     history?: string,
-  ): Promise<{ type: 'SEARCH' | 'QUESTION'; queries: string[] }> {
-    const prompt = NEOGULIP_SEARCH_SYS_PROMPT.replace(
+  ): Promise<CurationResult> {
+    const prompt = NEOGULIP_CURATION_SYS_PROMPT.replace(
       '${message}',
       message,
     ).replace('${history}', history || '');
 
     const result = await this.model.generateContent(prompt);
-    const text = result.response
-      .text()
-      .replace(/```json\n|\n```/g, '')
-      .trim();
+    const text = result.response.text();
+
     try {
-      return JSON.parse(text) as {
-        type: 'SEARCH' | 'QUESTION';
-        queries: string[];
-      };
+      // 1. 순수 JSON 파싱 시도
+      return JSON.parse(text) as CurationResult;
     } catch {
-      // 실패 시 기본 질문 모드로 전환
-      return { type: 'QUESTION', queries: [] };
-    }
-  }
-
-  async curateRecommendations(
-    message: string,
-    candidates: any[],
-  ): Promise<{ message: string; recommendedIsbns: string[] }> {
-    // 검색 결과를 LLM이 이해하기 쉽게 문자열로 요약 (토큰 효율화)
-    const candidatesStr = JSON.stringify(
-      candidates.map((b) => ({
-        isbn: b.isbn,
-        title: b.title,
-        author: b.author,
-        publisher: b.publisher,
-      })),
-    );
-
-    const prompt = NEOGULIP_CURATION_SYS_PROMPT.replace(
-      '${message}',
-      message,
-    ).replace('${candidates}', candidatesStr);
-
-    const result = await this.model.generateContent(prompt);
-    const text = result.response
-      .text()
-      .replace(/```json\n|\n```/g, '')
-      .trim();
-    try {
-      return JSON.parse(text) as {
-        message: string;
-        recommendedIsbns: string[];
-      };
-    } catch {
-      return {
-        message: '죄송해요, 책을 고르다가 잠들었어요구리... 💤',
-        recommendedIsbns: [],
-      };
+      try {
+        // 2. 마크다운 코드 블록 제거 및 텍스트 정리
+        // 정규식으로 가장 바깥쪽의 { ... } 객체만 추출
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+          throw new Error('No JSON found');
+        }
+        return JSON.parse(jsonMatch[0]) as CurationResult;
+      } catch {
+        console.warn('LLM Response Parsing Failed:', text);
+        return {
+          message:
+            '죄송해요, 책을 고르다가 잠들었어요구리... 💤 (JSON Parsing Error)',
+          recommendedBooks: [],
+        };
+      }
     }
   }
 }

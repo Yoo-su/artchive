@@ -71,7 +71,7 @@ export const getBookSummary = async (
   author: string,
   description?: string,
 ) => {
-  const { data } = await privateAxios.post(API_PATHS.book.summary, {
+  const { data } = await privateAxios.post(API_PATHS.llm.summary, {
     title,
     author,
     description,

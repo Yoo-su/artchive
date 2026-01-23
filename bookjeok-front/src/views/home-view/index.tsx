@@ -14,18 +14,18 @@ export const HomeView = () => {
     <div className="flex flex-col gap-8">
       <MainBookSlider />
 
-      <TasteFinderWidget />
+      {/* <TasteFinderWidget /> */}
 
       <PopularBookSlider />
 
       <RecentSalesSlider />
 
       {/* 광고 배너 */}
-      <AdBanner
+      {/* <AdBanner
         dataAdSlot="9804554356"
         dataAdFormat="horizontal"
         className="w-full my-4"
-      />
+      /> */}
 
       <RecentReviewSlider />
 

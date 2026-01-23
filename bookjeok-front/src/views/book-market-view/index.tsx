@@ -19,11 +19,11 @@ export const BookMarketView = () => {
       </section>
 
       {/* 광고 배너 */}
-      <AdBanner
+      {/* <AdBanner
         dataAdSlot="4727503402"
         dataAdFormat="horizontal"
         className="w-full mb-8"
-      />
+      /> */}
 
       <div className="mb-8">
         <PopularBookSaleList />
