@@ -14,7 +14,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { BookSearchModal } from "@/features/book/components/common/book-search-modal";
-import { Book } from "@/features/book/types";
+import { BookInfo } from "@/features/book/types";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,
@@ -50,7 +50,7 @@ export function DayDetailsDialog({
 
   // 생성 모드 상태
   const [selectedBookForCreate, setSelectedBookForCreate] =
-    useState<Book | null>(null);
+    useState<BookInfo | null>(null);
 
   // 수정 모드 상태
   const [editingLog, setEditingLog] = useState<ReadingLog | null>(null);
@@ -61,7 +61,7 @@ export function DayDetailsDialog({
 
   if (!date) return null;
 
-  const handleBookSelect = (book: Book) => {
+  const handleBookSelect = (book: BookInfo) => {
     // 해당 날짜에 이미 추가된 책인지 확인
     const exists = logs.some((log) => log.bookIsbn === book.isbn);
     if (exists) {

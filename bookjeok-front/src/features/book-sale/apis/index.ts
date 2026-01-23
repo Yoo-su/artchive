@@ -7,6 +7,7 @@ import {
   GetMyBookSalesResponse,
   GetRelatedSalesParams,
   GetRelatedSalesResponse,
+  SaleStatus,
   SearchBookSalesParams,
   SearchBookSalesResponse,
   UpdateBookSaleParams,
@@ -44,7 +45,7 @@ export const updateBookSaleStatus = async ({
   status,
 }: {
   saleId: number;
-  status: string;
+  status: SaleStatus;
 }): Promise<CommonBookSaleResponse> => {
   const { data } = await privateAxios.patch<CommonBookSaleResponse>(
     API_PATHS.book.saleStatus(saleId),

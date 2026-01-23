@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useInView } from "react-intersection-observer";
 
-import { Book } from "@/features/book/types";
+import { BookInfo } from "@/features/book/types";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,
@@ -22,7 +22,7 @@ import { ScrollArea } from "@/shared/components/shadcn/scroll-area";
 import { useInfiniteBookSearch } from "../../../queries";
 
 interface BookSearchModalProps {
-  onSelect: (book: Book) => void;
+  onSelect: (book: BookInfo) => void;
   trigger?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -50,7 +50,7 @@ export const BookSearchModal = ({
       debounce((value: string) => {
         setDebouncedQuery(value);
       }, 300),
-    []
+    [],
   );
 
   useEffect(() => {
@@ -78,7 +78,7 @@ export const BookSearchModal = ({
     }
   }, [inView, hasNextPage, isFetching, fetchNextPage]);
 
-  const handleSelect = (book: Book) => {
+  const handleSelect = (book: BookInfo) => {
     onSelect(book);
     setOpen(false);
   };

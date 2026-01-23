@@ -17,13 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/shared/components/shadcn/alert-dialog";
 
-interface BookItem {
-  title: string;
-  author: string;
-  publisher: string;
-  description: string;
-  // Reduced set of fields for Pure LLM
-}
+import { RecommendedBook } from "../../types";
 
 interface ResultViewProps {
   setInput: (value: string) => void;
@@ -69,7 +63,7 @@ export const TasteFinderResultView = ({ setInput }: ResultViewProps) => {
 
       <div className="grid gap-6 pb-4 relative">
         <div className="space-y-6">
-          {recommendedBooks?.map((book: BookItem, idx: number) => (
+          {recommendedBooks?.map((book: RecommendedBook, idx: number) => (
             <div
               key={idx}
               onClick={() =>

@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import { RecommendedBook } from "@/features/recommend/types";
+
 import { NEOGULIP_THEME } from "../constants/neogulip-theme";
 
 interface Message {
@@ -14,8 +16,8 @@ interface RecommendStore {
   addMessage: (message: Message) => void;
   setMessages: (messages: Message[]) => void;
   clearMessages: () => void;
-  recommendedBooks: any[]; // Using any for simplicity here to match frontend BookItem, but ideally shared type
-  setRecommendedBooks: (books: any[]) => void;
+  recommendedBooks: RecommendedBook[];
+  setRecommendedBooks: (books: RecommendedBook[]) => void;
   isFinal: boolean;
   setIsFinal: (isFinal: boolean) => void;
 }

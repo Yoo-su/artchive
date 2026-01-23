@@ -178,7 +178,7 @@ Next.js의 **ISR(Incremental Static Regeneration)**과 TanStack Query의 **Serve
 2.  **의존성 설치:**
 
     ```bash
-    npm install
+    pnpm install
     ```
 
 3.  **.env 파일 생성:**
@@ -202,7 +202,7 @@ Next.js의 **ISR(Incremental Static Regeneration)**과 TanStack Query의 **Serve
 4.  **개발 서버 실행:**
 
     ```bash
-    npm run dev
+    pnpm dev
     ```
 
 5.  브라우저에서 `http://localhost:3000`으로 접속하여 확인합니다.
