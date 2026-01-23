@@ -19,11 +19,8 @@ export class LlmTalkLog {
   @Column({ type: 'text' })
   aiMessage: string;
 
-  @Column({ type: 'text', nullable: true })
-  analysis?: string; // The "CoT" analysis from the LLM
-
   @Column({ type: 'jsonb', nullable: true })
-  recommendedTitles?: string[];
+  recommendedBooks?: Record<string, any>[];
 
   @Column({ type: 'text', nullable: true })
   model: string;

@@ -1,1 +1,1 @@
-export const MODEL_NAME = 'gemma-3-27b-it';
+export const MODEL_NAME = 'gemini-3-flash-preview';
