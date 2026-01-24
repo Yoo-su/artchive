@@ -1,6 +1,6 @@
 "use client";
 
-import { UserProfile } from "@/features/user/components/user-profile";
+import { UserProfile } from "@/features/user/components/profile/user-profile";
 
 interface UserProfileViewProps {
   handle: string;

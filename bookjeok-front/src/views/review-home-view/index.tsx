@@ -3,11 +3,11 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 
-import { PopularReviewList } from "@/features/review/components/popular-review-list";
-import { ReviewFeedList } from "@/features/review/components/review-feed-list";
-import { ReviewGridList } from "@/features/review/components/review-grid-list";
-import { ReviewHomeFilters } from "@/features/review/components/review-home-filters";
 import { ReviewHomeHero } from "@/features/review/components/review-home-hero";
+import { PopularReviewList } from "@/features/review/components/review-list/popular-review-list";
+import { ReviewFeedList } from "@/features/review/components/review-list/review-feed-list";
+import { ReviewGridList } from "@/features/review/components/review-list/review-grid-list";
+import { ReviewHomeFilters } from "@/features/review/components/review-list/review-home-filters";
 import { AdBanner } from "@/shared/components/ads/ad-banner";
 import { PATHS } from "@/shared/constants/paths";
 

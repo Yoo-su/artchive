@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
-import { ChatToggleButton } from "@/features/chat/components/chat-toggle-button";
-import { ChatWidget } from "@/features/chat/components/chat-widget";
+import { ChatToggleButton } from "@/features/chat/components/widgets/chat-toggle-button";
+import { ChatWidget } from "@/features/chat/components/widgets/chat-widget";
 import { useChatEvents } from "@/features/chat/hooks/use-chat-events";
 import { useMyChatRoomsQuery } from "@/features/chat/queries";
 import { useChatStore } from "@/features/chat/stores/use-chat-store";
@@ -49,13 +49,13 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             if (response.status === "ok") {
               console.log(
                 "Successfully joined rooms from provider:",
-                response.joinedRooms
+                response.joinedRooms,
               );
               setHasJoinedRooms(true);
             } else {
               console.error("Failed to join rooms from provider");
             }
-          }
+          },
         );
       } else {
         // 입장할 채팅방이 없어도 hasJoinedRooms를 true로 설정하여 재시도 방지

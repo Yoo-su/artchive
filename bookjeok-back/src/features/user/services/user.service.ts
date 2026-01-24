@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, OnModuleInit } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThanOrEqual, DataSource } from 'typeorm';
 import { User } from '../entities/user.entity';
@@ -37,6 +37,8 @@ export class UserService implements OnModuleInit {
     private readonly dataSource: DataSource,
   ) {}
 
+  private readonly logger = new Logger(UserService.name);
+
   async onModuleInit() {
     // 개발 환경 편의성을 위해 서버 시작 시 유저 ID 시퀀스를 동기화합니다.
     if (process.env.NODE_ENV !== 'production') {
@@ -44,9 +46,9 @@ export class UserService implements OnModuleInit {
         await this.dataSource.query(
           `SELECT setval(pg_get_serial_sequence('users', 'id'), COALESCE((SELECT MAX(id) + 1 FROM users), 1), false)`,
         );
-        console.log('User ID sequence synchronized.');
+        this.logger.log('User ID sequence synchronized.');
       } catch (e) {
-        console.warn('Failed to sync user sequence:', e);
+        this.logger.warn('Failed to sync user sequence:', e);
       }
     }
   }

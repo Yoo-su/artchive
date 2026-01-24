@@ -87,7 +87,7 @@ export const useToggleReviewReactionMutation = (reviewId: number) => {
 
       return { previousReview, previousMyReaction };
     },
-    onError: (err, newTodo, context) => {
+    onError: (err, _newReaction, context) => {
       // 에러 발생 시 이전 값으로 롤백
       if (context?.previousReview) {
         queryClient.setQueryData(

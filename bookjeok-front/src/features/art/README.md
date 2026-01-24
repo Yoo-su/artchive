@@ -13,9 +13,9 @@
 - **`features/art/constants.ts`**: API 요청에 사용되는 장르 코드, 도시 코드, 기본 요청 개수 등 관련 상수들을 정의합니다.
 - **`features/art/types.ts`**: KOPIS API 응답 데이터 구조에 기반한 TypeScript 타입(e.g., `ArtItem`, `ArtDetailItem`)을 정의합니다.
 - **`views/art-detail-view/index.tsx`**: 공연 상세 정보를 표시하는 페이지 UI 컴포넌트입니다. `useArtDetailQuery`를 사용해 데이터를 가져와 렌더링합니다.
-- **`features/art/components/art-slider/main-art-slider/index.tsx`**: 메인 페이지에 사용되는 공연 정보 슬라이더 컴포넌트입니다.
-  - 장르별 칩(Chip) UI를 제공하며, 사용자가 칩을 선택하면 해당 장르의 데이터를 `useArtListQuery`로 다시 조회하여 동적으로 슬라이더 내용을 업데이트합니다.
-  - `Swiper.js` 라이브러리를 사용하여 인터랙티브한 슬라이더 UI를 구현합니다.
+- **`features/art/components/`**: **Context-Based Grouping**
+  - **`widgets/`**: 메인 페이지 및 위젯용 컴포넌트 (`art-slider`)
+  - **`detail/`**: 공연 상세 페이지용 컴포넌트 (`art-detail`)
 
 ## 2. 데이터 흐름: 외부 API 연동
 

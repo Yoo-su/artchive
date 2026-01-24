@@ -1,8 +1,8 @@
 import { BookDetail } from "@/features/book/components/book-detail";
-import { RelatedSales } from "@/features/book-sale/components/related-sales";
-import { CommentSection } from "@/features/comment/components/comment-section";
+import { RelatedSales } from "@/features/book-sale/components/sale-detail/related-sales";
+import { CommentSection } from "@/features/comment/components/common/comment-section";
 import { CommentTargetType } from "@/features/comment/types";
-import { RelatedReviews } from "@/features/review/components/related-reviews";
+import { RelatedReviews } from "@/features/review/components/review-detail/related-reviews";
 
 export const BookDetailView = ({ isbn }: { isbn: string }) => {
   return (

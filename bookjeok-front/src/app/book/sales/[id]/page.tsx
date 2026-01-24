@@ -4,7 +4,7 @@ import { cache } from "react";
 
 import { bookKeys } from "@/features/book";
 import { getBookSaleDetail } from "@/features/book-sale/apis";
-import { BookSaleJsonLd } from "@/features/book-sale/components/book-sale-json-ld";
+import { BookSaleJsonLd } from "@/features/book-sale/components/common/book-sale-json-ld";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { BookSaleDetailView } from "@/views/book-sale-detail-view";
 

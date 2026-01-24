@@ -1,6 +1,6 @@
 "use client";
 
-import { BookSaleEdit } from "@/features/book-sale/components/book-sale-edit";
+import { BookSaleEdit } from "@/features/book-sale/components/sale-form/book-sale-edit";
 
 interface BookSaleEditViewProps {
   saleId: string;

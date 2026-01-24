@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthGuard } from "@/features/auth/components/auth-guard";
+import { AuthGuard } from "@/features/auth/components/guards/auth-guard";
 
 /**
  * 마이페이지 레이아웃

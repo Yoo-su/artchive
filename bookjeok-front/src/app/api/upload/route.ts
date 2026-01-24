@@ -50,8 +50,8 @@ export async function POST(request: Request): Promise<NextResponse> {
         };
       },
       // 업로드 완료 후 실행: 서버 로그를 남기거나 DB를 업데이트할 수 있습니다.
-      onUploadCompleted: async ({ blob, tokenPayload }) => {
-        console.log("blob upload completed", blob, tokenPayload);
+      onUploadCompleted: async () => {
+        // console.log("blob upload completed", blob, tokenPayload);
       },
     });
 

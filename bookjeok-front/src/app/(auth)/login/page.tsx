@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-import { GuestGuard } from "@/features/auth/components/guest-guard";
+import { GuestGuard } from "@/features/auth/components/guards/guest-guard";
 import { DefaultLayout } from "@/layouts/default-layout";
 import { LoginView } from "@/views/login-view";
 

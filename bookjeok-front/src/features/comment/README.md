@@ -22,11 +22,9 @@
   - `useDeleteCommentMutation`: 댓글 삭제
   - `useToggleCommentLikeMutation`: 댓글 좋아요 토글 (낙관적 업데이트 적용)
 
-- **`components/`**: 댓글 관련 UI 컴포넌트들
-  - `comment-section.tsx`: 댓글 섹션 컨테이너
-  - `comment-list.tsx`: 댓글 목록
-  - `comment-item.tsx`: 개별 댓글 아이템
-  - `comment-form.tsx`: 댓글 작성/수정 폼
+- **`components/`**: **Context-Based Grouping**
+  - **`common/`**: 공통 댓글 컴포넌트 (`comment-section`, `comment-list`, `comment-item`)
+  - **`my-page/`**: 마이페이지용 댓글 목록 (`my-comment-list`)
 
 - **`types.ts`**: 댓글 관련 TypeScript 타입 정의
 - **`constants.ts`**: 댓글 관련 상수 (타겟 타입 등)

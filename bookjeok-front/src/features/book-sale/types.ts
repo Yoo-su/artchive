@@ -1,4 +1,4 @@
-import { BaseBookInfo, BookInfo } from "@/features/book/types";
+import { BookInfo } from "@/features/book/types";
 import { ApiResponse } from "@/shared/types/api";
 
 /**

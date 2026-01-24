@@ -20,51 +20,51 @@ type AnimationVariant =
 
 interface TextAnimateProps extends MotionProps {
   /**
-   * The text content to animate
+   * 애니메이션할 텍스트 콘텐츠
    */
   children: string;
   /**
-   * The class name to be applied to the component
+   * 컴포넌트에 적용할 클래스 이름
    */
   className?: string;
   /**
-   * The class name to be applied to each segment
+   * 각 세그먼트(단어, 글자 등)에 적용할 클래스 이름
    */
   segmentClassName?: string;
   /**
-   * The delay before the animation starts
+   * 애니메이션 시작 전 지연 시간 (초)
    */
   delay?: number;
   /**
-   * The duration of the animation
+   * 애니메이션 지속 시간 (초)
    */
   duration?: number;
   /**
-   * Custom motion variants for the animation
+   * 커스텀 모션 variants
    */
   variants?: Variants;
   /**
-   * The element type to render
+   * 렌더링할 HTML 태그 또는 컴포넌트
    */
   as?: ElementType;
   /**
-   * How to split the text ("text", "word", "character")
+   * 텍스트 분할 기준 ("text", "word", "character", "line")
    */
   by?: AnimationType;
   /**
-   * Whether to start animation when component enters viewport
+   * 뷰포트에 진입할 때 애니메이션 시작 여부
    */
   startOnView?: boolean;
   /**
-   * Whether to animate only once
+   * 애니메이션을 한 번만 실행할지 여부
    */
   once?: boolean;
   /**
-   * The animation preset to use
+   * 사용할 애니메이션 프리셋
    */
   animation?: AnimationVariant;
   /**
-   * Whether to enable accessibility features (default: true)
+   * 웹 접근성 기능 활성화 여부 (기본값: true)
    */
   accessible?: boolean;
 }

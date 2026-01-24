@@ -4,14 +4,14 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { BookInfo } from "@/features/book/types";
-import { validateImageForUpload } from "@/shared/utils/compress-image";
 
 import {
   sellFormSchema,
   SellFormValues,
-} from "../components/book-sale-form/schema";
+} from "../components/sale-form/book-sale-form/schema";
 import { useCreateBookSaleMutation } from "../mutations";
 import { CreateBookSaleParams } from "../types";
+import { validateAndGetNewImages } from "../utils/image-utils";
 
 export const useBookSaleForm = () => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -42,22 +42,15 @@ export const useBookSaleForm = () => {
 
   const handleImagesAdd = (newFiles: FileList) => {
     const currentFiles = Array.from(form.getValues("images") || []);
-    const newFilesArray = Array.from(newFiles);
 
-    for (const file of newFilesArray) {
-      const validationError = validateImageForUpload(file);
-      if (validationError) {
-        toast.error(validationError);
-        return;
-      }
-    }
+    // 유틸 함수를 사용해 검증 및 변환
+    const validNewFiles = validateAndGetNewImages(
+      newFiles,
+      currentFiles.length,
+    );
+    if (!validNewFiles) return;
 
-    const combinedFiles = [...currentFiles, ...newFilesArray];
-
-    if (combinedFiles.length > 5) {
-      toast.error("이미지는 최대 5개까지 첨부할 수 있습니다.");
-      return;
-    }
+    const combinedFiles = [...currentFiles, ...validNewFiles];
 
     const dataTransfer = new DataTransfer();
     combinedFiles.forEach((file) => dataTransfer.items.add(file));
@@ -118,8 +111,7 @@ export const useBookSaleForm = () => {
     setSelectedBook: handleBookSelect,
     handleImagesAdd,
     handleImageRemove,
-    onSubmit: form.handleSubmit(onSubmit, (errors) => {
-      console.log("Validation errors:", errors);
+    onSubmit: form.handleSubmit(onSubmit, () => {
       toast.error("입력 정보를 다시 확인해주세요. (필수 항목 누락 등)");
     }),
   };

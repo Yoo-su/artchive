@@ -95,7 +95,8 @@ src/
     - `stores/use-xxx-store.ts`: 전역 상태 관리 (Zustand)
     - `queries.tsx`: React Query 훅
     - `types.ts`: 타입 정의
-    - `components/`: 도메인 전용 컴포넌트
+    - **`components/`**: **Context-Based Grouping** 전략에 따라 하위 디렉토리로 구조화되어 있습니다.
+      - 더 자세한 아키텍처 가이드는 [**docs/ARCHITECTURE.md**](docs/ARCHITECTURE.md)를 참고하세요.
 - **`views`**: 특정 페이지 또는 페이지의 큰 섹션을 구성하는 컴포넌트들의 조합을 담당합니다. `features`와 `shared`의 컴포넌트와 훅을 사용하여 UI를 완성합니다.
 - **`shared`**: 여러 도메인에서 공통적으로 사용되는 UI 컴포넌트(e.g., Button, Input), 유틸리티 함수, 타입, 상수 등을 포함하여 코드 재사용성을 극대화합니다.
   - **Config (`shared/config/env.ts`)**: 환경변수는 `process.env`를 직접 사용하지 않고, Zod 검증이 적용된 `config` 객체를 통해 안전하게 접근합니다.

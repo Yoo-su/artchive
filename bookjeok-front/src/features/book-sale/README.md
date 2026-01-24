@@ -19,15 +19,11 @@ book-sale/
 ├── actions/          # Server Actions
 │   ├── upload-action.ts    # 이미지 업로드
 │   └── delete-action.ts    # 이미지 삭제
-└── components/       # UI 컴포넌트
-    ├── book-market/           # 마켓 메인 (필터 + 그리드)
-    ├── book-sale-filter/      # 검색 필터
-    ├── book-sale-grid/        # 판매글 그리드
-    ├── book-sale-detail/      # 상세 페이지
-    ├── book-sale-form/        # 등록 폼
-    ├── book-sale-edit-form/   # 수정 폼
-    ├── book-sale-history-list/# 내 판매 내역
-    ├── related-sales/         # 관련 판매글
+└── components/       # Context-Based Grouping
+    ├── sale-market/           # 마켓 메인 (필터 + 그리드)
+    ├── sale-detail/           # 판매글 상세 페이지
+    ├── sale-form/             # 등록/수정 폼
+    ├── my-sales/              # 내 판매 내역
     └── common/                # 공통 컴포넌트
 ```
 

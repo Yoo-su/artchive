@@ -1,6 +1,6 @@
 "use client";
 
-import { WishlistList } from "@/features/user/components/wishlist-list";
+import { WishlistList } from "@/features/user/components/wishlist/wishlist-list";
 
 export const WishlistView = () => {
   return (

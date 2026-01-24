@@ -17,9 +17,9 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
-import { ProfileEditModal } from "@/features/user/components/profile-edit-modal";
-import { UserStatsDashboard } from "@/features/user/components/user-stats-dashboard";
-import { WithdrawalModal } from "@/features/user/components/withdrawal-modal";
+import { UserStatsDashboard } from "@/features/user/components/dashboard/user-stats-dashboard";
+import { ProfileEditModal } from "@/features/user/components/profile/profile-edit-modal";
+import { WithdrawalModal } from "@/features/user/components/profile/withdrawal-modal";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
 import { PATHS } from "@/shared/constants/paths";

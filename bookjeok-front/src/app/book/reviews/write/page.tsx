@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-import { AuthGuard } from "@/features/auth/components/auth-guard";
+import { AuthGuard } from "@/features/auth/components/guards/auth-guard";
 import { ReviewWriteView } from "@/views/review-write-view";
 
 export const metadata: Metadata = {

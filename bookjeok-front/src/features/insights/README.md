@@ -11,16 +11,10 @@
 - **`queries.tsx`**: TanStack Query 쿼리 훅을 정의합니다.
   - `useInsightsQuery`: 인사이트 데이터 조회 훅
 
-- **`components/`**: 인사이트 관련 UI 컴포넌트들
-  - `insight-card/index.tsx`: 각 차트 및 통계를 감싸는 카드 UI 컴포넌트
-  - `insights-header/index.tsx`: 대시보드 헤더 (요약 통계)
-  - `insights-map/index.tsx`: 지역별 거래 현황 지도
-  - `insights-category-chart.tsx`: 카테고리별 리뷰 분포 차트
-  - `insights-price-chart.tsx`: 가격대별 판매글 분포 차트
-  - `insights-activity-chart.tsx`: 최근 30일 활동 추이 차트
-  - `insights-reaction-chart.tsx`: 리액션 타입별 분포 차트
-  - `insights-popular-tags.tsx`: 인기 태그 클라우드
-  - `insights-location-detail.tsx`: 지역별 상세 판매글 목록
+- **`components/`**: **Context-Based Grouping**
+  - **`charts/`**: 다양한 시각화 차트 (`activity-trend-chart`, `category-chart`, `location-heatmap`, `price-histogram`, `reaction-donut-chart`)
+  - **`common/`**: 공통 UI 요소 (`insight-card`, `insights-header`)
+  - **`lists/`**: 데이터 리스트 (`popular-tags-list`, `insights-location-detail`)
 
 - **`types.ts`**: 인사이트 관련 TypeScript 타입 정의
 - **`constants.ts`**: 차트 색상, 레이블 등 상수 정의
