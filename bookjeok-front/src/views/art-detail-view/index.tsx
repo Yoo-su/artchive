@@ -1,4 +1,4 @@
-import { ArtDetail } from "@/features/art/components/art-detail";
+import { ArtDetail } from "@/features/art/components/detail/art-detail";
 
 interface ArtDetailViewProps {
   artId: string;

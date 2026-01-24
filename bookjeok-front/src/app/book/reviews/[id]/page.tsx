@@ -4,7 +4,7 @@ import { cache } from "react";
 
 import { reviewKeys } from "@/features/review";
 import { getReview } from "@/features/review/apis";
-import { ReviewJsonLd } from "@/features/review/components/review-json-ld";
+import { ReviewJsonLd } from "@/features/review/components/common/review-json-ld";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { ReviewDetailView } from "@/views/review-detail-view";
 

@@ -19,11 +19,12 @@
   - `useUserLocation`: 사용자 위치(geolocation) 관리 훅. 거리순 정렬 시 위치 권한 요청 및 상태 관리를 담당합니다.
 - **`features/book/stores/`**: 도서 관련 클라이언트 상태를 관리하는 Zustand 스토어입니다.
   - `useRecentBookStore`: 최근 본 책 목록을 `sessionStorage`에 저장하고 관리합니다.
-- **`views/`**: `book` 기능과 관련된 주요 페이지 UI 컴포넌트입니다.
-  - `book-search-view`: 도서 검색 페이지 UI.
-  - `book-detail-view`: 도서 상세 정보 및 관련 판매글 목록 UI.
-  - `book-sale-form-view`: 중고 서적 판매글 작성 폼 UI.
-  - `book-market-view`: 중고 서적 마켓 목록 및 필터링 UI.
+- **`features/book/components/`**: **Context-Based Grouping**
+  - **`book-search/`**: 도서 검색 페이지 UI (`book-search-view` 등)
+  - **`book-detail/`**: 도서 상세 정보 (`book-detail-view` 등)
+  - **`book-slider/`**: 도서 슬라이더
+  - **`recent-books/`**: 최근 본 책
+  - **`common/`**: 공통 컴포넌트 (`book-cover`, `book-item` 등)
 - **`features/book/actions/`**: Next.js 서버 액션(Server Actions)을 정의합니다.
   - `upload-action.ts`: Vercel Blob 스토리지에 이미지를 업로드합니다.
   - `delete-action.ts`: Vercel Blob 스토리지에서 이미지를 삭제합니다.

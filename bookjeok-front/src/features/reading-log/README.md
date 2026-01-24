@@ -16,13 +16,11 @@
   - `useDeleteReadingLogMutation`: 독서 기록 삭제
   - `useUpdateReadingLogSettingsMutation`: 공개 설정 수정
 
-- **`components/`**: 독서 기록 관련 UI 컴포넌트들
-  - `reading-log-calendar.tsx`: 캘린더 형태로 독서 기록 표시
-  - `reading-log-timeline.tsx`: 타임라인 형태로 독서 기록 표시
-  - `reading-log-stats.tsx`: 월별/연간 독서 통계 표시
-  - `reading-log-form.tsx`: 독서 기록 추가/수정 폼
-  - `reading-log-item.tsx`: 개별 독서 기록 아이템
-  - `reading-log-settings.tsx`: 공개 설정 UI
+- **`components/`**: **Context-Based Grouping**
+  - **`calendar-view/`**: 캘린더 뷰 관련 컴포넌트 (`reading-log-calendar`)
+  - **`list-view/`**: 리스트 뷰 관련 컴포넌트 (`reading-log-list-view`)
+  - **`stats-view/`**: 통계 및 타임라인 (`reading-log-stats`, `reading-timeline`)
+  - **`common/`**: 공통 다이얼로그 및 히어로 섹션 (`reading-log-form-dialog`, `reading-log-hero`)
 
 - **`hooks/`**: 커스텀 훅
   - `use-reading-log-calendar.ts`: 캘린더 날짜 네비게이션 로직

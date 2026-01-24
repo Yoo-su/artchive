@@ -1,6 +1,6 @@
 "use client";
 
-import { SignupForm } from "@/features/auth/components/signup-form";
+import { SignupForm } from "@/features/auth/components/forms/signup-form";
 
 export const SignupView = () => {
   return (

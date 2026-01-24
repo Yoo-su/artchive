@@ -3,14 +3,13 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { validateImageForUpload } from "@/shared/utils/compress-image";
-
 import {
   editFormSchema,
   EditFormValues,
-} from "../components/book-sale-edit-form/schema";
+} from "../components/sale-form/book-sale-edit-form/schema";
 import { useUpdateBookSaleMutation } from "../mutations";
 import { UpdateBookSaleParams, UsedBookSale } from "../types";
+import { validateAndGetNewImages } from "../utils/image-utils";
 
 interface UseBookSaleEditFormProps {
   sale: UsedBookSale;
@@ -50,26 +49,13 @@ export const useBookSaleEditForm = ({ sale }: UseBookSaleEditFormProps) => {
   }, [newImageFiles, form]);
 
   const handleImagesAdd = (newFiles: FileList) => {
-    const files = Array.from(newFiles);
+    const currentTotal = existingImages.length + newImageFiles.length;
+    const validFiles = validateAndGetNewImages(newFiles, currentTotal);
 
-    for (const file of files) {
-      const validationError = validateImageForUpload(file);
-      if (validationError) {
-        toast.error(validationError);
-        return;
-      }
-    }
+    if (!validFiles) return;
 
-    const totalImages =
-      existingImages.length + newImageFiles.length + files.length;
-
-    if (totalImages > 5) {
-      toast.error("이미지는 최대 5개까지 첨부할 수 있습니다.");
-      return;
-    }
-
-    setNewImageFiles((prev) => [...prev, ...files]);
-    const previews = files.map((file) => URL.createObjectURL(file));
+    setNewImageFiles((prev) => [...prev, ...validFiles]);
+    const previews = validFiles.map((file) => URL.createObjectURL(file));
     setNewImagePreviews((prev) => [...prev, ...previews]);
   };
 
@@ -117,8 +103,7 @@ export const useBookSaleEditForm = ({ sale }: UseBookSaleEditFormProps) => {
     handleImagesAdd,
     handleExistingImageRemove,
     handleNewImageRemove,
-    onSubmit: form.handleSubmit(onSubmit, (errors) => {
-      console.log("Validation errors:", errors);
+    onSubmit: form.handleSubmit(onSubmit, () => {
       toast.error("입력 정보를 다시 확인해주세요. (필수 항목 누락 등)");
     }),
   };

@@ -29,13 +29,15 @@
   - `useDeleteReviewMutation`: 리뷰 삭제
   - `useToggleReactionMutation`: 리액션 토글 (낙관적 업데이트)
 
-- **`components/`**: 리뷰 관련 UI 컴포넌트들
-  - `review-card.tsx`: 리뷰 카드 (목록용)
-  - `review-detail.tsx`: 리뷰 상세 화면
-  - `review-form.tsx`: 리뷰 작성/수정 폼
-  - `review-reaction-section.tsx`: 리액션 버튼 섹션
-  - `review-slider.tsx`: 홈페이지 리뷰 슬라이더
-  - `popular-review-list.tsx`: 인기 리뷰 랭킹 목록
+- **`components/`**: **Context-Based Grouping**
+  - **`review-list/`**: 리뷰 목록 (`review-list`, `review-card`)
+  - **`review-detail/`**: 리뷰 상세 (`review-detail`, `review-reaction-section`)
+  - **`review-form/`**: 리뷰 작성/수정 폼 공통 (`review-form`)
+  - **`review-write/`**: 리뷰 작성 페이지 (`review-write`)
+  - **`review-edit/`**: 리뷰 수정 페이지 (`review-edit`)
+  - **`recent-review-slider/`**: 최근 리뷰 슬라이더
+  - **`widgets/`**: 위젯 (`popular-review-list`)
+  - **`common/`**: 공통 컴포넌트
 
 - **`actions/`**: 서버 액션
   - `revalidate-action.ts`: 리뷰 관련 캐시 무효화

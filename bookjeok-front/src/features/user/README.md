@@ -27,14 +27,9 @@
   - `useRemoveFromWishlistMutation`: 위시리스트 제거
   - `useWithdrawMutation`: 회원 탈퇴
 
-- **`components/`**: 사용자 관련 UI 컴포넌트들
-  - `profile-edit-modal/`: 프로필 수정 모달 (닉네임 변경, 이미지 선택/업로드)
-  - `user-profile/`: 사용자 프로필 표시
-  - `user-stats-dashboard/`: 사용자 통계 대시보드
-  - `wishlist-button/`: 위시리스트(찜) 버튼
-  - `wishlist-item/`: 위시리스트 아이템
-  - `wishlist-list/`: 위시리스트 목록
-  - `withdrawal-modal/`: 회원탈퇴 확인 모달
+- **`components/`**: **Context-Based Grouping**
+  - **`profile/`**: 프로필 관련 컴포넌트 (`user-profile`, `profile-edit-modal`, `user-stats-dashboard` `withdrawal-modal`)
+  - **`wishlist/`**: 위시리스트 관련 컴포넌트 (`wishlist-list`, `wishlist-item`, `wishlist-button`)
 
 - **`types.ts`**: 사용자 관련 TypeScript 타입 정의
 

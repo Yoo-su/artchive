@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-import { ReadingLogCalendar } from "@/features/reading-log/components/reading-log-calendar";
-import { ReadingLogHero } from "@/features/reading-log/components/reading-log-hero";
+import { ReadingLogCalendar } from "@/features/reading-log/components/calendar-view/reading-log-calendar";
+import { ReadingLogHero } from "@/features/reading-log/components/common/reading-log-hero";
 
 export function ReadingLogView() {
   const [currentDate, setCurrentDate] = useState(new Date());

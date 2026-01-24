@@ -1,6 +1,6 @@
 "use client";
 
-import { MyReviewList } from "@/features/review/components/my-review-list";
+import { MyReviewList } from "@/features/review/components/review-list/my-review-list";
 
 export default function MyReviewsPage() {
   return (

@@ -1,11 +1,11 @@
 "use client";
 
-import { MainArtSlider } from "@/features/art/components/art-slider/main-art-slider";
+import { MainArtSlider } from "@/features/art/components/widgets/art-slider/main-art-slider";
 import { MAIN_ARTS } from "@/features/art/constants";
 import { MainBookSlider } from "@/features/book/components/book-slider/main-book-slider";
 import { PopularBookSlider } from "@/features/book/components/book-slider/popular-book-slider";
-import { RecentSalesSlider } from "@/features/book-sale/components/recent-sale-slider";
-import { TasteFinderWidget } from "@/features/recommend/components/taste-finder-widget";
+import { RecentSalesSlider } from "@/features/book-sale/components/sale-market/recent-sale-slider";
+import { TasteFinderWidget } from "@/features/recommend/components/widgets/taste-finder-widget";
 import { RecentReviewSlider } from "@/features/review/components/recent-review-slider";
 import { AdBanner } from "@/shared/components/ads/ad-banner";
 

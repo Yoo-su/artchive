@@ -1,6 +1,6 @@
 "use client";
 
-import { BookSaleForm } from "@/features/book-sale/components/book-sale-form";
+import { BookSaleForm } from "@/features/book-sale/components/sale-form/book-sale-form";
 
 export const BookSellView = () => {
   return (

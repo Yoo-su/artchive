@@ -1,6 +1,6 @@
 "use client";
 
-import { WishlistButton } from "@/features/user/components/wishlist-button";
+import { WishlistButton } from "@/features/user/components/wishlist/wishlist-button";
 
 import { BookInfo as BookType } from "../../types";
 

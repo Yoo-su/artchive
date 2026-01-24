@@ -1,6 +1,6 @@
 "use client";
 
-import { MyCommentList } from "@/features/comment/components/my-comment-list";
+import { MyCommentList } from "@/features/comment/components/my-page/my-comment-list";
 
 /**
  * 내가 쓴 댓글 페이지 View

@@ -1,12 +1,12 @@
 "use client";
 
-import { ActivityTrendChart } from "@/features/insights/components/activity-trend-chart";
-import { CategoryChart } from "@/features/insights/components/category-chart";
-import { InsightsHeader } from "@/features/insights/components/insights-header";
-import { LocationHeatmap } from "@/features/insights/components/location-heatmap";
-import { PopularTagsList } from "@/features/insights/components/popular-tags-list";
-import { PriceHistogram } from "@/features/insights/components/price-histogram";
-import { ReactionDonutChart } from "@/features/insights/components/reaction-donut-chart";
+import { ActivityTrendChart } from "@/features/insights/components/charts/activity-trend-chart";
+import { CategoryChart } from "@/features/insights/components/charts/category-chart";
+import { LocationHeatmap } from "@/features/insights/components/charts/location-heatmap";
+import { PriceHistogram } from "@/features/insights/components/charts/price-histogram";
+import { ReactionDonutChart } from "@/features/insights/components/charts/reaction-donut-chart";
+import { InsightsHeader } from "@/features/insights/components/common/insights-header";
+import { PopularTagsList } from "@/features/insights/components/lists/popular-tags-list";
 import { useInsightsQuery } from "@/features/insights/queries";
 import { FullScreenLoader } from "@/shared/components/ui/full-screen-loader";
 
