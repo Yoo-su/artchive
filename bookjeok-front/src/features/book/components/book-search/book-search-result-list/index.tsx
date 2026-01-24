@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
@@ -88,16 +89,38 @@ export const BookSearchResultList = ({
 
   return (
     <div>
-      <div className="grid gap-x-4 gap-y-8 grid-cols-2 sm:grid-cols-4">
-        {data?.pages.flatMap((page, pageIndex) =>
-          page.items.map((book, bookIndex) => (
-            <BookCard
-              key={book.isbn || `book-${pageIndex}-${bookIndex}`}
-              book={book}
-            />
-          )),
-        )}
-      </div>
+      <motion.div
+        className="grid gap-x-4 gap-y-8 grid-cols-2 sm:grid-cols-4"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: {
+              staggerChildren: 0.1,
+            },
+          },
+        }}
+      >
+        <AnimatePresence mode="popLayout">
+          {data?.pages.flatMap((page, pageIndex) =>
+            page.items.map((book, bookIndex) => (
+              <motion.div
+                key={book.isbn || `book-${pageIndex}-${bookIndex}`}
+                layout
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.4 }}
+              >
+                <BookCard book={book} />
+              </motion.div>
+            )),
+          )}
+        </AnimatePresence>
+      </motion.div>
 
       {/* 다음 페이지를 불러오기 위한 트리거 요소 */}
       <div ref={ref} className="h-10" />
