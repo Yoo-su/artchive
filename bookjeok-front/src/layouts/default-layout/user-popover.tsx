@@ -3,7 +3,6 @@
 import { User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -29,15 +28,13 @@ export default function UserPopover() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
-  const router = useRouter();
-
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
 
   const handleLogout = () => {
     clearAuth();
-    router.replace(PATHS.HOME);
+    window.location.href = PATHS.HOME;
     toast.success("로그아웃되었습니다.");
   };
 
