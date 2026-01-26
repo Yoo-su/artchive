@@ -65,6 +65,12 @@ bookjeok의 백엔드 서버는 **NestJS**를 기반으로 구축되었으며, �
 - **카테고리별 리뷰 현황:** 카테고리별 리뷰 수를 집계합니다.
 - **가격 분포 및 활동 추이:** 가격대별 판매글 분포와 최근 30일간 활동 추이를 제공합니다.
 
+### 10. 알림 (Notification)
+
+- **실시간 알림:** Socket.IO를 이용해 리뷰 반응, 댓글 등 주요 이벤트 발생 시 실시간으로 알림을 전송합니다.
+- **알림 관리:** 읽지 않은 알림을 관리하고, 지난 알림 내역을 조회할 수 있습니다.
+- **확장성:** 다양한 알림 유형에 대응할 수 있도록 메타데이터 기반으로 설계되었습니다.
+
 ## 프로젝트 구조
 
 ```
@@ -88,58 +94,62 @@ src
 
 ## API 엔드포인트
 
-| 기능 (Feature)  | 엔드포인트 (Endpoint)          | HTTP 메소드 | 설명 (Description)                  | 인증 (Authentication) |
-| --------------- | ------------------------------ | ----------- | ----------------------------------- | --------------------- |
-| **App**         | `/`                            | `GET`       | 서버 상태 확인                      | 없음                  |
-| **Auth**        | `/auth/naver`                  | `GET`       | 네이버 OAuth2 로그인 시작           | 없음                  |
-|                 | `/auth/naver/callback`         | `GET`       | 네이버 OAuth2 콜백 처리             | 없음                  |
-|                 | `/auth/kakao`                  | `GET`       | 카카오 OAuth2 로그인 시작           | 없음                  |
-|                 | `/auth/kakao/callback`         | `GET`       | 카카오 OAuth2 콜백 처리             | 없음                  |
-|                 | `/auth/logout`                 | `POST`      | 로그아웃 (토큰 제거)                | 없음                  |
-|                 | `/auth/refresh`                | `POST`      | Access Token 갱신                   | JWT (Refresh Token)   |
-|                 | `/auth/user`                   | `GET`       | 현재 로그인된 사용자 정보 조회      | JWT                   |
-| **Book**        | `/book/sale`                   | `POST`      | 중고 도서 판매글 생성               | JWT                   |
-|                 | `/book/sales/:id/status`       | `PATCH`     | 판매글 상태 업데이트                | JWT                   |
-|                 | `/book/sales/recent`           | `GET`       | 최근 판매글 목록 조회               | 없음                  |
-|                 | `/book/sales/:id`              | `GET`       | 판매글 상세 조회                    | 없음                  |
-|                 | `/book/:isbn/sales`            | `GET`       | 특정 ISBN의 판매글 목록 조회        | 없음                  |
-|                 | `/book/sales/:id`              | `PATCH`     | 판매글 정보 수정                    | JWT                   |
-|                 | `/book/sales/:id`              | `DELETE`    | 판매글 삭제                         | JWT                   |
-| **Chat**        | `/chat/rooms`                  | `GET`       | 내 채팅방 목록 조회                 | JWT                   |
-|                 | `/chat/rooms/:roomId/messages` | `GET`       | 특정 채팅방 메시지 조회             | JWT                   |
-|                 | `/chat/rooms`                  | `POST`      | 판매글에 대한 채팅방 생성 또는 조회 | JWT                   |
-|                 | `/chat/rooms/:roomId/read`     | `PATCH`     | 채팅방 메시지 읽음 처리             | JWT                   |
-|                 | `/chat/rooms/:roomId`          | `DELETE`    | 채팅방 나가기                       | JWT                   |
-| **LLM**         | `/llm/book-summary`            | `POST`      | AI를 이용한 도서 요약 생성          | 없음                  |
-| **Review**      | `/reviews`                     | `POST`      | 리뷰 작성                           | JWT                   |
-|                 | `/reviews`                     | `GET`       | 리뷰 목록 조회 (필터링 지원)        | 없음                  |
-|                 | `/reviews/feeds`               | `GET`       | 카테고리별 리뷰 피드 조회           | 없음                  |
-|                 | `/reviews/popular`             | `GET`       | 인기 리뷰 목록 조회                 | 없음                  |
-|                 | `/reviews/:id`                 | `GET`       | 리뷰 상세 조회 (조회수 증가)        | 없음                  |
-|                 | `/reviews/:id`                 | `PATCH`     | 리뷰 수정                           | JWT                   |
-|                 | `/reviews/:id`                 | `DELETE`    | 리뷰 삭제                           | JWT                   |
-|                 | `/reviews/:id/reactions`       | `POST`      | 리뷰 리액션 토글                    | JWT                   |
-|                 | `/reviews/:id/reaction`        | `GET`       | 내 리액션 정보 조회                 | JWT                   |
-| **User**        | `/user/me`                     | `GET`       | 내 프로필 정보 조회                 | JWT                   |
-|                 | `/user/my-sales`               | `GET`       | 내가 등록한 판매글 목록 조회        | JWT                   |
-|                 | `/user/withdraw`               | `DELETE`    | 회원 탈퇴                           | JWT                   |
-|                 | `/user/:handle`                | `GET`       | 공개 프로필 조회                    | 없음                  |
-| **Comment**     | `/comments`                    | `GET`       | 댓글 목록 조회                      | 없음                  |
-|                 | `/comments`                    | `POST`      | 댓글 작성                           | JWT                   |
-|                 | `/comments/:id`                | `PATCH`     | 댓글 수정                           | JWT                   |
-|                 | `/comments/:id`                | `DELETE`    | 댓글 삭제                           | JWT                   |
-|                 | `/comments/:id/like`           | `POST`      | 댓글 좋아요 토글                    | JWT                   |
-|                 | `/comments/my`                 | `GET`       | 내가 작성한 댓글 목록 조회          | JWT                   |
-| **Reading-Log** | `/reading-logs`                | `GET`       | 독서 기록 목록 조회 (무한 스크롤)   | JWT                   |
-|                 | `/reading-logs`                | `POST`      | 독서 기록 생성                      | JWT                   |
-|                 | `/reading-logs/:id`            | `PATCH`     | 독서 기록 수정                      | JWT                   |
-|                 | `/reading-logs/:id`            | `DELETE`    | 독서 기록 삭제                      | JWT                   |
-|                 | `/reading-logs/monthly`        | `GET`       | 월별 독서 기록 조회                 | JWT                   |
-|                 | `/reading-logs/stats`          | `GET`       | 독서 통계 조회                      | JWT                   |
-|                 | `/reading-logs/settings`       | `GET`       | 독서 기록 설정 조회                 | JWT                   |
-|                 | `/reading-logs/settings`       | `PUT`       | 독서 기록 설정 수정                 | JWT                   |
-| **Insights**    | `/insights`                    | `GET`       | 전체 인사이트 데이터 조회           | 없음                  |
-|                 | `/insights/location-sales`     | `GET`       | 특정 지역 판매글 조회               | 없음                  |
+| 기능 (Feature)   | 엔드포인트 (Endpoint)          | HTTP 메소드 | 설명 (Description)                  | 인증 (Authentication) |
+| ---------------- | ------------------------------ | ----------- | ----------------------------------- | --------------------- |
+| **App**          | `/`                            | `GET`       | 서버 상태 확인                      | 없음                  |
+| **Auth**         | `/auth/naver`                  | `GET`       | 네이버 OAuth2 로그인 시작           | 없음                  |
+|                  | `/auth/naver/callback`         | `GET`       | 네이버 OAuth2 콜백 처리             | 없음                  |
+|                  | `/auth/kakao`                  | `GET`       | 카카오 OAuth2 로그인 시작           | 없음                  |
+|                  | `/auth/kakao/callback`         | `GET`       | 카카오 OAuth2 콜백 처리             | 없음                  |
+|                  | `/auth/logout`                 | `POST`      | 로그아웃 (토큰 제거)                | 없음                  |
+|                  | `/auth/refresh`                | `POST`      | Access Token 갱신                   | JWT (Refresh Token)   |
+|                  | `/auth/user`                   | `GET`       | 현재 로그인된 사용자 정보 조회      | JWT                   |
+| **Book**         | `/book/sale`                   | `POST`      | 중고 도서 판매글 생성               | JWT                   |
+|                  | `/book/sales/:id/status`       | `PATCH`     | 판매글 상태 업데이트                | JWT                   |
+|                  | `/book/sales/recent`           | `GET`       | 최근 판매글 목록 조회               | 없음                  |
+|                  | `/book/sales/:id`              | `GET`       | 판매글 상세 조회                    | 없음                  |
+|                  | `/book/:isbn/sales`            | `GET`       | 특정 ISBN의 판매글 목록 조회        | 없음                  |
+|                  | `/book/sales/:id`              | `PATCH`     | 판매글 정보 수정                    | JWT                   |
+|                  | `/book/sales/:id`              | `DELETE`    | 판매글 삭제                         | JWT                   |
+| **Chat**         | `/chat/rooms`                  | `GET`       | 내 채팅방 목록 조회                 | JWT                   |
+|                  | `/chat/rooms/:roomId/messages` | `GET`       | 특정 채팅방 메시지 조회             | JWT                   |
+|                  | `/chat/rooms`                  | `POST`      | 판매글에 대한 채팅방 생성 또는 조회 | JWT                   |
+|                  | `/chat/rooms/:roomId/read`     | `PATCH`     | 채팅방 메시지 읽음 처리             | JWT                   |
+|                  | `/chat/rooms/:roomId`          | `DELETE`    | 채팅방 나가기                       | JWT                   |
+| **LLM**          | `/llm/book-summary`            | `POST`      | AI를 이용한 도서 요약 생성          | 없음                  |
+| **Review**       | `/reviews`                     | `POST`      | 리뷰 작성                           | JWT                   |
+|                  | `/reviews`                     | `GET`       | 리뷰 목록 조회 (필터링 지원)        | 없음                  |
+|                  | `/reviews/feeds`               | `GET`       | 카테고리별 리뷰 피드 조회           | 없음                  |
+|                  | `/reviews/popular`             | `GET`       | 인기 리뷰 목록 조회                 | 없음                  |
+|                  | `/reviews/:id`                 | `GET`       | 리뷰 상세 조회 (조회수 증가)        | 없음                  |
+|                  | `/reviews/:id`                 | `PATCH`     | 리뷰 수정                           | JWT                   |
+|                  | `/reviews/:id`                 | `DELETE`    | 리뷰 삭제                           | JWT                   |
+|                  | `/reviews/:id/reactions`       | `POST`      | 리뷰 리액션 토글                    | JWT                   |
+|                  | `/reviews/:id/reaction`        | `GET`       | 내 리액션 정보 조회                 | JWT                   |
+| **User**         | `/user/me`                     | `GET`       | 내 프로필 정보 조회                 | JWT                   |
+|                  | `/user/my-sales`               | `GET`       | 내가 등록한 판매글 목록 조회        | JWT                   |
+|                  | `/user/withdraw`               | `DELETE`    | 회원 탈퇴                           | JWT                   |
+|                  | `/user/:handle`                | `GET`       | 공개 프로필 조회                    | 없음                  |
+| **Comment**      | `/comments`                    | `GET`       | 댓글 목록 조회                      | 없음                  |
+|                  | `/comments`                    | `POST`      | 댓글 작성                           | JWT                   |
+|                  | `/comments/:id`                | `PATCH`     | 댓글 수정                           | JWT                   |
+|                  | `/comments/:id`                | `DELETE`    | 댓글 삭제                           | JWT                   |
+|                  | `/comments/:id/like`           | `POST`      | 댓글 좋아요 토글                    | JWT                   |
+|                  | `/comments/my`                 | `GET`       | 내가 작성한 댓글 목록 조회          | JWT                   |
+| **Reading-Log**  | `/reading-logs`                | `GET`       | 독서 기록 목록 조회 (무한 스크롤)   | JWT                   |
+|                  | `/reading-logs`                | `POST`      | 독서 기록 생성                      | JWT                   |
+|                  | `/reading-logs/:id`            | `PATCH`     | 독서 기록 수정                      | JWT                   |
+|                  | `/reading-logs/:id`            | `DELETE`    | 독서 기록 삭제                      | JWT                   |
+|                  | `/reading-logs/monthly`        | `GET`       | 월별 독서 기록 조회                 | JWT                   |
+|                  | `/reading-logs/stats`          | `GET`       | 독서 통계 조회                      | JWT                   |
+|                  | `/reading-logs/settings`       | `GET`       | 독서 기록 설정 조회                 | JWT                   |
+|                  | `/reading-logs/settings`       | `PUT`       | 독서 기록 설정 수정                 | JWT                   |
+| **Notification** | `/notifications`               | `GET`       | 내 알림 목록 조회                   | JWT                   |
+|                  | `/notifications/unread-count`  | `GET`       | 안 읽은 알림 수 조회                | JWT                   |
+|                  | `/notifications/read-all`      | `PATCH`     | 모든 알림 읽음 처리                 | JWT                   |
+|                  | `/notifications/:id/read`      | `PATCH`     | 특정 알림 읽음 처리                 | JWT                   |
+| **Insights**     | `/insights`                    | `GET`       | 전체 인사이트 데이터 조회           | 없음                  |
+|                  | `/insights/location-sales`     | `GET`       | 특정 지역 판매글 조회               | 없음                  |
 
 ## 🛠️ 사용 기술 (Tech Stack)
 

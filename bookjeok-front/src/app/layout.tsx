@@ -5,9 +5,10 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Script from "next/script";
 
+import { ChatProvider } from "@/features/chat/providers/chat-provider";
+import { NotificationProvider } from "@/features/notification/providers/notification-provider";
 import { Toaster } from "@/shared/components/shadcn/sonner";
 import { jsonLd } from "@/shared/config/json-ld";
-import { ChatProvider } from "@/shared/providers/chat-provider";
 import { QueryProvider } from "@/shared/providers/query-provider";
 import { SocketProvider } from "@/shared/providers/socket-provider";
 import UserProvider from "@/shared/providers/user-provider";
@@ -29,6 +30,12 @@ export default async function Layout({
       <body style={{ fontFamily: "var(--font-pretendard)" }}>
         <QueryProvider>
           <UserProvider>
+            {/* Notification System */}
+            <SocketProvider namespace="/notification">
+              <NotificationProvider />
+            </SocketProvider>
+
+            {/* Chat System (Nested or Parallel - Sibling works because listeners are inside respective providers) */}
             <SocketProvider namespace="/chat">
               <ChatProvider>{children}</ChatProvider>
             </SocketProvider>

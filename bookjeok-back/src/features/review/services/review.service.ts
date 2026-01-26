@@ -583,8 +583,6 @@ export class ReviewService {
 
     // 태그 업데이트 처리
     if (updateReviewDto.tags) {
-      // 트랜잭션 없이 처리 (간단하게) 또는 트랜잭션 래핑 필요.
-      // 여기서는 간단히 처리.
       review.tagEntities = await this.getOrCreateTags(
         this.dataSource.manager,
         updateReviewDto.tags,

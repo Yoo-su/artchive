@@ -144,7 +144,7 @@ export class CommentController {
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: User,
   ) {
-    return this.commentService.deleteComment(id, user.id);
+    await this.commentService.deleteComment(id, user.id);
   }
 
   /**

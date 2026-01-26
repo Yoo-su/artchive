@@ -1,4 +1,5 @@
 import { Module, OnModuleInit } from '@nestjs/common';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { APP_GUARD } from '@nestjs/core';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -21,9 +22,11 @@ import { InsightsModule } from '@/features/insights/insights.module';
 import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
 import { ReadingLogModule } from '@/features/reading-log/reading-log.module';
 import { SearchKeywordModule } from '@/features/search-keyword/search-keyword.module';
+import { NotificationModule } from '@/features/notification/notification.module';
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     // Rate Limiting 설정 (1분에 100개 요청)
     ThrottlerModule.forRoot([
       {
@@ -72,6 +75,7 @@ import { SearchKeywordModule } from '@/features/search-keyword/search-keyword.mo
     InsightsModule,
     ReadingLogModule,
     SearchKeywordModule,
+    NotificationModule,
   ],
   controllers: [],
   providers: [
