@@ -2,10 +2,10 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { Book } from '@/features/book/entities/book.entity';
-import { Review } from '@/features/review/entities/review.entity';
 import { BusinessException } from '@/shared/exceptions';
 
+import { Book } from '@/features/book/entities/book.entity';
+import { Review } from '@/features/review/entities/review.entity';
 import { Comment, CommentTargetType } from '../entities/comment.entity';
 import { CommentLike } from '../entities/comment-like.entity';
 import { CreateCommentDto } from '../dto/create-comment.dto';
@@ -243,7 +243,6 @@ export class CommentService {
     }
 
     await this.commentRepository.delete(id);
-    return { success: true };
   }
 
   /**

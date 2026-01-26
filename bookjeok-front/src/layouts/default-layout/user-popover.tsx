@@ -38,16 +38,7 @@ export default function UserPopover() {
     toast.success("로그아웃되었습니다.");
   };
 
-  if (!user) {
-    return (
-      <Link href={PATHS.LOGIN}>
-        <Button className="rounded-full bg-white hover:bg-stone-50 border border-stone-200 shadow-sm hover:shadow text-stone-600 px-4 h-8 text-xs font-semibold transition-all flex items-center gap-1.5">
-          <User className="w-3.5 h-3.5" />
-          <span>로그인</span>
-        </Button>
-      </Link>
-    );
-  }
+  if (!user) return null;
 
   // 3. 로그인 상태일 때
   return (

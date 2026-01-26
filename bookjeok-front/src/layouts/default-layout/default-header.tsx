@@ -16,6 +16,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { NotificationPopover } from "@/features/notification/components/popover-view/notification-popover";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   DropdownMenu,
@@ -300,8 +301,22 @@ export const DefaultHeader = () => {
         </div>
 
         {/* 우측: 사용자 메뉴 */}
-        <div className="flex items-center">
-          <UserPopover />
+        <div className="flex items-center gap-1">
+          {user ? (
+            <>
+              <div className="mr-2">
+                <NotificationPopover />
+              </div>
+              <UserPopover />
+            </>
+          ) : (
+            <Link href={PATHS.LOGIN}>
+              <Button className="rounded-full bg-white hover:bg-stone-50 border border-stone-200 shadow-sm hover:shadow text-stone-600 px-4 h-8 text-xs font-semibold transition-all flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5" />
+                <span>로그인</span>
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     </header>
