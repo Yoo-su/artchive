@@ -13,6 +13,7 @@ import { BookCover } from "./book-cover";
 import { BookDescription } from "./book-description";
 import { BookInfo } from "./book-info";
 import { BookDetailError } from "./error";
+import { RelatedBooksSection } from "./related-books-section";
 import { BookDetailSkeleton } from "./skeleton";
 
 interface BookDetailProps {
@@ -46,7 +47,7 @@ export const BookDetail = ({ isbn }: BookDetailProps) => {
     book?.title || "",
     book?.author || "",
     !!book && isSummaryRequested,
-    book?.description
+    book?.description,
   );
 
   const handleRequestSummary = () => {
@@ -81,6 +82,24 @@ export const BookDetail = ({ isbn }: BookDetailProps) => {
           <BookDescription description={book.description} />
         </div>
       </div>
+
+      <Separator className="my-8" />
+
+      {book?.author && (
+        <RelatedBooksSection
+          title={`'${book.author}' 저자의 다른 책`}
+          query={book.author}
+          currentIsbn={isbn}
+        />
+      )}
+
+      {book?.publisher && (
+        <RelatedBooksSection
+          title={`'${book.publisher}' 출판사의 다른 책`}
+          query={book.publisher}
+          currentIsbn={isbn}
+        />
+      )}
 
       <Separator className="my-8" />
       <AISummary

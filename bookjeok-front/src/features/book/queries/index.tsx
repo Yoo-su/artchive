@@ -6,10 +6,10 @@ import {
   getBookSummary,
   getPopularBooks,
   getPopularKeywords,
-} from "./apis";
-import { DEFAULT_DISPLAY } from "./constants";
-import { bookKeys } from "./constants/query-keys";
-import { BookInfo, GetBookListParams } from "./types";
+} from "../apis";
+import { DEFAULT_DISPLAY } from "../constants";
+import { bookKeys } from "../constants/query-keys";
+import { BookInfo, GetBookListParams } from "../types";
 
 /**
  * 책 목록 조회
