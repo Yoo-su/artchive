@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Badge } from "@/shared/components/shadcn/badge";
 import { PriceDisplay } from "@/shared/components/ui/price-display";
 
@@ -23,8 +25,21 @@ export const BookInfo = ({
         <h1 className="text-3xl font-bold tracking-tighter text-gray-900 lg:text-4xl">
           {title}
         </h1>
-        <p className="mt-2 text-lg text-gray-600">
-          {author} 저 | {publisher}
+        <p className="flex flex-wrap items-center gap-2 mt-2 text-lg text-gray-600">
+          <Link
+            href={`/book/search?q=${author}`}
+            className="hover:text-primary hover:underline"
+          >
+            {author}
+          </Link>
+          <span>저</span>
+          <span>|</span>
+          <Link
+            href={`/book/search?q=${publisher}`}
+            className="hover:text-primary hover:underline"
+          >
+            {publisher}
+          </Link>
         </p>
       </div>
 

@@ -3,6 +3,7 @@ import { Metadata } from "next";
 
 import { bookKeys } from "@/features/book";
 import { fetchBookDetail } from "@/features/book/apis/server";
+import { prefetchRelatedBooks } from "@/features/book/queries/prefetch";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { BookDetailView } from "@/views/book-detail-view";
 
@@ -44,7 +45,14 @@ export default async function Page({ params }: Props) {
   try {
     const data = await fetchBookDetail(isbn);
     if (data.items && data.items.length > 0) {
-      queryClient.setQueryData(bookKeys.detail(isbn).queryKey, data.items[0]);
+      const book = data.items[0];
+      queryClient.setQueryData(bookKeys.detail(isbn).queryKey, book);
+
+      // 저자 및 출판사 연관 도서 프리패칭
+      await Promise.allSettled([
+        book.author && prefetchRelatedBooks(queryClient, book.author),
+        book.publisher && prefetchRelatedBooks(queryClient, book.publisher),
+      ]);
     }
   } catch {
     // API 호출 실패 시 조용한 실패 혹은 별도 처리 (여기서는 Hydration 생략)
