@@ -48,10 +48,9 @@ export default async function Page({ params }: Props) {
       const book = data.items[0];
       queryClient.setQueryData(bookKeys.detail(isbn).queryKey, book);
 
-      // 저자 및 출판사 연관 도서 프리패칭
+      // 저자 연관 도서 프리패칭
       await Promise.allSettled([
         book.author && prefetchRelatedBooks(queryClient, book.author),
-        book.publisher && prefetchRelatedBooks(queryClient, book.publisher),
       ]);
     }
   } catch {

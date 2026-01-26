@@ -93,14 +93,6 @@ export const BookDetail = ({ isbn }: BookDetailProps) => {
         />
       )}
 
-      {book?.publisher && (
-        <RelatedBooksSection
-          title={`'${book.publisher}' 출판사의 다른 책`}
-          query={book.publisher}
-          currentIsbn={isbn}
-        />
-      )}
-
       <Separator className="my-8" />
       <AISummary
         summary={summary}
