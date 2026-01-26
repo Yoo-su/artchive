@@ -13,7 +13,7 @@ export async function prefetchRelatedBooks(
   // RelatedBooksSection 컴포넌트에서 사용하는 파라미터와 정확히 일치해야 함
   const params = {
     query,
-    display: 6,
+    display: 20,
     sort: "sim" as const,
   };
 

@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 import { BookCard } from "@/features/book/components/common/book-card";
 import { useBookListQuery } from "@/features/book/queries";
@@ -16,21 +18,53 @@ export const RelatedBooksSection = ({
   query,
   currentIsbn,
 }: RelatedBooksSectionProps) => {
+  const seed = currentIsbn
+    .split("")
+    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
   const { data: books, isLoading } = useBookListQuery({
     query,
-    display: 6,
+    display: 20,
     sort: "sim",
   });
 
   const filteredBooks =
     books?.filter((book) => book.isbn !== currentIsbn) || [];
 
-  if (!isLoading && filteredBooks.length === 0) return null;
+  // ISBN을 기반으로 한 결정론적 셔플 (Fisher-Yates with LCG)
+  const displayBooks = useMemo(() => {
+    if (!filteredBooks.length) return [];
+
+    // ISBN의 숫자들을 더해 초기 시드값 생성
+    let seed = currentIsbn
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
+    // Linear Congruential Generator (LCG)
+    const nextRandom = () => {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+
+    // 원본 배열 복사
+    const shuffled = [...filteredBooks];
+
+    // Fisher-Yates Shuffle
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(nextRandom() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    // 모바일(Swiper)에서는 10개, 데스크탑(Grid)에서는 5개만 보여줄 예정
+    return shuffled.slice(0, 10);
+  }, [filteredBooks, currentIsbn]);
+
+  if (!isLoading && displayBooks.length === 0) return null;
 
   return (
     <section className="mt-12">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold tracking-tight text-gray-900">
+        <h2 className="text-xl font-bold tracking-tight text-gray-900 md:text-2xl">
           {title}
         </h2>
         <Link
@@ -41,15 +75,33 @@ export const RelatedBooksSection = ({
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-        {isLoading
-          ? Array.from({ length: 5 }).map((_, i) => (
-              <BookCard.Skeleton key={i} />
-            ))
-          : filteredBooks
-              .slice(0, 5)
-              .map((book) => <BookCard key={book.isbn} book={book} />)}
-      </div>
+      {isLoading ? (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <BookCard.Skeleton key={i} />
+          ))}
+        </div>
+      ) : (
+        <>
+          {/* 모바일: Swiper */}
+          <div className="block md:hidden -mx-4 px-4">
+            <Swiper slidesPerView={2.2} spaceBetween={12} className="w-full">
+              {displayBooks.map((book) => (
+                <SwiperSlide key={book.isbn}>
+                  <BookCard book={book} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+
+          {/* 데스크탑: Grid (5개만 노출) */}
+          <div className="hidden md:grid grid-cols-3 gap-4 lg:grid-cols-5">
+            {displayBooks.slice(0, 5).map((book) => (
+              <BookCard key={book.isbn} book={book} />
+            ))}
+          </div>
+        </>
+      )}
     </section>
   );
 };
