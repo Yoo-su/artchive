@@ -32,8 +32,19 @@ export class NotificationService {
 
     const saved = await this.notificationRepository.save(notification);
 
-    // Real-time dispatch
-    this.notificationGateway.sendNotification(recipientId, saved);
+    // Fetch full entity with relations for socket payload
+    const populatedNotification = await this.notificationRepository.findOne({
+      where: { id: saved.id },
+      relations: ['actor'],
+    });
+
+    if (populatedNotification) {
+      // Real-time dispatch
+      this.notificationGateway.sendNotification(
+        recipientId,
+        populatedNotification,
+      );
+    }
 
     return saved;
   }
