@@ -2,8 +2,6 @@ import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
-import { ScrollArea } from "@/shared/components/shadcn/scroll-area";
-
 import { useNotifications } from "../../queries";
 import { NotificationItem } from "./notification-item";
 
@@ -42,7 +40,7 @@ export const NotificationList = ({ onClose }: NotificationListProps) => {
   }
 
   return (
-    <ScrollArea className="h-[300px] sm:h-[400px]">
+    <div className="h-[300px] sm:h-[400px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       <div className="flex flex-col divide-y">
         {notifications.map((notification) => (
           <NotificationItem
@@ -58,6 +56,6 @@ export const NotificationList = ({ onClose }: NotificationListProps) => {
         )}
         <div ref={ref} className="h-1" />
       </div>
-    </ScrollArea>
+    </div>
   );
 };

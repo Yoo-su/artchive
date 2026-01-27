@@ -7,6 +7,7 @@ import {
   UseGuards,
   ParseIntPipe,
   HttpStatus,
+  Delete,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { NotificationService } from '../services/notification.service';
@@ -87,5 +88,21 @@ export class NotificationController {
     @Param('id', ParseIntPipe) id: number,
   ) {
     await this.notificationService.markAsRead(id, user.id);
+  }
+  @Delete(':id')
+  @ApiOperation({
+    summary: '알림 삭제',
+    description: '특정 알림을 삭제합니다.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '성공 여부',
+  })
+  @ApiParam({ name: 'id', description: '알림 ID' })
+  async remove(
+    @CurrentUser() user: User,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    await this.notificationService.remove(id, user.id);
   }
 }

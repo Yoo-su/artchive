@@ -96,4 +96,18 @@ export class NotificationService {
       { isRead: true },
     );
   }
+
+  async remove(id: number, userId: number) {
+    const notification = await this.notificationRepository.findOne({
+      where: { id, recipientId: userId },
+    });
+
+    if (!notification) {
+      // If not found or not owned, just return (idempotent) or throw 404.
+      // Usually better to return to maintain idempotency if already deleted.
+      return;
+    }
+
+    await this.notificationRepository.remove(notification);
+  }
 }
