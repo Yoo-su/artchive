@@ -21,3 +21,7 @@ export const markAsRead = async (id: number): Promise<void> => {
 export const markAllAsRead = async (): Promise<void> => {
   await privateAxios.patch("/notifications/read-all");
 };
+
+export const deleteNotification = async (id: number): Promise<void> => {
+  await privateAxios.delete(`/notifications/${id}`);
+};

@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 
 import { Card } from "@/shared/components/shadcn/card";
+import { useBodyScrollLock } from "@/shared/hooks/use-body-scroll-lock";
 
 import { useChatStore } from "../../../stores/use-chat-store";
 import { ChatList } from "../../list/chat-list";
@@ -10,6 +11,8 @@ import { ChatRoom } from "../../room/chat-room";
 
 export const ChatWidget = () => {
   const { isChatOpen, activeChatRoomId } = useChatStore();
+
+  useBodyScrollLock(isChatOpen);
 
   return (
     <AnimatePresence>

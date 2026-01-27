@@ -24,16 +24,17 @@ export const NotificationPopover = () => {
   };
 
   return (
-    <Popover open={open} onOpenChange={handleOpenChange}>
+    <Popover open={open} onOpenChange={handleOpenChange} modal={true}>
       <PopoverTrigger asChild>
         <div className="cursor-pointer">
           <NotificationBell />
         </div>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[360px] p-0 shadow-2xl border border-border/60 rounded-2xl overflow-hidden bg-background/95 backdrop-blur-xl supports-backdrop-filter:bg-background/80"
-        align="end"
-        sideOffset={10}
+        className="w-[90vw] max-w-[360px] p-0 shadow-2xl border border-border/60 rounded-2xl overflow-hidden bg-background/95 backdrop-blur-xl supports-backdrop-filter:bg-background/80"
+        align="center"
+        sideOffset={12}
+        collisionPadding={10}
       >
         <div className="flex items-center justify-between border-b border-border/40 px-5 py-4 bg-muted/30">
           <div className="flex items-center gap-2">
