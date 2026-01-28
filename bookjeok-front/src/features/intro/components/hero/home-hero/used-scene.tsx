@@ -14,7 +14,7 @@ export const UsedScene = ({ data }: { data: SceneData }) => {
     <div className="absolute inset-0 flex flex-col items-center justify-center pb-10 text-center">
       {/* 시각 효과: 연결 점 (깔끔하고 기술적인 느낌) */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.05]">
-        <div className="relative h-[600px] w-[600px] shrink-0">
+        <div className="relative h-[320px] w-[320px] shrink-0 md:h-[500px] md:w-[500px]">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -35,11 +35,13 @@ export const UsedScene = ({ data }: { data: SceneData }) => {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="mb-8 flex justify-center"
+          className="mb-8 flex items-center justify-center gap-3"
         >
-          <span className="rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 text-[11px] font-bold tracking-widest text-slate-900 uppercase">
+          <span className="h-px w-8 bg-zinc-400"></span>
+          <span className="text-xs font-bold tracking-[0.2em] text-zinc-500 uppercase">
             {data.sub}
           </span>
+          <span className="h-px w-8 bg-zinc-400"></span>
         </motion.div>
 
         {/* 헤더: 굵은 산세리프, 좁은 자간 (Heavy Sans, Tight Tracking) */}
@@ -53,7 +55,7 @@ export const UsedScene = ({ data }: { data: SceneData }) => {
               ease: [0.16, 1, 0.3, 1],
             }}
             className={cn(
-              "font-(family-name:--font-pretendard) whitespace-pre-wrap text-6xl font-extrabold leading-[1.05] tracking-tighter text-slate-950 sm:text-7xl md:text-[5.5rem]", // Enterprise Look을 위한 Pretendard 사용
+              "font-(family-name:--font-pretendard) whitespace-pre-wrap text-6xl font-medium leading-[1.05] tracking-tight text-zinc-900 sm:text-7xl md:text-[5.5rem]", // Enterprise Look을 위한 Pretendard 사용
             )}
           >
             {data.header}
@@ -64,7 +66,7 @@ export const UsedScene = ({ data }: { data: SceneData }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.8 }}
-          className="mt-8 text-lg font-medium text-slate-600 md:text-xl"
+          className="mt-8 text-lg font-medium text-zinc-600 md:text-xl"
         >
           {data.desc}
         </motion.p>
