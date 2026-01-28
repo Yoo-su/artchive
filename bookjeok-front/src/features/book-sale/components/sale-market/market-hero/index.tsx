@@ -5,12 +5,14 @@ import { useEffect, useState } from "react";
 
 import { cn } from "@/shared/utils/cn";
 
+import { CirculationSymbol } from "./circulation-symbol";
+
 const ARCHIVE_MESSAGES = [
-  "누군가의 서재에서 새로운 주인을 기다립니다",
-  "오래된 책에 담긴 시간이 다시 흐르기 시작했습니다",
-  "서울의 어느 골목에서 책이 건네어졌습니다",
-  "잊혀졌던 문장이 새로운 눈을 만났습니다",
-  "책장의 빈자리가 또 다른 이야기로 채워집니다",
+  "누군가의 서재에서\n새로운 주인을 기다립니다",
+  "오래된 책에 담긴 시간이\n다시 흐르기 시작했습니다",
+  "서울의 어느 골목에서\n책이 건네어졌습니다",
+  "잊혀졌던 문장이\n새로운 눈을 만났습니다",
+  "책장의 빈자리가\n또 다른 이야기로 채워집니다",
 ];
 
 export const MarketHero = () => {
@@ -24,8 +26,8 @@ export const MarketHero = () => {
   }, []);
 
   return (
-    <div className="relative mb-8 flex w-full flex-col items-center justify-center py-16 md:mb-16 md:py-24">
-      {/* Title Area */}
+    <div className="relative mb-8 flex w-full flex-col items-center justify-center px-4 py-16 md:mb-16 md:py-24">
+      {/* 타이틀 영역 */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -37,18 +39,18 @@ export const MarketHero = () => {
         </span>
         <h1
           className={cn(
-            "text-6xl font-normal leading-tight text-zinc-900 dark:text-zinc-50 md:text-8xl",
+            "break-keep text-4xl font-normal leading-tight text-zinc-900 dark:text-zinc-50 sm:text-6xl md:text-8xl",
             "font-(family-name:--font-gowun-batang)",
           )}
         >
           순환하는 문장들
         </h1>
 
-        {/* Vertical Line Connector */}
-        <div className="my-8 h-12 w-px bg-zinc-300 dark:bg-zinc-700 md:h-16" />
+        {/* 수직 연결선 대신 Circulation Symbol */}
+        <CirculationSymbol />
 
-        {/* Live Stream Text (Poetic) */}
-        <div className="h-8 overflow-hidden">
+        {/* 실시간 텍스트 (시적 표현) */}
+        <div className="h-20 sm:h-8 overflow-hidden flex items-center justify-center">
           <AnimatePresence mode="wait">
             <motion.p
               key={index}
@@ -57,7 +59,7 @@ export const MarketHero = () => {
               exit={{ y: -20, opacity: 0, filter: "blur(4px)" }}
               transition={{ duration: 0.6, ease: "easeOut" }}
               className={cn(
-                "text-lg text-zinc-600 dark:text-zinc-400 md:text-xl",
+                "whitespace-pre-line md:whitespace-normal text-lg text-zinc-600 dark:text-zinc-400 md:text-xl leading-relaxed",
                 "font-(family-name:--font-gowun-batang)",
               )}
             >
@@ -67,7 +69,7 @@ export const MarketHero = () => {
         </div>
       </motion.div>
 
-      {/* Spring Divider (Breathing Animation) */}
+      {/* 스프링 디바이더 (호흡하는 애니메이션) */}
       <div className="absolute bottom-0 left-0 right-0 flex w-full justify-center overflow-hidden">
         <SpringDivider />
       </div>
@@ -92,19 +94,21 @@ const SpringDivider = () => {
           strokeLinecap="round"
           className="text-zinc-400 dark:text-zinc-600"
           animate={{
-            scaleX: [1, 1.8, 0.6, 1], // Normal -> Stretched (Tension) -> Compressed -> Normal
+            scaleX: [1, 1.8, 0.6, 1], // 보통 -> 늘어남 (긴장) -> 압축됨 -> 보통
           }}
           transition={{
-            duration: 10, // Slower motion for less distraction
+            duration: 10, // 덜 산만하도록 느린 모션
             ease: "easeInOut",
-            times: [0, 0.4, 0.7, 1], // Time distribution for stretch vs compress
+            times: [0, 0.4, 0.7, 1], // 늘어남 vs 압축됨 시간 분배
             repeat: Infinity,
-            repeatDelay: 1, // Pause between cycles
+            repeatDelay: 1, // 사이클 간 일시정지
           }}
           style={{ transformOrigin: "center" }}
         />
-        {/* Mirror path for complexity if needed, or keeping it simple as requested 'thin line' */}
+        {/* 복잡성이 필요한 경우 미러 경로 추가, 또는 요청대로 '얇은 선' 유지 */}
       </motion.svg>
     </div>
   );
 };
+
+// ... (removed inline component)

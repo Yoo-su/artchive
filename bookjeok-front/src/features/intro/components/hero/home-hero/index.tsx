@@ -47,7 +47,7 @@ export const HomeHero = () => {
             exit="exit"
             className="flex flex-col gap-5 md:gap-7"
           >
-            {/* Kicker (Small Label) */}
+            {/* 키커 (작은 라벨) */}
             <motion.div
               variants={kickerVariants}
               className="text-[10px] font-medium tracking-[0.2em] text-muted-foreground uppercase md:text-xs"
@@ -55,7 +55,7 @@ export const HomeHero = () => {
               {EDITORIAL_CONTENT[current].kicker}
             </motion.div>
 
-            {/* Main Title (Kinetic Typography) */}
+            {/* 메인 타이틀 (키네틱 타이포그래피) */}
             {/* max-w-4xl 컨테이너 대응: 폰트 사이즈 조정 및 break-keep 적용 */}
             <div className="overflow-hidden py-1">
               <motion.h1
@@ -69,7 +69,7 @@ export const HomeHero = () => {
               </motion.h1>
             </div>
 
-            {/* Description (Editorial Layout) */}
+            {/* 설명글 (에디토리얼 레이아웃) */}
             <div className="flex justify-end pt-2 pr-2 md:pr-12 lg:pr-24">
               <motion.p
                 variants={descVariants}
@@ -82,7 +82,7 @@ export const HomeHero = () => {
         </AnimatePresence>
       </div>
 
-      {/* Unique Progress Divider */}
+      {/* 진행 상태 표시줄 (Progress Divider) */}
       <div className="relative mt-10 h-px w-full bg-border/60 md:mt-14">
         <motion.div
           layoutId="progress"
@@ -96,7 +96,7 @@ export const HomeHero = () => {
   );
 };
 
-// Animations
+// 애니메이션 설정
 const kickerVariants: Variants = {
   initial: { opacity: 0, y: 10 },
   animate: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
