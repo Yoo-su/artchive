@@ -33,14 +33,19 @@ export class NotificationGateway
     private readonly userService: UserService,
   ) {}
 
+  /**
+   * 클라이언트 소켓 연결 시 처리
+   * JWT 토큰을 검증하고 사용자 정보를 소켓 세션에 저장합니다.
+   *
+   * @param client 연결된 소켓 클라이언트
+   */
   async handleConnection(client: Socket) {
     try {
       const token =
         client.handshake.auth?.token ||
         client.handshake.headers.authorization?.split(' ')[1];
 
-      if (!token) return client.disconnect(); // Guard handles detailed checks/errors usually, but connection phase needs manual check if guard doesn't block handshake directly (Gateway guards work on messages usually, but Connection phase can be manual)
-      // *Correction*: NestJS Guards on Gateway *class* affect handshake? Often yes, but let's be safe.
+      if (!token) return client.disconnect();
 
       const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
         secret: process.env.JWT_SECRET,
@@ -60,6 +65,12 @@ export class NotificationGateway
     }
   }
 
+  /**
+   * 클라이언트 소켓 연결 해제 시 처리
+   * 접속자 목록에서 사용자를 제거합니다.
+   *
+   * @param client 연결 해제된 소켓 클라이언트
+   */
   handleDisconnect(client: Socket) {
     if (client.data.user) {
       this.connectedUsers.delete(client.data.user.id);
@@ -69,6 +80,13 @@ export class NotificationGateway
     }
   }
 
+  /**
+   * 특정 사용자에게 실시간 알림을 전송합니다.
+   * 사용자가 현재 접속 중(connectedUsers)일 경우에만 전송됩니다.
+   *
+   * @param recipientId 수신자 ID
+   * @param payload 전송할 알림 데이터
+   */
   sendNotification(recipientId: number, payload: any) {
     const socket = this.connectedUsers.get(recipientId);
     if (socket) {
