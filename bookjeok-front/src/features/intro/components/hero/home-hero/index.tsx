@@ -5,6 +5,7 @@ import { SCENES } from "@/features/intro/constants";
 
 import { RecordScene } from "./record-scene";
 import { ReviewScene } from "./review-scene";
+import { ScrollGuide } from "./scroll-guide";
 import { UsedScene } from "./used-scene";
 
 // -----------------------------------------------------------------------------
@@ -36,6 +37,9 @@ export const HomeHero = () => {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Visual Connector: The Kinetic Thread */}
+      <ScrollGuide />
     </section>
   );
 };
