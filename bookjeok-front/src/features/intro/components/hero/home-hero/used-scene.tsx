@@ -12,22 +12,49 @@ import { cn } from "@/shared/utils/cn";
 export const UsedScene = ({ data }: { data: SceneData }) => {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center pb-10 text-center">
-      {/* 시각 효과: 연결 점 (깔끔하고 기술적인 느낌) */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.05]">
-        <div className="relative h-[320px] w-[320px] shrink-0 md:h-[500px] md:w-[500px]">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 1.5 }}
-            className="absolute inset-0 rounded-full border border-black"
-          />
-          <motion.div
-            initial={{ scale: 0.6, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 1.5, delay: 0.2 }}
-            className="absolute inset-[100px] rounded-full border border-black"
-          />
-        </div>
+      {/* 시각 효과: The Fluid Connection (유동적 연결) - 서로에게 물들다 */}
+      <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
+        {/* 좌측 빛방울 (따뜻한 Zinc 톤) */}
+        <motion.div
+          className="absolute top-1/2 left-1/2 -ml-32 -mt-32 h-64 w-64 rounded-full bg-zinc-400 blur-[20px]"
+          initial={{ x: -200, scale: 0.8, opacity: 0 }}
+          animate={{ x: -50, scale: [0.8, 1.1, 0.9], opacity: 0.8 }}
+          transition={{
+            duration: 4,
+            ease: "easeInOut",
+            times: [0, 0.5, 1],
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
+        />
+
+        {/* 우측 빛방울 (차가운 Slate 톤) */}
+        <motion.div
+          className="absolute top-1/2 left-1/2 -ml-32 -mt-32 h-64 w-64 rounded-full bg-slate-400 blur-[20px]"
+          initial={{ x: 200, scale: 0.8, opacity: 0 }}
+          animate={{ x: 50, scale: [0.8, 0.9, 1.1], opacity: 0.8 }}
+          transition={{
+            duration: 4,
+            ease: "easeInOut",
+            delay: 0.5,
+            times: [0, 0.5, 1],
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
+        />
+
+        {/* 교차점 스파크 (연결 강조) */}
+        <motion.div
+          className="absolute top-1/2 left-1/2 -ml-16 -mt-16 z-10 h-32 w-32 rounded-full bg-zinc-500 blur-[50px] opacity-0"
+          animate={{ opacity: [0, 0.9, 0] }}
+          transition={{
+            duration: 4,
+            ease: "easeInOut",
+            times: [0, 0.5, 1],
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
+        />
       </div>
 
       <div className="relative z-10 md:-mt-8">
