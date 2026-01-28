@@ -33,6 +33,8 @@ import {
   ReviewFeedDto,
   ReviewResponseDto,
 } from '../dto/review-response.dto';
+import { Notify } from '@/features/notification/decorators/notification.decorator';
+import { NotificationType } from '@/features/notification/entities/notification.entity';
 
 @ApiTags('리뷰 (Review)')
 @Controller('reviews')
@@ -196,6 +198,7 @@ export class ReviewController {
     type: ReviewResponseDto,
   })
   @ApiParam({ name: 'id', description: '리뷰 ID' })
+  @Notify(NotificationType.REVIEW_REACTION)
   async toggleReaction(
     @Param('id', ParseIntPipe) id: number,
     @Body('type') type: ReviewReactionType,
