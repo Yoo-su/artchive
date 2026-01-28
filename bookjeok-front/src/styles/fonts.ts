@@ -1,4 +1,8 @@
-import { Bitcount_Prop_Single, Nanum_Gothic } from "next/font/google";
+import {
+  Bitcount_Prop_Single,
+  Gowun_Batang,
+  Nanum_Gothic,
+} from "next/font/google";
 import localFont from "next/font/local";
 
 export const nanum_gothic = Nanum_Gothic({
@@ -20,4 +24,11 @@ export const bitcount = Bitcount_Prop_Single({
   variable: "--font-bitcount",
   display: "swap",
   preload: false,
+});
+
+export const gowun_batang = Gowun_Batang({
+  weight: ["400", "700"],
+  variable: "--font-gowun-batang",
+  display: "swap",
+  subsets: ["latin"],
 });

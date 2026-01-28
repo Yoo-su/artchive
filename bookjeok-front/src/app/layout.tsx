@@ -12,7 +12,12 @@ import { jsonLd } from "@/shared/config/json-ld";
 import { QueryProvider } from "@/shared/providers/query-provider";
 import { SocketProvider } from "@/shared/providers/socket-provider";
 import UserProvider from "@/shared/providers/user-provider";
-import { bitcount, nanum_gothic, pretendard } from "@/styles/fonts";
+import {
+  bitcount,
+  gowun_batang,
+  nanum_gothic,
+  pretendard,
+} from "@/styles/fonts";
 
 export { metadata } from "@/shared/config/metadata";
 import { config } from "@/shared/config/env";
@@ -25,7 +30,7 @@ export default async function Layout({
   return (
     <html
       lang="ko"
-      className={`${pretendard.variable} ${nanum_gothic.variable} ${bitcount.variable}`}
+      className={`${pretendard.variable} ${nanum_gothic.variable} ${bitcount.variable} ${gowun_batang.variable}`}
     >
       <body style={{ fontFamily: "var(--font-pretendard)" }}>
         <QueryProvider>

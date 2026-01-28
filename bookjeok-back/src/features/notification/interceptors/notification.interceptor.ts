@@ -54,8 +54,10 @@ export class NotificationInterceptor implements NestInterceptor {
         return;
       }
 
+      const entity = result.data;
+
       const strategy = this.strategyFactory.getStrategy(notificationType);
-      const payload = await strategy.createPayload(result, actorId);
+      const payload = await strategy.createPayload(entity, actorId);
 
       if (payload) {
         await this.notificationService.createNotification(
