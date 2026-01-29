@@ -32,6 +32,33 @@
       "synopsis": "Synopsis",
       "booking": "Booking",
       "default_booking": "Booking Site"
+    },
+    "metadata": {
+      "title": "Performance Info",
+      "description": "Check out the latest performance information."
+    }
+  },
+  "meta": {
+    "default_title": "Bookjeok - Book Reviews & Used Book Market",
+    "template_title": "%s | Bookjeok",
+    "description": "Connect with books and people at Bookjeok. Share honest book reviews, trade used books, and discover new reading experiences.",
+    "keywords": "Bookjeok,book reviews,used books,reading log,book recommendations,book club",
+    "og": {
+      "title": "Bookjeok - Connecting People with Books",
+      "description": "Share honest book reviews and trade used books. Start your reading log at Bookjeok."
+    },
+    "twitter": {
+      "title": "Bookjeok - Connecting People with Books",
+      "description": "Share honest review and trade used books. Share the joy of reading at Bookjeok."
+    }
+  },
+  "json_ld": {
+    "name": "Bookjeok",
+    "description": "Connect with books and people at Bookjeok. Share honest book reviews, trade used books, and discover new reading experiences.",
+    "nav": {
+      "market": "Used Market",
+      "review": "Reviews",
+      "search": "Search"
     }
   },
   "notification": {
@@ -213,7 +240,7 @@
     "language_switcher": "Change Language"
   },
   "footer": {
-    "description": "Book review sharing and used book trading platform",
+    "description": "A comprehensive book platform for personal reading logs,\nused book trading, and reviews.",
     "service": "Service",
     "contact": "Contact",
     "terms": "Terms of Service",
@@ -240,10 +267,19 @@
       "all_loaded": "All search results have been loaded.",
       "popular_keywords": "Popular Keywords",
       "popular_top": "Popular Keywords TOP {count}",
-      "popular_label": "HOT"
+      "popular_label": "HOT",
+      "metadata": {
+        "title": "Book Search",
+        "description": "Find the books you want at Bookjeok."
+      }
     },
     "detail": {
       "domestic_book": "Book",
+      "metadata": {
+        "title": "Book Detail",
+        "description": "Check book details.",
+        "not_found": "Book info not found."
+      },
       "author_suffix": "Author",
       "description_title": "Description",
       "more_books": "More",
@@ -266,7 +302,17 @@
         "recommendation_label": "Recommended for",
         "keywords_label": "Keywords"
       },
-      "related_books_title": "More from {author}"
+      "related_books_title": "More from {author}",
+      "related_reviews": {
+        "title": "Stories from Readers",
+        "more": "More ({count})",
+        "error": "Failed to load reviews.",
+        "empty": "No reviews written yet.",
+        "write_first": "Write the first review"
+      },
+      "comments": {
+        "title": "Readers' Comments"
+      }
     }
   },
   "review": {
@@ -274,6 +320,10 @@
       "title": "Book Reviews",
       "subtitle": "Meet honest reviews from readers.\nWe join you on your journey to find your next book.",
       "button_write": "Write Review"
+    },
+    "metadata": {
+      "title": "Book Reviews",
+      "description": "Read honest reviews from various readers."
     },
     "filters": {
       "placeholder": "Search review title, content, tag, or book...",
@@ -301,7 +351,13 @@
       "feed_error": "Failed to load review feeds.",
       "no_reviews": "No reviews found.",
       "more": "More",
-      "recent_label": "New Review"
+      "recent_label": "New Review",
+      "empty_search_title": "No search results found",
+      "empty_search_desc": "Try adjusting your search or filter to find what you're looking for.",
+      "empty_list_title": "No reviews written yet",
+      "empty_list_desc": "Be the first to share your thoughts. Your story can inspire others.",
+      "view_all": "View All",
+      "write_first": "Write First Review"
     },
     "detail": {
       "not_found": "This review does not exist or has been deleted.",
@@ -350,10 +406,26 @@
       "category_required": "Please select a category.",
       "tags_min": "Please add at least one tag.",
       "tags_max": "Tags cannot exceed 5."
+    },
+    "write": {
+      "metadata": {
+        "title": "Write Review",
+        "description": "Share your thoughts on the book you read."
+      }
+    },
+    "edit": {
+      "metadata": {
+        "title": "Edit Review",
+        "description": "Edit your book review."
+      }
     }
   },
   "reading_log": {
     "hero": {
+      "metadata": {
+        "title": "Reading Log",
+        "description": "Check your monthly reading records."
+      },
       "title": "My Reading Log",
       "subtitle": "Track the depth of your knowledge each month.\nRecord your growth journey.",
       "public_toggle": "Public Log",
@@ -428,6 +500,10 @@
   "insights": {
     "title": "Service Stats",
     "subtitle": "Check out real-time service statistics",
+    "metadata": {
+      "title": "Service Insights",
+      "description": "Check Bookjeok service activities and statistics."
+    },
     "live_stats": "Live Stats",
     "error": {
       "title": "Failed to load data",
@@ -485,6 +561,10 @@
     }
   },
   "my_page": {
+    "metadata": {
+      "title": "My Page",
+      "description": "Check your activities and information."
+    },
     "title": "My Page",
     "activity_manage": "Activity Management",
     "menu": {
@@ -494,7 +574,11 @@
       },
       "sales": {
         "label": "My Sales",
-        "desc": "Manage your used book listings"
+        "desc": "Manage your used book listings",
+        "metadata": {
+          "title": "My Sales",
+          "description": "List of used books you are selling."
+        }
       },
       "reviews": {
         "label": "My Reviews",
@@ -550,6 +634,10 @@
     }
   },
   "my_reviews": {
+    "metadata": {
+      "title": "My Reviews",
+      "description": "Check reviews you have written."
+    },
     "title": "My Reviews",
     "delete_modal": {
       "title": "Delete Review",
@@ -565,6 +653,10 @@
     }
   },
   "my_comments": {
+    "metadata": {
+      "title": "My Comments",
+      "description": "Check comments you have written."
+    },
     "title": "My Comments",
     "count_desc": "You have written {count} comments",
     "empty": {
@@ -582,6 +674,10 @@
     "loading": "Loading..."
   },
   "wishlist": {
+    "metadata": {
+      "title": "Wishlist",
+      "description": "Check your saved books and listings."
+    },
     "title": "Wishlist",
     "empty": {
       "title": "Your wishlist is empty.",
@@ -597,6 +693,10 @@
     }
   },
   "user_profile": {
+    "metadata": {
+      "title": "User Profile",
+      "description": "Check user reading logs and reviews."
+    },
     "not_found": "User not found or deleted.",
     "joined": "Joined {date}",
     "stats": {
@@ -610,6 +710,10 @@
   },
   "market": {
     "hero": {
+      "metadata": {
+        "title": "Used Market",
+        "description": "Trade used books and discover new stories."
+      },
       "title": "Circulating Sentences",
       "subtitle": "CIRCULATION",
       "messages": {

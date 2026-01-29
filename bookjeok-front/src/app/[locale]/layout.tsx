@@ -6,14 +6,19 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { notFound } from "next/navigation";
 import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, setRequestLocale } from "next-intl/server";
+import {
+  getMessages,
+  getTranslations,
+  setRequestLocale,
+} from "next-intl/server";
 
 import { ChatProvider } from "@/features/chat/providers/chat-provider";
 import { NotificationProvider } from "@/features/notification/providers/notification-provider";
 import { Toaster } from "@/shared/components/shadcn/sonner";
 import { config } from "@/shared/config/env";
 import { routing } from "@/shared/config/i18n/routing";
-import { jsonLd } from "@/shared/config/json-ld";
+import { getJsonLd } from "@/shared/config/json-ld";
+import { generateGlobalMetadata } from "@/shared/config/metadata";
 import { QueryProvider } from "@/shared/providers/query-provider";
 import { SocketProvider } from "@/shared/providers/socket-provider";
 import UserProvider from "@/shared/providers/user-provider";
@@ -24,8 +29,16 @@ import {
   pretendard,
 } from "@/styles/fonts";
 
-// 메타데이터는 src/shared/config/metadata.ts에서 관리됩니다.
-export { metadata } from "@/shared/config/metadata";
+// 메타데이터 생성
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale });
+  return generateGlobalMetadata(t);
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -50,6 +63,8 @@ export default async function Layout({
 
   // 다국어 메시지 로드
   const messages = await getMessages();
+  const t = await getTranslations({ locale });
+  const jsonLdData = getJsonLd(t);
 
   return (
     <html
@@ -77,7 +92,7 @@ export default async function Layout({
           <Toaster position="bottom-center" />
           <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
           />
           {config.NEXT_PUBLIC_GOOGLE_ADSENSE_ID && (
             <Script

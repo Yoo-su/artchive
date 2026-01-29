@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { bookKeys } from "@/features/book";
 import { fetchBookDetail } from "@/features/book/apis/server";
@@ -16,25 +16,29 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { isbn } = await params;
+  const { isbn, locale } = await params;
+  const t = await getTranslations({
+    locale,
+    namespace: "book.detail.metadata",
+  });
 
   try {
     const data = await fetchBookDetail(isbn);
     // items가 없거나 비어있는 경우 처리
     if (!data.items || data.items.length === 0) {
-      throw new Error("책 정보가 없습니다.");
+      throw new Error(t("not_found"));
     }
 
     const book = data.items[0];
 
     return {
       title: book.title,
-      description: "도서 상세 정보를 확인하세요.",
+      description: t("description"),
     };
   } catch {
     return {
-      title: "도서 상세",
-      description: "도서 상세 정보를 확인하세요.",
+      title: t("title"),
+      description: t("description"),
     };
   }
 }

@@ -10,16 +10,25 @@ import InsightsView from "@/views/insights-view";
 // 30분마다 데이터 재검증
 export const revalidate = 1800;
 
-export const metadata: Metadata = {
-  title: "서비스 인사이트",
-  description:
-    "북적 서비스의 활동 현황을 한눈에 확인하세요. 거래 핫스팟, 인기 카테고리, 가격 분포 등 다양한 통계를 제공합니다.",
-  openGraph: {
-    title: "서비스 인사이트 | 북적",
-    description:
-      "북적 서비스의 활동 현황을 한눈에 확인하세요. 거래 핫스팟, 인기 카테고리, 가격 분포 등 다양한 통계를 제공합니다.",
-  },
-};
+import { getTranslations } from "next-intl/server";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "insights.metadata" });
+
+  return {
+    title: t("title"),
+    description: t("description"),
+    openGraph: {
+      title: t("title") + " | 북적", // Assuming "북적" is static or comes from another translation
+      description: t("description"),
+    },
+  };
+}
 
 export default async function Page({
   params,

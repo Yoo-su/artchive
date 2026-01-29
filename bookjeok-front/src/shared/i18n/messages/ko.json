@@ -32,6 +32,33 @@
       "synopsis": "줄거리",
       "booking": "예매처",
       "default_booking": "예매처"
+    },
+    "metadata": {
+      "title": "공연 정보",
+      "description": "최신 공연 정보를 확인하세요."
+    }
+  },
+  "json_ld": {
+    "name": "북적",
+    "description": "북적에서 책과 사람을 잇다. 솔직한 도서 리뷰를 공유하고 중고책을 거래하며 새로운 독서 경험을 발견하세요.",
+    "nav": {
+      "market": "중고마켓",
+      "review": "도서리뷰",
+      "search": "도서검색"
+    }
+  },
+  "meta": {
+    "default_title": "북적 - 도서 리뷰 & 중고책 마켓",
+    "template_title": "%s | 북적",
+    "description": "북적에서 책과 사람을 잇다. 솔직한 도서 리뷰를 공유하고, 중고책을 거래하며, 새로운 독서 경험을 발견하세요.",
+    "keywords": "북적,도서리뷰,중고책,독서기록,책추천,북클럽",
+    "og": {
+      "title": "북적 - 책과 사람을 잇다",
+      "description": "솔직한 도서 리뷰와 중고책 거래. 북적에서 나만의 서재를 시작해보세요."
+    },
+    "twitter": {
+      "title": "북적 - 책과 사람을 잇다",
+      "description": "솔직한 리뷰와 중고책 거래. 북적에서 독서의 즐거움을 나누세요."
     }
   },
   "notification": {
@@ -233,7 +260,7 @@
     "language_switcher": "언어 변경"
   },
   "footer": {
-    "description": "도서 리뷰 공유와 중고책 거래 플랫폼",
+    "description": "독서기록을 관리하고 중고책 거래와 책 리뷰를 공유하는\n도서 종합 플랫폼",
     "service": "서비스",
     "contact": "문의",
     "terms": "이용약관",
@@ -260,10 +287,19 @@
       "all_loaded": "모든 검색 결과를 불러왔습니다.",
       "popular_keywords": "인기 검색어",
       "popular_top": "인기 검색어 TOP {count}",
-      "popular_label": "인기"
+      "popular_label": "인기",
+      "metadata": {
+        "title": "도서 검색",
+        "description": "북적에서 원하는 책을 찾아보세요."
+      }
     },
     "detail": {
       "domestic_book": "국내도서",
+      "metadata": {
+        "title": "도서 상세",
+        "description": "도서 상세 정보를 확인하세요.",
+        "not_found": "책 정보가 없습니다."
+      },
       "author_suffix": "저",
       "description_title": "작품 소개",
       "more_books": "더보기",
@@ -286,7 +322,17 @@
         "recommendation_label": "이런 분께 추천해요",
         "keywords_label": "키워드"
       },
-      "related_books_title": "'{author}' 저자의 다른 책"
+      "related_books_title": "'{author}' 저자의 다른 책",
+      "related_reviews": {
+        "title": "이 책을 읽은 사람들의 이야기",
+        "more": "더보기 ({count}개)",
+        "error": "리뷰를 불러오는 데 실패했습니다.",
+        "empty": "아직 작성된 리뷰가 없습니다.",
+        "write_first": "첫 번째 리뷰 작성하기"
+      },
+      "comments": {
+        "title": "독자들의 코멘트"
+      }
     }
   },
   "review": {
@@ -294,6 +340,10 @@
       "title": "Book Reviews",
       "subtitle": "독자들의 솔직한 감상을 만나보세요.\n당신의 다음 책을 찾는 여정에 함께합니다.",
       "button_write": "리뷰 작성하기"
+    },
+    "metadata": {
+      "title": "도서 리뷰",
+      "description": "다양한 책에 대한 솔직한 독자 리뷰를 확인하세요."
     },
     "filters": {
       "placeholder": "리뷰 제목, 내용, 태그 또는 책 제목으로 검색",
@@ -321,7 +371,13 @@
       "feed_error": "피드 정보를 불러오는데 실패했습니다.",
       "no_reviews": "등록된 리뷰가 없습니다.",
       "more": "더보기",
-      "recent_label": "최신 리뷰"
+      "recent_label": "최신 리뷰",
+      "empty_search_title": "검색 결과가 없습니다",
+      "empty_search_desc": "다른 검색어나 카테고리로 다시 시도해보세요.",
+      "empty_list_title": "아직 작성된 리뷰가 없습니다",
+      "empty_list_desc": "가장 먼저 책에 대한 이야기를 들려주세요. 당신의 이야기가 누군가에게는 큰 영감이 됩니다.",
+      "view_all": "전체 목록 보기",
+      "write_first": "첫 리뷰 작성하기"
     },
     "detail": {
       "not_found": "존재하지 않거나 삭제된 리뷰입니다.",
@@ -370,10 +426,26 @@
       "category_required": "카테고리를 선택해주세요.",
       "tags_min": "태그를 최소 1개 이상 입력해주세요.",
       "tags_max": "태그는 최대 5개까지 입력 가능합니다."
+    },
+    "write": {
+      "metadata": {
+        "title": "리뷰 작성",
+        "description": "읽은 책에 대한 감상을 공유해주세요."
+      }
+    },
+    "edit": {
+      "metadata": {
+        "title": "리뷰 수정",
+        "description": "도서 리뷰 수정 페이지입니다."
+      }
     }
   },
   "reading_log": {
     "hero": {
+      "metadata": {
+        "title": "독서 기록",
+        "description": "매달 쌓이는 나만의 독서 기록을 확인하세요."
+      },
       "title": "나의 독서 기록",
       "subtitle": "매달 쌓여가는 지식의 깊이를 확인해보세요.\n당신의 성장을 기록합니다.",
       "public_toggle": "독서 기록 공개",
@@ -430,6 +502,10 @@
   "insights": {
     "title": "bookjeok 서비스 현황",
     "subtitle": "실시간으로 업데이트되는 서비스 통계를 확인해보세요",
+    "metadata": {
+      "title": "서비스 인사이트",
+      "description": "북적 서비스의 활동 현황과 통계를 한눈에 확인하세요."
+    },
     "live_stats": "Live Stats",
     "error": {
       "title": "데이터를 불러오지 못했어요",
@@ -487,6 +563,10 @@
     }
   },
   "my_page": {
+    "metadata": {
+      "title": "마이페이지",
+      "description": "내 활동 내역과 정보를 확인하세요."
+    },
     "title": "마이 페이지",
     "activity_manage": "활동 관리",
     "menu": {
@@ -496,7 +576,11 @@
       },
       "sales": {
         "label": "나의 판매 내역",
-        "desc": "등록한 중고책 판매글 관리"
+        "desc": "등록한 중고책 판매글 관리",
+        "metadata": {
+          "title": "판매 내역",
+          "description": "내가 등록한 중고 서적 판매 내역입니다."
+        }
       },
       "reviews": {
         "label": "나의 리뷰",
@@ -552,6 +636,10 @@
     }
   },
   "my_reviews": {
+    "metadata": {
+      "title": "내가 쓴 리뷰",
+      "description": "내가 작성한 도서 리뷰들을 모아보세요."
+    },
     "title": "내가 쓴 리뷰",
     "delete_modal": {
       "title": "리뷰 삭제",
@@ -567,6 +655,10 @@
     }
   },
   "my_comments": {
+    "metadata": {
+      "title": "내가 쓴 댓글",
+      "description": "내가 작성한 댓글들을 모아보세요."
+    },
     "title": "내가 쓴 댓글",
     "count_desc": "총 {count}개의 댓글을 작성했어요",
     "empty": {
@@ -584,6 +676,10 @@
     "loading": "로딩 중..."
   },
   "wishlist": {
+    "metadata": {
+      "title": "위시리스트",
+      "description": "찜한 도서와 판매글을 확인하세요."
+    },
     "title": "위시리스트",
     "empty": {
       "title": "위시리스트가 비어있습니다.",
@@ -599,6 +695,10 @@
     }
   },
   "user_profile": {
+    "metadata": {
+      "title": "사용자 프로필",
+      "description": "사용자의 독서 기록과 리뷰를 확인하세요."
+    },
     "not_found": "존재하지 않거나 삭제된 사용자입니다.",
     "joined": "{date} 가입",
     "stats": {
@@ -612,6 +712,10 @@
   },
   "market": {
     "hero": {
+      "metadata": {
+        "title": "중고마켓",
+        "description": "다양한 중고 서적을 거래하고 새로운 이야기를 만나보세요."
+      },
       "title": "순환하는 문장들",
       "subtitle": "CIRCULATION",
       "messages": {

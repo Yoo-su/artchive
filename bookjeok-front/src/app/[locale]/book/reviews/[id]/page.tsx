@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { cache } from "react";
 
 import { reviewKeys } from "@/features/review";
@@ -28,14 +28,16 @@ const getCachedReview = cache(async (id: number) => {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
+  const { locale } = await params;
   const reviewId = Number(id);
+  const t = await getTranslations({ locale, namespace: "review.detail" });
 
   const review = await getCachedReview(reviewId);
 
   if (!review) {
     return {
-      title: "리뷰를 찾을 수 없습니다",
-      description: "요청하신 리뷰가 존재하지 않습니다.",
+      title: t("not_found"),
+      description: t("not_found"),
       robots: {
         index: false,
         follow: false,

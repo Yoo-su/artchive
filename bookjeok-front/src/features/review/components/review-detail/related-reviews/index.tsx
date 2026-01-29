@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useInView } from "react-intersection-observer";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -34,16 +35,18 @@ export const RelatedReviews = ({ isbn }: RelatedReviewsProps) => {
   const reviews = data?.reviews || [];
   const totalCount = data?.total || 0;
 
+  const t = useTranslations("book.detail.related_reviews");
+
   return (
     <section ref={ref} className="w-full py-12">
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl text-stone-600">이 책을 읽은 사람들의 이야기</h2>
+        <h2 className="text-xl text-stone-600">{t("title")}</h2>
 
         {totalCount > 4 && (
           <Link href={`${PATHS.REVIEWS}?bookIsbn=${isbn}`}>
             <Button variant="ghost" size="sm" className="text-stone-500">
-              더보기 ({totalCount}개)
+              {t("more", { count: totalCount })}
             </Button>
           </Link>
         )}
@@ -54,18 +57,16 @@ export const RelatedReviews = ({ isbn }: RelatedReviewsProps) => {
 
       {/* 에러 상태 */}
       {isError && (
-        <div className="text-center text-red-500 py-8">
-          리뷰를 불러오는 데 실패했습니다.
-        </div>
+        <div className="text-center text-red-500 py-8">{t("error")}</div>
       )}
 
       {/* 빈 상태 */}
       {inView && !isLoading && !isError && reviews.length === 0 && (
         <div className="text-center py-12 bg-stone-50 rounded-xl">
-          <p className="text-stone-500 mb-4">아직 작성된 리뷰가 없습니다.</p>
+          <p className="text-stone-500 mb-4">{t("empty")}</p>
           <Link href={PATHS.REVIEW_WRITE}>
             <Button variant="outline" size="sm">
-              첫 번째 리뷰 작성하기
+              {t("write_first")}
             </Button>
           </Link>
         </div>

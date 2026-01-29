@@ -1,6 +1,5 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { bookKeys } from "@/features/book";
 import { getPopularBooks } from "@/features/book/apis";
@@ -14,10 +13,18 @@ import { HomeView } from "@/views/home-view";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  description:
-    "책과 사람을 잇는 북적에서 인기 중고책을 거래하고 솔직한 도서 리뷰를 확인하세요. 나만의 독서 경험을 공유해보세요.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "meta" });
+
+  return {
+    description: t("description"),
+  };
+}
 
 export default async function Page({
   params,
