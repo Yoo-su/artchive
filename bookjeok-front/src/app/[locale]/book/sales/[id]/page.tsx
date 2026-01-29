@@ -1,5 +1,6 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { cache } from "react";
 
 import { bookKeys } from "@/features/book";
@@ -12,7 +13,7 @@ import { BookSaleDetailView } from "@/views/book-sale-detail-view";
 export const revalidate = 60;
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string; id: string }>;
 };
 
 // React.cache를 사용하여 API 요청 중복 제거
@@ -71,16 +72,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function Page({ params }: Props) {
-  const { id } = await params;
+  const { locale, id } = await params;
+  setRequestLocale(locale);
   const queryClient = getQueryClient();
 
   let sale = null;
 
   try {
-    // 캐시된 API 호출 (generateMetadata와 공유, 중복 호출 없음)
+    // 캐시된 API 호출
     sale = await getCachedBookSale(id);
 
-    // 이미 가져온 데이터를 QueryClient에 직접 설정 (추가 API 호출 없음)
+    // QueryClient에 데이터 설정
     if (sale) {
       queryClient.setQueryData(bookKeys.saleDetail(id).queryKey, sale);
     }

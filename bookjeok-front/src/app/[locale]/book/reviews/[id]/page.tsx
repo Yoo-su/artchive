@@ -1,5 +1,6 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { cache } from "react";
 
 import { reviewKeys } from "@/features/review";
@@ -12,7 +13,7 @@ import { ReviewDetailView } from "@/views/review-detail-view";
 export const revalidate = 300;
 
 interface Props {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string; id: string }>;
 }
 
 // React.cache를 사용하여 API 요청 중복 제거 (Request Memoization)
@@ -68,14 +69,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function Page({ params }: Props) {
-  const { id } = await params;
+  const { locale, id } = await params;
+  setRequestLocale(locale);
+
   const reviewId = Number(id);
   const queryClient = getQueryClient();
 
-  // 캐시된 API 호출 (generateMetadata와 공유, 중복 호출 없음)
+  // 캐시된 API 호출
   const review = await getCachedReview(reviewId);
 
-  // 이미 가져온 데이터를 QueryClient에 직접 설정 (추가 API 호출 없음)
+  // QueryClient에 데이터 설정
   if (review) {
     queryClient.setQueryData(reviewKeys.detail(reviewId).queryKey, review);
   }

@@ -1,5 +1,6 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 
 import { bookKeys } from "@/features/book";
 import { fetchBookDetail } from "@/features/book/apis/server";
@@ -11,7 +12,7 @@ import { BookDetailView } from "@/views/book-detail-view";
 export const revalidate = 86400; // 24시간 (60 * 60 * 24)
 
 type Props = {
-  params: Promise<{ isbn: string }>;
+  params: Promise<{ locale: string; isbn: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -39,7 +40,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function Page({ params }: Props) {
-  const { isbn } = await params;
+  const { locale, isbn } = await params;
+  setRequestLocale(locale);
+
   const queryClient = getQueryClient();
 
   try {
@@ -54,7 +57,7 @@ export default async function Page({ params }: Props) {
       ]);
     }
   } catch {
-    // API 호출 실패 시 조용한 실패 혹은 별도 처리 (여기서는 Hydration 생략)
+    // API 호출 실패 시 조용한 처리
   }
 
   return (

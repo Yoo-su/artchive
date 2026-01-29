@@ -1,5 +1,6 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 
 import { insightsKeys } from "@/features/insights";
 import { getInsights } from "@/features/insights/apis";
@@ -20,10 +21,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function InsightsPage() {
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   const queryClient = getQueryClient();
 
-  // 인사이트 데이터 서버사이드 프리페치
+  // 인사이트 데이터 프리패치
   try {
     await queryClient.prefetchQuery({
       queryKey: insightsKeys.all.queryKey,

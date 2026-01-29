@@ -6,7 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { notFound } from "next/navigation";
 import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getMessages, setRequestLocale } from "next-intl/server";
 
 import { ChatProvider } from "@/features/chat/providers/chat-provider";
 import { NotificationProvider } from "@/features/notification/providers/notification-provider";
@@ -27,6 +27,10 @@ import {
 // 메타데이터는 src/shared/config/metadata.ts에서 관리됩니다.
 export { metadata } from "@/shared/config/metadata";
 
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
 export default async function Layout({
   children,
   params,
@@ -36,13 +40,15 @@ export default async function Layout({
 }>) {
   const { locale } = await params;
 
-  // 들어오는 `locale`이 유효한지 확인합니다.
+  // 유효하지 않은 locale 진입 시 404 처리
   if (!routing.locales.includes(locale as any)) {
     notFound();
   }
 
-  // 모든 메시지를 클라이언트에 제공하는 것이
-  // 시작하기에 가장 쉬운 방법입니다.
+  // 정적 렌더링(SSG) 활성화
+  setRequestLocale(locale);
+
+  // 다국어 메시지 로드
   const messages = await getMessages();
 
   return (

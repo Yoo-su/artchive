@@ -1,5 +1,6 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 
 import { bookKeys } from "@/features/book";
 import {
@@ -38,10 +39,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function Page() {
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   const queryClient = getQueryClient();
 
-  // 인기 판매글 및 초기 판매글 목록 prefetch
+  // 인기 판매글 및 판매 목록 프리패치
   try {
     await Promise.all([
       queryClient.prefetchQuery({
