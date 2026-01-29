@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useInView } from "react-intersection-observer";
 
@@ -22,10 +23,11 @@ export const CommentSection = ({
 }: CommentSectionProps) => {
   const [page, setPage] = useState(1);
   const { ref, inView } = useInView({ triggerOnce: true, rootMargin: "200px" });
+  const t = useTranslations("book.detail.comments");
 
   return (
     <section ref={ref} className="py-12">
-      <h2 className="text-xl mb-6 text-stone-600">독자들의 코멘트</h2>
+      <h2 className="text-xl mb-6 text-stone-600">{t("title")}</h2>
 
       {/* 댓글 작성 폼 */}
       <CommentForm targetType={targetType} targetId={targetId} />

@@ -1,45 +1,47 @@
-export const jsonLd = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "WebSite",
-      name: "북적",
-      alternateName: ["북적", "bookjeok", "Bookjeok"],
-      description:
-        "책과 사람을 잇는 북적. 솔직한 도서 리뷰를 공유하고, 중고책을 거래하며 새로운 독서 경험을 발견하세요.",
-      url: "https://bookjeok.com",
-      potentialAction: {
-        "@type": "SearchAction",
-        target: "https://bookjeok.com/book/search?keyword={search_term_string}",
-        "query-input": "required name=search_term_string",
+export const getJsonLd = (t: (key: string) => string) => {
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        name: t("json_ld.name"),
+        alternateName: ["북적", "bookjeok", "Bookjeok"],
+        description: t("json_ld.description"),
+        url: "https://bookjeok.com",
+        potentialAction: {
+          "@type": "SearchAction",
+          target:
+            "https://bookjeok.com/book/search?keyword={search_term_string}",
+          "query-input": "required name=search_term_string",
+        },
       },
-    },
-    {
-      "@type": "Organization",
-      name: "북적",
-      url: "https://bookjeok.com",
-      logo: {
-        "@type": "ImageObject",
-        url: "https://bookjeok.com/logo-square.svg",
-        width: "766",
-        height: "766",
-        encodingFormat: "image/svg+xml",
+      {
+        "@type": "Organization",
+        name: t("json_ld.name"),
+        url: "https://bookjeok.com",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://bookjeok.com/logo-square.svg",
+          width: "766",
+          height: "766",
+          encodingFormat: "image/svg+xml",
+        },
       },
-    },
-    {
-      "@type": "SiteNavigationElement",
-      name: "중고마켓",
-      url: "https://bookjeok.com/book/market",
-    },
-    {
-      "@type": "SiteNavigationElement",
-      name: "도서리뷰",
-      url: "https://bookjeok.com/review",
-    },
-    {
-      "@type": "SiteNavigationElement",
-      name: "도서검색",
-      url: "https://bookjeok.com/book/search",
-    },
-  ],
+      {
+        "@type": "SiteNavigationElement",
+        name: t("json_ld.nav.market"),
+        url: "https://bookjeok.com/book/market",
+      },
+      {
+        "@type": "SiteNavigationElement",
+        name: t("json_ld.nav.review"),
+        url: "https://bookjeok.com/review",
+      },
+      {
+        "@type": "SiteNavigationElement",
+        name: t("json_ld.nav.search"),
+        url: "https://bookjeok.com/book/search",
+      },
+    ],
+  };
 };

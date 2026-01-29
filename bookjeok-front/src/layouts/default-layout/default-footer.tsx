@@ -19,7 +19,7 @@ export const DefaultFooter = () => {
           {/* 좌측 섹션: 브랜드 & 설명 */}
           <div className="space-y-4 md:max-w-xs">
             <Logo size="sm" />
-            <p className="text-sm text-stone-500 leading-relaxed">
+            <p className="text-sm text-stone-500 leading-relaxed whitespace-pre-line">
               {t("description")}
             </p>
           </div>

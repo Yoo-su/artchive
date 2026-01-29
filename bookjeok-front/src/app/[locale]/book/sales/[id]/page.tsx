@@ -1,6 +1,7 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { cache } from "react";
 
 import { bookKeys } from "@/features/book";
@@ -23,15 +24,16 @@ const getCachedBookSale = cache(async (id: string) => {
 
 // 동적 메타데이터 생성
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params;
+  const { id, locale } = await params;
+  const t = await getTranslations({ locale, namespace: "market.detail" });
 
   try {
     const sale = await getCachedBookSale(id);
 
     if (!sale) {
       return {
-        title: "판매글을 찾을 수 없습니다",
-        description: "요청하신 판매글이 존재하지 않습니다.",
+        title: t("not_found"),
+        description: t("not_found"),
       };
     }
 
@@ -65,8 +67,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   } catch {
     return {
-      title: "중고책 판매",
-      description: "중고책 판매 상세 정보",
+      title: t("book_info.title"), // Fallback if API fails
+      description: t("not_found"),
     };
   }
 }

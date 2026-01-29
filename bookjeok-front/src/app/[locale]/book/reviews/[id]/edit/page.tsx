@@ -1,12 +1,25 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import { AuthGuard } from "@/features/auth/components/guards/auth-guard";
 import { ReviewEditView } from "@/views/review-edit-view";
 
-export const metadata: Metadata = {
-  title: "리뷰 수정",
-  description: "도서 리뷰 수정 페이지입니다.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({
+    locale,
+    namespace: "review.edit.metadata",
+  });
+
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
 export default function Page() {
   return (

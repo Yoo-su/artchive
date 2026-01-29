@@ -1,6 +1,7 @@
 "use client";
 
 import { MessageSquare } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
@@ -72,6 +73,7 @@ export function ReviewGridList({
   }
 
   const reviews = data?.pages.flatMap((page) => page.reviews) || [];
+  const t = useTranslations("review.list");
 
   // 결과 없음
   if (reviews.length === 0) {
@@ -82,13 +84,13 @@ export function ReviewGridList({
         </div>
         <h3 className="text-2xl font-serif font-bold text-stone-800 mb-3">
           {searchQuery || category
-            ? "검색 결과가 없습니다"
-            : "아직 작성된 리뷰가 없습니다"}
+            ? t("empty_search_title")
+            : t("empty_list_title")}
         </h3>
         <p className="text-stone-500 mb-8 max-w-md mx-auto">
           {searchQuery || category
-            ? "다른 검색어나 카테고리로 다시 시도해보세요."
-            : "가장 먼저 책에 대한 이야기를 들려주세요. 당신의 이야기가 누군가에게는 큰 영감이 됩니다."}
+            ? t("empty_search_desc")
+            : t("empty_list_desc")}
         </p>
         {searchQuery || category ? (
           <Button
@@ -96,7 +98,7 @@ export function ReviewGridList({
             onClick={clearFilters}
             className="border-stone-300 hover:bg-stone-50"
           >
-            전체 목록 보기
+            {t("view_all")}
           </Button>
         ) : (
           <Button
@@ -104,7 +106,7 @@ export function ReviewGridList({
             variant="outline"
             className="border-stone-300 hover:bg-stone-50"
           >
-            <Link href={PATHS.REVIEW_WRITE}>첫 리뷰 작성하기</Link>
+            <Link href={PATHS.REVIEW_WRITE}>{t("write_first")}</Link>
           </Button>
         )}
       </div>

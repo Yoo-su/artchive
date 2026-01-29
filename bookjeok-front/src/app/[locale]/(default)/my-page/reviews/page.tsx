@@ -1,11 +1,21 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import MyReviewsPage from "@/views/my-reviews-view";
 
-export const metadata: Metadata = {
-  title: "내가 쓴 리뷰",
-  description: "내가 작성한 도서 리뷰들을 모아보세요.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "my_reviews.metadata" });
+
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
 export default function Page() {
   return <MyReviewsPage />;

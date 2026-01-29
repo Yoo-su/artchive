@@ -1,11 +1,24 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import { BookSaleHistoryView } from "@/views/book-sale-history-view";
 
-export const metadata: Metadata = {
-  title: "판매 내역",
-  description: "내가 등록한 중고 서적 판매 내역입니다.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({
+    locale,
+    namespace: "my_page.menu.sales.metadata",
+  });
+
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
 export default function Page() {
   return <BookSaleHistoryView />;
