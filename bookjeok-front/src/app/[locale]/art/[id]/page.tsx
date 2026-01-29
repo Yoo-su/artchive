@@ -1,5 +1,6 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 
 import { artKeys } from "@/features/art";
 import { getArtDetail } from "@/features/art/apis";
@@ -13,11 +14,12 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string; id: string }>;
 };
 
 export default async function Page({ params }: Props) {
-  const { id } = await params;
+  const { locale, id } = await params;
+  setRequestLocale(locale);
   const queryClient = getQueryClient();
 
   // 서버에서 공연/전시 상세 정보 prefetch

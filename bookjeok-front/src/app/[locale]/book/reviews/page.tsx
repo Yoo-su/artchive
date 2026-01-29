@@ -1,5 +1,6 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 
 import { reviewKeys } from "@/features/review";
 import { getPopularReviews, getReviewFeeds } from "@/features/review/apis";
@@ -33,10 +34,17 @@ export const metadata: Metadata = {
 
 export const revalidate = 60;
 
-export default async function Page() {
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   const queryClient = getQueryClient();
 
-  // 인기 리뷰 및 피드 prefetch
+  // 인기 리뷰 및 피드 데이터 프리패치
 
   try {
     await Promise.all([

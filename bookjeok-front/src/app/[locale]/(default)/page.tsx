@@ -1,5 +1,6 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 
 import { bookKeys } from "@/features/book";
 import { getPopularBooks } from "@/features/book/apis";
@@ -18,27 +19,34 @@ export const metadata: Metadata = {
     "책과 사람을 잇는 북적에서 인기 중고책을 거래하고 솔직한 도서 리뷰를 확인하세요. 나만의 독서 경험을 공유해보세요.",
 };
 
-export default async function Page() {
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   const queryClient = getQueryClient();
 
   try {
     await Promise.all([
-      // 최근 판매글 prefetch
+      // 최근 판매글
       queryClient.prefetchQuery({
         queryKey: bookKeys.recentSales.queryKey,
         queryFn: getRecentBookSales,
       }),
-      // 인기책 prefetch
+      // 인기 도서
       queryClient.prefetchQuery({
         queryKey: bookKeys.popularBooks.queryKey,
         queryFn: getPopularBooks,
       }),
-      // 최신 리뷰 prefetch (page: 1, limit: 10)
+      // 최신 리뷰 (1페이지, 10개)
       queryClient.prefetchQuery({
         queryKey: reviewKeys.list({ page: 1, limit: 10 }).queryKey,
         queryFn: () => getReviews({ page: 1, limit: 10 }),
       }),
-      // 첫 번째 출판사(민음사) 책 목록 prefetch - MainBookSlider 초기 로딩 최적화
+      // 민음사 도서 목록 (초기 로딩 최적화)
       queryClient.prefetchQuery({
         queryKey: bookKeys.list({
           query: HOME_PUBLISHERS[0],
