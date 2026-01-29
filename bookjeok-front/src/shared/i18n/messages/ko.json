@@ -226,7 +226,7 @@
         "desc": "솔직한 감상과 별점이 모여\n더 정확한 선택을 돕습니다"
       },
       "logo": {
-        "header": "당신의 이야기가\n북적이 되는 곳",
+        "header": "당신의 이야기가\n북적이는 곳",
         "sub": "Experience Bookjeok",
         "desc": "지금 나만의 서재를 만들어보세요"
       }
@@ -278,7 +278,7 @@
       "title": "도서 검색",
       "subtitle": "찾고 싶은 책의 제목, 저자, 출판사를 검색해보세요.",
       "placeholder": "어떤 책을 찾고 계신가요?",
-      "sticky_placeholder": "검색어 입력 후 엔터...",
+      "sticky_placeholder": "검색어를 입력하세요...",
       "button_label": "검색",
       "no_results": "'{query}'에 대한 검색 결과가 없습니다.",
       "check_typo": "오타가 없는지 확인하거나 다른 검색어로 검색해보세요.",
@@ -345,7 +345,7 @@
       "description": "다양한 책에 대한 솔직한 독자 리뷰를 확인하세요."
     },
     "filters": {
-      "placeholder": "리뷰 제목, 내용, 태그 또는 책 제목으로 검색",
+      "placeholder": "리뷰 제목, 내용, 태그, 책 제목으로 검색...",
       "reset": "필터 초기화",
       "categories": {
         "all": "전체",
