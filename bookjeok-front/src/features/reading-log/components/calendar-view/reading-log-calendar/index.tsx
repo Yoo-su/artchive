@@ -11,6 +11,7 @@ import {
   startOfWeek,
   subMonths,
 } from "date-fns";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { cn } from "@/shared/utils";
@@ -37,6 +38,7 @@ export function ReadingLogCalendar({
   currentDate,
   onDateChange,
 }: ReadingLogCalendarProps) {
+  const t = useTranslations("reading_log.calendar");
   // 내부 상태는 선택된 날짜와 다이얼로그, 뷰 모드만 관리
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -68,7 +70,7 @@ export function ReadingLogCalendar({
     end: endDate,
   });
 
-  const weekDayNames = ["일", "월", "화", "수", "목", "금", "토"];
+  const weekDayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
   const handleDayClick = (date: Date) => {
     setSelectedDate(date);
@@ -112,9 +114,9 @@ export function ReadingLogCalendar({
               theme.gradient,
             )}
           >
-            {weekDayNames.map((day, i) => (
+            {weekDayKeys.map((dayKey, i) => (
               <div
-                key={day}
+                key={dayKey}
                 className={cn(
                   "py-4 text-center text-sm font-semibold tracking-wide transition-colors duration-500",
                   i === 0
@@ -124,7 +126,7 @@ export function ReadingLogCalendar({
                       : theme.accent, // 평일 (Accent/Gray Color)
                 )}
               >
-                {day}
+                {t(`weekdays.${dayKey}`)}
               </div>
             ))}
           </div>

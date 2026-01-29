@@ -12,7 +12,7 @@ import {
   Store,
   User,
 } from "lucide-react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
@@ -24,8 +24,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/shared/components/shadcn/sheet";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
+import { LanguageSwitcher } from "../common/language-switcher";
 import { Logo } from "../common/logo";
 
 interface NavItem {
@@ -44,77 +46,79 @@ interface NavSection {
  * 모바일 네비게이션 Sheet 컴포넌트
  */
 export const MobileNavSheet = () => {
+  const t = useTranslations("header.nav");
+  const tSheet = useTranslations("sheet.sections");
   const [open, setOpen] = useState(false);
   const { user } = useAuthStore();
 
   // 네비게이션 섹션 정의
   const navSections: NavSection[] = [
     {
-      title: "도서",
+      title: tSheet("book"),
       items: [
         {
           href: PATHS.BOOK_SEARCH,
-          label: "도서 검색",
+          label: t("book_search"),
           icon: <Search className="h-4 w-4" />,
         },
         {
           href: PATHS.READING_LOG,
-          label: "독서 기록",
+          label: t("reading_log"),
           icon: <CalendarDays className="h-4 w-4" />,
           requiresAuth: true,
         },
       ],
     },
     {
-      title: "중고마켓",
+      title: tSheet("market"),
       items: [
         {
           href: PATHS.BOOK_MARKET,
-          label: "중고마켓 홈",
+          label: t("market_home"),
           icon: <Store className="h-4 w-4" />,
         },
         {
           href: PATHS.BOOK_SALES_REGISTER,
-          label: "판매글 작성",
+          label: t("write_sales"),
           icon: <PenSquare className="h-4 w-4" />,
           requiresAuth: true,
         },
         {
           href: PATHS.MY_PAGE_SALES,
-          label: "내 판매글",
+          label: t("my_sales"),
           icon: <ShoppingBag className="h-4 w-4" />,
           requiresAuth: true,
         },
       ],
     },
     {
-      title: "리뷰",
+      title: tSheet("review"),
       items: [
         {
           href: PATHS.REVIEWS,
-          label: "리뷰 홈",
+          label: t("review_feed"), // Using "Review Feed" instead of "Review Home" to match
           icon: <List className="h-4 w-4" />,
         },
         {
           href: PATHS.REVIEW_WRITE,
-          label: "리뷰 작성",
+          label: t("write_review"),
           icon: <PenLine className="h-4 w-4" />,
           requiresAuth: true,
         },
         {
           href: PATHS.MY_REVIEWS,
-          label: "내가 쓴 리뷰",
+          label: t("my_reviews"),
           icon: <User className="h-4 w-4" />,
           requiresAuth: true,
         },
       ],
     },
     {
-      title: "통계",
+      title: tSheet("stats"),
       items: [
         {
           href: PATHS.INSIGHTS,
-          label: "서비스 인사이트",
+          label: t("insights"), // Using "Insights"
           icon: <BarChart3 className="h-4 w-4" />,
         },
       ],
@@ -138,12 +142,13 @@ export const MobileNavSheet = () => {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-[280px] p-0">
-        <SheetHeader className="border-b border-gray-100 px-4 py-3">
+        <SheetHeader className="flex flex-row items-center justify-between space-y-0 border-b border-gray-100 px-4 py-3">
           <SheetTitle className="flex items-center text-left" asChild>
             <div onClick={handleLinkClick}>
               <Logo />
             </div>
           </SheetTitle>
+          <LanguageSwitcher className="mr-8" />
         </SheetHeader>
 
         <nav className="flex flex-col gap-1 p-4">

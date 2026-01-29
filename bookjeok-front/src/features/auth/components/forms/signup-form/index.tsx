@@ -2,14 +2,17 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { emailSignup } from "@/features/auth/apis";
-import { SignupSchema, SignupSchemaType } from "@/features/auth/schema";
+import {
+  createSignupSchema,
+  SignupSchema,
+  SignupSchemaType,
+} from "@/features/auth/schema";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Form,
@@ -20,13 +23,16 @@ import {
   FormMessage,
 } from "@/shared/components/shadcn/form";
 import { Input } from "@/shared/components/shadcn/input";
+import { Link, useRouter } from "@/shared/config/i18n/routing";
 
 export const SignupForm = () => {
+  const t = useTranslations("auth.signup");
+  const tValidation = useTranslations("auth.validation");
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<SignupSchemaType>({
-    resolver: zodResolver(SignupSchema),
+    resolver: zodResolver(createSignupSchema((key) => tValidation(key))),
     defaultValues: {
       email: "",
       password: "",
@@ -44,28 +50,26 @@ export const SignupForm = () => {
         nickname: values.nickname,
       });
 
-      toast.success("가입이 완료되었습니다! 로그인해주세요.");
+      toast.success(t("success"));
       router.push("/login");
     } catch (error: any) {
       if (error.response?.status === 409) {
         const message = error.response.data.message;
         if (message === "EMAIL_ALREADY_EXISTS") {
-          form.setError("email", { message: "이미 사용 중인 이메일입니다." });
+          form.setError("email", { message: t("error.email_exists") });
         } else if (message === "NICKNAME_ALREADY_EXISTS") {
           form.setError("nickname", {
-            message: "이미 사용 중인 닉네임입니다.",
+            message: t("error.nickname_exists"),
           });
         } else {
-          toast.error("이미 사용 중인 정보입니다.");
+          toast.error(t("error.info_exists"));
         }
       } else {
         const serverMessage = error.response?.data?.message;
         if (serverMessage) {
           toast.error(`오류: ${serverMessage}`);
         } else {
-          toast.error(
-            "회원가입 중 알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
-          );
+          toast.error(t("error.unknown"));
         }
       }
     } finally {
@@ -77,11 +81,9 @@ export const SignupForm = () => {
     <div className="w-full max-w-md space-y-8">
       <div className="text-center">
         <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-          회원가입
+          {t("title")}
         </h1>
-        <p className="mt-2 text-sm text-gray-600">
-          북적 서비스 이용을 위해 필수 정보를 입력해주세요.
-        </p>
+        <p className="mt-2 text-sm text-gray-600">{t("subtitle")}</p>
       </div>
 
       <div className="p-6 bg-white rounded-xl border border-gray-100 shadow-sm">
@@ -93,11 +95,11 @@ export const SignupForm = () => {
               render={({ field }) => (
                 <FormItem className="space-y-1">
                   <FormLabel className="text-gray-700 font-medium">
-                    이메일
+                    {t("labels.email")}
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="example@email.com"
+                      placeholder={t("placeholders.email")}
                       type="email"
                       className="h-11 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
                       {...field}
@@ -117,11 +119,11 @@ export const SignupForm = () => {
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormLabel className="text-gray-700 font-medium">
-                      비밀번호
+                      {t("labels.password")}
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="8자 이상, 영문/숫자/특수문자"
+                        placeholder={t("placeholders.password")}
                         type="password"
                         className="h-11 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
                         {...field}
@@ -139,11 +141,11 @@ export const SignupForm = () => {
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormLabel className="text-gray-700 font-medium">
-                      비밀번호 확인
+                      {t("labels.password_confirm")}
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="비밀번호 확인"
+                        placeholder={t("placeholders.password_confirm")}
                         type="password"
                         className="h-11 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
                         {...field}
@@ -163,11 +165,11 @@ export const SignupForm = () => {
               render={({ field }) => (
                 <FormItem className="space-y-1">
                   <FormLabel className="text-gray-700 font-medium">
-                    닉네임
+                    {t("labels.nickname")}
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="사용할 닉네임"
+                      placeholder={t("placeholders.nickname")}
                       className="h-11 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
                       {...field}
                     />
@@ -186,19 +188,19 @@ export const SignupForm = () => {
                 disabled={isLoading}
               >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                가입하기
+                {t("submit")}
               </Button>
             </div>
           </form>
         </Form>
 
         <div className="mt-6 text-center text-sm">
-          <span className="text-gray-500">이미 계정이 있으신가요? </span>
+          <span className="text-gray-500">{t("has_account")} </span>
           <Link
             href="/login"
             className="font-medium text-emerald-600 hover:text-emerald-500"
           >
-            로그인하기
+            {t("login_link")}
           </Link>
         </div>
       </div>

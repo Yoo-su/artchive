@@ -1,13 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { emailLogin } from "@/features/auth/apis";
-import { LoginSchema, LoginSchemaType } from "@/features/auth/schema"; // Using centralized schema
+import { createLoginSchema, LoginSchemaType } from "@/features/auth/schema"; // Using centralized schema
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { Logo } from "@/layouts/common/logo";
 import { Button } from "@/shared/components/shadcn/button";
@@ -20,8 +19,10 @@ import {
 } from "@/shared/components/shadcn/form";
 import { Input } from "@/shared/components/shadcn/input";
 import { config } from "@/shared/config/env";
+import { Link, useRouter } from "@/shared/config/i18n/routing";
 
 export const LoginForm = () => {
+  const t = useTranslations("auth.login");
   const handleSocialLogin = (callbackUrl: string) => {
     window.location.href = `${config.NEXT_PUBLIC_API_URL}/${callbackUrl}`;
   };
@@ -31,11 +32,9 @@ export const LoginForm = () => {
       <div className="flex flex-col items-center gap-2">
         <Logo />
         <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-          로그인
+          {t("title")}
         </h1>
-        <p className="text-sm text-gray-500">
-          북적 서비스 이용을 위해 로그인해주세요.
-        </p>
+        <p className="text-sm text-gray-500">{t("subtitle")}</p>
       </div>
 
       <EmailLoginForm />
@@ -45,9 +44,7 @@ export const LoginForm = () => {
           <span className="w-full border-t border-gray-200" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-2 text-gray-500">
-            또는 소셜 계정으로 로그인
-          </span>
+          <span className="bg-white px-2 text-gray-500">{t("or_social")}</span>
         </div>
       </div>
 
@@ -65,7 +62,7 @@ export const LoginForm = () => {
               fill="#000000"
             />
           </svg>
-          카카오 로그인
+          {t("kakao")}
         </button>
 
         {/* 네이버 로그인 버튼 */}
@@ -79,17 +76,17 @@ export const LoginForm = () => {
               fill="white"
             />
           </svg>
-          네이버 로그인
+          {t("naver")}
         </button>
       </div>
 
       <div className="text-center text-sm">
-        <span className="text-gray-500">계정이 없으신가요? </span>
+        <span className="text-gray-500">{t("no_account")} </span>
         <Link
           href="/signup"
           className="font-medium text-emerald-600 hover:text-emerald-500"
         >
-          이메일로 회원가입
+          {t("signup_link")}
         </Link>
       </div>
     </div>
@@ -97,12 +94,14 @@ export const LoginForm = () => {
 };
 
 function EmailLoginForm() {
+  const t = useTranslations("auth.login");
+  const tValidation = useTranslations("auth.validation");
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const form = useForm<LoginSchemaType>({
-    resolver: zodResolver(LoginSchema),
+    resolver: zodResolver(createLoginSchema((key) => tValidation(key))),
     defaultValues: {
       email: "",
       password: "",
@@ -114,15 +113,15 @@ function EmailLoginForm() {
       setIsLoading(true);
       const data = await emailLogin(values);
       setAuth(data);
-      toast.success("로그인되었습니다.");
+      toast.success(t("success"));
       router.push("/");
     } catch (error: any) {
       if (error.response?.status === 401) {
         form.setError("root", {
-          message: "이메일 또는 비밀번호가 일치하지 않습니다.",
+          message: t("error.invalid_credentials"),
         });
       } else {
-        toast.error("로그인 중 오류가 발생했습니다.");
+        toast.error(t("error.general"));
       }
     } finally {
       setIsLoading(false);
@@ -138,7 +137,11 @@ function EmailLoginForm() {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder="이메일" type="email" {...field} />
+                <Input
+                  placeholder={t("placeholders.email")}
+                  type="email"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -150,7 +153,11 @@ function EmailLoginForm() {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder="비밀번호" type="password" {...field} />
+                <Input
+                  placeholder={t("placeholders.password")}
+                  type="password"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -169,7 +176,7 @@ function EmailLoginForm() {
           disabled={isLoading}
         >
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          이메일로 로그인
+          {t("submit")}
         </Button>
       </form>
     </Form>

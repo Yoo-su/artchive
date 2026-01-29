@@ -1,18 +1,20 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { useRecentBookSalesQuery } from "@/features/book-sale/queries";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { RecentSaleCard } from "./recent-sale-card";
 import { RecentSalesSliderSkeleton } from "./skeleton";
 
 export const RecentSalesSlider = () => {
+  const t = useTranslations("home.sections.recent_sales");
   const { data: sales, isLoading, isError } = useRecentBookSalesQuery();
 
   // 슬라이드가 화면을 충분히 채울 수 있도록 아이템 복제
@@ -33,19 +35,18 @@ export const RecentSalesSlider = () => {
     <div className="text-left mb-12">
       <div className="mb-4">
         <span className="inline-block px-4 py-1.5 text-xs font-semibold tracking-wider text-emerald-600 uppercase bg-emerald-50 rounded-full">
-          Just Arrived
+          {t("badge")}
         </span>
       </div>
       <Link href={PATHS.BOOK_MARKET} className="group inline-block">
         <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl group-hover:text-emerald-700 transition-colors">
-          <span className="text-emerald-800">새로운 만남,</span> 방금 등록된 책
+          <span className="text-emerald-800">{t("title_prefix")}</span>{" "}
+          {t("title_suffix")}
           <ArrowRight className="inline-block w-6 h-6 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
         </h2>
       </Link>
-      <p className="mt-4 text-lg text-gray-500 max-w-2xl">
-        다른 독자들이 소중히 읽은 책들을 만나보세요.
-        <br className="hidden sm:block" />
-        지금 이 순간에도 새로운 책들이 등록되고 있습니다.
+      <p className="mt-4 text-lg text-gray-500 max-w-2xl whitespace-pre-line">
+        {t("desc")}
       </p>
     </div>
   );

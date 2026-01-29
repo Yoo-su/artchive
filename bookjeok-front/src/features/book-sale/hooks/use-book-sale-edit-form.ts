@@ -1,10 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import {
-  editFormSchema,
+  createEditFormSchema,
   EditFormValues,
 } from "../components/sale-form/book-sale-edit-form/schema";
 import { useUpdateBookSaleMutation } from "../mutations";
@@ -16,6 +17,7 @@ interface UseBookSaleEditFormProps {
 }
 
 export const useBookSaleEditForm = ({ sale }: UseBookSaleEditFormProps) => {
+  const t = useTranslations("market.validation");
   const { mutate, isPending, isSuccess } = useUpdateBookSaleMutation();
 
   const isSubmitDisabled = isPending || isSuccess;
@@ -28,7 +30,7 @@ export const useBookSaleEditForm = ({ sale }: UseBookSaleEditFormProps) => {
   const [deletedImages, setDeletedImages] = useState<string[]>([]);
 
   const form = useForm<EditFormValues>({
-    resolver: zodResolver(editFormSchema),
+    resolver: zodResolver(createEditFormSchema(t)),
     defaultValues: {
       title: sale.title,
       price: String(sale.price),
@@ -71,7 +73,7 @@ export const useBookSaleEditForm = ({ sale }: UseBookSaleEditFormProps) => {
 
   const onSubmit = (data: EditFormValues) => {
     if (existingImages.length + newImageFiles.length === 0) {
-      form.setError("images", { message: "이미지를 1개 이상 등록해주세요." });
+      form.setError("images", { message: t("images_min") });
       return;
     }
 
@@ -104,7 +106,7 @@ export const useBookSaleEditForm = ({ sale }: UseBookSaleEditFormProps) => {
     handleExistingImageRemove,
     handleNewImageRemove,
     onSubmit: form.handleSubmit(onSubmit, () => {
-      toast.error("입력 정보를 다시 확인해주세요. (필수 항목 누락 등)");
+      toast.error(t("submit_error"));
     }),
   };
 };

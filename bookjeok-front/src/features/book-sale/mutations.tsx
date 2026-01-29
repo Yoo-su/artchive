@@ -2,11 +2,11 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { upload } from "@vercel/blob/client";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { bookKeys } from "@/features/book";
+import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { compressImages } from "@/shared/utils/compress-image";
 

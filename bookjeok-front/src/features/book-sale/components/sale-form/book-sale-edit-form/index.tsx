@@ -1,7 +1,6 @@
-"use client";
-
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 import { MapLocationSelector } from "@/shared/components/map/map-location-selector";
 import { Button } from "@/shared/components/shadcn/button";
@@ -33,6 +32,7 @@ interface BookSaleEditFormProps {
 }
 
 export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
+  const t = useTranslations("market.form");
   const {
     form,
     existingImages,
@@ -49,11 +49,13 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-2xl">판매글 수정</CardTitle>
-        <CardDescription>게시글 정보를 수정해주세요.</CardDescription>
+        <CardTitle className="text-2xl">{t("title_edit")}</CardTitle>
+        <CardDescription>{t("desc_edit")}</CardDescription>
       </CardHeader>
       <CardContent>
-        <label className="font-medium text-gray-900 text-sm">판매할 책</label>
+        <label className="font-medium text-gray-900 text-sm">
+          {t("book.label")}
+        </label>
         <div className="relative flex flex-col sm:flex-row items-start sm:items-center p-6 mb-8 border rounded-xl bg-card shadow-sm gap-6 group overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
           <div className="relative w-24 h-36 shrink-0 rounded-lg overflow-hidden shadow-md">
@@ -85,10 +87,10 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>게시글 제목</FormLabel>
+                      <FormLabel>{t("fields.title")}</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="판매글 제목을 입력하세요"
+                          placeholder={t("fields.title_placeholder")}
                           {...field}
                         />
                       </FormControl>
@@ -104,11 +106,11 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>판매 가격 (원)</FormLabel>
+                      <FormLabel>{t("fields.price")}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="숫자만 입력"
+                          placeholder={t("fields.price_placeholder")}
                           {...field}
                         />
                       </FormControl>
@@ -124,10 +126,10 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
                 <div className="border rounded-xl p-4 sm:p-6 bg-muted/20 space-y-4 col-span-1 md:col-span-2">
                   <div className="space-y-1">
                     <h3 className="font-semibold text-base">
-                      직거래 희망 장소
+                      {t("fields.location_title")}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      구매자와 만나서 거래할 안전한 장소를 지도로 선택해주세요.
+                      {t("fields.location_desc")}
                     </p>
                   </div>
 
@@ -143,8 +145,6 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
                         form.setValue("placeName", addressInfo.placeName);
                       }
                       // 장소명이 없는 경우 (지도 클릭 등) -> 기존 장소명 초기화
-                      // 단, addressInfo가 undefined인 경우(지도 로드 실패 등)는 건드리지 않음?
-                      // 아니오, 사용자가 직접 찍은 곳은 장소명이 없으므로 초기화하는 게 맞음.
                       else {
                         form.setValue("placeName", "");
                       }
@@ -194,10 +194,12 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
                       name="placeName"
                       render={({ field }) => (
                         <FormItem className="md:col-span-2">
-                          <FormLabel>상세 위치명 (직접 수정 가능)</FormLabel>
+                          <FormLabel>{t("fields.location_name")}</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="예: 강남역 10번 출구 (지도 선택 시 자동 입력)"
+                              placeholder={t(
+                                "fields.location_name_placeholder",
+                              )}
                               className="bg-background"
                               {...field}
                             />
@@ -215,7 +217,7 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
                 name="images"
                 render={() => (
                   <FormItem>
-                    <FormLabel>{`책 상태 이미지 (${totalImages} / 5)`}</FormLabel>
+                    <FormLabel>{`${t("fields.images")} (${totalImages} / 5)`}</FormLabel>
                     <FormControl>
                       <ImageUploader
                         previews={newImagePreviews}
@@ -238,10 +240,10 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
                 name="content"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>상세 내용</FormLabel>
+                    <FormLabel>{t("fields.content")}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="책의 상태, 거래 방식 등 상세한 내용을 작성해주세요."
+                        placeholder={t("fields.content_placeholder")}
                         className="resize-none"
                         rows={8}
                         {...field}
@@ -263,7 +265,7 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
               {isSubmitDisabled && (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               )}
-              수정 완료
+              {t("submit_edit")}
             </Button>
           </form>
         </Form>

@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
 
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 interface LogoProps {
@@ -62,34 +62,69 @@ export const Logo = ({ size = "md" }: LogoProps) => {
         </motion.div>
 
         {/* 타이포그래피 로고 */}
-        <div className="flex flex-col justify-center">
+        <div className="relative flex flex-col justify-center">
           <div className="flex items-baseline leading-none tracking-tighter">
             {/* 'book' - 단단하고 안정적인 느낌 */}
             <span
-              className={`${textSize} font-black font-(family-name:--font-pretendard) text-(--color-neogulip-deep)`}
+              className={`${textSize} font-bold font-(family-name:--font-gowun-batang) text-stone-600`}
             >
               book
             </span>
-            {/* 'jeok' - 생동감 넘치고 활동적인 느낌 */}
+            {/* 'j' - The "Reader J" Icon (독창적 디자인) */}
+            <div className="relative mx-0.5 flex items-end self-baseline">
+              <svg
+                width="16"
+                height="28" // 높이 조정 (폰트 높이에 맞춤)
+                viewBox="0 0 24 42"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="mb-[-2px]" // 베이스라인 미세 조정
+              >
+                {/* Body (Stem & Legs) - 사람이 벽에 기대어 다리를 뻗은 모습 */}
+                <path
+                  d="M16 10V28C16 34.6274 10.6274 40 4 40H2"
+                  stroke="currentColor"
+                  strokeWidth="5"
+                  strokeLinecap="round"
+                  className="text-stone-600"
+                />
+                {/* Head - 책을 보고 있는 고개 */}
+                <circle cx="16" cy="4" r="3.5" className="fill-stone-600" />
+
+                {/* Arm - 책을 들고 있는 팔 (섬세한 연결) */}
+                <path
+                  d="M16 19C16 19 13 22 11 25"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  className="text-stone-600"
+                />
+
+                {/* Book - 품에 안고 있는 책 (Curved Pages, Delicate Stroke) */}
+                <path
+                  d="M4 21C4 21 8 25 11 25C14 25 18 21 18 21"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-emerald-600"
+                />
+              </svg>
+            </div>
+
+            {/* 'eok' - 나머지 텍스트 */}
             <span
-              className={`${textSize} font-black font-(family-name:--font-pretendard) ml-px bg-linear-to-r from-neogulip-primary to-neogulip-dark bg-clip-text text-transparent group-hover:to-neogulip-light transition-all duration-300`}
+              className={`${textSize} font-bold font-(family-name:--font-gowun-batang) text-stone-600 ml-[-3.5px]`}
             >
-              jeok
+              eok
             </span>
 
-            {/* 마침표 점 (현대적인 감각) */}
-            <motion.div
-              className={`${dotSize} rounded-full bg-neogulip-primary ml-0.5 mb-1`}
-              variants={{
-                initial: { scale: 0, opacity: 0 },
-                hover: { scale: 1, opacity: 1 },
-              }}
-            />
+            {/* 점 제거 (Reader J 자체가 포인트) */}
           </div>
 
-          {/* 애니메이션 밑줄 */}
+          {/* 애니메이션 밑줄 - Absolute positioning for better vertical alignment */}
           <motion.div
-            className={`${underlineHeight} bg-linear-to-r from-neogulip-deep to-neogulip-primary rounded-full mt-1 origin-left`}
+            className={`${underlineHeight} absolute -bottom-1.5 left-0 w-full bg-linear-to-r from-stone-500 to-emerald-600 rounded-full origin-left`}
             variants={{
               initial: { scaleX: 0, opacity: 0 },
               hover: {

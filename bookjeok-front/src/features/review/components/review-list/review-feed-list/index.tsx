@@ -1,17 +1,19 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { useReviewFeedsQuery } from "@/features/review/queries";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { ReviewCard } from "../../common/review-card";
 import { ReviewFeedListSkeleton } from "./skeleton";
 
 export function ReviewFeedList() {
+  const t = useTranslations("review.list");
   const { data: feedsData, isLoading, isError } = useReviewFeedsQuery();
 
   if (isLoading) {
@@ -21,16 +23,14 @@ export function ReviewFeedList() {
   if (isError) {
     return (
       <div className="py-20 text-center text-red-500 bg-red-50 rounded-xl border border-red-100 border-dashed">
-        피드 정보를 불러오는데 실패했습니다.
+        {t("feed_error")}
       </div>
     );
   }
 
   if (!feedsData || feedsData.length === 0) {
     return (
-      <div className="text-center py-20 text-stone-500">
-        등록된 리뷰가 없습니다.
-      </div>
+      <div className="text-center py-20 text-stone-500">{t("no_reviews")}</div>
     );
   }
 
@@ -50,7 +50,9 @@ export function ReviewFeedList() {
                 >
                   {feed.category}
                 </h2>
-                <p className="text-xs text-stone-400 mt-0.5">최신 리뷰</p>
+                <p className="text-xs text-stone-400 mt-0.5">
+                  {t("recent_label")}
+                </p>
               </div>
             </div>
 
@@ -61,7 +63,7 @@ export function ReviewFeedList() {
                 className="group flex items-center gap-1 text-stone-500 hover:text-emerald-600 transition-colors"
               >
                 <span className="text-sm font-medium relative">
-                  더보기
+                  {t("more")}
                   <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-emerald-500 transition-all duration-300 group-hover:w-full" />
                 </span>
                 <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />

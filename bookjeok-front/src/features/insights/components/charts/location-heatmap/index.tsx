@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2, MapPin, Navigation } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CustomOverlayMap, Map, useKakaoLoader } from "react-kakao-maps-sdk";
 
@@ -31,6 +32,7 @@ interface LocationHeatmapProps {
  * - 인기 장소 버튼 클릭 시 해당 지역 판매글 5개 조회 및 마커 표시
  */
 export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
+  const t = useTranslations("insights.charts.location");
   const mapRef = useRef<kakao.maps.Map | null>(null);
   const geocoderRef = useRef<kakao.maps.services.Geocoder | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<LocationStat | null>(
@@ -137,8 +139,8 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
   if (loading) {
     return (
       <InsightCard
-        title="지역별 거래 현황"
-        description="어느 지역에서 거래가 활발할까요?"
+        title={t("title")}
+        description={t("desc_error")}
         icon={<MapPin className="h-5 w-5" />}
       >
         <div className="flex h-60 items-center justify-center">
@@ -154,12 +156,12 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
   if (error) {
     return (
       <InsightCard
-        title="지역별 거래 현황"
-        description="어느 지역에서 거래가 활발할까요?"
+        title={t("title")}
+        description={t("desc_error")}
         icon={<MapPin className="h-5 w-5" />}
       >
         <div className="flex h-60 items-center justify-center text-red-500">
-          지도를 불러오는 중 오류가 발생했습니다.
+          {t("error")}
         </div>
       </InsightCard>
     );
@@ -167,8 +169,8 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
 
   return (
     <InsightCard
-      title="지역별 거래 현황"
-      description="지역을 선택하면 해당 지역의 최근 판매글을 보여드려요"
+      title={t("title")}
+      description={t("desc")}
       icon={<MapPin className="h-5 w-5" />}
     >
       {hasData ? (
@@ -180,7 +182,7 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
                 className="h-4 w-4"
                 style={{ color: COLORS.matcha.medium }}
               />
-              거래 활발 지역 TOP 5
+              {t("top5")}
             </h4>
             <div className="flex flex-wrap gap-2">
               {top5Locations.map((location, index) => {
@@ -325,13 +327,13 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
               </span>
               <span className="mx-2 text-gray-400">·</span>
               <span style={{ color: COLORS.mustard.dark }}>
-                최근 판매글 {sales.length}개 표시 중
+                {t("showing", { count: sales.length })}
               </span>
             </div>
           )}
         </div>
       ) : (
-        <EmptyState message="아직 등록된 판매글이 없어요" />
+        <EmptyState message={t("empty")} />
       )}
     </InsightCard>
   );

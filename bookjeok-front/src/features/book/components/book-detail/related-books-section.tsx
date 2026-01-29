@@ -1,11 +1,12 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { BookCard } from "@/features/book/components/common/book-card";
 import { useBookListQuery } from "@/features/book/queries";
+import { Link } from "@/shared/config/i18n/routing";
 
 interface RelatedBooksSectionProps {
   title: string;
@@ -18,6 +19,7 @@ export const RelatedBooksSection = ({
   query,
   currentIsbn,
 }: RelatedBooksSectionProps) => {
+  const t = useTranslations("book.detail");
   const seed = currentIsbn
     .split("")
     .reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -71,7 +73,7 @@ export const RelatedBooksSection = ({
           href={`/book/search?q=${query}`}
           className="text-sm font-medium text-gray-500 hover:text-primary"
         >
-          더보기
+          {t("more_books")}
         </Link>
       </div>
 

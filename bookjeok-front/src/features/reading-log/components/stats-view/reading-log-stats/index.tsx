@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { BookOpen, Library } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { cn } from "@/shared/utils";
@@ -45,12 +46,13 @@ export function ReadingLogStats({ currentDate, theme }: ReadingLogStatsProps) {
   const month = currentDate.getMonth() + 1;
 
   const { data: stats, isLoading } = useReadingLogStatsQuery(year, month);
+  const t = useTranslations("reading_log.stats");
 
   const getMessage = (monthly: number) => {
-    if (monthly === 0) return "이번 달 독서를 시작해보세요! 📚";
-    if (monthly >= 5) return "이번 달 독서량이 대단해요! 🔥";
-    if (monthly >= 3) return "꾸준히 읽고 계시네요! 멋져요 👍";
-    return "좋은 책과 함께하는 시간, 소중해요 🌿";
+    if (monthly === 0) return t("messages.start");
+    if (monthly >= 5) return t("messages.great");
+    if (monthly >= 3) return t("messages.good");
+    return t("messages.default");
   };
 
   if (isLoading) {
@@ -89,18 +91,20 @@ export function ReadingLogStats({ currentDate, theme }: ReadingLogStatsProps) {
           </div>
           <div>
             <p className="text-sm font-medium text-stone-500 mb-0.5 tracking-tight">
-              {month}월의 독서
+              {t("monthly_title", { month })}
             </p>
             <div className="flex items-baseline gap-1.5">
               <span
                 className={cn(
-                  "text-4xl font-bold font-serif transition-transform duration-200 group-hover:scale-105 transition-colors duration-500",
+                  "text-4xl font-bold font-serif transition-all duration-500 group-hover:scale-105",
                   theme.activeText, // text-color
                 )}
               >
                 <AnimatedNumber value={stats.monthlyCount} />
               </span>
-              <span className="text-sm font-medium text-stone-500">권</span>
+              <span className="text-sm font-medium text-stone-500">
+                {t("unit")}
+              </span>
             </div>
           </div>
         </div>
@@ -124,13 +128,15 @@ export function ReadingLogStats({ currentDate, theme }: ReadingLogStatsProps) {
           </div>
           <div>
             <p className="text-sm font-medium text-stone-500 mb-0.5 tracking-tight">
-              {year}년 누적
+              {t("yearly_title", { year })}
             </p>
             <div className="flex items-baseline gap-1.5">
               <span className="text-4xl font-bold font-serif text-stone-700 transition-transform duration-200 group-hover:scale-105">
                 <AnimatedNumber value={stats.yearlyCount} />
               </span>
-              <span className="text-sm font-medium text-stone-500">권</span>
+              <span className="text-sm font-medium text-stone-500">
+                {t("unit")}
+              </span>
             </div>
           </div>
         </div>

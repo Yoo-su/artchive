@@ -1,7 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
 import { NEOGULIP_THEME } from "@/features/recommend/constants/neogulip-theme";
 import { useRecommendStore } from "@/features/recommend/stores/recommend-store";
 import { NeogulipIcon } from "@/shared/components/icons/neogulip-icon";
@@ -16,6 +14,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/shared/components/shadcn/alert-dialog";
+import { useRouter } from "@/shared/config/i18n/routing";
 
 import { RecommendedBook } from "../../../types";
 

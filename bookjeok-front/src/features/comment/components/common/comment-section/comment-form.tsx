@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
@@ -12,6 +11,7 @@ import {
 import { Button } from "@/shared/components/shadcn/button";
 import { Spinner } from "@/shared/components/shadcn/spinner";
 import { Textarea } from "@/shared/components/shadcn/textarea";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";

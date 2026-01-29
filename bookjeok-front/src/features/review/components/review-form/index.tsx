@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BookOpen, Info, Loader2 } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -10,7 +11,10 @@ import { toast } from "sonner";
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { BookSearchModal } from "@/features/book/components/common/book-search-modal";
 import { BookInfo } from "@/features/book/types";
-import { reviewSchema, ReviewSchemaValues } from "@/features/review/schemas";
+import {
+  createReviewSchema,
+  ReviewSchemaValues,
+} from "@/features/review/schemas";
 import { ReviewFormValues } from "@/features/review/types";
 import { TiptapEditor } from "@/shared/components/editor/tiptap-editor";
 import { Badge } from "@/shared/components/shadcn/badge";
@@ -64,10 +68,13 @@ interface ReviewFormProps {
 export const ReviewForm = ({
   initialData,
   onSubmit,
-  submitLabel = "작성 완료",
+  submitLabel, // Optional now, will default to translated value
   isSubmitting = false,
   isEditMode = false,
 }: ReviewFormProps) => {
+  const t = useTranslations("review.form");
+  const tValidation = useTranslations("review.validation");
+
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState<BookInfo | null>(
     initialData?.book || null,
@@ -82,7 +89,7 @@ export const ReviewForm = ({
   });
 
   const form = useForm<ReviewSchemaValues>({
-    resolver: zodResolver(reviewSchema),
+    resolver: zodResolver(createReviewSchema((key) => tValidation(key))),
     defaultValues: {
       title: initialData?.title || "",
       content: initialData?.content || "",
@@ -159,6 +166,25 @@ export const ReviewForm = ({
 
   const isProcessing = isSubmitting || isUploading;
 
+  const CATEGORY_MAP: Record<string, string> = {
+    소설: "novel",
+    에세이: "essay",
+    자기계발: "self_help",
+    인문: "humanities",
+    "경제/경영": "economy",
+    과학: "science",
+    예술: "art",
+    역사: "history",
+    철학: "philosophy",
+    종교: "religion",
+    만화: "comic",
+    기타: "others",
+  };
+
+  const currentSubmitLabel =
+    submitLabel ||
+    (isEditMode ? t("buttons.submit_edit") : t("buttons.submit_create"));
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
@@ -169,7 +195,7 @@ export const ReviewForm = ({
           {/* 책 선택 섹션 */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <FormLabel>리뷰할 책</FormLabel>
+              <FormLabel>{t("book_selection.label")}</FormLabel>
             </div>
 
             {!selectedBook ? (
@@ -179,11 +205,10 @@ export const ReviewForm = ({
                 </div>
                 <div className="text-center space-y-2">
                   <h3 className="font-semibold text-lg">
-                    리뷰할 책을 선택해주세요
+                    {t("book_selection.empty_title")}
                   </h3>
                   <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                    ISBN, 제목, 저자명으로 검색하여 리뷰할 책을 선택할 수
-                    있습니다.
+                    {t("book_selection.empty_description")}
                   </p>
                 </div>
                 {!isEditMode && (
@@ -198,7 +223,7 @@ export const ReviewForm = ({
                         className="px-8 font-semibold"
                         disabled={isProcessing}
                       >
-                        책 검색하기
+                        {t("book_selection.search_button")}
                       </Button>
                     }
                   />
@@ -239,7 +264,7 @@ export const ReviewForm = ({
                             className="h-8"
                             disabled={isProcessing}
                           >
-                            다른 책 선택
+                            {t("book_selection.change_button")}
                           </Button>
                         }
                       />
@@ -263,7 +288,7 @@ export const ReviewForm = ({
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>카테고리</FormLabel>
+                  <FormLabel>{t("fields.category")}</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -271,13 +296,17 @@ export const ReviewForm = ({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="도서 유형을 선택해주세요" />
+                        <SelectValue
+                          placeholder={t("fields.category_placeholder")}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {BOOK_DOMAINS.map((category) => (
                         <SelectItem key={category} value={category}>
-                          {category}
+                          {t(`filters.categories.${CATEGORY_MAP[category]}`, {
+                            defaultMessage: category,
+                          })}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -293,7 +322,7 @@ export const ReviewForm = ({
               name="rating"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>별점</FormLabel>
+                  <FormLabel>{t("fields.rating")}</FormLabel>
                   <FormControl>
                     <div className="flex items-center gap-4 h-10">
                       <StarRating
@@ -315,10 +344,10 @@ export const ReviewForm = ({
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>제목</FormLabel>
+                <FormLabel>{t("fields.title")}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="리뷰 제목을 입력해주세요"
+                    placeholder={t("fields.title_placeholder")}
                     className="text-lg py-6"
                     {...field}
                     disabled={isProcessing}
@@ -334,7 +363,7 @@ export const ReviewForm = ({
             name="tags"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>태그 (선택, 최대 5개)</FormLabel>
+                <FormLabel>{t("fields.tags")}</FormLabel>
                 <FormControl>
                   <div className="space-y-3">
                     <div className="flex gap-2">
@@ -342,7 +371,7 @@ export const ReviewForm = ({
                         value={tagInput}
                         onChange={(e) => setTagInput(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="태그를 입력하고 Enter를 누르세요"
+                        placeholder={t("fields.tags_placeholder")}
                         disabled={isProcessing || field.value.length >= 5}
                       />
                       <Button
@@ -350,7 +379,7 @@ export const ReviewForm = ({
                         onClick={handleAddTag}
                         disabled={isProcessing || field.value.length >= 5}
                       >
-                        추가
+                        {t("fields.tags_add")}
                       </Button>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -380,11 +409,13 @@ export const ReviewForm = ({
               <>
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-muted/30">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">리뷰 공개 설정</FormLabel>
+                    <FormLabel className="text-base">
+                      {t("fields.public_label")}
+                    </FormLabel>
                     <p className="text-sm text-muted-foreground">
                       {field.value
-                        ? "모든 사용자가 이 리뷰를 볼 수 있습니다"
-                        : "이 리뷰는 나만 볼 수 있습니다"}
+                        ? t("fields.public_true")
+                        : t("fields.public_false")}
                     </p>
                   </div>
                   <FormControl>
@@ -398,12 +429,11 @@ export const ReviewForm = ({
                 <div className="mt-3 flex gap-2 rounded-md bg-blue-50 p-3 text-sm text-blue-700">
                   <Info className="h-4 w-4 shrink-0 mt-0.5" />
                   <div className="space-y-1">
-                    <p className="font-medium">공개 설정 변경 시 유의사항</p>
+                    <p className="font-medium">
+                      {t("fields.public_notice_title")}
+                    </p>
                     <p className="text-blue-600/90 text-xs leading-relaxed">
-                      서비스 성능 향상을 위해 목록 페이지는 주기적으로
-                      갱신됩니다. 설정을 변경하더라도 목록이나 피드에
-                      반영되기까지 최대 5분이 소요될 수 있습니다. (단, 비공개
-                      리뷰의 상세 내용은 즉시 차단되므로 안심하세요.)
+                      {t("fields.public_notice_desc")}
                     </p>
                   </div>
                 </div>
@@ -416,12 +446,12 @@ export const ReviewForm = ({
             name="content"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>내용</FormLabel>
+                <FormLabel>{t("fields.content")}</FormLabel>
                 <FormControl>
                   <TiptapEditor
                     content={field.value}
                     onChange={field.onChange}
-                    placeholder="책에 대한 솔직한 후기를 남겨주세요..."
+                    placeholder={t("fields.content_placeholder")}
                     onImageAdd={handleImageAdd}
                   />
                 </FormControl>
@@ -439,11 +469,11 @@ export const ReviewForm = ({
             onClick={() => window.history.back()}
             disabled={isProcessing}
           >
-            취소
+            {t("buttons.cancel")}
           </Button>
           <Button type="submit" size="lg" disabled={isProcessing}>
             {isProcessing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            {isProcessing ? "처리 중..." : submitLabel}
+            {isProcessing ? t("buttons.processing") : currentSubmitLabel}
           </Button>
         </div>
       </form>

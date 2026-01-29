@@ -1,9 +1,10 @@
 "use client";
 
 import { format } from "date-fns";
-import { ko } from "date-fns/locale";
+import { enUS, ko } from "date-fns/locale";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useRef } from "react";
 
 import { Card } from "@/shared/components/shadcn/card";
@@ -15,6 +16,11 @@ interface ReadingTimelineProps {
 }
 
 export function ReadingTimeline({ logs }: ReadingTimelineProps) {
+  const t = useTranslations("reading_log.timeline");
+  const locale = useLocale();
+  const dateLocale = locale === "ko" ? ko : enUS;
+  const dateFormat = locale === "ko" ? "dd일" : "d";
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const groupedLogs = useMemo(() => {
@@ -51,10 +57,8 @@ export function ReadingTimeline({ logs }: ReadingTimelineProps) {
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-1">
-        <h3 className="text-lg font-semibold">최근 읽은 책</h3>
-        <span className="text-xs text-muted-foreground">
-          독서 기록 타임라인
-        </span>
+        <h3 className="text-lg font-semibold">{t("title")}</h3>
+        <span className="text-xs text-muted-foreground">{t("subtitle")}</span>
       </div>
 
       <div
@@ -96,7 +100,7 @@ export function ReadingTimeline({ logs }: ReadingTimelineProps) {
                             />
                           ) : (
                             <div className="flex h-full items-center justify-center bg-secondary text-muted-foreground text-xs">
-                              이미지 없음
+                              {t("no_image")}
                             </div>
                           )}
                         </div>
@@ -115,7 +119,9 @@ export function ReadingTimeline({ logs }: ReadingTimelineProps) {
                             {log.bookAuthor}
                           </p>
                           <time className="block text-[10px] text-primary/80 font-medium pt-1">
-                            {format(new Date(log.date), "dd일", { locale: ko })}
+                            {format(new Date(log.date), dateFormat, {
+                              locale: dateLocale,
+                            })}
                           </time>
                         </div>
                       </div>

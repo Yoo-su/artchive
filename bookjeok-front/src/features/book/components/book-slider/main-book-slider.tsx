@@ -2,13 +2,14 @@
 
 import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Autoplay, EffectCoverflow, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { TextAnimate } from "@/shared/components/magicui/text-animate";
 import { Button } from "@/shared/components/shadcn/button";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { HOME_PUBLISHERS } from "../../constants";
@@ -16,6 +17,8 @@ import { useBookListQuery } from "../../queries";
 import { BookSliderSkeleton } from "./skeleton";
 
 export const MainBookSlider = () => {
+  const t = useTranslations("home.sections.main_books");
+  const tError = useTranslations("home.errors");
   const [activePublisher, setActivePublisher] = useState(HOME_PUBLISHERS[0]);
   const swiperRef = useRef<any>(null);
 
@@ -70,7 +73,7 @@ export const MainBookSlider = () => {
           by="line"
           className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl"
         >
-          주목할 만한 도서
+          {t("title")}
         </TextAnimate>
         <TextAnimate
           animation="slideUp"
@@ -78,7 +81,7 @@ export const MainBookSlider = () => {
           as="p"
           className="mt-4 text-lg leading-8 text-gray-600"
         >
-          엄선된 출판사의 베스트셀러를 만나보세요.
+          {t("subtitle")}
         </TextAnimate>
       </div>
 
@@ -105,7 +108,7 @@ export const MainBookSlider = () => {
       {!isLoading && (isError || !books || books.length === 0) && (
         <div className="text-center py-20 text-gray-500">
           <BookOpen className="mx-auto h-12 w-12" />
-          <p className="mt-4">도서 정보를 불러올 수 없습니다.</p>
+          <p className="mt-4">{tError("load_books")}</p>
         </div>
       )}
 

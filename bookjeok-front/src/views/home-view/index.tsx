@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { MainArtSlider } from "@/features/art/components/widgets/art-slider/main-art-slider";
 import { MAIN_ARTS } from "@/features/art/constants";
 import { MainBookSlider } from "@/features/book/components/book-slider/main-book-slider";
@@ -11,6 +13,13 @@ import { RecentReviewSlider } from "@/features/review/components/recent-review-s
 import { AdBanner } from "@/shared/components/ads/ad-banner";
 
 export const HomeView = () => {
+  const tArt = useTranslations("home.sections.art");
+
+  const translatedChips = MAIN_ARTS.map((chip) => ({
+    ...chip,
+    title: tArt(`genres.${chip.genreCode}`),
+  }));
+
   return (
     <div className="flex flex-col gap-8">
       <HomeHero />
@@ -33,16 +42,16 @@ export const HomeView = () => {
 
       <div>
         <MainArtSlider
-          title="Spotlight: 오늘의 무대"
-          subtitle="도시의 밤을 밝히는 가장 뜨거운 공연들을 만나보세요."
-          chips={MAIN_ARTS}
+          title={tArt("spotlight.title")}
+          subtitle={tArt("spotlight.subtitle")}
+          chips={translatedChips}
           queryOptions={{ prfstate: "02" }} // "공연중"
         />
 
         <MainArtSlider
-          title="Coming Soon: 설레는 기다림"
-          subtitle="곧 막을 올릴 기대작들을 미리 만나보는 시간."
-          chips={MAIN_ARTS}
+          title={tArt("coming_soon.title")}
+          subtitle={tArt("coming_soon.subtitle")}
+          chips={translatedChips}
           queryOptions={{ prfstate: "01" }} // "공연예정"
         />
       </div>

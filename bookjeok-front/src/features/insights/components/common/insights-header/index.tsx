@@ -1,6 +1,5 @@
-"use client";
-
 import { BarChart3, BookOpen, Heart, ShoppingBag, Tag } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 // 색상 팔레트
 const COLORS = {
@@ -22,30 +21,32 @@ interface InsightsHeaderProps {
  * 인사이트 페이지 헤더 + 요약 통계
  */
 export const InsightsHeader = ({ summary }: InsightsHeaderProps) => {
+  const t = useTranslations("insights");
+
   const stats = [
     {
-      label: "등록된 판매글",
+      label: t("summary.sales"),
       value: summary.totalSales,
       icon: ShoppingBag,
       bgColor: COLORS.cream.medium,
       iconColor: COLORS.matcha.dark,
     },
     {
-      label: "작성된 리뷰",
+      label: t("summary.reviews"),
       value: summary.totalReviews,
       icon: BookOpen,
       bgColor: COLORS.cream.light,
       iconColor: COLORS.mustard.dark,
     },
     {
-      label: "누적 리액션",
+      label: t("summary.reactions"),
       value: summary.totalReactions,
       icon: Heart,
       bgColor: COLORS.cream.dark,
       iconColor: "#e07a5f", // 따뜻한 코랄
     },
     {
-      label: "사용된 태그",
+      label: t("summary.tags"),
       value: summary.totalTags,
       icon: Tag,
       bgColor: COLORS.cream.medium,
@@ -69,15 +70,13 @@ export const InsightsHeader = ({ summary }: InsightsHeaderProps) => {
             className="text-sm font-medium"
             style={{ color: COLORS.matcha.dark }}
           >
-            Live Stats
+            {t("live_stats")}
           </span>
         </div>
         <h1 className="text-2xl font-bold text-gray-800 md:text-3xl">
-          bookjeok 서비스 현황
+          {t("title")}
         </h1>
-        <p className="mt-2 text-gray-500">
-          실시간으로 업데이트되는 서비스 통계를 확인해보세요
-        </p>
+        <p className="mt-2 text-gray-500">{t("subtitle")}</p>
       </div>
 
       {/* 요약 카드 */}

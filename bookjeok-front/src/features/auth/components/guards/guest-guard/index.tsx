@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { ReactNode, useEffect } from "react";
 
+import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { useAuthStore } from "../../../stores/use-auth-store";

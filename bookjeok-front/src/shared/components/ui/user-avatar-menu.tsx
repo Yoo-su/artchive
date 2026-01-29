@@ -1,7 +1,6 @@
 "use client";
 
 import { User as UserIcon } from "lucide-react";
-import Link from "next/link";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import {
@@ -15,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/shadcn/dropdown-menu";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";

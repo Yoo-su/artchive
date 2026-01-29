@@ -1,7 +1,6 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/shared/components/shadcn/button";
@@ -15,6 +14,7 @@ const HERO_IMAGES = [
 ];
 
 export function ReviewHomeHero() {
+  const t = useTranslations("review.hero");
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   // useMemo로 랜덤 이미지 선택 (컴포넌트 마운트 시 한 번만)
@@ -61,19 +61,17 @@ export function ReviewHomeHero() {
                 "0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 255, 255, 0.3), 0 0 60px rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0, 0, 0, 0.3)",
             }}
           >
-            Book Reviews
+            {t("title")}
           </h1>
-          <p className="text-lg md:text-xl text-white/70 mb-8 leading-relaxed font-light">
-            독자들의 솔직한 감상을 만나보세요.
-            <br className="hidden md:block" />
-            당신의 다음 책을 찾는 여정에 함께합니다.
+          <p className="text-lg md:text-xl text-white/70 mb-8 leading-relaxed font-light whitespace-pre-wrap">
+            {t("subtitle")}
           </p>
           <Button
             asChild
             size="lg"
             className="rounded-full px-8 h-14 text-lg font-medium transition-all duration-300 backdrop-blur-xl bg-white/20 text-white border border-white/30 shadow-[0_8px_32px_rgba(255,255,255,0.1),inset_0_1px_0_rgba(255,255,255,0.3)] hover:bg-white/30 hover:shadow-[0_8px_32px_rgba(255,255,255,0.2),inset_0_1px_0_rgba(255,255,255,0.4)] hover:scale-105"
           >
-            <Link href={PATHS.REVIEW_WRITE}>리뷰 작성하기</Link>
+            <Link href={PATHS.REVIEW_WRITE}>{t("button_write")}</Link>
           </Button>
         </div>
       </div>

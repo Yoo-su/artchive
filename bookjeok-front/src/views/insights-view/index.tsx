@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { ActivityTrendChart } from "@/features/insights/components/charts/activity-trend-chart";
 import { CategoryChart } from "@/features/insights/components/charts/category-chart";
 import { LocationHeatmap } from "@/features/insights/components/charts/location-heatmap";
@@ -14,6 +16,7 @@ import { FullScreenLoader } from "@/shared/components/ui/full-screen-loader";
  * 인사이트 페이지 메인 뷰
  */
 export const InsightsView = () => {
+  const t = useTranslations("insights");
   const { data, isLoading, isError } = useInsightsQuery();
 
   if (isLoading) {
@@ -25,9 +28,9 @@ export const InsightsView = () => {
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="text-center">
           <p className="mb-2 text-lg font-medium text-gray-900">
-            데이터를 불러오지 못했어요
+            {t("error.title")}
           </p>
-          <p className="text-sm text-gray-500">잠시 후 다시 시도해주세요</p>
+          <p className="text-sm text-gray-500">{t("error.desc")}</p>
         </div>
       </div>
     );

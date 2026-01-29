@@ -1,7 +1,6 @@
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Trash2 } from "lucide-react";
-import Link from "next/link";
 
 import {
   Avatar,
@@ -15,6 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/shared/components/shadcn/tooltip";
+import { Link } from "@/shared/config/i18n/routing";
 import { cn } from "@/shared/utils";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 

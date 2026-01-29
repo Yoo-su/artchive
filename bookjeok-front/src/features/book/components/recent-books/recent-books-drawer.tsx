@@ -2,8 +2,6 @@
 
 import { History } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import React from "react";
 
 import {
@@ -13,6 +11,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/shared/components/shadcn/sheet";
+import { Link, usePathname } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { useRecentBookStore } from "../../stores/use-recent-book-store";

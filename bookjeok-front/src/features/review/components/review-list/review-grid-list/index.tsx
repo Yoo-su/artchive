@@ -1,12 +1,12 @@
 "use client";
 
 import { MessageSquare } from "lucide-react";
-import Link from "next/link";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
 import { useReviewsInfiniteQuery } from "@/features/review/queries";
 import { Button } from "@/shared/components/shadcn/button";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { ReviewCard } from "../../common/review-card";

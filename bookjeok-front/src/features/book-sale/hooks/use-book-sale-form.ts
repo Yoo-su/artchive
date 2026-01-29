@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -6,7 +7,7 @@ import { toast } from "sonner";
 import { BookInfo } from "@/features/book/types";
 
 import {
-  sellFormSchema,
+  createSellFormSchema,
   SellFormValues,
 } from "../components/sale-form/book-sale-form/schema";
 import { useCreateBookSaleMutation } from "../mutations";
@@ -14,13 +15,14 @@ import { CreateBookSaleParams } from "../types";
 import { validateAndGetNewImages } from "../utils/image-utils";
 
 export const useBookSaleForm = () => {
+  const t = useTranslations("market.validation");
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const { mutate, isPending, isSuccess } = useCreateBookSaleMutation();
 
   const isSubmitDisabled = isPending || isSuccess;
 
   const form = useForm<SellFormValues>({
-    resolver: zodResolver(sellFormSchema),
+    resolver: zodResolver(createSellFormSchema(t)),
     defaultValues: {
       title: "",
       price: "",
@@ -112,7 +114,7 @@ export const useBookSaleForm = () => {
     handleImagesAdd,
     handleImageRemove,
     onSubmit: form.handleSubmit(onSubmit, () => {
-      toast.error("입력 정보를 다시 확인해주세요. (필수 항목 누락 등)");
+      toast.error(t("submit_error"));
     }),
   };
 };

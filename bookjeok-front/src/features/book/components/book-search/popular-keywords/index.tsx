@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Flame } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
 import { usePopularKeywordsQuery } from "../../../queries";
@@ -16,6 +17,7 @@ import { usePopularKeywordsQuery } from "../../../queries";
  * - 검색어 클릭 시 해당 검색어로 즉시 검색
  */
 export const PopularKeywords = () => {
+  const t = useTranslations("book.search");
   const router = useRouter();
   const pathname = usePathname();
   const { data: keywords = [], isLoading } = usePopularKeywordsQuery();
@@ -64,7 +66,7 @@ export const PopularKeywords = () => {
 
       {/* 라벨 */}
       <span className="text-xs text-orange-600 font-medium whitespace-nowrap">
-        인기
+        {t("popular_label")}
       </span>
 
       {/* 슬라이드업 애니메이션 영역 */}
@@ -108,7 +110,7 @@ export const PopularKeywords = () => {
               <div className="flex items-center gap-2">
                 <Flame className="w-4 h-4 text-orange-500" />
                 <span className="text-sm font-semibold text-gray-800">
-                  인기 검색어 TOP {keywords.length}
+                  {t("popular_top", { count: keywords.length })}
                 </span>
               </div>
             </div>

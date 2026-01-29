@@ -1,9 +1,9 @@
 import { Calendar, MapPin } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 
 import { ArtItem } from "@/features/art/types";
 import { Badge } from "@/shared/components/shadcn/badge";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 interface MainArtCardProps {

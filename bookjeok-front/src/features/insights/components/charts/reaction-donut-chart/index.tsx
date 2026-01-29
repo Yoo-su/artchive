@@ -2,6 +2,7 @@
 
 import { Heart } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
 import {
@@ -30,6 +31,7 @@ interface ReactionDonutChartProps {
  * 리액션 분포 도넛 차트
  */
 export const ReactionDonutChart = ({ data }: ReactionDonutChartProps) => {
+  const t = useTranslations("insights.charts.reaction");
   const total = data.reduce((sum, item) => sum + item.count, 0);
   const hasData = total > 0;
 
@@ -68,7 +70,7 @@ export const ReactionDonutChart = ({ data }: ReactionDonutChartProps) => {
               },
               total: {
                 show: true,
-                label: "전체 리액션",
+                label: t("total"),
                 fontSize: "12px",
                 color: "#6b7280",
                 formatter: () => total.toLocaleString(),
@@ -99,19 +101,22 @@ export const ReactionDonutChart = ({ data }: ReactionDonutChartProps) => {
       tooltip: {
         y: {
           formatter: (val: number) =>
-            `${val}개 (${((val / total) * 100).toFixed(1)}%)`,
+            t("tooltip", {
+              count: val,
+              ratio: ((val / total) * 100).toFixed(1),
+            }),
         },
       },
     }),
-    [data, total],
+    [data, total, t],
   );
 
   const series = useMemo(() => data.map((item) => item.count), [data]);
 
   return (
     <InsightCard
-      title="리액션 분포"
-      description="어떤 리액션이 가장 많이 쓰일까요?"
+      title={t("title")}
+      description={t("desc")}
       icon={<Heart className="h-5 w-5" />}
     >
       {hasData ? (
@@ -122,7 +127,7 @@ export const ReactionDonutChart = ({ data }: ReactionDonutChartProps) => {
           height={300}
         />
       ) : (
-        <EmptyState message="아직 리액션 데이터가 없어요" />
+        <EmptyState message={t("empty")} />
       )}
     </InsightCard>
   );

@@ -1,0 +1,29 @@
+import { getTranslations } from "next-intl/server";
+
+import { GuestGuard } from "@/features/auth/components/guards/guest-guard";
+import { DefaultLayout } from "@/layouts/default-layout";
+import { LoginView } from "@/views/login-view";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "auth.login.metadata" });
+
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
+
+export default function Page() {
+  return (
+    <GuestGuard>
+      <DefaultLayout>
+        <LoginView />
+      </DefaultLayout>
+    </GuestGuard>
+  );
+}

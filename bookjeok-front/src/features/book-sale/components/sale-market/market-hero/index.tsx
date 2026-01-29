@@ -1,29 +1,32 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { cn } from "@/shared/utils/cn";
 
 import { CirculationSymbol } from "./circulation-symbol";
 
-const ARCHIVE_MESSAGES = [
-  "누군가의 서재에서\n새로운 주인을 기다립니다",
-  "오래된 책에 담긴 시간이\n다시 흐르기 시작했습니다",
-  "서울의 어느 골목에서\n책이 건네어졌습니다",
-  "잊혀졌던 문장이\n새로운 눈을 만났습니다",
-  "책장의 빈자리가\n또 다른 이야기로 채워집니다",
-];
-
 export const MarketHero = () => {
+  const t = useTranslations("market.hero");
   const [index, setIndex] = useState(0);
+
+  // t('messages')가 객체 형태로 반환되므로, 0~4 인덱스로 접근
+  const messages = [
+    t("messages.0"),
+    t("messages.1"),
+    t("messages.2"),
+    t("messages.3"),
+    t("messages.4"),
+  ];
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % ARCHIVE_MESSAGES.length);
+      setIndex((prev) => (prev + 1) % messages.length);
     }, 4500);
     return () => clearInterval(timer);
-  }, []);
+  }, [messages.length]);
 
   return (
     <div className="relative mb-8 flex w-full flex-col items-center justify-center px-4 py-16 md:mb-16 md:py-24">
@@ -35,7 +38,7 @@ export const MarketHero = () => {
         className="relative z-10 flex flex-col items-center text-center"
       >
         <span className="mb-3 text-xs font-light tracking-[0.3em] text-zinc-400 dark:text-zinc-500">
-          CIRCULATION
+          {t("subtitle")}
         </span>
         <h1
           className={cn(
@@ -43,7 +46,7 @@ export const MarketHero = () => {
             "font-(family-name:--font-gowun-batang)",
           )}
         >
-          순환하는 문장들
+          {t("title")}
         </h1>
 
         {/* 수직 연결선 대신 Circulation Symbol */}
@@ -63,7 +66,7 @@ export const MarketHero = () => {
                 "font-(family-name:--font-gowun-batang)",
               )}
             >
-              {ARCHIVE_MESSAGES[index]}
+              {messages[index]}
             </motion.p>
           </AnimatePresence>
         </div>

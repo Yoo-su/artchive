@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useInView } from "react-intersection-observer";
 
 import { BookSearchInput } from "@/features/book/components/book-search/book-search-input";
@@ -9,6 +10,7 @@ import { StickyBookSearchBar } from "@/features/book/components/book-search/stic
 import { ScrollTopButton } from "@/shared/components/ui/scroll-top-button";
 
 export default function BookSearchView() {
+  const t = useTranslations("book.search");
   const { ref, inView } = useInView({
     initialInView: true,
     threshold: 0,
@@ -22,11 +24,9 @@ export default function BookSearchView() {
 
       <section className="mb-8 text-center">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-          도서 검색
+          {t("title")}
         </h1>
-        <p className="mt-4 text-lg text-gray-600">
-          찾고 싶은 책의 제목, 저자, 출판사를 검색해보세요.
-        </p>
+        <p className="mt-4 text-lg text-gray-600">{t("subtitle")}</p>
       </section>
 
       {/* 메인 검색 영역 감시 */}

@@ -1,12 +1,12 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useRouter } from "next/navigation";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { useToggleReviewReactionMutation } from "@/features/review/mutations";
 import { useMyReviewReactionQuery } from "@/features/review/queries";
 import { ReviewReactionType } from "@/features/review/types";
+import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";
 

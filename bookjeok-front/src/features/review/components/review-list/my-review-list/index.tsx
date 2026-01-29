@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
@@ -15,11 +15,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/shared/components/shadcn/alert-dialog";
+import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { ReviewGridList } from "../review-grid-list";
 
 export const MyReviewList = () => {
+  const t = useTranslations("my_reviews");
   const user = useAuthStore((state) => state.user);
   const router = useRouter();
   const { mutateAsync: deleteReviewMutation } = useDeleteReviewMutation();
@@ -77,14 +79,16 @@ export const MyReviewList = () => {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>리뷰 삭제</AlertDialogTitle>
+            <AlertDialogTitle>{t("delete_modal.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              정말로 이 리뷰를 삭제하시겠습니까?
+              {t("delete_modal.desc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>취소</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>삭제</AlertDialogAction>
+            <AlertDialogCancel>{t("delete_modal.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>
+              {t("delete_modal.confirm")}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -96,15 +100,15 @@ export const MyReviewList = () => {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>리뷰 수정</AlertDialogTitle>
+            <AlertDialogTitle>{t("edit_modal.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              리뷰를 수정하시겠습니까?
+              {t("edit_modal.desc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogCancel>{t("edit_modal.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmEdit}>
-              수정하기
+              {t("edit_modal.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

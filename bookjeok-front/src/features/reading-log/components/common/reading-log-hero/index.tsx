@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
 import { Label } from "@/shared/components/shadcn/label";
@@ -18,6 +19,7 @@ interface ReadingLogHeroProps {
 }
 
 export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
+  const t = useTranslations("reading_log.hero");
   // 테마 및 배경 이미지 로직
   const theme = useSeasonalTheme(currentDate);
   const [isMounted, setIsMounted] = useState(false);
@@ -114,15 +116,13 @@ export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
                 "text-white",
               )}
             >
-              {theme.label}
+              {t(`season_label.${theme.name}`)}
             </div>
             <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight text-shadow-lg">
-              나의 독서 기록
+              {t("title")}
             </h1>
-            <p className="text-white/90 text-sm md:text-lg font-light leading-relaxed max-w-md">
-              매달 쌓여가는 지식의 깊이를 확인해보세요.{" "}
-              <br className="hidden sm:block" />
-              당신의 성장을 기록합니다.
+            <p className="text-white/90 text-sm md:text-lg font-light leading-relaxed max-w-md whitespace-pre-wrap">
+              {t("subtitle")}
             </p>
           </div>
 
@@ -144,12 +144,10 @@ export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
                 htmlFor="public-mode"
                 className="font-medium cursor-pointer text-white text-base"
               >
-                독서 기록 공개
+                {t("public_toggle")}
               </Label>
               <span className="text-xs text-white/70 mt-0.5">
-                {isPublic
-                  ? "다른 사용자가 볼 수 있습니다"
-                  : "나만 볼 수 있습니다"}
+                {isPublic ? t("public_label_on") : t("public_label_off")}
               </span>
             </div>
           </div>

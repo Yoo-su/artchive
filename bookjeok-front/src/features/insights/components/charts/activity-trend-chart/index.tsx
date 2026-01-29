@@ -2,6 +2,7 @@
 
 import { TrendingUp } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
 import {
@@ -28,6 +29,7 @@ interface ActivityTrendChartProps {
  * 일별 활동 추이 Area 차트
  */
 export const ActivityTrendChart = ({ data }: ActivityTrendChartProps) => {
+  const t = useTranslations("insights.charts.activity");
   const hasData = data.some(
     (item) => item.salesCount > 0 || item.reviewsCount > 0,
   );
@@ -105,21 +107,21 @@ export const ActivityTrendChart = ({ data }: ActivityTrendChartProps) => {
   const series = useMemo(
     () => [
       {
-        name: "판매글",
+        name: t("sales"),
         data: data.map((item) => item.salesCount),
       },
       {
-        name: "리뷰",
+        name: t("reviews"),
         data: data.map((item) => item.reviewsCount),
       },
     ],
-    [data],
+    [data, t],
   );
 
   return (
     <InsightCard
-      title="최근 30일 활동 추이"
-      description="서비스의 활발한 활동을 확인해보세요"
+      title={t("title")}
+      description={t("desc")}
       icon={<TrendingUp className="h-5 w-5" />}
     >
       {hasData ? (
@@ -130,7 +132,7 @@ export const ActivityTrendChart = ({ data }: ActivityTrendChartProps) => {
           height={280}
         />
       ) : (
-        <EmptyState message="아직 활동 데이터가 없어요" />
+        <EmptyState message={t("empty")} />
       )}
     </InsightCard>
   );

@@ -1,4 +1,5 @@
-export type SceneId = "record" | "used" | "review";
+export const SCENE_IDS = ["record", "used", "review", "logo"] as const;
+export type SceneId = (typeof SCENE_IDS)[number];
 
 export interface SceneData {
   id: SceneId;

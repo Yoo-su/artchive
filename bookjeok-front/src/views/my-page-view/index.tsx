@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { ko } from "date-fns/locale";
+import { enUS, ko } from "date-fns/locale";
 import {
   BookOpen,
   Calendar,
@@ -14,7 +14,7 @@ import {
   User,
 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { UserStatsDashboard } from "@/features/user/components/dashboard/user-stats-dashboard";
@@ -22,55 +22,59 @@ import { ProfileEditModal } from "@/features/user/components/profile/profile-edi
 import { WithdrawalModal } from "@/features/user/components/profile/withdrawal-modal";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
+import { Link, usePathname } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
-// 활동 메뉴 정의
-const activityMenus = [
-  {
-    icon: CalendarDays,
-    label: "나의 독서 기록",
-    description: "월별 독서 캘린더 및 통계",
-    href: PATHS.READING_LOG,
-    color: "text-indigo-500",
-    bgColor: "bg-indigo-50",
-  },
-  {
-    icon: ShoppingBag,
-    label: "나의 판매 내역",
-    description: "등록한 중고책 판매글 관리",
-    href: PATHS.MY_PAGE_SALES,
-    color: "text-emerald-500",
-    bgColor: "bg-emerald-50",
-  },
-  {
-    icon: BookOpen,
-    label: "나의 리뷰",
-    description: "작성한 도서 리뷰 확인",
-    href: PATHS.MY_REVIEWS,
-    color: "text-blue-500",
-    bgColor: "bg-blue-50",
-  },
-  {
-    icon: Heart,
-    label: "위시리스트",
-    description: "찜한 도서 목록",
-    href: PATHS.MY_PAGE_WISHLIST,
-    color: "text-rose-500",
-    bgColor: "bg-rose-50",
-  },
-  {
-    icon: MessageSquare,
-    label: "나의 댓글",
-    description: "작성한 댓글 관리",
-    href: PATHS.MY_COMMENTS,
-    color: "text-amber-500",
-    bgColor: "bg-amber-50",
-  },
-];
-
 export const MyPageView = () => {
+  const t = useTranslations("my_page");
   const user = useAuthStore((state) => state.user);
+  const pathname = usePathname();
+  const locale = pathname.startsWith("/en") ? enUS : ko;
+
+  // 활동 메뉴 정의
+  const activityMenus = [
+    {
+      icon: CalendarDays,
+      label: t("menu.reading_log.label"),
+      description: t("menu.reading_log.desc"),
+      href: PATHS.READING_LOG,
+      color: "text-indigo-500",
+      bgColor: "bg-indigo-50",
+    },
+    {
+      icon: ShoppingBag,
+      label: t("menu.sales.label"),
+      description: t("menu.sales.desc"),
+      href: PATHS.MY_PAGE_SALES,
+      color: "text-emerald-500",
+      bgColor: "bg-emerald-50",
+    },
+    {
+      icon: BookOpen,
+      label: t("menu.reviews.label"),
+      description: t("menu.reviews.desc"),
+      href: PATHS.MY_REVIEWS,
+      color: "text-blue-500",
+      bgColor: "bg-blue-50",
+    },
+    {
+      icon: Heart,
+      label: t("menu.wishlist.label"),
+      description: t("menu.wishlist.desc"),
+      href: PATHS.MY_PAGE_WISHLIST,
+      color: "text-rose-500",
+      bgColor: "bg-rose-50",
+    },
+    {
+      icon: MessageSquare,
+      label: t("menu.comments.label"),
+      description: t("menu.comments.desc"),
+      href: PATHS.MY_COMMENTS,
+      color: "text-amber-500",
+      bgColor: "bg-amber-50",
+    },
+  ];
 
   if (!user) {
     return null;
@@ -80,16 +84,16 @@ export const MyPageView = () => {
   const profileImageSrc = getProfileImageUrl(user.profileImageUrl);
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-8">마이 페이지</h1>
+    <div className="container mx-auto max-w-4xl px-4 py-8">
+      <h1 className="mb-8 text-3xl font-bold">{t("title")}</h1>
 
       {/* 프로필 섹션 */}
       <Card className="mb-8">
         <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+          <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
             {/* 아바타 */}
             <div
-              className="relative w-24 h-24 rounded-full bg-stone-100 flex items-center justify-center shrink-0 overflow-hidden"
+              className="relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full bg-stone-100"
               data-nosnippet
             >
               {profileImageSrc ? (
@@ -101,13 +105,13 @@ export const MyPageView = () => {
                   className="object-cover"
                 />
               ) : (
-                <User className="w-10 h-10 text-stone-400" />
+                <User className="h-10 w-10 text-stone-400" />
               )}
             </div>
 
             {/* 사용자 정보 */}
             <div className="flex-1 text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-2">
+              <div className="flex items-center justify-center gap-2 sm:justify-start">
                 <h2 className="text-xl font-semibold text-stone-900">
                   {user.nickname}
                 </h2>
@@ -118,18 +122,20 @@ export const MyPageView = () => {
                       size="icon"
                       className="h-7 w-7 text-stone-400 hover:text-stone-600"
                     >
-                      <Pencil className="w-4 h-4" />
+                      <Pencil className="h-4 w-4" />
                     </Button>
                   }
                 />
               </div>
-              <p className="text-stone-500 text-sm mt-1">{user.email}</p>
+              <p className="mt-1 text-sm text-stone-500">{user.email}</p>
               {user.createdAt && (
-                <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs text-stone-400 mt-2">
-                  <Calendar className="w-3.5 h-3.5" />
+                <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-stone-400 sm:justify-start">
+                  <Calendar className="h-3.5 w-3.5" />
                   <span>
-                    {format(new Date(user.createdAt), "yyyy년 M월 가입", {
-                      locale: ko,
+                    {t("profile.joined", {
+                      date: format(new Date(user.createdAt), "yyyy.MM", {
+                        locale,
+                      }),
                     })}
                   </span>
                 </div>
@@ -143,22 +149,22 @@ export const MyPageView = () => {
       <UserStatsDashboard />
 
       {/* 활동 메뉴 */}
-      <h3 className="text-lg font-semibold mb-4">활동 관리</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+      <h3 className="mb-4 text-lg font-semibold">{t("activity_manage")}</h3>
+      <div className="mb-12 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {activityMenus.map((menu) => (
           <Link key={menu.href} href={menu.href} className="block">
-            <Card className="hover:bg-stone-50 transition-colors h-full">
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className={`p-3 rounded-xl ${menu.bgColor}`}>
-                  <menu.icon className={`w-5 h-5 ${menu.color}`} />
+            <Card className="h-full transition-colors hover:bg-stone-50">
+              <CardContent className="flex items-center gap-4 p-4">
+                <div className={`rounded-xl p-3 ${menu.bgColor}`}>
+                  <menu.icon className={`h-5 w-5 ${menu.color}`} />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="font-medium text-stone-900">{menu.label}</p>
-                  <p className="text-xs text-stone-500 truncate">
+                  <p className="truncate text-xs text-stone-500">
                     {menu.description}
                   </p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-stone-300 shrink-0" />
+                <ChevronRight className="h-5 w-5 shrink-0 text-stone-300" />
               </CardContent>
             </Card>
           </Link>
@@ -167,12 +173,16 @@ export const MyPageView = () => {
 
       {/* 위험 구역 (탈퇴) */}
       <div className="border-t pt-8">
-        <h3 className="text-lg font-semibold text-red-600 mb-4">Danger Zone</h3>
-        <div className="bg-red-50 border border-red-100 rounded-lg p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <h3 className="mb-4 text-lg font-semibold text-red-600">
+          {t("danger_zone.title")}
+        </h3>
+        <div className="flex flex-col items-start justify-between gap-4 rounded-lg border border-red-100 bg-red-50 p-6 sm:flex-row sm:items-center">
           <div>
-            <h4 className="font-medium text-red-900">회원 탈퇴</h4>
-            <p className="text-sm text-red-700 mt-1">
-              탈퇴 시 모든 데이터가 삭제되거나 익명화되며 복구할 수 없습니다.
+            <h4 className="font-medium text-red-900">
+              {t("danger_zone.withdraw_title")}
+            </h4>
+            <p className="mt-1 text-sm text-red-700">
+              {t("danger_zone.withdraw_desc")}
             </p>
           </div>
           <WithdrawalModal />

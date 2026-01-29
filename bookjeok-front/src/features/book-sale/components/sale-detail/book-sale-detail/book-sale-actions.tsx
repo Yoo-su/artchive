@@ -1,8 +1,6 @@
-"use client";
-
 import { useQueryClient } from "@tanstack/react-query";
 import { Clock, Edit, Eye, Loader2, MessageCircle, Trash2 } from "lucide-react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -26,6 +24,7 @@ import { Button } from "@/shared/components/shadcn/button";
 import { Separator } from "@/shared/components/shadcn/separator";
 import { ShareButton } from "@/shared/components/ui/share-button";
 import { UserAvatarMenu } from "@/shared/components/ui/user-avatar-menu";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { useSocketContext } from "@/shared/providers/socket-provider";
 import { formatPostDate } from "@/shared/utils/date";
@@ -39,6 +38,7 @@ interface BookSaleActionsProps {
 }
 
 export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
+  const t = useTranslations("market.detail");
   const currentUser = useAuthStore((state) => state.user);
   const isOwner = currentUser?.id === sale.user.id;
   const [isCreatingChat, setIsCreatingChat] = useState(false);
@@ -50,7 +50,8 @@ export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
 
   const displayDate =
     sale.updatedAt > sale.createdAt ? sale.updatedAt : sale.createdAt;
-  const dateLabel = sale.updatedAt > sale.createdAt ? "수정" : "작성";
+  const dateLabel =
+    sale.updatedAt > sale.createdAt ? t("status.edited") : t("status.created");
 
   const discountRate =
     Number(sale.book.discount) > 0
@@ -81,7 +82,7 @@ export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
       openChatRoom(newRoom.id, queryClient);
     } catch (error) {
       console.error("Failed to start chat:", error);
-      toast.error("채팅방을 여는 데 실패했습니다. 다시 시도해주세요.");
+      toast.error(t("actions.chat_error"));
     } finally {
       setIsCreatingChat(false);
     }
@@ -125,7 +126,7 @@ export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
         <UserAvatarMenu
           user={sale.user}
           showNickname
-          label="판매자"
+          label={t("actions.seller")}
           size="lg"
         />
         {isOwner ? (
@@ -133,33 +134,33 @@ export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
             <Button asChild variant="outline" size="sm">
               <Link href={PATHS.MY_PAGE_SALES_EDIT(String(sale.id))}>
                 <Edit className="w-4 h-4 mr-2" />
-                수정
+                {t("actions.edit")}
               </Link>
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" size="sm" disabled={isDeleting}>
                   <Trash2 className="w-4 h-4 mr-2" />
-                  {isDeleting ? "삭제 중..." : "삭제"}
+                  {isDeleting ? t("actions.deleting") : t("actions.delete")}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>판매글 삭제</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    정말로 이 판매글을 삭제하시겠습니까?
-                    <br />
-                    삭제된 데이터는 복구할 수 없습니다.
+                  <AlertDialogTitle>
+                    {t("actions.delete_title")}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="whitespace-pre-wrap">
+                    {t("actions.delete_desc")}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>취소</AlertDialogCancel>
+                  <AlertDialogCancel>{t("actions.cancel")}</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={() =>
                       deleteSale({ saleId: sale.id, imageUrls: sale.imageUrls })
                     }
                   >
-                    삭제
+                    {t("actions.delete")}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -186,12 +187,14 @@ export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
                 ) : (
                   <MessageCircle className="w-5 h-5 mr-2" />
                 )}
-                {isCreatingChat ? "채팅방 여는 중..." : "판매자와 채팅하기"}
+                {isCreatingChat
+                  ? t("actions.chat_opening")
+                  : t("actions.chat_start")}
               </Button>
             </div>
             {!currentUser && (
               <p className="text-xs text-stone-400 text-center sm:text-right">
-                채팅 및 찜하기는 로그인 후 이용 가능합니다
+                {t("actions.login_required")}
               </p>
             )}
           </div>

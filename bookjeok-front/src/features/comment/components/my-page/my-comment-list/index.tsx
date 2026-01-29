@@ -1,7 +1,7 @@
 "use client";
 
 import { formatDistanceToNow } from "date-fns";
-import { ko } from "date-fns/locale";
+import { enUS, ko } from "date-fns/locale";
 import {
   BookOpen,
   Heart,
@@ -10,7 +10,7 @@ import {
   PenLine,
   Trash2,
 } from "lucide-react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useCallback } from "react";
 
 import { useDeleteMyCommentMutation } from "@/features/comment/mutations";
@@ -30,6 +30,7 @@ import {
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
+import { Link, usePathname } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";
 
@@ -53,6 +54,9 @@ const getTargetLink = (targetType: CommentTargetType, targetId: string) => {
  * - 댓글 삭제 기능 포함
  */
 export const MyCommentList = () => {
+  const t = useTranslations("my_comments");
+  const pathname = usePathname();
+  const locale = pathname.startsWith("/en") ? enUS : ko;
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
     useMyCommentsInfiniteQuery();
   const { mutate: deleteComment, isPending: isDeleting } =
@@ -75,11 +79,11 @@ export const MyCommentList = () => {
   return (
     <>
       {/* 헤더 */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-stone-900">내가 쓴 댓글</h1>
-          <p className="text-sm text-stone-500 mt-1">
-            총 {total}개의 댓글을 작성했어요
+          <h1 className="text-2xl font-bold text-stone-900">{t("title")}</h1>
+          <p className="mt-1 text-sm text-stone-500">
+            {t("count_desc", { count: total })}
           </p>
         </div>
       </div>
@@ -87,9 +91,9 @@ export const MyCommentList = () => {
       {allComments.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-20 text-stone-400">
-            <MessageSquare className="w-16 h-16 mb-4 stroke-1" />
-            <p className="text-lg font-medium">작성한 댓글이 없습니다</p>
-            <p className="text-sm mt-1">도서나 리뷰에 댓글을 달아보세요!</p>
+            <MessageSquare className="mb-4 h-16 w-16 stroke-1" />
+            <p className="text-lg font-medium">{t("empty.title")}</p>
+            <p className="mt-1 text-sm">{t("empty.desc")}</p>
           </CardContent>
         </Card>
       ) : (
@@ -97,13 +101,13 @@ export const MyCommentList = () => {
           {allComments.map((comment) => (
             <Card
               key={comment.id}
-              className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-stone-100"
+              className="group overflow-hidden border-stone-100 transition-all duration-300 hover:shadow-lg"
             >
               <CardContent className="p-0">
                 {/* 상단: 대상 정보 */}
                 <Link
                   href={getTargetLink(comment.targetType, comment.targetId)}
-                  className="block px-5 py-3 bg-linear-to-r from-stone-50 to-transparent hover:from-stone-100 transition-colors"
+                  className="block bg-linear-to-r from-stone-50 to-transparent px-5 py-3 transition-colors hover:from-stone-100"
                 >
                   <div className="flex items-center gap-3">
                     <div
@@ -115,37 +119,37 @@ export const MyCommentList = () => {
                       )}
                     >
                       {comment.targetType === CommentTargetType.REVIEW ? (
-                        <PenLine className="w-4 h-4 text-blue-600" />
+                        <PenLine className="h-4 w-4 text-blue-600" />
                       ) : (
-                        <BookOpen className="w-4 h-4 text-emerald-600" />
+                        <BookOpen className="h-4 w-4 text-emerald-600" />
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-stone-800 truncate">
-                        {comment.targetTitle || "제목 없음"}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-stone-800">
+                        {comment.targetTitle || t("no_title")}
                       </p>
                       {comment.targetSubtitle && (
-                        <p className="text-xs text-stone-500 truncate">
+                        <p className="truncate text-xs text-stone-500">
                           📖 {comment.targetSubtitle}
                         </p>
                       )}
                     </div>
-                    <span className="text-xs text-stone-400 shrink-0">
+                    <span className="shrink-0 text-xs text-stone-400">
                       {formatDistanceToNow(new Date(comment.createdAt), {
                         addSuffix: true,
-                        locale: ko,
+                        locale,
                       })}
                     </span>
                   </div>
                 </Link>
 
                 {/* 하단: 댓글 내용 */}
-                <div className="px-5 py-4 flex items-start gap-4">
-                  <p className="flex-1 text-stone-700 text-sm leading-relaxed line-clamp-3">
+                <div className="flex items-start gap-4 px-5 py-4">
+                  <p className="line-clamp-3 flex-1 text-sm leading-relaxed text-stone-700">
                     {comment.content}
                   </p>
 
-                  <div className="flex items-center gap-3 shrink-0">
+                  <div className="flex shrink-0 items-center gap-3">
                     {/* 좋아요 */}
                     <div
                       className={cn(
@@ -170,27 +174,29 @@ export const MyCommentList = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="w-8 h-8 text-stone-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="h-8 w-8 text-stone-400 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
                           disabled={isDeleting}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>댓글 삭제</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            이 댓글을 삭제하시겠습니까?
-                            <br />
-                            삭제된 댓글은 복구할 수 없습니다.
+                          <AlertDialogTitle>
+                            {t("delete_modal.title")}
+                          </AlertDialogTitle>
+                          <AlertDialogDescription className="whitespace-pre-line">
+                            {t("delete_modal.desc")}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>취소</AlertDialogCancel>
+                          <AlertDialogCancel>
+                            {t("delete_modal.cancel")}
+                          </AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => handleDelete(comment.id)}
                           >
-                            삭제
+                            {t("delete_modal.confirm")}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
@@ -213,11 +219,11 @@ export const MyCommentList = () => {
               >
                 {isFetchingNextPage ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    로딩 중...
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {t("loading")}
                   </>
                 ) : (
-                  "더 보기"
+                  t("load_more")
                 )}
               </Button>
             </div>
@@ -233,23 +239,23 @@ export const MyCommentList = () => {
  */
 export const MyCommentListSkeleton = () => (
   <>
-    <Skeleton className="h-8 w-40 mb-2" />
-    <Skeleton className="h-4 w-48 mb-8" />
+    <Skeleton className="mb-2 h-8 w-40" />
+    <Skeleton className="mb-8 h-4 w-48" />
     <div className="space-y-3">
       {[1, 2, 3].map((i) => (
         <Card key={i}>
           <CardContent className="p-0">
-            <div className="px-5 py-3 bg-stone-50">
+            <div className="bg-stone-50 px-5 py-3">
               <div className="flex items-center gap-3">
-                <Skeleton className="w-8 h-8 rounded-lg" />
+                <Skeleton className="h-8 w-8 rounded-lg" />
                 <div className="flex-1">
-                  <Skeleton className="h-4 w-32 mb-1" />
+                  <Skeleton className="mb-1 h-4 w-32" />
                   <Skeleton className="h-3 w-24" />
                 </div>
               </div>
             </div>
             <div className="px-5 py-4">
-              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="mb-2 h-4 w-full" />
               <Skeleton className="h-4 w-3/4" />
             </div>
           </CardContent>

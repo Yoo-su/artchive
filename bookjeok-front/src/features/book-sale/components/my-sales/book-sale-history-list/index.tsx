@@ -1,12 +1,12 @@
-"use client";
-
 import { AlertTriangle, BookX } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { useMyBookSalesQuery } from "../../../queries";
 import { BookSaleHistoryItem } from "./item";
 import { BookSaleHistoryListSkeleton } from "./skeleton";
 
 export const BookSaleHistoryList = () => {
+  const t = useTranslations("market.history");
   const { data: sales, isLoading, isError } = useMyBookSalesQuery();
 
   if (isLoading) {
@@ -17,8 +17,8 @@ export const BookSaleHistoryList = () => {
     return (
       <div className="flex flex-col items-center justify-center text-center text-red-500 bg-red-50 p-8 rounded-lg">
         <AlertTriangle className="w-12 h-12 mb-4" />
-        <p className="font-semibold">오류 발생</p>
-        <p className="text-sm">판매 내역을 불러오는 중 문제가 발생했습니다.</p>
+        <p className="font-semibold">{t("error_title")}</p>
+        <p className="text-sm">{t("error_desc")}</p>
       </div>
     );
   }
@@ -27,8 +27,8 @@ export const BookSaleHistoryList = () => {
     return (
       <div className="flex flex-col items-center justify-center text-center text-gray-500 bg-gray-50 p-8 rounded-lg">
         <BookX className="w-12 h-12 mb-4" />
-        <p className="font-semibold">판매 내역이 없습니다.</p>
-        <p className="text-sm">새로운 중고책을 등록해보세요!</p>
+        <p className="font-semibold">{t("empty_title")}</p>
+        <p className="text-sm">{t("empty_desc")}</p>
       </div>
     );
   }

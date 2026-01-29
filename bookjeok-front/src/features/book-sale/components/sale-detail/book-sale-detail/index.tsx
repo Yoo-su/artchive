@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { NotFoundRedirect } from "@/shared/components/ui/not-found-redirect";
 import { PATHS } from "@/shared/constants/paths";
 
@@ -15,6 +17,7 @@ interface BookSaleDetailProps {
 }
 
 export const BookSaleDetail = ({ saleId }: BookSaleDetailProps) => {
+  const t = useTranslations("market.detail");
   const { data: sale, isLoading, isError } = useBookSaleDetailQuery(saleId);
 
   if (isLoading) {
@@ -24,7 +27,7 @@ export const BookSaleDetail = ({ saleId }: BookSaleDetailProps) => {
   if (isError || !sale) {
     return (
       <NotFoundRedirect
-        message="존재하지 않거나 삭제된 판매글입니다."
+        message={t("not_found")}
         fallbackPath={PATHS.BOOK_MARKET}
       />
     );

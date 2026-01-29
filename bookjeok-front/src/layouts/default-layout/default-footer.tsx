@@ -1,12 +1,15 @@
 import { Github } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { Logo } from "@/layouts/common/logo";
 import { Separator } from "@/shared/components/shadcn/separator";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 export const DefaultFooter = () => {
+  const t = useTranslations("footer");
+  const tNav = useTranslations("header.nav");
   const currentYear = new Date().getFullYear();
 
   return (
@@ -17,7 +20,7 @@ export const DefaultFooter = () => {
           <div className="space-y-4 md:max-w-xs">
             <Logo size="sm" />
             <p className="text-sm text-stone-500 leading-relaxed">
-              도서 리뷰 공유와 중고책 거래 플랫폼
+              {t("description")}
             </p>
           </div>
 
@@ -25,14 +28,16 @@ export const DefaultFooter = () => {
           <div className="grid grid-cols-2 gap-10 sm:gap-0">
             {/* Service Links */}
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-stone-900">Service</h3>
+              <h3 className="text-sm font-semibold text-stone-900">
+                {t("service")}
+              </h3>
               <ul className="space-y-2.5 text-sm text-stone-500">
                 <li>
                   <Link
                     href={PATHS.BOOK_SEARCH}
                     className="hover:text-emerald-600 transition-colors"
                   >
-                    도서 검색
+                    {tNav("book_search")}
                   </Link>
                 </li>
                 <li>
@@ -40,7 +45,7 @@ export const DefaultFooter = () => {
                     href={PATHS.BOOK_MARKET}
                     className="hover:text-emerald-600 transition-colors"
                   >
-                    중고 장터
+                    {tNav("market_menu")}
                   </Link>
                 </li>
                 <li>
@@ -48,7 +53,7 @@ export const DefaultFooter = () => {
                     href="/book/reviews"
                     className="hover:text-emerald-600 transition-colors"
                   >
-                    북 리뷰
+                    {tNav("review_menu")}
                   </Link>
                 </li>
               </ul>
@@ -56,7 +61,9 @@ export const DefaultFooter = () => {
 
             {/* 연락처 & 소셜 */}
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-stone-900">Contact</h3>
+              <h3 className="text-sm font-semibold text-stone-900">
+                {t("contact")}
+              </h3>
               <ul className="space-y-2.5 text-sm text-stone-500">
                 <li>rhan0871@naver.com</li>
                 <li>Seoul, Republic of Korea</li>
@@ -85,10 +92,10 @@ export const DefaultFooter = () => {
           </p>
           <div className="flex gap-6">
             <Link href="#" className="hover:text-stone-600 transition-colors">
-              이용약관
+              {t("terms")}
             </Link>
             <Link href="#" className="hover:text-stone-600 transition-colors">
-              개인정보처리방침
+              {t("privacy")}
             </Link>
           </div>
         </div>

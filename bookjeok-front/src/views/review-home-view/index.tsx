@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 import { ReviewHomeHero } from "@/features/review/components/review-home-hero";
@@ -9,6 +9,7 @@ import { ReviewFeedList } from "@/features/review/components/review-list/review-
 import { ReviewGridList } from "@/features/review/components/review-list/review-grid-list";
 import { ReviewHomeFilters } from "@/features/review/components/review-list/review-home-filters";
 import { AdBanner } from "@/shared/components/ads/ad-banner";
+import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 export const ReviewHomeView = () => {

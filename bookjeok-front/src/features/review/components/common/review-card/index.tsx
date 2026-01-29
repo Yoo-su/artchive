@@ -3,7 +3,6 @@
 import { format } from "date-fns";
 import { BookOpen, Lock, Pencil, Trash2 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 
 import { Review } from "@/features/review/types";
 import {
@@ -13,6 +12,7 @@ import {
 } from "@/shared/components/shadcn/avatar";
 import { Button } from "@/shared/components/shadcn/button";
 import { StarRating } from "@/shared/components/ui/star-rating";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 

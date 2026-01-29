@@ -12,8 +12,7 @@ import {
   Store,
   User,
 } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { NotificationPopover } from "@/features/notification/components/popover-view/notification-popover";
@@ -33,14 +32,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/shared/components/shadcn/tooltip";
+import { Link, usePathname } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";
 
+import { LanguageSwitcher } from "../common/language-switcher";
 import { Logo } from "../common/logo";
 import { MobileNavSheet } from "./mobile-nav-sheet";
 import UserPopover from "./user-popover";
 
 export const DefaultHeader = () => {
+  const t = useTranslations("header");
   const { user } = useAuthStore();
   const pathname = usePathname();
 
@@ -68,12 +70,7 @@ export const DefaultHeader = () => {
           {/* 모바일 햄버거 메뉴 */}
           <MobileNavSheet />
 
-          <Link
-            href={PATHS.HOME}
-            className="transition-opacity hover:opacity-80"
-          >
-            <Logo />
-          </Link>
+          <Logo />
 
           {/* 데스크탑 네비게이션 */}
           <nav
@@ -89,7 +86,7 @@ export const DefaultHeader = () => {
                     size="icon"
                     asChild
                     className={getButtonClass(PATHS.BOOK_SEARCH)}
-                    aria-label="도서 검색"
+                    aria-label={t("nav.book_search")}
                   >
                     <Link href={PATHS.BOOK_SEARCH} className="group">
                       <Search className={getIconClass(PATHS.BOOK_SEARCH)} />
@@ -97,7 +94,7 @@ export const DefaultHeader = () => {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>도서 검색</p>
+                  <p>{t("nav.book_search")}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -112,7 +109,7 @@ export const DefaultHeader = () => {
                       size="icon"
                       asChild
                       className={getButtonClass(PATHS.READING_LOG)}
-                      aria-label="독서 기록"
+                      aria-label={t("nav.reading_log")}
                     >
                       <Link href={PATHS.READING_LOG} className="group">
                         <CalendarDays
@@ -122,7 +119,7 @@ export const DefaultHeader = () => {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>나의 독서 기록</p>
+                    <p>{t("nav.my_reading_log")}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -142,7 +139,7 @@ export const DefaultHeader = () => {
                       ? "bg-amber-50"
                       : "hover:bg-stone-50",
                   )}
-                  aria-label="중고마켓 메뉴"
+                  aria-label={t("nav.market_menu")}
                 >
                   <Store
                     className={cn(
@@ -156,7 +153,7 @@ export const DefaultHeader = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" className="w-48 p-1">
                 <DropdownMenuLabel className="text-xs text-stone-400 font-normal ml-1">
-                  중고마켓
+                  {t("nav.market_menu")}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-stone-100" />
                 <DropdownMenuGroup>
@@ -167,7 +164,7 @@ export const DefaultHeader = () => {
                     >
                       <Store className="w-4 h-4 mr-1 text-stone-500" />
                       <span className="font-medium text-stone-700">
-                        마켓 홈
+                        {t("nav.market_home")}
                       </span>
                     </Link>
                   </DropdownMenuItem>
@@ -180,7 +177,7 @@ export const DefaultHeader = () => {
                         >
                           <PenSquare className="w-4 h-4 mr-1 text-stone-500" />
                           <span className="font-medium text-stone-700">
-                            판매글 쓰기
+                            {t("nav.write_sales")}
                           </span>
                         </Link>
                       </DropdownMenuItem>
@@ -191,7 +188,7 @@ export const DefaultHeader = () => {
                         >
                           <ShoppingBag className="w-4 h-4 mr-1 text-stone-500" />
                           <span className="font-medium text-stone-700">
-                            내 판매글
+                            {t("nav.my_sales")}
                           </span>
                         </Link>
                       </DropdownMenuItem>
@@ -213,7 +210,7 @@ export const DefaultHeader = () => {
                       ? "bg-amber-50"
                       : "hover:bg-stone-50",
                   )}
-                  aria-label="리뷰 메뉴"
+                  aria-label={t("nav.review_menu")}
                 >
                   <MessageSquareQuote
                     className={cn(
@@ -227,7 +224,7 @@ export const DefaultHeader = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" className="w-48 p-1">
                 <DropdownMenuLabel className="text-xs text-stone-400 font-normal ml-1">
-                  도서 리뷰
+                  {t("nav.review_menu")}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-stone-100" />
                 <DropdownMenuGroup>
@@ -238,7 +235,7 @@ export const DefaultHeader = () => {
                     >
                       <List className="w-4 h-4 mr-1 text-stone-500" />
                       <span className="font-medium text-stone-700">
-                        리뷰 피드
+                        {t("nav.review_feed")}
                       </span>
                     </Link>
                   </DropdownMenuItem>
@@ -253,7 +250,7 @@ export const DefaultHeader = () => {
                         >
                           <PenLine className="w-4 h-4 mr-1 text-stone-500" />
                           <span className="font-medium text-stone-700">
-                            리뷰 작성
+                            {t("nav.write_review")}
                           </span>
                         </Link>
                       </DropdownMenuItem>
@@ -264,7 +261,7 @@ export const DefaultHeader = () => {
                         >
                           <User className="w-4 h-4 mr-1 text-stone-500" />
                           <span className="font-medium text-stone-700">
-                            내가 쓴 리뷰
+                            {t("nav.my_reviews")}
                           </span>
                         </Link>
                       </DropdownMenuItem>
@@ -285,7 +282,7 @@ export const DefaultHeader = () => {
                     size="icon"
                     asChild
                     className={getButtonClass(PATHS.INSIGHTS)}
-                    aria-label="인사이트"
+                    aria-label={t("nav.insights")}
                   >
                     <Link href={PATHS.INSIGHTS} className="group">
                       <BarChart3 className={getIconClass(PATHS.INSIGHTS)} />
@@ -293,7 +290,7 @@ export const DefaultHeader = () => {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>독서 인사이트</p>
+                  <p>{t("nav.reading_insights")}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -302,6 +299,7 @@ export const DefaultHeader = () => {
 
         {/* 우측: 사용자 메뉴 */}
         <div className="flex items-center gap-1">
+          <LanguageSwitcher className="hidden md:flex mr-1" />
           {user ? (
             <>
               <div className="mr-2">
@@ -313,7 +311,7 @@ export const DefaultHeader = () => {
             <Link href={PATHS.LOGIN}>
               <Button className="rounded-full bg-white hover:bg-stone-50 border border-stone-200 shadow-sm hover:shadow text-stone-600 px-4 h-8 text-xs font-semibold transition-all flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5" />
-                <span>로그인</span>
+                <span>{t("auth.login")}</span>
               </Button>
             </Link>
           )}

@@ -2,9 +2,10 @@
 
 import { Clock, MapPin } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { UsedBookSale } from "@/features/book-sale/types";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 interface RecentSaleCardProps {
@@ -20,6 +21,7 @@ export const RecentSaleCard = ({
   sale,
   priority = false,
 }: RecentSaleCardProps) => {
+  const tCommon = useTranslations("common");
   // 책 이미지 우선, 없으면 판매글 이미지 사용
   const displayImage = sale.imageUrls[0] || sale.book?.image;
 
@@ -47,14 +49,15 @@ export const RecentSaleCard = ({
         <div className="absolute top-3 left-3">
           <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-white bg-linear-to-r from-emerald-500 to-teal-500 rounded-full shadow-lg shadow-emerald-500/30">
             <Clock className="w-3 h-3" />
-            NEW
+            {tCommon("new")}
           </span>
         </div>
 
         {/* 가격 배지 */}
         <div className="absolute top-3 right-3">
           <span className="px-2.5 py-1 text-xs font-bold text-white bg-black/60 backdrop-blur-sm rounded-full">
-            {sale.price.toLocaleString()}원
+            {sale.price.toLocaleString()}
+            {tCommon("won")}
           </span>
         </div>
 
