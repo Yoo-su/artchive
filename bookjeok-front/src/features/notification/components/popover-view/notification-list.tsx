@@ -1,4 +1,5 @@
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
@@ -10,6 +11,7 @@ interface NotificationListProps {
 }
 
 export const NotificationList = ({ onClose }: NotificationListProps) => {
+  const t = useTranslations("notification");
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useNotifications();
 
@@ -34,7 +36,7 @@ export const NotificationList = ({ onClose }: NotificationListProps) => {
   if (notifications.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
-        <p className="text-sm">새로운 알림이 없습니다.</p>
+        <p className="text-sm">{t("empty")}</p>
       </div>
     );
   }

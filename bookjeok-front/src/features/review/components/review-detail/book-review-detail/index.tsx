@@ -1,6 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Edit } from "lucide-react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
@@ -15,6 +14,7 @@ import { AdBanner } from "@/shared/components/ads/ad-banner";
 import { Button } from "@/shared/components/shadcn/button";
 import { NotFoundRedirect } from "@/shared/components/ui/not-found-redirect";
 import { ScrollTopButton } from "@/shared/components/ui/scroll-top-button";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { RecommendReviews } from "../recommend-reviews";

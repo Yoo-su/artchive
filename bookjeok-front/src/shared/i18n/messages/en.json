@@ -3,7 +3,49 @@
     "new": "NEW",
     "won": "won",
     "unknown": "Unknown",
-    "anonymous": "Anonymous"
+    "anonymous": "Anonymous",
+    "loader": {
+      "messages": {
+        "0": "Please wait a moment...",
+        "1": "Looking for books...",
+        "2": "Loading data...",
+        "3": "Almost there...",
+        "4": "Your reading journey with Bookjeok"
+      }
+    }
+  },
+  "art": {
+    "detail": {
+      "not_found": {
+        "title": "Performance information not found.",
+        "desc": "The information may have been deleted or is invalid."
+      },
+      "period": "Period",
+      "runtime": "Runtime",
+      "place": "Place",
+      "ticket": "Ticket Info",
+      "age": "Age Rating",
+      "cast": "Cast",
+      "crew": "Crew",
+      "cast_crew": "Cast/Crew",
+      "scenes": "Scenes",
+      "synopsis": "Synopsis",
+      "booking": "Booking",
+      "default_booking": "Booking Site"
+    }
+  },
+  "notification": {
+    "title": "Notifications",
+    "mark_all_read": "Mark all as read",
+    "empty": "No new notifications.",
+    "sr_label": "{count} notifications",
+    "messages": {
+      "unknown_user": "Unknown User",
+      "review_reaction": "{actorName} reacted to your review \"{bookTitle}\".",
+      "review_comment": "{actorName} commented on your review \"{bookTitle}\": \"{commentContent}\"",
+      "comment_like": "{actorName} liked your comment.",
+      "default": "New notification arrived."
+    }
   },
   "auth": {
     "login": {
@@ -114,26 +156,6 @@
           "title": "Oops, no performance info yet!",
           "desc": "Would you like to check another category?"
         }
-      }
-    },
-    "art": {
-      "detail": {
-        "not_found": {
-          "title": "Performance information not found.",
-          "desc": "The information may have been deleted or is invalid."
-        },
-        "period": "Period",
-        "runtime": "Runtime",
-        "place": "Place",
-        "ticket": "Ticket Info",
-        "age": "Age Rating",
-        "cast": "Cast",
-        "crew": "Crew",
-        "cast_crew": "Cast/Crew",
-        "scenes": "Scenes",
-        "synopsis": "Synopsis",
-        "booking": "Booking",
-        "default_booking": "Booking Site"
       }
     },
     "errors": {
@@ -333,7 +355,7 @@
   "reading_log": {
     "hero": {
       "title": "My Reading Log",
-      "subtitle": "Check the depth of knowledge accumulating every month.\nWe record your growth.",
+      "subtitle": "Track the depth of your knowledge each month.\nRecord your growth journey.",
       "public_toggle": "Public Log",
       "public_label_on": "Visible to other users",
       "public_label_off": "Visible only to me",

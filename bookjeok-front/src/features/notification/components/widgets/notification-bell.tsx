@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/shared/components/shadcn/button";
 import { cn } from "@/shared/utils";
@@ -11,6 +12,7 @@ interface NotificationBellProps {
 }
 
 export const NotificationBell = ({ className }: NotificationBellProps) => {
+  const t = useTranslations("notification");
   const { data } = useUnreadCount();
   const count = data?.count ?? 0;
   const showBadge = count > 0;
@@ -32,7 +34,9 @@ export const NotificationBell = ({ className }: NotificationBellProps) => {
           />
         )}
       </AnimatePresence>
-      <span className="sr-only">알림 {count > 99 ? "99+" : count}개</span>
+      <span className="sr-only">
+        {t("sr_label", { count: count > 99 ? "99+" : count })}
+      </span>
     </Button>
   );
 };

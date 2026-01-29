@@ -1,9 +1,9 @@
 import Image from "next/image";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/shared/components/shadcn/button";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 const HERO_IMAGES = [

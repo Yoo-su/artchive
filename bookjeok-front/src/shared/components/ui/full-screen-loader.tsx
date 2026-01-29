@@ -2,17 +2,16 @@
 
 import { motion } from "motion/react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
-
-const LOADING_TEXTS = [
-  "잠시만 기다려주세요...",
-  "책을 찾고 있습니다...",
-  "데이터를 불러오는 중입니다...",
-  "거의 다 되었습니다...",
-  "bookjeok에서 함께하는 독서 여행",
-];
+import { useTranslations } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
 
 export const FullScreenLoader = () => {
+  const t = useTranslations("common.loader.messages");
+  const loadingTexts = useMemo(
+    () => ["0", "1", "2", "3", "4"].map((key) => t(key)),
+    [t],
+  );
+
   const [text, setText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [loopNum, setLoopNum] = useState(0);
@@ -20,13 +19,13 @@ export const FullScreenLoader = () => {
 
   useEffect(() => {
     const handleTyping = () => {
-      const i = loopNum % LOADING_TEXTS.length;
-      const fullText = LOADING_TEXTS[i];
+      const i = loopNum % loadingTexts.length;
+      const fullText = loadingTexts[i];
 
       setText(
         isDeleting
           ? fullText.substring(0, text.length - 1)
-          : fullText.substring(0, text.length + 1)
+          : fullText.substring(0, text.length + 1),
       );
 
       setTypingSpeed(isDeleting ? 30 : 150);
@@ -42,7 +41,7 @@ export const FullScreenLoader = () => {
     const timer = setTimeout(handleTyping, typingSpeed);
 
     return () => clearTimeout(timer);
-  }, [text, isDeleting, loopNum, typingSpeed]);
+  }, [text, isDeleting, loopNum, typingSpeed, loadingTexts]);
 
   return (
     <div className="flex flex-col items-center justify-center h-screen w-screen bg-white fixed inset-0 z-100 overflow-hidden">
