@@ -1,6 +1,6 @@
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -178,10 +178,12 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
+    outline-color: color-mix(in oklch, var(--ring), transparent 50%);
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
   }
 }
 
@@ -199,10 +201,16 @@ html::-webkit-scrollbar {
 
 /* 이미지 갤러리 스타일 */
 .image-gallery-container {
-  @apply py-4;
+  padding-block: 1rem;
 }
 
 /* 이미지 갤러리를 위한 에디터 전용 스타일 */
 .ProseMirror .image-gallery-container {
-  @apply bg-muted/30 border-2 border-dashed border-muted rounded-md p-2 min-h-[120px];
+  background-color: color-mix(in oklch, var(--muted), transparent 70%);
+  border-width: 2px;
+  border-style: dashed;
+  border-color: var(--muted);
+  border-radius: var(--radius-md);
+  padding: 0.5rem;
+  min-height: 120px;
 }

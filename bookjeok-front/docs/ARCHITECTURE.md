@@ -78,10 +78,27 @@ src/features/reading-log/components/
 
 ---
 
-## 4. AI 에이전트 작업 지침 (Instruction for Agents)
+## 5. 다국어 지원 (I18n Architecture)
 
-에이전트에게 작업을 요청할 때, 이 문서를 참조하도록 하거나 다음 규칙을 상기시켜 주세요:
+`next-intl` 라이브러리를 기반으로 다국어를 지원합니다.
 
-1. **"새 컴포넌트를 만들 때, `src/features/<feature>/components/` 바로 아래에 두지 마세요."**
-2. **"이 컴포넌트가 어떤 문맥(Context)에서 쓰이는지 파악하고, 적절한 하위 폴더(`view`, `widget`, `form` 등)를 찾거나 만드세요."**
-3. **"임포트 경로를 수정할 때는 `../../` 뎁스를 주의 깊게 확인하세요."**
+### 5.1 Directory Structure
+
+- **`src/app/[locale]/`**: Next.js App Router의 Dynamic Route를 활용하여 모든 페이지를 `[locale]` 하위로 이동시켰습니다.
+- **`src/shared/config/i18n/`**: 라우팅 설정(`routing.ts`) 및 요청 핸들러(`request.ts`)가 위치합니다.
+- **`src/shared/i18n/messages/`**: `ko.json`, `en.json` 번역 파일이 위치합니다.
+
+### 5.2 Usage Pattern
+
+- **Component (Server/Client)**:
+
+  ```tsx
+  import { useTranslations } from "next-intl";
+
+  const MyComponent = () => {
+    const t = useTranslations("my-namespace");
+    return <h1>{t("title")}</h1>;
+  };
+  ```
+
+- **Translation Keys**: 번역 키는 기능(feature) 단위로 그룹화하여 `messages/*.json`에 정의합니다.

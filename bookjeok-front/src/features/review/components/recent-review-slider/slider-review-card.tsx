@@ -3,7 +3,7 @@
 import { format } from "date-fns";
 import { BookOpen, MessageCircle, Star } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { Review } from "@/features/review/types";
 import {
@@ -11,6 +11,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/shared/components/shadcn/avatar";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
@@ -23,6 +24,7 @@ interface SliderReviewCardProps {
  * 가볍고 친근한 느낌으로 누구나 쉽게 접근할 수 있도록 디자인
  */
 export const SliderReviewCard = ({ review }: SliderReviewCardProps) => {
+  const tCommon = useTranslations("common");
   const book = review.book;
 
   return (
@@ -74,7 +76,7 @@ export const SliderReviewCard = ({ review }: SliderReviewCardProps) => {
 
           {/* 책 제목 & 저자 */}
           <p className="text-xs text-gray-400 truncate">
-            {book?.title || "Unknown"}
+            {book?.title || tCommon("unknown")}
           </p>
           <p className="text-[10px] text-gray-300 truncate mb-2">
             {book?.author || ""}
@@ -115,7 +117,7 @@ export const SliderReviewCard = ({ review }: SliderReviewCardProps) => {
                 </AvatarFallback>
               </Avatar>
               <span className="text-xs font-medium text-gray-600 truncate max-w-[100px]">
-                {review.user?.nickname || "Anonymous"}
+                {review.user?.nickname || tCommon("anonymous")}
               </span>
             </div>
             <span className="text-[10px] text-gray-400">

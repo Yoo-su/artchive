@@ -1,8 +1,7 @@
 "use client";
 
 import { User } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -19,14 +18,18 @@ import {
   PopoverTrigger,
 } from "@/shared/components/shadcn/popover";
 import { Separator } from "@/shared/components/shadcn/separator";
+import { Link, usePathname, useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 export default function UserPopover() {
+  const tAuth = useTranslations("header.auth");
+  const tNav = useTranslations("header.nav");
   const user = useAuthStore((state) => state.user);
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     setIsOpen(false);
@@ -34,8 +37,8 @@ export default function UserPopover() {
 
   const handleLogout = () => {
     clearAuth();
-    window.location.href = PATHS.HOME;
-    toast.success("로그아웃되었습니다.");
+    router.push(PATHS.HOME);
+    toast.success(tAuth("logout_success"));
   };
 
   if (!user) return null;
@@ -69,7 +72,7 @@ export default function UserPopover() {
             {user.nickname}
           </p>
           <p className="text-xs text-gray-500 truncate">
-            {user.email || "이메일 정보 없음"}
+            {user.email || tAuth("no_email")}
           </p>
         </div>
         <Separator />
@@ -79,7 +82,7 @@ export default function UserPopover() {
             className="justify-start w-full h-auto px-3 py-2"
             asChild
           >
-            <Link href={PATHS.MY_PAGE}>마이페이지</Link>
+            <Link href={PATHS.MY_PAGE}>{tAuth("my_page")}</Link>
           </Button>
 
           <Button
@@ -87,21 +90,21 @@ export default function UserPopover() {
             className="justify-start w-full h-auto px-3 py-2"
             asChild
           >
-            <Link href={PATHS.MY_PAGE_WISHLIST}>위시리스트</Link>
+            <Link href={PATHS.MY_PAGE_WISHLIST}>{tAuth("wishlist")}</Link>
           </Button>
           <Button
             variant="ghost"
             className="justify-start w-full h-auto px-3 py-2"
             asChild
           >
-            <Link href={PATHS.READING_LOG}>독서 기록</Link>
+            <Link href={PATHS.READING_LOG}>{tNav("reading_log")}</Link>
           </Button>
           <Button
             variant="ghost"
             className="justify-start w-full h-auto px-3 py-2"
             onClick={handleLogout}
           >
-            로그아웃
+            {tAuth("logout")}
           </Button>
         </div>
       </PopoverContent>

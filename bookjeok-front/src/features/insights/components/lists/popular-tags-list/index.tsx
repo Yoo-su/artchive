@@ -1,6 +1,7 @@
 "use client";
 
 import { Tag } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import {
   EmptyState,
@@ -23,6 +24,7 @@ interface PopularTagsListProps {
  * 인기 태그 배지 리스트
  */
 export const PopularTagsList = ({ data }: PopularTagsListProps) => {
+  const t = useTranslations("insights.charts.tags");
   const hasData = data.length > 0;
 
   const maxCount = Math.max(...data.map((t) => t.count), 1);
@@ -53,8 +55,8 @@ export const PopularTagsList = ({ data }: PopularTagsListProps) => {
 
   return (
     <InsightCard
-      title="많이 사용된 태그"
-      description="리뷰 작성 시 가장 많이 선택된 태그들이에요"
+      title={t("title")}
+      description={t("desc")}
       icon={<Tag className="h-5 w-5" />}
     >
       {hasData ? (
@@ -74,7 +76,7 @@ export const PopularTagsList = ({ data }: PopularTagsListProps) => {
           })}
         </div>
       ) : (
-        <EmptyState message="아직 등록된 태그가 없어요" />
+        <EmptyState message={t("empty")} />
       )}
     </InsightCard>
   );

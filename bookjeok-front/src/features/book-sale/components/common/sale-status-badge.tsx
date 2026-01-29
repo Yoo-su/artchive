@@ -1,22 +1,20 @@
+import { useTranslations } from "next-intl";
+
 import { Badge } from "@/shared/components/shadcn/badge";
 import { cn } from "@/shared/utils/cn";
 
 import { SaleStatus } from "../../types";
 
-// 상태에 따른 배지 스타일과 텍스트를 정의하는 맵
-const STATUS_INFO: {
-  [key in SaleStatus]: { text: string; className: string };
+const STATUS_PRESETS: {
+  [key in SaleStatus]: { className: string };
 } = {
   FOR_SALE: {
-    text: "판매중",
     className: "bg-emerald-500 hover:bg-emerald-600",
   },
   RESERVED: {
-    text: "예약중",
     className: "bg-amber-500 hover:bg-amber-600",
   },
   SOLD: {
-    text: "판매완료",
     className: "bg-gray-400 hover:bg-gray-500",
   },
 };
@@ -32,11 +30,12 @@ export const SaleStatusBadge = ({
   status,
   className,
 }: SaleStatusBadgeProps) => {
-  const statusInfo = STATUS_INFO[status] || STATUS_INFO.SOLD;
+  const t = useTranslations("market.sale_status");
+  const preset = STATUS_PRESETS[status] || STATUS_PRESETS.SOLD;
 
   return (
-    <Badge variant="default" className={cn(statusInfo.className, className)}>
-      {statusInfo.text}
+    <Badge variant="default" className={cn(preset.className, className)}>
+      {t(status)}
     </Badge>
   );
 };

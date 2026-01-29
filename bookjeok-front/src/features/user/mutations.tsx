@@ -2,11 +2,11 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { User } from "@/features/auth/types";
+import { useRouter } from "@/shared/config/i18n/routing";
 import { privateAxios } from "@/shared/libs/axios";
 
 import { BookInfo } from "../book/types";

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Theater } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -15,26 +16,25 @@ import { ArtSliderSkeleton } from "../skeleton";
 import { MainArtCard } from "./main-art-card";
 
 // 결과 없음 상태 컴포넌트
-const NoResults = () => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -20 }}
-    transition={{ duration: 0.5, ease: "easeInOut" }}
-    className="h-[380px] flex flex-col items-center justify-center text-center"
-  >
-    <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-rose-50">
-      <div className="absolute h-full w-full animate-pulse rounded-full bg-rose-100/50 blur-xl" />
-      <Theater className="relative z-10 h-10 w-10 text-rose-400" />
-    </div>
-    <p className="mt-6 text-lg font-semibold text-stone-700">
-      앗, 아직 공연 정보가 없어요!
-    </p>
-    <p className="mt-1 text-sm text-stone-400">
-      다른 카테고리를 확인해보시겠어요?
-    </p>
-  </motion.div>
-);
+const NoResults = () => {
+  const t = useTranslations("home.sections.art.empty");
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.5, ease: "easeInOut" }}
+      className="h-[380px] flex flex-col items-center justify-center text-center"
+    >
+      <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-rose-50">
+        <div className="absolute h-full w-full animate-pulse rounded-full bg-rose-100/50 blur-xl" />
+        <Theater className="relative z-10 h-10 w-10 text-rose-400" />
+      </div>
+      <p className="mt-6 text-lg font-semibold text-stone-700">{t("title")}</p>
+      <p className="mt-1 text-sm text-stone-400">{t("desc")}</p>
+    </motion.div>
+  );
+};
 
 interface MainArtSliderProps {
   title: string;

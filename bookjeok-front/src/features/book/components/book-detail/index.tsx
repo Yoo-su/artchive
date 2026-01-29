@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { Separator } from "@/shared/components/shadcn/separator";
@@ -21,6 +22,7 @@ interface BookDetailProps {
 }
 
 export const BookDetail = ({ isbn }: BookDetailProps) => {
+  const t = useTranslations();
   const {
     data: book,
     isLoading,
@@ -87,7 +89,7 @@ export const BookDetail = ({ isbn }: BookDetailProps) => {
 
       {book?.author && (
         <RelatedBooksSection
-          title={`'${book.author}' 저자의 다른 책`}
+          title={t("book.detail.related_books_title", { author: book.author })}
           query={book.author}
           currentIsbn={isbn}
         />

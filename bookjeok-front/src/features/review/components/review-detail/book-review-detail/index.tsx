@@ -1,8 +1,7 @@
-"use client";
-
 import { useQueryClient } from "@tanstack/react-query";
 import { Edit } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
@@ -31,6 +30,7 @@ interface ReviewDetailProps {
 }
 
 export const ReviewDetail = ({ id, initialReview }: ReviewDetailProps) => {
+  const t = useTranslations("review.detail");
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
 
@@ -59,10 +59,7 @@ export const ReviewDetail = ({ id, initialReview }: ReviewDetailProps) => {
 
   if (!review) {
     return (
-      <NotFoundRedirect
-        message="존재하지 않거나 삭제된 리뷰입니다."
-        fallbackPath={PATHS.REVIEWS}
-      />
+      <NotFoundRedirect message={t("not_found")} fallbackPath={PATHS.REVIEWS} />
     );
   }
 
@@ -110,7 +107,7 @@ export const ReviewDetail = ({ id, initialReview }: ReviewDetailProps) => {
             className="text-stone-500 hover:text-stone-900"
             asChild
           >
-            <Link href={PATHS.REVIEWS}>← Back to Reviews</Link>
+            <Link href={PATHS.REVIEWS}>{t("back")}</Link>
           </Button>
 
           {isAuthor && (
@@ -122,7 +119,7 @@ export const ReviewDetail = ({ id, initialReview }: ReviewDetailProps) => {
             >
               <Link href={PATHS.REVIEW_EDIT(String(id))}>
                 <Edit className="w-4 h-4 mr-2" />
-                리뷰 수정하기
+                {t("edit")}
               </Link>
             </Button>
           )}

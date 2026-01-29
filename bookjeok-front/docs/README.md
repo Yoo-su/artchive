@@ -16,10 +16,11 @@
 
 1.  [**주요 기능 (Features)**](#-주요-기능-features)
 2.  [**아키텍처 (Architecture)**](#-아키텍처-architecture)
-3.  [**기술 스택 및 선정 이유 (Tech Stack & Rationale)**](#️-기술-스택-및-선정-이유-tech-stack--rationale)
-4.  [**주요 기술적 내용 (Technical Highlights)**](#-기술적-주요-결정-technical-highlights)
-5.  [**서비스 화면 (Service Preview)**](#-서비스-화면-service-preview)
-6.  [**시작하기 (Getting Started)**](#-시작하기-getting-started)
+3.  [**다국어 지원 (I18n)**](#-다국어-지원-i18n)
+4.  [**기술 스택 및 선정 이유 (Tech Stack & Rationale)**](#️-기술-스택-및-선정-이유-tech-stack--rationale)
+5.  [**주요 기술적 내용 (Technical Highlights)**](#-기술적-주요-결정-technical-highlights)
+6.  [**서비스 화면 (Service Preview)**](#-서비스-화면-service-preview)
+7.  [**시작하기 (Getting Started)**](#-시작하기-getting-started)
 
 ---
 
@@ -71,6 +72,19 @@ bookjeok은 사용자의 문화 생활과 지식 공유를 돕기 위해 다음�
   - 서비스 전체 통계(판매글, 리뷰, 리액션 수 등)를 한눈에 파악할 수 있습니다.
   - 지역별 거래 현황을 지도로 시각화합니다.
   - 카테고리별 분석, 가격 분포, 인기 태그 등 다양한 통계를 제공합니다.
+
+---
+
+## 🌍 다국어 지원 (I18n)
+
+Bookjeok은 `next-intl`을 사용하여 글로벌 사용자를 위한 다국어 환경을 제공합니다.
+
+- **지원 언어**: 한국어(`ko`), 영어(`en`)
+- **라우팅**: URL 하위 경로 방식 (예: `/ko`, `/en`)을 채택하여 검색 엔진 최적화(SEO) 친화적입니다.
+- **자동 감지**: 사용자 브라우저 설정을 기반으로 적절한 언어로 자동 리다이렉트됩니다.
+- **구조**:
+  - `src/app/[locale]`: 모든 페이지는 로케일 경로 하위에 위치합니다.
+  - `src/shared/i18n/messages`: 번역 파일(`ko.json`, `en.json`)을 관리합니다.
 
 ---
 

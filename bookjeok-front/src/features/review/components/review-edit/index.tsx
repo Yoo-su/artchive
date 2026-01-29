@@ -1,7 +1,7 @@
 "use client";
 
 import { AxiosError } from "axios";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
@@ -9,6 +9,7 @@ import { ReviewForm } from "@/features/review/components/review-form";
 import { useUpdateReviewMutation } from "@/features/review/mutations";
 import { useReviewForEditQuery } from "@/features/review/queries";
 import { ReviewFormValues } from "@/features/review/types";
+import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { ReviewEditSkeleton } from "./skeleton";
@@ -18,6 +19,7 @@ interface ReviewEditProps {
 }
 
 export const ReviewEdit = ({ id }: ReviewEditProps) => {
+  const t = useTranslations("review.form");
   const router = useRouter();
 
   // 수정용 전용 API 사용 (본인 리뷰만 조회 가능)
@@ -72,11 +74,11 @@ export const ReviewEdit = ({ id }: ReviewEditProps) => {
 
   return (
     <div className="container mx-auto py-8 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-8">책 후기 수정</h1>
+      <h1 className="text-3xl font-bold mb-8">{t("title_edit")}</h1>
       <ReviewForm
         initialData={initialData}
         onSubmit={handleSubmit}
-        submitLabel="수정 완료"
+        submitLabel={t("buttons.submit_edit")}
         isSubmitting={isSubmitting || isSuccess}
         isEditMode={true}
       />

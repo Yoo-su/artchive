@@ -1,11 +1,11 @@
 import { ShoppingBag } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 
 import { SaleStatusBadge } from "@/features/book-sale/components/common/sale-status-badge";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card } from "@/shared/components/shadcn/card";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { WishlistItem as WishlistItemType } from "../../../types";

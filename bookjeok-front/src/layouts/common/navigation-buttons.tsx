@@ -2,10 +2,10 @@
 
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 import { Button } from "@/shared/components/shadcn/button";
 import { Separator } from "@/shared/components/shadcn/separator";
+import { useRouter } from "@/shared/config/i18n/routing";
 
 export const NavigationButtons = () => {
   const router = useRouter();
@@ -16,7 +16,7 @@ export const NavigationButtons = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeInOut" }}
-        className="flex items-center h-12 rounded-full bg-gradient-to-r from-teal-600 to-emerald-700 shadow-2xl shadow-emerald-600/30 overflow-hidden"
+        className="flex items-center h-12 rounded-full bg-linear-to-r from-teal-600 to-emerald-700 shadow-2xl shadow-emerald-600/30 overflow-hidden"
       >
         <Button
           variant="ghost"

@@ -1,14 +1,12 @@
-"use client";
-
 import { upload } from "@vercel/blob/client";
-import { Camera, Check, Loader2, X } from "lucide-react";
+import { Camera, Loader2 } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { checkNickname, updateProfile } from "@/features/user/apis";
-import { useUpdateUserMutation } from "@/features/user/mutations";
 import {
   Avatar,
   AvatarFallback,
@@ -55,6 +53,7 @@ interface ProfileEditModalProps {
  * - 프로필 이미지 변경 (커스텀 업로드 또는 기본 이미지 선택)
  */
 export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
+  const t = useTranslations("my_page.edit_modal");
   const [open, setOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
@@ -103,12 +102,12 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
 
     // 닉네임 유효성 검사
     if (nickname.length < 2) {
-      setNicknameError("닉네임은 2자 이상이어야 합니다.");
+      setNicknameError(t("nickname_min"));
       setNicknameAvailable(null);
       return;
     }
     if (nickname.length > 20) {
-      setNicknameError("닉네임은 20자 이하여야 합니다.");
+      setNicknameError(t("nickname_max"));
       setNicknameAvailable(null);
       return;
     }
@@ -126,10 +125,10 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
         const result = await checkNickname(nickname);
         setNicknameAvailable(result.available);
         if (!result.available) {
-          setNicknameError("이미 사용 중인 닉네임입니다.");
+          setNicknameError(t("nickname_taken"));
         }
       } catch {
-        setNicknameError("중복 확인 중 오류가 발생했습니다.");
+        setNicknameError(t("nickname_error"));
       } finally {
         setIsCheckingNickname(false);
       }
@@ -140,7 +139,7 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
         clearTimeout(nicknameCheckTimeoutRef.current);
       }
     };
-  }, [nickname, user?.nickname]);
+  }, [nickname, user?.nickname, t]);
 
   // 이미지 파일 선택 처리
   const handleImageSelect = useCallback(
@@ -150,13 +149,13 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
 
       // 용량 검사 (20MB)
       if (file.size > MAX_PROFILE_IMAGE_SIZE) {
-        toast.error("이미지 크기는 20MB 이하여야 합니다.");
+        toast.error(t("image_size_error"));
         return;
       }
 
       // 이미지 타입 검사
       if (!file.type.startsWith("image/")) {
-        toast.error("이미지 파일만 업로드할 수 있습니다.");
+        toast.error(t("image_type_error"));
         return;
       }
 
@@ -177,7 +176,7 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
         };
         reader.readAsDataURL(compressedFile);
       } catch {
-        toast.error("이미지 처리 중 오류가 발생했습니다.");
+        toast.error(t("image_error"));
       }
 
       // 입력 초기화
@@ -185,7 +184,7 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
         fileInputRef.current.value = "";
       }
     },
-    [],
+    [t],
   );
 
   // 기본 이미지 선택
@@ -201,7 +200,7 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
 
     // 닉네임 변경 시 중복 검사 확인
     if (nickname !== user.nickname && !nicknameAvailable) {
-      toast.error("닉네임 중복 확인을 해주세요.");
+      toast.error(t("nickname_check"));
       return;
     }
 
@@ -242,7 +241,7 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
           ...updateData,
         });
 
-        toast.success("프로필이 업데이트되었습니다.");
+        toast.success(t("save_success"));
       }
 
       setOpen(false);
@@ -251,9 +250,9 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
         error instanceof Error &&
         error.message.includes("NICKNAME_ALREADY_EXISTS")
       ) {
-        toast.error("이미 사용 중인 닉네임입니다.");
+        toast.error(t("nickname_taken"));
       } else {
-        toast.error("프로필 수정 중 오류가 발생했습니다.");
+        toast.error(t("save_error"));
       }
     } finally {
       setIsSaving(false);
@@ -265,6 +264,8 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
     selectedImage,
     customImageFile,
     setUser,
+    accessToken,
+    t,
   ]);
 
   if (!user) return null;
@@ -285,20 +286,20 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="outline" size="sm">
-            프로필 수정
+            {t("edit")}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>프로필 수정</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           {/* 프로필 이미지 */}
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
-              <Avatar className="w-24 h-24 border-2 border-stone-200">
+              <Avatar className="h-24 w-24 border-2 border-stone-200">
                 <AvatarImage src={displayImage} alt={nickname} />
                 <AvatarFallback className="text-2xl">
                   {nickname.slice(0, 2)}
@@ -307,9 +308,9 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 p-2 bg-stone-800 text-white rounded-full hover:bg-stone-700 transition-colors"
+                className="absolute bottom-0 right-0 rounded-full bg-stone-800 p-2 text-white transition-colors hover:bg-stone-700"
               >
-                <Camera className="w-4 h-4" />
+                <Camera className="h-4 w-4" />
               </button>
               <input
                 ref={fileInputRef}
@@ -321,13 +322,13 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
             </div>
 
             {/* 기본 이미지 선택 */}
-            <div className="grid grid-cols-5 gap-3 sm:gap-4 w-full max-w-[320px] mx-auto sm:max-w-none">
+            <div className="mx-auto grid w-full max-w-[320px] grid-cols-5 gap-3 sm:max-w-none sm:gap-4">
               {DEFAULT_PROFILE_IMAGES.map((imageId) => (
                 <button
                   key={imageId}
                   type="button"
                   onClick={() => handleDefaultImageSelect(imageId)}
-                  className={`relative aspect-square rounded-full overflow-hidden border-2 transition-all hover:scale-105 active:scale-95 ${
+                  className={`relative aspect-square overflow-hidden rounded-full border-2 transition-all hover:scale-105 active:scale-95 ${
                     selectedImage === imageId && !customImageFile
                       ? "border-emerald-500 ring-2 ring-emerald-200 ring-offset-1"
                       : "border-stone-100 hover:border-stone-300"
@@ -346,13 +347,13 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="nickname">닉네임</Label>
+            <Label htmlFor="nickname">{t("nickname_label")}</Label>
             <div className="relative">
               <Input
                 id="nickname"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
-                placeholder="닉네임을 입력하세요 (2-10자)"
+                placeholder={t("nickname_placeholder")}
                 maxLength={20}
                 className={
                   nicknameError
@@ -364,40 +365,38 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
               />
               {isCheckingNickname && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <Loader2 className="w-4 h-4 animate-spin text-stone-400" />
+                  <Loader2 className="h-4 w-4 animate-spin text-stone-400" />
                 </div>
               )}
             </div>
             {nicknameError ? (
-              <p className="text-sm text-red-500 flex items-center gap-1">
-                <span className="inline-block w-1 h-1 rounded-full bg-red-500" />
+              <p className="flex items-center gap-1 text-sm text-red-500">
+                <span className="inline-block h-1 w-1 rounded-full bg-red-500" />
                 {nicknameError}
               </p>
             ) : nicknameAvailable && nickname !== user.nickname ? (
-              <p className="text-sm text-emerald-600 flex items-center gap-1">
-                <span className="inline-block w-1 h-1 rounded-full bg-emerald-500" />
-                사용 가능한 닉네임입니다.
+              <p className="flex items-center gap-1 text-sm text-emerald-600">
+                <span className="inline-block h-1 w-1 rounded-full bg-emerald-500" />
+                {t("nickname_available")}
               </p>
             ) : (
-              <p className="text-xs text-stone-500">
-                한글, 영문, 숫자 포함 2-10자
-              </p>
+              <p className="text-xs text-stone-500">{t("nickname_help")}</p>
             )}
           </div>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={() => setOpen(false)}>
-            취소
+            {t("cancel")}
           </Button>
           <Button onClick={handleSave} disabled={isSaveDisabled}>
             {isSaving ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                저장 중...
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {t("saving")}
               </>
             ) : (
-              "저장"
+              t("save")
             )}
           </Button>
         </DialogFooter>

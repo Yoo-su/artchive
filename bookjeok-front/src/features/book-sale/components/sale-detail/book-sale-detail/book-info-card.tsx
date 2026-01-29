@@ -1,7 +1,5 @@
-"use client";
-
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import {
   Card,
@@ -9,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/shadcn/card";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { UsedBookSale } from "../../../types";
@@ -18,11 +17,13 @@ interface BookInfoCardProps {
 }
 
 export const BookInfoCard = ({ sale }: BookInfoCardProps) => {
+  const t = useTranslations("market.detail.book_info");
+
   return (
     <Link href={PATHS.BOOK_DETAIL(sale.book.isbn)}>
       <Card className="transition-shadow bg-gray-50 hover:shadow-md">
         <CardHeader>
-          <CardTitle className="text-lg">도서 정보</CardTitle>
+          <CardTitle className="text-lg">{t("title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4">
@@ -37,8 +38,12 @@ export const BookInfoCard = ({ sale }: BookInfoCardProps) => {
             </div>
             <div className="space-y-1 text-sm">
               <p className="font-bold text-gray-800">{sale.book.title}</p>
-              <p className="text-gray-600">저자: {sale.book.author}</p>
-              <p className="text-gray-600">출판사: {sale.book.publisher}</p>
+              <p className="text-gray-600">
+                {t("author")}: {sale.book.author}
+              </p>
+              <p className="text-gray-600">
+                {t("publisher")}: {sale.book.publisher}
+              </p>
               <p className="text-gray-500 pt-1 line-clamp-2">
                 {sale.book.description}
               </p>

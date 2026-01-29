@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2, MapPin } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   CustomOverlayMap,
   Map,
@@ -25,6 +26,7 @@ export const SaleLocationMap = ({
   city,
   district,
 }: SaleLocationMapProps) => {
+  const t = useTranslations("market.detail.location");
   const [loading, error] = useKakaoLoader({
     appkey: config.NEXT_PUBLIC_KAKAO_APP_KEY!,
     libraries: ["services", "clusterer"],
@@ -41,7 +43,7 @@ export const SaleLocationMap = ({
   if (error) {
     return (
       <div className="w-full h-[240px] border rounded-xl bg-muted/20 flex items-center justify-center text-destructive text-sm">
-        지도를 불러오는 중 오류가 발생했습니다.
+        {t("error")}
       </div>
     );
   }
@@ -49,7 +51,7 @@ export const SaleLocationMap = ({
   return (
     <div className="space-y-3">
       <div className="space-y-1">
-        <h3 className="font-semibold text-lg text-gray-900">거래 희망 장소</h3>
+        <h3 className="font-semibold text-lg text-gray-900">{t("title")}</h3>
         <p className="text-sm text-gray-500">
           {city} {district} {placeName && `· ${placeName}`}
         </p>
@@ -70,7 +72,7 @@ export const SaleLocationMap = ({
             <div className="relative mb-8 transform transition-all hover:scale-105">
               <div className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-bold text-gray-900 shadow-lg ring-1 ring-black/5">
                 <MapPin className="h-4 w-4 text-emerald-600 fill-emerald-600" />
-                <span>{placeName || "거래 희망 장소"}</span>
+                <span>{placeName || t("marker_default")}</span>
               </div>
               {/* 말풍선 꼬리 (선택적 디자인) */}
               <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 overflow-hidden">

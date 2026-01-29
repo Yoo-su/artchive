@@ -1,10 +1,10 @@
 "use client";
 
 import { AlertTriangle, ArrowLeft, Home } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/shared/components/shadcn/button";
+import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 interface NotFoundRedirectProps {

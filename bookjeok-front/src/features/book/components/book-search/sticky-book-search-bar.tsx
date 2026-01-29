@@ -2,6 +2,7 @@
 
 import { Search, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Input } from "@/shared/components/shadcn/input";
@@ -24,6 +25,7 @@ export const StickyBookSearchBar = ({
   isVisible,
   paramName = "q",
 }: StickyBookSearchBarProps) => {
+  const t = useTranslations("book.search");
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const pathname = usePathname();
@@ -102,7 +104,7 @@ export const StickyBookSearchBar = ({
           <button
             onClick={executeSearch}
             className="absolute left-4 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition-colors"
-            aria-label="검색"
+            aria-label={t("button_label")}
           >
             <Search className="w-5 h-5" />
           </button>
@@ -112,7 +114,7 @@ export const StickyBookSearchBar = ({
             value={inputValue}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            placeholder="검색어 입력 후 엔터..."
+            placeholder={t("sticky_placeholder")}
             className="w-full pl-12 pr-10 py-6 text-lg bg-white/50 border-gray-200 focus:bg-white focus:border-blue-500/50 hover:bg-white/80 rounded-full shadow-sm focus:shadow-lg focus:ring-4 focus:ring-blue-500/10 transition-all duration-300"
           />
           {inputValue && (

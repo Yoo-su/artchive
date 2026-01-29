@@ -13,8 +13,8 @@
 - **`features/auth/components/`**: **Context-Based Grouping**
   - **`forms/`**: 로그인/회원가입 폼 (`login-form`, `signup-form`)
   - **`guards/`**: 라우트 가드 (`auth-guard`, `guest-guard`)
-- **`app/(auth)/login/page.tsx`**: 로그인 UI를 보여주는 페이지입니다. `guest-guard`로 감싸져 있습니다.
-- **`app/(auth)/callback/page.tsx`**: 소셜 로그인 후 백엔드 서버로부터 리다이렉트되는 콜백 페이지입니다. URL의 쿼리 파라미터로 전달된 `accessToken`, `refreshToken`, `user` 정보를 파싱하여 `useAuthStore`에 저장하고, 사용자를 홈 화면으로 이동시킵니다.
+- **`app/[locale]/(auth)/login/page.tsx`**: 로그인 UI를 보여주는 페이지입니다. `guest-guard`로 감싸져 있습니다.
+- **`app/[locale]/(auth)/callback/page.tsx`**: 소셜 로그인 후 백엔드 서버로부터 리다이렉트되는 콜백 페이지입니다. URL의 쿼리 파라미터로 전달된 `accessToken`, `refreshToken`, `user` 정보를 파싱하여 `useAuthStore`에 저장하고, 사용자를 홈 화면으로 이동시킵니다.
 
 ## 2. 핵심 로직 흐름
 

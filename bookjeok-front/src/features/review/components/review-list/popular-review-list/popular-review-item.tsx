@@ -1,5 +1,4 @@
 import { Eye, ThumbsUp } from "lucide-react";
-import Link from "next/link";
 
 import { Review } from "@/features/review/types";
 import {
@@ -14,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/shadcn/card";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 

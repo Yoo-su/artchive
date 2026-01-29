@@ -2,6 +2,7 @@
 
 import { Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
 import { Input } from "@/shared/components/shadcn/input";
@@ -19,6 +20,7 @@ interface BookSearchInputProps {
  * - 엔터키 또는 검색 버튼 클릭 시 검색 실행
  */
 export const BookSearchInput = ({ paramName = "q" }: BookSearchInputProps) => {
+  const t = useTranslations("book.search");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -78,7 +80,7 @@ export const BookSearchInput = ({ paramName = "q" }: BookSearchInputProps) => {
           value={inputValue}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          placeholder="어떤 책을 찾고 계신가요?"
+          placeholder={t("placeholder")}
           className="w-full pl-12 pr-16 py-6 text-lg border-2 rounded-full focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         />
 
@@ -86,7 +88,7 @@ export const BookSearchInput = ({ paramName = "q" }: BookSearchInputProps) => {
         <button
           onClick={executeSearch}
           className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-blue-400 hover:bg-blue-500 text-white rounded-full shadow-sm hover:shadow-md transition-all flex items-center justify-center"
-          aria-label="검색"
+          aria-label={t("button_label")}
         >
           <Search className="w-5 h-5" />
         </button>

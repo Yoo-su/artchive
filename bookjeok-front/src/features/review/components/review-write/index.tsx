@@ -1,13 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import { ReviewForm } from "@/features/review/components/review-form";
 import { useCreateReviewMutation } from "@/features/review/mutations";
 import { ReviewFormValues } from "@/features/review/types";
+import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 export const ReviewWrite = () => {
+  const t = useTranslations("review.form");
   const router = useRouter();
   const {
     mutateAsync: createReview,
@@ -22,10 +24,10 @@ export const ReviewWrite = () => {
 
   return (
     <div className="container mx-auto py-8 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-8">책 후기 작성</h1>
+      <h1 className="text-3xl font-bold mb-8">{t("title_write")}</h1>
       <ReviewForm
         onSubmit={handleSubmit}
-        submitLabel="작성 완료"
+        submitLabel={t("buttons.submit_create")}
         isSubmitting={isSubmitting || isSuccess}
       />
     </div>

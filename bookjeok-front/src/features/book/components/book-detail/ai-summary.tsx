@@ -9,7 +9,7 @@ import {
   Sparkles,
   User,
 } from "lucide-react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { Badge } from "@/shared/components/shadcn/badge";
@@ -20,6 +20,7 @@ import {
   CardTitle,
 } from "@/shared/components/shadcn/card";
 import { Separator } from "@/shared/components/shadcn/separator";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 interface AIResponse {
@@ -44,6 +45,7 @@ export const AISummary = ({
   isRequested,
   onRequestSummary,
 }: BookSummaryProps) => {
+  const t = useTranslations("book.detail.ai_summary");
   const user = useAuthStore((state) => state.user);
   const isLoggedIn = !!user;
 
@@ -55,10 +57,10 @@ export const AISummary = ({
         </div>
         <div className="space-y-1">
           <CardTitle className="text-xl font-bold tracking-tight text-gray-900">
-            AI 서재 비서
+            {t("title")}
           </CardTitle>
           <p className="text-sm font-medium text-gray-500">
-            Gemini가 분석한 책의 핵심 정보입니다
+            {t("description")}
           </p>
         </div>
       </CardHeader>
@@ -71,15 +73,12 @@ export const AISummary = ({
             </div>
             <div className="space-y-2 max-w-md">
               <h3 className="text-lg font-semibold text-gray-900">
-                이 책의 핵심 내용이 궁금하신가요?
+                {t("prompt_title")}
               </h3>
               <p className="text-gray-500 text-sm leading-relaxed">
-                AI가 책의 줄거리, 핵심 포인트, 추천 대상을 빠르게
-                요약해드립니다.
+                {t("prompt_desc")}
                 <br />
-                {isLoggedIn
-                  ? "버튼을 눌러 요약 정보를 확인해보세요."
-                  : "로그인 후 이용하실 수 있습니다."}
+                {isLoggedIn ? t("prompt_action") : t("prompt_login_required")}
               </p>
             </div>
             {isLoggedIn ? (
@@ -88,7 +87,7 @@ export const AISummary = ({
                 className="mt-4 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors shadow-sm hover:shadow-md flex items-center gap-2"
               >
                 <Sparkles className="w-4 h-4" />
-                AI 요약 보기
+                {t("button_view")}
               </button>
             ) : (
               <Link
@@ -96,7 +95,7 @@ export const AISummary = ({
                 className="mt-4 px-6 py-2.5 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors shadow-sm hover:shadow-md flex items-center gap-2"
               >
                 <LogIn className="w-4 h-4" />
-                로그인하고 AI 요약 보기
+                {t("button_login")}
               </Link>
             )}
           </div>
@@ -110,9 +109,9 @@ export const AISummary = ({
             </div>
             <div className="text-center space-y-1">
               <p className="font-semibold text-gray-900">
-                AI가 책을 읽고 있어요
+                {t("loading_title")}
               </p>
-              <p className="text-sm text-gray-500">잠시만 기다려주세요...</p>
+              <p className="text-sm text-gray-500">{t("loading_desc")}</p>
             </div>
           </div>
         ) : isError ? (
@@ -121,18 +120,14 @@ export const AISummary = ({
               <AlertTriangle className="w-6 h-6" />
             </div>
             <div className="space-y-1">
-              <p className="font-semibold text-gray-900">
-                요약 정보를 불러오지 못했습니다
-              </p>
-              <p className="text-sm text-gray-500">
-                일시적인 오류일 수 있습니다. 잠시 후 다시 시도해주세요.
-              </p>
+              <p className="font-semibold text-gray-900">{t("error_title")}</p>
+              <p className="text-sm text-gray-500">{t("error_desc")}</p>
             </div>
             <button
               onClick={onRequestSummary}
               className="mt-2 text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
             >
-              다시 시도하기
+              {t("retry")}
             </button>
           </div>
         ) : summary ? (
@@ -142,7 +137,8 @@ export const AISummary = ({
               <div className="absolute -inset-0.5 bg-linear-to-r from-emerald-100 to-teal-100 rounded-2xl opacity-50 group-hover:opacity-70 transition duration-300 blur-sm"></div>
               <div className="relative p-5 bg-white rounded-xl border border-emerald-100 shadow-sm">
                 <h3 className="flex items-center gap-2 mb-3 font-bold text-emerald-800">
-                  <Sparkles className="w-4 h-4" />한 줄 요약
+                  <Sparkles className="w-4 h-4" />
+                  {t("summary_label")}
                 </h3>
                 <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-lg font-medium">
                   {summary.summary}
@@ -154,7 +150,7 @@ export const AISummary = ({
             <div>
               <h3 className="flex items-center gap-2 mb-4 font-bold text-gray-900 text-lg">
                 <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                핵심 포인트
+                {t("key_points_label")}
               </h3>
               <ul className="grid gap-3 sm:grid-cols-2">
                 {summary.keyPoints?.map((point, index) => (
@@ -180,7 +176,7 @@ export const AISummary = ({
               <div className="space-y-3">
                 <h3 className="flex items-center gap-2 font-bold text-gray-900">
                   <User className="w-5 h-5 text-gray-500" />
-                  이런 분께 추천해요
+                  {t("recommendation_label")}
                 </h3>
                 <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 text-gray-700 leading-relaxed">
                   {summary.targetAudience}
@@ -192,7 +188,7 @@ export const AISummary = ({
                   <Badge variant="outline" className="px-2 py-0.5 text-xs">
                     TAGS
                   </Badge>
-                  키워드
+                  {t("keywords_label")}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {summary.keywords?.map((keyword, index) => (

@@ -10,6 +10,7 @@ import {
   Users,
 } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
@@ -55,6 +56,7 @@ const InfoCard = ({
 );
 
 export const ArtDetail = ({ artId }: ArtDetailProps) => {
+  const t = useTranslations("art.detail");
   const { data: art, isLoading, isError } = useArtDetailQuery(artId);
 
   if (isLoading) {
@@ -68,11 +70,9 @@ export const ArtDetail = ({ artId }: ArtDetailProps) => {
           <AlertTriangle className="w-10 h-10 text-red-400" />
         </div>
         <h2 className="text-xl font-semibold text-stone-800 mb-2">
-          공연 정보를 불러올 수 없습니다.
+          {t("not_found.title")}
         </h2>
-        <p className="text-sm text-stone-500">
-          삭제되었거나 유효하지 않은 정보일 수 있습니다.
-        </p>
+        <p className="text-sm text-stone-500">{t("not_found.desc")}</p>
       </div>
     );
   }
@@ -144,7 +144,7 @@ export const ArtDetail = ({ artId }: ArtDetailProps) => {
                   <div className="flex items-center gap-3 text-stone-600 bg-white/80 backdrop-blur-sm rounded-xl p-3">
                     <Calendar className="w-5 h-5 text-rose-400" />
                     <div>
-                      <p className="text-xs text-stone-400">공연 기간</p>
+                      <p className="text-xs text-stone-400">{t("period")}</p>
                       <p className="text-sm font-medium">
                         {art.prfpdfrom} ~ {art.prfpdto}
                       </p>
@@ -153,7 +153,7 @@ export const ArtDetail = ({ artId }: ArtDetailProps) => {
                   <div className="flex items-center gap-3 text-stone-600 bg-white/80 backdrop-blur-sm rounded-xl p-3">
                     <Clock className="w-5 h-5 text-rose-400" />
                     <div>
-                      <p className="text-xs text-stone-400">러닝타임</p>
+                      <p className="text-xs text-stone-400">{t("runtime")}</p>
                       <p className="text-sm font-medium">{art.prfruntime}</p>
                     </div>
                   </div>
@@ -179,11 +179,12 @@ export const ArtDetail = ({ artId }: ArtDetailProps) => {
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-2"
                             >
-                              {link.relatenm || `예매처 ${i + 1}`}
+                              {link.relatenm ||
+                                `${t("default_booking")} ${i + 1}`}
                               <ExternalLink className="w-4 h-4" />
                             </a>
                           </Button>
-                        )
+                        ),
                     )}
                   </div>
                 )}
@@ -202,7 +203,7 @@ export const ArtDetail = ({ artId }: ArtDetailProps) => {
             <div>
               <h2 className="text-xl font-bold text-stone-900 mb-4 flex items-center gap-2">
                 <span className="w-1 h-5 bg-rose-500 rounded-full" />
-                공연 장면
+                {t("scenes")}
               </h2>
               <Swiper
                 modules={[Navigation, Pagination]}
@@ -217,7 +218,7 @@ export const ArtDetail = ({ artId }: ArtDetailProps) => {
                     <a href={imgSrc} target="_blank" rel="noopener noreferrer">
                       <Image
                         src={imgSrc}
-                        alt={`${art.prfnm} 장면 ${index + 1}`}
+                        alt={`${art.prfnm} ${t("scenes")} ${index + 1}`}
                         fill
                         className="object-cover cursor-pointer transition-transform duration-300 hover:scale-105"
                       />
@@ -233,7 +234,7 @@ export const ArtDetail = ({ artId }: ArtDetailProps) => {
             <div>
               <h2 className="text-xl font-bold text-stone-900 mb-4 flex items-center gap-2">
                 <span className="w-1 h-5 bg-rose-500 rounded-full" />
-                줄거리
+                {t("synopsis")}
               </h2>
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100">
                 <p className="text-stone-600 leading-relaxed whitespace-pre-wrap">
@@ -246,40 +247,42 @@ export const ArtDetail = ({ artId }: ArtDetailProps) => {
 
         {/* 오른쪽 컬럼 - 상세 정보 */}
         <div className="space-y-4">
-          <InfoCard icon={Calendar} title="공연 기간">
+          <InfoCard icon={Calendar} title={t("period")}>
             <p className="font-medium">
               {art.prfpdfrom} ~ {art.prfpdto}
             </p>
             <p className="mt-1 text-xs text-stone-400">{art.dtguidance}</p>
           </InfoCard>
 
-          <InfoCard icon={Clock} title="공연 시간">
+          <InfoCard icon={Clock} title={t("runtime")}>
             <p className="font-medium">{art.prfruntime}</p>
           </InfoCard>
 
-          <InfoCard icon={MapPin} title="장소">
+          <InfoCard icon={MapPin} title={t("place")}>
             <p className="font-medium">{art.fcltynm}</p>
             <p className="mt-1 text-xs text-stone-400">{art.area}</p>
           </InfoCard>
 
-          <InfoCard icon={Ticket} title="티켓 정보">
+          <InfoCard icon={Ticket} title={t("ticket")}>
             <p className="font-medium">{art.pcseguidance}</p>
             <p className="mt-2 text-xs">
-              <span className="text-stone-400">관람 연령:</span>{" "}
+              <span className="text-stone-400">{t("age")}:</span>{" "}
               <span className="text-stone-600">{art.prfage}</span>
             </p>
           </InfoCard>
 
           {(art.prfcast || art.prfcrew) && (
-            <InfoCard icon={Users} title="출연/제작">
+            <InfoCard icon={Users} title={t("cast_crew")}>
               {art.prfcast && (
                 <p>
-                  <span className="text-stone-400">출연:</span> {art.prfcast}
+                  <span className="text-stone-400">{t("cast")}:</span>{" "}
+                  {art.prfcast}
                 </p>
               )}
               {art.prfcrew && (
                 <p className="mt-1">
-                  <span className="text-stone-400">제작:</span> {art.prfcrew}
+                  <span className="text-stone-400">{t("crew")}:</span>{" "}
+                  {art.prfcrew}
                 </p>
               )}
             </InfoCard>

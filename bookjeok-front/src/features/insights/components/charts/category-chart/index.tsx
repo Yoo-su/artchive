@@ -2,6 +2,7 @@
 
 import { BarChart3 } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
 import {
@@ -29,6 +30,7 @@ interface CategoryChartProps {
  * 카테고리별 리뷰 수 막대 차트
  */
 export const CategoryChart = ({ data }: CategoryChartProps) => {
+  const t = useTranslations("insights.charts.category");
   const hasData = data.some((item) => item.count > 0);
 
   const chartOptions = useMemo(
@@ -83,28 +85,28 @@ export const CategoryChart = ({ data }: CategoryChartProps) => {
       tooltip: {
         enabled: true,
         y: {
-          formatter: (val: number) => `${val}개 리뷰`,
+          formatter: (val: number) => t("tooltip", { count: val }),
         },
       },
       legend: { show: false },
     }),
-    [data],
+    [data, t],
   );
 
   const series = useMemo(
     () => [
       {
-        name: "리뷰 수",
+        name: t("series"),
         data: data.map((item) => item.count),
       },
     ],
-    [data],
+    [data, t],
   );
 
   return (
     <InsightCard
-      title="카테고리별 리뷰"
-      description="어떤 분야의 리뷰가 가장 많을까요?"
+      title={t("title")}
+      description={t("desc")}
       icon={<BarChart3 className="h-5 w-5" />}
     >
       {hasData ? (
@@ -115,7 +117,7 @@ export const CategoryChart = ({ data }: CategoryChartProps) => {
           height={350}
         />
       ) : (
-        <EmptyState message="아직 등록된 리뷰가 없어요" />
+        <EmptyState message={t("empty")} />
       )}
     </InsightCard>
   );

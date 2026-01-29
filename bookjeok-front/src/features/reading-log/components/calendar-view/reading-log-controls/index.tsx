@@ -7,6 +7,7 @@ import {
   ChevronRight,
   List as ListIcon,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/shared/components/shadcn/button";
 import {
@@ -39,11 +40,13 @@ export function ReadingLogControls({
   onNextMonth,
   isLoading,
 }: ReadingLogControlsProps) {
+  const t = useTranslations("reading_log.controls");
+  const tCalendar = useTranslations("reading_log.calendar");
   // 연도 선택 옵션 생성 (현재 연도 + 1 년 동안 2020년까지)
   const currentYear = new Date().getFullYear();
   const years = Array.from(
     { length: currentYear - 2020 + 2 },
-    (_, i) => currentYear + 1 - i
+    (_, i) => currentYear + 1 - i,
   );
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
@@ -84,7 +87,8 @@ export function ReadingLogControls({
                   <SelectContent>
                     {years.map((y) => (
                       <SelectItem key={y} value={y.toString()}>
-                        {y}년
+                        {y}
+                        {tCalendar("year_suffix")}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -101,7 +105,8 @@ export function ReadingLogControls({
                   <SelectContent>
                     {months.map((m) => (
                       <SelectItem key={m} value={m.toString()}>
-                        {m}월
+                        {m}
+                        {tCalendar("month_suffix")}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -120,7 +125,9 @@ export function ReadingLogControls({
             </div>
           </>
         ) : (
-          <h2 className="text-xl font-bold text-gray-800 ml-1">전체 기록</h2>
+          <h2 className="text-xl font-bold text-gray-800 ml-1">
+            {t("all_logs")}
+          </h2>
         )}
       </div>
 
@@ -132,11 +139,11 @@ export function ReadingLogControls({
             "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all",
             viewMode === "calendar"
               ? "bg-white text-gray-900 shadow-sm"
-              : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50"
+              : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50",
           )}
         >
           <CalendarIcon className="w-4 h-4" />
-          <span>달력</span>
+          <span>{t("view_calendar")}</span>
         </button>
         <button
           onClick={() => onViewModeChange("list")}
@@ -144,11 +151,11 @@ export function ReadingLogControls({
             "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all",
             viewMode === "list"
               ? "bg-white text-gray-900 shadow-sm"
-              : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50"
+              : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50",
           )}
         >
           <ListIcon className="w-4 h-4" />
-          <span>리스트</span>
+          <span>{t("view_list")}</span>
         </button>
       </div>
     </div>

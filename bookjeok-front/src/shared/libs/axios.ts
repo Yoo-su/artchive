@@ -84,7 +84,7 @@ privateAxios.interceptors.response.use(
       if (error.response?.status === 401) {
         useAuthStore.getState().clearAuth();
         if (typeof window !== "undefined") {
-          window.location.href = "/login";
+          redirectToLogin();
         }
       }
       return Promise.reject(error);
@@ -110,7 +110,7 @@ privateAxios.interceptors.response.use(
         // refresh token이 없으면 로그아웃 처리
         useAuthStore.getState().clearAuth();
         if (typeof window !== "undefined") {
-          window.location.href = "/login";
+          redirectToLogin();
         }
         return Promise.reject(error);
       }
@@ -146,7 +146,7 @@ privateAxios.interceptors.response.use(
         useAuthStore.getState().clearAuth();
         // 무한 리디렉션 방지를 위해 reload 대신 login 페이지로 이동
         if (typeof window !== "undefined") {
-          window.location.href = "/login";
+          redirectToLogin();
         }
         return Promise.reject(refreshError);
       } finally {
@@ -164,3 +164,12 @@ export const internalAxios = axios.create({
 
 publicAxios.interceptors.response.use(commonResponseInterceptor);
 internalAxios.interceptors.response.use(commonResponseInterceptor);
+
+const redirectToLogin = () => {
+  if (typeof window !== "undefined") {
+    // URL에서 로케일 파싱 (예: /en/dashboard -> en)
+    const pathParts = window.location.pathname.split("/");
+    const currentLocale = pathParts[1] === "en" ? "en" : "ko";
+    window.location.href = `/${currentLocale}/login`;
+  }
+};

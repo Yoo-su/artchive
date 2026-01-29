@@ -1,6 +1,7 @@
 "use client";
 
 import { RefreshCw, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
@@ -32,12 +33,6 @@ import {
   SearchBookSalesParams,
 } from "../../../types";
 
-const statusToKorean: { [key in SaleStatus]: string } = {
-  FOR_SALE: "판매중",
-  RESERVED: "예약중",
-  SOLD: "판매완료",
-};
-
 interface BookSaleFilterProps {
   initialParams: SearchBookSalesParams;
   onApply: (data: FilterFormInputs) => void;
@@ -49,6 +44,8 @@ export const BookSaleFilter = ({
   onApply,
   onReset,
 }: BookSaleFilterProps) => {
+  const t = useTranslations("market.filter");
+
   // initialParams에서 직접 초기값 계산 (useEffect 대신)
   const getDefaultValues = (): FilterFormInputs => ({
     search: initialParams.search || "",
@@ -112,7 +109,7 @@ export const BookSaleFilter = ({
           <Input
             type="text"
             {...register("search")}
-            placeholder="검색..."
+            placeholder={t("placeholder_search")}
             className="w-full pl-10 text-base"
           />
         </div>
@@ -123,10 +120,10 @@ export const BookSaleFilter = ({
             render={({ field }) => (
               <Select value={field.value} onValueChange={handleCityChange}>
                 <SelectTrigger className="w-full sm:w-[130px]">
-                  <SelectValue placeholder="시/도" />
+                  <SelectValue placeholder={t("placeholder_city")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">시/도 전체</SelectItem>
+                  <SelectItem value="all">{t("all_cities")}</SelectItem>
                   {Object.keys(KOREA_DISTRICTS).map((c) => (
                     <SelectItem key={c} value={c}>
                       {c}
@@ -148,10 +145,10 @@ export const BookSaleFilter = ({
                 }
               >
                 <SelectTrigger className="w-full sm:w-[130px]">
-                  <SelectValue placeholder="시/군/구" />
+                  <SelectValue placeholder={t("placeholder_district")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">시/군/구 전체</SelectItem>
+                  <SelectItem value="all">{t("all_districts")}</SelectItem>
                   {city &&
                     city !== "all" &&
                     KOREA_DISTRICTS[city].map((d) => (
@@ -169,7 +166,7 @@ export const BookSaleFilter = ({
       {/* 2행: 판매 상태 및 정렬 */}
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
         <div className="flex items-center gap-4">
-          <Label className="shrink-0 font-semibold">상태:</Label>
+          <Label className="shrink-0 font-semibold">{t("label_status")}</Label>
           <Controller
             name="status"
             control={control}
@@ -191,7 +188,7 @@ export const BookSaleFilter = ({
                       }}
                     />
                     <Label htmlFor={SaleStatus[key]} className="font-normal">
-                      {statusToKorean[SaleStatus[key]]}
+                      {t(`status.${SaleStatus[key]}`)}
                     </Label>
                   </div>
                 ))}
@@ -206,13 +203,21 @@ export const BookSaleFilter = ({
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger className="w-[120px]">
-                  <SelectValue placeholder="정렬" />
+                  <SelectValue placeholder={t("sort.label")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="createdAt_DESC">최신순</SelectItem>
-                  <SelectItem value="price_ASC">낮은 가격순</SelectItem>
-                  <SelectItem value="price_DESC">높은 가격순</SelectItem>
-                  <SelectItem value="distance_ASC">거리순</SelectItem>
+                  <SelectItem value="createdAt_DESC">
+                    {t("sort.newest")}
+                  </SelectItem>
+                  <SelectItem value="price_ASC">
+                    {t("sort.price_low")}
+                  </SelectItem>
+                  <SelectItem value="price_DESC">
+                    {t("sort.price_high")}
+                  </SelectItem>
+                  <SelectItem value="distance_ASC">
+                    {t("sort.distance")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             )}
@@ -223,7 +228,7 @@ export const BookSaleFilter = ({
       {/* 3행: 가격 슬라이더 및 버튼 */}
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex grow items-center gap-4">
-          <Label className="shrink-0 font-semibold">가격대:</Label>
+          <Label className="shrink-0 font-semibold">{t("label_price")}</Label>
           <div className="grow flex items-center gap-2">
             <Controller
               name="priceRange"
@@ -259,13 +264,13 @@ export const BookSaleFilter = ({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>초기화</p>
+                <p>{t("reset")}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
           <Button size="sm" type="submit">
             <Search className="mr-1 h-4 w-4" />
-            검색
+            {t("search")}
           </Button>
         </div>
       </div>

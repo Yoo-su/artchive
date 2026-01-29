@@ -2,10 +2,10 @@
 
 import { AxiosError } from "axios";
 import { AlertTriangle, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
+import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { useBookSaleForEditQuery } from "../../../queries";

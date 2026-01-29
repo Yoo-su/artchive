@@ -4,7 +4,7 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: "/",
+      allow: ["/", "/ko/", "/en/"],
       disallow: ["/my-page/"],
     },
     sitemap: "https://bookjeok.com/sitemap.xml",

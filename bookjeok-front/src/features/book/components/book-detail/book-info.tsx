@@ -1,7 +1,8 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { Badge } from "@/shared/components/shadcn/badge";
 import { PriceDisplay } from "@/shared/components/ui/price-display";
+import { Link } from "@/shared/config/i18n/routing";
 
 interface BookInfoProps {
   title: string;
@@ -16,10 +17,11 @@ export const BookInfo = ({
   publisher,
   price,
 }: BookInfoProps) => {
+  const t = useTranslations("book.detail");
   return (
     <div className="flex flex-col gap-4">
       <Badge variant="secondary" className="w-fit">
-        국내도서
+        {t("domestic_book")}
       </Badge>
       <div>
         <h1 className="text-3xl font-bold tracking-tighter text-gray-900 lg:text-4xl">
@@ -32,7 +34,7 @@ export const BookInfo = ({
           >
             {author}
           </Link>
-          <span>저</span>
+          <span>{t("author_suffix")}</span>
           <span>|</span>
           <Link
             href={`/book/search?q=${publisher}`}

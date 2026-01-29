@@ -1,5 +1,4 @@
-"use client";
-
+import { useTranslations } from "next-intl";
 import { FreeMode } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
@@ -9,20 +8,19 @@ import { usePopularBookSalesQuery } from "../../../queries";
 import { BookSale } from "../../common/book-sale-item";
 
 export function PopularBookSaleList() {
+  const t = useTranslations("market.popular");
   const { data: sales, isLoading, isError } = usePopularBookSalesQuery();
 
   if (isLoading) {
     return (
       <section className="mb-12">
         <div className="flex items-center gap-2 mb-6">
-          <h2 className="text-2xl font-bold text-stone-900">
-            🔥 지금 뜨는 중고책
-          </h2>
+          <h2 className="text-2xl font-bold text-stone-900">{t("title")}</h2>
           <Badge
             variant="secondary"
             className="bg-orange-100 text-orange-600 hover:bg-orange-200"
           >
-            HOT
+            {t("badge")}
           </Badge>
         </div>
 
@@ -47,14 +45,12 @@ export function PopularBookSaleList() {
   return (
     <section className="mb-12">
       <div className="flex items-center gap-2 mb-6">
-        <h2 className="text-2xl font-bold text-stone-900">
-          🔥 지금 뜨는 중고책
-        </h2>
+        <h2 className="text-2xl font-bold text-stone-900">{t("title")}</h2>
         <Badge
           variant="secondary"
           className="bg-orange-100 text-orange-600 hover:bg-orange-200"
         >
-          HOT
+          {t("badge")}
         </Badge>
       </div>
 

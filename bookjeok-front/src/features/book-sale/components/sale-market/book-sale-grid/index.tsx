@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
 
@@ -15,6 +16,7 @@ interface BookSaleGridProps {
 }
 
 export const BookSaleGrid = ({ filterParams }: BookSaleGridProps) => {
+  const t = useTranslations("market.grid");
   const isDistanceSort = filterParams.sortBy === "distance";
 
   // 거리순일 때 위치 정보 관리
@@ -75,7 +77,7 @@ export const BookSaleGrid = ({ filterParams }: BookSaleGridProps) => {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <Spinner />
-        <p className="text-stone-500">위치 정보를 가져오는 중...</p>
+        <p className="text-stone-500">{t("location_loading")}</p>
       </div>
     );
   }
@@ -89,7 +91,7 @@ export const BookSaleGrid = ({ filterParams }: BookSaleGridProps) => {
           onClick={requestLocation}
           className="px-4 py-2 bg-stone-800 text-white rounded-lg hover:bg-stone-700 transition-colors"
         >
-          다시 시도
+          {t("location_retry")}
         </button>
       </div>
     );
@@ -110,7 +112,7 @@ export const BookSaleGrid = ({ filterParams }: BookSaleGridProps) => {
   if (error) {
     return (
       <div className="flex items-center justify-center py-20 text-red-500">
-        <p>데이터를 불러오는 중 오류가 발생했습니다.</p>
+        <p>{t("error")}</p>
       </div>
     );
   }
@@ -119,7 +121,7 @@ export const BookSaleGrid = ({ filterParams }: BookSaleGridProps) => {
   if (sales.length === 0) {
     return (
       <div className="flex items-center justify-center py-20 text-gray-500">
-        <p>해당 조건에 맞는 판매글이 없습니다.</p>
+        <p>{t("empty")}</p>
       </div>
     );
   }

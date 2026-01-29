@@ -34,7 +34,11 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
           </Button>
           <Button
             variant="outline"
-            onClick={() => (window.location.href = "/")}
+            onClick={() => {
+              const locale = window.location.pathname.split("/")[1];
+              const target = locale === "en" ? "/en" : "/ko";
+              window.location.href = target;
+            }}
           >
             홈으로 이동
           </Button>

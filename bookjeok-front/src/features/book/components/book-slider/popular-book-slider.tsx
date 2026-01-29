@@ -2,11 +2,12 @@
 
 import { TrendingUp } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { usePopularBooksQuery } from "../../queries";
@@ -17,6 +18,7 @@ import { usePopularBooksQuery } from "../../queries";
  * - 순위 배지 + 호버 정보 오버레이
  */
 export const PopularBookSlider = () => {
+  const t = useTranslations("home.sections.popular_books");
   const { data: books, isLoading, isError } = usePopularBooksQuery();
 
   if (isLoading) {
@@ -34,13 +36,9 @@ export const PopularBookSlider = () => {
         <div className="mb-8">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-rose-500" />
-            <h2 className="text-xl font-bold text-stone-900">
-              지금 주목받는 책
-            </h2>
+            <h2 className="text-xl font-bold text-stone-900">{t("title")}</h2>
           </div>
-          <p className="mt-1 text-sm text-stone-500">
-            조회수와 리뷰를 기반으로 선정된 인기 도서입니다
-          </p>
+          <p className="mt-1 text-sm text-stone-500">{t("subtitle")}</p>
         </div>
 
         {/* 슬라이더 */}

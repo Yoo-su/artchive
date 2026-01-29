@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { usePopularReviewsQuery } from "@/features/review/queries";
@@ -9,6 +10,7 @@ import { PopularReviewItem } from "./popular-review-item";
 import { PopularReviewListSkeleton } from "./skeleton";
 
 export function PopularReviewList() {
+  const t = useTranslations("review.list");
   // 1. 데이터 조회
   const { data: reviews, isLoading, isError } = usePopularReviewsQuery();
 
@@ -22,7 +24,7 @@ export function PopularReviewList() {
     return (
       <section className="mb-12">
         <div className="h-[200px] w-full rounded-xl border border-dashed border-red-200 bg-red-50 flex flex-col items-center justify-center text-red-500 gap-2">
-          <span>인기 리뷰를 불러오는데 실패했습니다.</span>
+          <span>{t("error")}</span>
         </div>
       </section>
     );
@@ -38,12 +40,14 @@ export function PopularReviewList() {
   return (
     <section className="mb-12">
       <div className="flex items-center gap-2 mb-6">
-        <h2 className="text-2xl font-bold text-stone-900">🔥 지금 뜨는 리뷰</h2>
+        <h2 className="text-2xl font-bold text-stone-900">
+          {t("popular_title")}
+        </h2>
         <Badge
           variant="secondary"
           className="bg-orange-100 text-orange-600 hover:bg-orange-200"
         >
-          HOT
+          {t("popular_badge")}
         </Badge>
       </div>
 

@@ -2,6 +2,7 @@
 
 import { DollarSign } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
 import {
@@ -31,6 +32,7 @@ interface PriceHistogramProps {
  * 가격 분포 히스토그램
  */
 export const PriceHistogram = ({ data }: PriceHistogramProps) => {
+  const t = useTranslations("insights.charts.price");
   const hasData = data.some((item) => item.count > 0);
 
   const chartOptions = useMemo(
@@ -92,27 +94,27 @@ export const PriceHistogram = ({ data }: PriceHistogramProps) => {
       },
       tooltip: {
         y: {
-          formatter: (val: number) => `${val}개 판매글`,
+          formatter: (val: number) => t("tooltip", { count: val }),
         },
       },
     }),
-    [data],
+    [data, t],
   );
 
   const series = useMemo(
     () => [
       {
-        name: "판매글 수",
+        name: t("series"),
         data: data.map((item) => item.count),
       },
     ],
-    [data],
+    [data, t],
   );
 
   return (
     <InsightCard
-      title="가격 분포"
-      description="어떤 가격대가 가장 인기 있을까요?"
+      title={t("title")}
+      description={t("desc")}
       icon={<DollarSign className="h-5 w-5" />}
     >
       {hasData ? (
@@ -123,7 +125,7 @@ export const PriceHistogram = ({ data }: PriceHistogramProps) => {
           height={280}
         />
       ) : (
-        <EmptyState message="아직 등록된 판매글이 없어요" />
+        <EmptyState message={t("empty")} />
       )}
     </InsightCard>
   );

@@ -1,8 +1,6 @@
-"use client";
-
 import { Edit, MoreVertical, Trash2 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
@@ -19,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/shadcn/select";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import {
@@ -28,16 +27,14 @@ import {
 import { SaleStatus, UsedBookSale } from "../../../types";
 import { SaleStatusBadge } from "../../common/sale-status-badge";
 
-const statusToKorean: { [key in SaleStatus]: string } = {
-  FOR_SALE: "판매중",
-  RESERVED: "예약중",
-  SOLD: "판매완료",
-};
-
 interface BookSaleHistoryItemProps {
   sale: UsedBookSale;
 }
 export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
+  const t = useTranslations("market.history");
+  const tStatus = useTranslations("market.sale_status");
+  const tActions = useTranslations("market.detail.actions");
+
   const { mutate: updateSaleStatus } = useUpdateBookSaleStatusMutation();
   const { mutate: deleteSale, isPending: isDeleting } =
     useDeleteBookSaleMutation();
@@ -49,11 +46,7 @@ export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
   const handleDelete = (event: React.MouseEvent) => {
     event.stopPropagation();
     event.preventDefault();
-    if (
-      window.confirm(
-        "정말로 이 판매글을 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.",
-      )
-    ) {
+    if (window.confirm(tActions("delete_desc"))) {
       deleteSale({ saleId: sale.id, imageUrls: sale.imageUrls });
     }
   };
@@ -98,7 +91,7 @@ export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
                     <DropdownMenuItem asChild>
                       <Link href={PATHS.MY_PAGE_SALES_EDIT(String(sale.id))}>
                         <Edit className="mr-2 h-4 w-4" />
-                        <span>수정</span>
+                        <span>{tActions("edit")}</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem
@@ -107,7 +100,9 @@ export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
                       disabled={isDeleting}
                     >
                       <Trash2 className="mr-2 h-4 w-4" />
-                      <span>{isDeleting ? "삭제 중..." : "삭제"}</span>
+                      <span>
+                        {isDeleting ? tActions("deleting") : tActions("delete")}
+                      </span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -120,12 +115,12 @@ export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
               <div onClick={handleDropdownClick}>
                 <Select value={sale.status} onValueChange={handleStatusChange}>
                   <SelectTrigger className="w-[120px] h-9">
-                    <SelectValue placeholder="상태 변경" />
+                    <SelectValue placeholder={t("change_status")} />
                   </SelectTrigger>
                   <SelectContent>
                     {Object.values(SaleStatus).map((status) => (
                       <SelectItem key={status} value={status}>
-                        {statusToKorean[status]}
+                        {tStatus(status)}
                       </SelectItem>
                     ))}
                   </SelectContent>

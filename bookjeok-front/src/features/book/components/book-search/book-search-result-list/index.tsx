@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
@@ -24,6 +25,7 @@ interface BookSearchResultListProps {
 export const BookSearchResultList = ({
   paramName = "q",
 }: BookSearchResultListProps) => {
+  const t = useTranslations("book.search");
   const searchParams = useSearchParams();
   const query = searchParams.get(paramName) || "";
 
@@ -66,12 +68,8 @@ export const BookSearchResultList = ({
   if (query && status === "success" && data?.pages[0].items.length === 0) {
     return (
       <div className="py-20 text-center text-gray-500">
-        <p className="text-lg">
-          &apos;{query}&apos;에 대한 검색 결과가 없습니다.
-        </p>
-        <p className="mt-2 text-sm">
-          오타가 없는지 확인하거나 다른 검색어로 검색해보세요.
-        </p>
+        <p className="text-lg">{t("no_results", { query })}</p>
+        <p className="mt-2 text-sm">{t("check_typo")}</p>
       </div>
     );
   }
@@ -80,9 +78,7 @@ export const BookSearchResultList = ({
   if (!query) {
     return (
       <div className="py-20 text-center text-gray-400">
-        <p className="text-lg">
-          관심 있는 책을 검색하여 당신의 서재를 채워보세요.
-        </p>
+        <p className="text-lg">{t("empty_state")}</p>
       </div>
     );
   }
@@ -133,7 +129,7 @@ export const BookSearchResultList = ({
 
       {!hasNextPage && data && (
         <div className="py-10 text-center text-gray-500">
-          <p>모든 검색 결과를 불러왔습니다.</p>
+          <p>{t("all_loaded")}</p>
         </div>
       )}
     </div>

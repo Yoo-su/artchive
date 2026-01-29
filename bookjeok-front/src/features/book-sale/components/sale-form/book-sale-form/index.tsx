@@ -1,7 +1,6 @@
-"use client";
-
 import { BookOpen, Loader2 } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { BookSearchModal } from "@/features/book/components/common/book-search-modal";
@@ -30,6 +29,7 @@ import { LocationSelector } from "@/shared/components/ui/location-selector";
 import { useBookSaleForm } from "../../../hooks/use-book-sale-form";
 
 export const BookSaleForm = () => {
+  const t = useTranslations("market.form");
   const {
     form,
     imagePreviews,
@@ -44,10 +44,8 @@ export const BookSaleForm = () => {
   return (
     <Card className="w-full border-none shadow-none sm:border sm:shadow-sm">
       <CardHeader className="px-0 sm:px-6">
-        <CardTitle className="text-2xl">중고책 판매글 작성</CardTitle>
-        <CardDescription>
-          판매할 책의 정보를 정확하게 입력해주세요.
-        </CardDescription>
+        <CardTitle className="text-2xl">{t("title_write")}</CardTitle>
+        <CardDescription>{t("desc_write")}</CardDescription>
       </CardHeader>
       <CardContent className="px-0 sm:px-6">
         <Form {...form}>
@@ -58,7 +56,7 @@ export const BookSaleForm = () => {
                 name="book"
                 render={() => (
                   <>
-                    <FormLabel>판매할 책</FormLabel>
+                    <FormLabel>{t("book.label")}</FormLabel>
                     <FormItem>
                       {!selectedBook ? (
                         <div className="flex flex-col items-center justify-center py-12 px-4 mb-2 border-2 border-dashed rounded-xl bg-muted/30 gap-6 hover:bg-muted/50 transition-colors group">
@@ -67,18 +65,17 @@ export const BookSaleForm = () => {
                           </div>
                           <div className="text-center space-y-2">
                             <h3 className="font-semibold text-lg">
-                              판매할 책을 선택해주세요
+                              {t("book.empty_title")}
                             </h3>
                             <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                              ISBN, 제목, 저자명으로 검색하여 판매할 책을 등록할
-                              수 있습니다.
+                              {t("book.empty_desc")}
                             </p>
                           </div>
                           <BookSearchModal
                             onSelect={setSelectedBook}
                             trigger={
                               <Button size="lg" className="px-8 font-semibold">
-                                책 검색하기
+                                {t("book.search")}
                               </Button>
                             }
                           />
@@ -114,7 +111,7 @@ export const BookSaleForm = () => {
                                     size="sm"
                                     className="h-8"
                                   >
-                                    다른 책 선택
+                                    {t("book.change")}
                                   </Button>
                                 }
                               />
@@ -136,10 +133,10 @@ export const BookSaleForm = () => {
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>게시글 제목</FormLabel>
+                      <FormLabel>{t("fields.title")}</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="판매글 제목을 입력하세요"
+                          placeholder={t("fields.title_placeholder")}
                           {...field}
                         />
                       </FormControl>
@@ -155,11 +152,11 @@ export const BookSaleForm = () => {
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>판매 가격 (원)</FormLabel>
+                      <FormLabel>{t("fields.price")}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="숫자만 입력"
+                          placeholder={t("fields.price_placeholder")}
                           {...field}
                         />
                       </FormControl>
@@ -173,9 +170,11 @@ export const BookSaleForm = () => {
 
               <div className="border rounded-xl p-4 sm:p-6 bg-muted/20 space-y-4">
                 <div className="space-y-1">
-                  <h3 className="font-semibold text-base">직거래 희망 장소</h3>
+                  <h3 className="font-semibold text-base">
+                    {t("fields.location_title")}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
-                    구매자와 만나서 거래할 안전한 장소를 지도로 선택해주세요.
+                    {t("fields.location_desc")}
                   </p>
                 </div>
                 <MapLocationSelector
@@ -191,9 +190,7 @@ export const BookSaleForm = () => {
                       }
                     } else {
                       if (!addressInfo && (lat !== 0 || lng !== 0)) {
-                        toast.error(
-                          "주소가 확인되지 않는 지역입니다. 정확한 위치를 다시 선택해주세요.",
-                        );
+                        toast.error(t("error_location"));
                       }
                       form.setValue("placeName", "");
                     }
@@ -238,10 +235,10 @@ export const BookSaleForm = () => {
                     name="placeName"
                     render={({ field }) => (
                       <FormItem className="md:col-span-2">
-                        <FormLabel>상세 위치명 (직접 수정 가능)</FormLabel>
+                        <FormLabel>{t("fields.location_name")}</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="예: 강남역 10번 출구 (지도 선택 시 자동 입력)"
+                            placeholder={t("fields.location_name_placeholder")}
                             className="bg-background"
                             {...field}
                           />
@@ -259,7 +256,7 @@ export const BookSaleForm = () => {
                 render={() => (
                   <FormItem>
                     <FormLabel>
-                      {`책 상태 이미지 (${imagePreviews.length} / 5)`}
+                      {`${t("fields.images")} (${imagePreviews.length} / 5)`}
                     </FormLabel>
                     <FormControl>
                       <ImageUploader
@@ -281,10 +278,10 @@ export const BookSaleForm = () => {
                 name="content"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>상세 내용</FormLabel>
+                    <FormLabel>{t("fields.content")}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="책의 상태, 거래 방식 등 상세한 내용을 작성해주세요."
+                        placeholder={t("fields.content_placeholder")}
                         className="resize-none"
                         rows={8}
                         {...field}
@@ -306,7 +303,7 @@ export const BookSaleForm = () => {
               {isSubmitDisabled && (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               )}
-              판매글 등록하기
+              {t("submit")}
             </Button>
           </form>
         </Form>

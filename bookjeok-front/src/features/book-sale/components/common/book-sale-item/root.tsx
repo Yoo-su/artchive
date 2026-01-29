@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import React, { ReactNode } from "react";
 
 import { UsedBookSale } from "@/features/book-sale/types";
 import { Card } from "@/shared/components/shadcn/card";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";
 
