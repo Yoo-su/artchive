@@ -1,8 +1,9 @@
 "use client";
 
 import { format, parseISO } from "date-fns";
-import { ko } from "date-fns/locale";
+import { enUS, ko } from "date-fns/locale";
 import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
@@ -14,6 +15,10 @@ import { useReadingLogsInfiniteQuery } from "../../../queries";
 import { DayDetailsDialog } from "../../common/day-details-dialog";
 
 export function ReadingLogListView() {
+  const t = useTranslations("reading_log.list");
+  const locale = useLocale();
+  const dateLocale = locale === "ko" ? ko : enUS;
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useReadingLogsInfiniteQuery();
 
@@ -31,19 +36,15 @@ export function ReadingLogListView() {
   }
 
   if (status === "error") {
-    return (
-      <div className="text-center py-8 text-red-500">
-        데이터를 불러오는데 실패했습니다.
-      </div>
-    );
+    return <div className="text-center py-8 text-red-500">{t("error")}</div>;
   }
 
   const allLogs = data?.pages.flatMap((page) => page.items) || [];
 
   if (allLogs.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-500 bg-gray-50 rounded-xl">
-        아직 기록된 독서 활동이 없습니다.
+      <div className="text-center py-12 text-stone-500 bg-stone-50 rounded-xl">
+        {t("empty")}
       </div>
     );
   }
@@ -73,7 +74,9 @@ export function ReadingLogListView() {
                     )}
                   />
                   {/* 헤더도 해당 월의 테마를 따라감 */}
-                  {format(currentDate, "yyyy년 M월", { locale: ko })}
+                  {format(currentDate, t("header_date_format"), {
+                    locale: dateLocale,
+                  })}
                 </h3>
               </div>
             )}
@@ -112,7 +115,9 @@ export function ReadingLogListView() {
                       theme.border,
                     )}
                   >
-                    {format(currentDate, "d일 (iii)", { locale: ko })}
+                    {format(currentDate, t("item_date_format"), {
+                      locale: dateLocale,
+                    })}
                   </span>
                 </div>
                 {log.memo && (

@@ -116,6 +116,26 @@
         }
       }
     },
+    "art": {
+      "detail": {
+        "not_found": {
+          "title": "Performance information not found.",
+          "desc": "The information may have been deleted or is invalid."
+        },
+        "period": "Period",
+        "runtime": "Runtime",
+        "place": "Place",
+        "ticket": "Ticket Info",
+        "age": "Age Rating",
+        "cast": "Cast",
+        "crew": "Crew",
+        "cast_crew": "Cast/Crew",
+        "scenes": "Scenes",
+        "synopsis": "Synopsis",
+        "booking": "Booking",
+        "default_booking": "Booking Site"
+      }
+    },
     "errors": {
       "load_books": "Could not load book information."
     }
@@ -314,15 +334,15 @@
     "hero": {
       "title": "My Reading Log",
       "subtitle": "Check the depth of knowledge accumulating every month.\nWe record your growth.",
+      "public_toggle": "Public Log",
+      "public_label_on": "Visible to other users",
+      "public_label_off": "Visible only to me",
       "season_label": {
         "spring": "Spring",
         "summer": "Summer",
         "autumn": "Autumn",
         "winter": "Winter"
-      },
-      "public_toggle": "Public Log",
-      "public_label_on": "Visible to other users",
-      "public_label_off": "Visible only to me"
+      }
     },
     "calendar": {
       "weekdays": {
@@ -359,6 +379,28 @@
       "synopsis": "Synopsis",
       "booking": "Booking",
       "default_booking": "Booking Site"
+    },
+    "stats": {
+      "monthly_title": "Read in {month}",
+      "yearly_title": "Total in {year}",
+      "unit": "books",
+      "messages": {
+        "start": "Start reading this month! 📚",
+        "great": "Amazing reading progress! 🔥",
+        "good": "Consistent reading! Keep it up 👍",
+        "default": "Precious time with good books 🌿"
+      }
+    },
+    "timeline": {
+      "title": "Recently Read",
+      "subtitle": "Reading Timeline",
+      "no_image": "No Image"
+    },
+    "list": {
+      "error": "Failed to load data.",
+      "empty": "No reading logs found yet.",
+      "header_date_format": "MMMM yyyy",
+      "item_date_format": "d (EEE)"
     }
   },
   "insights": {
@@ -523,6 +565,13 @@
       "title": "Your wishlist is empty.",
       "desc": "Add books or listings you like!",
       "button": "Go Home"
+    },
+    "item": {
+      "type_book": "Book",
+      "type_sale": "Used Sale",
+      "view_detail": "View Detail",
+      "sold_out": "Sold Out",
+      "sale_ended": "Sale Ended"
     }
   },
   "user_profile": {
@@ -617,6 +666,7 @@
       "title_max": "Title cannot exceed 50 characters.",
       "price_number": "Only numbers are allowed.",
       "price_min": "Price must be greater than 0.",
+      "book_required": "Please select a book to sell.",
       "city_required": "Please select a City/Province.",
       "district_required": "Please select a District.",
       "location_required": "Please select a preferred trade location.",
@@ -676,37 +726,6 @@
       "empty_title": "No sales history.",
       "empty_desc": "Try registering a new used book!",
       "change_status": "Change Status"
-    }
-  },
-  "reading_log": {
-    "hero": {
-      "title": "Reading Log",
-      "subtitle": "Fill your own library.",
-      "public_toggle": "Visibility",
-      "public_label_on": "Public",
-      "public_label_off": "Private",
-      "season_label": {
-        "spring": "Spring",
-        "summer": "Summer",
-        "autumn": "Autumn",
-        "winter": "Winter"
-      }
-    },
-    "stats": {
-      "monthly_title": "Read in {month}",
-      "yearly_title": "Total in {year}",
-      "unit": "books",
-      "messages": {
-        "start": "Start reading this month! 📚",
-        "great": "Amazing reading progress! 🔥",
-        "good": "Consistent reading! Keep it up 👍",
-        "default": "Precious time with good books 🌿"
-      }
-    },
-    "timeline": {
-      "title": "Recently Read",
-      "subtitle": "Reading Timeline",
-      "no_image": "No Image"
     }
   }
 }
