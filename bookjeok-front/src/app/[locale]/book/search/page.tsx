@@ -24,13 +24,13 @@ export async function generateMetadata({
     title: t("title"),
     description: t("description"),
     openGraph: {
-      title: t("title") + " | 북적",
+      title: t("title"),
       description: t("description"),
       images: ["/logo-og.png"],
     },
     twitter: {
       card: "summary",
-      title: t("title") + " | 북적",
+      title: t("title"),
       description: t("description"),
       images: ["/logo-og.png"],
     },
