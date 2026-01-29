@@ -90,24 +90,25 @@ export const StickyBookSearchBar = ({
   return (
     <div
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 flex items-center justify-center py-4 px-4 transition-all duration-500 ease-in-out transform",
+        "fixed top-0 left-0 right-0 z-50 flex items-center justify-center py-3 px-4 transition-all duration-500 ease-[0.16,1,0.3,1] transform",
         isVisible
           ? "translate-y-0 opacity-100"
           : "-translate-y-full opacity-0 pointer-events-none",
       )}
     >
-      <div className="absolute inset-x-0 top-0 h-full bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100/50" />
+      {/* Frosted Glass Background */}
+      <div className="absolute inset-x-0 top-0 h-full bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-sm" />
 
-      <div className="relative w-full max-w-2xl z-10 animate-in fade-in slide-in-from-top-4 duration-500">
+      <div className="relative w-full max-w-xl z-10">
         <div className="relative group">
-          {/* 왼쪽 아이콘을 클릭 가능한 검색 버튼으로 변경 */}
           <button
             onClick={executeSearch}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition-colors"
+            className="absolute left-4 top-1/2 -translate-y-1/2 p-1 text-zinc-400 hover:text-zinc-600 transition-colors"
             aria-label={t("button_label")}
           >
-            <Search className="w-5 h-5" />
+            <Search className="w-4 h-4" />
           </button>
+
           <Input
             ref={inputRef}
             type="text"
@@ -115,14 +116,15 @@ export const StickyBookSearchBar = ({
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             placeholder={t("sticky_placeholder")}
-            className="w-full pl-12 pr-10 py-6 text-lg bg-white/50 border-gray-200 focus:bg-white focus:border-blue-500/50 hover:bg-white/80 rounded-full shadow-sm focus:shadow-lg focus:ring-4 focus:ring-blue-500/10 transition-all duration-300"
+            className="w-full pl-11 pr-10 h-11 text-base bg-white/60 border-zinc-200/50 hover:bg-white/90 focus:bg-white focus:border-zinc-300 rounded-full shadow-sm focus:shadow-md focus:ring-2 focus:ring-zinc-100 transition-all duration-300 font-light tracking-wide"
           />
+
           {inputValue && (
             <button
               onClick={handleClear}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-zinc-100 text-zinc-400 hover:text-zinc-600 transition-colors"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3 h-3" />
             </button>
           )}
         </div>

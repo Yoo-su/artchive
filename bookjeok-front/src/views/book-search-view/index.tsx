@@ -1,16 +1,15 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { useInView } from "react-intersection-observer";
 
 import { BookSearchInput } from "@/features/book/components/book-search/book-search-input";
 import { BookSearchResultList } from "@/features/book/components/book-search/book-search-result-list";
 import { PopularKeywords } from "@/features/book/components/book-search/popular-keywords";
+import { SearchHero } from "@/features/book/components/book-search/search-hero";
 import { StickyBookSearchBar } from "@/features/book/components/book-search/sticky-book-search-bar";
 import { ScrollTopButton } from "@/shared/components/ui/scroll-top-button";
 
 export default function BookSearchView() {
-  const t = useTranslations("book.search");
   const { ref, inView } = useInView({
     initialInView: true,
     threshold: 0,
@@ -18,18 +17,14 @@ export default function BookSearchView() {
   });
 
   return (
-    <div className="w-full min-h-screen py-8">
+    <div className="w-full min-h-screen py-4">
       {/* 스크롤 시 나타나는 Sticky 검색바 */}
       <StickyBookSearchBar isVisible={!inView} />
 
-      <section className="mb-8 text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-          {t("title")}
-        </h1>
-        <p className="mt-4 text-lg text-gray-600">{t("subtitle")}</p>
-      </section>
+      {/* Hero */}
+      <SearchHero />
 
-      {/* 메인 검색 영역 감시 */}
+      {/* 검색 input */}
       <div ref={ref}>
         <BookSearchInput />
       </div>

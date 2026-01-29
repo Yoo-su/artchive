@@ -70,10 +70,10 @@ export const BookSearchInput = ({ paramName = "q" }: BookSearchInputProps) => {
   };
 
   return (
-    <div className="relative mb-8">
+    <div className="relative mb-8 max-w-2xl mx-auto w-full">
       <div className="relative group">
-        {/* 왼쪽 돋보기 아이콘 (장식용) */}
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+        {/* 왼쪽 돋보기 아이콘 */}
+        <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 group-focus-within:text-zinc-600 transition-colors" />
 
         <Input
           type="text"
@@ -81,16 +81,16 @@ export const BookSearchInput = ({ paramName = "q" }: BookSearchInputProps) => {
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder={t("placeholder")}
-          className="w-full pl-12 pr-16 py-6 text-lg border-2 rounded-full focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          className="w-full pl-14 pr-16 h-16 text-lg font-light tracking-wide bg-white border border-zinc-200 rounded-full shadow-xl shadow-zinc-200/40 focus:border-zinc-300 focus:ring-4 focus:ring-zinc-100 transition-all duration-300 placeholder:text-zinc-400"
         />
 
-        {/* 오른쪽 검색 버튼 (동그란 원형) */}
+        {/* 오른쪽 검색 버튼 (우아한 원형) */}
         <button
           onClick={executeSearch}
-          className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-blue-400 hover:bg-blue-500 text-white rounded-full shadow-sm hover:shadow-md transition-all flex items-center justify-center"
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-zinc-900 hover:bg-zinc-800 text-white rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center"
           aria-label={t("button_label")}
         >
-          <Search className="w-5 h-5" />
+          <Search className="w-4 h-4" />
         </button>
       </div>
     </div>

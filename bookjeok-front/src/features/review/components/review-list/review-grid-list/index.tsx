@@ -46,6 +46,8 @@ export function ReviewGridList({
     userId,
   });
 
+  const t = useTranslations("review.list");
+
   // 무한 스크롤 감지
   const { ref, inView } = useInView();
 
@@ -73,7 +75,6 @@ export function ReviewGridList({
   }
 
   const reviews = data?.pages.flatMap((page) => page.reviews) || [];
-  const t = useTranslations("review.list");
 
   // 결과 없음
   if (reviews.length === 0) {

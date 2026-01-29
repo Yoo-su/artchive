@@ -1,10 +1,12 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Flame } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
+
+import { cn } from "@/shared/utils";
 
 import { usePopularKeywordsQuery } from "../../../queries";
 
@@ -57,28 +59,27 @@ export const PopularKeywords = () => {
 
   return (
     <div
-      className="relative inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-orange-50 to-red-50 rounded-full border border-orange-100 cursor-pointer transition-all hover:shadow-md"
+      className="relative inline-flex items-center gap-3 px-6 py-3 bg-white rounded-full border border-zinc-200 shadow-sm hover:shadow-lg hover:border-zinc-300 cursor-pointer transition-all duration-300 group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* 불꽃 아이콘 */}
-      <Flame className="w-4 h-4 text-orange-500 shrink-0" />
-
       {/* 라벨 */}
-      <span className="text-xs text-orange-600 font-medium whitespace-nowrap">
+      <span className="text-sm text-zinc-500 font-medium tracking-wide uppercase">
         {t("popular_label")}
       </span>
 
+      <div className="w-px h-3 bg-zinc-200" />
+
       {/* 슬라이드업 애니메이션 영역 */}
-      <div className="relative h-5 overflow-hidden min-w-[80px]">
+      <div className="relative h-5 overflow-hidden min-w-[100px]">
         <AnimatePresence mode="popLayout">
           <motion.span
             key={currentIndex}
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -20, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="absolute inset-0 text-sm font-medium text-gray-800 truncate"
+            initial={{ y: 20, opacity: 0, filter: "blur(4px)" }}
+            animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+            exit={{ y: -20, opacity: 0, filter: "blur(4px)" }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-0 text-base font-medium text-zinc-800 truncate"
             onClick={() => handleKeywordClick(currentKeyword.keyword)}
           >
             {currentKeyword.keyword}
@@ -88,63 +89,63 @@ export const PopularKeywords = () => {
 
       {/* 드롭다운 화살표 */}
       <ChevronDown
-        className={`w-4 h-4 text-gray-400 transition-transform ${
-          isHovered ? "rotate-180" : ""
-        }`}
+        className={cn(
+          "w-3.5 h-3.5 text-zinc-400 transition-transform duration-300 group-hover:text-zinc-600",
+          isHovered ? "rotate-180" : "",
+        )}
       />
 
       {/* Hover 드롭다운 */}
       <AnimatePresence>
         {isHovered && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            initial={{ opacity: 0, y: 10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50"
+            exit={{ opacity: 0, y: 10, scale: 0.98 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute top-full left-0 mt-3 w-72 bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 ring-1 ring-zinc-900/5 overflow-hidden z-50"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
           >
             {/* 헤더 */}
-            <div className="px-4 py-3 bg-linear-to-r from-orange-50 to-red-50 border-b border-orange-100">
-              <div className="flex items-center gap-2">
-                <Flame className="w-4 h-4 text-orange-500" />
-                <span className="text-sm font-semibold text-gray-800">
-                  {t("popular_top", { count: keywords.length })}
-                </span>
-              </div>
+            <div className="px-5 py-3 border-b border-zinc-100 bg-white/50">
+              <span className="text-xs font-bold text-zinc-500 tracking-wider uppercase">
+                {t("popular_top", { count: keywords.length })}
+              </span>
             </div>
 
             {/* 검색어 목록 */}
-            <ul className="py-2 max-h-80 overflow-y-auto">
+            <ul className="py-2 max-h-[320px] overflow-y-auto custom-scrollbar">
               {keywords.map((item, index) => (
                 <li key={item.keyword}>
                   <button
                     type="button"
                     onClick={() => handleKeywordClick(item.keyword)}
-                    className={`w-full px-4 py-2.5 flex items-center gap-3 hover:bg-gray-50 transition-colors ${
-                      index === currentIndex ? "bg-orange-50" : ""
-                    }`}
+                    className={cn(
+                      "w-full px-5 py-3 flex items-center gap-4 hover:bg-zinc-50/80 transition-all group/item",
+                      index === currentIndex && "bg-zinc-50",
+                    )}
                   >
-                    {/* 순위 */}
+                    {/* 순위 (가독성 개선: 더 진한 텍스트/배경) */}
                     <span
-                      className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${
+                      className={cn(
+                        "w-5 h-5 flex items-center justify-center text-xs font-bold rounded-full transition-colors",
                         index < 3
-                          ? "bg-orange-500 text-white"
-                          : "bg-gray-100 text-gray-600"
-                      }`}
+                          ? "text-white bg-zinc-800"
+                          : "text-zinc-600 bg-zinc-100 group-hover/item:bg-zinc-200",
+                      )}
                     >
                       {index + 1}
                     </span>
 
                     {/* 키워드 */}
-                    <span className="flex-1 text-left text-sm text-gray-700 truncate">
+                    <span className="flex-1 text-left text-sm text-zinc-700 font-medium truncate group-hover/item:text-zinc-900">
                       {item.keyword}
                     </span>
 
-                    {/* 검색 횟수 */}
-                    <span className="text-xs text-gray-400">
-                      {item.searchCount.toLocaleString()}회
+                    {/* 검색 횟수 (가독성 개선: 더 진한 색상) */}
+                    <span className="text-[11px] text-zinc-400 font-medium group-hover/item:text-zinc-500 tabular-nums">
+                      {item.searchCount.toLocaleString()}
                     </span>
                   </button>
                 </li>
