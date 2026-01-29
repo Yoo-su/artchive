@@ -2,19 +2,42 @@ import { PATHS } from "@/shared/constants/paths";
 
 import { Notification, NotificationType } from "../types";
 
-export const getNotificationMessage = (notification: Notification): string => {
+export const getNotificationMessageParams = (
+  notification: Notification,
+): { key: string; params: Record<string, string> } => {
   const { type, actor, metadata } = notification;
-  const actorName = actor?.nickname ?? "알 수 없는 사용자";
+  const actorName = actor?.nickname ?? "unknown_user";
 
   switch (type) {
     case NotificationType.REVIEW_REACTION:
-      return `${actorName}님이 회원님의 리뷰 "${metadata.bookTitle}"에 반응을 남겼습니다.`;
+      return {
+        key: "review_reaction",
+        params: {
+          actorName,
+          bookTitle: metadata.bookTitle || "",
+        },
+      };
     case NotificationType.REVIEW_COMMENT:
-      return `${actorName}님이 회원님의 리뷰 "${metadata.bookTitle}"에 댓글을 남겼습니다: "${metadata.commentContent}"`;
+      return {
+        key: "review_comment",
+        params: {
+          actorName,
+          bookTitle: metadata.bookTitle || "",
+          commentContent: metadata.commentContent || "",
+        },
+      };
     case NotificationType.COMMENT_LIKE:
-      return `${actorName}님이 회원님의 댓글에 좋아요를 눌렀습니다.`;
+      return {
+        key: "comment_like",
+        params: {
+          actorName,
+        },
+      };
     default:
-      return "새로운 알림이 도착했습니다.";
+      return {
+        key: "default",
+        params: {},
+      };
   }
 };
 

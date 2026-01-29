@@ -3,7 +3,49 @@
     "new": "NEW",
     "won": "원",
     "unknown": "알 수 없음",
-    "anonymous": "익명"
+    "anonymous": "익명",
+    "loader": {
+      "messages": {
+        "0": "잠시만 기다려주세요...",
+        "1": "책을 찾고 있습니다...",
+        "2": "데이터를 불러오는 중입니다...",
+        "3": "거의 다 되었습니다...",
+        "4": "bookjeok에서 함께하는 독서 여행"
+      }
+    }
+  },
+  "art": {
+    "detail": {
+      "not_found": {
+        "title": "공연 정보를 불러올 수 없습니다.",
+        "desc": "삭제되었거나 유효하지 않은 정보일 수 있습니다."
+      },
+      "period": "공연 기간",
+      "runtime": "러닝타임",
+      "place": "장소",
+      "ticket": "티켓 정보",
+      "age": "관람 연령",
+      "cast": "출연",
+      "crew": "제작",
+      "cast_crew": "출연/제작",
+      "scenes": "공연 장면",
+      "synopsis": "줄거리",
+      "booking": "예매처",
+      "default_booking": "예매처"
+    }
+  },
+  "notification": {
+    "title": "알림",
+    "mark_all_read": "모두 읽음",
+    "empty": "새로운 알림이 없습니다.",
+    "sr_label": "알림 {count}개",
+    "messages": {
+      "unknown_user": "알 수 없는 사용자",
+      "review_reaction": "{actorName}님이 회원님의 리뷰 \"{bookTitle}\"에 반응을 남겼습니다.",
+      "review_comment": "{actorName}님이 회원님의 리뷰 \"{bookTitle}\"에 댓글을 남겼습니다: \"{commentContent}\"",
+      "comment_like": "{actorName}님이 회원님의 댓글에 좋아요를 눌렀습니다.",
+      "default": "새로운 알림이 도착했습니다."
+    }
   },
   "auth": {
     "login": {
@@ -361,24 +403,6 @@
       "all_logs": "전체 기록",
       "view_calendar": "달력",
       "view_list": "리스트"
-    },
-    "detail": {
-      "not_found": {
-        "title": "공연 정보를 불러올 수 없습니다.",
-        "desc": "삭제되었거나 유효하지 않은 정보일 수 있습니다."
-      },
-      "period": "공연 기간",
-      "runtime": "러닝타임",
-      "place": "장소",
-      "ticket": "티켓 정보",
-      "age": "관람 연령",
-      "cast": "출연",
-      "crew": "제작",
-      "cast_crew": "출연/제작",
-      "scenes": "공연 장면",
-      "synopsis": "줄거리",
-      "booking": "예매처",
-      "default_booking": "예매처"
     },
     "stats": {
       "monthly_title": "{month}월의 독서",

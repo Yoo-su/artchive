@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/shared/components/shadcn/button";
@@ -12,6 +13,7 @@ import { NotificationBell } from "../widgets/notification-bell";
 import { NotificationList } from "./notification-list";
 
 export const NotificationPopover = () => {
+  const t = useTranslations("notification");
   const [open, setOpen] = useState(false);
   const { mutate: markAllAsRead } = useMarkAllAsRead();
 
@@ -39,7 +41,7 @@ export const NotificationPopover = () => {
         <div className="flex items-center justify-between border-b border-border/40 px-5 py-4 bg-muted/30">
           <div className="flex items-center gap-2">
             <h4 className="font-bold text-[15px] text-foreground tracking-tight">
-              알림
+              {t("title")}
             </h4>
             <div className="h-1 w-1 rounded-full bg-orange-500" />
           </div>
@@ -49,7 +51,7 @@ export const NotificationPopover = () => {
             className="h-7 px-3 text-[11px] font-medium text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-full transition-colors"
             onClick={handleReadAll}
           >
-            모두 읽음
+            {t("mark_all_read")}
           </Button>
         </div>
         <NotificationList onClose={() => setOpen(false)} />

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useInView } from "react-intersection-observer";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -8,6 +7,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { ReviewCard } from "@/features/review/components/common/review-card";
 import { useReviewsQuery } from "@/features/review/queries";
 import { Button } from "@/shared/components/shadcn/button";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { RelatedReviewsSkeleton } from "./skeleton";

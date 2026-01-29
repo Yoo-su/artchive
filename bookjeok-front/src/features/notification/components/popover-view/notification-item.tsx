@@ -1,6 +1,7 @@
 import { formatDistanceToNow } from "date-fns";
-import { ko } from "date-fns/locale";
+import { enUS, ko } from "date-fns/locale";
 import { Trash2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 
 import {
   Avatar,
@@ -20,7 +21,7 @@ import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 import { useDeleteNotification, useMarkAsRead } from "../../mutations";
 import { Notification } from "../../types";
-import { getNotificationLink, getNotificationMessage } from "../../utils";
+import { getNotificationLink, getNotificationMessageParams } from "../../utils";
 
 interface NotificationItemProps {
   notification: Notification;
@@ -31,11 +32,16 @@ export const NotificationItem = ({
   notification,
   onClose,
 }: NotificationItemProps) => {
+  const t = useTranslations("notification.messages");
+  const locale = useLocale();
+  const dateLocale = locale === "ko" ? ko : enUS;
+
   const { mutate: markAsRead } = useMarkAsRead();
   const { mutate: deleteNotification } = useDeleteNotification();
 
   const link = getNotificationLink(notification);
-  const message = getNotificationMessage(notification);
+  const { key, params } = getNotificationMessageParams(notification);
+  const message = t(key, params);
 
   const handleLinkClick = () => {
     if (!notification.isRead) {
@@ -85,7 +91,7 @@ export const NotificationItem = ({
               <span className="text-[11px] text-muted-foreground/80 shrink-0 font-medium tracking-tight">
                 {formatDistanceToNow(new Date(notification.createdAt), {
                   addSuffix: true,
-                  locale: ko,
+                  locale: dateLocale,
                 })}
               </span>
               {!notification.isRead && (
