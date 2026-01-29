@@ -12,8 +12,7 @@ import { Notification } from "../types";
 import { getNotificationMessageParams } from "../utils";
 
 export const NotificationProvider = () => {
-  const t = useTranslations("notification.messages");
-  const tNotification = useTranslations("notification");
+  const t = useTranslations("notification");
   const { socket, isConnected } = useSocketContext();
   const queryClient = useQueryClient();
 
@@ -27,12 +26,13 @@ export const NotificationProvider = () => {
       });
 
       const { key, params } = getNotificationMessageParams(notification);
+      // key comes from utils, e.g. "review_reaction". Since we use "notification" namespace, t(key) works.
       const message = t(key, params);
 
-      toast(tNotification("title"), {
+      toast(t("title"), {
         description: message,
         action: {
-          label: tNotification("action_view"),
+          label: t("action_view"),
           onClick: () => {},
         },
       });

@@ -67,13 +67,11 @@
     "empty": "새로운 알림이 없습니다.",
     "sr_label": "알림 {count}개",
     "action_view": "확인",
-    "messages": {
-      "unknown_user": "알 수 없는 사용자",
-      "review_reaction": "{actorName}님이 회원님의 리뷰 \"{bookTitle}\"에 반응을 남겼습니다.",
-      "review_comment": "{actorName}님이 회원님의 리뷰 \"{bookTitle}\"에 댓글을 남겼습니다: \"{commentContent}\"",
-      "comment_like": "{actorName}님이 회원님의 댓글에 좋아요를 눌렀습니다.",
-      "default": "새로운 알림이 도착했습니다."
-    }
+    "unknown_user": "알 수 없는 사용자",
+    "review_reaction": "{actorName}님이 회원님의 리뷰 \"{bookTitle}\"에 반응을 남겼습니다.",
+    "review_comment": "{actorName}님이 회원님의 리뷰 \"{bookTitle}\"에 댓글을 남겼습니다: \"{commentContent}\"",
+    "comment_like": "{actorName}님이 회원님의 댓글에 좋아요를 눌렀습니다.",
+    "default": "새로운 알림이 도착했습니다."
   },
   "auth": {
     "login": {
@@ -498,6 +496,18 @@
       "empty": "아직 기록된 독서 활동이 없습니다.",
       "header_date_format": "yyyy년 M월",
       "item_date_format": "d일 (iii)"
+    },
+    "form_modal": {
+      "title_create": "책 기록하기",
+      "title_edit": "메모 수정하기",
+      "label_memo": "한 줄 메모",
+      "label_optional": "(선택)",
+      "placeholder_memo": "이 책은 어떠셨나요? 짧은 감상을 남겨주세요.",
+      "cancel": "취소",
+      "submit_create": "기록하기",
+      "submit_edit": "수정하기",
+      "processing": "처리중...",
+      "error_max_length": "메모는 최대 {max}자까지 입력 가능합니다."
     }
   },
   "insights": {
@@ -616,6 +626,7 @@
       "confirm": "정말 탈퇴하시겠습니까?\n\n회원 탈퇴 시 모든 개인정보가 삭제되거나 익명화되며, 이 작업은 되돌릴 수 없습니다.\n작성하신 판매글은 모두 숨김 처리되며, 채팅방 참여도 비활성화됩니다."
     },
     "edit_modal": {
+      "edit": "수정",
       "title": "프로필 수정",
       "nickname_label": "닉네임",
       "nickname_placeholder": "닉네임을 입력하세요 (2-10자)",

@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -27,12 +28,6 @@ import { Textarea } from "@/shared/components/shadcn/textarea";
 
 import { MAX_MEMO_LENGTH } from "../../../constants";
 
-const formSchema = z.object({
-  memo: z.string().max(MAX_MEMO_LENGTH, {
-    message: `메모는 최대 ${MAX_MEMO_LENGTH}자까지 입력 가능합니다.`,
-  }),
-});
-
 interface ReadingLogFormDialogProps {
   book: {
     title: string;
@@ -56,6 +51,14 @@ export function ReadingLogFormDialog({
   onOpenChange,
   onSubmit,
 }: ReadingLogFormDialogProps) {
+  const t = useTranslations("reading_log.form_modal");
+
+  const formSchema = z.object({
+    memo: z.string().max(MAX_MEMO_LENGTH, {
+      message: t("error_max_length", { max: MAX_MEMO_LENGTH }),
+    }),
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -82,7 +85,7 @@ export function ReadingLogFormDialog({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-center font-serif text-stone-900">
-            {mode === "create" ? "책 기록하기" : "메모 수정하기"}
+            {mode === "create" ? t("title_create") : t("title_edit")}
           </DialogTitle>
         </DialogHeader>
 
@@ -114,14 +117,14 @@ export function ReadingLogFormDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-stone-600 font-medium">
-                    한 줄 메모{" "}
+                    {t("label_memo")}{" "}
                     <span className="text-xs text-stone-400 font-normal">
-                      (선택)
+                      {t("label_optional")}
                     </span>
                   </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="이 책은 어떠셨나요? 짧은 감상을 남겨주세요."
+                      placeholder={t("placeholder_memo")}
                       className="resize-none h-24 focus-visible:ring-1 focus-visible:ring-offset-0 disabled:opacity-50 focus-visible:ring-stone-400 border-stone-200"
                       maxLength={MAX_MEMO_LENGTH}
                       disabled={isPending}
@@ -143,7 +146,7 @@ export function ReadingLogFormDialog({
                 className="h-11 border-stone-200 text-stone-600 hover:bg-stone-50"
                 disabled={isPending}
               >
-                취소
+                {t("cancel")}
               </Button>
               <CoolMode>
                 <Button
@@ -154,12 +157,12 @@ export function ReadingLogFormDialog({
                   {isPending ? (
                     <div className="flex items-center gap-2">
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                      <span>처리중...</span>
+                      <span>{t("processing")}</span>
                     </div>
                   ) : mode === "create" ? (
-                    "기록하기"
+                    t("submit_create")
                   ) : (
-                    "수정하기"
+                    t("submit_edit")
                   )}
                 </Button>
               </CoolMode>
