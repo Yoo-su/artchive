@@ -32,7 +32,7 @@ export const NotificationItem = ({
   notification,
   onClose,
 }: NotificationItemProps) => {
-  const t = useTranslations("notification.messages");
+  const t = useTranslations("notification");
   const locale = useLocale();
   const dateLocale = locale === "ko" ? ko : enUS;
 

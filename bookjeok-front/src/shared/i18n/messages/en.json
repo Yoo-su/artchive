@@ -39,7 +39,7 @@
     }
   },
   "meta": {
-    "default_title": "Bookjeok - Book Reviews & Used Book Market",
+    "default_title": "Bookjeok - Where Books and People Meet",
     "template_title": "%s | Bookjeok",
     "description": "Connect with books and people at Bookjeok. Share honest book reviews, trade used books, and discover new reading experiences.",
     "keywords": "Bookjeok,book reviews,used books,reading log,book recommendations,book club",
@@ -67,13 +67,11 @@
     "empty": "No new notifications.",
     "sr_label": "{count} notifications",
     "action_view": "Check",
-    "messages": {
-      "unknown_user": "Unknown User",
-      "review_reaction": "{actorName} reacted to your review \"{bookTitle}\".",
-      "review_comment": "{actorName} commented on your review \"{bookTitle}\": \"{commentContent}\"",
-      "comment_like": "{actorName} liked your comment.",
-      "default": "New notification arrived."
-    }
+    "unknown_user": "Unknown User",
+    "review_reaction": "{actorName} reacted to your review \"{bookTitle}\".",
+    "review_comment": "{actorName} commented on your review \"{bookTitle}\": \"{commentContent}\"",
+    "comment_like": "{actorName} liked your comment.",
+    "default": "New notification arrived."
   },
   "auth": {
     "login": {
@@ -496,6 +494,18 @@
       "empty": "No reading logs found yet.",
       "header_date_format": "MMMM yyyy",
       "item_date_format": "d (EEE)"
+    },
+    "form_modal": {
+      "title_create": "Log Book",
+      "title_edit": "Edit Memo",
+      "label_memo": "One-line Memo",
+      "label_optional": "(Optional)",
+      "placeholder_memo": "How was the book? Leave a short thought.",
+      "cancel": "Cancel",
+      "submit_create": "Log",
+      "submit_edit": "Update",
+      "processing": "Processing...",
+      "error_max_length": "Memo cannot exceed {max} characters."
     }
   },
   "insights": {
@@ -614,6 +624,7 @@
       "confirm": "Are you sure you want to delete your account?\n\nAll personal data will be deleted or anonymized, and this action cannot be undone.\nYour listings will be hidden, and chat participation will be disabled."
     },
     "edit_modal": {
+      "edit": "Edit",
       "title": "Edit Profile",
       "nickname_label": "Nickname",
       "nickname_placeholder": "Enter nickname (2-10 chars)",
