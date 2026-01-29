@@ -30,11 +30,6 @@ export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
     setIsMounted(true);
   }, []);
 
-  // currentDate(월)가 바뀌면 이미지를 다시 로드할지, 아니면 계절이 바뀔때만 할지.
-  // 사용자 요구: "현재 선택된 달 상태를 감지해야 하니... 이미지 전환도 자연스럽게"
-  // 계절이 바뀌면 이미지는 무조건 바뀜. 같은 계절 내에서는 유지하는 게 좋음 (깜빡임 방지).
-  // 하지만 "랜덤하게"라고 했으므로 계절 바뀔 때 랜덤 선택.
-
   const seasonName = useMemo(() => {
     return theme.name === "autumn" ? "fall" : theme.name;
   }, [theme.name]);

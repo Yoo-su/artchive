@@ -1,5 +1,6 @@
 import { ShoppingBag } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 import { SaleStatusBadge } from "@/features/book-sale/components/common/sale-status-badge";
 import { Badge } from "@/shared/components/shadcn/badge";
@@ -16,6 +17,8 @@ interface WishlistItemProps {
 }
 
 export const WishlistItem = ({ item }: WishlistItemProps) => {
+  const t = useTranslations("wishlist.item");
+
   // 1. 책 찜하기인 경우
   if (item.book) {
     return (
@@ -34,7 +37,7 @@ export const WishlistItem = ({ item }: WishlistItemProps) => {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <Badge variant="outline" className="mb-2">
-                    도서
+                    {t("type_book")}
                   </Badge>
                   <h3 className="font-bold line-clamp-1">{item.book.title}</h3>
                   <p className="text-sm text-gray-500 line-clamp-1">
@@ -51,7 +54,9 @@ export const WishlistItem = ({ item }: WishlistItemProps) => {
             </div>
             <div className="flex justify-end mt-2">
               <Button asChild size="sm" variant="secondary">
-                <Link href={PATHS.BOOK_DETAIL(item.book.isbn)}>상세보기</Link>
+                <Link href={PATHS.BOOK_DETAIL(item.book.isbn)}>
+                  {t("view_detail")}
+                </Link>
               </Button>
             </div>
           </div>
@@ -85,7 +90,7 @@ export const WishlistItem = ({ item }: WishlistItemProps) => {
             )}
             {isSoldOut && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                <span className="font-bold text-white">판매완료</span>
+                <span className="font-bold text-white">{t("sold_out")}</span>
               </div>
             )}
           </div>
@@ -94,7 +99,7 @@ export const WishlistItem = ({ item }: WishlistItemProps) => {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="flex gap-2 mb-2">
-                    <Badge variant="secondary">중고거래</Badge>
+                    <Badge variant="secondary">{t("type_sale")}</Badge>
                     <SaleStatusBadge status={sale.status} />
                   </div>
                   <h3 className="font-bold line-clamp-1">{sale.title}</h3>
@@ -118,7 +123,7 @@ export const WishlistItem = ({ item }: WishlistItemProps) => {
                 disabled={isSoldOut}
               >
                 <Link href={PATHS.BOOK_SALES_DETAIL(String(sale.id))}>
-                  {isSoldOut ? "판매 종료" : "상세보기"}
+                  {isSoldOut ? t("sale_ended") : t("view_detail")}
                 </Link>
               </Button>
             </div>

@@ -116,6 +116,26 @@
         }
       }
     },
+    "art": {
+      "detail": {
+        "not_found": {
+          "title": "공연 정보를 불러올 수 없습니다.",
+          "desc": "삭제되었거나 유효하지 않은 정보일 수 있습니다."
+        },
+        "period": "공연 기간",
+        "runtime": "러닝타임",
+        "place": "장소",
+        "ticket": "티켓 정보",
+        "age": "관람 연령",
+        "cast": "출연",
+        "crew": "제작",
+        "cast_crew": "출연/제작",
+        "scenes": "공연 장면",
+        "synopsis": "줄거리",
+        "booking": "예매처",
+        "default_booking": "예매처"
+      }
+    },
     "errors": {
       "load_books": "도서 정보를 불러올 수 없습니다."
     }
@@ -314,15 +334,15 @@
     "hero": {
       "title": "나의 독서 기록",
       "subtitle": "매달 쌓여가는 지식의 깊이를 확인해보세요.\n당신의 성장을 기록합니다.",
+      "public_toggle": "독서 기록 공개",
+      "public_label_on": "다른 사용자가 볼 수 있습니다",
+      "public_label_off": "나만 볼 수 있습니다",
       "season_label": {
         "spring": "봄",
         "summer": "여름",
         "autumn": "가을",
         "winter": "겨울"
-      },
-      "public_toggle": "독서 기록 공개",
-      "public_label_on": "다른 사용자가 볼 수 있습니다",
-      "public_label_off": "나만 볼 수 있습니다"
+      }
     },
     "calendar": {
       "weekdays": {
@@ -359,6 +379,28 @@
       "synopsis": "줄거리",
       "booking": "예매처",
       "default_booking": "예매처"
+    },
+    "stats": {
+      "monthly_title": "{month}월의 독서",
+      "yearly_title": "{year}년 누적",
+      "unit": "권",
+      "messages": {
+        "start": "이번 달 독서를 시작해보세요! 📚",
+        "great": "이번 달 독서량이 대단해요! 🔥",
+        "good": "꾸준히 읽고 계시네요! 멋져요 👍",
+        "default": "좋은 책과 함께하는 시간, 소중해요 🌿"
+      }
+    },
+    "timeline": {
+      "title": "최근 읽은 책",
+      "subtitle": "독서 기록 타임라인",
+      "no_image": "이미지 없음"
+    },
+    "list": {
+      "error": "데이터를 불러오는데 실패했습니다.",
+      "empty": "아직 기록된 독서 활동이 없습니다.",
+      "header_date_format": "yyyy년 M월",
+      "item_date_format": "d일 (iii)"
     }
   },
   "insights": {
@@ -523,6 +565,13 @@
       "title": "위시리스트가 비어있습니다.",
       "desc": "마음에 드는 책이나 판매글을 찜해보세요!",
       "button": "홈으로 가기"
+    },
+    "item": {
+      "type_book": "도서",
+      "type_sale": "중고거래",
+      "view_detail": "상세보기",
+      "sold_out": "판매완료",
+      "sale_ended": "판매 종료"
     }
   },
   "user_profile": {
@@ -617,6 +666,7 @@
       "title_max": "제목은 50자를 초과할 수 없습니다.",
       "price_number": "숫자만 입력 가능합니다.",
       "price_min": "가격은 0보다 커야 합니다.",
+      "book_required": "판매할 책을 선택해주세요.",
       "city_required": "시/도를 선택해주세요.",
       "district_required": "시/군/구를 선택해주세요.",
       "location_required": "거래 희망 위치를 선택해주세요.",
@@ -676,37 +726,6 @@
       "empty_title": "판매 내역이 없습니다.",
       "empty_desc": "새로운 중고책을 등록해보세요!",
       "change_status": "상태 변경"
-    }
-  },
-  "reading_log": {
-    "hero": {
-      "title": "독서 기록",
-      "subtitle": "나만의 서재를 채워보세요.",
-      "public_toggle": "공개 설정",
-      "public_label_on": "공개",
-      "public_label_off": "비공개",
-      "season_label": {
-        "spring": "Spring",
-        "summer": "Summer",
-        "autumn": "Autumn",
-        "winter": "Winter"
-      }
-    },
-    "stats": {
-      "monthly_title": "{month}월의 독서",
-      "yearly_title": "{year}년 누적",
-      "unit": "권",
-      "messages": {
-        "start": "이번 달 독서를 시작해보세요! 📚",
-        "great": "이번 달 독서량이 대단해요! 🔥",
-        "good": "꾸준히 읽고 계시네요! 멋져요 👍",
-        "default": "좋은 책과 함께하는 시간, 소중해요 🌿"
-      }
-    },
-    "timeline": {
-      "title": "최근 읽은 책",
-      "subtitle": "독서 기록 타임라인",
-      "no_image": "이미지 없음"
     }
   }
 }
