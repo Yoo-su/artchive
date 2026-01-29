@@ -66,6 +66,7 @@
     "mark_all_read": "모두 읽음",
     "empty": "새로운 알림이 없습니다.",
     "sr_label": "알림 {count}개",
+    "action_view": "확인",
     "messages": {
       "unknown_user": "알 수 없는 사용자",
       "review_reaction": "{actorName}님이 회원님의 리뷰 \"{bookTitle}\"에 반응을 남겼습니다.",

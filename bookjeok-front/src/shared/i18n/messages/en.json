@@ -66,6 +66,7 @@
     "mark_all_read": "Mark all as read",
     "empty": "No new notifications.",
     "sr_label": "{count} notifications",
+    "action_view": "Check",
     "messages": {
       "unknown_user": "Unknown User",
       "review_reaction": "{actorName} reacted to your review \"{bookTitle}\".",
