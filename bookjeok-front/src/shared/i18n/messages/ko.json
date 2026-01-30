@@ -321,7 +321,7 @@
         "recommendation_label": "이런 분께 추천해요",
         "keywords_label": "키워드"
       },
-      "related_books_title": "'{author}' 저자의 다른 책",
+      "related_books_title": "''{author}'' 저자의 다른 책",
       "related_reviews": {
         "title": "이 책을 읽은 사람들의 이야기",
         "more": "더보기 ({count}개)",
