@@ -45,10 +45,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
           roomIds,
           (response: { status: string; joinedRooms: number[] }) => {
             if (response.status === "ok") {
-              console.log(
-                "Successfully joined rooms from provider:",
-                response.joinedRooms,
-              );
               setHasJoinedRooms(true);
             } else {
               console.error("Failed to join rooms from provider");

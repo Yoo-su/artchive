@@ -54,17 +54,9 @@ export const SocketProvider = ({
       });
 
       // 재연결 관련 이벤트 핸들러
-      newSocket.on("reconnect", (attemptNumber) => {
-        console.log(
-          `Socket reconnected to ${namespace} after ${attemptNumber} attempts`,
-        );
-      });
+      newSocket.on("reconnect", (attemptNumber) => {});
 
-      newSocket.on("reconnect_attempt", (attemptNumber) => {
-        console.log(
-          `Socket reconnection attempt ${attemptNumber} to ${namespace}`,
-        );
-      });
+      newSocket.on("reconnect_attempt", (attemptNumber) => {});
 
       newSocket.on("reconnect_error", (error) => {
         console.error(`Socket reconnection error on ${namespace}:`, error);

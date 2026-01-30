@@ -39,7 +39,6 @@ export const NotificationProvider = () => {
     };
 
     socket.on("newNotification", handleNotification);
-    console.log("Notification Listener registered");
 
     return () => {
       socket.off("newNotification", handleNotification);
