@@ -1,7 +1,6 @@
 "use client";
 
 import { format } from "date-fns";
-import Image from "next/image";
 
 import { cn } from "@/shared/utils";
 
@@ -79,12 +78,11 @@ export function ReadingLogDayCell({
                 )}]`,
               )}
             >
-              <Image
+              <img
                 src={firstLog.bookImage}
                 alt={firstLog.bookTitle}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 60px, 120px"
+                className="absolute inset-0 w-full h-full object-cover"
+                loading="lazy"
               />
 
               {/* 여러 권일 경우 뱃지 (이미지 위 오버레이) */}

@@ -1,7 +1,6 @@
 import { format } from "date-fns";
-import { enUS,ko } from "date-fns/locale";
+import { enUS, ko } from "date-fns/locale";
 import { BookOpen, Calendar, ShoppingBag, User } from "lucide-react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 import { SaleStatusBadge } from "@/features/book-sale/components/common/sale-status-badge";
@@ -82,12 +81,10 @@ const UserProfileHeader = ({ profile }: UserProfileHeaderProps) => {
       <CardContent className="flex items-center gap-4 p-4 sm:gap-6 sm:p-6">
         <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-stone-100 sm:h-24 sm:w-24">
           {getProfileImageUrl(profile.profileImageUrl) ? (
-            <Image
+            <img
               src={getProfileImageUrl(profile.profileImageUrl)!}
               alt={profile.nickname}
-              fill
-              sizes="(max-width: 640px) 80px, 96px"
-              className="object-cover"
+              className="absolute inset-0 w-full h-full object-cover"
             />
           ) : (
             <User className="h-10 w-10 text-stone-400 sm:h-12 sm:w-12" />
@@ -183,12 +180,11 @@ const UserRecentReviews = ({ reviews }: UserRecentReviewsProps) => {
           >
             <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-stone-100">
               {review.bookImage ? (
-                <Image
+                <img
                   src={review.bookImage}
                   alt={review.bookTitle}
-                  fill
-                  sizes="48px"
-                  className="object-cover"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
@@ -235,12 +231,11 @@ const UserRecentSales = ({ sales }: UserRecentSalesProps) => {
           >
             <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-stone-100">
               {sale.bookImage ? (
-                <Image
+                <img
                   src={sale.bookImage}
                   alt={sale.bookTitle}
-                  fill
-                  sizes="48px"
-                  className="object-cover"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
