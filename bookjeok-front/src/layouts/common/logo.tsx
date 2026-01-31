@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
@@ -52,7 +51,7 @@ export const Logo = ({ size = "md" }: LogoProps) => {
           }}
         >
           <div className="absolute inset-0 bg-linear-to-br from-neogulip-primary/20 to-transparent rounded-xl rotate-6 scale-90 blur-sm transition-opacity opacity-0 group-hover:opacity-100" />
-          <Image
+          <img
             src="/logo-square.svg"
             alt="북적"
             width={iconSize}

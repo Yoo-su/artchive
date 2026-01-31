@@ -1,7 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, LogOut } from "lucide-react";
-import Image from "next/image";
 import { useCallback } from "react";
 import { toast } from "sonner";
 
@@ -79,11 +78,10 @@ export const ChatRoomHeader = ({
           <ArrowLeft size={20} />
         </Button>
         <div className="relative h-10 w-10 shrink-0">
-          <Image
+          <img
             src={room.usedBookSale.book.image}
             alt={room.usedBookSale.book.title}
-            fill
-            className="rounded-md object-cover"
+            className="absolute inset-0 w-full h-full object-cover rounded-md"
           />
         </div>
         <div className="overflow-hidden">

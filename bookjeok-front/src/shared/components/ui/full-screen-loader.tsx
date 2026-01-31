@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "motion/react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
@@ -82,12 +81,10 @@ export const FullScreenLoader = () => {
               ease: "easeInOut",
             }}
           >
-            <Image
+            <img
               src="/logo-square.svg"
               alt="북적"
-              fill
-              className="object-contain drop-shadow-lg"
-              priority
+              className="absolute inset-0 w-full h-full object-contain drop-shadow-lg"
             />
           </motion.div>
         </div>
@@ -145,11 +142,10 @@ const PopcornLogo = ({ index, total }: { index: number; total: number }) => {
       }}
     >
       <div className="relative w-6 h-6 opacity-80">
-        <Image
+        <img
           src="/logo-square.svg"
           alt="mini-logo"
-          fill
-          className="object-contain"
+          className="absolute inset-0 w-full h-full object-contain"
         />
       </div>
     </motion.div>

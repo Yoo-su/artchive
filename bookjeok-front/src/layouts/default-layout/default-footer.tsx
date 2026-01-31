@@ -1,5 +1,4 @@
 import { Github } from "lucide-react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 import { Logo } from "@/layouts/common/logo";
