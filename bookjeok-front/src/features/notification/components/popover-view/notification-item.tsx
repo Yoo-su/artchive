@@ -59,7 +59,7 @@ export const NotificationItem = ({
   return (
     <div
       className={cn(
-        "group flex items-start gap-4 p-4 transition-all duration-200 border-b border-border/40 last:border-0 relative", // gap-2 -> gap-4, p-3 -> p-4
+        "group flex items-start gap-4 p-4 transition-all duration-200 border-b border-border/40 last:border-0 relative", // gap-2 -> gap-4, p-3 -> p-4 변경 사항
         "hover:bg-sky-50/50 dark:hover:bg-sky-900/10",
         !notification.isRead
           ? "bg-sky-50/30 dark:bg-sky-900/5"
@@ -69,7 +69,7 @@ export const NotificationItem = ({
       <Link
         href={link}
         onClick={handleLinkClick}
-        className="flex-1 flex items-start gap-3.5 min-w-0" // Link wraps content
+        className="flex-1 flex items-start gap-3.5 min-w-0" // Link가 콘텐츠를 감쌈
       >
         <Avatar className="h-10 w-10 mt-0.5 border border-border/50 shadow-sm shrink-0">
           <AvatarImage
@@ -122,7 +122,7 @@ export const NotificationItem = ({
       <Button
         variant="ghost"
         size="icon"
-        className="h-6 w-6 text-muted-foreground/50 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 -mr-1 opacity-0 group-hover:opacity-100 transition-opacity" // Visible on hover
+        className="h-6 w-6 text-muted-foreground/50 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 -mr-1 opacity-0 group-hover:opacity-100 transition-opacity" // 호버 시 표시
         onClick={handleDelete}
       >
         <Trash2 className="h-3.5 w-3.5" />

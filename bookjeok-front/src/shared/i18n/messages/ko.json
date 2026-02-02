@@ -280,7 +280,7 @@
       "placeholder": "어떤 책을 찾고 계신가요?",
       "sticky_placeholder": "검색어를 입력하세요...",
       "button_label": "검색",
-      "no_results": "'{query}'에 대한 검색 결과가 없습니다.",
+      "no_results": "''{query}''에 대한 검색 결과가 없습니다.",
       "check_typo": "오타가 없는지 확인하거나 다른 검색어로 검색해보세요.",
       "empty_state": "관심 있는 책을 검색하여 당신의 서재를 채워보세요.",
       "all_loaded": "모든 검색 결과를 불러왔습니다.",
