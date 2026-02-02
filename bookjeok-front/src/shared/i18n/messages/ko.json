@@ -381,7 +381,10 @@
     "detail": {
       "not_found": "존재하지 않거나 삭제된 리뷰입니다.",
       "back": "← 목록으로 돌아가기",
-      "edit": "리뷰 수정하기"
+      "edit": "리뷰 수정하기",
+      "default_category": "도서 리뷰",
+      "reads": "읽음",
+      "reviewed_book": "리뷰한 책"
     },
     "form": {
       "title_write": "책 후기 작성",
