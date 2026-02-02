@@ -49,7 +49,7 @@ export const getNotificationLink = (notification: Notification): string => {
     case NotificationType.REVIEW_COMMENT:
       return metadata.reviewId ? PATHS.REVIEW_DETAIL(metadata.reviewId) : "#";
     case NotificationType.COMMENT_LIKE:
-      // If it's a comment on a review, go to the review
+      // 리뷰 댓글에 대한 좋아요인 경우, 리뷰 상세 페이지로 이동
       return metadata.reviewId ? PATHS.REVIEW_DETAIL(metadata.reviewId) : "#";
     default:
       return "#";

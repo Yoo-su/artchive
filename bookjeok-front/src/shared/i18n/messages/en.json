@@ -260,7 +260,7 @@
       "placeholder": "What book are you looking for?",
       "sticky_placeholder": "Enter keyword and press Enter...",
       "button_label": "Search",
-      "no_results": "No search results found for '{query}'.",
+      "no_results": "No search results found for ''{query}''.",
       "check_typo": "Please check for typos or try another search term.",
       "empty_state": "Search for books you are interested in and fill your library.",
       "all_loaded": "All search results have been loaded.",

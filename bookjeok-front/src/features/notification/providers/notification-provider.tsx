@@ -26,7 +26,6 @@ export const NotificationProvider = () => {
       });
 
       const { key, params } = getNotificationMessageParams(notification);
-      // key comes from utils, e.g. "review_reaction". Since we use "notification" namespace, t(key) works.
       const message = t(key, params);
 
       toast(t("title"), {
