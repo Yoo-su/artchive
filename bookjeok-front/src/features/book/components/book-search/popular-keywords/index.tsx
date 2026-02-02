@@ -71,15 +71,15 @@ export const PopularKeywords = () => {
       <div className="w-px h-3 bg-zinc-200" />
 
       {/* 슬라이드업 애니메이션 영역 */}
-      <div className="relative h-5 overflow-hidden min-w-[100px]">
+      <div className="relative h-6 overflow-hidden min-w-[100px]">
         <AnimatePresence mode="popLayout">
           <motion.span
             key={currentIndex}
-            initial={{ y: 20, opacity: 0, filter: "blur(4px)" }}
+            initial={{ y: 24, opacity: 0, filter: "blur(4px)" }}
             animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-            exit={{ y: -20, opacity: 0, filter: "blur(4px)" }}
+            exit={{ y: -24, opacity: 0, filter: "blur(4px)" }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute inset-0 text-base font-medium text-zinc-800 truncate"
+            className="absolute inset-0 flex items-center text-base font-medium text-zinc-800 truncate"
             onClick={() => handleKeywordClick(currentKeyword.keyword)}
           >
             {currentKeyword.keyword}
