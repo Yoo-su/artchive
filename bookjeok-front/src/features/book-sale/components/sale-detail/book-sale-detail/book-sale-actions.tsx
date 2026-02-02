@@ -9,6 +9,7 @@ import { chatKeys } from "@/features/chat";
 import { findOrCreateRoom } from "@/features/chat/apis";
 import { useChatStore } from "@/features/chat/stores/use-chat-store";
 import { WishlistButton } from "@/features/user/components/wishlist/wishlist-button";
+import { CoolMode } from "@/shared/components/magicui/cool-mode";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -176,21 +177,23 @@ export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
                   className="border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 w-11 rounded-md"
                 />
               )}
-              <Button
-                size="lg"
-                className="flex-1 sm:flex-none"
-                onClick={handleStartChat}
-                disabled={isCreatingChat || !currentUser}
-              >
-                {isCreatingChat ? (
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                ) : (
-                  <MessageCircle className="w-5 h-5 mr-2" />
-                )}
-                {isCreatingChat
-                  ? t("actions.chat_opening")
-                  : t("actions.chat_start")}
-              </Button>
+              <CoolMode>
+                <Button
+                  size="lg"
+                  className="flex-1 sm:flex-none h-11"
+                  onClick={handleStartChat}
+                  disabled={isCreatingChat || !currentUser}
+                >
+                  {isCreatingChat ? (
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  ) : (
+                    <MessageCircle className="w-5 h-5 mr-2" />
+                  )}
+                  {isCreatingChat
+                    ? t("actions.chat_opening")
+                    : t("actions.chat_start")}
+                </Button>
+              </CoolMode>
             </div>
             {!currentUser && (
               <p className="text-xs text-stone-400 text-center sm:text-right">

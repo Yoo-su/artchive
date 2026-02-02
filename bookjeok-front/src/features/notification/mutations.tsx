@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { deleteNotification, markAllAsRead, markAsRead } from "./api";
+import { deleteNotification, markAllAsRead, markAsRead } from "./apis";
 import { notificationKeys } from "./constants/query-keys";
 
 export const useMarkAsRead = () => {

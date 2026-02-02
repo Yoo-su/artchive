@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
-import { getNotifications, getUnreadCount } from "./api";
+import { getNotifications, getUnreadCount } from "./apis";
 import { notificationKeys } from "./constants/query-keys";
 
 export const useNotifications = () => {
