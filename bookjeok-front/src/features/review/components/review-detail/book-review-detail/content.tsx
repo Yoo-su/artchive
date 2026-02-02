@@ -12,7 +12,7 @@ export function ReviewDetailContent({ content }: ReviewDetailContentProps) {
 
   return (
     <div
-      className="prose prose-stone prose-lg md:prose-xl max-w-none"
+      className="prose prose-stone prose-lg md:prose-xl max-w-none prose-headings:font-serif prose-headings:font-bold prose-p:leading-relaxed prose-img:rounded-xl prose-img:shadow-sm prose-blockquote:border-l-4 prose-blockquote:border-stone-200 prose-blockquote:bg-stone-50 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg"
       dangerouslySetInnerHTML={{ __html: sanitizedContent }}
     />
   );

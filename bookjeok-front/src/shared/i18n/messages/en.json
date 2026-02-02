@@ -361,7 +361,10 @@
     "detail": {
       "not_found": "This review does not exist or has been deleted.",
       "back": "← Back to Reviews",
-      "edit": "Edit Review"
+      "edit": "Edit Review",
+      "default_category": "Book Review",
+      "reads": "Reads",
+      "reviewed_book": "Reviewed Book"
     },
     "form": {
       "title_write": "Write Review",
