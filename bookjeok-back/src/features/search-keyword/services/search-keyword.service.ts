@@ -60,6 +60,7 @@ export class SearchKeywordService {
     const keywords = await this.searchKeywordRepository.find({
       where: {
         lastSearchedAt: MoreThanOrEqual(threeDaysAgo),
+        searchCount: MoreThanOrEqual(3),
       },
       order: {
         searchCount: 'DESC',
