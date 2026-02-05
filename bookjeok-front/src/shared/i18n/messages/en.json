@@ -868,5 +868,20 @@
       "empty_desc": "Try registering a new used book!",
       "change_status": "Change Status"
     }
+  },
+  "error_pages": {
+    "not_found": {
+      "title": "404",
+      "subtitle": "Page Not Found",
+      "description": "The page you are looking for might have been removed or moved.<br />Please check the URL and try again.",
+      "home_button": "Go to Home"
+    },
+    "general_error": {
+      "title": "OOPs!",
+      "subtitle": "Something went wrong",
+      "description": "An unexpected error occurred.<br />Please try again later.",
+      "retry_button": "Try Again",
+      "home_button": "Go to Home"
+    }
   }
 }

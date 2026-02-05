@@ -31,18 +31,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const book = data.items[0];
 
+    const title =
+      book.title.length > 50 ? `${book.title.slice(0, 50)}...` : book.title;
+
+    const description = book.description
+      ? book.description.slice(0, 160) +
+        (book.description.length > 160 ? "..." : "")
+      : t("description");
+
     return {
-      title: book.title,
-      description: t("description"),
+      title,
+      description,
       openGraph: {
-        title: book.title,
-        description: t("description"),
+        title,
+        description,
         images: book.image ? [book.image] : [],
       },
       twitter: {
         card: "summary_large_image",
-        title: book.title,
-        description: t("description"),
+        title,
+        description,
         images: book.image ? [book.image] : [],
       },
     };

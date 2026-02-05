@@ -1,11 +1,5 @@
-import { redirect } from "@/shared/config/i18n/routing";
-import { PATHS } from "@/shared/constants/paths";
+import { notFound } from "next/navigation";
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-  redirect({ href: PATHS.HOME, locale });
+export default function NotFound() {
+  notFound();
 }

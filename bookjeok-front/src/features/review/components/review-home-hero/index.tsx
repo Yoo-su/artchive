@@ -33,7 +33,7 @@ export function ReviewHomeHero() {
       {/* 백그라운드 이미지 */}
       <Image
         src={heroImage}
-        alt="Review List Cover"
+        alt={t("image_alt")}
         fill
         priority
         onLoad={() => setIsImageLoaded(true)}

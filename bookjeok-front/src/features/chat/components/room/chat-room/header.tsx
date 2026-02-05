@@ -78,6 +78,7 @@ export const ChatRoomHeader = ({
           <ArrowLeft size={20} />
         </Button>
         <div className="relative h-10 w-10 shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={room.usedBookSale.book.image}
             alt={room.usedBookSale.book.title}
