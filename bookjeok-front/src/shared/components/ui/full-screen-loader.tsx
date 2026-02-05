@@ -81,6 +81,7 @@ export const FullScreenLoader = () => {
               ease: "easeInOut",
             }}
           >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo-square.svg"
               alt="북적"
@@ -142,6 +143,7 @@ const PopcornLogo = ({ index, total }: { index: number; total: number }) => {
       }}
     >
       <div className="relative w-6 h-6 opacity-80">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/logo-square.svg"
           alt="mini-logo"

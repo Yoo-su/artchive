@@ -51,6 +51,7 @@ export const Logo = ({ size = "md" }: LogoProps) => {
           }}
         >
           <div className="absolute inset-0 bg-linear-to-br from-neogulip-primary/20 to-transparent rounded-xl rotate-6 scale-90 blur-sm transition-opacity opacity-0 group-hover:opacity-100" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo-square.svg"
             alt="북적"

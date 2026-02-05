@@ -81,6 +81,7 @@ const UserProfileHeader = ({ profile }: UserProfileHeaderProps) => {
       <CardContent className="flex items-center gap-4 p-4 sm:gap-6 sm:p-6">
         <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-stone-100 sm:h-24 sm:w-24">
           {getProfileImageUrl(profile.profileImageUrl) ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={getProfileImageUrl(profile.profileImageUrl)!}
               alt={profile.nickname}
@@ -180,6 +181,7 @@ const UserRecentReviews = ({ reviews }: UserRecentReviewsProps) => {
           >
             <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-stone-100">
               {review.bookImage ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={review.bookImage}
                   alt={review.bookTitle}
@@ -231,6 +233,7 @@ const UserRecentSales = ({ sales }: UserRecentSalesProps) => {
           >
             <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-stone-100">
               {sale.bookImage ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={sale.bookImage}
                   alt={sale.bookTitle}
