@@ -23,6 +23,7 @@ import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
 import { ReadingLogModule } from '@/features/reading-log/reading-log.module';
 import { SearchKeywordModule } from '@/features/search-keyword/search-keyword.module';
 import { NotificationModule } from '@/features/notification/notification.module';
+import { HealthModule } from '@/features/health/health.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { NotificationModule } from '@/features/notification/notification.module'
     ReadingLogModule,
     SearchKeywordModule,
     NotificationModule,
+    HealthModule,
   ],
   controllers: [],
   providers: [
