@@ -12,6 +12,7 @@ import {
   Unique,
   OneToMany,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'users' })
 @Unique(['provider', 'providerId'])
@@ -28,6 +29,7 @@ export class User {
   @Column({ unique: true, nullable: true })
   email: string;
 
+  @Exclude()
   @Column({ nullable: true })
   password: string;
 

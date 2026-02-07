@@ -1,8 +1,10 @@
-import { ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { DataSource } from 'typeorm';
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
+import helmet from 'helmet';
+import * as compression from 'compression';
 
 import { AppModule } from './app/app.module';
 import { TransformInterceptor } from './shared/interceptors/transform.interceptor';
@@ -12,6 +14,8 @@ import { GlobalExceptionFilter } from './shared/filters/global-exception.filter'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
+  app.use(helmet());
+  app.use(compression());
   app.enableCors({
     origin: process.env.CLIENT_DOMAIN ?? 'http://localhost:3000',
     credentials: true,
@@ -32,6 +36,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(
     new LoggingInterceptor(),
     new TransformInterceptor(),
+    new ClassSerializerInterceptor(app.get(Reflector)),
   );
 
   // 전역 파이프 등록 (입력값 검증)
