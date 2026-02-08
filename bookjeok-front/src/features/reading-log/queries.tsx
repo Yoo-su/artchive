@@ -163,7 +163,7 @@ export const useUpdateReadingLogSettingsMutation = () => {
       }
     },
     onSuccess: (data) => {
-      // 성공 시 서버에서 받은 최신 데이터로 캐시 확정 (Refetch 방지)
+      // 성공 시 서버에서 받은 최신 데이터로 캐시 확정 (재요청 방지)
       queryClient.setQueryData(readingLogKeys.settings.queryKey, data);
 
       queryClient.setQueryData(userKeys.me.queryKey, (old: User | undefined) =>

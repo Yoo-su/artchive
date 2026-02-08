@@ -55,12 +55,12 @@ export function ReadingLogControls({
 
   return (
     <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-8 px-4 md:px-0">
-      {/* Date Navigation */}
+      {/* 날짜 네비게이션 */}
       <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-start">
         {viewMode === "calendar" ? (
           <>
             <div className="flex items-center gap-4">
-              {/* Prev Button */}
+              {/* 이전 달 버튼 */}
               <button
                 onClick={onPrevMonth}
                 disabled={isLoading}
@@ -69,9 +69,9 @@ export function ReadingLogControls({
                 <ChevronLeft className="w-5 h-5 text-stone-400 group-hover:text-stone-900 transition-colors" />
               </button>
 
-              {/* Date Selectors (Hidden Select, Visible Text) */}
+              {/* 날짜 선택 (숨겨진 Select, 보이는 텍스트) */}
               <div className="flex items-baseline gap-2 relative group cursor-pointer overflow-hidden">
-                {/* Visual Text */}
+                {/* 시각적 텍스트 표시 */}
                 <h2 className="text-3xl md:text-4xl font-serif font-medium text-stone-900 tracking-tight flex items-baseline">
                   <AnimatePresence mode="popLayout" initial={false}>
                     <motion.span
@@ -108,7 +108,7 @@ export function ReadingLogControls({
                   </AnimatePresence>
                 </h2>
 
-                {/* Invisible Select Triggers overlaying the text for functionality */}
+                {/* 기능을 위해 텍스트 위에 덮어씌운 투명 Select 트리거 */}
                 <div className="absolute inset-0 flex opacity-0 z-10">
                   <Select
                     value={currentDate.getFullYear().toString()}
@@ -145,7 +145,7 @@ export function ReadingLogControls({
                 </div>
               </div>
 
-              {/* Next Button */}
+              {/* 다음 달 버튼 */}
               <button
                 onClick={onNextMonth}
                 disabled={isLoading}
@@ -162,7 +162,7 @@ export function ReadingLogControls({
         )}
       </div>
 
-      {/* View Toggle */}
+      {/* 뷰 모드 토글 (캘린더/리스트) */}
       <div className="flex items-center gap-6">
         <button
           onClick={() => onViewModeChange("calendar")}

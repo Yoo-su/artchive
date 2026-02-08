@@ -1,5 +1,5 @@
 export const READING_LOG_COLORS = {
-  // 따뜻한 서재 테마 (Warm & Cozy) -> Autumn Theme으로 통합 예정
+  // 따뜻한 서재 테마 -> 가을 테마(Autumn)로 통합 예정
   cozy: {
     dark: "#78350f", // amber-900 (텍스트, 강한 강조)
     medium: "#d97706", // amber-600 (포인트, 활성 상태)

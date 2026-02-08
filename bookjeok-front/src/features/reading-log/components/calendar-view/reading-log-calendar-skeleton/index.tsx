@@ -9,57 +9,33 @@ export function ReadingLogCalendarSkeleton() {
   const weekDayNames = ["일", "월", "화", "수", "목", "금", "토"];
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-4">
-      {/* 헤더 스켈레톤 */}
-      <div className="flex items-center justify-between px-2">
-        <Skeleton className="h-8 w-32" />
-        <div className="flex gap-2">
-          <Button variant="outline" size="icon" disabled className="opacity-50">
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          <Button variant="outline" size="icon" disabled className="opacity-50">
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
-
+    <div className="w-full max-w-5xl mx-auto space-y-8">
       <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl shadow-stone-200/50 border border-white/60 overflow-hidden ring-1 ring-stone-100">
-        {/* 요일 헤더 */}
-        <div className="grid grid-cols-7 border-b border-stone-100/50 bg-linear-to-r from-stone-50 via-amber-50/50 to-stone-50">
-          {weekDayNames.map((day, i) => (
+        {/* 요일 헤더 - 단색 심플 스타일 */}
+        <div className="grid grid-cols-7 border-b border-stone-100/50 bg-stone-50/50">
+          {weekDayNames.map((day) => (
             <div
               key={day}
-              className={`py-4 text-center text-sm font-semibold tracking-wide ${
-                i === 0
-                  ? "text-rose-500/50"
-                  : i === 6
-                    ? "text-amber-600/50"
-                    : "text-stone-500/50"
-              }`}
+              className="py-4 text-center text-sm font-medium text-stone-400"
             >
               {day}
             </div>
           ))}
         </div>
 
-        {/* 그리드 스켈레톤 - 모바일과 데스크탑 반응형 */}
+        {/* 그리드 스켈레톤 - 심플한 박스 형태 */}
         <div className="grid grid-cols-7 auto-rows-[80px] sm:auto-rows-[160px] divide-x divide-y divide-gray-100">
           {Array.from({ length: 35 }).map((_, i) => (
             <div
               key={i}
-              className="p-1 sm:p-2 flex flex-col gap-1 sm:gap-2 h-full"
+              className="p-1 sm:p-2 flex flex-col h-full bg-white/50"
             >
-              <div className="flex justify-between items-start">
-                <Skeleton className="h-5 w-5 sm:h-7 sm:w-7 rounded-full bg-stone-100" />
+              <div className="flex justify-between items-start mb-1">
+                <Skeleton className="h-6 w-6 rounded-full bg-stone-50" />
               </div>
-              {/* 모바일: 중앙 뱃지만, 데스크탑: 책 목록 */}
-              <div className="flex-1 flex items-center justify-center sm:hidden">
-                <Skeleton className="h-5 w-10 rounded-full bg-stone-100" />
-              </div>
-              <div className="hidden sm:flex flex-1 flex-col gap-1.5 px-1 pb-1">
-                <Skeleton className="h-12 w-full rounded-2xl bg-stone-50" />
-                <Skeleton className="h-12 w-full rounded-2xl bg-stone-50/50" />
-              </div>
+
+              {/* 콘텐츠 영역 단순화 */}
+              <div className="flex-1 rounded-xl bg-stone-50/50 mx-1 mb-1" />
             </div>
           ))}
         </div>

@@ -12,22 +12,30 @@ export function PopularBookSaleList() {
   if (isLoading) {
     return (
       <section className="mb-16">
-        <header className="mb-8">
-          <h2 className="text-3xl font-serif font-bold text-stone-900 tracking-tight">
+        <header className="mb-4 md:mb-8 border-b border-stone-100 pb-3 md:pb-4">
+          <h2 className="text-3xl md:text-4xl font-serif font-bold text-stone-900 tracking-tight">
             {t("title")}
           </h2>
         </header>
 
-        <div className="flex gap-4 overflow-hidden">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="min-w-[70%] sm:min-w-[40%] md:min-w-[30%] lg:min-w-[22%]"
-            >
+        <Swiper
+          modules={[FreeMode]}
+          freeMode={true}
+          spaceBetween={20}
+          slidesPerView={1.2}
+          breakpoints={{
+            480: { slidesPerView: 2.1 },
+            768: { slidesPerView: 3.1 },
+            1024: { slidesPerView: 4.1 },
+          }}
+          className="w-full px-1! py-2! md:py-4!"
+        >
+          {Array.from({ length: 5 }).map((_, i) => (
+            <SwiperSlide key={i} className="select-none h-auto">
               <BookSale.Skeleton />
-            </div>
+            </SwiperSlide>
           ))}
-        </div>
+        </Swiper>
       </section>
     );
   }

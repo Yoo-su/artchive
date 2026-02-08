@@ -153,16 +153,28 @@ export function ReadingLogListView() {
 function ReadingLogListSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="h-8 w-32 bg-stone-200 rounded animate-pulse mb-4" />
+      {/* 고정 헤더 스켈레톤 */}
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm py-3 border-b border-stone-100 mb-4">
+        <div className="flex items-center gap-2">
+          <Skeleton className="w-2.5 h-2.5 rounded-full bg-stone-200" />
+          <Skeleton className="h-6 w-32 bg-stone-200" />
+        </div>
+      </div>
+
       {Array.from({ length: 3 }).map((_, i) => (
         <div
           key={i}
-          className="flex gap-4 p-4 bg-white rounded-2xl border border-stone-100"
+          className="flex gap-4 p-4 bg-white rounded-2xl border border-stone-100 shadow-sm"
         >
-          <Skeleton className="w-24 h-32 shrink-0 rounded-lg bg-stone-100" />
-          <div className="flex-1 space-y-2 py-1">
-            <Skeleton className="h-6 w-3/4 bg-stone-100" />
-            <Skeleton className="h-4 w-1/2 bg-stone-50" />
+          <Skeleton className="w-24 h-32 shrink-0 rounded-lg bg-stone-100 shadow-md ring-1 ring-black/5" />
+          <div className="flex-1 min-w-0 flex flex-col justify-center">
+            <div className="flex justify-between items-start gap-4">
+              <div className="min-w-0 flex-1 space-y-2">
+                <Skeleton className="h-6 w-3/4 bg-stone-100" />
+                <Skeleton className="h-4 w-1/2 bg-stone-50" />
+              </div>
+              <Skeleton className="h-6 w-20 rounded-full bg-stone-100" />
+            </div>
             <Skeleton className="h-16 w-full rounded-xl mt-3 bg-stone-50" />
           </div>
         </div>
