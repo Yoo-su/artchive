@@ -73,7 +73,7 @@ export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
           className={cn(
             "object-cover object-center transition-all duration-1000 transform scale-105 group-hover:scale-100",
             isImageLoading ? "opacity-0" : "opacity-100",
-            // Subtle cinematic filters
+            // 은은한 시네마틱 필터 적용
             theme.name === "summer" && "brightness-[0.9] saturate-[1.1]",
             theme.name === "winter" && "brightness-[0.9] contrast-[1.1]",
             theme.name === "spring" && "brightness-[0.95] saturate-[1.05]",
@@ -82,7 +82,7 @@ export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
         />
       )}
 
-      {/* Cinematic Overlay - Gradient from bottom */}
+      {/* 시네마틱 오버레이 - 하단 그라데이션 */}
       <div
         className={cn(
           "absolute inset-0 bg-linear-to-t from-stone-900/90 via-stone-900/40 to-transparent transition-opacity duration-1000",
@@ -93,7 +93,7 @@ export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
       {/* Content */}
       <div className="relative z-10 h-full flex flex-col justify-end p-6 md:p-10">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
-          {/* Typography Area */}
+          {/* 타이포그래피 영역 */}
           <div className="space-y-4 max-w-2xl animate-in fade-in slide-in-from-bottom-6 duration-1000">
             <div className="flex items-center gap-3">
               <span className="h-px w-6 md:w-8 bg-white/60" />
@@ -111,7 +111,7 @@ export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
             </p>
           </div>
 
-          {/* Minimalist Switch */}
+          {/* 미니멀 공개 여부 스위치 */}
           <div className="flex items-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-100">
             <div className="flex items-center gap-3 px-4 py-2 md:px-5 md:py-2.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-colors duration-300">
               <Label
@@ -125,7 +125,7 @@ export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
                 checked={isPublic}
                 disabled={isPending}
                 onCheckedChange={handleToggle}
-                className="data-[state=checked]:bg-white data-[state=unchecked]:bg-white/20 border-transparent h-4 w-7 md:h-5 md:w-9"
+                className="data-[state=checked]:bg-sky-400 data-[state=unchecked]:bg-stone-500/50 border-transparent h-4 w-7 md:h-5 md:w-9 transition-colors duration-300"
               />
             </div>
           </div>

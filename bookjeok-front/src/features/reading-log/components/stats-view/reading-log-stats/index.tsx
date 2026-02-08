@@ -56,9 +56,33 @@ export function ReadingLogStats({ currentDate, theme }: ReadingLogStatsProps) {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 gap-8 mb-12">
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-24 w-full" />
+      <div className="grid grid-cols-2 gap-4 md:gap-8 mb-16 relative px-4 md:px-0">
+        {/* 세로 구분선 */}
+        <div className="absolute left-1/2 top-4 bottom-4 w-px bg-stone-200/60 -translate-x-1/2" />
+
+        {/* 월간 통계 스켈레톤 */}
+        <div className="flex flex-col items-center justify-center text-center space-y-4">
+          <div className="space-y-1">
+            <Skeleton className="h-3 w-20 mx-auto bg-stone-100" />
+            <div className="flex items-baseline justify-center gap-1">
+              <Skeleton className="h-16 md:h-20 w-12 md:w-16 bg-stone-200" />
+              <Skeleton className="h-3 w-6 bg-stone-100 mb-2" />
+            </div>
+          </div>
+          <Skeleton className="h-4 w-24 bg-stone-100" />
+        </div>
+
+        {/* 연간 통계 스켈레톤 */}
+        <div className="flex flex-col items-center justify-center text-center space-y-4">
+          <div className="space-y-1">
+            <Skeleton className="h-3 w-20 mx-auto bg-stone-100" />
+            <div className="flex items-baseline justify-center gap-1">
+              <Skeleton className="h-16 md:h-20 w-12 md:w-16 bg-stone-200" />
+              <Skeleton className="h-3 w-6 bg-stone-100 mb-2" />
+            </div>
+          </div>
+          <div className="h-4" />
+        </div>
       </div>
     );
   }
@@ -70,7 +94,7 @@ export function ReadingLogStats({ currentDate, theme }: ReadingLogStatsProps) {
       {/* Vertical Divider */}
       <div className="absolute left-1/2 top-4 bottom-4 w-px bg-stone-200/60 -translate-x-1/2" />
 
-      {/* Monthly Stats */}
+      {/* 월간 통계 */}
       <div className="flex flex-col items-center justify-center text-center space-y-4 group">
         <div className="space-y-1">
           <p className="text-[10px] font-bold tracking-[0.2em] text-stone-400 uppercase">
@@ -80,7 +104,7 @@ export function ReadingLogStats({ currentDate, theme }: ReadingLogStatsProps) {
             <span
               className={cn(
                 "text-6xl md:text-7xl font-serif font-light tracking-tight transition-colors duration-500",
-                theme.activeText, // Using theme color for the number
+                theme.activeText, // 숫자에 테마 색상 적용
               )}
             >
               <AnimatedNumber value={stats.monthlyCount} />
@@ -101,7 +125,7 @@ export function ReadingLogStats({ currentDate, theme }: ReadingLogStatsProps) {
         </p>
       </div>
 
-      {/* Yearly Stats */}
+      {/* 연간 통계 */}
       <div className="flex flex-col items-center justify-center text-center space-y-4 group">
         <div className="space-y-1">
           <p className="text-[10px] font-bold tracking-[0.2em] text-stone-400 uppercase">
@@ -116,7 +140,7 @@ export function ReadingLogStats({ currentDate, theme }: ReadingLogStatsProps) {
             </span>
           </div>
         </div>
-        {/* Placeholder for alignment or future yearly message */}
+        {/* 정렬을 위한 공간 확보 (추후 연간 메시지 추가 가능) */}
         <div className="h-4" />
       </div>
     </div>
