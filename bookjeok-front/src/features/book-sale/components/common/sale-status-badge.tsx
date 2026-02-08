@@ -9,13 +9,14 @@ const STATUS_PRESETS: {
   [key in SaleStatus]: { className: string };
 } = {
   FOR_SALE: {
-    className: "bg-emerald-500 hover:bg-emerald-600",
+    className: "bg-stone-900 hover:bg-stone-800 text-white border-transparent",
   },
   RESERVED: {
-    className: "bg-amber-500 hover:bg-amber-600",
+    className: "bg-stone-500 hover:bg-stone-600 text-white border-transparent",
   },
   SOLD: {
-    className: "bg-gray-400 hover:bg-gray-500",
+    className:
+      "bg-stone-200 hover:bg-stone-300 text-stone-500 border-transparent",
   },
 };
 

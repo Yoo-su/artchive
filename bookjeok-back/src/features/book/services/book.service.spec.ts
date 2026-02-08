@@ -5,9 +5,10 @@ import { Book } from '../entities/book.entity';
 
 describe('BookService', () => {
   let service: BookService;
+  let module: TestingModule;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       providers: [
         BookService,
         {
@@ -17,7 +18,19 @@ describe('BookService', () => {
             create: jest.fn(),
             save: jest.fn(),
             increment: jest.fn(),
-            createQueryBuilder: jest.fn(),
+            createQueryBuilder: jest.fn(() => ({
+              leftJoin: jest.fn().mockReturnThis(),
+              select: jest.fn().mockReturnThis(),
+              addSelect: jest.fn().mockReturnThis(),
+              groupBy: jest.fn().mockReturnThis(),
+              orderBy: jest.fn().mockReturnThis(),
+              addOrderBy: jest.fn().mockReturnThis(),
+              limit: jest.fn().mockReturnThis(),
+              getRawMany: jest.fn().mockResolvedValue([]),
+              where: jest.fn().mockReturnThis(),
+              take: jest.fn().mockReturnThis(),
+              getMany: jest.fn().mockResolvedValue([]),
+            })),
           },
         },
       ],
@@ -26,7 +39,114 @@ describe('BookService', () => {
     service = module.get<BookService>(BookService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  describe('findOrCreateBook', () => {
+    it('should return existing book if found initially', async () => {
+      const bookDto = { isbn: '123' } as any;
+      const existingBook = { isbn: '123', title: 'Existing' };
+
+      const repo = module.get(getRepositoryToken(Book));
+      (repo.findOneBy as jest.Mock).mockResolvedValue(existingBook);
+
+      const result = await service.findOrCreateBook(bookDto);
+      expect(result).toEqual(existingBook);
+      // createQueryBuilder should not be called if found initially
+      expect(repo.createQueryBuilder).not.toHaveBeenCalled();
+    });
+
+    it('should create new book using INSERT IGNORE if not found', async () => {
+      const bookDto = { isbn: '456' } as any;
+      const newBook = { isbn: '456', title: 'New' };
+
+      const repo = module.get(getRepositoryToken(Book));
+
+      // Mock query builder for insert
+      const mockInsertBuilder = {
+        insert: jest.fn().mockReturnThis(),
+        into: jest.fn().mockReturnThis(),
+        values: jest.fn().mockReturnThis(),
+        orIgnore: jest.fn().mockReturnThis(),
+        execute: jest.fn().mockResolvedValue({}),
+      };
+      (repo.createQueryBuilder as jest.Mock).mockReturnValue(mockInsertBuilder);
+
+      // 1. Initial find: null
+      // 2. Second find (after insert): returns book
+      (repo.findOneBy as jest.Mock)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(newBook);
+
+      const result = await service.findOrCreateBook(bookDto);
+
+      expect(result).toEqual(newBook);
+      expect(mockInsertBuilder.insert).toHaveBeenCalled();
+      expect(mockInsertBuilder.orIgnore).toHaveBeenCalled();
+      expect(mockInsertBuilder.execute).toHaveBeenCalled();
+    });
+
+    it('should return existing book if INSERT IGNORE was ignored (concurrent creation)', async () => {
+      const bookDto = { isbn: '789' } as any;
+      const existingBook = { isbn: '789', title: 'Concurrent' };
+
+      const repo = module.get(getRepositoryToken(Book));
+
+      // Mock query builder for insert
+      const mockInsertBuilder = {
+        insert: jest.fn().mockReturnThis(),
+        into: jest.fn().mockReturnThis(),
+        values: jest.fn().mockReturnThis(),
+        orIgnore: jest.fn().mockReturnThis(),
+        // Simulate insert being ignored (e.g., 0 affected rows)
+        execute: jest.fn().mockResolvedValue({ raw: [], affected: 0 }),
+      };
+      (repo.createQueryBuilder as jest.Mock).mockReturnValue(mockInsertBuilder);
+
+      // 1. Initial find: null
+      // 2. Second find (after ignored insert): returns the book created by another process
+      (repo.findOneBy as jest.Mock)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(existingBook);
+
+      const result = await service.findOrCreateBook(bookDto);
+
+      expect(result).toEqual(existingBook);
+      expect(mockInsertBuilder.insert).toHaveBeenCalled();
+      expect(mockInsertBuilder.orIgnore).toHaveBeenCalled();
+      expect(mockInsertBuilder.execute).toHaveBeenCalled();
+      expect(repo.findOneBy).toHaveBeenCalledTimes(2); // Initial find and retry find
+    });
+  });
+
+  describe('findPopularBooks', () => {
+    it('should execute query builder with subqueries', async () => {
+      const repo = module.get(getRepositoryToken(Book));
+      const mockQueryBuilder = {
+        addSelect: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        addOrderBy: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue([
+          {
+            isbn: '1',
+            title: 'Pop',
+            viewCount: 10,
+            totalSaleViews: 5,
+            totalReviewViews: 5,
+            totalReviewReactions: 5,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ]),
+      };
+      (repo.createQueryBuilder as jest.Mock).mockReturnValue(mockQueryBuilder);
+
+      const result = await service.findPopularBooks();
+
+      expect(repo.createQueryBuilder).toHaveBeenCalledWith('book');
+      // Subqueries are now string arguments, so we check if addSelect was called 3 times
+      expect(mockQueryBuilder.addSelect).toHaveBeenCalledTimes(3);
+      expect(result).toHaveLength(1);
+      expect(result[0].isbn).toBe('1');
+    });
   });
 });

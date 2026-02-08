@@ -10,15 +10,9 @@ import {
   EmptyState,
   InsightCard,
 } from "@/features/insights/components/common/insight-card";
+import { COLORS } from "@/features/insights/constants";
 import { LocationSales, LocationStat } from "@/features/insights/types";
 import { config } from "@/shared/config/env";
-
-// 색상 팔레트
-const COLORS = {
-  matcha: { dark: "#4b6043", medium: "#658354", light: "#7a9968" },
-  cream: { light: "#faf7f2", medium: "#f5f0e6", dark: "#e8dfd0" },
-  mustard: { dark: "#d4a72c", medium: "#e5b84c" },
-};
 
 // 서울 기본 좌표
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 };
@@ -146,7 +140,7 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
         <div className="flex h-60 items-center justify-center">
           <Loader2
             className="h-8 w-8 animate-spin"
-            style={{ color: COLORS.matcha.medium }}
+            style={{ color: COLORS.stone[400] }}
           />
         </div>
       </InsightCard>
@@ -177,10 +171,10 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
         <div className="space-y-4">
           {/* 인기 장소 TOP 5 버튼 */}
           <div>
-            <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
+            <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-stone-700">
               <Navigation
                 className="h-4 w-4"
-                style={{ color: COLORS.matcha.medium }}
+                style={{ color: COLORS.stone[400] }}
               />
               {t("top5")}
             </h4>
@@ -198,18 +192,18 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
                     className="flex items-center gap-2 rounded-full px-3 py-1.5 text-sm transition-all hover:shadow-sm disabled:opacity-50"
                     style={{
                       backgroundColor: isSelected
-                        ? COLORS.matcha.medium
-                        : COLORS.cream.medium,
-                      color: isSelected ? "#fff" : COLORS.matcha.dark,
+                        ? COLORS.stone[800]
+                        : COLORS.stone[100],
+                      color: isSelected ? "#fff" : COLORS.stone[600],
                     }}
                   >
                     <span
                       className="flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold"
                       style={{
                         backgroundColor: isSelected
-                          ? "rgba(255,255,255,0.3)"
-                          : COLORS.matcha.light,
-                        color: "#fff",
+                          ? "rgba(255,255,255,0.2)"
+                          : COLORS.stone[200],
+                        color: isSelected ? "#fff" : COLORS.stone[500],
                       }}
                     >
                       {index + 1}
@@ -225,12 +219,12 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
           </div>
 
           {/* 지도 */}
-          <div className="relative overflow-hidden rounded-xl border border-gray-100">
+          <div className="relative overflow-hidden rounded-xl border border-stone-200">
             {isLoadingSales && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70">
                 <Loader2
                   className="h-8 w-8 animate-spin"
-                  style={{ color: COLORS.matcha.medium }}
+                  style={{ color: COLORS.stone[400] }}
                 />
               </div>
             )}
@@ -256,8 +250,8 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
                     style={{
                       backgroundColor:
                         selectedSale?.id === sale.id
-                          ? COLORS.mustard.dark
-                          : COLORS.matcha.medium,
+                          ? COLORS.stone[800]
+                          : COLORS.stone[500],
                     }}
                   >
                     <svg
@@ -287,25 +281,22 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
                   yAnchor={1.4}
                 >
                   <div className="relative min-w-[180px] max-w-[220px]">
-                    <div className="rounded-lg bg-white p-3 shadow-lg ring-1 ring-gray-100">
-                      <div className="mb-1 text-xs text-gray-500">
+                    <div className="rounded-lg bg-white p-3 shadow-lg ring-1 ring-stone-200">
+                      <div className="mb-1 text-xs text-stone-500">
                         {selectedSale.placeName}
                       </div>
                       <div
-                        className="mb-1 truncate text-sm font-semibold text-gray-800"
+                        className="mb-1 truncate text-sm font-semibold text-stone-800"
                         title={selectedSale.bookTitle}
                       >
                         {selectedSale.bookTitle}
                       </div>
-                      <div
-                        className="text-sm font-bold"
-                        style={{ color: COLORS.mustard.dark }}
-                      >
+                      <div className="text-sm font-bold text-stone-900">
                         {formatPrice(selectedSale.price)}
                       </div>
                     </div>
                     <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
-                      <div className="h-3 w-3 rotate-45 bg-white shadow ring-1 ring-gray-100" />
+                      <div className="h-3 w-3 rotate-45 bg-white shadow ring-1 ring-stone-200" />
                     </div>
                   </div>
                 </CustomOverlayMap>
@@ -315,18 +306,12 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
 
           {/* 선택된 지역 정보 */}
           {selectedLocation && (
-            <div
-              className="rounded-lg p-3 text-center text-sm"
-              style={{ backgroundColor: COLORS.cream.light }}
-            >
-              <span
-                className="font-medium"
-                style={{ color: COLORS.matcha.dark }}
-              >
+            <div className="rounded-lg bg-stone-50 p-3 text-center text-sm">
+              <span className="font-medium text-stone-700">
                 {selectedLocation.city} {selectedLocation.district}
               </span>
-              <span className="mx-2 text-gray-400">·</span>
-              <span style={{ color: COLORS.mustard.dark }}>
+              <span className="mx-2 text-stone-300">·</span>
+              <span className="text-stone-500">
                 {t("showing", { count: sales.length })}
               </span>
             </div>

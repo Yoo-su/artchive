@@ -1,63 +1,59 @@
 import { ReviewReactionType } from "@/features/review/types";
 
-// 색상 팔레트: 말차색 + 크림 + 머스타드
+// 색상 팔레트: Stone & Mono (Editorial Style)
 export const COLORS = {
-  // 말차색 (메인)
-  matcha: {
-    dark: "#4b6043",
-    medium: "#658354",
-    light: "#7a9968",
+  // 메인 (Stone/Gray)
+  stone: {
+    900: "#1c1917", // Title
+    800: "#292524",
+    700: "#44403c",
+    600: "#57534e", // Text
+    500: "#78716c",
+    400: "#a8a29e", // Subtext
+    300: "#d6d3d1", // Border
+    200: "#e7e5e4", // Light Border
+    100: "#f5f5f4", // Background
+    50: "#fafaf9",
   },
-  // 크림/베이지 (서브)
-  cream: {
-    light: "#faf7f2",
-    medium: "#f5f0e6",
-    dark: "#e8dfd0",
-  },
-  // 머스타드 (포인트)
-  mustard: {
-    light: "#f0d78c",
-    medium: "#e5b84c",
-    dark: "#d4a72c",
-  },
+  // 포인트 (Muted/Nature)
+  sage: "#7a8578", // 차분한 녹색
+  rust: "#a67c6d", // 차분한 갈색
+  clay: "#b3aa9f", // 웜그레이
+  sand: "#e3dfd3", // 종이 질감
 } as const;
 
 export const CHART_COLORS = {
-  primary: COLORS.matcha.dark,
-  secondary: COLORS.mustard.dark,
-  tertiary: COLORS.matcha.medium,
-  quaternary: COLORS.mustard.medium,
-  quinary: COLORS.matcha.light,
-  senary: COLORS.mustard.light,
+  primary: COLORS.stone[800],
+  secondary: COLORS.stone[500],
+  tertiary: COLORS.stone[300],
+  quaternary: COLORS.sage,
+  quinary: COLORS.rust,
+  senary: COLORS.clay,
 } as const;
 
-// 막대 차트 색상
+// 막대 차트 색상 (단색 계열의 그라데이션 느낌 or 차분한 조합)
 export const BAR_CHART_COLORS = [
-  COLORS.matcha.dark,
-  COLORS.matcha.medium,
-  COLORS.matcha.light,
-  COLORS.mustard.dark,
-  COLORS.mustard.medium,
-  COLORS.mustard.light,
-  COLORS.matcha.dark,
-  COLORS.matcha.medium,
-  COLORS.matcha.light,
-  COLORS.mustard.dark,
-  COLORS.mustard.medium,
-  COLORS.mustard.light,
+  COLORS.stone[800],
+  COLORS.stone[600],
+  COLORS.stone[500],
+  COLORS.stone[400],
+  COLORS.sage,
+  COLORS.rust,
+  COLORS.clay,
+  COLORS.stone[300],
 ];
 
 // 리액션 타입별 색상
 export const REACTION_COLORS: Record<string, string> = {
-  [ReviewReactionType.LIKE]: "#e07a5f", // 따뜻한 코랄
-  [ReviewReactionType.INSIGHTFUL]: COLORS.mustard.dark,
-  [ReviewReactionType.SUPPORT]: COLORS.matcha.medium,
+  [ReviewReactionType.LIKE]: "#dfaea4", // Muted Coral
+  [ReviewReactionType.INSIGHTFUL]: "#dad2b6", // Muted Gold
+  [ReviewReactionType.SUPPORT]: "#abc4ab", // Muted Green
 };
 
 // 활동 추이 차트 색상
 export const TREND_COLORS = {
-  sales: COLORS.matcha.dark,
-  reviews: COLORS.mustard.dark,
+  sales: COLORS.stone[800],
+  reviews: COLORS.sage,
 };
 
 // 가격 구간 레이블

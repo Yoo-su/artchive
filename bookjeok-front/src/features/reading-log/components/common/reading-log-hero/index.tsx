@@ -61,8 +61,8 @@ export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
   if (!isMounted) return null;
 
   return (
-    <section className="relative h-[320px] md:h-[400px] w-full mb-8 rounded-3xl overflow-hidden shadow-2xl shadow-stone-200/50 ring-1 ring-black/5 group bg-stone-900">
-      {/* 배경 이미지 (검정 배경 위로 페이드인) */}
+    <section className="relative h-[420px] w-full mb-12 overflow-hidden bg-stone-900 group">
+      {/* 배경 이미지 */}
       {bgImage && (
         <Image
           src={bgImage}
@@ -71,79 +71,62 @@ export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
           priority
           onLoad={() => setIsImageLoading(false)}
           className={cn(
-            "object-cover object-center transition-opacity duration-1000",
-            // 로딩 중이거나 이미지가 없을 때 숨김
+            "object-cover object-center transition-all duration-1000 transform scale-105 group-hover:scale-100",
             isImageLoading ? "opacity-0" : "opacity-100",
-            // 계절별 필터 (감조)
-            theme.name === "summer" && "saturate-[1.1] brightness-[1.05]",
-            theme.name === "winter" && "brightness-[1.1] contrast-[0.95]",
-            theme.name === "spring" && "saturate-[1.1] brightness-[1.05]",
-            theme.name === "autumn" && "sepia-[0.1] contrast-[1.05]",
+            // Subtle cinematic filters
+            theme.name === "summer" && "brightness-[0.9] saturate-[1.1]",
+            theme.name === "winter" && "brightness-[0.9] contrast-[1.1]",
+            theme.name === "spring" && "brightness-[0.95] saturate-[1.05]",
+            theme.name === "autumn" && "brightness-[0.9] sepia-[0.15]",
           )}
         />
       )}
 
-      {/* 오버레이 (텍스트 가독성 + 분위기) */}
+      {/* Cinematic Overlay - Gradient from bottom */}
       <div
         className={cn(
-          "absolute inset-0 transition-opacity duration-1000",
-          isImageLoading ? "opacity-0" : "opacity-100", // 이미지와 함께 나타나도록
-          // 테마별 그라데이션 오버레이
-          theme.name === "summer"
-            ? "bg-linear-to-r from-green-900/60 via-emerald-800/20 to-transparent"
-            : theme.name === "winter"
-              ? "bg-linear-to-r from-slate-900/60 via-slate-800/30 to-transparent"
-              : theme.name === "autumn"
-                ? "bg-linear-to-r from-orange-950/70 via-brown-900/40 to-transparent"
-                : "bg-linear-to-r from-black/50 via-black/20 to-transparent", // Spring or Default
+          "absolute inset-0 bg-linear-to-t from-stone-900/90 via-stone-900/40 to-transparent transition-opacity duration-1000",
+          isImageLoading ? "opacity-0" : "opacity-100",
         )}
       />
 
-      {/* 콘텐츠 */}
-      <div className="relative z-10 h-full container flex flex-col justify-end pb-10 md:pb-12 px-6 md:px-10">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-          {/* 타이틀 영역 */}
-          <div className="text-white drop-shadow-md space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <div
-              className={cn(
-                "text-sm md:text-base font-medium px-3 py-1 rounded-full w-fit backdrop-blur-md border border-white/20 shadow-inner",
-                theme.bg ? theme.bg.replace("50", "500/30") : "bg-white/20",
-                "text-white",
-              )}
-            >
-              {t(`season_label.${theme.name}`)}
+      {/* Content */}
+      <div className="relative z-10 h-full flex flex-col justify-end p-6 md:p-10">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
+          {/* Typography Area */}
+          <div className="space-y-4 max-w-2xl animate-in fade-in slide-in-from-bottom-6 duration-1000">
+            <div className="flex items-center gap-3">
+              <span className="h-px w-6 md:w-8 bg-white/60" />
+              <span className="text-[10px] md:text-xs font-bold tracking-[0.3em] text-white/90 uppercase">
+                {t(`season_label.${theme.name}`)}
+              </span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight text-shadow-lg">
+
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-medium text-white tracking-tight leading-[0.95] md:leading-[0.9]">
               {t("title")}
             </h1>
-            <p className="text-white/90 text-sm md:text-lg font-light leading-relaxed max-w-md whitespace-pre-wrap">
+
+            <p className="text-stone-300 text-sm md:text-lg font-light leading-relaxed max-w-lg">
               {t("subtitle")}
             </p>
           </div>
 
-          {/* 스위치 UI (Glassmorphism) */}
-          <div className="flex items-center space-x-4 bg-white/10 backdrop-blur-xl p-4 rounded-2xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:bg-white/15 transition-colors duration-300">
-            <Switch
-              id="public-mode"
-              checked={isPublic}
-              disabled={isPending}
-              onCheckedChange={handleToggle}
-              className={cn(
-                "data-[state=checked]:bg-sky-500 data-[state=unchecked]:bg-black/20 border-2 border-transparent transition-colors",
-                isPublic &&
-                  "border-sky-400/50 shadow-[0_0_10px_rgba(14,165,233,0.4)]",
-              )}
-            />
-            <div className="flex flex-col">
+          {/* Minimalist Switch */}
+          <div className="flex items-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-100">
+            <div className="flex items-center gap-3 px-4 py-2 md:px-5 md:py-2.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-colors duration-300">
               <Label
                 htmlFor="public-mode"
-                className="font-medium cursor-pointer text-white text-base"
+                className="cursor-pointer text-[10px] md:text-xs font-bold tracking-widest text-white/80 uppercase"
               >
                 {t("public_toggle")}
               </Label>
-              <span className="text-xs text-white/70 mt-0.5">
-                {isPublic ? t("public_label_on") : t("public_label_off")}
-              </span>
+              <Switch
+                id="public-mode"
+                checked={isPublic}
+                disabled={isPending}
+                onCheckedChange={handleToggle}
+                className="data-[state=checked]:bg-white data-[state=unchecked]:bg-white/20 border-transparent h-4 w-7 md:h-5 md:w-9"
+              />
             </div>
           </div>
         </div>

@@ -37,7 +37,7 @@ export const InsightsView = () => {
   }
 
   return (
-    <div className="pb-12">
+    <div className="pb-12 pt-6 md:pt-12">
       {/* 헤더 및 요약 */}
       <InsightsHeader summary={data.summary} />
 

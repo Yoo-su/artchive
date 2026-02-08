@@ -45,14 +45,6 @@ export const RecentSaleCard = ({
         {/* 그라데이션 오버레이 */}
         <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
 
-        {/* NEW 배지 */}
-        <div className="absolute top-3 left-3">
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-white bg-linear-to-r from-emerald-500 to-teal-500 rounded-full shadow-lg shadow-emerald-500/30">
-            <Clock className="w-3 h-3" />
-            {tCommon("new")}
-          </span>
-        </div>
-
         {/* 가격 배지 */}
         <div className="absolute top-3 right-3">
           <span className="px-2.5 py-1 text-xs font-bold text-white bg-black/60 backdrop-blur-sm rounded-full">
@@ -64,7 +56,7 @@ export const RecentSaleCard = ({
         {/* 하단 정보 영역 */}
         <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
           {/* 책 제목 */}
-          <h3 className="text-base font-bold leading-tight line-clamp-2 drop-shadow-lg mb-2 group-hover:text-emerald-300 transition-colors duration-300">
+          <h3 className="text-base font-bold leading-tight line-clamp-2 drop-shadow-lg mb-2 text-white transition-colors duration-300">
             {sale.book?.title || sale.title}
           </h3>
 

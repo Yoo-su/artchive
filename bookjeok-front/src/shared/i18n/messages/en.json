@@ -1,742 +1,747 @@
 {
   "common": {
     "new": "NEW",
-    "won": "won",
-    "unknown": "Unknown",
-    "anonymous": "Anonymous",
+    "won": "원",
+    "unknown": "알 수 없음",
+    "anonymous": "익명",
     "loader": {
       "messages": {
-        "0": "Please wait a moment...",
-        "1": "Looking for books...",
-        "2": "Loading data...",
-        "3": "Almost there...",
-        "4": "Your reading journey with Bookjeok"
+        "0": "잠시만 기다려주세요...",
+        "1": "책을 찾고 있습니다...",
+        "2": "데이터를 불러오는 중입니다...",
+        "3": "거의 다 되었습니다...",
+        "4": "bookjeok에서 함께하는 독서 여행"
       }
     }
   },
   "art": {
     "detail": {
       "not_found": {
-        "title": "Performance information not found.",
-        "desc": "The information may have been deleted or is invalid."
+        "title": "공연 정보를 불러올 수 없습니다.",
+        "desc": "삭제되었거나 유효하지 않은 정보일 수 있습니다."
       },
-      "period": "Period",
-      "runtime": "Runtime",
-      "place": "Place",
-      "ticket": "Ticket Info",
-      "age": "Age Rating",
-      "cast": "Cast",
-      "crew": "Crew",
-      "cast_crew": "Cast/Crew",
-      "scenes": "Scenes",
-      "synopsis": "Synopsis",
-      "booking": "Booking",
-      "default_booking": "Booking Site"
+      "period": "공연 기간",
+      "runtime": "러닝타임",
+      "place": "장소",
+      "ticket": "티켓 정보",
+      "age": "관람 연령",
+      "cast": "출연",
+      "crew": "제작",
+      "cast_crew": "출연/제작",
+      "scenes": "공연 장면",
+      "synopsis": "줄거리",
+      "booking": "예매처",
+      "default_booking": "예매처"
     },
     "metadata": {
-      "title": "Performance Info",
-      "description": "Check out the latest performance information."
-    }
-  },
-  "meta": {
-    "default_title": "Bookjeok - Where Books and People Meet",
-    "template_title": "%s | Bookjeok",
-    "description": "Connect with books and people at Bookjeok. Share honest book reviews, trade used books, and discover new reading experiences.",
-    "keywords": "Bookjeok,book reviews,used books,reading log,book recommendations,book club",
-    "og": {
-      "title": "Bookjeok - Connecting People with Books",
-      "description": "Share honest book reviews and trade used books. Start your reading log at Bookjeok."
-    },
-    "twitter": {
-      "title": "Bookjeok - Connecting People with Books",
-      "description": "Share honest review and trade used books. Share the joy of reading at Bookjeok."
+      "title": "공연 정보",
+      "description": "최신 공연 정보를 확인하세요."
     }
   },
   "json_ld": {
-    "name": "Bookjeok",
-    "description": "Connect with books and people at Bookjeok. Share honest book reviews, trade used books, and discover new reading experiences.",
+    "name": "북적",
+    "description": "북적에서 책과 사람을 잇다. 솔직한 도서 리뷰를 공유하고 중고책을 거래하며 새로운 독서 경험을 발견하세요.",
     "nav": {
-      "market": "Used Market",
-      "review": "Reviews",
-      "search": "Search"
+      "market": "중고마켓",
+      "review": "도서리뷰",
+      "search": "도서검색"
+    }
+  },
+  "meta": {
+    "default_title": "북적 - 책과 사람이 만나는 공간",
+    "template_title": "%s | 북적",
+    "description": "북적에서 책과 사람을 잇다. 솔직한 도서 리뷰를 공유하고, 중고책을 거래하며, 새로운 독서 경험을 발견하세요.",
+    "keywords": "북적,도서리뷰,중고책,독서기록,책추천,북클럽",
+    "og": {
+      "title": "북적 - 책과 사람을 잇다",
+      "description": "솔직한 도서 리뷰와 중고책 거래. 북적에서 나만의 서재를 시작해보세요."
+    },
+    "twitter": {
+      "title": "북적 - 책과 사람을 잇다",
+      "description": "솔직한 리뷰와 중고책 거래. 북적에서 독서의 즐거움을 나누세요."
     }
   },
   "notification": {
-    "title": "Notifications",
-    "mark_all_read": "Mark all as read",
-    "empty": "No new notifications.",
-    "sr_label": "{count} notifications",
-    "action_view": "Check",
-    "unknown_user": "Unknown User",
-    "review_reaction": "{actorName} reacted to your review \"{bookTitle}\".",
-    "review_comment": "{actorName} commented on your review \"{bookTitle}\": \"{commentContent}\"",
-    "comment_like": "{actorName} liked your comment.",
-    "default": "New notification arrived."
+    "title": "알림",
+    "mark_all_read": "모두 읽음",
+    "empty": "새로운 알림이 없습니다.",
+    "sr_label": "알림 {count}개",
+    "action_view": "확인",
+    "unknown_user": "알 수 없는 사용자",
+    "review_reaction": "{actorName}님이 회원님의 리뷰 \"{bookTitle}\"에 반응을 남겼습니다.",
+    "review_comment": "{actorName}님이 회원님의 리뷰 \"{bookTitle}\"에 댓글을 남겼습니다: \"{commentContent}\"",
+    "comment_like": "{actorName}님이 회원님의 댓글에 좋아요를 눌렀습니다.",
+    "default": "새로운 알림이 도착했습니다."
   },
   "auth": {
     "login": {
       "metadata": {
-        "title": "Login",
-        "description": "Log in to Bookjeok to access more features."
+        "title": "로그인",
+        "description": "북적에 로그인하고 더 많은 기능을 이용해보세요."
       },
-      "title": "Login",
-      "subtitle": "Please log in to use Bookjeok services.",
-      "or_social": "Or login with social account",
-      "kakao": "Kakao Login",
-      "naver": "Naver Login",
-      "no_account": "Don't have an account?",
-      "signup_link": "Sign up with Email",
-      "submit": "Login with Email",
-      "success": "Logged in successfully.",
+      "title": "로그인",
+      "subtitle": "북적 서비스 이용을 위해 로그인해주세요.",
+      "or_social": "또는 소셜 계정으로 로그인",
+      "kakao": "카카오 로그인",
+      "naver": "네이버 로그인",
+      "no_account": "계정이 없으신가요?",
+      "signup_link": "이메일로 회원가입",
+      "submit": "이메일로 로그인",
+      "success": "로그인되었습니다.",
       "placeholders": {
-        "email": "Email",
-        "password": "Password"
+        "email": "이메일",
+        "password": "비밀번호"
       },
       "error": {
-        "invalid_credentials": "Invalid email or password.",
-        "general": "An error occurred during login."
+        "invalid_credentials": "이메일 또는 비밀번호가 일치하지 않습니다.",
+        "general": "로그인 중 오류가 발생했습니다."
       }
     },
     "signup": {
       "metadata": {
-        "title": "Sign Up",
-        "description": "Join Bookjeok and start your reading log."
+        "title": "회원가입",
+        "description": "북적에 가입하고 독서 기록을 시작해보세요."
       },
-      "title": "Sign Up",
-      "subtitle": "Please enter required information to use Bookjeok.",
+      "title": "회원가입",
+      "subtitle": "북적 서비스 이용을 위해 필수 정보를 입력해주세요.",
       "labels": {
-        "email": "Email",
-        "password": "Password",
-        "password_confirm": "Confirm Password",
-        "nickname": "Nickname"
+        "email": "이메일",
+        "password": "비밀번호",
+        "password_confirm": "비밀번호 확인",
+        "nickname": "닉네임"
       },
       "placeholders": {
         "email": "example@email.com",
-        "password": "8+ chars, letters/numbers/special",
-        "password_confirm": "Confirm Password",
-        "nickname": "Nickname to use"
+        "password": "8자 이상, 영문/숫자/특수문자",
+        "password_confirm": "비밀번호 확인",
+        "nickname": "사용할 닉네임"
       },
-      "submit": "Sign Up",
-      "has_account": "Already have an account?",
-      "login_link": "Log in",
-      "success": "Signup completed! Please log in.",
+      "submit": "가입하기",
+      "has_account": "이미 계정이 있으신가요?",
+      "login_link": "로그인하기",
+      "success": "가입이 완료되었습니다! 로그인해주세요.",
       "error": {
-        "email_exists": "Email already exists.",
-        "nickname_exists": "Nickname already exists.",
-        "info_exists": "Information already in use.",
-        "unknown": "Unknown error occurred during signup. Please try again later."
+        "email_exists": "이미 사용 중인 이메일입니다.",
+        "nickname_exists": "이미 사용 중인 닉네임입니다.",
+        "info_exists": "이미 사용 중인 정보입니다.",
+        "unknown": "회원가입 중 알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
       }
     },
     "validation": {
-      "email_invalid": "Invalid email format.",
-      "password_min": "Password must be at least 8 characters.",
-      "password_regex": "Must include letters, numbers, and special characters.",
-      "password_mismatch": "Passwords do not match.",
-      "nickname_min": "Nickname must be at least 2 characters.",
-      "nickname_max": "Nickname cannot exceed 10 characters.",
-      "password_required": "Please enter your password."
+      "email_invalid": "올바른 이메일 형식이 아닙니다.",
+      "password_min": "비밀번호는 최소 8자 이상이어야 합니다.",
+      "password_regex": "영문, 숫자, 특수문자를 모두 포함해야 합니다.",
+      "password_mismatch": "비밀번호가 일치하지 않습니다.",
+      "nickname_min": "닉네임은 최소 2자 이상이어야 합니다.",
+      "nickname_max": "닉네임은 최대 10자까지 가능합니다.",
+      "password_required": "비밀번호를 입력해주세요."
     }
   },
   "hero": {
-    "used_books": "Used Books"
+    "used_books": "중고 서적"
   },
   "home": {
     "sections": {
       "main_books": {
-        "title": "Noteworthy Books",
-        "subtitle": "Meet bestsellers from selected publishers."
+        "title": "주목할 만한 도서",
+        "subtitle": "엄선된 출판사의 베스트셀러를 만나보세요."
       },
       "popular_books": {
-        "title": "Trending Books",
-        "subtitle": "Popular books based on views and lists."
+        "title": "지금 인기많은 책",
+        "subtitle": "조회수와 리뷰를 기반으로 선정된 인기 도서입니다"
       },
       "recent_sales": {
-        "badge": "Just Arrived",
-        "title_prefix": "New Encounters,",
-        "title_suffix": "Just Listed Books",
-        "desc": "Meet books cherished by other readers.\nNew books are being listed right now."
+        "badge": "가장 최근 중고책들",
+        "title_prefix": "누군가의 서재에서",
+        "title_suffix": "막 도착한 이야기",
+        "desc": "세월의 흔적이 담긴, 가치 있는 중고책을 만나보세요."
       },
       "recent_reviews": {
-        "badge": "Fresh Reviews",
-        "title_prefix": "Lightly,",
-        "title_suffix": "Recent Reviews",
-        "desc": "Read freely, write freely."
+        "badge": "따끈따끈 최신 리뷰",
+        "title_prefix": "타인의 시선으로",
+        "title_suffix": "읽는 문장들",
+        "desc": "책을 먼저 읽은 이들의 솔직한 감상을 들어보세요."
       },
       "art": {
         "spotlight": {
-          "title": "Spotlight: Today's Stage",
-          "subtitle": "Meet the hottest performances lighting up the city night."
+          "title": "Spotlight: 오늘의 무대",
+          "subtitle": "도시의 밤을 밝히는 가장 뜨거운 공연들을 만나보세요."
         },
         "coming_soon": {
-          "title": "Coming Soon: Exciting Wait",
-          "subtitle": "A time to preview highly anticipated upcoming shows."
+          "title": "Coming Soon: 설레는 기다림",
+          "subtitle": "곧 막을 올릴 기대작들을 미리 만나보는 시간."
         },
         "genres": {
-          "CCCA": "Western Music",
-          "CCCD": "Pop Music",
-          "BBBE": "Pop Dance",
-          "AAAA": "Theater",
-          "BBBC": "Western/Korean Dance"
+          "CCCA": "서양음악",
+          "CCCD": "대중음악",
+          "BBBE": "대중무용",
+          "AAAA": "연극",
+          "BBBC": "서양/한국 무용"
         },
         "empty": {
-          "title": "Oops, no performance info yet!",
-          "desc": "Would you like to check another category?"
+          "title": "앗, 아직 공연 정보가 없어요!",
+          "desc": "다른 카테고리를 확인해보시겠어요?"
         }
       }
     },
+    "art": {
+      "detail": {
+        "not_found": {
+          "title": "공연 정보를 불러올 수 없습니다.",
+          "desc": "삭제되었거나 유효하지 않은 정보일 수 있습니다."
+        },
+        "period": "공연 기간",
+        "runtime": "러닝타임",
+        "place": "장소",
+        "ticket": "티켓 정보",
+        "age": "관람 연령",
+        "cast": "출연",
+        "crew": "제작",
+        "cast_crew": "출연/제작",
+        "scenes": "공연 장면",
+        "synopsis": "줄거리",
+        "booking": "예매처",
+        "default_booking": "예매처"
+      }
+    },
     "errors": {
-      "load_books": "Could not load book information."
+      "load_books": "도서 정보를 불러올 수 없습니다."
     }
   },
   "intro": {
     "scenes": {
       "record": {
-        "header": "When Records\nBecome Memories",
-        "sub": "My Reading Log",
-        "desc": "Every moment of reading\nbecomes your history when recorded"
+        "header": "기록이\n기억이 될 때",
+        "sub": "나만의 독서 기록장",
+        "desc": "모든 독서는 기록하는 순간\n나의 역사가 됩니다"
       },
       "used": {
-        "header": "Time to Waken\nSleeping Books",
-        "sub": "Neighborhood Book Market",
-        "desc": "Stopped stories in your shelf\nbecome a new beginning for someone"
+        "header": "잠든 책을\n깨우는 시간",
+        "sub": "우리 동네 중고 거래",
+        "desc": "내 서재의 멈춰진 이야기가\n누군가의 새로운 시작이 됩니다"
       },
       "review": {
-        "header": "Because Taste\nIs Contagious",
-        "sub": "Trustworthy Book Reviews",
-        "desc": "Honest reviews and ratings gathered\nto help you make better choices"
+        "header": "취향은\n전염되니까",
+        "sub": "믿고 보는 도서 리뷰",
+        "desc": "솔직한 감상과 별점이 모여\n더 정확한 선택을 돕습니다"
       },
       "logo": {
-        "header": "Where Your Story\nComes Alive",
+        "header": "당신의 이야기가\n북적이는 곳",
         "sub": "Experience Bookjeok",
-        "desc": "Start building your own library today"
+        "desc": "지금 나만의 서재를 만들어보세요"
       }
     }
   },
   "header": {
     "nav": {
-      "book_search": "Book Search",
+      "book_search": "Search Books",
       "reading_log": "Reading Log",
-      "my_reading_log": "My Reading Log",
-      "market_menu": "Used Market",
       "market_home": "Market Home",
       "write_sales": "Sell Book",
       "my_sales": "My Sales",
-      "review_menu": "Book Review",
       "review_feed": "Review Feed",
       "write_review": "Write Review",
       "my_reviews": "My Reviews",
       "insights": "Insights",
-      "reading_insights": "Reading Insights"
+      "menu_search": "Search",
+      "menu_log": "Log",
+      "menu_market": "Market",
+      "menu_reviews": "Reviews",
+      "menu_insights": "Insights",
+      "menu_login": "Login"
     },
     "auth": {
       "login": "Login",
       "logout": "Logout",
-      "logout_success": "Successfully logged out.",
+      "logout_success": "Logged out successfully.",
       "my_page": "My Page",
       "wishlist": "Wishlist",
-      "no_email": "No email info"
+      "no_email": "No Email"
     },
-    "language_switcher": "Change Language"
+    "language_switcher": "Language"
   },
   "footer": {
-    "description": "A comprehensive book platform for personal reading logs,\nused book trading, and reviews.",
+    "description": "A comprehensive book platform for managing reading logs, trading used books, and sharing book reviews.",
     "service": "Service",
     "contact": "Contact",
-    "terms": "Terms of Service",
-    "privacy": "Privacy Policy"
+    "terms": "Terms",
+    "privacy": "Privacy"
   },
   "sheet": {
     "sections": {
-      "book": "Books",
-      "market": "Used Market",
-      "review": "Reviews",
-      "stats": "Statistics"
+      "book": "Book",
+      "market": "Market",
+      "review": "Review",
+      "stats": "Stats"
     }
   },
   "book": {
     "search": {
-      "title": "Book Search",
-      "subtitle": "Search for book titles, authors, or publishers.",
-      "placeholder": "What book are you looking for?",
-      "sticky_placeholder": "Enter keyword and press Enter...",
-      "button_label": "Search",
-      "no_results": "No search results found for ''{query}''.",
-      "check_typo": "Please check for typos or try another search term.",
-      "empty_state": "Search for books you are interested in and fill your library.",
-      "all_loaded": "All search results have been loaded.",
-      "popular_keywords": "Popular Keywords",
-      "popular_top": "Popular Keywords TOP {count}",
-      "popular_label": "HOT",
+      "title": "도서 검색",
+      "subtitle": "찾고 싶은 책의 제목, 저자, 출판사를 검색해보세요.",
+      "placeholder": "어떤 책을 찾고 계신가요?",
+      "sticky_placeholder": "검색어를 입력하세요...",
+      "button_label": "검색",
+      "no_results": "''{query}''에 대한 검색 결과가 없습니다.",
+      "check_typo": "오타가 없는지 확인하거나 다른 검색어로 검색해보세요.",
+      "empty_state": "관심 있는 책을 검색하여 당신의 서재를 채워보세요.",
+      "all_loaded": "모든 검색 결과를 불러왔습니다.",
+      "popular_keywords": "인기 검색어",
+      "popular_top": "인기 검색어 TOP {count}",
+      "popular_label": "인기",
       "metadata": {
-        "title": "Book Search",
-        "description": "Find the books you want at Bookjeok."
+        "title": "도서 검색",
+        "description": "북적에서 원하는 책을 찾아보세요."
       }
     },
     "detail": {
-      "domestic_book": "Book",
+      "domestic_book": "국내도서",
       "metadata": {
-        "title": "Book Detail",
-        "description": "Check book details.",
-        "not_found": "Book info not found."
+        "title": "도서 상세",
+        "description": "도서 상세 정보를 확인하세요.",
+        "not_found": "책 정보가 없습니다."
       },
-      "author_suffix": "Author",
-      "description_title": "Description",
-      "more_books": "More",
+      "author_suffix": "저",
+      "description_title": "작품 소개",
+      "more_books": "더보기",
       "ai_summary": {
-        "title": "AI Library Assistant",
-        "description": "Key information analyzed by Gemini",
-        "prompt_title": "Curious about the key content?",
-        "prompt_desc": "AI quickly summarizes the plot, key points, and recommendations.",
-        "prompt_action": "Click the button to check the summary.",
-        "prompt_login_required": "Available after login.",
-        "button_view": "View AI Summary",
-        "button_login": "Login to view AI Summary",
-        "loading_title": "AI is reading the book",
-        "loading_desc": "Please wait a moment...",
-        "error_title": "Failed to load summary information",
-        "error_desc": "It may be a temporary error. Please try again later.",
-        "retry": "Try again",
-        "summary_label": "One-line Summary",
-        "key_points_label": "Key Points",
-        "recommendation_label": "Recommended for",
-        "keywords_label": "Keywords"
+        "title": "AI 서재 비서",
+        "description": "Gemini가 분석한 책의 핵심 정보입니다",
+        "prompt_title": "이 책의 핵심 내용이 궁금하신가요?",
+        "prompt_desc": "AI가 책의 줄거리, 핵심 포인트, 추천 대상을 빠르게 요약해드립니다.",
+        "prompt_action": "버튼을 눌러 요약 정보를 확인해보세요.",
+        "prompt_login_required": "로그인 후 이용하실 수 있습니다.",
+        "button_view": "AI 요약 보기",
+        "button_login": "로그인하고 AI 요약 보기",
+        "loading_title": "AI가 책을 읽고 있어요",
+        "loading_desc": "잠시만 기다려주세요...",
+        "error_title": "요약 정보를 불러오지 못했습니다",
+        "error_desc": "일시적인 오류일 수 있습니다. 잠시 후 다시 시도해주세요.",
+        "retry": "다시 시도하기",
+        "summary_label": "한 줄 요약",
+        "key_points_label": "핵심 포인트",
+        "recommendation_label": "이런 분께 추천해요",
+        "keywords_label": "키워드"
       },
-      "related_books_title": "More from {author}",
+      "related_books_title": "''{author}'' 저자의 다른 책",
       "related_reviews": {
-        "title": "Stories from Readers",
-        "more": "More ({count})",
-        "error": "Failed to load reviews.",
-        "empty": "No reviews written yet.",
-        "write_first": "Write the first review"
+        "title": "이 책을 읽은 사람들의 이야기",
+        "more": "더보기 ({count}개)",
+        "error": "리뷰를 불러오는 데 실패했습니다.",
+        "empty": "아직 작성된 리뷰가 없습니다.",
+        "write_first": "첫 번째 리뷰 작성하기"
       },
       "comments": {
-        "title": "Readers' Comments"
+        "title": "독자들의 코멘트"
       }
     }
   },
   "review": {
     "hero": {
       "title": "Book Reviews",
-      "subtitle": "Meet honest reviews from readers.\nWe join you on your journey to find your next book.",
-      "button_write": "Write Review"
+      "subtitle": "독자들의 솔직한 감상을 만나보세요.\n당신의 다음 책을 찾는 여정에 함께합니다.",
+      "image_alt": "리뷰 목록 커버 이미지",
+      "button_write": "리뷰 작성하기"
     },
     "metadata": {
-      "title": "Book Reviews",
-      "description": "Read honest reviews from various readers."
+      "title": "도서 리뷰",
+      "description": "다양한 책에 대한 솔직한 독자 리뷰를 확인하세요."
     },
     "filters": {
-      "placeholder": "Search review title, content, tag, or book...",
-      "reset": "Reset Filter",
+      "placeholder": "리뷰 제목, 내용, 태그, 책 제목으로 검색...",
+      "reset": "필터 초기화",
       "categories": {
-        "all": "All",
-        "novel": "Novel",
-        "essay": "Essay",
-        "self_help": "Self-help",
-        "humanities": "Humanities",
-        "economy": "Economy/Biz",
-        "science": "Science",
-        "art": "Art",
-        "history": "History",
-        "philosophy": "Philosophy",
-        "religion": "Religion",
-        "comic": "Comic",
-        "others": "Others"
+        "all": "전체",
+        "novel": "소설",
+        "essay": "에세이",
+        "self_help": "자기계발",
+        "humanities": "인문",
+        "economy": "경제/경영",
+        "science": "과학",
+        "art": "예술",
+        "history": "역사",
+        "philosophy": "철학",
+        "religion": "종교",
+        "comic": "만화",
+        "others": "기타"
       }
     },
     "list": {
-      "popular_title": "Trending Reviews",
+      "popular_title": "지금 뜨는 리뷰",
       "popular_badge": "HOT",
-      "error": "Failed to load trending reviews.",
-      "feed_error": "Failed to load review feeds.",
-      "no_reviews": "No reviews found.",
-      "more": "More",
-      "recent_label": "New Review",
-      "empty_search_title": "No search results found",
-      "empty_search_desc": "Try adjusting your search or filter to find what you're looking for.",
-      "empty_list_title": "No reviews written yet",
-      "empty_list_desc": "Be the first to share your thoughts. Your story can inspire others.",
-      "view_all": "View All",
-      "write_first": "Write First Review"
+      "error": "인기 리뷰를 불러오는데 실패했습니다.",
+      "feed_error": "피드 정보를 불러오는데 실패했습니다.",
+      "no_reviews": "등록된 리뷰가 없습니다.",
+      "more": "더보기",
+      "recent_label": "최신 리뷰",
+      "empty_search_title": "검색 결과가 없습니다",
+      "empty_search_desc": "다른 검색어나 카테고리로 다시 시도해보세요.",
+      "empty_list_title": "아직 작성된 리뷰가 없습니다",
+      "empty_list_desc": "가장 먼저 책에 대한 이야기를 들려주세요. 당신의 이야기가 누군가에게는 큰 영감이 됩니다.",
+      "view_all": "전체 목록 보기",
+      "write_first": "첫 리뷰 작성하기"
     },
     "detail": {
-      "not_found": "This review does not exist or has been deleted.",
-      "back": "← Back to Reviews",
-      "edit": "Edit Review",
-      "default_category": "Book Review",
-      "reads": "Reads",
-      "reviewed_book": "Reviewed Book"
+      "not_found": "존재하지 않거나 삭제된 리뷰입니다.",
+      "back": "← 목록으로 돌아가기",
+      "edit": "리뷰 수정하기",
+      "default_category": "도서 리뷰",
+      "reads": "읽음",
+      "reviewed_book": "리뷰한 책"
     },
     "form": {
-      "title_write": "Write Review",
-      "title_edit": "Edit Review",
+      "title_write": "책 후기 작성",
+      "title_edit": "책 후기 수정",
       "book_selection": {
-        "label": "Select Book",
-        "empty_title": "Please select a book",
-        "empty_description": "Search by ISBN, title, or author to select a book.",
-        "search_button": "Search Book",
-        "change_button": "Change Book"
+        "label": "리뷰할 책",
+        "empty_title": "리뷰할 책을 선택해주세요",
+        "empty_description": "ISBN, 제목, 저자명으로 검색하여 리뷰할 책을 선택할 수 있습니다.",
+        "search_button": "책 검색하기",
+        "change_button": "다른 책 선택"
       },
       "fields": {
-        "category": "Category",
-        "category_placeholder": "Select book category",
-        "rating": "Rating",
-        "title": "Title",
-        "title_placeholder": "Enter review title",
-        "tags": "Tags (Optional, Max 5)",
-        "tags_placeholder": "Enter tag and press Enter",
-        "tags_add": "Add",
-        "tags_error_limit": "Maximum 5 tags allowed.",
-        "public_label": "Visibility",
-        "public_true": "Visible to everyone",
-        "public_false": "Visible only to me",
-        "public_notice_title": "Note on visibility changes",
-        "public_notice_desc": "Lists are updated periodically for performance. Changes may take up to 5 minutes to reflect in lists/feeds. (Private content is hidden immediately.)",
-        "content": "Content",
-        "content_placeholder": "Write your honest review..."
+        "category": "카테고리",
+        "category_placeholder": "도서 유형을 선택해주세요",
+        "rating": "별점",
+        "title": "제목",
+        "title_placeholder": "리뷰 제목을 입력해주세요",
+        "tags": "태그 (선택, 최대 5개)",
+        "tags_placeholder": "태그를 입력하고 Enter를 누르세요",
+        "tags_add": "추가",
+        "tags_error_limit": "태그는 최대 5개까지 입력 가능합니다.",
+        "public_label": "리뷰 공개 설정",
+        "public_true": "모든 사용자가 이 리뷰를 볼 수 있습니다",
+        "public_false": "이 리뷰는 나만 볼 수 있습니다",
+        "public_notice_title": "공개 설정 변경 시 유의사항",
+        "public_notice_desc": "서비스 성능 향상을 위해 목록 페이지는 주기적으로 갱신됩니다. 설정을 변경하더라도 목록이나 피드에 반영되기까지 최대 5분이 소요될 수 있습니다. (단, 비공개 리뷰의 상세 내용은 즉시 차단되므로 안심하세요.)",
+        "content": "내용",
+        "content_placeholder": "책에 대한 솔직한 후기를 남겨주세요..."
       },
       "buttons": {
-        "cancel": "Cancel",
-        "submit_create": "Submit",
-        "submit_edit": "Update",
-        "processing": "Processing..."
+        "cancel": "취소",
+        "submit_create": "작성 완료",
+        "submit_edit": "수정 완료",
+        "processing": "처리 중..."
       }
     },
     "validation": {
-      "title_required": "Please enter a title.",
-      "content_required": "Please enter the content.",
-      "book_required": "Please select a book.",
-      "category_required": "Please select a category.",
-      "tags_min": "Please add at least one tag.",
-      "tags_max": "Tags cannot exceed 5."
+      "title_required": "제목을 입력해주세요.",
+      "content_required": "내용을 입력해주세요.",
+      "book_required": "책을 선택해주세요.",
+      "category_required": "카테고리를 선택해주세요.",
+      "tags_min": "태그를 최소 1개 이상 입력해주세요.",
+      "tags_max": "태그는 최대 5개까지 입력 가능합니다."
     },
     "write": {
       "metadata": {
-        "title": "Write Review",
-        "description": "Share your thoughts on the book you read."
+        "title": "리뷰 작성",
+        "description": "읽은 책에 대한 감상을 공유해주세요."
       }
     },
     "edit": {
       "metadata": {
-        "title": "Edit Review",
-        "description": "Edit your book review."
+        "title": "리뷰 수정",
+        "description": "도서 리뷰 수정 페이지입니다."
       }
     }
   },
   "reading_log": {
     "hero": {
       "metadata": {
-        "title": "Reading Log",
-        "description": "Check your monthly reading records."
+        "title": "독서 기록",
+        "description": "매달 쌓이는 나만의 독서 기록을 확인하세요."
       },
-      "title": "My Reading Log",
-      "subtitle": "Track the depth of your knowledge each month.\nRecord your growth journey.",
-      "public_toggle": "Public Log",
-      "public_label_on": "Visible to other users",
-      "public_label_off": "Visible only to me",
+      "title": "나의 독서 기록",
+      "subtitle": "매달 쌓여가는 지식의 깊이를 확인해보세요.\n당신의 성장을 기록합니다.",
+      "public_toggle": "독서 기록 공개",
+      "public_label_on": "다른 사용자가 볼 수 있습니다",
+      "public_label_off": "나만 볼 수 있습니다",
       "season_label": {
-        "spring": "Spring",
-        "summer": "Summer",
-        "autumn": "Autumn",
-        "winter": "Winter"
+        "spring": "봄",
+        "summer": "여름",
+        "autumn": "가을",
+        "winter": "겨울"
       }
     },
     "calendar": {
       "weekdays": {
-        "sun": "Sun",
-        "mon": "Mon",
-        "tue": "Tue",
-        "wed": "Wed",
-        "thu": "Thu",
-        "fri": "Fri",
-        "sat": "Sat"
+        "sun": "일",
+        "mon": "월",
+        "tue": "화",
+        "wed": "수",
+        "thu": "목",
+        "fri": "금",
+        "sat": "토"
       },
-      "year_suffix": "",
-      "month_suffix": ""
+      "year_suffix": "년",
+      "month_suffix": "월"
     },
     "controls": {
-      "all_logs": "All Logs",
-      "view_calendar": "Calendar",
-      "view_list": "List"
-    },
-    "detail": {
-      "not_found": {
-        "title": "Performance information not found.",
-        "desc": "The information may have been deleted or is invalid."
-      },
-      "period": "Period",
-      "runtime": "Runtime",
-      "place": "Place",
-      "ticket": "Ticket Info",
-      "age": "Age Rating",
-      "cast": "Cast",
-      "crew": "Crew",
-      "cast_crew": "Cast/Crew",
-      "scenes": "Scenes",
-      "synopsis": "Synopsis",
-      "booking": "Booking",
-      "default_booking": "Booking Site"
+      "all_logs": "전체 기록",
+      "view_calendar": "달력",
+      "view_list": "리스트"
     },
     "stats": {
-      "monthly_title": "Read in {month}",
-      "yearly_title": "Total in {year}",
-      "unit": "books",
+      "monthly_title": "{month}월의 독서",
+      "yearly_title": "{year}년 누적",
+      "unit": "권",
       "messages": {
-        "start": "Start reading this month! 📚",
-        "great": "Amazing reading progress! 🔥",
-        "good": "Consistent reading! Keep it up 👍",
-        "default": "Precious time with good books 🌿"
+        "start": "이번 달 독서를 시작해보세요! 📚",
+        "great": "이번 달 독서량이 대단해요! 🔥",
+        "good": "꾸준히 읽고 계시네요! 멋져요 👍",
+        "default": "좋은 책과 함께하는 시간, 소중해요 🌿"
       }
     },
     "timeline": {
-      "title": "Recently Read",
-      "subtitle": "Reading Timeline",
-      "no_image": "No Image"
+      "title": "최근 읽은 책",
+      "subtitle": "독서 기록 타임라인",
+      "no_image": "이미지 없음"
     },
     "list": {
-      "error": "Failed to load data.",
-      "empty": "No reading logs found yet.",
-      "header_date_format": "MMMM yyyy",
-      "item_date_format": "d (EEE)"
+      "error": "데이터를 불러오는데 실패했습니다.",
+      "empty": "아직 기록된 독서 활동이 없습니다.",
+      "header_date_format": "yyyy년 M월",
+      "item_date_format": "d일 (iii)"
     },
     "form_modal": {
-      "title_create": "Log Book",
-      "title_edit": "Edit Memo",
-      "label_memo": "One-line Memo",
-      "label_optional": "(Optional)",
-      "placeholder_memo": "How was the book? Leave a short thought.",
-      "cancel": "Cancel",
-      "submit_create": "Log",
-      "submit_edit": "Update",
-      "processing": "Processing...",
-      "error_max_length": "Memo cannot exceed {max} characters."
+      "title_create": "책 기록하기",
+      "title_edit": "메모 수정하기",
+      "label_memo": "한 줄 메모",
+      "label_optional": "(선택)",
+      "placeholder_memo": "이 책은 어떠셨나요? 짧은 감상을 남겨주세요.",
+      "cancel": "취소",
+      "submit_create": "기록하기",
+      "submit_edit": "수정하기",
+      "processing": "처리중...",
+      "error_max_length": "메모는 최대 {max}자까지 입력 가능합니다."
     }
   },
   "insights": {
-    "title": "Service Stats",
-    "subtitle": "Check out real-time service statistics",
+    "title": "bookjeok 서비스 현황",
+    "subtitle": "실시간으로 업데이트되는 서비스 통계를 확인해보세요",
     "metadata": {
-      "title": "Service Insights",
-      "description": "Check Bookjeok service activities and statistics."
+      "title": "서비스 인사이트",
+      "description": "북적 서비스의 활동 현황과 통계를 한눈에 확인하세요."
     },
     "live_stats": "Live Stats",
     "error": {
-      "title": "Failed to load data",
-      "desc": "Please try again later"
+      "title": "데이터를 불러오지 못했어요",
+      "desc": "잠시 후 다시 시도해주세요"
     },
     "summary": {
-      "sales": "Total Listings",
-      "reviews": "Total Reviews",
-      "reactions": "Total Reactions",
-      "tags": "Total Tags"
+      "sales": "등록된 판매글",
+      "reviews": "작성된 리뷰",
+      "reactions": "누적 리액션",
+      "tags": "사용된 태그"
     },
     "charts": {
       "location": {
-        "title": "Regional Sales Status",
-        "desc": "Select a region to see recent listings",
-        "desc_error": "Where are transactions most active?",
-        "error": "Failed to load map.",
-        "empty": "No listings yet.",
-        "top5": "Top 5 Active Regions",
-        "showing": "Showing {count} recent listings"
+        "title": "지역별 거래 현황",
+        "desc": "지역을 선택하면 해당 지역의 최근 판매글을 보여드려요",
+        "desc_error": "어느 지역에서 거래가 활발할까요?",
+        "error": "지도를 불러오는 중 오류가 발생했습니다.",
+        "empty": "아직 등록된 판매글이 없습니다.",
+        "top5": "거래 활발 지역 TOP 5",
+        "showing": "최근 판매글 {count}개 표시 중"
       },
       "activity": {
-        "title": "30-Day Activity Trend",
-        "desc": "See how active the service is",
-        "empty": "No activity data yet.",
-        "sales": "Listings",
-        "reviews": "Reviews"
+        "title": "최근 30일 활동 추이",
+        "desc": "서비스의 활발한 활동을 확인해보세요",
+        "empty": "아직 활동 데이터가 없습니다.",
+        "sales": "판매글",
+        "reviews": "리뷰"
       },
       "category": {
-        "title": "Reviews by Category",
-        "desc": "Which category has the most reviews?",
-        "empty": "No reviews yet.",
-        "series": "Reviews",
-        "tooltip": "{count} reviews"
+        "title": "카테고리별 리뷰",
+        "desc": "어떤 분야의 리뷰가 가장 많을까요?",
+        "empty": "아직 등록된 리뷰가 없습니다.",
+        "series": "리뷰 수",
+        "tooltip": "{count}개 리뷰"
       },
       "price": {
-        "title": "Price Distribution",
-        "desc": "Which price range is most popular?",
-        "empty": "No listings yet.",
-        "series": "Listings",
-        "tooltip": "{count} listings"
+        "title": "가격 분포",
+        "desc": "어떤 가격대가 가장 인기 있을까요?",
+        "empty": "아직 등록된 판매글이 없습니다.",
+        "series": "판매글 수",
+        "tooltip": "{count}개 판매글"
       },
       "reaction": {
-        "title": "Reaction Distribution",
-        "desc": "Which reaction is most popular?",
-        "empty": "No reaction data yet.",
-        "total": "Total Reactions",
-        "tooltip": "{count} ({ratio}%)"
+        "title": "리액션 분포",
+        "desc": "어떤 리액션이 가장 많이 쓰일까요?",
+        "empty": "아직 리액션 데이터가 없습니다.",
+        "total": "전체 리액션",
+        "tooltip": "{count}개 ({ratio}%)"
       },
       "tags": {
-        "title": "Popular Tags",
-        "desc": "Tags most frequently used in reviews",
-        "empty": "No tags yet."
+        "title": "많이 사용된 태그",
+        "desc": "리뷰 작성 시 가장 많이 선택된 태그들이에요",
+        "empty": "아직 등록된 태그가 없습니다."
       }
     }
   },
   "my_page": {
     "metadata": {
-      "title": "My Page",
-      "description": "Check your activities and information."
+      "title": "마이페이지",
+      "description": "내 활동 내역과 정보를 확인하세요."
     },
-    "title": "My Page",
-    "activity_manage": "Activity Management",
+    "title": "마이 페이지",
+    "activity_manage": "활동 관리",
     "menu": {
       "reading_log": {
-        "label": "My Reading Log",
-        "desc": "Monthly reading calendar and stats"
+        "label": "나의 독서 기록",
+        "desc": "월별 독서 캘린더 및 통계"
       },
       "sales": {
-        "label": "My Sales",
-        "desc": "Manage your used book listings",
+        "label": "나의 판매 내역",
+        "desc": "등록한 중고책 판매글 관리",
         "metadata": {
-          "title": "My Sales",
-          "description": "List of used books you are selling."
+          "title": "판매 내역",
+          "description": "내가 등록한 중고 서적 판매 내역입니다."
         }
       },
       "reviews": {
-        "label": "My Reviews",
-        "desc": "Check your written reviews"
+        "label": "나의 리뷰",
+        "desc": "작성한 도서 리뷰 확인"
       },
       "wishlist": {
-        "label": "Wishlist",
-        "desc": "Books you want to read"
+        "label": "위시리스트",
+        "desc": "찜한 도서 목록"
       },
       "comments": {
-        "label": "My Comments",
-        "desc": "Manage your comments"
+        "label": "나의 댓글",
+        "desc": "작성한 댓글 관리"
       }
     },
     "profile": {
-      "edit": "Edit Profile",
-      "joined": "Joined {date}"
+      "edit": "프로필 수정",
+      "joined": "{date} 가입"
     },
     "stats": {
-      "for_sale": "Selling",
-      "reserved": "Reserved",
-      "sold": "Sold",
-      "chats": "Chats",
-      "reviews": "Reviews"
+      "for_sale": "판매중",
+      "reserved": "예약중",
+      "sold": "완료",
+      "chats": "채팅",
+      "reviews": "리뷰"
     },
     "danger_zone": {
       "title": "Danger Zone",
-      "withdraw_title": "Delete Account",
-      "withdraw_desc": "All data will be deleted or anonymized and cannot be recovered.",
-      "withdraw_button": "Delete Account",
-      "processing": "Processing...",
-      "confirm": "Are you sure you want to delete your account?\n\nAll personal data will be deleted or anonymized, and this action cannot be undone.\nYour listings will be hidden, and chat participation will be disabled."
+      "withdraw_title": "회원 탈퇴",
+      "withdraw_desc": "탈퇴 시 모든 데이터가 삭제되거나 익명화되며 복구할 수 없습니다.",
+      "withdraw_button": "회원 탈퇴",
+      "processing": "처리 중...",
+      "confirm": "정말 탈퇴하시겠습니까?\n\n회원 탈퇴 시 모든 개인정보가 삭제되거나 익명화되며, 이 작업은 되돌릴 수 없습니다.\n작성하신 판매글은 모두 숨김 처리되며, 채팅방 참여도 비활성화됩니다."
     },
     "edit_modal": {
-      "edit": "Edit",
-      "title": "Edit Profile",
-      "nickname_label": "Nickname",
-      "nickname_placeholder": "Enter nickname (2-10 chars)",
-      "nickname_min": "Nickname must be at least 2 characters.",
-      "nickname_max": "Nickname must be at most 20 characters.",
-      "nickname_taken": "Nickname is already in use.",
-      "nickname_error": "An error occurred while checking availability.",
-      "nickname_check": "Please check nickname availability.",
-      "nickname_available": "Nickname is available.",
-      "nickname_help": "2-10 chars, letters/numbers/Korean allowed",
-      "image_size_error": "Image size must be 20MB or less.",
-      "image_type_error": "Only image files are allowed.",
-      "image_error": "An error occurred while processing the image.",
-      "save_success": "Profile updated successfully.",
-      "save_error": "An error occurred while updating profile.",
-      "cancel": "Cancel",
-      "save": "Save",
-      "saving": "Saving..."
+      "edit": "수정",
+      "title": "프로필 수정",
+      "nickname_label": "닉네임",
+      "nickname_placeholder": "닉네임을 입력하세요 (2-10자)",
+      "nickname_min": "닉네임은 2자 이상이어야 합니다.",
+      "nickname_max": "닉네임은 20자 이하여야 합니다.",
+      "nickname_taken": "이미 사용 중인 닉네임입니다.",
+      "nickname_error": "중복 확인 중 오류가 발생했습니다.",
+      "nickname_check": "닉네임 중복 확인을 해주세요.",
+      "nickname_available": "사용 가능한 닉네임입니다.",
+      "nickname_help": "한글, 영문, 숫자 포함 2-10자",
+      "image_size_error": "이미지 크기는 20MB 이하여야 합니다.",
+      "image_type_error": "이미지 파일만 업로드할 수 있습니다.",
+      "image_error": "이미지 처리 중 오류가 발생했습니다.",
+      "save_success": "프로필이 업데이트되었습니다.",
+      "save_error": "프로필 수정 중 오류가 발생했습니다.",
+      "cancel": "취소",
+      "save": "저장",
+      "saving": "저장 중..."
     }
   },
   "my_reviews": {
     "metadata": {
-      "title": "My Reviews",
-      "description": "Check reviews you have written."
+      "title": "내가 쓴 리뷰",
+      "description": "내가 작성한 도서 리뷰들을 모아보세요."
     },
-    "title": "My Reviews",
+    "title": "내가 쓴 리뷰",
     "delete_modal": {
-      "title": "Delete Review",
-      "desc": "Are you sure you want to delete this review?",
-      "confirm": "Delete",
-      "cancel": "Cancel"
+      "title": "리뷰 삭제",
+      "desc": "정말로 이 리뷰를 삭제하시겠습니까?",
+      "confirm": "삭제",
+      "cancel": "취소"
     },
     "edit_modal": {
-      "title": "Edit Review",
-      "desc": "Do you want to edit this review?",
-      "confirm": "Edit",
-      "cancel": "Cancel"
+      "title": "리뷰 수정",
+      "desc": "리뷰를 수정하시겠습니까?",
+      "confirm": "수정하기",
+      "cancel": "취소"
     }
   },
   "my_comments": {
     "metadata": {
-      "title": "My Comments",
-      "description": "Check comments you have written."
+      "title": "내가 쓴 댓글",
+      "description": "내가 작성한 댓글들을 모아보세요."
     },
-    "title": "My Comments",
-    "count_desc": "You have written {count} comments",
+    "title": "내가 쓴 댓글",
+    "count_desc": "총 {count}개의 댓글을 작성했어요",
     "empty": {
-      "title": "No comments yet",
-      "desc": "Try commenting on books or reviews!"
+      "title": "작성한 댓글이 없습니다",
+      "desc": "도서나 리뷰에 댓글을 달아보세요!"
     },
     "delete_modal": {
-      "title": "Delete Comment",
-      "desc": "Are you sure you want to delete this comment?\nDeleted comments cannot be recovered.",
-      "confirm": "Delete",
-      "cancel": "Cancel"
+      "title": "댓글 삭제",
+      "desc": "이 댓글을 삭제하시겠습니까?\n삭제된 댓글은 복구할 수 없습니다.",
+      "confirm": "삭제",
+      "cancel": "취소"
     },
-    "no_title": "No Title",
-    "load_more": "Load More",
-    "loading": "Loading..."
+    "no_title": "제목 없음",
+    "load_more": "더 보기",
+    "loading": "로딩 중..."
   },
   "wishlist": {
     "metadata": {
-      "title": "Wishlist",
-      "description": "Check your saved books and listings."
+      "title": "위시리스트",
+      "description": "찜한 도서와 판매글을 확인하세요."
     },
-    "title": "Wishlist",
+    "title": "위시리스트",
     "empty": {
-      "title": "Your wishlist is empty.",
-      "desc": "Add books or listings you like!",
-      "button": "Go Home"
+      "title": "위시리스트가 비어있습니다.",
+      "desc": "마음에 드는 책이나 판매글을 찜해보세요!",
+      "button": "홈으로 가기"
     },
     "item": {
-      "type_book": "Book",
-      "type_sale": "Used Sale",
-      "view_detail": "View Detail",
-      "sold_out": "Sold Out",
-      "sale_ended": "Sale Ended"
+      "type_book": "도서",
+      "type_sale": "중고거래",
+      "view_detail": "상세보기",
+      "sold_out": "판매완료",
+      "sale_ended": "판매 종료"
     }
   },
   "user_profile": {
     "metadata": {
-      "title": "User Profile",
-      "description": "Check user reading logs and reviews."
+      "title": "사용자 프로필",
+      "description": "사용자의 독서 기록과 리뷰를 확인하세요."
     },
-    "not_found": "User not found or deleted.",
-    "joined": "Joined {date}",
+    "not_found": "존재하지 않거나 삭제된 사용자입니다.",
+    "joined": "{date} 가입",
     "stats": {
-      "sales_count": "Books for Sale",
-      "reviews_count": "Reviews Written"
+      "sales_count": "판매 중인 도서",
+      "reviews_count": "작성한 리뷰"
     },
     "sections": {
-      "recent_reviews": "Recent Reviews",
-      "recent_sales": "Recent Sales"
+      "recent_reviews": "최근 리뷰",
+      "recent_sales": "최근 판매 도서"
     }
   },
   "market": {
     "hero": {
       "metadata": {
         "title": "Used Market",
-        "description": "Trade used books and discover new stories."
+        "description": "Trade various used books and discover new stories."
       },
-      "title": "Circulating Sentences",
+      "title": "Circulating Stories",
       "subtitle": "CIRCULATION",
       "messages": {
-        "0": "Waiting for a new owner\nfrom someone's library",
-        "1": "Time captured in old books\nbegins to flow again",
+        "0": "Waiting for a new owner\nin someone's library",
+        "1": "Time held in old books\nbegins to flow again",
         "2": "A book was passed on\nin a corner of Seoul",
-        "3": "Forgotten sentences\nmeet new eyes",
-        "4": "Empty spaces on the shelf\nare filled with other stories"
+        "3": "Forgotten sentences\nmet new eyes",
+        "4": "Empty spaces in bookshelves\nare filled with other stories"
       }
     },
     "popular": {
@@ -752,10 +757,10 @@
       "all_cities": "All Cities",
       "all_districts": "All Districts",
       "sort": {
-        "label": "Sort By",
+        "label": "Sort",
         "newest": "Newest",
-        "price_low": "Lowest Price",
-        "price_high": "Highest Price",
+        "price_low": "Price: Low to High",
+        "price_high": "Price: High to Low",
         "distance": "Distance"
       },
       "status": {
@@ -764,64 +769,66 @@
         "SOLD": "Sold"
       },
       "reset": "Reset",
-      "search": "Search"
+      "reset_conditions": "Reset Filters",
+      "search": "Search",
+      "money_unit": "KRW"
     },
     "grid": {
-      "location_loading": "Fetching location...",
+      "location_loading": "Loading location info...",
       "location_retry": "Retry",
-      "error": "Failed to load data.",
-      "empty": "No sales found matching the criteria."
+      "error": "An error occurred while loading data.",
+      "empty": "No sales found matching your criteria."
     },
     "form": {
-      "title_write": "Create Sales Listing",
-      "title_edit": "Edit Sales Listing",
-      "desc_write": "Please enter the details of the book you want to sell accurately.",
-      "desc_edit": "Please update the listing details.",
+      "title_write": "Sell Used Book",
+      "title_edit": "Edit Sale",
+      "desc_write": "Please enter accurate information about your book.",
+      "desc_edit": "Please modify the post information.",
       "book": {
         "label": "Book to Sell",
-        "empty_title": "Select a Book",
-        "empty_desc": "Search by ISBN, title, or author to register a book for sale.",
+        "empty_title": "Select a book to sell",
+        "empty_desc": "Search by ISBN, title, or author to register a book.",
         "search": "Search Book",
-        "change": "Change Book",
+        "change": "Select Another Book",
         "error_required": "Please select a book to sell."
       },
       "fields": {
-        "title": "Title",
-        "title_placeholder": "Enter listing title",
+        "title": "Post Title",
+        "title_placeholder": "Enter post title",
         "price": "Price (KRW)",
-        "price_placeholder": "Enter numbers only",
-        "location_title": "Preferred Meeting Location",
-        "location_desc": "Select a safe meeting place on the map for direct trade.",
+        "price_placeholder": "Numbers only",
+        "location_title": "Preferred Trade Location",
+        "location_desc": "Select a safe place on the map to meet the buyer.",
         "location_name": "Location Name (Editable)",
-        "location_name_placeholder": "e.g., Gangnam Station Exit 10 (Auto-filled from map)",
+        "location_name_placeholder": "e.g., Gangnam Station Exit 10 (Auto-filled via map)",
         "images": "Book Condition Images",
-        "content": "Details",
-        "content_placeholder": "Please describe the book condition, trade method, etc."
+        "content": "Description",
+        "content_placeholder": "Describe the book condition, trade method, etc."
       },
-      "submit": "Register Listing",
-      "submit_edit": "Update Listing",
-      "error_location": "Address not found for this location. Please select a precise location again."
+      "submit": "Register Sale",
+      "submit_edit": "Update Complete",
+      "error_location": "Location cannot be verified. Please select a valid location."
     },
     "validation": {
       "title_min": "Title must be at least 5 characters.",
       "title_max": "Title cannot exceed 50 characters.",
-      "price_number": "Only numbers are allowed.",
+      "price_number": "Numbers only.",
       "price_min": "Price must be greater than 0.",
-      "book_required": "Please select a book to sell.",
-      "city_required": "Please select a City/Province.",
-      "district_required": "Please select a District.",
+      "book_required": "Please select a book.",
+      "city_required": "Please select a city.",
+      "district_required": "Please select a district.",
       "location_required": "Please select a preferred trade location.",
-      "content_min": "Details must be at least 10 characters.",
-      "content_max": "Details cannot exceed 1,000 characters.",
+      "content_min": "Description must be at least 10 characters.",
+      "content_max": "Description cannot exceed 1,000 characters.",
       "images_min": "Please upload at least 1 image.",
       "images_max": "You can upload up to 5 images.",
-      "images_edit_max": "You can upload up to 5 new images.",
-      "submit_error": "Please check your input. (Required fields missing, etc.)"
+      "images_edit_max": "You can add up to 5 new images.",
+      "submit_error": "Please check your input. (Missing required fields, etc.)"
     },
     "detail": {
-      "not_found": "This listing does not exist or has been deleted.",
+      "not_found": "Sale not found or deleted.",
       "book_info": {
-        "title": "Book Information",
+        "title": "Book Info",
         "author": "Author",
         "publisher": "Publisher"
       },
@@ -834,38 +841,41 @@
         "edit": "Edit",
         "delete": "Delete",
         "deleting": "Deleting...",
-        "delete_title": "Delete Listing",
-        "delete_desc": "Are you sure you want to delete this listing?\nDeleted data cannot be recovered.",
+        "delete_title": "Delete Sale",
+        "delete_desc": "Are you sure you want to delete this sale?\nDeleted data cannot be recovered.",
         "cancel": "Cancel",
         "chat_start": "Chat with Seller",
         "chat_opening": "Opening chat...",
-        "chat_error": "Failed to open chat room. Please try again.",
-        "login_required": "Login required to chat or wishlist"
+        "chat_error": "Failed to open chat. Please try again.",
+        "login_required": "Login required to chat or wishlist."
       },
       "location": {
-        "title": "Preferred Meeting Location",
+        "title": "Preferred Trade Location",
         "error": "Failed to load map.",
-        "marker_default": "Preferred Location"
+        "marker_default": "Trade Location"
       },
       "related": {
-        "title": "People selling this book",
+        "title": "Sellers of this book",
         "more": "More",
-        "error": "Failed to load listings.",
-        "empty": "No listings for this book yet.",
-        "register_first": "Be the first to create a listing"
+        "view_more": "Load More",
+        "more_count": "+{count} more",
+        "error": "Failed to load sales.",
+        "empty": "No sales yet.",
+        "register_first": "Register the first sale",
+        "loading": "Loading..."
       }
     },
     "sale_status": {
       "FOR_SALE": "For Sale",
       "RESERVED": "Reserved",
-      "SOLD": "Sold Out"
+      "SOLD": "Sold"
     },
     "history": {
-      "title": "My Sales History",
+      "title": "My Sales",
       "error_title": "Error Occurred",
       "error_desc": "Failed to load sales history.",
       "empty_title": "No sales history.",
-      "empty_desc": "Try registering a new used book!",
+      "empty_desc": "Register a new used book!",
       "change_status": "Change Status"
     }
   },
@@ -873,15 +883,15 @@
     "not_found": {
       "title": "404",
       "subtitle": "Page Not Found",
-      "description": "The page you are looking for might have been removed or moved.<br />Please check the URL and try again.",
-      "home_button": "Go to Home"
+      "description": "The page you requested may have been deleted or moved.<br />Please check the URL again.",
+      "home_button": "Go Home"
     },
     "general_error": {
       "title": "OOPs!",
       "subtitle": "Something went wrong",
       "description": "An unexpected error occurred.<br />Please try again later.",
-      "retry_button": "Try Again",
-      "home_button": "Go to Home"
+      "retry_button": "Retry",
+      "home_button": "Go Home"
     }
   }
 }

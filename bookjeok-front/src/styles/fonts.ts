@@ -2,6 +2,7 @@ import {
   Bitcount_Prop_Single,
   Gowun_Batang,
   Nanum_Gothic,
+  Song_Myung,
 } from "next/font/google";
 import localFont from "next/font/local";
 
@@ -31,4 +32,10 @@ export const gowun_batang = Gowun_Batang({
   variable: "--font-gowun-batang",
   display: "swap",
   subsets: ["latin"],
+});
+
+export const song_myung = Song_Myung({
+  weight: ["400"],
+  variable: "--font-song-myung",
+  display: "swap",
 });

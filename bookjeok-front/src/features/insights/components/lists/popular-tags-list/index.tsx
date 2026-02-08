@@ -7,14 +7,8 @@ import {
   EmptyState,
   InsightCard,
 } from "@/features/insights/components/common/insight-card";
+import { COLORS } from "@/features/insights/constants";
 import { PopularTagStat } from "@/features/insights/types";
-
-// 색상 팔레트
-const COLORS = {
-  matcha: { dark: "#4b6043", medium: "#658354", light: "#7a9968" },
-  cream: { light: "#faf7f2", medium: "#f5f0e6", dark: "#e8dfd0" },
-  mustard: { dark: "#d4a72c", medium: "#e5b84c", light: "#f0d78c" },
-};
 
 interface PopularTagsListProps {
   data: PopularTagStat[];
@@ -22,6 +16,7 @@ interface PopularTagsListProps {
 
 /**
  * 인기 태그 배지 리스트
+ * - Editorial Style: Simple, Minimal, Monochrome chips
  */
 export const PopularTagsList = ({ data }: PopularTagsListProps) => {
   const t = useTranslations("insights.charts.tags");
@@ -31,26 +26,10 @@ export const PopularTagsList = ({ data }: PopularTagsListProps) => {
 
   const getBadgeSize = (count: number): string => {
     const ratio = count / maxCount;
-    if (ratio > 0.7) return "text-base px-4 py-2";
-    if (ratio > 0.4) return "text-sm px-3 py-1.5";
-    return "text-xs px-2.5 py-1";
-  };
-
-  // 말차색 + 크림 + 머스타드 조합
-  const getBadgeStyle = (index: number) => {
-    const styles = [
-      { bg: COLORS.matcha.dark, color: "#fff" },
-      { bg: COLORS.mustard.dark, color: "#fff" },
-      { bg: COLORS.matcha.medium, color: "#fff" },
-      { bg: COLORS.cream.dark, color: COLORS.matcha.dark },
-      { bg: COLORS.mustard.light, color: COLORS.matcha.dark },
-      { bg: COLORS.cream.medium, color: COLORS.mustard.dark },
-      { bg: COLORS.matcha.light, color: "#fff" },
-      { bg: COLORS.cream.light, color: COLORS.matcha.dark },
-      { bg: COLORS.mustard.medium, color: COLORS.matcha.dark },
-      { bg: COLORS.cream.dark, color: COLORS.mustard.dark },
-    ];
-    return styles[index % styles.length];
+    // 사이즈 차이를 조금 더 은은하게 조정
+    if (ratio > 0.7) return "text-base px-4 py-2 font-bold";
+    if (ratio > 0.4) return "text-sm px-3 py-1.5 font-semibold";
+    return "text-xs px-2.5 py-1 font-medium";
   };
 
   return (
@@ -60,17 +39,24 @@ export const PopularTagsList = ({ data }: PopularTagsListProps) => {
       icon={<Tag className="h-5 w-5" />}
     >
       {hasData ? (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 items-center justify-center py-4">
           {data.map((tag, index) => {
-            const style = getBadgeStyle(index);
+            // 미묘한 명도 차이로 리듬감 부여 (홀/짝)
+            const isEven = index % 2 === 0;
+            const bgColor = isEven ? COLORS.stone[100] : COLORS.stone[50];
+            const hoverColor = COLORS.stone[200];
+
             return (
               <span
                 key={tag.name}
-                className={`inline-flex items-center gap-1.5 rounded-full font-medium transition-all hover:scale-105 hover:shadow-sm ${getBadgeSize(tag.count)}`}
-                style={{ backgroundColor: style.bg, color: style.color }}
+                className={`inline-flex items-center gap-1.5 rounded-full border border-stone-200 text-stone-600 transition-all duration-300 hover:scale-105 hover:border-stone-400 hover:text-stone-900 hover:shadow-sm cursor-default ${getBadgeSize(tag.count)}`}
+                style={{ backgroundColor: bgColor }}
               >
-                <span>#{tag.name}</span>
-                <span style={{ opacity: 0.7 }}>({tag.count})</span>
+                <span className="font-serif italic text-stone-400">#</span>
+                <span>{tag.name}</span>
+                <span className="text-[0.7em] text-stone-400 font-light ml-0.5">
+                  {tag.count}
+                </span>
               </span>
             );
           })}

@@ -1,14 +1,16 @@
 "use client";
 
-import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
+import "swiper/css";
+import "swiper/css/effect-coverflow";
+
+import { BookOpen } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Autoplay, EffectCoverflow, Navigation } from "swiper/modules";
+import { Autoplay, EffectCoverflow } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { TextAnimate } from "@/shared/components/magicui/text-animate";
-import { Button } from "@/shared/components/shadcn/button";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
@@ -49,11 +51,7 @@ export const MainBookSlider = () => {
       requestAnimationFrame(() => {
         if (swiperRef.current) {
           swiperRef.current.update();
-          swiperRef.current.slideTo(
-            Math.floor((books?.length || 0) / 2),
-            0,
-            false,
-          );
+          swiperRef.current.slideToLoop(0, 0, false); // Loop 모드에서는 slideToLoop 사용
         }
       });
     }
@@ -65,122 +63,115 @@ export const MainBookSlider = () => {
   }, [books]);
 
   return (
-    <div className="w-full bg-linear-to-b from-white via-gray-50 to-white py-8">
-      <div className="mx-auto max-w-5xl px-4 text-center">
+    <div className="w-full bg-stone-50/30 py-16 md:py-24 overflow-hidden">
+      <div className="container mx-auto max-w-4xl px-4 md:px-0 mb-12 flex flex-col items-center text-center">
         <TextAnimate
           as="h2"
-          animation="scaleUp"
-          by="line"
-          className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl"
+          animation="blurInUp"
+          by="character"
+          className="text-4xl md:text-5xl font-serif font-medium tracking-tight text-stone-900"
         >
           {t("title")}
         </TextAnimate>
-        <TextAnimate
-          animation="slideUp"
-          by="word"
-          as="p"
-          className="mt-4 text-lg leading-8 text-gray-600"
-        >
+        <p className="mt-4 text-base md:text-lg text-stone-500 font-light max-w-xl">
           {t("subtitle")}
-        </TextAnimate>
+        </p>
       </div>
 
-      {/* 출판사 필터 칩 */}
-      <div className="flex justify-center items-center gap-2 mt-8 flex-wrap px-4">
-        {HOME_PUBLISHERS.map((publisher) => (
-          <Button
-            key={publisher}
-            variant={activePublisher === publisher ? "default" : "outline"}
-            className={`rounded-full cursor-pointer transition-all duration-300 ${
-              activePublisher === publisher
-                ? "bg-emerald-700 text-white shadow-lg scale-105"
-                : "text-gray-600 bg-white"
-            }`}
-            onClick={() => setActivePublisher(publisher)}
-          >
-            {publisher}
-          </Button>
-        ))}
+      {/* 출판사 필터 칩 - 미니멀 텍스트 탭 (중앙 정렬) */}
+      <div className="container mx-auto max-w-4xl px-4 md:px-0 mb-12">
+        <div className="flex items-center justify-center gap-6 md:gap-8 flex-wrap">
+          {HOME_PUBLISHERS.map((publisher) => (
+            <button
+              key={publisher}
+              onClick={() => setActivePublisher(publisher)}
+              className={`text-sm md:text-base cursor-pointer transition-all duration-300 relative pb-1 ${
+                activePublisher === publisher
+                  ? "text-stone-900 font-medium"
+                  : "text-stone-400 hover:text-stone-600 font-light"
+              }`}
+            >
+              {publisher}
+              {activePublisher === publisher && (
+                <span className="absolute bottom-0 left-0 w-full h-px bg-stone-900 animate-in fade-in zoom-in duration-300" />
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {isLoading && <BookSliderSkeleton />}
 
       {!isLoading && (isError || !books || books.length === 0) && (
-        <div className="text-center py-20 text-gray-500">
-          <BookOpen className="mx-auto h-12 w-12" />
-          <p className="mt-4">{tError("load_books")}</p>
+        <div className="text-center py-20 text-stone-400">
+          <BookOpen className="mx-auto h-10 w-10 opacity-20" />
+          <p className="mt-4 font-light">{tError("load_books")}</p>
         </div>
       )}
 
       {!isLoading && books && books.length > 0 && (
-        <div className="relative w-full book-swiper-container overflow-hidden">
-          <Swiper
-            onSwiper={(swiper) => (swiperRef.current = swiper)}
-            effect={"coverflow"}
-            grabCursor={true}
-            centeredSlides={true}
-            loop={displayBooks.length > 5}
-            loopAdditionalSlides={5} // 데이터 복제 + 적절한 버퍼로 완벽한 Loop 구현
-            slidesPerView={"auto"}
-            spaceBetween={-50}
-            initialSlide={Math.floor(displayBooks.length / 2)}
-            watchSlidesProgress={true}
-            observer={true}
-            observeParents={true}
-            coverflowEffect={{
-              rotate: 0,
-              stretch: 80,
-              depth: 200,
-              modifier: 1,
-              slideShadows: false,
-            }}
-            navigation={{
-              nextEl: ".swiper-button-next",
-              prevEl: ".swiper-button-prev",
-            }}
-            autoplay={{
-              delay: 3500,
-              disableOnInteraction: false,
-              pauseOnMouseEnter: true,
-            }}
-            modules={[EffectCoverflow, Navigation, Autoplay]}
-            className="book-swiper"
-          >
-            {displayBooks.map((book, index) => (
-              <SwiperSlide
-                key={`${book.isbn}-${index}`} // 고유한 키 보장
-                className="w-[240px]! md:w-[300px]! select-none"
-              >
-                <Link href={PATHS.BOOK_DETAIL(book.isbn)} passHref>
-                  <div className="group relative w-full h-[360px] md:h-[450px] rounded-lg overflow-hidden shadow-2xl transform transition-transform duration-500 bg-gray-200">
-                    <Image
-                      src={book.image || "/images/placeholder-book.svg"}
-                      alt={book.title}
-                      fill
-                      sizes="(max-width: 768px) 240px, 300px"
-                      priority={true}
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="book-info-overlay absolute inset-0 bg-black/0 flex flex-col justify-end items-center p-6 text-center opacity-0">
-                      <h3 className="text-white font-bold text-xl md:text-2xl mb-2 drop-shadow-lg">
+        <div className="w-full relative">
+          <div className="book-swiper-container overflow-visible! px-4 md:px-0">
+            <Swiper
+              onSwiper={(swiper) => (swiperRef.current = swiper)}
+              effect={"coverflow"}
+              grabCursor={true}
+              centeredSlides={true}
+              loop={displayBooks.length > 5}
+              slidesPerView={"auto"}
+              coverflowEffect={{
+                rotate: 0,
+                stretch: 0,
+                depth: 100,
+                modifier: 2.5,
+                slideShadows: false,
+              }}
+              autoplay={{
+                delay: 3000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              }}
+              modules={[EffectCoverflow, Autoplay]}
+              className="book-swiper overflow-visible!"
+            >
+              {displayBooks.map((book, index) => (
+                <SwiperSlide
+                  key={`${book.isbn}-${index}`} // 고유 키 보장
+                  className="w-[140px]! md:w-[200px]! select-none transition-opacity duration-300"
+                >
+                  <Link
+                    href={PATHS.BOOK_DETAIL(book.isbn)}
+                    passHref
+                    className="block group"
+                  >
+                    <div className="relative w-full aspect-2/3 mb-4 bg-stone-200 overflow-hidden shadow-sm group-hover:shadow-lg transition-all duration-500 ease-out border border-stone-100">
+                      <Image
+                        src={book.image || "/images/placeholder-book.svg"}
+                        alt={book.title}
+                        fill
+                        priority={true} // Swiper Loop 복제 이슈 방지를 위한 즉시 로딩
+                        unoptimized={true} // 복제 슬라이드 이미지 깨짐 방지
+                        sizes="(max-width: 768px) 160px, 220px"
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      {/* 미니멀 오버레이 - 호버 시 미세한 어두움 효과 */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
+                    </div>
+
+                    {/* 책 정보 - 활성 슬라이드에만 표시 */}
+                    <div className="space-y-1 pt-2 select-none opacity-0 translate-y-4 transition-all duration-500 ease-out delay-200 in-[.swiper-slide-active]:opacity-100 in-[.swiper-slide-active]:translate-y-0 text-center">
+                      <h3 className="text-stone-900 font-medium text-lg md:text-xl leading-tight line-clamp-1">
                         {book.title}
                       </h3>
-                      <p className="text-gray-200 text-sm md:text-base drop-shadow-md">
+                      <p className="text-stone-500 text-sm md:text-base font-light line-clamp-1">
                         {book.author}
                       </p>
                     </div>
-                  </div>
-                </Link>
-              </SwiperSlide>
-            ))}
-
-            <div className="swiper-button-prev">
-              <ChevronLeft size={24} />
-            </div>
-            <div className="swiper-button-next">
-              <ChevronRight size={24} />
-            </div>
-          </Swiper>
+                  </Link>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
         </div>
       )}
     </div>
