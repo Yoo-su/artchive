@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, Library } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
@@ -57,9 +56,9 @@ export function ReadingLogStats({ currentDate, theme }: ReadingLogStatsProps) {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-        <Skeleton className="h-28 rounded-3xl bg-stone-100" />
-        <Skeleton className="h-28 rounded-3xl bg-stone-100" />
+      <div className="grid grid-cols-2 gap-8 mb-12">
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full" />
       </div>
     );
   }
@@ -67,79 +66,58 @@ export function ReadingLogStats({ currentDate, theme }: ReadingLogStatsProps) {
   if (!stats) return null;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-      {/* 이번 달 카드 - Theme Color 적용 */}
-      <div
-        className={cn(
-          "group p-5 rounded-3xl flex items-center justify-between border backdrop-blur-sm shadow-sm hover:shadow-lg transition-all duration-500 hover:-translate-y-1 bg-white/60",
-          theme.border, // border-color
-        )}
-      >
-        <div className="flex items-center gap-4">
-          <div
-            className={cn(
-              "p-3 rounded-2xl shadow-sm transition-colors duration-500",
-              theme.bg, // bg-color
-            )}
-          >
-            <BookOpen
-              className={cn(
-                "w-6 h-6 transition-colors duration-500",
-                theme.activeText, // text-color
-              )}
-            />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-stone-500 mb-0.5 tracking-tight">
-              {t("monthly_title", { month })}
-            </p>
-            <div className="flex items-baseline gap-1.5">
-              <span
-                className={cn(
-                  "text-4xl font-bold font-serif transition-all duration-500 group-hover:scale-105",
-                  theme.activeText, // text-color
-                )}
-              >
-                <AnimatedNumber value={stats.monthlyCount} />
-              </span>
-              <span className="text-sm font-medium text-stone-500">
-                {t("unit")}
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="text-right">
-          <p
-            className={cn(
-              "text-xs font-medium leading-relaxed break-keep transition-colors duration-500",
-              theme.accent, // text-color
-            )}
-          >
-            {getMessage(stats.monthlyCount)}
+    <div className="grid grid-cols-2 gap-4 md:gap-8 mb-16 relative px-4 md:px-0">
+      {/* Vertical Divider */}
+      <div className="absolute left-1/2 top-4 bottom-4 w-px bg-stone-200/60 -translate-x-1/2" />
+
+      {/* Monthly Stats */}
+      <div className="flex flex-col items-center justify-center text-center space-y-4 group">
+        <div className="space-y-1">
+          <p className="text-[10px] font-bold tracking-[0.2em] text-stone-400 uppercase">
+            {t("monthly_title", { month })}
           </p>
+          <div className="flex items-baseline justify-center gap-1">
+            <span
+              className={cn(
+                "text-6xl md:text-7xl font-serif font-light tracking-tight transition-colors duration-500",
+                theme.activeText, // Using theme color for the number
+              )}
+            >
+              <AnimatedNumber value={stats.monthlyCount} />
+            </span>
+            <span className="text-xs text-stone-400 font-medium self-end mb-2">
+              {t("unit")}
+            </span>
+          </div>
         </div>
+
+        <p
+          className={cn(
+            "text-xs font-medium transition-colors duration-500",
+            theme.accent,
+          )}
+        >
+          {getMessage(stats.monthlyCount)}
+        </p>
       </div>
 
-      {/* 연간 누적 카드 */}
-      <div className="group p-5 rounded-3xl flex items-center justify-between border bg-white/80 backdrop-blur-md border-stone-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-        <div className="flex items-center gap-4">
-          <div className="p-3 rounded-2xl bg-stone-100 shadow-inner">
-            <Library className="w-6 h-6 text-stone-600" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-stone-500 mb-0.5 tracking-tight">
-              {t("yearly_title", { year })}
-            </p>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-4xl font-bold font-serif text-stone-700 transition-transform duration-200 group-hover:scale-105">
-                <AnimatedNumber value={stats.yearlyCount} />
-              </span>
-              <span className="text-sm font-medium text-stone-500">
-                {t("unit")}
-              </span>
-            </div>
+      {/* Yearly Stats */}
+      <div className="flex flex-col items-center justify-center text-center space-y-4 group">
+        <div className="space-y-1">
+          <p className="text-[10px] font-bold tracking-[0.2em] text-stone-400 uppercase">
+            {t("yearly_title", { year })}
+          </p>
+          <div className="flex items-baseline justify-center gap-1">
+            <span className="text-6xl md:text-7xl font-serif font-light tracking-tight text-stone-800 transition-colors duration-500 group-hover:text-stone-600">
+              <AnimatedNumber value={stats.yearlyCount} />
+            </span>
+            <span className="text-xs text-stone-400 font-medium self-end mb-2">
+              {t("unit")}
+            </span>
           </div>
         </div>
+        {/* Placeholder for alignment or future yearly message */}
+        <div className="h-4" />
       </div>
     </div>
   );

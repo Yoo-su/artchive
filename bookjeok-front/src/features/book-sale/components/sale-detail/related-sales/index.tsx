@@ -1,15 +1,17 @@
 "use client";
 
+import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useInView } from "react-intersection-observer";
-import { Autoplay } from "swiper/modules";
+import { FreeMode } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { Button } from "@/shared/components/shadcn/button";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
+import { cn } from "@/shared/utils/cn";
 
-import { useRelatedSalesQuery } from "../../../queries";
+import { useInfiniteRelatedSalesQuery } from "../../../queries";
 import { BookSale } from "../../common/book-sale-item";
 import { RelatedSalesSkeleton } from "./skeleton";
 
@@ -27,28 +29,30 @@ export const RelatedSales = ({ isbn }: RelatedSalesProps) => {
   // 뷰포트 진입 시 데이터 로딩
   const { ref, inView } = useInView({ triggerOnce: true, rootMargin: "200px" });
 
-  const { data, isLoading, isError } = useRelatedSalesQuery({
+  // 페이지네이션을 위한 무한 쿼리
+  const {
+    data,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteRelatedSalesQuery({
     isbn,
     limit: 4,
     enabled: inView,
   });
 
-  const sales = data?.sales || [];
-  const totalCount = data?.total || 0;
+  const sales = data?.pages.flatMap((page) => page.sales) || [];
+  const totalCount = data?.pages[0]?.total || 0;
 
   return (
-    <section ref={ref} className="w-full py-12">
+    <section ref={ref} className="w-full py-16 border-t border-stone-100">
       {/* 헤더 */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl text-stone-600">{t("title")}</h2>
-
-        {totalCount > 4 && (
-          <Link href={`${PATHS.BOOK_MARKET}?isbn=${isbn}`}>
-            <Button variant="ghost" size="sm" className="text-stone-500">
-              {t("more")} ({totalCount}개)
-            </Button>
-          </Link>
-        )}
+      <div className="flex items-baseline justify-between mb-8 px-1">
+        <h2 className="text-2xl font-serif font-bold text-stone-900 tracking-tight">
+          {t("title")}
+        </h2>
       </div>
 
       {/* 로딩 상태 */}
@@ -59,7 +63,7 @@ export const RelatedSales = ({ isbn }: RelatedSalesProps) => {
         <div className="text-center text-red-500 py-8">{t("error")}</div>
       )}
 
-      {/* 빈 상태 */}
+      {/* 데이터 없음 상태 */}
       {inView && !isLoading && !isError && sales.length === 0 && (
         <div className="text-center py-12 bg-stone-50 rounded-xl">
           <p className="text-stone-500 mb-4">{t("empty")}</p>
@@ -74,25 +78,70 @@ export const RelatedSales = ({ isbn }: RelatedSalesProps) => {
       {/* 슬라이더 */}
       {inView && !isLoading && !isError && sales.length > 0 && (
         <Swiper
-          modules={[Autoplay]}
+          modules={[FreeMode]}
+          freeMode={true}
           slidesPerView="auto"
           spaceBetween={16}
-          className="w-full overflow-visible! [clip-path:inset(-100px_-10px)]"
+          className="w-full overflow-visible! px-1! py-4"
         >
           {sales.map((sale, index) => (
-            <SwiperSlide key={sale.id} className="w-[260px]! select-none">
-              <BookSale.Root sale={sale}>
+            <SwiperSlide
+              key={sale.id}
+              className="w-[180px]! sm:w-[220px]! h-auto! select-none pr-4"
+            >
+              <BookSale.Root sale={sale} priority={index < 2}>
                 <BookSale.Image />
-                <BookSale.Content>
-                  <BookSale.Title />
-                  <BookSale.Price />
-                  <BookSale.Location />
-                  <BookSale.Meta />
+                <BookSale.Content className="p-3!">
+                  <BookSale.Title className="text-base" />
+                  <BookSale.Price className="text-sm mb-1!" />
+                  <BookSale.Location className="mb-2! hidden sm:flex" />
+                  <BookSale.Meta className="hidden sm:flex" />
                 </BookSale.Content>
-                <BookSale.Effect delay={index * 10} />
               </BookSale.Root>
             </SwiperSlide>
           ))}
+
+          {/* 더보기 슬라이드 */}
+          {hasNextPage && (
+            <SwiperSlide className="w-[180px]! sm:w-[220px]! h-auto! select-none pr-4">
+              <button
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                className="group block h-full w-full text-left disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                <div
+                  className={cn(
+                    "h-full w-full flex flex-col items-center justify-center gap-3",
+                    "rounded-sm border border-dashed border-stone-300 bg-stone-50/30",
+                    "transition-all duration-300",
+                    "group-hover:bg-stone-100 group-hover:border-stone-400",
+                  )}
+                >
+                  {isFetchingNextPage ? (
+                    <span className="text-sm font-medium text-stone-400 animate-pulse">
+                      {t("loading")}
+                    </span>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white border border-stone-200 shadow-sm group-hover:scale-110 group-hover:border-stone-300 transition-all">
+                        <Plus className="w-5 h-5 text-stone-400 group-hover:text-stone-600 transition-colors" />
+                      </div>
+                      <div className="text-center">
+                        <span className="block font-serif text-sm font-medium text-stone-600 group-hover:text-stone-900 transition-colors">
+                          {t("view_more")}
+                        </span>
+                        <span className="block text-[10px] text-stone-400 mt-1">
+                          {t("more_count", {
+                            count: totalCount - sales.length,
+                          })}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </button>
+            </SwiperSlide>
+          )}
         </Swiper>
       )}
     </section>

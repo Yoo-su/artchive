@@ -36,7 +36,7 @@ export const DefaultFooter = () => {
                     href={PATHS.BOOK_SEARCH}
                     className="hover:text-emerald-600 transition-colors"
                   >
-                    {tNav("book_search")}
+                    {tNav("menu_search")}
                   </Link>
                 </li>
                 <li>
@@ -44,7 +44,7 @@ export const DefaultFooter = () => {
                     href={PATHS.BOOK_MARKET}
                     className="hover:text-emerald-600 transition-colors"
                   >
-                    {tNav("market_menu")}
+                    {tNav("menu_market")}
                   </Link>
                 </li>
                 <li>
@@ -52,7 +52,7 @@ export const DefaultFooter = () => {
                     href="/book/reviews"
                     className="hover:text-emerald-600 transition-colors"
                   >
-                    {tNav("review_menu")}
+                    {tNav("menu_reviews")}
                   </Link>
                 </li>
               </ul>

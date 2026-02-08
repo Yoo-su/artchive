@@ -1,27 +1,12 @@
 "use client";
 
-import {
-  AlertTriangle,
-  BotMessageSquare,
-  CheckCircle2,
-  Loader2,
-  LogIn,
-  Sparkles,
-  User,
-} from "lucide-react";
+import { Loader2, RefreshCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
-import { Badge } from "@/shared/components/shadcn/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/shadcn/card";
-import { Separator } from "@/shared/components/shadcn/separator";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
+import { cn } from "@/shared/utils/cn";
 
 interface AIResponse {
   summary: string;
@@ -49,163 +34,139 @@ export const AISummary = ({
   const user = useAuthStore((state) => state.user);
   const isLoggedIn = !!user;
 
-  return (
-    <Card className="overflow-hidden border-emerald-100 shadow-sm bg-linear-to-br from-emerald-50/50 to-white">
-      <CardHeader className="flex flex-row items-center gap-3 pb-4 border-b border-emerald-50">
-        <div className="p-2.5 bg-emerald-100 rounded-xl shadow-inner">
-          <BotMessageSquare className="w-6 h-6 text-emerald-600" />
-        </div>
-        <div className="space-y-1">
-          <CardTitle className="text-xl font-bold tracking-tight text-gray-900">
+  if (!isRequested) {
+    return (
+      <section className="py-12">
+        <div className="flex flex-col items-center justify-center text-center space-y-4">
+          <h3 className="text-xs font-bold tracking-widest text-gray-400 uppercase">
             {t("title")}
-          </CardTitle>
-          <p className="text-sm font-medium text-gray-500">
-            {t("description")}
+          </h3>
+          <p className="text-xl md:text-2xl font-serif text-gray-900 max-w-2xl leading-relaxed">
+            {t("prompt_title")}
           </p>
-        </div>
-      </CardHeader>
+          <p className="text-sm text-gray-500 max-w-md pb-4">
+            {t("prompt_desc")}
+          </p>
 
-      <CardContent className="p-6">
-        {!isRequested ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center space-y-4">
-            <div className="p-4 bg-white rounded-full shadow-sm border border-emerald-100">
-              <Sparkles className="w-8 h-8 text-emerald-500" />
-            </div>
-            <div className="space-y-2 max-w-md">
-              <h3 className="text-lg font-semibold text-gray-900">
-                {t("prompt_title")}
-              </h3>
-              <p className="text-gray-500 text-sm leading-relaxed">
-                {t("prompt_desc")}
-                <br />
-                {isLoggedIn ? t("prompt_action") : t("prompt_login_required")}
-              </p>
-            </div>
-            {isLoggedIn ? (
-              <button
-                onClick={onRequestSummary}
-                className="mt-4 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors shadow-sm hover:shadow-md flex items-center gap-2"
-              >
-                <Sparkles className="w-4 h-4" />
-                {t("button_view")}
-              </button>
-            ) : (
-              <Link
-                href={PATHS.LOGIN}
-                className="mt-4 px-6 py-2.5 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors shadow-sm hover:shadow-md flex items-center gap-2"
-              >
-                <LogIn className="w-4 h-4" />
-                {t("button_login")}
-              </Link>
-            )}
-          </div>
-        ) : isLoading ? (
-          <div className="flex flex-col items-center justify-center py-12 gap-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-emerald-200 rounded-full animate-ping opacity-25"></div>
-              <div className="relative p-4 bg-white rounded-full shadow-sm border border-emerald-100">
-                <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
-              </div>
-            </div>
-            <div className="text-center space-y-1">
-              <p className="font-semibold text-gray-900">
-                {t("loading_title")}
-              </p>
-              <p className="text-sm text-gray-500">{t("loading_desc")}</p>
-            </div>
-          </div>
-        ) : isError ? (
-          <div className="flex flex-col items-center justify-center py-8 gap-3 text-center">
-            <div className="p-3 bg-red-50 rounded-full text-red-500">
-              <AlertTriangle className="w-6 h-6" />
-            </div>
-            <div className="space-y-1">
-              <p className="font-semibold text-gray-900">{t("error_title")}</p>
-              <p className="text-sm text-gray-500">{t("error_desc")}</p>
-            </div>
+          {isLoggedIn ? (
             <button
               onClick={onRequestSummary}
-              className="mt-2 text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
+              className="group relative px-6 py-3 text-sm font-medium text-gray-900 transition-all duration-300 ease-out border border-gray-200 rounded-full hover:border-gray-900 hover:bg-gray-900 hover:text-white focus:outline-hidden focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
             >
-              {t("retry")}
+              <span className="relative">{t("button_view")}</span>
             </button>
+          ) : (
+            <Link
+              href={PATHS.LOGIN}
+              className="group relative px-6 py-3 text-sm font-medium text-gray-900 transition-all duration-300 ease-out border border-gray-200 rounded-full hover:border-gray-900 hover:bg-gray-900 hover:text-white focus:outline-hidden focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+            >
+              <span className="relative">{t("button_login")}</span>
+            </Link>
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <section className="py-16">
+        <div className="flex flex-col items-center justify-center gap-4 animate-pulse">
+          <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+          <p className="text-xs font-medium tracking-widest text-gray-400 uppercase">
+            {t("loading_desc")}...
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  if (isError) {
+    return (
+      <section className="py-12">
+        <div className="flex flex-col items-center justify-center gap-4 text-center">
+          <p className="text-sm text-gray-500">{t("error_desc")}</p>
+          <button
+            onClick={onRequestSummary}
+            className="flex items-center gap-2 text-xs font-bold tracking-widest text-gray-900 uppercase hover:underline"
+          >
+            <RefreshCcw className="w-3 h-3" />
+            {t("retry")}
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  if (!summary) return null;
+
+  return (
+    <section className="py-12 md:py-16 animate-in fade-in duration-700">
+      <div className="grid gap-12 lg:grid-cols-[1fr,300px] lg:gap-20">
+        {/* Main Content: Summary */}
+        <div className="space-y-8">
+          <header>
+            <h2 className="text-xs font-bold tracking-widest text-emerald-600 uppercase mb-4">
+              {t("title")}
+            </h2>
+            <h3 className="text-2xl md:text-3xl font-serif text-gray-900 leading-tight">
+              {t("summary_label")}
+            </h3>
+          </header>
+
+          <div className="prose prose-gray max-w-none">
+            <p className="text-lg leading-relaxed text-gray-600 font-light">
+              {summary.summary}
+            </p>
           </div>
-        ) : summary ? (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* 1. 요약 */}
-            <div className="relative group">
-              <div className="absolute -inset-0.5 bg-linear-to-r from-emerald-100 to-teal-100 rounded-2xl opacity-50 group-hover:opacity-70 transition duration-300 blur-sm"></div>
-              <div className="relative p-5 bg-white rounded-xl border border-emerald-100 shadow-sm">
-                <h3 className="flex items-center gap-2 mb-3 font-bold text-emerald-800">
-                  <Sparkles className="w-4 h-4" />
-                  {t("summary_label")}
-                </h3>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-lg font-medium">
-                  {summary.summary}
-                </p>
-              </div>
-            </div>
 
-            {/* 2. 핵심 포인트 */}
-            <div>
-              <h3 className="flex items-center gap-2 mb-4 font-bold text-gray-900 text-lg">
-                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                {t("key_points_label")}
-              </h3>
-              <ul className="grid gap-3 sm:grid-cols-2">
-                {summary.keyPoints?.map((point, index) => (
-                  <li
-                    key={index}
-                    className="flex items-start gap-3 p-4 bg-white rounded-xl border border-gray-100 hover:border-emerald-200 hover:shadow-sm transition-all duration-200"
-                  >
-                    <div className="shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-emerald-50 text-emerald-600 font-bold text-xs mt-0.5">
-                      {index + 1}
-                    </div>
-                    <span className="text-gray-700 leading-relaxed">
-                      {point}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <div className="pt-8">
+            <h4 className="text-sm font-bold text-gray-900 mb-6 uppercase tracking-wide">
+              {t("key_points_label")}
+            </h4>
+            <ul className="grid gap-4 sm:grid-cols-2">
+              {summary.keyPoints?.map((point, index) => (
+                <li key={index} className="flex gap-4 items-baseline">
+                  <span className="font-serif text-emerald-500 italic text-lg">
+                    {(index + 1).toString().padStart(2, "0")}
+                  </span>
+                  <span className="text-gray-700 leading-relaxed text-sm">
+                    {point}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
 
-            <Separator className="bg-emerald-100/50" />
+        {/* Sidebar: Meta Info */}
+        <div className="lg:border-l lg:border-gray-100 lg:pl-12 space-y-10 h-fit">
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+              {t("recommendation_label")}
+            </h4>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              {summary.targetAudience}
+            </p>
+          </div>
 
-            {/* 3. 추천 대상 & 키워드 */}
-            <div className="grid gap-8 md:grid-cols-2">
-              <div className="space-y-3">
-                <h3 className="flex items-center gap-2 font-bold text-gray-900">
-                  <User className="w-5 h-5 text-gray-500" />
-                  {t("recommendation_label")}
-                </h3>
-                <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 text-gray-700 leading-relaxed">
-                  {summary.targetAudience}
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <h3 className="flex items-center gap-2 font-bold text-gray-900">
-                  <Badge variant="outline" className="px-2 py-0.5 text-xs">
-                    TAGS
-                  </Badge>
-                  {t("keywords_label")}
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {summary.keywords?.map((keyword, index) => (
-                    <Badge
-                      key={index}
-                      variant="secondary"
-                      className="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200 text-sm font-medium transition-colors"
-                    >
-                      #{keyword}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+              {t("keywords_label")}
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {summary.keywords?.map((keyword, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center px-2.5 py-1 rounded-sm bg-gray-50 text-xs font-medium text-gray-600 border border-gray-100"
+                >
+                  #{keyword}
+                </span>
+              ))}
             </div>
           </div>
-        ) : null}
-      </CardContent>
-    </Card>
+        </div>
+      </div>
+    </section>
   );
 };

@@ -23,15 +23,18 @@ export const RecentReviewSlider = () => {
 
   const SliderHeader = () => (
     <div className="text-right mb-12">
-      <div className="mb-4 flex justify-end">
-        <span className="inline-block px-4 py-1.5 text-xs font-semibold tracking-wider text-sky-600 uppercase bg-sky-50 rounded-full">
+      <div className="mb-4 flex items-center justify-end gap-2">
+        <span className="text-[10px] font-bold text-stone-500 tracking-[0.2em] uppercase">
           {t("badge")}
         </span>
+        <div className="h-px w-8 bg-stone-300" />
       </div>
       <Link href={PATHS.REVIEWS} className="group inline-block">
-        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl group-hover:text-sky-700 transition-colors">
+        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl transition-opacity group-hover:opacity-70">
+          <span className="block text-gray-400 font-medium text-2xl mb-1">
+            {t("title_prefix")}
+          </span>
           <ArrowRight className="inline-block w-6 h-6 mr-2 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 rotate-180" />
-          <span className="text-sky-600">{t("title_prefix")}</span>{" "}
           {t("title_suffix")}
         </h2>
       </Link>

@@ -38,7 +38,7 @@ export const Root = ({
       >
         <Card
           className={cn(
-            "relative h-full w-full overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border-stone-200",
+            "relative h-full w-full overflow-hidden rounded-sm! border border-stone-200 bg-white shadow-sm transition-colors hover:border-stone-300",
           )}
         >
           <div className="flex flex-col h-full">{children}</div>

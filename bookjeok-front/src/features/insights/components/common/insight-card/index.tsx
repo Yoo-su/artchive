@@ -2,12 +2,7 @@
 
 import { ReactNode } from "react";
 
-// 말차색 팔레트
-const MATCHA = {
-  dark: "#4b6043",
-  medium: "#658354",
-};
-
+// Stone/Mono 스타일 적용
 interface InsightCardProps {
   title: string;
   description?: string;
@@ -18,6 +13,7 @@ interface InsightCardProps {
 
 /**
  * 인사이트 카드 공통 래퍼 컴포넌트
+ * - Flat, Minimal, Editorial Style
  */
 export const InsightCard = ({
   title,
@@ -28,24 +24,21 @@ export const InsightCard = ({
 }: InsightCardProps) => {
   return (
     <div
-      className={`rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-shadow hover:shadow-md ${className}`}
+      className={`group rounded-xl border border-stone-200 bg-white p-6 transition-all duration-300 hover:border-stone-400 ${className}`}
     >
       {/* 헤더 */}
-      <div className="mb-4 flex items-center gap-3">
-        {icon && (
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
-            style={{ backgroundColor: MATCHA.medium }}
-          >
-            {icon}
-          </div>
-        )}
-        <div>
-          <h3 className="font-semibold text-gray-800">{title}</h3>
-          {description && (
-            <p className="text-sm text-gray-500">{description}</p>
-          )}
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-2">
+          {icon && <div className="text-stone-400">{icon}</div>}
+          <h3 className="font-serif text-lg font-bold text-stone-800 tracking-tight">
+            {title}
+          </h3>
         </div>
+        {description && (
+          <p className="text-xs text-stone-500 font-medium tracking-wide uppercase ml-1">
+            {description}
+          </p>
+        )}
       </div>
 
       {/* 콘텐츠 */}

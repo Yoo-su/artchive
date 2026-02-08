@@ -35,6 +35,7 @@ export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
   const t = useTranslations("market.history");
   const tStatus = useTranslations("market.sale_status");
   const tActions = useTranslations("market.detail.actions");
+  const tCommon = useTranslations("common");
   const router = useRouter();
 
   const { mutate: updateSaleStatus } = useUpdateBookSaleStatusMutation();
@@ -63,80 +64,103 @@ export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
   };
 
   return (
-    <Card
-      className="transition-shadow duration-300 hover:shadow-md cursor-pointer"
+    <div
+      className="group relative flex gap-4 py-6 border-b border-stone-100 last:border-0 hover:bg-stone-50/50 transition-colors"
       onClick={handleCardClick}
     >
-      <CardContent className="flex items-center p-4 gap-4">
-        <div className="relative w-20 h-28 shrink-0">
-          <Image
-            src={sale.book.image ?? "/placeholder.jpg"}
-            alt={sale.book.title}
-            fill
-            sizes="80px"
-            className="rounded-md object-cover"
-          />
+      {/* 이미지 영역 (4:5 비율) */}
+      <div className="relative w-20 aspect-4/5 shrink-0 bg-stone-100 rounded-sm overflow-hidden border border-stone-100">
+        <Image
+          src={sale.imageUrls[0] || "/images/placeholder-image.svg"}
+          alt={sale.title}
+          fill
+          sizes="80px"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        {/* 상태 배지 (이미지 위 오버레이) */}
+        <div className="absolute top-1 right-1">
+          {/* 공간 절약을 위해 이미지 위에는 텍스트만 띄우거나, 리스트에서는 배지를 콘텐츠 영역으로 이동 */}
         </div>
-        <div className="grow min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div className="grow w-0">
-              <SaleStatusBadge status={sale.status} />
-              <h3 className="font-semibold text-lg mt-1 truncate">
-                {sale.title}
-              </h3>
-              <p className="text-sm text-gray-500 truncate">
-                {sale.book.title}
-              </p>
+      </div>
+
+      {/* 콘텐츠 영역 */}
+      <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+        <div className="flex justify-between items-start gap-2">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 mb-1">
+              <SaleStatusBadge
+                status={sale.status}
+                className="h-5 px-1.5 text-[10px]"
+              />
+              <span className="text-xs text-stone-400">
+                {new Date(sale.createdAt).toLocaleDateString()}
+              </span>
             </div>
-            <div onClick={handleDropdownClick}>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <Link href={PATHS.MY_PAGE_SALES_EDIT(String(sale.id))}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      <span>{tActions("edit")}</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="text-red-600"
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    <span>
-                      {isDeleting ? tActions("deleting") : tActions("delete")}
-                    </span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-2">
-            <p className="font-bold text-gray-800">
-              {sale.price.toLocaleString()}원
+            <h3 className="font-serif font-bold text-lg text-stone-900 line-clamp-1 leading-tight group-hover:text-stone-600 transition-colors">
+              {sale.title}
+            </h3>
+            <p className="text-sm text-stone-500 line-clamp-1">
+              {sale.book.title}
             </p>
-            <div onClick={handleDropdownClick}>
-              <Select value={sale.status} onValueChange={handleStatusChange}>
-                <SelectTrigger className="w-[120px] h-9">
-                  <SelectValue placeholder={t("change_status")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(SaleStatus).map((status) => (
-                    <SelectItem key={status} value={status}>
-                      {tStatus(status)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          </div>
+
+          <div onClick={handleDropdownClick}>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-stone-400 hover:text-stone-900 hover:bg-stone-100 rounded-full"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-32">
+                <DropdownMenuItem asChild>
+                  <Link href={PATHS.MY_PAGE_SALES_EDIT(String(sale.id))}>
+                    <Edit className="mr-2 h-3.5 w-3.5" />
+                    <span className="text-xs">{tActions("edit")}</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-red-600 focus:text-red-700 focus:bg-red-50"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="mr-2 h-3.5 w-3.5" />
+                  <span className="text-xs">
+                    {isDeleting ? tActions("deleting") : tActions("delete")}
+                  </span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
-      </CardContent>
-    </Card>
+
+        <div className="flex items-end justify-between mt-3">
+          <p className="font-bold text-lg text-stone-900">
+            {sale.price.toLocaleString()}
+            <span className="text-sm font-normal text-stone-500 ml-0.5">
+              {tCommon("won")}
+            </span>
+          </p>
+
+          <div onClick={handleDropdownClick}>
+            <Select value={sale.status} onValueChange={handleStatusChange}>
+              <SelectTrigger className="w-[110px] h-8 text-xs bg-white border-stone-200 focus:ring-stone-200 shadow-sm">
+                <SelectValue placeholder={t("change_status")} />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.values(SaleStatus).map((status) => (
+                  <SelectItem key={status} value={status} className="text-xs">
+                    {tStatus(status)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };

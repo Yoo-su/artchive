@@ -1,37 +1,16 @@
 "use client";
 
-import {
-  BarChart3,
-  CalendarDays,
-  List,
-  MessageSquareQuote,
-  PenLine,
-  PenSquare,
-  Search,
-  ShoppingBag,
-  Store,
-  User,
-} from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { NotificationPopover } from "@/features/notification/components/popover-view/notification-popover";
-import { Button } from "@/shared/components/shadcn/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/components/shadcn/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/shared/components/shadcn/tooltip";
 import { Link, usePathname } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";
@@ -41,6 +20,36 @@ import { Logo } from "../common/logo";
 import { MobileNavSheet } from "./mobile-nav-sheet";
 import UserPopover from "./user-popover";
 
+// 손글씨 느낌의 꼬불꼬불한 용수철 밑줄 SVG 컴포넌트 (True Looped Spring)
+const HandDrawnUnderline = () => (
+  <svg
+    className="absolute left-0 -top-2.5 w-full h-3 pointer-events-none text-stone-900"
+    viewBox="0 0 100 10"
+    preserveAspectRatio="none"
+  >
+    <style>{`
+      @keyframes draw-spring {
+        from { stroke-dashoffset: 1; }
+        to { stroke-dashoffset: 0; }
+      }
+    `}</style>
+    <path
+      d="M 0 9 C 5 9 8 2 4 2 S 4 9 16 9 C 21 9 24 2 20 2 S 20 9 32 9 C 37 9 40 2 36 2 S 36 9 48 9 C 53 9 56 2 52 2 S 52 9 64 9 C 69 9 72 2 68 2 S 68 9 80 9 C 85 9 88 2 84 2 S 84 9 96 9 Q 99 9 100 2"
+      stroke="currentColor"
+      strokeWidth="0.6"
+      fill="none"
+      vectorEffect="non-scaling-stroke"
+      className="opacity-60"
+      pathLength="1"
+      style={{
+        strokeDasharray: 1,
+        strokeDashoffset: 1,
+        animation: "draw-spring 1s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+      }}
+    />
+  </svg>
+);
+
 export const DefaultHeader = () => {
   const t = useTranslations("header");
   const { user } = useAuthStore();
@@ -48,271 +57,173 @@ export const DefaultHeader = () => {
 
   const isActive = (path: string) => pathname?.startsWith(path);
 
-  const getIconClass = (path: string) =>
+  const getLinkClass = (path: string) =>
     cn(
-      "w-5 h-5 transition-colors duration-200",
-      isActive(path)
-        ? "text-amber-600 fill-amber-100"
-        : "text-stone-400 group-hover:text-stone-600",
+      "relative text-sm font-medium transition-colors duration-200 tracking-wide uppercase",
+      isActive(path) ? "text-stone-900" : "text-stone-400 hover:text-stone-600",
     );
 
-  const getButtonClass = (path: string) =>
-    cn(
-      "w-10 h-10 rounded-full transition-all duration-200",
-      isActive(path) ? "bg-amber-50" : "hover:bg-stone-50",
-    );
+  const dropdownContentClass =
+    "w-40 p-0 rounded-none border border-stone-200 bg-white shadow-sm";
+  const dropdownItemClass =
+    "rounded-none px-4 py-3 cursor-pointer hover:bg-stone-50 focus:bg-stone-50 outline-none";
+  const dropdownLinkClass =
+    "flex items-center text-xs font-medium text-stone-600 hover:text-stone-900";
 
   return (
     <header className="sticky top-0 left-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-stone-100">
-      <div className="flex items-center justify-between max-w-4xl w-full px-4 py-3 mx-auto">
+      <div className="flex items-center justify-between max-w-4xl w-full px-4 py-4 mx-auto">
         {/* 좌측: 모바일 메뉴 + 로고 */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           {/* 모바일 햄버거 메뉴 */}
           <MobileNavSheet />
 
           <Logo />
-
-          {/* 데스크탑 네비게이션 */}
-          <nav
-            className="hidden md:flex items-center gap-1 ml-6"
-            aria-label="메인 메뉴"
-          >
-            {/* 1. 도서 검색 */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    asChild
-                    className={getButtonClass(PATHS.BOOK_SEARCH)}
-                    aria-label={t("nav.book_search")}
-                  >
-                    <Link href={PATHS.BOOK_SEARCH} className="group">
-                      <Search className={getIconClass(PATHS.BOOK_SEARCH)} />
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{t("nav.book_search")}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            {/* 2. 독서 기록 (로그인 전용) - 우선 순위 조정 */}
-            {user && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      asChild
-                      className={getButtonClass(PATHS.READING_LOG)}
-                      aria-label={t("nav.reading_log")}
-                    >
-                      <Link href={PATHS.READING_LOG} className="group">
-                        <CalendarDays
-                          className={getIconClass(PATHS.READING_LOG)}
-                        />
-                      </Link>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{t("nav.my_reading_log")}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
-
-            <div className="w-px h-3 bg-stone-200 mx-1" />
-
-            {/* 3. 중고마켓 그룹 */}
-            <DropdownMenu modal={false}>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn(
-                    "w-10 h-10 rounded-full transition-all duration-200",
-                    isActive(PATHS.BOOK_MARKET)
-                      ? "bg-amber-50"
-                      : "hover:bg-stone-50",
-                  )}
-                  aria-label={t("nav.market_menu")}
-                >
-                  <Store
-                    className={cn(
-                      "w-5 h-5 transition-colors duration-200",
-                      isActive(PATHS.BOOK_MARKET)
-                        ? "text-amber-600 fill-amber-100"
-                        : "text-stone-400 hover:text-stone-600",
-                    )}
-                  />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" className="w-48 p-1">
-                <DropdownMenuLabel className="text-xs text-stone-400 font-normal ml-1">
-                  {t("nav.market_menu")}
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-stone-100" />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href={PATHS.BOOK_MARKET}
-                      className="flex items-center gap-2 cursor-pointer py-2 focus:bg-stone-50"
-                    >
-                      <Store className="w-4 h-4 mr-1 text-stone-500" />
-                      <span className="font-medium text-stone-700">
-                        {t("nav.market_home")}
-                      </span>
-                    </Link>
-                  </DropdownMenuItem>
-                  {user && (
-                    <>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href={PATHS.BOOK_SALES_REGISTER}
-                          className="flex items-center gap-2 cursor-pointer py-2 focus:bg-stone-50"
-                        >
-                          <PenSquare className="w-4 h-4 mr-1 text-stone-500" />
-                          <span className="font-medium text-stone-700">
-                            {t("nav.write_sales")}
-                          </span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href={PATHS.MY_PAGE_SALES}
-                          className="flex items-center gap-2 cursor-pointer py-2 focus:bg-stone-50"
-                        >
-                          <ShoppingBag className="w-4 h-4 mr-1 text-stone-500" />
-                          <span className="font-medium text-stone-700">
-                            {t("nav.my_sales")}
-                          </span>
-                        </Link>
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* 3. 리뷰 그룹 */}
-            <DropdownMenu modal={false}>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn(
-                    "w-10 h-10 rounded-full transition-all duration-200",
-                    isActive(PATHS.REVIEWS)
-                      ? "bg-amber-50"
-                      : "hover:bg-stone-50",
-                  )}
-                  aria-label={t("nav.review_menu")}
-                >
-                  <MessageSquareQuote
-                    className={cn(
-                      "w-5 h-5 transition-colors duration-200",
-                      isActive(PATHS.REVIEWS)
-                        ? "text-amber-600 fill-amber-100"
-                        : "text-stone-400 hover:text-stone-600",
-                    )}
-                  />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" className="w-48 p-1">
-                <DropdownMenuLabel className="text-xs text-stone-400 font-normal ml-1">
-                  {t("nav.review_menu")}
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-stone-100" />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href={PATHS.REVIEWS}
-                      className="flex items-center gap-2 cursor-pointer py-2 focus:bg-stone-50"
-                    >
-                      <List className="w-4 h-4 mr-1 text-stone-500" />
-                      <span className="font-medium text-stone-700">
-                        {t("nav.review_feed")}
-                      </span>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                {user && (
-                  <>
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href={PATHS.REVIEW_WRITE}
-                          className="flex items-center gap-2 cursor-pointer py-2 focus:bg-stone-50"
-                        >
-                          <PenLine className="w-4 h-4 mr-1 text-stone-500" />
-                          <span className="font-medium text-stone-700">
-                            {t("nav.write_review")}
-                          </span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href={PATHS.MY_REVIEWS}
-                          className="flex items-center gap-2 cursor-pointer py-2 focus:bg-stone-50"
-                        >
-                          <User className="w-4 h-4 mr-1 text-stone-500" />
-                          <span className="font-medium text-stone-700">
-                            {t("nav.my_reviews")}
-                          </span>
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <div className="w-px h-3 bg-stone-200 mx-1" />
-
-            {/* 4. 인사이트 */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    asChild
-                    className={getButtonClass(PATHS.INSIGHTS)}
-                    aria-label={t("nav.insights")}
-                  >
-                    <Link href={PATHS.INSIGHTS} className="group">
-                      <BarChart3 className={getIconClass(PATHS.INSIGHTS)} />
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{t("nav.reading_insights")}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </nav>
         </div>
 
+        {/* 중앙: 데스크탑 텍스트 네비게이션 */}
+        <nav
+          className="hidden md:flex items-center gap-8"
+          aria-label="메인 메뉴"
+        >
+          {/* 1. 도서 검색 */}
+          <Link
+            href={PATHS.BOOK_SEARCH}
+            className={getLinkClass(PATHS.BOOK_SEARCH)}
+          >
+            {t("nav.menu_search")}
+            {isActive(PATHS.BOOK_SEARCH) && <HandDrawnUnderline />}
+          </Link>
+
+          {/* 2. 독서 기록 (로그인 전용) */}
+          {user && (
+            <Link
+              href={PATHS.READING_LOG}
+              className={getLinkClass(PATHS.READING_LOG)}
+            >
+              {t("nav.menu_log")}
+              {isActive(PATHS.READING_LOG) && <HandDrawnUnderline />}
+            </Link>
+          )}
+
+          {/* 3. 중고마켓 그룹 */}
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <button
+                className={cn(
+                  "relative text-sm font-medium transition-colors duration-200 tracking-wide outline-none cursor-pointer uppercase",
+                  isActive(PATHS.BOOK_MARKET)
+                    ? "text-stone-900"
+                    : "text-stone-400 hover:text-stone-600",
+                )}
+              >
+                {t("nav.menu_market")}
+                {isActive(PATHS.BOOK_MARKET) && <HandDrawnUnderline />}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="center"
+              className={dropdownContentClass}
+            >
+              <DropdownMenuGroup>
+                <DropdownMenuItem asChild className={dropdownItemClass}>
+                  <Link href={PATHS.BOOK_MARKET} className={dropdownLinkClass}>
+                    <span>{t("nav.market_home")}</span>
+                  </Link>
+                </DropdownMenuItem>
+                {user && (
+                  <>
+                    <DropdownMenuItem asChild className={dropdownItemClass}>
+                      <Link
+                        href={PATHS.BOOK_SALES_REGISTER}
+                        className={dropdownLinkClass}
+                      >
+                        <span>{t("nav.write_sales")}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className={dropdownItemClass}>
+                      <Link
+                        href={PATHS.MY_PAGE_SALES}
+                        className={dropdownLinkClass}
+                      >
+                        <span>{t("nav.my_sales")}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* 4. 리뷰 그룹 */}
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <button
+                className={cn(
+                  "relative text-sm font-medium transition-colors duration-200 tracking-wide outline-none cursor-pointer uppercase",
+                  isActive(PATHS.REVIEWS)
+                    ? "text-stone-900"
+                    : "text-stone-400 hover:text-stone-600",
+                )}
+              >
+                {t("nav.menu_reviews")}
+                {isActive(PATHS.REVIEWS) && <HandDrawnUnderline />}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="center"
+              className={dropdownContentClass}
+            >
+              <DropdownMenuGroup>
+                <DropdownMenuItem asChild className={dropdownItemClass}>
+                  <Link href={PATHS.REVIEWS} className={dropdownLinkClass}>
+                    <span>{t("nav.review_feed")}</span>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              {user && (
+                <DropdownMenuGroup>
+                  <DropdownMenuItem asChild className={dropdownItemClass}>
+                    <Link
+                      href={PATHS.REVIEW_WRITE}
+                      className={dropdownLinkClass}
+                    >
+                      <span>{t("nav.write_review")}</span>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild className={dropdownItemClass}>
+                    <Link href={PATHS.MY_REVIEWS} className={dropdownLinkClass}>
+                      <span>{t("nav.my_reviews")}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* 5. 인사이트 */}
+          <Link href={PATHS.INSIGHTS} className={getLinkClass(PATHS.INSIGHTS)}>
+            {t("nav.menu_insights")}
+            {isActive(PATHS.INSIGHTS) && <HandDrawnUnderline />}
+          </Link>
+        </nav>
+
         {/* 우측: 사용자 메뉴 */}
-        <div className="flex items-center gap-1">
-          <LanguageSwitcher className="hidden md:flex mr-1" />
+        <div className="flex items-center gap-3">
+          <LanguageSwitcher className="hidden md:flex" />
           {user ? (
             <>
-              <div className="mr-2">
+              <div className="mr-1">
                 <NotificationPopover />
               </div>
               <UserPopover />
             </>
           ) : (
             <Link href={PATHS.LOGIN}>
-              <Button className="rounded-full bg-white hover:bg-stone-50 border border-stone-200 shadow-sm hover:shadow text-stone-600 px-4 h-8 text-xs font-semibold transition-all flex items-center gap-1.5">
-                <User className="w-3.5 h-3.5" />
-                <span>{t("auth.login")}</span>
-              </Button>
+              <span className="text-sm font-medium text-stone-400 hover:text-stone-900 transition-colors tracking-wide uppercase">
+                {t("nav.menu_login")}
+              </span>
             </Link>
           )}
         </div>

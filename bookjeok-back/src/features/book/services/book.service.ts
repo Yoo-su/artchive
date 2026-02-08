@@ -64,38 +64,18 @@ export class BookService {
   /**
    * 인기 도서 목록을 조회합니다.
    * - 인기도 = (책 조회수 * 1) + (판매글 조회수 * 2) + (리뷰 조회수 * 2) + (리액션 * 3)
-   * - Cartesian Product 방지를 위해 Subquery를 사용하여 집계합니다.
    */
   async findPopularBooks(): Promise<Book[]> {
+    // Subqueries for popularity calculation
+    const salesViewSubQuery = `SELECT COALESCE(SUM(sale."viewCount"), 0) FROM used_book_sales sale WHERE sale."bookIsbn" = book.isbn`;
+    const reviewViewSubQuery = `SELECT COALESCE(SUM(review."viewCount"), 0) FROM reviews review WHERE review."bookIsbn" = book.isbn`;
+    const reviewReactionSubQuery = `SELECT COALESCE(SUM(review."reactionCount"), 0) FROM reviews review WHERE review."bookIsbn" = book.isbn`;
+
     const rawResults = await this.bookRepository
       .createQueryBuilder('book')
-      // 판매글 조회수 집계 (Subquery)
-      .addSelect(
-        (subQuery) =>
-          subQuery
-            .select('COALESCE(SUM(sale.viewCount), 0)')
-            .from('used_book_sales', 'sale')
-            .where('sale.bookIsbn = book.isbn'),
-        'totalSaleViews',
-      )
-      // 리뷰 조회수 집계 (Subquery)
-      .addSelect(
-        (subQuery) =>
-          subQuery
-            .select('COALESCE(SUM(review.viewCount), 0)')
-            .from('reviews', 'review')
-            .where('review.bookIsbn = book.isbn'),
-        'totalReviewViews',
-      )
-      // 리액션 집계 (Subquery)
-      .addSelect(
-        (subQuery) =>
-          subQuery
-            .select('COALESCE(SUM(review.reactionCount), 0)')
-            .from('reviews', 'review')
-            .where('review.bookIsbn = book.isbn'),
-        'totalReviewReactions',
-      )
+      .addSelect(`(${salesViewSubQuery})`, 'totalSaleViews')
+      .addSelect(`(${reviewViewSubQuery})`, 'totalReviewViews')
+      .addSelect(`(${reviewReactionSubQuery})`, 'totalReviewReactions')
       .select([
         'book.isbn AS isbn',
         'book.title AS title',
@@ -107,15 +87,11 @@ export class BookService {
         'book.createdAt AS "createdAt"',
         'book.updatedAt AS "updatedAt"',
       ])
-      // 점수 계산 (Subquery Alias 사용 불가 -> 수식 반복하거나, DB 뷰 사용해야 함.
-      // 여기서는 가독성을 위해 Subquery를 다시 명시하지 않고,
-      // 쿼리 최적화를 위해 위에서 계산된 가상 컬럼을 활용할 수 없으므로,
-      // TypeORM에서는 addSelect 된 값을 orderBy에 직접 사용할 수 있음)
       .orderBy(
         `COALESCE(book.viewCount, 0) * 1 
-         + ("totalSaleViews") * 2 
-         + ("totalReviewViews") * 2 
-         + ("totalReviewReactions") * 3`,
+         + (${salesViewSubQuery}) * 2 
+         + (${reviewViewSubQuery}) * 2 
+         + (${reviewReactionSubQuery}) * 3`,
         'DESC',
       )
       .addOrderBy('"viewCount"', 'DESC')
@@ -132,7 +108,6 @@ export class BookService {
       viewCount: Number(raw.viewCount) || 0,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
-      // Raw query라 relation은 비어있음
       usedBookSales: [],
     })) as Book[];
   }

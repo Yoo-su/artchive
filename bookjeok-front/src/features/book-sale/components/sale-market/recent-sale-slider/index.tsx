@@ -33,14 +33,17 @@ export const RecentSalesSlider = () => {
 
   const SliderHeader = () => (
     <div className="text-left mb-12">
-      <div className="mb-4">
-        <span className="inline-block px-4 py-1.5 text-xs font-semibold tracking-wider text-emerald-600 uppercase bg-emerald-50 rounded-full">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="h-px w-8 bg-stone-300" />
+        <span className="text-[10px] font-bold text-stone-500 tracking-[0.2em] uppercase">
           {t("badge")}
         </span>
       </div>
       <Link href={PATHS.BOOK_MARKET} className="group inline-block">
-        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl group-hover:text-emerald-700 transition-colors">
-          <span className="text-emerald-800">{t("title_prefix")}</span>{" "}
+        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl transition-opacity group-hover:opacity-70">
+          <span className="block text-gray-400 font-medium text-2xl mb-1">
+            {t("title_prefix")}
+          </span>
           {t("title_suffix")}
           <ArrowRight className="inline-block w-6 h-6 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
         </h2>

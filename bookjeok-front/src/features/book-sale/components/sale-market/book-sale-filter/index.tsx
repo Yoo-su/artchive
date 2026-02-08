@@ -24,6 +24,7 @@ import {
   TooltipTrigger,
 } from "@/shared/components/shadcn/tooltip";
 import { KOREA_DISTRICTS } from "@/shared/constants/korea-districts";
+import { cn } from "@/shared/utils/cn";
 import { formatPrice } from "@/shared/utils/format-price";
 
 import { MAX_MARKET_PRICE } from "../../../constants";
@@ -98,138 +99,153 @@ export const BookSaleFilter = ({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onApply)}
-      className="mb-8 space-y-4 rounded-lg border bg-card p-4 text-card-foreground shadow-sm"
-    >
-      {/* 1행: 검색 및 지역 선택 */}
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="relative grow min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
-            type="text"
-            {...register("search")}
-            placeholder={t("placeholder_search")}
-            className="w-full pl-10 text-base"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <Controller
-            name="city"
-            control={control}
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={handleCityChange}>
-                <SelectTrigger className="w-full sm:w-[130px]">
-                  <SelectValue placeholder={t("placeholder_city")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("all_cities")}</SelectItem>
-                  {Object.keys(KOREA_DISTRICTS).map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-          <Controller
-            name="district"
-            control={control}
-            render={({ field }) => (
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-                disabled={
-                  !city || city === "all" || KOREA_DISTRICTS[city]?.length === 0
-                }
-              >
-                <SelectTrigger className="w-full sm:w-[130px]">
-                  <SelectValue placeholder={t("placeholder_district")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("all_districts")}</SelectItem>
-                  {city &&
-                    city !== "all" &&
-                    KOREA_DISTRICTS[city].map((d) => (
-                      <SelectItem key={d} value={d}>
-                        {d}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </div>
+    <form onSubmit={handleSubmit(onApply)} className="mb-12 space-y-6">
+      {/* 1행: 검색 (전체 너비) */}
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400" />
+        <Input
+          type="text"
+          {...register("search")}
+          placeholder={t("placeholder_search")}
+          className="w-full h-12 pl-12 text-base bg-white border-stone-200 rounded-sm focus-visible:ring-stone-400 focus-visible:border-stone-400 placeholder:text-stone-400 transition-all font-serif"
+        />
       </div>
 
-      {/* 2행: 판매 상태 및 정렬 */}
-      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
-        <div className="flex items-center gap-4">
-          <Label className="shrink-0 font-semibold">{t("label_status")}</Label>
+      {/* 2행: 주요 필터 (모바일: 그리드, 데스크탑: 플렉스 - 변경됨) */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {/* 지역 선택 */}
+        <Controller
+          name="city"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={handleCityChange}>
+              <SelectTrigger className="w-full h-12 bg-white border-stone-200 rounded-sm focus:ring-stone-200">
+                <SelectValue placeholder={t("placeholder_city")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("all_cities")}</SelectItem>
+                {Object.keys(KOREA_DISTRICTS).map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+        <Controller
+          name="district"
+          control={control}
+          render={({ field }) => (
+            <Select
+              value={field.value}
+              onValueChange={field.onChange}
+              disabled={
+                !city || city === "all" || KOREA_DISTRICTS[city]?.length === 0
+              }
+            >
+              <SelectTrigger className="w-full h-12 bg-white border-stone-200 rounded-sm focus:ring-stone-200 disabled:bg-stone-50 disabled:opacity-50">
+                <SelectValue placeholder={t("placeholder_district")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("all_districts")}</SelectItem>
+                {city &&
+                  city !== "all" &&
+                  KOREA_DISTRICTS[city].map((d) => (
+                    <SelectItem key={d} value={d}>
+                      {d}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+
+        {/* 정렬 */}
+        <Controller
+          name="sort"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger className="w-full h-12 bg-white border-stone-200 rounded-sm focus:ring-stone-200 col-span-2 md:col-span-1">
+                <SelectValue placeholder={t("sort.label")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="createdAt_DESC">
+                  {t("sort.newest")}
+                </SelectItem>
+                <SelectItem value="price_ASC">{t("sort.price_low")}</SelectItem>
+                <SelectItem value="price_DESC">
+                  {t("sort.price_high")}
+                </SelectItem>
+                <SelectItem value="distance_ASC">
+                  {t("sort.distance")}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
+      </div>
+
+      {/* 3행: 상세 필터 (상태 & 가격) */}
+      <div className="pt-4 border-t border-dashed border-stone-200/50 flex flex-col md:flex-row gap-6 md:gap-12">
+        {/* 판매 상태 */}
+        <div className="space-y-3">
+          <Label className="text-sm font-serif font-bold text-stone-900">
+            {t("label_status")}
+          </Label>
           <Controller
             name="status"
             control={control}
             render={({ field }) => (
-              <>
+              <div className="flex flex-wrap gap-2">
                 {(
                   Object.keys(SaleStatus) as Array<keyof typeof SaleStatus>
-                ).map((key) => (
-                  <div key={key} className="flex items-center gap-1.5">
-                    <Checkbox
-                      id={SaleStatus[key]}
-                      checked={field.value.includes(SaleStatus[key])}
-                      onCheckedChange={(checked) => {
-                        const currentStatus = SaleStatus[key];
-                        const newValue = checked
-                          ? [...field.value, currentStatus]
-                          : field.value.filter((s) => s !== currentStatus);
-                        field.onChange(newValue);
-                      }}
-                    />
-                    <Label htmlFor={SaleStatus[key]} className="font-normal">
-                      {t(`status.${SaleStatus[key]}`)}
-                    </Label>
-                  </div>
-                ))}
-              </>
+                ).map((key) => {
+                  const currentStatus = SaleStatus[key];
+                  const isChecked = field.value.includes(currentStatus);
+                  return (
+                    <label
+                      key={key}
+                      className={cn(
+                        "cursor-pointer inline-flex items-center px-3 py-1.5 rounded-full border text-sm transition-all",
+                        isChecked
+                          ? "bg-stone-900 border-stone-900 text-white font-medium shadow-sm"
+                          : "bg-white border-stone-200 text-stone-500 hover:border-stone-300 hover:bg-stone-50",
+                      )}
+                    >
+                      <input
+                        type="checkbox"
+                        className="sr-only"
+                        checked={isChecked}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          const newValue = checked
+                            ? [...field.value, currentStatus]
+                            : field.value.filter((s) => s !== currentStatus);
+                          field.onChange(newValue);
+                        }}
+                      />
+                      {t(`status.${currentStatus}`)}
+                    </label>
+                  );
+                })}
+              </div>
             )}
           />
         </div>
-        <div className="flex items-center gap-2">
-          <Controller
-            name="sort"
-            control={control}
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue placeholder={t("sort.label")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="createdAt_DESC">
-                    {t("sort.newest")}
-                  </SelectItem>
-                  <SelectItem value="price_ASC">
-                    {t("sort.price_low")}
-                  </SelectItem>
-                  <SelectItem value="price_DESC">
-                    {t("sort.price_high")}
-                  </SelectItem>
-                  <SelectItem value="distance_ASC">
-                    {t("sort.distance")}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </div>
-      </div>
 
-      {/* 3행: 가격 슬라이더 및 버튼 */}
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="flex grow items-center gap-4">
-          <Label className="shrink-0 font-semibold">{t("label_price")}</Label>
-          <div className="grow flex items-center gap-2">
+        {/* 가격 범위 */}
+        <div className="flex-1 space-y-3 min-w-[240px]">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-serif font-bold text-stone-900">
+              {t("label_price")}
+            </Label>
+            <span className="text-sm font-medium text-stone-600 bg-stone-100 px-2 py-0.5 rounded-sm">
+              {formatPrice(priceRange[0])} ~ {formatPrice(priceRange[1])}
+            </span>
+          </div>
+          <div className="pt-2 px-1">
             <Controller
               name="priceRange"
               control={control}
@@ -239,40 +255,38 @@ export const BookSaleFilter = ({
                   onValueChange={field.onChange}
                   max={MAX_MARKET_PRICE}
                   step={1000}
-                  className="w-full max-w-xs"
+                  className="w-full"
                 />
               )}
             />
-            <div className="text-sm text-muted-foreground w-40 text-center">
-              {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
-            </div>
+          </div>
+          <div className="flex justify-between text-[10px] text-stone-400 font-medium px-1">
+            <span>0{t("money_unit", { default: "원" })}</span>
+            <span>{formatPrice(MAX_MARKET_PRICE)}</span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleReset}
-                  className="text-muted-foreground"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                  <span className="sr-only">Reset Filters</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{t("reset")}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <Button size="sm" type="submit">
-            <Search className="mr-1 h-4 w-4" />
-            {t("search")}
-          </Button>
-        </div>
+      </div>
+
+      {/* 4행: 실행 버튼 */}
+      <div className="flex items-center gap-2 pt-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleReset}
+          className="shrink-0 h-12 px-4 rounded-sm border-stone-200 text-stone-600 hover:text-stone-900 hover:bg-stone-50 gap-2"
+        >
+          <RefreshCw className="h-4 w-4" />
+          {t("reset_conditions")}
+        </Button>
+
+        <Button
+          size="lg"
+          type="submit"
+          className="flex-1 h-12 rounded-sm bg-stone-700 hover:bg-stone-600 text-white font-medium gap-2 transition-colors"
+        >
+          <Search className="h-4 w-4" />
+          {t("search")}
+        </Button>
       </div>
     </form>
   );

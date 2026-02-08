@@ -151,16 +151,16 @@
         "subtitle": "조회수와 리뷰를 기반으로 선정된 인기 도서입니다"
       },
       "recent_sales": {
-        "badge": "Just Arrived",
-        "title_prefix": "새로운 만남,",
-        "title_suffix": "방금 등록된 책",
-        "desc": "다른 독자들이 소중히 읽은 책들을 만나보세요.\n지금 이 순간에도 새로운 책들이 등록되고 있습니다."
+        "badge": "가장 최근 중고책들",
+        "title_prefix": "누군가의 서재에서",
+        "title_suffix": "막 도착한 이야기",
+        "desc": "세월의 흔적이 담긴, 가치 있는 중고책을 만나보세요."
       },
       "recent_reviews": {
-        "badge": "Fresh Reviews",
-        "title_prefix": "가볍게 한 줄,",
-        "title_suffix": "최근 리뷰",
-        "desc": "부담 없이 읽고, 부담 없이 써보세요."
+        "badge": "따끈따끈 최신 리뷰",
+        "title_prefix": "타인의 시선으로",
+        "title_suffix": "읽는 문장들",
+        "desc": "책을 먼저 읽은 이들의 솔직한 감상을 들어보세요."
       },
       "art": {
         "spotlight": {
@@ -236,17 +236,19 @@
     "nav": {
       "book_search": "도서 검색",
       "reading_log": "독서 기록",
-      "my_reading_log": "나의 독서 기록",
-      "market_menu": "중고마켓",
       "market_home": "마켓 홈",
       "write_sales": "판매글 쓰기",
       "my_sales": "내 판매글",
-      "review_menu": "도서 리뷰",
       "review_feed": "리뷰 피드",
       "write_review": "리뷰 작성",
       "my_reviews": "내가 쓴 리뷰",
       "insights": "인사이트",
-      "reading_insights": "독서 인사이트"
+      "menu_search": "책검색",
+      "menu_log": "독서기록",
+      "menu_market": "중고마켓",
+      "menu_reviews": "책리뷰",
+      "menu_insights": "인사이트",
+      "menu_login": "로그인"
     },
     "auth": {
       "login": "로그인",
@@ -767,7 +769,9 @@
         "SOLD": "판매완료"
       },
       "reset": "초기화",
-      "search": "검색"
+      "reset_conditions": "검색조건 초기화",
+      "search": "검색",
+      "money_unit": "원"
     },
     "grid": {
       "location_loading": "위치 정보를 가져오는 중...",
@@ -853,9 +857,12 @@
       "related": {
         "title": "이 책을 판매하는 사람들",
         "more": "더보기",
+        "view_more": "더보기",
+        "more_count": "+{count}개",
         "error": "판매글을 불러오는 데 실패했습니다.",
         "empty": "아직 등록된 판매글이 없습니다.",
-        "register_first": "첫 번째 판매글 등록하기"
+        "register_first": "첫 번째 판매글 등록하기",
+        "loading": "로딩중..."
       }
     },
     "sale_status": {

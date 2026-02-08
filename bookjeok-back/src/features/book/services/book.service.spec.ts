@@ -143,7 +143,8 @@ describe('BookService', () => {
       const result = await service.findPopularBooks();
 
       expect(repo.createQueryBuilder).toHaveBeenCalledWith('book');
-      expect(mockQueryBuilder.addSelect).toHaveBeenCalled();
+      // Subqueries are now string arguments, so we check if addSelect was called 3 times
+      expect(mockQueryBuilder.addSelect).toHaveBeenCalledTimes(3);
       expect(result).toHaveLength(1);
       expect(result[0].isbn).toBe('1');
     });

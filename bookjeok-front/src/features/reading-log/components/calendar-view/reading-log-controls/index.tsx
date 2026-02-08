@@ -1,15 +1,10 @@
 "use client";
 
 import { setMonth, setYear } from "date-fns";
-import {
-  Calendar as CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
-  List as ListIcon,
-} from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/shared/components/shadcn/button";
 import {
   Select,
   SelectContent,
@@ -59,103 +54,146 @@ export function ReadingLogControls({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
-      {/* 왼쪽: 네비게이션 (달력 모드에서만 표시) */}
-      <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
+    <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-8 px-4 md:px-0">
+      {/* Date Navigation */}
+      <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-start">
         {viewMode === "calendar" ? (
           <>
-            <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="icon"
+            <div className="flex items-center gap-4">
+              {/* Prev Button */}
+              <button
                 onClick={onPrevMonth}
                 disabled={isLoading}
-                className="h-8 w-8 hover:bg-teal-50 hover:text-teal-600 border-gray-200"
+                className="group p-2 rounded-full hover:bg-stone-100 transition-colors disabled:opacity-30"
               >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
+                <ChevronLeft className="w-5 h-5 text-stone-400 group-hover:text-stone-900 transition-colors" />
+              </button>
 
-              <div className="flex items-center gap-1 mx-1">
-                <Select
-                  value={currentDate.getFullYear().toString()}
-                  onValueChange={handleYearChange}
-                  disabled={isLoading}
-                >
-                  <SelectTrigger className="h-8 w-[100px] border-none shadow-none focus:ring-0 font-bold text-lg px-1 bg-transparent hover:bg-gray-100">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {years.map((y) => (
-                      <SelectItem key={y} value={y.toString()}>
-                        {y}
-                        {tCalendar("year_suffix")}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {/* Date Selectors (Hidden Select, Visible Text) */}
+              <div className="flex items-baseline gap-2 relative group cursor-pointer overflow-hidden">
+                {/* Visual Text */}
+                <h2 className="text-3xl md:text-4xl font-serif font-medium text-stone-900 tracking-tight flex items-baseline">
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    <motion.span
+                      key={currentDate.getMonth()}
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: -20, opacity: 0 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30,
+                      }}
+                      className="inline-block min-w-[1.4em] text-center"
+                    >
+                      {currentDate.getMonth() + 1}
+                    </motion.span>
+                  </AnimatePresence>
 
-                <Select
-                  value={(currentDate.getMonth() + 1).toString()}
-                  onValueChange={handleMonthChange}
-                  disabled={isLoading}
-                >
-                  <SelectTrigger className="h-8 w-[70px] border-none shadow-none focus:ring-0 font-bold text-lg px-1 bg-transparent hover:bg-gray-100">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {months.map((m) => (
-                      <SelectItem key={m} value={m.toString()}>
-                        {m}
-                        {tCalendar("month_suffix")}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    <motion.span
+                      key={currentDate.getFullYear()}
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: -20, opacity: 0 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30,
+                      }}
+                      className="ml-2 text-stone-400 font-light inline-block"
+                    >
+                      {currentDate.getFullYear()}
+                    </motion.span>
+                  </AnimatePresence>
+                </h2>
+
+                {/* Invisible Select Triggers overlaying the text for functionality */}
+                <div className="absolute inset-0 flex opacity-0 z-10">
+                  <Select
+                    value={currentDate.getFullYear().toString()}
+                    onValueChange={handleYearChange}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger className="flex-1 h-full w-full border-none p-0">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {years.map((y) => (
+                        <SelectItem key={y} value={y.toString()}>
+                          {y}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={(currentDate.getMonth() + 1).toString()}
+                    onValueChange={handleMonthChange}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger className="flex-1 h-full w-full border-none p-0">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {months.map((m) => (
+                        <SelectItem key={m} value={m.toString()}>
+                          {m}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              <Button
-                variant="outline"
-                size="icon"
+              {/* Next Button */}
+              <button
                 onClick={onNextMonth}
                 disabled={isLoading}
-                className="h-8 w-8 hover:bg-teal-50 hover:text-teal-600 border-gray-200"
+                className="group p-2 rounded-full hover:bg-stone-100 transition-colors disabled:opacity-30"
               >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
+                <ChevronRight className="w-5 h-5 text-stone-400 group-hover:text-stone-900 transition-colors" />
+              </button>
             </div>
           </>
         ) : (
-          <h2 className="text-xl font-bold text-gray-800 ml-1">
+          <h2 className="text-3xl md:text-4xl font-serif font-medium text-stone-900 tracking-tight">
             {t("all_logs")}
           </h2>
         )}
       </div>
 
-      {/* 오른쪽: 뷰 모드 토글 */}
-      <div className="flex items-center bg-gray-100 p-1 rounded-lg">
+      {/* View Toggle */}
+      <div className="flex items-center gap-6">
         <button
           onClick={() => onViewModeChange("calendar")}
           className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all",
+            "text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300 relative py-1",
             viewMode === "calendar"
-              ? "bg-white text-gray-900 shadow-sm"
-              : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50",
+              ? "text-stone-900"
+              : "text-stone-400 hover:text-stone-600",
           )}
         >
-          <CalendarIcon className="w-4 h-4" />
-          <span>{t("view_calendar")}</span>
+          {t("view_calendar")}
+          {viewMode === "calendar" && (
+            <span className="absolute -bottom-1 left-0 right-0 h-px bg-stone-900 animate-in fade-in zoom-in duration-300" />
+          )}
         </button>
+
+        <div className="w-px h-3 bg-stone-200" />
+
         <button
           onClick={() => onViewModeChange("list")}
           className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all",
+            "text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300 relative py-1",
             viewMode === "list"
-              ? "bg-white text-gray-900 shadow-sm"
-              : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50",
+              ? "text-stone-900"
+              : "text-stone-400 hover:text-stone-600",
           )}
         >
-          <ListIcon className="w-4 h-4" />
-          <span>{t("view_list")}</span>
+          {t("view_list")}
+          {viewMode === "list" && (
+            <span className="absolute -bottom-1 left-0 right-0 h-px bg-stone-900 animate-in fade-in zoom-in duration-300" />
+          )}
         </button>
       </div>
     </div>

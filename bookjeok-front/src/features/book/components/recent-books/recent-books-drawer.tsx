@@ -29,10 +29,11 @@ export const RecentBooksDrawer = () => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <button className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5 rounded-full bg-linear-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-900/20 transition-all duration-300 hover:scale-105 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-900/30 active:scale-95">
-          <History className="h-4 w-4" />
-          <span>최근 본 책</span>
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-[10px]">
+        <button className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-full bg-white/90 backdrop-blur-md px-6 py-3 text-sm font-medium text-gray-900 shadow-lg shadow-gray-200/50 border border-gray-200/50 transition-all duration-300 hover:bg-white hover:shadow-xl hover:shadow-gray-200/80 hover:-translate-y-0.5 active:scale-95">
+          <History className="h-4 w-4 text-gray-500" />
+          <span className="tracking-in-tight">최근 본 책</span>
+          <div className="w-px h-3 bg-gray-300 mx-0.5" />
+          <span className="text-xs font-semibold text-gray-600 tabular-nums">
             {recentBooks.length}
           </span>
         </button>
