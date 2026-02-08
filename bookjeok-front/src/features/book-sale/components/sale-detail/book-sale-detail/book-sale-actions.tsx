@@ -40,6 +40,7 @@ interface BookSaleActionsProps {
 
 export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
   const t = useTranslations("market.detail");
+  const tCommon = useTranslations("common");
   const currentUser = useAuthStore((state) => state.user);
   const isOwner = currentUser?.id === sale.user.id;
   const [isCreatingChat, setIsCreatingChat] = useState(false);
@@ -112,10 +113,12 @@ export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
           {sale.title}
         </h1>
         <p className="mt-4 text-2xl font-bold text-emerald-600">
-          {sale.price.toLocaleString()}원
+          {sale.price.toLocaleString()}
+          {tCommon("won")}
           {discountRate > 0 && (
             <span className="ml-3 text-lg font-medium text-gray-400 line-through">
-              {Number(sale.book.discount).toLocaleString()}원
+              {Number(sale.book.discount).toLocaleString()}
+              {tCommon("won")}
             </span>
           )}
         </p>

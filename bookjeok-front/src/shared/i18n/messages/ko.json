@@ -248,7 +248,9 @@
       "menu_market": "중고마켓",
       "menu_reviews": "책리뷰",
       "menu_insights": "인사이트",
-      "menu_login": "로그인"
+      "menu_login": "로그인",
+      "main_menu": "메인 메뉴",
+      "menu_open": "메뉴 열기"
     },
     "auth": {
       "login": "로그인",

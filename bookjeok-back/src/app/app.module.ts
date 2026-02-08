@@ -54,9 +54,9 @@ import { HealthModule } from '@/features/health/health.module';
         synchronize: configService.get<string>('NODE_ENV') !== 'production', // 개발 환경에서만 true로 설정
         autoLoadEntities: true,
         extra: {
-          max: 5,
+          max: 40,
           idleTimeoutMillis: 30000,
-          connectionTimeoutMillis: 2000,
+          connectionTimeoutMillis: 10000,
         },
         // SSL 설정 (Supabase 필수)
         ssl:
