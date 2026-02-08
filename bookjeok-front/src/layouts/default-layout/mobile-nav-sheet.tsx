@@ -114,7 +114,7 @@ export const MobileNavSheet = () => {
       <SheetTrigger asChild>
         <button
           className="md:hidden p-2 -mr-2 text-stone-600 hover:text-stone-900 transition-colors"
-          aria-label="메뉴 열기"
+          aria-label={t("menu_open")}
         >
           <Menu className="w-6 h-6" />
         </button>

@@ -28,7 +28,6 @@ interface LocationHeatmapProps {
 export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
   const t = useTranslations("insights.charts.location");
   const mapRef = useRef<kakao.maps.Map | null>(null);
-  const geocoderRef = useRef<kakao.maps.services.Geocoder | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<LocationStat | null>(
     null,
   );
@@ -47,77 +46,38 @@ export const LocationHeatmap = ({ data }: LocationHeatmapProps) => {
   // TOP 5 장소 (count 기준 정렬)
   const top5Locations = [...data].sort((a, b) => b.count - a.count).slice(0, 5);
 
-  // Geocoder 초기화
-  useEffect(() => {
-    if (!loading && !error && typeof kakao !== "undefined") {
-      geocoderRef.current = new kakao.maps.services.Geocoder();
-    }
-  }, [loading, error]);
-
-  // 주소로 좌표 검색
-  const searchAddressToCoords = useCallback(
-    (address: string): Promise<{ lat: number; lng: number } | null> => {
-      return new Promise((resolve) => {
-        if (!geocoderRef.current) {
-          resolve(null);
-          return;
-        }
-        geocoderRef.current.addressSearch(address, (result, status) => {
-          if (status === kakao.maps.services.Status.OK && result.length > 0) {
-            resolve({
-              lat: parseFloat(result[0].y),
-              lng: parseFloat(result[0].x),
-            });
-          } else {
-            resolve(null);
-          }
-        });
-      });
-    },
-    [],
-  );
-
   // 장소 버튼 클릭 핸들러
-  const handleLocationClick = useCallback(
-    async (location: LocationStat) => {
-      setSelectedLocation(location);
-      setSelectedSale(null);
-      setIsLoadingSales(true);
+  const handleLocationClick = useCallback(async (location: LocationStat) => {
+    setSelectedLocation(location);
+    setSelectedSale(null);
+    setIsLoadingSales(true);
 
-      try {
-        // 1. 해당 지역 판매글 조회
-        const salesData = await getLocationSales(
-          location.city,
-          location.district,
+    try {
+      // 1. 해당 지역 판매글 조회
+      const salesData = await getLocationSales(
+        location.city,
+        location.district,
+      );
+      setSales(salesData);
+
+      // 2. 백엔드에서 제공된 좌표로 지도 이동
+      if (mapRef.current) {
+        const moveLatLng = new kakao.maps.LatLng(
+          location.latitude,
+          location.longitude,
         );
-        setSales(salesData);
-
-        // 2. Geocoder로 해당 시/군/구 중심점 검색
-        const address = `${location.city} ${location.district}`;
-        const coords = await searchAddressToCoords(address);
-
-        if (coords && mapRef.current) {
-          setMapCenter(coords);
-          const moveLatLng = new kakao.maps.LatLng(coords.lat, coords.lng);
-          mapRef.current.panTo(moveLatLng);
-          mapRef.current.setLevel(7);
-        }
-      } finally {
-        setIsLoadingSales(false);
+        setMapCenter({ lat: location.latitude, lng: location.longitude });
+        mapRef.current.panTo(moveLatLng);
+        mapRef.current.setLevel(7);
       }
-    },
-    [searchAddressToCoords],
-  );
+    } finally {
+      setIsLoadingSales(false);
+    }
+  }, []);
 
   // 초기 로딩 시 첫 번째 장소 선택
   useEffect(() => {
-    if (
-      hasData &&
-      !selectedLocation &&
-      top5Locations.length > 0 &&
-      !loading &&
-      geocoderRef.current
-    ) {
+    if (hasData && !selectedLocation && top5Locations.length > 0 && !loading) {
       const timer = setTimeout(() => {
         handleLocationClick(top5Locations[0]);
       }, 500);

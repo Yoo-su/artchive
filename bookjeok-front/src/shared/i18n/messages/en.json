@@ -248,6 +248,8 @@
       "menu_market": "Market",
       "menu_reviews": "Reviews",
       "menu_insights": "Insights",
+      "main_menu": "Main Menu",
+      "menu_open": "Open Menu",
       "menu_login": "Login"
     },
     "auth": {

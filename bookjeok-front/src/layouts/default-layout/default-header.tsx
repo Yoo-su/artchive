@@ -84,7 +84,7 @@ export const DefaultHeader = () => {
         {/* 중앙: 데스크탑 텍스트 네비게이션 */}
         <nav
           className="hidden md:flex items-center gap-8"
-          aria-label="메인 메뉴"
+          aria-label={t("nav.main_menu")}
         >
           {/* 1. 도서 검색 */}
           <Link
