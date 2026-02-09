@@ -1,0 +1,32 @@
+# .dockerignore
+# Docker 빌드 컨텍스트에서 제외할 파일들을 정의합니다.
+# 불필요한 파일이 빌드에 포함되면 이미지 크기가 커지고 보안 문제가 발생할 수 있습니다.
+
+# 의존성 모듈 (이미지 내부에서 새로 설치해야 함)
+node_modules/
+pnpm-lock.yaml
+
+# 빌드 결과물 (이미지 내부에서 새로 빌드해야 함)
+dist/
+
+# 환경 변수 파일 (보안상 이미지에 포함하지 않고, 실행 시 주입받아야 함)
+.env
+.env.*
+
+# Git 버전 관리 파일
+.git/
+.gitignore
+
+# IDE 설정 파일
+.vscode/
+.idea/
+
+# 로그 파일
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS 관련 파일
+.DS_Store
+Thumbs.db
