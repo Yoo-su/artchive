@@ -1,0 +1,31 @@
+# .dockerignore
+# Docker 빌드 컨텍스트에서 제외할 파일들을 정의합니다.
+
+# 의존성 모듈
+node_modules/
+pnpm-lock.yaml
+
+# Next.js 빌드 결과
+.next/
+
+# 환경 변수 파일 (보안상 이미지에 포함하지 않음)
+.env
+.env.*
+
+# Git 관련 파일
+.git/
+.gitignore
+
+# IDE 설정
+.vscode/
+.idea/
+
+# 로그 파일
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS 파일
+.DS_Store
+Thumbs.db
