@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { Pagination } from "@/shared/components/ui/pagination";
 
@@ -31,6 +33,7 @@ export const CommentList = ({
     page,
     enabled,
   );
+  const t = useTranslations("comment.list");
 
   if (isLoading) {
     return <CommentListSkeleton />;
@@ -38,17 +41,15 @@ export const CommentList = ({
 
   if (isError) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        댓글을 불러오는 중 오류가 발생했습니다.
-      </div>
+      <div className="text-center py-8 text-muted-foreground">{t("error")}</div>
     );
   }
 
   if (!data || data.data.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        <p className="text-lg">아직 댓글이 없습니다.</p>
-        <p className="text-sm mt-1">첫 번째 댓글을 작성해보세요!</p>
+        <p className="text-lg">{t("empty")}</p>
+        <p className="text-sm mt-1">{t("empty_desc")}</p>
       </div>
     );
   }

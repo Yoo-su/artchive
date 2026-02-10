@@ -1,8 +1,9 @@
 "use client";
 
 import { formatDistanceToNow } from "date-fns";
-import { ko } from "date-fns/locale";
+import { enUS, ko } from "date-fns/locale";
 import { Heart, Loader2, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
@@ -26,6 +27,7 @@ import {
 } from "@/shared/components/shadcn/dropdown-menu";
 import { Textarea } from "@/shared/components/shadcn/textarea";
 import { UserAvatarMenu } from "@/shared/components/ui/user-avatar-menu";
+import { Link, usePathname } from "@/shared/config/i18n/routing";
 import { cn } from "@/shared/utils";
 
 import { COMMENT_LINE_CLAMP, MAX_COMMENT_LENGTH } from "../../../constants";
@@ -57,6 +59,10 @@ export const CommentItem = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
 
+  const t = useTranslations("comment.item");
+  const pathname = usePathname();
+  const locale = pathname.startsWith("/en") ? enUS : ko;
+
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = !!user;
   const isOwner = user?.id === comment.userId;
@@ -70,7 +76,7 @@ export const CommentItem = ({
 
   const timeAgo = formatDistanceToNow(new Date(comment.createdAt), {
     addSuffix: true,
-    locale: ko,
+    locale,
   });
 
   const isLongComment =
@@ -126,7 +132,7 @@ export const CommentItem = ({
               </span>
               {isOwner && (
                 <span className="shrink-0 text-[10px] text-primary/70 font-medium">
-                  · 나
+                  · {t("me")}
                 </span>
               )}
               <span className="shrink-0 text-[11px] text-muted-foreground/60">
@@ -154,7 +160,7 @@ export const CommentItem = ({
                       className="text-xs"
                     >
                       <Pencil className="h-3 w-3 mr-1.5" />
-                      수정
+                      {t("edit")}
                     </DropdownMenuItem>
                     <AlertDialogTrigger asChild>
                       <DropdownMenuItem
@@ -167,24 +173,26 @@ export const CommentItem = ({
                         ) : (
                           <Trash2 className="h-3 w-3 mr-1.5" />
                         )}
-                        삭제
+                        {t("delete")}
                       </DropdownMenuItem>
                     </AlertDialogTrigger>
                   </DropdownMenuContent>
                 </DropdownMenu>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>댓글 삭제</AlertDialogTitle>
+                    <AlertDialogTitle>
+                      {t("delete_confirm.title")}
+                    </AlertDialogTitle>
                     <AlertDialogDescription>
-                      정말 삭제하시겠습니까?
+                      {t("delete_confirm.desc")}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>취소</AlertDialogCancel>
+                    <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => deleteComment(comment.id)}
                     >
-                      삭제
+                      {t("delete")}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -211,7 +219,7 @@ export const CommentItem = ({
                     setEditContent(comment.content);
                   }}
                 >
-                  취소
+                  {t("cancel")}
                 </Button>
                 <Button
                   size="sm"
@@ -219,7 +227,11 @@ export const CommentItem = ({
                   onClick={handleUpdate}
                   disabled={!editContent.trim() || isUpdatePending}
                 >
-                  {isUpdatePending ? "저장 중..." : "저장"}
+                  {isUpdatePending ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    t("save")
+                  )}
                 </Button>
               </div>
             </div>
@@ -240,7 +252,7 @@ export const CommentItem = ({
               onClick={() => setIsExpanded(!isExpanded)}
               className="text-[11px] text-primary/70 hover:text-primary transition-colors mt-1"
             >
-              {isExpanded ? "접기" : "더 보기"}
+              {isExpanded ? t("fold") : t("more")}
             </button>
           )}
         </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
@@ -36,6 +37,7 @@ export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
     targetType,
     targetId,
   );
+  const t = useTranslations("comment.form");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,14 +52,16 @@ export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
     return (
       <div className="bg-muted/30 rounded-xl p-6 text-center mb-8">
         <p className="text-muted-foreground">
-          댓글을 작성하려면{" "}
-          <Link
-            href={PATHS.LOGIN}
-            className="text-primary underline hover:no-underline"
-          >
-            로그인
-          </Link>
-          이 필요합니다.
+          {t.rich("login_guide", {
+            link: (chunks) => (
+              <Link
+                href={PATHS.LOGIN}
+                className="text-primary underline hover:no-underline"
+              >
+                {chunks}
+              </Link>
+            ),
+          })}
         </p>
       </div>
     );
@@ -83,7 +87,7 @@ export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
             <Textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="댓글을 작성해주세요..."
+              placeholder={t("placeholder")}
               maxLength={MAX_COMMENT_LENGTH}
               className={cn(
                 "min-h-[80px] resize-none bg-background/50",
@@ -95,7 +99,10 @@ export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
             {/* 하단 액션 바 */}
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">
-                {content.length} / {MAX_COMMENT_LENGTH}자
+                {t("length_limit", {
+                  current: content.length,
+                  max: MAX_COMMENT_LENGTH,
+                })}
               </span>
               <Button
                 type="submit"
@@ -103,7 +110,7 @@ export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
                 disabled={!content.trim() || isPending}
                 className="min-w-[60px]"
               >
-                {isPending ? <Spinner /> : "작성"}
+                {isPending ? <Spinner /> : t("submit")}
               </Button>
             </div>
           </div>

@@ -895,5 +895,42 @@
       "retry_button": "Retry",
       "home_button": "Go Home"
     }
+  },
+  "comment": {
+    "form": {
+      "placeholder": "Leave a comment...",
+      "submit": "Post",
+      "login_guide": "Please <link>login</link> to leave a comment.",
+      "length_limit": "{current} / {max} chars"
+    },
+    "item": {
+      "me": "Me",
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save",
+      "cancel": "Cancel",
+      "more": "Read More",
+      "fold": "Show Less",
+      "edited": "(edited)",
+      "delete_confirm": {
+        "title": "Delete Comment",
+        "desc": "Are you sure you want to delete this comment?"
+      }
+    },
+    "list": {
+      "empty": "No comments yet.",
+      "empty_desc": "Be the first to comment!",
+      "error": "Failed to load comments."
+    },
+    "toast": {
+      "create_success": "Comment posted successfully.",
+      "create_error": "Failed to post comment.",
+      "update_success": "Comment updated successfully.",
+      "update_error": "Failed to update comment.",
+      "delete_success": "Comment deleted successfully.",
+      "delete_error": "Failed to delete comment.",
+      "like_error": "Failed to process like."
+    },
+    "title": "Comments"
   }
 }
