@@ -23,7 +23,7 @@ export const CommentSection = ({
 }: CommentSectionProps) => {
   const [page, setPage] = useState(1);
   const { ref, inView } = useInView({ triggerOnce: true, rootMargin: "200px" });
-  const t = useTranslations("book.detail.comments");
+  const t = useTranslations("comment");
 
   return (
     <section ref={ref} className="py-12">

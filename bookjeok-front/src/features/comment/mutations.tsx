@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import {
@@ -20,6 +21,7 @@ export const useCreateCommentMutation = (
   targetId: string,
 ) => {
   const queryClient = useQueryClient();
+  const t = useTranslations("comment.toast");
 
   return useMutation({
     mutationFn: (content: string) =>
@@ -29,10 +31,10 @@ export const useCreateCommentMutation = (
       queryClient.invalidateQueries({
         queryKey: commentKeys.list(targetType, targetId, 1).queryKey,
       });
-      toast.success("댓글이 작성되었습니다.");
+      toast.success(t("create_success"));
     },
     onError: () => {
-      toast.error("댓글 작성에 실패했습니다.");
+      toast.error(t("create_error"));
     },
   });
 };
@@ -46,6 +48,7 @@ export const useUpdateCommentMutation = (
   page: number,
 ) => {
   const queryClient = useQueryClient();
+  const t = useTranslations("comment.toast");
 
   return useMutation({
     mutationFn: ({ id, content }: { id: number; content: string }) =>
@@ -54,10 +57,10 @@ export const useUpdateCommentMutation = (
       queryClient.invalidateQueries({
         queryKey: commentKeys.list(targetType, targetId, page).queryKey,
       });
-      toast.success("댓글이 수정되었습니다.");
+      toast.success(t("update_success"));
     },
     onError: () => {
-      toast.error("댓글 수정에 실패했습니다.");
+      toast.error(t("update_error"));
     },
   });
 };
@@ -71,6 +74,7 @@ export const useDeleteCommentMutation = (
   page: number,
 ) => {
   const queryClient = useQueryClient();
+  const t = useTranslations("comment.toast");
 
   return useMutation({
     mutationFn: deleteComment,
@@ -78,10 +82,10 @@ export const useDeleteCommentMutation = (
       queryClient.invalidateQueries({
         queryKey: commentKeys.list(targetType, targetId, page).queryKey,
       });
-      toast.success("댓글이 삭제되었습니다.");
+      toast.success(t("delete_success"));
     },
     onError: () => {
-      toast.error("댓글 삭제에 실패했습니다.");
+      toast.error(t("delete_error"));
     },
   });
 };
@@ -95,6 +99,7 @@ export const useToggleCommentLikeMutation = (
   page: number,
 ) => {
   const queryClient = useQueryClient();
+  const t = useTranslations("comment.toast");
   const queryKey = commentKeys.list(targetType, targetId, page).queryKey;
 
   return useMutation({
@@ -135,7 +140,7 @@ export const useToggleCommentLikeMutation = (
       if (context?.previousData) {
         queryClient.setQueryData(queryKey, context.previousData);
       }
-      toast.error("좋아요 처리에 실패했습니다.");
+      toast.error(t("like_error"));
     },
   });
 };
@@ -146,6 +151,7 @@ export const useToggleCommentLikeMutation = (
  */
 export const useDeleteMyCommentMutation = () => {
   const queryClient = useQueryClient();
+  const t = useTranslations("comment.toast");
 
   return useMutation({
     mutationFn: deleteComment,
@@ -154,10 +160,10 @@ export const useDeleteMyCommentMutation = () => {
       queryClient.invalidateQueries({
         queryKey: commentKeys.my.queryKey,
       });
-      toast.success("댓글이 삭제되었습니다.");
+      toast.success(t("delete_success"));
     },
     onError: () => {
-      toast.error("댓글 삭제에 실패했습니다.");
+      toast.error(t("delete_error"));
     },
   });
 };

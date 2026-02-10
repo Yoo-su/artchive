@@ -895,5 +895,42 @@
       "retry_button": "다시 시도",
       "home_button": "홈으로 이동"
     }
+  },
+  "comment": {
+    "form": {
+      "placeholder": "댓글을 작성해주세요...",
+      "submit": "작성",
+      "login_guide": "댓글을 작성하려면 <link>로그인</link>이 필요합니다.",
+      "length_limit": "{current} / {max}자"
+    },
+    "item": {
+      "me": "나",
+      "edit": "수정",
+      "delete": "삭제",
+      "save": "저장",
+      "cancel": "취소",
+      "more": "더 보기",
+      "fold": "접기",
+      "edited": "(수정됨)",
+      "delete_confirm": {
+        "title": "댓글 삭제",
+        "desc": "정말 삭제하시겠습니까?"
+      }
+    },
+    "list": {
+      "empty": "아직 댓글이 없습니다.",
+      "empty_desc": "첫 번째 댓글을 작성해보세요!",
+      "error": "댓글을 불러오는 중 오류가 발생했습니다."
+    },
+    "toast": {
+      "create_success": "댓글이 작성되었습니다.",
+      "create_error": "댓글 작성에 실패했습니다.",
+      "update_success": "댓글이 수정되었습니다.",
+      "update_error": "댓글 수정에 실패했습니다.",
+      "delete_success": "댓글이 삭제되었습니다.",
+      "delete_error": "댓글 삭제에 실패했습니다.",
+      "like_error": "좋아요 처리에 실패했습니다."
+    },
+    "title": "댓글"
   }
 }
