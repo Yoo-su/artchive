@@ -1,6 +1,6 @@
 # Frontend Feature: Recommend
 
-프론트엔드의 `recommend` 기능은 사용자에게 AI 기반의 도서 추천 서비스를 제공합니다. RAG (Retrieval-Augmented Generation) 패턴을 활용한 대화형 인터페이스를 통해 맞춤형 추천 결과를 보여줍니다.
+프론트엔드의 `recommend` 기능은 사용자에게 **AI 기반의 도서 추천 서비스(Taste Finder)**를 제공합니다. RAG (Retrieval-Augmented Generation) 패턴을 활용한 대화형 인터페이스를 통해 맞춤형 추천 결과를 보여줍니다.
 
 ## 1. 주요 파일 및 역할
 
@@ -11,7 +11,7 @@
   - **`widgets/`**: 추천 위젯 (`taste-finder-widget`)
   - **`finder/`**: 추천 챗봇 UI (`taste-finder`)
 
-## 2. 너굴잎 취향 탐색기 (Taste Finder)
+## 2. AI 취향 탐색기 (Taste Finder)
 
 - **대화형 UI**: 채팅 인터페이스를 통해 사용자의 상황과 기분을 파악합니다.
 - **스트리밍 응답**: `POST` 요청 시 `responseType: 'stream'`을 사용하여 AI의 답변을 실시간 타자기 효과로 보여줍니다.

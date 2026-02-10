@@ -1,238 +1,132 @@
 # 🛠️ bookjeok Backend
 
-bookjeok의 백엔드 서버는 **NestJS**를 기반으로 구축되었으며, 안정적인 데이터 관리와 실시간 통신, 그리고 AI 기능을 제공합니다.
+bookjeok의 백엔드 서버는 **NestJS 11**을 기반으로 구축되었으며, 안정적인 데이터 관리와 실시간 통신, 그리고 AI 기능을 제공합니다.
 소셜 로그인부터 중고 서적 거래, 실시간 채팅, 그리고 LLM 기반 도서 요약까지 다양한 기능을 지원합니다.
 
-## 주요 기능
+## 주요 기능 (Key Features)
 
 ### 1. 인증 (Auth)
 
-- **JWT 기반 인증:** Access Token과 Refresh Token을 사용한 인증 시스템을 구현합니다.
-- **소셜 로그인:** Kakao, Naver OAuth2.0을 지원하여 간편 로그인을 제공합니다.
-- **가드 (Guards):** 라우트 보호를 위해 인증 가드를 적용하여 인가된 사용자만 접근할 수 있도록 합니다.
+- **JWT 기반 인증:** Access Token과 Refresh Token을 사용한 이중 토큰 인증 시스템. (HttpOnly Cookie)
+- **소셜 로그인:** Kakao, Naver OAuth2.0 지원.
+- **가드 (Guards):** `JwtAuthGuard`, `RolesGuard` 등을 통한 철저한 라우트 보호.
 
-### 2. 유저 (User)
+### 2. 도서 및 중고 거래 (Book & Marketplace)
 
-- **사용자 정보 관리:** 사용자의 프로필 정보 및 관련 데이터를 관리합니다.
-- **판매 내역 관리:** 사용자의 중고 도서 판매 상태를 업데이트하고 내역을 관리합니다.
+- **도서 정보 관리:** Naver Books API를 통해 도서 정보를 자동으로 가져오고 DB에 캐싱합니다.
+- **중고 거래:** 사용자가 소장한 도서를 판매 등록하고 관리(CRUD)할 수 있습니다.
+- **트랜잭션:** 판매글 생성 시 도서 정보 등록과 판매글 등록을 하나의 트랜잭션으로 처리하여 데이터 무결성을 보장합니다.
 
-### 3. 도서 (Book)
+### 3. 실시간 채팅 (Real-time Chat)
 
-- **도서 정보:** 도서 기본 정보를 관리합니다.
-- **중고 도서 판매:** 사용자가 중고 도서를 등록하고 판매할 수 있는 기능을 제공합니다.
-  - 판매 게시글 등록, 조회, 수정, 삭제 (CRUD)
+- **Socket.IO:** 웹소켓을 활용한 1:1 실시간 채팅.
+- **채팅방 관리:** 판매글별 채팅방 생성, 메시지 영구 저장, 읽음 처리.
 
-### 4. 채팅 (Chat)
+### 4. AI 도서 요약 (LLM)
 
-- **실시간 채팅:** WebSocket을 사용하여 사용자 간의 실시간 채팅 기능을 구현합니다.
-- **채팅방 관리:** 중고 도서 판매 게시글에 대한 채팅방 생성 및 관리를 지원합니다.
-- **메시지 관리:** 채팅 메시지 전송 및 읽음 처리를 관리합니다.
+- **Google Gemini Pro:** 최신 Gemini 1.5 Pro 모델을 활용한 도서 3줄 요약 기능.
+- **프롬프트 엔지니어링:** 최적화된 시스템 프롬프트를 통해 일관성 있는 요약 제공.
+- **AI 취향 탐색기 지원:** 프론트엔드의 취향 탐색 기능을 위한 백엔드 로직 지원.
 
-### 5. LLM (Large Language Model)
+### 5. 커뮤니티 (Review & Comment)
 
-### 5. LLM (Large Language Model) & RAG-lite
+- **리뷰 및 리액션:** Tiptap 에디터 호환 리뷰 데이터 처리, 다양한 리액션(좋아요 등) 집계.
+- **댓글:** 계층형 댓글 구조 지원 및 실시간 알림 연동.
 
-- **AI 기반 도서 요약:** Google Generative AI(Gemini)를 활용하여 도서의 핵심 내용을 요약합니다.
-- **너굴잎(Neogulip) 도서 추천 (RAG-lite):**  
-  단순한 텍스트 생성이 아닌, **"검색(Search) → 선별(Select)"** 방식의 RAG-lite 아키텍처를 도입하여 할루시네이션 없는 정확한 도서 추천을 제공합니다.
-  1. **의도 분석 (Search Analyst):** 사용자의 모호한 요청을 구체적인 검색 쿼리로 변환합니다.
-  2. **정보 검색 (Information Retrieval):** 네이버 책 검색 API를 병렬 호출하여 실존하는 도서 후보군을 확보합니다.
-  3. **큐레이션 (Curation):** 확보된 후보군 중 의도에 가장 적합한 책을 선별하고, '너굴잎' 페르소나를 입혀 추천합니다.
-- **프롬프트 엔지니어링:** 역할(Role), 제약조건(Constraint), 페르소나(Persona)가 명확히 분리된 시스템 프롬프트를 관리합니다.
+### 6. 독서 기록 및 인사이트 (Log & Insights)
 
-### 6. 리뷰 (Review)
+- **독서 캘린더:** 월별 독서 기록 조회 및 통계 API.
+- **데이터 시각화 API:** 판매 현황, 독서 습관 등을 시각화하기 위한 집계 데이터 제공.
 
-- **리뷰 관리:** 도서에 대한 리뷰 작성, 수정, 삭제 기능을 제공합니다.
-- **인기 리뷰 선정:** 조회수와 리액션 수를 가중치로 계산하여 인기 리뷰를 선정합니다.
-- **리액션 시스템:** '좋아요', '유익해요', '응원해요' 등 다양한 리액션을 지원하며, 조회수와 함께 사용자 참여를 유도합니다.
+## 프로젝트 구조 (Structure)
 
-### 7. 댓글 (Comment)
+`Module` 기반의 모듈러 아키텍처를 따르며, `Controller`, `Service`, `Repository` 계층으로 명확히 분리되어 있습니다.
 
-- **댓글 관리:** 도서와 리뷰에 댓글을 작성, 수정, 삭제할 수 있습니다.
-- **댓글 좋아요:** 댓글에 좋아요를 토글할 수 있으며, 좋아요 수가 자동으로 카운팅됩니다.
-
-### 8. 독서 기록 (Reading-Log)
-
-- **독서 기록 관리:** 일별 독서 기록을 생성, 수정, 삭제할 수 있습니다.
-- **월별 조회:** 특정 연/월의 독서 기록을 조회할 수 있습니다.
-- **독서 통계:** 이번 달/올해 읽은 책 수 등 통계를 제공합니다.
-- **공개 설정:** 독서 기록의 공개 여부를 설정할 수 있습니다.
-
-### 9. 인사이트 (Insights)
-
-- **서비스 통계:** 전체 판매글, 리뷰, 리액션, 태그 수 등 요약 통계를 제공합니다.
-- **지역별 거래 현황:** 지역별 중고 거래 현황과 좌표 정보를 제공합니다.
-- **카테고리별 리뷰 현황:** 카테고리별 리뷰 수를 집계합니다.
-- **가격 분포 및 활동 추이:** 가격대별 판매글 분포와 최근 30일간 활동 추이를 제공합니다.
-
-### 10. 알림 (Notification)
-
-- **실시간 알림:** Socket.IO를 이용해 리뷰 반응, 댓글 등 주요 이벤트 발생 시 실시간으로 알림을 전송합니다.
-- **알림 관리:** 읽지 않은 알림을 관리하고, 지난 알림 내역을 조회할 수 있습니다.
-- **확장성:** 다양한 알림 유형에 대응할 수 있도록 메타데이터 기반으로 설계되었습니다.
-
-## 프로젝트 구조
-
-```
+```bash
 src
-├── app                 # 애플리케이션 핵심 모듈
-├── features            # 기능별 도메인 모듈
-│   ├── auth            # 인증 및 소셜 로그인
-│   ├── book            # 도서 정보 및 중고 서적 판매
-│   ├── chat            # 실시간 채팅
-│   ├── comment         # 댓글 시스템
-│   ├── insights        # 인사이트 대시보드
-│   ├── llm             # Google Generative AI 연동
-│   ├── reading-log     # 독서 기록
-│   ├── review          # 리뷰
-│   └── user            # 사용자 정보
-└── shared              # 공용 모듈 및 유틸리티
-    ├── middlewares     # 공통 미들웨어
-    ├── types           # 공통 타입 정의
-    └── utils           # 유틸리티 함수
+├── app.module.ts       # 루트 모듈
+├── main.ts             # 애플리케이션 진입점
+├── features            # 기능별 도메인 모듈 (Co-location)
+│   ├── auth            # 인증
+│   ├── book            # 도서 & 판매
+│   ├── chat            # 채팅
+│   ├── llm             # AI
+│   └── ...
+└── shared              # 공용 모듈
+    ├── decorators      # 커스텀 데코레이터 (@CurrentUser 등)
+    ├── filters         # 전역 예외 필터
+    └── guards          # 인증 가드
 ```
 
-## API 엔드포인트
+## 시작하기 (Getting Started)
 
-| 기능 (Feature)   | 엔드포인트 (Endpoint)          | HTTP 메소드 | 설명 (Description)                  | 인증 (Authentication) |
-| ---------------- | ------------------------------ | ----------- | ----------------------------------- | --------------------- |
-| **App**          | `/`                            | `GET`       | 서버 상태 확인                      | 없음                  |
-| **Auth**         | `/auth/naver`                  | `GET`       | 네이버 OAuth2 로그인 시작           | 없음                  |
-|                  | `/auth/naver/callback`         | `GET`       | 네이버 OAuth2 콜백 처리             | 없음                  |
-|                  | `/auth/kakao`                  | `GET`       | 카카오 OAuth2 로그인 시작           | 없음                  |
-|                  | `/auth/kakao/callback`         | `GET`       | 카카오 OAuth2 콜백 처리             | 없음                  |
-|                  | `/auth/logout`                 | `POST`      | 로그아웃 (토큰 제거)                | 없음                  |
-|                  | `/auth/refresh`                | `POST`      | Access Token 갱신                   | JWT (Refresh Token)   |
-|                  | `/auth/user`                   | `GET`       | 현재 로그인된 사용자 정보 조회      | JWT                   |
-| **Book**         | `/book/sale`                   | `POST`      | 중고 도서 판매글 생성               | JWT                   |
-|                  | `/book/sales/:id/status`       | `PATCH`     | 판매글 상태 업데이트                | JWT                   |
-|                  | `/book/sales/recent`           | `GET`       | 최근 판매글 목록 조회               | 없음                  |
-|                  | `/book/sales/:id`              | `GET`       | 판매글 상세 조회                    | 없음                  |
-|                  | `/book/:isbn/sales`            | `GET`       | 특정 ISBN의 판매글 목록 조회        | 없음                  |
-|                  | `/book/sales/:id`              | `PATCH`     | 판매글 정보 수정                    | JWT                   |
-|                  | `/book/sales/:id`              | `DELETE`    | 판매글 삭제                         | JWT                   |
-| **Chat**         | `/chat/rooms`                  | `GET`       | 내 채팅방 목록 조회                 | JWT                   |
-|                  | `/chat/rooms/:roomId/messages` | `GET`       | 특정 채팅방 메시지 조회             | JWT                   |
-|                  | `/chat/rooms`                  | `POST`      | 판매글에 대한 채팅방 생성 또는 조회 | JWT                   |
-|                  | `/chat/rooms/:roomId/read`     | `PATCH`     | 채팅방 메시지 읽음 처리             | JWT                   |
-|                  | `/chat/rooms/:roomId`          | `DELETE`    | 채팅방 나가기                       | JWT                   |
-| **LLM**          | `/llm/book-summary`            | `POST`      | AI를 이용한 도서 요약 생성          | 없음                  |
-| **Review**       | `/reviews`                     | `POST`      | 리뷰 작성                           | JWT                   |
-|                  | `/reviews`                     | `GET`       | 리뷰 목록 조회 (필터링 지원)        | 없음                  |
-|                  | `/reviews/feeds`               | `GET`       | 카테고리별 리뷰 피드 조회           | 없음                  |
-|                  | `/reviews/popular`             | `GET`       | 인기 리뷰 목록 조회                 | 없음                  |
-|                  | `/reviews/:id`                 | `GET`       | 리뷰 상세 조회 (조회수 증가)        | 없음                  |
-|                  | `/reviews/:id`                 | `PATCH`     | 리뷰 수정                           | JWT                   |
-|                  | `/reviews/:id`                 | `DELETE`    | 리뷰 삭제                           | JWT                   |
-|                  | `/reviews/:id/reactions`       | `POST`      | 리뷰 리액션 토글                    | JWT                   |
-|                  | `/reviews/:id/reaction`        | `GET`       | 내 리액션 정보 조회                 | JWT                   |
-| **User**         | `/user/me`                     | `GET`       | 내 프로필 정보 조회                 | JWT                   |
-|                  | `/user/my-sales`               | `GET`       | 내가 등록한 판매글 목록 조회        | JWT                   |
-|                  | `/user/withdraw`               | `DELETE`    | 회원 탈퇴                           | JWT                   |
-|                  | `/user/:handle`                | `GET`       | 공개 프로필 조회                    | 없음                  |
-| **Comment**      | `/comments`                    | `GET`       | 댓글 목록 조회                      | 없음                  |
-|                  | `/comments`                    | `POST`      | 댓글 작성                           | JWT                   |
-|                  | `/comments/:id`                | `PATCH`     | 댓글 수정                           | JWT                   |
-|                  | `/comments/:id`                | `DELETE`    | 댓글 삭제                           | JWT                   |
-|                  | `/comments/:id/like`           | `POST`      | 댓글 좋아요 토글                    | JWT                   |
-|                  | `/comments/my`                 | `GET`       | 내가 작성한 댓글 목록 조회          | JWT                   |
-| **Reading-Log**  | `/reading-logs`                | `GET`       | 독서 기록 목록 조회 (무한 스크롤)   | JWT                   |
-|                  | `/reading-logs`                | `POST`      | 독서 기록 생성                      | JWT                   |
-|                  | `/reading-logs/:id`            | `PATCH`     | 독서 기록 수정                      | JWT                   |
-|                  | `/reading-logs/:id`            | `DELETE`    | 독서 기록 삭제                      | JWT                   |
-|                  | `/reading-logs/monthly`        | `GET`       | 월별 독서 기록 조회                 | JWT                   |
-|                  | `/reading-logs/stats`          | `GET`       | 독서 통계 조회                      | JWT                   |
-|                  | `/reading-logs/settings`       | `GET`       | 독서 기록 설정 조회                 | JWT                   |
-|                  | `/reading-logs/settings`       | `PUT`       | 독서 기록 설정 수정                 | JWT                   |
-| **Notification** | `/notifications`               | `GET`       | 내 알림 목록 조회                   | JWT                   |
-|                  | `/notifications/unread-count`  | `GET`       | 안 읽은 알림 수 조회                | JWT                   |
-|                  | `/notifications/read-all`      | `PATCH`     | 모든 알림 읽음 처리                 | JWT                   |
-|                  | `/notifications/:id/read`      | `PATCH`     | 특정 알림 읽음 처리                 | JWT                   |
-| **Insights**     | `/insights`                    | `GET`       | 전체 인사이트 데이터 조회           | 없음                  |
-|                  | `/insights/location-sales`     | `GET`       | 특정 지역 판매글 조회               | 없음                  |
+### 요구 사항
 
-## 🛠️ 사용 기술 (Tech Stack)
-
-| Category      | Technology                                                                                      | Description                                   |
-| ------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| **Framework** | ![NestJS](https://img.shields.io/badge/NestJS-E0234E?logo=nestjs&logoColor=white)               | 모듈형 아키텍처를 제공하는 Node.js 프레임워크 |
-| **Language**  | ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)   | 정적 타입 시스템을 통한 안정성 확보           |
-| **Database**  | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)   | 신뢰성 높은 관계형 데이터베이스               |
-| **ORM**       | ![TypeORM](https://img.shields.io/badge/TypeORM-FE0C2C?logo=typeorm&logoColor=white)            | 객체와 관계형 데이터베이스 간의 매핑          |
-| **Real-time** | ![Socket.io](https://img.shields.io/badge/Socket.io-010101?logo=socketdotio&logoColor=white)    | 실시간 양방향 통신 (채팅)                     |
-| **AI**        | ![Google Gemini](https://img.shields.io/badge/Google_Gemini-8E75B2?logo=google&logoColor=white) | 도서 요약 및 추천을 위한 LLM                  |
-| **Docs**      | ![Swagger](https://img.shields.io/badge/Swagger-85EA2D?logo=swagger&logoColor=black)            | API 문서 자동화                               |
-
-## 시작하기
-
-### 준비물
-
-- Node.js (v18 이상)
-- npm
+- Node.js v20+
+- pnpm v9+
 - PostgreSQL
+- Docker (선택 사항)
 
-### 1. 프로젝트 클론 및 의존성 설치
-
-```bash
-$ git clone https://github.com/your-repository/bookjeok-back.git
-$ cd bookjeok-back
-$ npm install
-```
-
-### 2. 환경 변수 설정
-
-`.env.example` 파일을 복사하여 `.env` 파일을 생성하고, 환경에 맞게 변수들을 설정합니다.
+### 1. 설치 (Installation)
 
 ```bash
-$ cp .env.example .env
+# 의존성 설치 (Root에서 실행 권장)
+pnpm install
 ```
 
-`.env` 파일 예시:
+### 2. 환경 변수 설정 (.env)
 
-```
+`bookjeok-back` 폴더 내에 `.env` 파일을 생성합니다.
+
+```env
 # Database
 DB_HOST=localhost
 DB_PORT=5432
-DB_USERNAME=your_db_user
-DB_PASSWORD=your_db_password
+DB_USERNAME=your_user
+DB_PASSWORD=your_password
 DB_DATABASE=bookjeok
 
 # JWT
-JWT_SECRET=your_jwt_secret
-JWT_REFRESH_SECRET=your_jwt_refresh_secret
+JWT_SECRET=your_secret
+JWT_REFRESH_SECRET=your_refresh_secret
 
-# Social Login
-KAKAO_CLIENT_ID=your_kakao_client_id
-KAKAO_CALLBACK_URL=http://localhost:3000/auth/kakao/callback
-NAVER_CLIENT_ID=your_naver_client_id
-NAVER_CLIENT_SECRET=your_naver_client_secret
-NAVER_CALLBACK_URL=http://localhost:3000/auth/naver/callback
-
-# Google AI
-GEMINI_API_KEY=your_gemini_api_key
+# OAuth & API Keys
+KAKAO_CLIENT_ID=...
+NAVER_CLIENT_ID=...
+GEMINI_API_KEY=...
 ```
 
-### 3. 데이터베이스 마이그레이션
+### 3. 실행 (Running the app)
 
-TypeORM 설정을 통해 서버 실행 시 엔티티와 데이터베이스 스키마가 동기화됩니다.
+#### Docker 사용 (추천)
 
-### 4. 애플리케이션 실행
+최적화된 Docker 이미지를 통해 DB 설정 없이도 바로 실행할 수 있습니다 (DB는 별도 실행 필요).
 
 ```bash
-# 개발 모드 (watch)
-$ npm run start:dev
+# 이미지 빌드
+docker build -t bookjeok-back .
 
-# 프로덕션 모드
-$ npm run build
-$ npm run start:prod
+# 컨테이너 실행
+docker run -p 8080:3000 --env-file .env bookjeok-back
 ```
 
-### 5. 테스트
+#### 로컬 실행 (Local)
 
 ```bash
-# 모든 테스트 실행
-$ npm run test
+# 개발 모드
+pnpm start:dev
 
-# e2e 테스트 실행
-$ npm run test:e2e
+# 프로덕션 빌드 및 실행
+pnpm build
+pnpm start:prod
+```
+
+## 테스트 (Test)
+
+```bash
+# 단위 테스트
+pnpm test
+
+# E2E 테스트
+pnpm test:e2e
 ```
