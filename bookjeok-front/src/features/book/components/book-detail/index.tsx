@@ -75,11 +75,11 @@ export const BookDetail = ({ isbn }: BookDetailProps) => {
             price={Number(book.discount)}
           />
 
-          <Separator className="my-6" />
+          <div className="h-px bg-stone-100 my-6" />
 
           <BookActions isbn={isbn} book={book} />
 
-          <Separator className="my-6" />
+          <div className="h-px bg-stone-100 my-6" />
 
           <BookDescription description={book.description} />
         </div>

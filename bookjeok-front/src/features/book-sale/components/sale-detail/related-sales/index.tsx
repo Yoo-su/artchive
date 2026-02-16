@@ -50,7 +50,7 @@ export const RelatedSales = ({ isbn }: RelatedSalesProps) => {
     <section ref={ref} className="w-full py-16 border-t border-stone-100">
       {/* 헤더 */}
       <div className="flex items-baseline justify-between mb-8 px-1">
-        <h2 className="text-2xl font-serif font-bold text-stone-900 tracking-tight">
+        <h2 className="text-xl font-serif text-stone-900 tracking-tight">
           {t("title")}
         </h2>
       </div>
@@ -91,10 +91,10 @@ export const RelatedSales = ({ isbn }: RelatedSalesProps) => {
             >
               <BookSale.Root sale={sale} priority={index < 2}>
                 <BookSale.Image />
-                <BookSale.Content className="p-3!">
-                  <BookSale.Title className="text-base" />
-                  <BookSale.Price className="text-sm mb-1!" />
-                  <BookSale.Location className="mb-2! hidden sm:flex" />
+                <BookSale.Content>
+                  <BookSale.Title />
+                  <BookSale.Price />
+                  <BookSale.Location className="hidden sm:flex" />
                   <BookSale.Meta className="hidden sm:flex" />
                 </BookSale.Content>
               </BookSale.Root>

@@ -24,6 +24,8 @@ import { SocketProvider } from "@/shared/providers/socket-provider";
 import UserProvider from "@/shared/providers/user-provider";
 import {
   bitcount,
+  diphylleia,
+  do_hyeon,
   gowun_batang,
   nanum_gothic,
   pretendard,
@@ -69,7 +71,7 @@ export default async function Layout({
   return (
     <html
       lang={locale}
-      className={`${pretendard.variable} ${nanum_gothic.variable} ${bitcount.variable} ${gowun_batang.variable}`}
+      className={`${pretendard.variable} ${nanum_gothic.variable} ${bitcount.variable} ${gowun_batang.variable} ${do_hyeon.variable} ${diphylleia.variable}`}
     >
       <body style={{ fontFamily: "var(--font-pretendard)" }}>
         <NextIntlClientProvider messages={messages}>

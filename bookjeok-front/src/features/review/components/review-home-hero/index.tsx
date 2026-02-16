@@ -2,7 +2,6 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
-import { Button } from "@/shared/components/shadcn/button";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
@@ -13,6 +12,7 @@ const HERO_IMAGES = [
   "/images/review_home_covers/review_list_cover4.jpg",
 ];
 
+// 리뷰 홈 히어로 섹션
 export function ReviewHomeHero() {
   const t = useTranslations("review.hero");
   const [isImageLoaded, setIsImageLoaded] = useState(false);
@@ -29,7 +29,7 @@ export function ReviewHomeHero() {
   }, [heroImage]);
 
   return (
-    <section className="relative h-[400px] md:h-[500px] overflow-hidden rounded-xl mb-12 group">
+    <section className="relative h-[420px] md:h-[520px] overflow-hidden mb-12 group">
       {/* 백그라운드 이미지 */}
       <Image
         src={heroImage}
@@ -37,48 +37,51 @@ export function ReviewHomeHero() {
         fill
         priority
         onLoad={() => setIsImageLoaded(true)}
-        className={`object-cover transition-all duration-700 group-hover:scale-105 ${
+        className={`object-cover transition-all duration-1000 group-hover:scale-[1.02] ${
           isImageLoaded ? "opacity-100" : "opacity-0"
         }`}
       />
 
-      {/* 오버레이 */}
-      <div className="absolute inset-0 bg-black/40 transition-colors duration-700 group-hover:bg-black/50" />
+      {/* 오버레이 - 세련된 그라디언트 */}
+      <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-black/10" />
 
-      {/* 콘텐츠 */}
-      <div className="relative z-10 container mx-auto px-8 h-full flex flex-col justify-center">
+      {/* 콘텐츠 - 하단 정렬 */}
+      <div className="relative z-10 max-w-6xl mx-auto px-8 h-full flex flex-col justify-end pb-12 md:pb-16">
         <div
-          className={`max-w-2xl transition-all duration-700 ${
+          className={`max-w-xl transition-all duration-700 ${
             isImageLoaded
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-4"
           }`}
         >
-          <h1
-            className="text-4xl md:text-6xl font-serif font-bold text-white mb-6 tracking-tight leading-tight"
-            style={{
-              textShadow:
-                "0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 255, 255, 0.3), 0 0 60px rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0, 0, 0, 0.3)",
-            }}
-          >
+          {/* 장식 라인 */}
+          <div className="h-px w-12 bg-white/40 mb-6" />
+
+          <h1 className="text-3xl font-serif md:text-5xl font-bold text-white/85 mb-4 tracking-tight leading-tight whitespace-pre-wrap">
             {t("title")}
           </h1>
-          <p className="text-lg md:text-xl text-white/70 mb-8 leading-relaxed font-light whitespace-pre-wrap">
+          <p className="text-base md:text-lg text-white/50 mb-8 leading-relaxed font-light whitespace-pre-wrap">
             {t("subtitle")}
           </p>
-          <Button
-            asChild
-            size="lg"
-            className="rounded-full px-8 h-14 text-lg font-medium transition-all duration-300 backdrop-blur-xl bg-white/20 text-white border border-white/30 shadow-[0_8px_32px_rgba(255,255,255,0.1),inset_0_1px_0_rgba(255,255,255,0.3)] hover:bg-white/30 hover:shadow-[0_8px_32px_rgba(255,255,255,0.2),inset_0_1px_0_rgba(255,255,255,0.4)] hover:scale-105"
+
+          {/* CTA 링크 - 미니멀 밑줄 스타일 */}
+          <Link
+            href={PATHS.REVIEW_WRITE}
+            className="inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors duration-300 group/cta"
           >
-            <Link href={PATHS.REVIEW_WRITE}>{t("button_write")}</Link>
-          </Button>
+            <span className="text-sm font-medium border-b border-white/30 pb-0.5 group-hover/cta:border-white/70 transition-colors duration-300">
+              {t("button_write")}
+            </span>
+            <span className="text-xs transition-transform duration-300 group-hover/cta:translate-x-1">
+              →
+            </span>
+          </Link>
         </div>
       </div>
 
       {/* 이미지 로딩 전 배경색 */}
       <div
-        className={`absolute inset-0 bg-stone-800 transition-opacity duration-500 -z-10 ${
+        className={`absolute inset-0 bg-stone-900 transition-opacity duration-500 -z-10 ${
           isImageLoaded ? "opacity-0" : "opacity-100"
         }`}
       />

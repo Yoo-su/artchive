@@ -1,6 +1,5 @@
 import { useTranslations } from "next-intl";
 
-import { Badge } from "@/shared/components/shadcn/badge";
 import { PriceDisplay } from "@/shared/components/ui/price-display";
 import { Link } from "@/shared/config/i18n/routing";
 
@@ -11,6 +10,7 @@ interface BookInfoProps {
   price: number;
 }
 
+// 도서 상세 정보
 export const BookInfo = ({
   title,
   author,
@@ -20,32 +20,34 @@ export const BookInfo = ({
   const t = useTranslations("book.detail");
   return (
     <div className="flex flex-col gap-4">
-      <Badge variant="secondary" className="w-fit">
+      {/* 카테고리 - 미니멀 텍스트 */}
+      <span className="text-xs text-stone-400 uppercase tracking-widest">
         {t("domestic_book")}
-      </Badge>
+      </span>
+
       <div>
-        <h1 className="text-3xl font-bold tracking-tighter text-gray-900 lg:text-4xl">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-stone-900 leading-tight">
           {title}
         </h1>
-        <p className="flex flex-wrap items-center gap-2 mt-2 text-lg text-gray-600">
+        <p className="flex flex-wrap items-center gap-2 mt-3 text-sm text-stone-500">
           <Link
             href={`/book/search?q=${author}`}
-            className="hover:text-primary hover:underline"
+            className="border-b border-stone-200 pb-0.5 hover:border-stone-500 hover:text-stone-700 transition-colors"
           >
             {author}
           </Link>
           <span>{t("author_suffix")}</span>
-          <span>|</span>
+          <span className="text-stone-300">·</span>
           <Link
             href={`/book/search?q=${publisher}`}
-            className="hover:text-primary hover:underline"
+            className="border-b border-stone-200 pb-0.5 hover:border-stone-500 hover:text-stone-700 transition-colors"
           >
             {publisher}
           </Link>
         </p>
       </div>
 
-      <div className="mt-2">
+      <div className="mt-1">
         <PriceDisplay value={price} size="xl" />
       </div>
     </div>

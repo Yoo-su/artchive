@@ -8,19 +8,21 @@ interface BookCoverProps {
   className?: string;
 }
 
+// 도서 상세 커버 이미지
 export const BookCover = ({ src, alt, className }: BookCoverProps) => {
   return (
     <div className={cn("w-full", className)}>
-      <div className="relative overflow-hidden transition-shadow duration-300 shadow-lg rounded-xl group hover:shadow-2xl aspect-3/4">
+      <div className="relative overflow-hidden group aspect-3/4">
         <Image
           src={src}
           alt={alt}
           fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           priority
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
         />
-        <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20" />
+        {/* 하단 그라디언트 */}
+        <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       </div>
     </div>
   );

@@ -3,7 +3,6 @@
 import React, { ReactNode } from "react";
 
 import { UsedBookSale } from "@/features/book-sale/types";
-import { Card } from "@/shared/components/shadcn/card";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";
@@ -19,6 +18,7 @@ interface BookSaleRootProps {
   priority?: boolean;
 }
 
+// 중고책 판매 카드 루트 - 이미지 배경 + 오버레이 레이아웃
 export const Root = ({
   sale,
   children,
@@ -36,13 +36,7 @@ export const Root = ({
         passHref
         className={cn("block h-full w-full group", className)}
       >
-        <Card
-          className={cn(
-            "relative h-full w-full overflow-hidden rounded-sm! border border-stone-200 bg-white shadow-sm transition-colors hover:border-stone-300",
-          )}
-        >
-          <div className="flex flex-col h-full">{children}</div>
-        </Card>
+        <div className="relative h-full w-full overflow-hidden">{children}</div>
       </Link>
     </BookSaleContext.Provider>
   );

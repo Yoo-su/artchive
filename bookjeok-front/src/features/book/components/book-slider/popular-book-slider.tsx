@@ -1,6 +1,5 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Autoplay } from "swiper/modules";
@@ -15,7 +14,7 @@ import { usePopularBooksQuery } from "../../queries";
 /**
  * 인기책 슬라이더 컴포넌트
  * - 조회수, 판매글, 리뷰 데이터 기반 인기책 표시
- * - 순위 배지 + 호버 정보 오버레이
+ * - 숫자 순위 + 미니멀 텍스트 정보
  */
 export const PopularBookSlider = () => {
   const t = useTranslations("home.sections.popular_books");
@@ -30,15 +29,21 @@ export const PopularBookSlider = () => {
   }
 
   return (
-    <section className="w-full py-12 bg-white">
+    <section className="w-full py-16 bg-white">
       <div className="max-w-6xl mx-auto px-4">
-        {/* 헤더 */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-rose-500" />
-            <h2 className="text-xl font-bold text-stone-900">{t("title")}</h2>
+        {/* 헤더 - 대형 세리프 숫자 강조 스타일 */}
+        <div className="mb-10 flex items-end gap-4">
+          <span className="text-6xl sm:text-7xl font-extralight text-stone-200 leading-none tracking-tighter select-none">
+            TOP
+          </span>
+          <div className="pb-1">
+            <h2 className="text-lg font-semibold text-stone-900 tracking-tight">
+              {t("title")}
+            </h2>
+            <p className="text-xs text-stone-400 font-light mt-0.5">
+              {t("subtitle")}
+            </p>
           </div>
-          <p className="mt-1 text-sm text-stone-500">{t("subtitle")}</p>
         </div>
 
         {/* 슬라이더 */}
@@ -59,37 +64,43 @@ export const PopularBookSlider = () => {
               <Link href={PATHS.BOOK_DETAIL(book.isbn)} passHref>
                 <div className="group">
                   {/* 책 표지 */}
-                  <div className="relative aspect-2/3 rounded-lg overflow-hidden shadow-sm group-hover:shadow-lg transition-all duration-300">
+                  <div className="relative aspect-2/3 overflow-hidden bg-stone-100 transition-all duration-300 group-hover:shadow-md">
                     <Image
                       src={book.image || "/placeholder.jpg"}
                       alt={book.title}
                       fill
                       sizes="160px"
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
 
-                    {/* 순위 배지 */}
+                    {/* 순위 - 좌하단 큰 숫자 + 베일 그라디언트 */}
                     <div
-                      className={`absolute top-2 left-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shadow-md ${
-                        index === 0
-                          ? "bg-rose-500 text-white"
-                          : index === 1
-                            ? "bg-stone-700 text-white"
-                            : index === 2
-                              ? "bg-amber-600 text-white"
-                              : "bg-white/90 text-stone-700"
+                      className={`absolute bottom-0 left-0 w-full h-1/2 bg-linear-to-t from-black/40 to-transparent ${
+                        index < 3 ? "opacity-60" : "opacity-30"
                       }`}
-                    >
-                      {index + 1}
+                    />
+                    <div className="absolute bottom-0 left-0 px-2.5 pb-1">
+                      <span
+                        className={`font-bold leading-none text-white ${
+                          index < 3
+                            ? "text-3xl drop-shadow-lg"
+                            : "text-2xl opacity-70 drop-shadow-sm"
+                        }`}
+                      >
+                        {index + 1}
+                      </span>
                     </div>
+
+                    {/* 호버 시 미세한 어두움 */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
                   </div>
 
-                  {/* 책 정보 (아래) */}
-                  <div className="mt-3 space-y-1">
-                    <h3 className="text-sm font-medium text-stone-900 line-clamp-2 group-hover:text-rose-600 transition-colors">
+                  {/* 책 정보 */}
+                  <div className="mt-2.5 space-y-0.5">
+                    <h3 className="text-sm font-medium text-stone-800 line-clamp-2 leading-snug group-hover:text-stone-500 transition-colors duration-200">
                       {book.title}
                     </h3>
-                    <p className="text-xs text-stone-500 line-clamp-1">
+                    <p className="text-[11px] text-stone-400 line-clamp-1 font-light">
                       {book.author}
                     </p>
                   </div>
@@ -108,23 +119,33 @@ export const PopularBookSlider = () => {
  */
 const PopularBookSliderSkeleton = () => {
   return (
-    <section className="w-full py-12 bg-white">
+    <section className="w-full py-16 bg-white">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="mb-8">
-          <div className="flex items-center gap-2">
-            <Skeleton className="w-5 h-5 rounded" />
-            <Skeleton className="h-6 w-32" />
+        {/* 헤더 스켈레톤 */}
+        <div className="mb-10 flex items-end gap-4 animate-pulse">
+          <Skeleton className="h-16 w-24 bg-stone-100" />
+          <div className="pb-1 space-y-1.5">
+            <Skeleton className="h-5 w-32 bg-stone-100" />
+            <Skeleton className="h-3 w-48 bg-stone-50" />
           </div>
-          <Skeleton className="h-4 w-64 mt-1" />
         </div>
 
-        <div className="flex gap-4 overflow-hidden">
+        <div className="flex gap-4 overflow-hidden animate-pulse">
           {[...Array(7)].map((_, i) => (
             <div key={i} className="w-[140px] sm:w-[160px] shrink-0">
-              <Skeleton className="aspect-2/3 rounded-lg" />
-              <div className="mt-3 space-y-1">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-3 w-3/4" />
+              <div className="relative aspect-2/3 bg-stone-100 overflow-hidden">
+                {/* 하단 그라디언트 베일 */}
+                <div className="absolute bottom-0 left-0 w-full h-1/2 bg-linear-to-t from-stone-200/60 to-transparent" />
+                {/* 순위 번호 */}
+                <div className="absolute bottom-0 left-0 px-2.5 pb-1">
+                  <span className="text-2xl font-bold text-stone-300/60">
+                    {i + 1}
+                  </span>
+                </div>
+              </div>
+              <div className="mt-2.5 space-y-1">
+                <Skeleton className="h-4 w-full bg-stone-100" />
+                <Skeleton className="h-3 w-3/4 bg-stone-50" />
               </div>
             </div>
           ))}

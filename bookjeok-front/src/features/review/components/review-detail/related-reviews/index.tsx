@@ -41,7 +41,9 @@ export const RelatedReviews = ({ isbn }: RelatedReviewsProps) => {
     <section ref={ref} className="w-full py-12">
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl text-stone-600">{t("title")}</h2>
+        <h2 className="text-xl font-serif tracking-tight text-stone-600">
+          {t("title")}
+        </h2>
 
         {totalCount > 4 && (
           <Link href={`${PATHS.REVIEWS}?bookIsbn=${isbn}`}>

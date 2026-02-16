@@ -1,8 +1,6 @@
-import { Calendar, MapPin } from "lucide-react";
 import Image from "next/image";
 
 import { ArtItem } from "@/features/art/types";
-import { Badge } from "@/shared/components/shadcn/badge";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
@@ -10,44 +8,35 @@ interface MainArtCardProps {
   item: ArtItem;
 }
 
+// 공연/전시 카드 컴포넌트 - 포스터 중심 미니멀 디자인
 export const MainArtCard = ({ item }: MainArtCardProps) => {
   return (
     <Link href={PATHS.ART_DETAIL(item.mt20id)} passHref>
-      <div className="group relative w-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 ease-out hover:-translate-y-1 border border-stone-100">
+      <div className="group relative w-full">
         {/* 포스터 이미지 */}
-        <div className="relative aspect-3/4 overflow-hidden">
+        <div className="relative aspect-3/4 overflow-hidden bg-stone-200">
           <Image
             src={item.poster}
             alt={item.prfnm}
             fill
-            sizes="300px"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="260px"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
-          {/* 상태 배지 */}
-          <div className="absolute top-3 left-3">
-            <Badge className="bg-white/90 backdrop-blur-sm text-stone-700 font-medium text-xs border-0 shadow-sm">
-              {item.genrenm}
-            </Badge>
-          </div>
+          {/* 호버 시 미세한 어두움 효과 */}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
         </div>
 
-        {/* 콘텐츠 */}
-        <div className="p-4">
-          <h3 className="text-base font-bold text-stone-900 line-clamp-2 leading-snug mb-2 group-hover:text-rose-600 transition-colors">
+        {/* 콘텐츠 - 미니멀 텍스트 정보 */}
+        <div className="pt-3 space-y-1">
+          <h3 className="text-sm font-medium text-stone-900 line-clamp-2 leading-snug group-hover:text-stone-600 transition-colors duration-300">
             {item.prfnm}
           </h3>
-          <div className="space-y-1.5 text-xs text-stone-500">
-            <div className="flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-stone-400" />
-              <span className="truncate">{item.fcltynm}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-stone-400" />
-              <span className="truncate">
-                {item.prfpdfrom} ~ {item.prfpdto}
-              </span>
-            </div>
-          </div>
+          <p className="text-xs text-stone-400 truncate font-light">
+            {item.fcltynm}
+          </p>
+          <p className="text-[11px] text-stone-300 font-light">
+            {item.prfpdfrom} ~ {item.prfpdto}
+          </p>
         </div>
       </div>
     </Link>

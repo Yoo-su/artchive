@@ -164,12 +164,16 @@
       },
       "art": {
         "spotlight": {
-          "title": "Spotlight: 오늘의 무대",
-          "subtitle": "도시의 밤을 밝히는 가장 뜨거운 공연들을 만나보세요."
+          "badge": "지금 공연 중",
+          "title_prefix": "무대 위에서",
+          "title_suffix": "빛나는 순간들",
+          "desc": "현재 공연 중인 작품들을 만나보세요."
         },
         "coming_soon": {
-          "title": "Coming Soon: 설레는 기다림",
-          "subtitle": "곧 막을 올릴 기대작들을 미리 만나보는 시간."
+          "badge": "공연 예정",
+          "title_prefix": "곧 만나볼",
+          "title_suffix": "새로운 무대",
+          "desc": "개막을 앞둔 작품들을 미리 확인하세요."
         },
         "genres": {
           "CCCA": "서양음악",
@@ -179,8 +183,8 @@
           "BBBC": "서양/한국 무용"
         },
         "empty": {
-          "title": "앗, 아직 공연 정보가 없어요!",
-          "desc": "다른 카테고리를 확인해보시겠어요?"
+          "title": "등록된 공연이 없습니다",
+          "desc": "다른 장르를 확인해보세요."
         }
       }
     },
@@ -340,7 +344,7 @@
   },
   "review": {
     "hero": {
-      "title": "Book Reviews",
+      "title": "[도서, 리뷰]",
       "subtitle": "독자들의 솔직한 감상을 만나보세요.\n당신의 다음 책을 찾는 여정에 함께합니다.",
       "image_alt": "리뷰 목록 커버 이미지",
       "button_write": "리뷰 작성하기"
