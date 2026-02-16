@@ -1,14 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Theater } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { useArtListQuery } from "@/features/art/queries";
-import { Button } from "@/shared/components/shadcn/button";
 import { cn } from "@/shared/utils";
 
 import { ArtDomain, Genre, GetArtListParams } from "../../../../types";
@@ -19,33 +16,27 @@ import { MainArtCard } from "./main-art-card";
 const NoResults = () => {
   const t = useTranslations("home.sections.art.empty");
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.5, ease: "easeInOut" }}
-      className="h-[380px] flex flex-col items-center justify-center text-center"
-    >
-      <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-rose-50">
-        <div className="absolute h-full w-full animate-pulse rounded-full bg-rose-100/50 blur-xl" />
-        <Theater className="relative z-10 h-10 w-10 text-rose-400" />
-      </div>
-      <p className="mt-6 text-lg font-semibold text-stone-700">{t("title")}</p>
-      <p className="mt-1 text-sm text-stone-400">{t("desc")}</p>
-    </motion.div>
+    <div className="h-[380px] flex flex-col items-center justify-center text-center">
+      <p className="text-base text-stone-400 font-light">{t("title")}</p>
+      <p className="mt-1 text-sm text-stone-300">{t("desc")}</p>
+    </div>
   );
 };
 
 interface MainArtSliderProps {
-  title: string;
-  subtitle: string;
+  badge: string;
+  titlePrefix: string;
+  titleSuffix: string;
+  desc: string;
   chips: ArtDomain[];
   queryOptions?: Omit<GetArtListParams, "genreCode">;
 }
 
 export const MainArtSlider = ({
-  title,
-  subtitle,
+  badge,
+  titlePrefix,
+  titleSuffix,
+  desc,
   chips,
   queryOptions,
 }: MainArtSliderProps) => {
@@ -57,43 +48,57 @@ export const MainArtSlider = ({
   });
 
   return (
-    <section className="w-full py-16 bg-linear-to-b from-stone-50 to-white overflow-hidden">
-      {/* 헤더 섹션 */}
-      <div className="text-center mb-10 px-4">
-        <h2 className="text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
-          {title}
-        </h2>
-        <p className="mt-3 text-base text-stone-500">{subtitle}</p>
-      </div>
+    <section className="w-full py-16 overflow-hidden">
+      {/* 헤더 섹션 - 좌측 정렬, 라인+뱃지 스타일 */}
+      <div className="max-w-7xl mx-auto px-4 mb-12">
+        <div className="text-left">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="h-px w-8 bg-stone-300" />
+            <span className="text-[10px] font-bold text-stone-500 tracking-[0.2em] uppercase">
+              {badge}
+            </span>
+          </div>
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+            <span className="block text-gray-400 font-medium text-2xl mb-1">
+              {titlePrefix}
+            </span>
+            {titleSuffix}
+          </h2>
+          <p className="mt-4 text-base text-stone-500 font-light max-w-2xl">
+            {desc}
+          </p>
+        </div>
 
-      {/* 장르 필터 칩 */}
-      <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:justify-center gap-2 py-2 px-4 sm:px-8 max-w-md sm:max-w-none mx-auto">
-        {chips.map((chip) => (
-          <Button
-            key={chip.genreCode}
-            variant={activeGenre === chip.genreCode ? "default" : "outline"}
-            size="sm"
-            className={cn(
-              "rounded-full cursor-pointer px-5 py-2 transition-all duration-300 font-medium w-full sm:w-auto",
-              activeGenre === chip.genreCode
-                ? "bg-rose-500 text-white shadow-lg shadow-rose-200 scale-105 border-rose-500 hover:bg-rose-600"
-                : "text-stone-600 bg-white border-stone-200 hover:bg-stone-50 hover:border-stone-300",
-            )}
-            onClick={() => setActiveGenre(chip.genreCode)}
-          >
-            {chip.title}
-          </Button>
-        ))}
+        {/* 장르 필터 - 미니멀 텍스트 탭 */}
+        <div className="mt-10 flex items-center gap-6 md:gap-8 flex-wrap">
+          {chips.map((chip) => (
+            <button
+              key={chip.genreCode}
+              onClick={() => setActiveGenre(chip.genreCode)}
+              className={cn(
+                "text-sm md:text-base cursor-pointer transition-all duration-300 relative pb-1",
+                activeGenre === chip.genreCode
+                  ? "text-stone-900 font-medium"
+                  : "text-stone-400 hover:text-stone-600 font-light",
+              )}
+            >
+              {chip.title}
+              {activeGenre === chip.genreCode && (
+                <span className="absolute bottom-0 left-0 w-full h-px bg-stone-900 animate-in fade-in zoom-in duration-300" />
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* 슬라이더 */}
-      <div className="mt-6">
+      <div>
         {isLoading ? (
           <ArtSliderSkeleton />
         ) : items.length > 0 ? (
           <Swiper
             key={activeGenre}
-            className="px-4! sm:px-8! py-8 w-full overflow-visible! [clip-path:inset(-100px_-10px)]"
+            className="px-4! sm:px-8! py-4 w-full overflow-visible! [clip-path:inset(-100px_-10px)]"
             modules={[Autoplay]}
             slidesPerView={"auto"}
             spaceBetween={20}
@@ -104,7 +109,7 @@ export const MainArtSlider = ({
             {items.map((item) => (
               <SwiperSlide
                 key={item.mt20id}
-                className="w-[260px]! sm:w-[300px]! select-none"
+                className="w-[220px]! sm:w-[260px]! select-none"
               >
                 <MainArtCard item={item} />
               </SwiperSlide>

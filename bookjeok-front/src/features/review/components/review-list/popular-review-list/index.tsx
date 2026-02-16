@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { usePopularReviewsQuery } from "@/features/review/queries";
-import { Badge } from "@/shared/components/shadcn/badge";
 
 import { PopularReviewItem } from "./popular-review-item";
 import { PopularReviewListSkeleton } from "./skeleton";
@@ -23,8 +22,8 @@ export function PopularReviewList() {
   if (isError) {
     return (
       <section className="mb-12">
-        <div className="h-[200px] w-full rounded-xl border border-dashed border-red-200 bg-red-50 flex flex-col items-center justify-center text-red-500 gap-2">
-          <span>{t("error")}</span>
+        <div className="h-[200px] w-full border border-dashed border-stone-200 flex items-center justify-center text-stone-400 text-sm">
+          {t("error")}
         </div>
       </section>
     );
@@ -36,19 +35,18 @@ export function PopularReviewList() {
   }
 
   // 5. 성공 렌더링
-
   return (
     <section className="mb-12">
-      <div className="flex items-center gap-2 mb-6">
-        <h2 className="text-2xl font-bold text-stone-900">
-          {t("popular_title")}
-        </h2>
-        <Badge
-          variant="secondary"
-          className="bg-orange-100 text-orange-600 hover:bg-orange-200"
-        >
-          {t("popular_badge")}
-        </Badge>
+      {/* 헤더 - 미니멀 스타일 */}
+      <div className="mb-6">
+        <div className="flex items-baseline gap-3">
+          <h2 className="text-xl font-semibold text-stone-900">
+            {t("popular_title")}
+          </h2>
+          <span className="text-[10px] font-medium text-stone-400 tracking-wider uppercase">
+            {t("popular_badge")}
+          </span>
+        </div>
       </div>
 
       {/* Mobile: Swiper */}

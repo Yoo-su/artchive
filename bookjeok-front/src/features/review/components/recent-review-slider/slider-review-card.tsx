@@ -1,7 +1,6 @@
 "use client";
 
 import { format } from "date-fns";
-import { BookOpen, MessageCircle, Star } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
@@ -21,7 +20,7 @@ interface SliderReviewCardProps {
 
 /**
  * 메인페이지 최신 리뷰 슬라이더에서 사용되는 카드 컴포넌트
- * 가볍고 친근한 느낌으로 누구나 쉽게 접근할 수 있도록 디자인
+ * 책 표지와 리뷰 정보를 매거진 스타일로 배치
  */
 export const SliderReviewCard = ({ review }: SliderReviewCardProps) => {
   const tCommon = useTranslations("common");
@@ -32,69 +31,64 @@ export const SliderReviewCard = ({ review }: SliderReviewCardProps) => {
       href={PATHS.REVIEW_DETAIL(review.id)}
       className="group block w-full h-full"
     >
-      <div className="relative w-[260px] h-[340px] rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-md transition-all duration-300 ease-out hover:shadow-xl hover:-translate-y-1">
+      <div className="relative w-[260px] h-[340px] overflow-hidden bg-white border border-stone-100 transition-all duration-300 ease-out hover:shadow-lg hover:-translate-y-0.5">
         {/* 상단 책 이미지 영역 */}
-        <div className="relative h-[140px] bg-linear-to-br from-sky-50 to-teal-50 flex items-center justify-center">
-          <div className="relative w-20 h-28 rounded-md overflow-hidden shadow-lg ring-1 ring-black/5 transition-transform duration-300 group-hover:scale-105">
+        <div className="relative h-[130px] bg-stone-50 flex items-center justify-center">
+          <div className="relative w-[72px] h-[104px] overflow-hidden shadow-sm transition-transform duration-500 group-hover:scale-105">
             {book?.image ? (
               <Image
                 src={book.image}
                 alt={book.title}
                 fill
-                sizes="80px"
+                sizes="72px"
                 className="object-cover"
               />
             ) : (
-              <div className="flex h-full items-center justify-center bg-gray-100 text-gray-400">
-                <BookOpen className="w-6 h-6" />
+              <div className="flex h-full items-center justify-center bg-stone-100 text-stone-300 text-xs font-light">
+                No Image
               </div>
             )}
           </div>
 
-          {/* 별점 배지 */}
+          {/* 별점 */}
           {review.rating > 0 && (
-            <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full shadow-sm">
-              <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-              <span className="text-xs font-medium text-gray-700">
+            <div className="absolute top-2.5 right-3 flex items-center gap-0.5">
+              <span className="text-amber-400 text-[11px]">★</span>
+              <span className="text-[11px] font-medium text-stone-500">
                 {review.rating.toFixed(1)}
               </span>
             </div>
           )}
-
-          {/* 말풍선 아이콘 */}
-          <div className="absolute top-3 left-3">
-            <MessageCircle className="w-4 h-4 text-sky-400" />
-          </div>
         </div>
 
         {/* 하단 콘텐츠 영역 */}
-        <div className="p-4 flex flex-col h-[200px]">
+        <div className="px-4 pt-3.5 pb-4 flex flex-col h-[210px]">
           {/* 리뷰 제목 */}
-          <h3 className="text-sm font-semibold text-gray-800 leading-snug line-clamp-2 mb-1.5 group-hover:text-sky-600 transition-colors duration-200">
+          <h3 className="text-[13px] font-semibold text-stone-800 leading-snug line-clamp-2 mb-1.5 group-hover:text-stone-500 transition-colors duration-200">
             {review.title}
           </h3>
 
           {/* 책 제목 & 저자 */}
-          <p className="text-xs text-gray-400 truncate">
+          <p className="text-[11px] text-stone-400 truncate font-light">
             {book?.title || tCommon("unknown")}
           </p>
-          <p className="text-[10px] text-gray-300 truncate mb-2">
+          <p className="text-[10px] text-stone-300 truncate font-light mb-auto">
             {book?.author || ""}
           </p>
 
-          {/* 태그 (하단 고정, overflow 처리) */}
+          {/* 태그 */}
           {review.tags && review.tags.length > 0 && (
-            <div className="flex gap-1 overflow-hidden mt-auto">
+            <div className="flex gap-1.5 overflow-hidden mb-3">
               {review.tags.slice(0, 3).map((tag: string) => (
                 <span
                   key={tag}
-                  className="px-2 py-0.5 text-[10px] font-medium text-sky-600 bg-sky-50 rounded-full whitespace-nowrap shrink-0"
+                  className="text-[10px] text-stone-400 whitespace-nowrap shrink-0"
                 >
                   #{tag}
                 </span>
               ))}
               {review.tags.length > 3 && (
-                <span className="text-[10px] text-gray-400 shrink-0">
+                <span className="text-[10px] text-stone-300 shrink-0">
                   +{review.tags.length - 3}
                 </span>
               )}
@@ -102,25 +96,25 @@ export const SliderReviewCard = ({ review }: SliderReviewCardProps) => {
           )}
 
           {/* 구분선 */}
-          <div className="h-px bg-gray-100 my-3" />
+          <div className="h-px bg-stone-100" />
 
           {/* 작성자 정보 */}
-          <div className="flex items-center justify-between mt-auto">
+          <div className="flex items-center justify-between pt-2.5">
             <div className="flex items-center gap-2">
-              <Avatar className="w-6 h-6 ring-1 ring-gray-100" data-nosnippet>
+              <Avatar className="w-5 h-5" data-nosnippet>
                 <AvatarImage
                   src={getProfileImageUrl(review.user?.profileImageUrl)}
                   alt={review.user?.nickname}
                 />
-                <AvatarFallback className="bg-sky-100 text-[10px] font-bold text-sky-600">
+                <AvatarFallback className="bg-stone-100 text-[9px] font-medium text-stone-500">
                   {review.user?.nickname?.[0] || "U"}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-xs font-medium text-gray-600 truncate max-w-[100px]">
+              <span className="text-[11px] text-stone-500 truncate max-w-[100px] font-light">
                 {review.user?.nickname || tCommon("anonymous")}
               </span>
             </div>
-            <span className="text-[10px] text-gray-400">
+            <span className="text-[10px] text-stone-300 font-light">
               {format(new Date(review.createdAt), "MM.dd")}
             </span>
           </div>

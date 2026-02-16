@@ -1,6 +1,5 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -22,7 +21,7 @@ export function ReviewFeedList() {
 
   if (isError) {
     return (
-      <div className="py-20 text-center text-red-500 bg-red-50 rounded-xl border border-red-100 border-dashed">
+      <div className="py-20 text-center text-stone-400 border border-dashed border-stone-200 text-sm">
         {t("feed_error")}
       </div>
     );
@@ -30,43 +29,43 @@ export function ReviewFeedList() {
 
   if (!feedsData || feedsData.length === 0) {
     return (
-      <div className="text-center py-20 text-stone-500">{t("no_reviews")}</div>
+      <div className="text-center py-20 text-stone-400 font-light">
+        {t("no_reviews")}
+      </div>
     );
   }
 
   return (
     <div className="space-y-16">
-      {feedsData.map((feed) => (
+      {feedsData.map((feed, feedIndex) => (
         <div key={feed.category} className="review-feed-section">
           {/* 카테고리 헤더 */}
           <div className="flex items-center justify-between mb-8 px-1">
-            {/* 카테고리 이름 */}
             <div className="flex items-center gap-3">
-              <div className="w-1 h-6 bg-emerald-500 rounded-full" />
-              <div>
-                <h2
-                  className="text-xl font-bold text-stone-900"
-                  style={{ fontFamily: "var(--font-nanum-gothic)" }}
-                >
-                  {feed.category}
-                </h2>
-                <p className="text-xs text-stone-400 mt-0.5">
-                  {t("recent_label")}
-                </p>
-              </div>
+              <div
+                className="h-px bg-stone-300 transition-all duration-300"
+                style={{ width: `${24 + feedIndex * 12}px` }}
+              />
+              <h2 className="text-lg font-semibold text-stone-900 tracking-tight">
+                {feed.category}
+              </h2>
+              <span className="text-[10px] text-stone-400 font-light tracking-wide">
+                {t("recent_label")}
+              </span>
             </div>
 
-            {/* 더보기 버튼 (리뷰가 4개 이상일 때만 표시) */}
+            {/* 더보기 링크 */}
             {feed.reviews.length >= 4 && (
               <Link
                 href={`${PATHS.REVIEWS}?category=${feed.category}`}
-                className="group flex items-center gap-1 text-stone-500 hover:text-emerald-600 transition-colors"
+                className="group flex items-center gap-1 text-stone-400 hover:text-stone-700 transition-colors duration-200"
               >
-                <span className="text-sm font-medium relative">
+                <span className="text-xs font-light relative pb-0.5 border-b border-stone-200 group-hover:border-stone-500 transition-colors duration-200">
                   {t("more")}
-                  <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-emerald-500 transition-all duration-300 group-hover:w-full" />
                 </span>
-                <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                <span className="text-[10px] transition-transform duration-200 group-hover:translate-x-0.5">
+                  →
+                </span>
               </Link>
             )}
           </div>

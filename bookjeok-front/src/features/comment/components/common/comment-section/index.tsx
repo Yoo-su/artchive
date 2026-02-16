@@ -27,7 +27,9 @@ export const CommentSection = ({
 
   return (
     <section ref={ref} className="py-12">
-      <h2 className="text-xl mb-6 text-stone-600">{t("title")}</h2>
+      <h2 className="text-xl font-serif tracking-tight mb-6 text-stone-600">
+        {t("title")}
+      </h2>
 
       {/* 댓글 작성 폼 */}
       <CommentForm targetType={targetType} targetId={targetId} />

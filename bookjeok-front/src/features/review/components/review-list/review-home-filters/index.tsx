@@ -1,14 +1,10 @@
 "use client";
 
-import { Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { FreeMode } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { BOOK_DOMAINS } from "@/features/review/constants";
-import { Badge } from "@/shared/components/shadcn/badge";
-import { Button } from "@/shared/components/shadcn/button";
-import { Input } from "@/shared/components/shadcn/input";
 import { cn } from "@/shared/utils";
 
 const CATEGORY_MAP: Record<string, string> = {
@@ -36,6 +32,7 @@ interface ReviewHomeFiltersProps {
   handleCategoryClick: (category: string) => void;
 }
 
+// 리뷰 홈 검색/카테고리 필터 컴포넌트
 export function ReviewHomeFilters({
   searchInput,
   setSearchInput,
@@ -48,49 +45,60 @@ export function ReviewHomeFilters({
   const t = useTranslations("review.filters");
 
   return (
-    <section className="container mx-auto mb-12 space-y-6">
+    <section className="container mx-auto mb-12 space-y-8">
+      {/* 검색 영역 */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         <form onSubmit={handleSearch} className="relative w-full md:max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
+          <input
+            type="text"
             placeholder={t("placeholder")}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="pl-10 pr-4 h-12 rounded-full border-stone-200 focus-visible:ring-stone-400"
+            className="w-full h-11 pl-4 pr-10 text-sm text-stone-700 bg-transparent border-b border-stone-200 focus:border-stone-500 focus:outline-none transition-colors duration-300 placeholder:text-stone-300 font-light"
           />
-        </form>
-        {isFiltered && (
-          <Button
-            variant="outline"
-            onClick={clearFilters}
-            className="shrink-0 rounded-full border-stone-300 hover:bg-stone-100"
+          <button
+            type="submit"
+            className="absolute right-0 top-1/2 -translate-y-1/2 px-3 h-full text-stone-400 hover:text-stone-600 transition-colors"
           >
-            <X className="w-4 h-4 mr-2" />
+            <span className="text-sm">↵</span>
+          </button>
+        </form>
+
+        {isFiltered && (
+          <button
+            onClick={clearFilters}
+            className="shrink-0 text-xs text-stone-400 hover:text-stone-600 font-light border-b border-stone-200 pb-0.5 transition-colors duration-200"
+          >
             {t("reset")}
-          </Button>
+          </button>
         )}
       </div>
 
+      {/* 카테고리 필터 - 미니멀 텍스트 탭 */}
       <div className="w-full">
         <Swiper
           modules={[FreeMode]}
-          spaceBetween={8}
+          spaceBetween={0}
           slidesPerView="auto"
           freeMode={true}
           className="w-full"
         >
           {BOOK_DOMAINS.map((category) => (
             <SwiperSlide key={category} className="w-auto! select-none">
-              <Badge
-                variant={selectedCategory === category ? "default" : "outline"}
-                className={cn(
-                  "cursor-pointer px-4 py-1.5 text-sm font-normal transition-colors hover:bg-stone-100",
-                  selectedCategory === category && "hover:bg-primary/90",
-                )}
+              <button
                 onClick={() => handleCategoryClick(category)}
+                className={cn(
+                  "px-4 py-2 text-sm cursor-pointer transition-all duration-200 relative",
+                  selectedCategory === category
+                    ? "text-stone-900 font-medium"
+                    : "text-stone-400 hover:text-stone-600 font-light",
+                )}
               >
                 {t(`categories.${CATEGORY_MAP[category]}`)}
-              </Badge>
+                {selectedCategory === category && (
+                  <span className="absolute bottom-0 left-4 right-4 h-px bg-stone-900" />
+                )}
+              </button>
             </SwiperSlide>
           ))}
         </Swiper>

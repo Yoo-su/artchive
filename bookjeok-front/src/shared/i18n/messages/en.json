@@ -164,12 +164,16 @@
       },
       "art": {
         "spotlight": {
-          "title": "Spotlight: Today's Stage",
-          "subtitle": "Meet the hottest performances lighting up the city night."
+          "badge": "Now Playing",
+          "title_prefix": "Shining Moments",
+          "title_suffix": "On Stage",
+          "desc": "Discover performances currently on stage."
         },
         "coming_soon": {
-          "title": "Coming Soon: Exciting Waits",
-          "subtitle": "A preview of anticipated works opening soon."
+          "badge": "Coming Soon",
+          "title_prefix": "A New Stage",
+          "title_suffix": "Awaits",
+          "desc": "Preview upcoming performances before they open."
         },
         "genres": {
           "CCCA": "Western Music",
@@ -179,8 +183,8 @@
           "BBBC": "Western/Korean Dance"
         },
         "empty": {
-          "title": "Oops, no performance info yet!",
-          "desc": "Would you like to check other categories?"
+          "title": "No performances found",
+          "desc": "Try a different genre."
         }
       }
     },
@@ -340,7 +344,7 @@
   },
   "review": {
     "hero": {
-      "title": "Book Reviews",
+      "title": "[Book, Reviews]",
       "subtitle": "Meet honest impressions from readers.\nJoin the journey to find your next book.",
       "image_alt": "Review List Cover Image",
       "button_write": "Write Review"

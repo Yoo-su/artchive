@@ -42,15 +42,19 @@ export const HomeView = () => {
 
       <div>
         <MainArtSlider
-          title={tArt("spotlight.title")}
-          subtitle={tArt("spotlight.subtitle")}
+          badge={tArt("spotlight.badge")}
+          titlePrefix={tArt("spotlight.title_prefix")}
+          titleSuffix={tArt("spotlight.title_suffix")}
+          desc={tArt("spotlight.desc")}
           chips={translatedChips}
           queryOptions={{ prfstate: "02" }} // "공연중"
         />
 
         <MainArtSlider
-          title={tArt("coming_soon.title")}
-          subtitle={tArt("coming_soon.subtitle")}
+          badge={tArt("coming_soon.badge")}
+          titlePrefix={tArt("coming_soon.title_prefix")}
+          titleSuffix={tArt("coming_soon.title_suffix")}
+          desc={tArt("coming_soon.desc")}
           chips={translatedChips}
           queryOptions={{ prfstate: "01" }} // "공연예정"
         />

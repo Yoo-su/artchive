@@ -44,7 +44,7 @@ export const PopularKeywords = () => {
     (keyword: string) => {
       const params = new URLSearchParams();
       params.set("q", keyword);
-      router.push(`${pathname}?${params.toString()}`);
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
       setIsHovered(false);
     },
     [router, pathname],
