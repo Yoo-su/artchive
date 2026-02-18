@@ -10,9 +10,9 @@ book-sale/
 ├── apis/index.ts       # API 함수 (CRUD, 검색)
 ├── queries.tsx       # TanStack Query 훅
 ├── mutations.tsx     # TanStack Mutation 훅
-├── constants.ts      # 상수 (MAX_MARKET_PRICE)
+├── constants.ts      # 상수 (가격 제한, 정렬 기본값, 유효값 검증용 Set)
 ├── hooks/            # 커스텀 훅
-│   ├── use-book-sale-search-params.ts  # URL 파라미터 파싱
+│   ├── use-book-sale-search-params.ts  # URL 파라미터 읽기/쓰기 통합 관리 (유효성 검증 포함)
 │   ├── use-user-location.ts            # 위치 권한 관리
 │   ├── use-book-sale-form.ts           # 등록 폼 로직
 │   └── use-book-sale-edit-form.ts      # 수정 폼 로직

@@ -6,7 +6,6 @@ import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { Button } from "@/shared/components/shadcn/button";
-import { Checkbox } from "@/shared/components/shadcn/checkbox";
 import { Input } from "@/shared/components/shadcn/input";
 import { Label } from "@/shared/components/shadcn/label";
 import {
@@ -17,21 +16,21 @@ import {
   SelectValue,
 } from "@/shared/components/shadcn/select";
 import { Slider } from "@/shared/components/shadcn/slider";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/shared/components/shadcn/tooltip";
 import { KOREA_DISTRICTS } from "@/shared/constants/korea-districts";
 import { cn } from "@/shared/utils/cn";
 import { formatPrice } from "@/shared/utils/format-price";
 
-import { MAX_MARKET_PRICE } from "../../../constants";
+import {
+  DEFAULT_SORT_BY,
+  DEFAULT_SORT_ORDER,
+  FILTER_ALL,
+  MAX_MARKET_PRICE,
+} from "../../../constants";
 import {
   FilterFormInputs,
   SaleStatus,
   SearchBookSalesParams,
+  SortOption,
 } from "../../../types";
 
 interface BookSaleFilterProps {
@@ -50,8 +49,8 @@ export const BookSaleFilter = ({
   // initialParams에서 직접 초기값 계산 (useEffect 대신)
   const getDefaultValues = (): FilterFormInputs => ({
     search: initialParams.search || "",
-    city: initialParams.city || "all",
-    district: initialParams.district || "all",
+    city: initialParams.city || FILTER_ALL,
+    district: initialParams.district || FILTER_ALL,
     status: initialParams.status || [],
     priceRange: [
       initialParams.minPrice ?? 0,
@@ -60,9 +59,9 @@ export const BookSaleFilter = ({
     sort:
       initialParams.sortBy === "distance"
         ? "distance_ASC"
-        : `${initialParams.sortBy || "createdAt"}_${
-            initialParams.sortOrder || "DESC"
-          }`,
+        : (`${initialParams.sortBy || DEFAULT_SORT_BY}_${
+            initialParams.sortOrder || DEFAULT_SORT_ORDER
+          }` as SortOption),
   });
 
   const { register, handleSubmit, control, watch, reset, setValue } =
@@ -91,7 +90,7 @@ export const BookSaleFilter = ({
 
   const handleCityChange = (newCity: string) => {
     setValue("city", newCity);
-    setValue("district", "all");
+    setValue("district", FILTER_ALL);
   };
 
   const handleReset = () => {
@@ -123,7 +122,7 @@ export const BookSaleFilter = ({
                 <SelectValue placeholder={t("placeholder_city")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{t("all_cities")}</SelectItem>
+                <SelectItem value={FILTER_ALL}>{t("all_cities")}</SelectItem>
                 {Object.keys(KOREA_DISTRICTS).map((c) => (
                   <SelectItem key={c} value={c}>
                     {c}
@@ -141,16 +140,18 @@ export const BookSaleFilter = ({
               value={field.value}
               onValueChange={field.onChange}
               disabled={
-                !city || city === "all" || KOREA_DISTRICTS[city]?.length === 0
+                !city ||
+                city === FILTER_ALL ||
+                KOREA_DISTRICTS[city]?.length === 0
               }
             >
               <SelectTrigger className="w-full h-12 bg-white border-stone-200 rounded-sm focus:ring-stone-200 disabled:bg-stone-50 disabled:opacity-50">
                 <SelectValue placeholder={t("placeholder_district")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{t("all_districts")}</SelectItem>
+                <SelectItem value={FILTER_ALL}>{t("all_districts")}</SelectItem>
                 {city &&
-                  city !== "all" &&
+                  city !== FILTER_ALL &&
                   KOREA_DISTRICTS[city].map((d) => (
                     <SelectItem key={d} value={d}>
                       {d}

@@ -83,6 +83,25 @@ export type UpdateBookSaleParams = Partial<{
 }>;
 
 /**
+ * 허용되는 정렬 기준
+ */
+export type SortBy = "createdAt" | "price" | "distance";
+
+/**
+ * 허용되는 정렬 방향
+ */
+export type SortOrder = "ASC" | "DESC";
+
+/**
+ * 필터 폼에서 사용하는 정렬 조합 ("sortBy_sortOrder" 형태)
+ */
+export type SortOption =
+  | "createdAt_DESC"
+  | "price_ASC"
+  | "price_DESC"
+  | "distance_ASC";
+
+/**
  * 판매글 검색 요청 파라미터
  */
 export interface SearchBookSalesParams {
@@ -94,8 +113,8 @@ export interface SearchBookSalesParams {
   minPrice?: number;
   maxPrice?: number;
   status?: SaleStatus[];
-  sortBy?: string;
-  sortOrder?: string;
+  sortBy?: SortBy;
+  sortOrder?: SortOrder;
   lat?: number;
   lng?: number;
   radius?: number;
@@ -155,5 +174,5 @@ export interface FilterFormInputs {
   district: string;
   status: SaleStatus[];
   priceRange: [number, number];
-  sort: string;
+  sort: SortOption;
 }
