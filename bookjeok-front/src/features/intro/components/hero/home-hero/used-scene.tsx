@@ -64,11 +64,11 @@ export const UsedScene = ({ data }: { data: SceneData }) => {
           transition={{ delay: 0.3 }}
           className="mb-8 flex items-center justify-center gap-3"
         >
-          <span className="h-px w-8 bg-zinc-400"></span>
-          <span className="text-xs font-bold tracking-[0.2em] text-zinc-500 uppercase">
+          <span className="h-px w-8 bg-stone-400"></span>
+          <span className="text-xs font-bold tracking-[0.2em] text-stone-500 uppercase">
             {data.sub}
           </span>
-          <span className="h-px w-8 bg-zinc-400"></span>
+          <span className="h-px w-8 bg-stone-400"></span>
         </motion.div>
 
         {/* 헤더: 굵은 산세리프, 좁은 자간 (Heavy Sans, Tight Tracking) */}
@@ -82,7 +82,7 @@ export const UsedScene = ({ data }: { data: SceneData }) => {
               ease: [0.16, 1, 0.3, 1],
             }}
             className={cn(
-              "font-(family-name:--font-pretendard) whitespace-pre-wrap text-6xl font-medium leading-[1.05] tracking-tight text-zinc-900 sm:text-7xl md:text-[5.5rem]", // Enterprise Look을 위한 Pretendard 사용
+              "whitespace-pre-wrap text-6xl font-medium leading-[1.05] tracking-tight text-stone-900 sm:text-7xl md:text-[5.5rem]",
             )}
           >
             {data.header}
@@ -93,7 +93,7 @@ export const UsedScene = ({ data }: { data: SceneData }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.8 }}
-          className="mt-8 text-lg font-medium text-zinc-600 md:text-xl"
+          className="mt-8 whitespace-pre-wrap text-lg leading-relaxed text-stone-600 md:text-xl"
         >
           {data.desc}
         </motion.p>

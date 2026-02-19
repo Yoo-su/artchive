@@ -51,7 +51,7 @@ export const LogoScene = ({ data }: { data: SceneData }) => {
         {/* 2. Brand Name (Typography) */}
         <div className="flex items-baseline leading-none tracking-tighter mb-4">
           <motion.span
-            className="text-5xl md:text-7xl font-bold font-(family-name:--font-gowun-batang) text-stone-600"
+            className="text-5xl md:text-7xl font-bold text-stone-600"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
@@ -114,7 +114,7 @@ export const LogoScene = ({ data }: { data: SceneData }) => {
 
           {/* 'eok' */}
           <motion.span
-            className="text-5xl md:text-7xl font-bold font-(family-name:--font-gowun-batang) ml-[-3.5px] md:ml-[-7px] text-stone-600"
+            className="text-5xl md:text-7xl font-bold ml-[-3.5px] md:ml-[-7px] text-stone-600"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.8 }}
@@ -129,7 +129,7 @@ export const LogoScene = ({ data }: { data: SceneData }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.0, duration: 0.8 }}
           className={cn(
-            "font-(family-name:--font-pretendard) whitespace-pre-wrap text-2xl md:text-4xl font-semibold leading-tight tracking-tight text-stone-800 mt-4",
+            "whitespace-pre-wrap text-2xl md:text-4xl font-semibold leading-tight tracking-tight text-stone-800 mt-4",
           )}
         >
           {data.header}

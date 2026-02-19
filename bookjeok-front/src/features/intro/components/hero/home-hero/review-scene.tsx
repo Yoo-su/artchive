@@ -88,10 +88,10 @@ export const ReviewScene = ({ data }: { data: SceneData }) => {
           transition={{ delay: 0.3 }}
           className="mb-6 flex items-center justify-end gap-3"
         >
-          <span className="text-xs font-bold tracking-[0.2em] text-zinc-500 uppercase">
+          <span className="text-xs font-bold tracking-[0.2em] text-stone-500 uppercase">
             {data.sub}
           </span>
-          <span className="h-px w-8 bg-zinc-300"></span>
+          <span className="h-px w-8 bg-stone-400"></span>
         </motion.div>
 
         {/* 헤더: 다양성을 위한 나눔 고딕 또는 깔끔한 산세리프?
@@ -105,7 +105,7 @@ export const ReviewScene = ({ data }: { data: SceneData }) => {
             exit={{ x: "100%" }}
             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
-              "font-(family-name:--font-pretendard) whitespace-pre-wrap text-5xl font-light leading-tight tracking-tight text-zinc-900 sm:text-6xl md:text-7xl",
+              "whitespace-pre-wrap text-5xl font-medium leading-tight tracking-tight text-stone-900 sm:text-6xl md:text-7xl",
             )}
           >
             {/* 우아함을 위해 단순하게 유지 (Split lines to stagger X) */}
@@ -117,7 +117,7 @@ export const ReviewScene = ({ data }: { data: SceneData }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7, duration: 0.8 }}
-          className="mt-8 max-w-sm whitespace-pre-wrap text-lg font-medium leading-relaxed text-zinc-600"
+          className="mt-8 max-w-sm whitespace-pre-wrap text-lg leading-relaxed text-stone-600"
         >
           {data.desc}
         </motion.p>
