@@ -34,7 +34,7 @@ export const HomeHero = () => {
   }, []);
 
   return (
-    <section className="relative flex min-h-[600px] w-full flex-col justify-center overflow-hidden bg-white pb-[10vh] md:min-h-[750px]">
+    <section className="font-(family-name:--font-gowun-batang) relative flex min-h-[600px] w-full flex-col justify-center overflow-hidden bg-white pb-[10vh] md:min-h-[750px]">
       <div className="container relative mx-auto flex-1 w-full px-6 md:px-10">
         <AnimatePresence mode="wait">
           {currentScene.id === "record" && (

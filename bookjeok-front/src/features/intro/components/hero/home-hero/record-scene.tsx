@@ -20,7 +20,7 @@ export const RecordScene = ({ data }: { data: SceneData }) => {
           className="mb-6 flex items-center gap-3"
         >
           <span className="h-px w-8 bg-stone-400"></span>
-          <span className="font-(family-name:--font-gowun-batang) text-xs font-bold tracking-[0.2em] text-stone-500 uppercase">
+          <span className="text-xs font-bold tracking-[0.2em] text-stone-500 uppercase">
             {data.sub}
           </span>
         </motion.div>
@@ -32,7 +32,7 @@ export const RecordScene = ({ data }: { data: SceneData }) => {
             exit={{ y: "100%" }}
             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
-              "font-(family-name:--font-gowun-batang) whitespace-pre-wrap text-[3.5rem] font-medium leading-[1.1] tracking-tight text-stone-900 sm:text-[4rem] md:text-[5rem]",
+              "whitespace-pre-wrap text-[3.5rem] font-medium leading-[1.1] tracking-tight text-stone-900 sm:text-[4rem] md:text-[5rem]",
             )}
           >
             {data.header}
@@ -44,7 +44,7 @@ export const RecordScene = ({ data }: { data: SceneData }) => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
-          className="font-(family-name:--font-gowun-batang) mt-8 whitespace-pre-wrap text-lg leading-relaxed text-stone-600 md:text-xl"
+          className="mt-8 whitespace-pre-wrap text-lg leading-relaxed text-stone-600 md:text-xl"
         >
           {data.desc}
         </motion.p>
