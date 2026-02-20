@@ -32,11 +32,11 @@ export const HomeView = () => {
       <RecentSalesSlider />
 
       {/* 광고 배너 */}
-      {/* <AdBanner
+      <AdBanner
         dataAdSlot="9804554356"
         dataAdFormat="horizontal"
         className="w-full my-4"
-      /> */}
+      />
 
       <RecentReviewSlider />
 

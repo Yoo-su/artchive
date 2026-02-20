@@ -6,6 +6,7 @@ import { BookMarket } from "@/features/book-sale/components/sale-market/book-mar
 import { PopularBookSaleList } from "@/features/book-sale/components/sale-market/book-market/popular-book-sale-list";
 import { BookMarketSkeleton } from "@/features/book-sale/components/sale-market/book-market/skeleton";
 import { MarketHero } from "@/features/book-sale/components/sale-market/market-hero";
+import { AdBanner } from "@/shared/components/ads/ad-banner";
 
 export const BookMarketView = () => {
   return (
@@ -13,11 +14,11 @@ export const BookMarketView = () => {
       <MarketHero />
 
       {/* 광고 배너 */}
-      {/* <AdBanner
+      <AdBanner
         dataAdSlot="4727503402"
         dataAdFormat="horizontal"
         className="w-full mb-8"
-      /> */}
+      />
 
       <div className="mb-8">
         <PopularBookSaleList />

@@ -66,11 +66,11 @@ export const ReviewHomeView = () => {
 
       <section className="mb-20 container mx-auto">
         {/* 광고 배너 */}
-        {/* <AdBanner
+        <AdBanner
           dataAdSlot="6903058843"
           dataAdFormat="horizontal"
           className="w-full mb-8"
-        /> */}
+        />
 
         {!isFiltered ? (
           <>
