@@ -151,29 +151,29 @@
         "subtitle": "Popular books based on views and reviews."
       },
       "recent_sales": {
-        "badge": "New Arrivals",
-        "title_prefix": "Fresh from",
-        "title_suffix": "Someone's Library",
-        "desc": "Discover valuable used books with traces of time."
+        "badge": "MARKET",
+        "title_prefix": "Latest",
+        "title_suffix": "Used Books",
+        "desc": "Check out the recently listed used books."
       },
       "recent_reviews": {
-        "badge": "Latest Reviews",
-        "title_prefix": "Sentences Read",
-        "title_suffix": "Through Others' Eyes",
-        "desc": "Listen to honest thoughts from those who read first."
+        "badge": "COMMUNITY",
+        "title_prefix": "Recent",
+        "title_suffix": "Book Reviews",
+        "desc": "Read the latest reviews from other readers."
       },
       "art": {
         "spotlight": {
-          "badge": "Now Playing",
-          "title_prefix": "Shining Moments",
-          "title_suffix": "On Stage",
-          "desc": "Discover performances currently on stage."
+          "badge": "CULTURE",
+          "title_prefix": "Current",
+          "title_suffix": "Performances & Arts",
+          "desc": "Check out ongoing cultural events."
         },
         "coming_soon": {
-          "badge": "Coming Soon",
-          "title_prefix": "A New Stage",
-          "title_suffix": "Awaits",
-          "desc": "Preview upcoming performances before they open."
+          "badge": "UPCOMING",
+          "title_prefix": "Upcoming",
+          "title_suffix": "Performances & Arts",
+          "desc": "Preview cultural events that are opening soon."
         },
         "genres": {
           "CCCA": "Western Music",
