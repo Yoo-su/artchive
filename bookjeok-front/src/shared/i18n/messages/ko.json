@@ -151,29 +151,29 @@
         "subtitle": "조회수와 리뷰를 기반으로 선정된 인기 도서입니다"
       },
       "recent_sales": {
-        "badge": "가장 최근 중고책들",
-        "title_prefix": "누군가의 서재에서",
-        "title_suffix": "막 도착한 이야기",
-        "desc": "세월의 흔적이 담긴, 가치 있는 중고책을 만나보세요."
+        "badge": "MARKET",
+        "title_prefix": "최근 등록된",
+        "title_suffix": "중고 도서",
+        "desc": "새로운 주인을 기다리는 중고 도서를 확인해보세요."
       },
       "recent_reviews": {
-        "badge": "따끈따끈 최신 리뷰",
-        "title_prefix": "타인의 시선으로",
-        "title_suffix": "읽는 문장들",
-        "desc": "책을 먼저 읽은 이들의 솔직한 감상을 들어보세요."
+        "badge": "COMMUNITY",
+        "title_prefix": "방금 올라온",
+        "title_suffix": "도서 리뷰",
+        "desc": "다른 독자들의 감상평을 확인해보세요."
       },
       "art": {
         "spotlight": {
-          "badge": "지금 공연 중",
-          "title_prefix": "무대 위에서",
-          "title_suffix": "빛나는 순간들",
-          "desc": "현재 공연 중인 작품들을 만나보세요."
+          "badge": "CULTURE",
+          "title_prefix": "현재 진행 중인",
+          "title_suffix": "공연 및 전시",
+          "desc": "지금 관람할 수 있는 문화 예술 정보입니다."
         },
         "coming_soon": {
-          "badge": "공연 예정",
-          "title_prefix": "곧 만나볼",
-          "title_suffix": "새로운 무대",
-          "desc": "개막을 앞둔 작품들을 미리 확인하세요."
+          "badge": "UPCOMING",
+          "title_prefix": "곧 시작될",
+          "title_suffix": "공연 및 전시",
+          "desc": "개막을 앞둔 문화 예술 정보를 미리 확인하세요."
         },
         "genres": {
           "CCCA": "서양음악",
