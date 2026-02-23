@@ -159,11 +159,11 @@ export const MainBookSlider = () => {
                     </div>
 
                     {/* 책 정보 - 활성 슬라이드에만 표시 */}
-                    <div className="space-y-1 pt-2 select-none opacity-0 translate-y-4 transition-all duration-500 ease-out delay-200 in-[.swiper-slide-active]:opacity-100 in-[.swiper-slide-active]:translate-y-0 text-center">
-                      <h3 className="text-stone-900 font-medium text-lg md:text-xl leading-tight line-clamp-1">
+                    <div className="relative w-[200px] md:w-[280px] left-1/2 -translate-x-1/2 space-y-1 pt-2 select-none opacity-0 translate-y-4 transition-all duration-500 ease-out delay-200 in-[.swiper-slide-active]:opacity-100 in-[.swiper-slide-active]:translate-y-0 text-center">
+                      <h3 className="text-stone-900 font-medium text-lg md:text-xl leading-tight">
                         {book.title}
                       </h3>
-                      <p className="text-stone-500 text-sm md:text-base font-light line-clamp-1">
+                      <p className="text-stone-500 text-sm md:text-base font-light">
                         {book.author}
                       </p>
                     </div>
