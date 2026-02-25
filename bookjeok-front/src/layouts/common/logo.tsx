@@ -12,14 +12,8 @@ interface LogoProps {
 export const Logo = ({ size = "md" }: LogoProps) => {
   const isSmall = size === "sm";
 
-  // 사이즈별 설정
-  const iconSize = isSmall ? 28 : 40; // w-7 vs w-10
-  const iconClass = isSmall ? "w-7 h-7" : "w-10 h-10";
-  const textSize = isSmall ? "text-[20px]" : "text-[28px]";
-  const dotSize = isSmall ? "w-1 h-1" : "w-1.5 h-1.5";
-  const underlineHeight = isSmall ? "h-[2px]" : "h-[3px]";
-  // 아이콘과 텍스트 사이 간격 (기존보다 살짝 좁힘)
-  const gapClass = isSmall ? "gap-1" : "gap-2";
+  // 사이즈별 SVG 높이 지정 (비율 유지)
+  const svgClass = isSmall ? "h-7 sm:h-8" : "h-10 sm:h-12";
 
   return (
     <Link
@@ -29,111 +23,89 @@ export const Logo = ({ size = "md" }: LogoProps) => {
       aria-label="북적 홈으로 이동"
     >
       <motion.div
-        className={`group relative flex items-center ${gapClass} cursor-pointer select-none`}
+        className="group relative flex items-center cursor-pointer select-none"
         initial="initial"
         whileHover="hover"
       >
-        {/* 아이콘 컨테이너 (3D 느낌의 부유 효과) */}
-        <motion.div
-          className={`relative ${iconClass}`}
-          variants={{
-            initial: { rotate: 0, scale: 1, y: 0 },
-            hover: {
-              rotate: -12,
-              scale: 1.1,
-              y: isSmall ? -1 : -2,
-              transition: {
-                type: "spring",
-                stiffness: 300,
-                damping: 15,
-              },
-            },
-          }}
-        >
-          <div className="absolute inset-0 bg-linear-to-br from-neogulip-primary/20 to-transparent rounded-xl rotate-6 scale-90 blur-sm transition-opacity opacity-0 group-hover:opacity-100" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo-square.svg"
-            alt="북적"
-            width={iconSize}
-            height={iconSize}
-            className="w-full h-full drop-shadow-sm relative z-10"
-          />
-        </motion.div>
+        {/* 수제 손글씨 텍스트 로고 (프로페셔널 마커 스타일) */}
+        <div className="relative flex flex-col justify-center mt-1">
+          <svg
+            viewBox="0 0 215 100"
+            className={`${isSmall ? "h-[26px]" : "h-[36px]"} w-auto text-stone-900 transition-colors duration-300 group-hover:text-black`}
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            stroke="currentColor"
+            strokeWidth="5.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            {/* b */}
+            <path d="M 20,18 Q 18,45 20,72" />
+            <path d="M 20,48 C 34,42 40,68 20,70" />
 
-        {/* 타이포그래피 로고 */}
-        <div className="relative flex flex-col justify-center">
-          <div className="flex items-baseline leading-none tracking-tighter">
-            {/* 'book' - 단단하고 안정적인 느낌 */}
-            <span
-              className={`${textSize} font-bold font-(family-name:--font-gowun-batang) text-stone-600`}
-            >
-              book
-            </span>
-            {/* 'j' - The "Reader J" Icon (독창적 디자인) */}
-            <div className="relative mx-0.5 flex items-end self-baseline">
-              <svg
-                width="16"
-                height="28" // 높이 조정 (폰트 높이에 맞춤)
-                viewBox="0 0 24 42"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="mb-[-2px]" // 베이스라인 미세 조정
-              >
-                {/* Body (Stem & Legs) - 사람이 벽에 기대어 다리를 뻗은 모습 */}
-                <path
-                  d="M16 10V28C16 34.6274 10.6274 40 4 40H2"
-                  stroke="currentColor"
-                  strokeWidth="5"
-                  strokeLinecap="round"
-                  className="text-stone-600"
-                />
-                {/* Head - 책을 보고 있는 고개 */}
-                <circle cx="16" cy="4" r="3.5" className="fill-stone-600" />
+            {/* o1 */}
+            <ellipse
+              cx="46"
+              cy="59"
+              rx="9"
+              ry="11"
+              transform="rotate(-4 46 59)"
+            />
 
-                {/* Arm - 책을 들고 있는 팔 (섬세한 연결) */}
-                <path
-                  d="M16 19C16 19 13 22 11 25"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  className="text-stone-600"
-                />
+            {/* o2 */}
+            <ellipse
+              cx="69"
+              cy="59"
+              rx="9"
+              ry="11"
+              transform="rotate(-2 69 59)"
+            />
 
-                {/* Book - 품에 안고 있는 책 (Curved Pages, Delicate Stroke) */}
-                <path
-                  d="M4 21C4 21 8 25 11 25C14 25 18 21 18 21"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-emerald-600"
-                />
-              </svg>
-            </div>
+            {/* k1 */}
+            <path d="M 88,18 Q 86,45 88,72" />
+            <path d="M 103,46 C 96,50 92,54 88,58" />
+            <path d="M 91,55 C 96,62 100,68 103,72" />
 
-            {/* 'eok' - 나머지 텍스트 */}
-            <span
-              className={`${textSize} font-bold font-(family-name:--font-gowun-batang) text-stone-600 ml-[-3.5px]`}
-            >
-              eok
-            </span>
+            {/* j */}
+            <path d="M 114,46 L 114,82 C 114,93 102,96 102,85" />
+            <circle
+              cx="114"
+              cy="28"
+              r="3.5"
+              fill="currentColor"
+              stroke="none"
+            />
 
-            {/* 점 제거 (Reader J 자체가 포인트) */}
-          </div>
+            {/* e */}
+            <path d="M 126,60 Q 135,59 143,56 C 143,40 125,40 126,58 C 126,71 138,72 146,67" />
 
-          {/* 애니메이션 밑줄 - Absolute positioning for better vertical alignment */}
-          <motion.div
-            className={`${underlineHeight} absolute -bottom-1.5 left-0 w-full bg-linear-to-r from-stone-500 to-emerald-600 rounded-full origin-left`}
+            {/* o3 */}
+            <ellipse
+              cx="161"
+              cy="59"
+              rx="9"
+              ry="11"
+              transform="rotate(-5 161 59)"
+            />
+
+            {/* k2 */}
+            <path d="M 183,18 Q 181,45 183,72" />
+            <path d="M 198,46 C 191,50 187,54 183,58" />
+            <path d="M 186,55 C 191,62 195,68 198,72" />
+          </svg>
+
+          {/* hover 밑줄 */}
+          {/* <motion.div
+            className="h-[2px] absolute -bottom-1 left-0 w-full rounded-full origin-left bg-stone-800"
             variants={{
               initial: { scaleX: 0, opacity: 0 },
               hover: {
                 scaleX: 1,
-                opacity: 1,
-                transition: { duration: 0.3, ease: "easeOut" },
+                opacity: 0.8,
+                transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
               },
             }}
-          />
+          /> */}
         </div>
       </motion.div>
     </Link>
