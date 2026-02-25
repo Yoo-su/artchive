@@ -143,7 +143,7 @@ export function ReadingLogFormDialog({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                className="h-11 border-stone-200 text-stone-600 hover:bg-stone-50"
+                className="w-full sm:w-auto h-11 border-stone-200 text-stone-600 hover:bg-stone-50"
                 disabled={isPending}
               >
                 {t("cancel")}
@@ -151,7 +151,7 @@ export function ReadingLogFormDialog({
               <CoolMode>
                 <Button
                   type="submit"
-                  className="h-11 font-bold text-white hover:opacity-90 transition-opacity shadow-sm bg-stone-900 hover:bg-stone-800"
+                  className="w-full sm:w-auto h-11 font-bold text-white hover:opacity-90 transition-opacity shadow-sm bg-stone-900 hover:bg-stone-800"
                   disabled={isPending}
                 >
                   {isPending ? (

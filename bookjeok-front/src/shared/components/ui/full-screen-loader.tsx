@@ -2,7 +2,82 @@
 
 import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+// 파스텔 컬러 팔레트 (CoolMode 스타일)
+const PARTICLE_COLORS = [
+  "#D4C5A9", // warm sand
+  "#C2B280", // khaki
+  "#E8DCC8", // cream
+  "#B8A88A", // tan
+  "#A89B7E", // stone warm
+  "#D6CDB7", // parchment
+  "#C9B99A", // wheat
+  "#E0D5C0", // linen
+];
+
+/** CoolMode 물리 엔진을 응용한 파티클 생성 함수 */
+const createParticle = (
+  centerX: number,
+  centerY: number,
+  size: number,
+): HTMLElement => {
+  const particle = document.createElement("div");
+  particle.style.position = "fixed";
+  particle.style.left = "0";
+  particle.style.top = "0";
+  particle.style.width = `${size}px`;
+  particle.style.height = `${size}px`;
+  particle.style.borderRadius = "50%";
+  particle.style.pointerEvents = "none";
+  particle.style.zIndex = "9999";
+  particle.style.transform = `translate(${centerX}px, ${centerY}px)`;
+
+  const color =
+    PARTICLE_COLORS[Math.floor(Math.random() * PARTICLE_COLORS.length)];
+  particle.style.backgroundColor = color;
+  // 부드러운 글로우 효과
+  particle.style.boxShadow = `0 0 ${size}px ${color}80`;
+
+  return particle;
+};
+
+/** 파티클 버스트를 한 번 발사하는 함수 */
+const emitBurst = (centerX: number, centerY: number, count: number) => {
+  for (let i = 0; i < count; i++) {
+    const size = Math.random() * 8 + 3;
+    const particle = createParticle(centerX, centerY, size);
+    document.body.appendChild(particle);
+
+    // 위쪽으로만 쏘아올리기 (팝콘처럼 튀어오르는 느낌)
+    const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 0.8;
+    const velocity = Math.random() * 6 + 4;
+
+    let x = centerX;
+    let y = centerY;
+    const horz = Math.cos(angle) * velocity;
+    let vert = Math.sin(angle) * velocity;
+    let opacity = 1;
+
+    const step = () => {
+      vert += 0.25; // 중력 (CoolMode보다 약하게 → 더 우아하게 떠다님)
+      x += horz;
+      y += vert;
+      opacity -= 0.015;
+
+      particle.style.transform = `translate(${x}px, ${y}px) scale(${Math.max(opacity, 0)})`;
+      particle.style.opacity = opacity.toString();
+
+      if (opacity > 0) {
+        requestAnimationFrame(step);
+      } else {
+        particle.remove();
+      }
+    };
+    // 파티클마다 약간의 딜레이로 팝콘 튀는 타이밍 분산
+    setTimeout(() => requestAnimationFrame(step), Math.random() * 100);
+  }
+};
 
 export const FullScreenLoader = () => {
   const t = useTranslations("common.loader.messages");
@@ -15,7 +90,9 @@ export const FullScreenLoader = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [loopNum, setLoopNum] = useState(0);
   const [typingSpeed, setTypingSpeed] = useState(150);
+  const logoRef = useRef<HTMLDivElement>(null);
 
+  // 타이핑 애니메이션
   useEffect(() => {
     const handleTyping = () => {
       const i = loopNum % loadingTexts.length;
@@ -38,43 +115,79 @@ export const FullScreenLoader = () => {
     };
 
     const timer = setTimeout(handleTyping, typingSpeed);
-
     return () => clearTimeout(timer);
   }, [text, isDeleting, loopNum, typingSpeed, loadingTexts]);
 
+  // CoolMode 스타일 자동 팝콘 파티클 발사
+  const emitFromLogo = useCallback(() => {
+    if (!logoRef.current) return;
+    const rect = logoRef.current.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    emitBurst(cx, cy, 6);
+  }, []);
+
+  useEffect(() => {
+    // 초기 딜레이 후 시작
+    const startTimer = setTimeout(() => {
+      emitFromLogo();
+    }, 300);
+
+    const interval = setInterval(() => {
+      emitFromLogo();
+    }, 500);
+
+    return () => {
+      clearTimeout(startTimer);
+      clearInterval(interval);
+    };
+  }, [emitFromLogo]);
+
   return (
-    <div className="flex flex-col items-center justify-center h-screen w-screen bg-white fixed inset-0 z-100 overflow-hidden">
-      <div className="relative flex flex-col items-center justify-center gap-12">
-        {/* 로고 컨테이너 (물결 및 플로팅 애니메이션 포함) */}
-        <div className="relative flex items-center justify-center w-64 h-64">
-          {/* 물결 효과 */}
-          {[...Array(5)].map((_, i) => (
-            <motion.div
-              key={`ripple-${i}`}
-              className="absolute inset-0 rounded-full border border-emerald-200/40 bg-emerald-100/10"
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{
-                scale: 2.5,
-                opacity: [0, 0.5, 0],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                delay: i * 0.6,
-                ease: "easeOut",
-              }}
-            />
-          ))}
-
-          {/* 팝콘처럼 튀어오르는 로고들 */}
-          {[...Array(12)].map((_, i) => (
-            <PopcornLogo key={`popcorn-${i}`} index={i} total={12} />
-          ))}
-
-          {/* 둥둥 떠있는 메인 로고 */}
+    <div className="flex flex-col items-center justify-center h-screen w-screen bg-gradient-to-b from-stone-50 via-white to-stone-50/50 fixed inset-0 z-100 overflow-hidden">
+      <div className="relative flex flex-col items-center justify-center gap-10">
+        {/* 로고 + 파티클 영역 */}
+        <div className="relative flex items-center justify-center w-56 h-56">
+          {/* 부드러운 글로우 아우라 */}
           <motion.div
-            className="relative w-28 h-28 z-10"
-            animate={{ y: [-8, 8, -8] }}
+            className="absolute w-36 h-36 rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(168,155,126,0.15) 0%, rgba(168,155,126,0.05) 50%, transparent 70%)",
+            }}
+            animate={{
+              scale: [1, 1.4, 1],
+              opacity: [0.6, 1, 0.6],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+          <motion.div
+            className="absolute w-48 h-48 rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(214,205,183,0.1) 0%, transparent 60%)",
+            }}
+            animate={{
+              scale: [1.1, 1.5, 1.1],
+              opacity: [0.4, 0.8, 0.4],
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.5,
+            }}
+          />
+
+          {/* 둥둥 떠다니는 메인 로고 */}
+          <motion.div
+            ref={logoRef}
+            className="relative w-24 h-24 z-10"
+            animate={{ y: [-6, 6, -6] }}
             transition={{
               duration: 3,
               repeat: Infinity,
@@ -85,71 +198,54 @@ export const FullScreenLoader = () => {
             <img
               src="/logo-square.svg"
               alt="북적"
-              className="absolute inset-0 w-full h-full object-contain drop-shadow-lg"
+              className="absolute inset-0 w-full h-full object-contain"
+              style={{
+                filter: "drop-shadow(0 4px 20px rgba(168,155,126,0.3))",
+              }}
             />
           </motion.div>
         </div>
 
-        {/* 커스텀 타이핑 애니메이션 텍스트 */}
+        {/* 타이핑 텍스트 */}
         <div className="h-8 flex items-center justify-center">
           <motion.span
             key={loopNum}
-            className="text-emerald-900 text-lg font-medium leading-normal"
+            className="text-stone-600 text-base font-medium font-serif tracking-wide"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
             {text}
-            <span className="animate-pulse ml-1 text-emerald-500">|</span>
+            <motion.span
+              className="ml-0.5 text-stone-400 inline-block"
+              animate={{ opacity: [1, 0, 1] }}
+              transition={{ duration: 1, repeat: Infinity }}
+            >
+              |
+            </motion.span>
           </motion.span>
+        </div>
+
+        {/* 미니멀 로딩 인디케이터 */}
+        <div className="flex gap-1.5">
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={i}
+              className="w-1.5 h-1.5 rounded-full bg-stone-300"
+              animate={{
+                scale: [1, 1.5, 1],
+                opacity: [0.4, 1, 0.4],
+              }}
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                delay: i * 0.2,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
         </div>
       </div>
     </div>
-  );
-};
-
-const PopcornLogo = ({ index, total }: { index: number; total: number }) => {
-  const [mounted, setMounted] = useState(false);
-  const [randoms, setRandoms] = useState({ x: 0, y: 0, r: 0, d: 0 });
-
-  useEffect(() => {
-    setMounted(true);
-    setRandoms({
-      x: (Math.random() - 0.5) * 200, // 조금 더 멀리 퍼지게
-      y: (Math.random() - 0.5) * 200,
-      r: (Math.random() - 0.5) * 360,
-      d: Math.random() * 2,
-    });
-  }, []);
-
-  if (!mounted) return null;
-
-  return (
-    <motion.div
-      className="absolute z-0"
-      initial={{ scale: 0, x: 0, y: 0, opacity: 0 }}
-      animate={{
-        scale: [0, 1, 0],
-        x: randoms.x,
-        y: randoms.y,
-        rotate: randoms.r,
-        opacity: [0, 1, 0],
-      }}
-      transition={{
-        duration: 2.5, // 조금 더 천천히
-        repeat: Infinity,
-        delay: index * 0.2 + randoms.d,
-        ease: "easeOut",
-      }}
-    >
-      <div className="relative w-6 h-6 opacity-80">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/logo-square.svg"
-          alt="mini-logo"
-          className="absolute inset-0 w-full h-full object-contain"
-        />
-      </div>
-    </motion.div>
   );
 };
