@@ -269,12 +269,12 @@ export const BookSaleFilter = ({
       </div>
 
       {/* 4행: 실행 버튼 */}
-      <div className="flex items-center gap-2 pt-2">
+      <div className="grid grid-cols-2 md:flex md:justify-end gap-2 pt-2">
         <Button
           type="button"
           variant="outline"
           onClick={handleReset}
-          className="shrink-0 h-12 px-4 rounded-sm border-stone-200 text-stone-600 hover:text-stone-900 hover:bg-stone-50 gap-2"
+          className="h-12 px-4 rounded-sm border-stone-200 text-stone-600 hover:text-stone-900 hover:bg-stone-50 gap-2"
         >
           <RefreshCw className="h-4 w-4" />
           {t("reset_conditions")}
@@ -283,7 +283,7 @@ export const BookSaleFilter = ({
         <Button
           size="lg"
           type="submit"
-          className="flex-1 h-12 rounded-sm bg-stone-700 hover:bg-stone-600 text-white font-medium gap-2 transition-colors"
+          className="h-12 md:px-12 rounded-sm bg-stone-700 hover:bg-stone-600 text-white font-medium gap-2 transition-colors"
         >
           <Search className="h-4 w-4" />
           {t("search")}

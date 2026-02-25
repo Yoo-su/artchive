@@ -108,7 +108,7 @@ export const CoolMode = ({ children, options }: CoolModeProps) => {
   );
 
   return (
-    <div ref={ref} onClick={handleClick} className="inline-block">
+    <div ref={ref} onClick={handleClick}>
       {children}
     </div>
   );
