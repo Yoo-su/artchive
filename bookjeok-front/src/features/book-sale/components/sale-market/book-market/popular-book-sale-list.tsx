@@ -12,10 +12,15 @@ export function PopularBookSaleList() {
   if (isLoading) {
     return (
       <section className="mb-16">
-        <header className="mb-4 md:mb-8 border-b border-stone-100 pb-3 md:pb-4">
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-stone-900 tracking-tight">
-            {t("title")}
-          </h2>
+        <header className="mb-6">
+          <div className="flex items-baseline gap-3">
+            <h2 className="text-xl font-semibold text-stone-900">
+              {t("title")}
+            </h2>
+            <span className="text-[10px] font-medium text-stone-400 tracking-wider uppercase">
+              {t("badge")}
+            </span>
+          </div>
         </header>
 
         <Swiper
@@ -46,10 +51,13 @@ export function PopularBookSaleList() {
 
   return (
     <section className="mb-16">
-      <header className="mb-4 md:mb-8 flex items-baseline justify-between border-b border-stone-100 pb-3 md:pb-4">
-        <h2 className="text-3xl md:text-4xl font-serif font-bold text-stone-900 tracking-tight">
-          {t("title")}
-        </h2>
+      <header className="mb-6">
+        <div className="flex items-baseline gap-3">
+          <h2 className="text-xl font-semibold text-stone-900">{t("title")}</h2>
+          <span className="text-[10px] font-medium text-stone-400 tracking-wider uppercase">
+            {t("badge")}
+          </span>
+        </div>
       </header>
 
       <Swiper
