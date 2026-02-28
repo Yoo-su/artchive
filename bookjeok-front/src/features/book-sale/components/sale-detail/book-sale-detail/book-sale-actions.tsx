@@ -1,5 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Clock, Edit, Eye, Loader2, MessageCircle, Trash2 } from "lucide-react";
+import {
+  Clock,
+  Edit,
+  Eye,
+  Loader2,
+  MapPin,
+  MessageCircle,
+  Trash2,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -93,35 +101,38 @@ export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
   return (
     <div className="space-y-6">
       <div>
-        <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mb-2 text-sm text-gray-500">
+        <div className="flex items-center gap-2 mb-3">
           <SaleStatusBadge status={sale.status} />
-          <span>
-            {sale.city} {sale.district}
-          </span>
-          <div className="flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5" />
-            <span>
-              {dateLabel} {formatPostDate(displayDate)}
-            </span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Eye className="w-3.5 h-3.5" />
-            <span>{sale.viewCount.toLocaleString()}</span>
-          </div>
         </div>
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">
           {sale.title}
         </h1>
-        <p className="mt-4 text-2xl font-bold text-emerald-600">
+        <p className="mt-3 text-2xl font-bold text-emerald-600">
           {sale.price.toLocaleString()}
           {tCommon("won")}
           {discountRate > 0 && (
-            <span className="ml-3 text-lg font-medium text-gray-400 line-through">
+            <span className="ml-3 text-lg font-medium text-stone-400 line-through">
               {Number(sale.book.discount).toLocaleString()}
               {tCommon("won")}
             </span>
           )}
         </p>
+
+        {/* 메타 정보 영역: 필(pill) 태그 스타일 */}
+        <div className="flex flex-wrap items-center gap-2 mt-4">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-stone-100 text-stone-600 text-xs font-medium">
+            <MapPin className="w-3 h-3" />
+            {sale.city} {sale.district}
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-stone-100 text-stone-600 text-xs font-medium">
+            <Clock className="w-3 h-3" />
+            {dateLabel} {formatPostDate(displayDate)}
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-stone-100 text-stone-600 text-xs font-medium">
+            <Eye className="w-3 h-3" />
+            {sale.viewCount.toLocaleString()}
+          </span>
+        </div>
       </div>
 
       <Separator />

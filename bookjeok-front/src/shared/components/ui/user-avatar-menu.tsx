@@ -1,6 +1,7 @@
 "use client";
 
 import { User as UserIcon } from "lucide-react";
+import { useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import {
@@ -112,12 +113,20 @@ export function UserAvatarMenu({
   }
 
   // 로그인 상태: 드롭다운 메뉴
+  // 모바일에서 스크롤 시 의도치 않게 메뉴가 열리는 것을 방지하기 위해
+  // open 상태를 직접 관리합니다.
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
       <DropdownMenuTrigger asChild>
         <button
           className="flex items-center focus:outline-none rounded-lg p-1 -m-1"
+          style={{ touchAction: "manipulation" }}
           aria-label={`${user.nickname} 프로필 메뉴`}
+          // 모바일에서 스크롤 시 pointerDown이 메뉴를 열지 않도록 방지
+          onPointerDown={(e) => e.preventDefault()}
+          onClick={() => setIsMenuOpen((prev: boolean) => !prev)}
         >
           {avatarContent}
         </button>
