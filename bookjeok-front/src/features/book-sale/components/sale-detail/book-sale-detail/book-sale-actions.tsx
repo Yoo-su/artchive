@@ -1,13 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  Clock,
-  Edit,
-  Eye,
-  Loader2,
-  MapPin,
-  MessageCircle,
-  Trash2,
-} from "lucide-react";
+import { Edit, Loader2, MessageCircle, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -30,25 +22,21 @@ import {
   AlertDialogTrigger,
 } from "@/shared/components/shadcn/alert-dialog";
 import { Button } from "@/shared/components/shadcn/button";
-import { Separator } from "@/shared/components/shadcn/separator";
-import { ShareButton } from "@/shared/components/ui/share-button";
 import { UserAvatarMenu } from "@/shared/components/ui/user-avatar-menu";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { useSocketContext } from "@/shared/providers/socket-provider";
-import { formatPostDate } from "@/shared/utils/date";
 
 import { useDeleteBookSaleMutation } from "../../../mutations";
 import { UsedBookSale } from "../../../types";
-import { SaleStatusBadge } from "../../common/sale-status-badge";
 
 interface BookSaleActionsProps {
   sale: UsedBookSale;
 }
 
+/** 판매자 정보 + 액션 버튼 (수정/삭제/채팅/찜) */
 export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
   const t = useTranslations("market.detail");
-  const tCommon = useTranslations("common");
   const currentUser = useAuthStore((state) => state.user);
   const isOwner = currentUser?.id === sale.user.id;
   const [isCreatingChat, setIsCreatingChat] = useState(false);
@@ -57,20 +45,6 @@ export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
   const queryClient = useQueryClient();
   const { mutate: deleteSale, isPending: isDeleting } =
     useDeleteBookSaleMutation();
-
-  const displayDate =
-    sale.updatedAt > sale.createdAt ? sale.updatedAt : sale.createdAt;
-  const dateLabel =
-    sale.updatedAt > sale.createdAt ? t("status.edited") : t("status.created");
-
-  const discountRate =
-    Number(sale.book.discount) > 0
-      ? Math.round(
-          ((Number(sale.book.discount) - sale.price) /
-            Number(sale.book.discount)) *
-            100,
-        )
-      : 0;
 
   const handleStartChat = async () => {
     setIsCreatingChat(true);
@@ -99,140 +73,83 @@ export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <div className="flex items-center gap-2 mb-3">
-          <SaleStatusBadge status={sale.status} />
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">
-          {sale.title}
-        </h1>
-        <p className="mt-3 text-2xl font-bold text-emerald-600">
-          {sale.price.toLocaleString()}
-          {tCommon("won")}
-          {discountRate > 0 && (
-            <span className="ml-3 text-lg font-medium text-stone-400 line-through">
-              {Number(sale.book.discount).toLocaleString()}
-              {tCommon("won")}
-            </span>
-          )}
-        </p>
-
-        {/* 메타 정보 영역: 필(pill) 태그 스타일 */}
-        <div className="flex flex-wrap items-center gap-2 mt-4">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-stone-100 text-stone-600 text-xs font-medium">
-            <MapPin className="w-3 h-3" />
-            {sale.city} {sale.district}
-          </span>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-stone-100 text-stone-600 text-xs font-medium">
-            <Clock className="w-3 h-3" />
-            {dateLabel} {formatPostDate(displayDate)}
-          </span>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-stone-100 text-stone-600 text-xs font-medium">
-            <Eye className="w-3 h-3" />
-            {sale.viewCount.toLocaleString()}
-          </span>
-        </div>
-      </div>
-
-      <Separator />
-
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <UserAvatarMenu
-          user={sale.user}
-          showNickname
-          label={t("actions.seller")}
-          size="lg"
-        />
-        {isOwner ? (
-          <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm">
-              <Link href={PATHS.MY_PAGE_SALES_EDIT(String(sale.id))}>
-                <Edit className="w-4 h-4 mr-2" />
-                {t("actions.edit")}
-              </Link>
-            </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm" disabled={isDeleting}>
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  {isDeleting ? t("actions.deleting") : t("actions.delete")}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    {t("actions.delete_title")}
-                  </AlertDialogTitle>
-                  <AlertDialogDescription className="whitespace-pre-wrap">
-                    {t("actions.delete_desc")}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>{t("actions.cancel")}</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() =>
-                      deleteSale({ saleId: sale.id, imageUrls: sale.imageUrls })
-                    }
-                  >
-                    {t("actions.delete")}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-2 w-full sm:w-auto">
-            <div className="flex gap-2">
-              {sale.status === "FOR_SALE" && (
-                <WishlistButton
-                  type="SALE"
-                  id={sale.id}
-                  className="border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 w-11 rounded-md"
-                />
-              )}
-              <CoolMode>
-                <Button
-                  size="lg"
-                  className="flex-1 sm:flex-none h-11"
-                  onClick={handleStartChat}
-                  disabled={isCreatingChat || !currentUser}
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <UserAvatarMenu
+        user={sale.user}
+        showNickname
+        label={t("actions.seller")}
+        size="lg"
+      />
+      {isOwner ? (
+        <div className="flex gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link href={PATHS.MY_PAGE_SALES_EDIT(String(sale.id))}>
+              <Edit className="w-4 h-4 mr-2" />
+              {t("actions.edit")}
+            </Link>
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="sm" disabled={isDeleting}>
+                <Trash2 className="w-4 h-4 mr-2" />
+                {isDeleting ? t("actions.deleting") : t("actions.delete")}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t("actions.delete_title")}</AlertDialogTitle>
+                <AlertDialogDescription className="whitespace-pre-wrap">
+                  {t("actions.delete_desc")}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{t("actions.cancel")}</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() =>
+                    deleteSale({ saleId: sale.id, imageUrls: sale.imageUrls })
+                  }
                 >
-                  {isCreatingChat ? (
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  ) : (
-                    <MessageCircle className="w-5 h-5 mr-2" />
-                  )}
-                  {isCreatingChat
-                    ? t("actions.chat_opening")
-                    : t("actions.chat_start")}
-                </Button>
-              </CoolMode>
-            </div>
-            {!currentUser && (
-              <p className="text-xs text-stone-400 text-center sm:text-right">
-                {t("actions.login_required")}
-              </p>
+                  {t("actions.delete")}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2 w-full sm:w-auto">
+          <div className="flex gap-2">
+            {sale.status === "FOR_SALE" && (
+              <WishlistButton
+                type="SALE"
+                id={sale.id}
+                className="border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 w-11 rounded-md"
+              />
             )}
+            <CoolMode>
+              <Button
+                size="lg"
+                className="flex-1 sm:flex-none h-11"
+                onClick={handleStartChat}
+                disabled={isCreatingChat || !currentUser}
+              >
+                {isCreatingChat ? (
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                ) : (
+                  <MessageCircle className="w-5 h-5 mr-2" />
+                )}
+                {isCreatingChat
+                  ? t("actions.chat_opening")
+                  : t("actions.chat_start")}
+              </Button>
+            </CoolMode>
           </div>
-        )}
-      </div>
-
-      <Separator />
-
-      <div className="prose max-w-none text-gray-700 min-h-[200px] bg-gray-50/50 p-6 rounded-xl border border-gray-100">
-        <p className="whitespace-pre-wrap leading-relaxed">{sale.content}</p>
-      </div>
-
-      {/* 공유 버튼 */}
-      <div className="flex justify-end pt-4">
-        <ShareButton
-          title={sale.title}
-          description={`${sale.book.title} | ${sale.price.toLocaleString()}원`}
-          imageUrl={sale.imageUrls[0] || sale.book.image}
-          showLabel
-        />
-      </div>
+          {!currentUser && (
+            <p className="text-xs text-stone-400 text-center sm:text-right">
+              {t("actions.login_required")}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 };
