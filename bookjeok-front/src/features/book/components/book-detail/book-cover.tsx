@@ -17,6 +17,7 @@ export const BookCover = ({ src, alt, className }: BookCoverProps) => {
           src={src}
           alt={alt}
           fill
+          unoptimized
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           priority
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"

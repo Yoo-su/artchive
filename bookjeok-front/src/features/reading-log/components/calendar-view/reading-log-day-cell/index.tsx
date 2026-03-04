@@ -1,6 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
+import Image from "next/image";
 
 import { cn } from "@/shared/utils";
 
@@ -78,12 +79,12 @@ export function ReadingLogDayCell({
                 )}]`,
               )}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={firstLog.bookImage}
                 alt={firstLog.bookTitle}
+                fill
+                unoptimized
                 className="absolute inset-0 w-full h-full object-cover"
-                loading="lazy"
               />
 
               {/* 여러 권일 경우 뱃지 (이미지 위 오버레이) */}

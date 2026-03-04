@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -194,10 +195,11 @@ export const FullScreenLoader = () => {
               ease: "easeInOut",
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src="/logo-square.svg"
               alt="북적"
+              fill
+              unoptimized
               className="absolute inset-0 w-full h-full object-contain"
               style={{
                 filter: "drop-shadow(0 4px 20px rgba(168,155,126,0.3))",

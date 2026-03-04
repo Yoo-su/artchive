@@ -1,6 +1,7 @@
 "use client";
 
 import { ImagePlus, X } from "lucide-react";
+import Image from "next/image";
 import { ChangeEvent, useRef } from "react";
 
 import { Input } from "@/shared/components/shadcn/input";
@@ -62,10 +63,12 @@ export const ImageUploader = ({
       {/* Existing Images */}
       {existingImages.map((url, index) => (
         <div key={url} className="relative group">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={url}
             alt={`업로드된 이미지 ${index + 1}`}
+            width={96}
+            height={96}
+            unoptimized
             className="object-cover w-24 h-24 rounded-lg shadow-sm border border-gray-200"
           />
           {onExistingImageRemove && (
@@ -84,10 +87,12 @@ export const ImageUploader = ({
       {/* New Image Previews */}
       {previews.map((src, index) => (
         <div key={src} className="relative group">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={src}
             alt={`미리보기 이미지 ${index + 1}`}
+            width={96}
+            height={96}
+            unoptimized
             className="object-cover w-24 h-24 rounded-lg shadow-sm border border-gray-200"
           />
           <button
