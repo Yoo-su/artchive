@@ -19,6 +19,7 @@ export const MainArtCard = ({ item }: MainArtCardProps) => {
             src={item.poster}
             alt={item.prfnm}
             fill
+            unoptimized
             sizes="260px"
             className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
