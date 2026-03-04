@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { enUS, ko } from "date-fns/locale";
 import { BookOpen, Calendar, ShoppingBag, User } from "lucide-react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 import { SaleStatusBadge } from "@/features/book-sale/components/common/sale-status-badge";
@@ -81,10 +82,11 @@ const UserProfileHeader = ({ profile }: UserProfileHeaderProps) => {
       <CardContent className="flex items-center gap-4 p-4 sm:gap-6 sm:p-6">
         <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-stone-100 sm:h-24 sm:w-24">
           {getProfileImageUrl(profile.profileImageUrl) ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
+            <Image
               src={getProfileImageUrl(profile.profileImageUrl)!}
               alt={profile.nickname}
+              fill
+              unoptimized
               className="absolute inset-0 w-full h-full object-cover"
             />
           ) : (
@@ -181,12 +183,12 @@ const UserRecentReviews = ({ reviews }: UserRecentReviewsProps) => {
           >
             <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-stone-100">
               {review.bookImage ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
+                <Image
                   src={review.bookImage}
                   alt={review.bookTitle}
+                  fill
+                  unoptimized
                   className="absolute inset-0 w-full h-full object-cover"
-                  loading="lazy"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
@@ -233,12 +235,12 @@ const UserRecentSales = ({ sales }: UserRecentSalesProps) => {
           >
             <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-stone-100">
               {sale.bookImage ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
+                <Image
                   src={sale.bookImage}
                   alt={sale.bookTitle}
+                  fill
+                  unoptimized
                   className="absolute inset-0 w-full h-full object-cover"
-                  loading="lazy"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
