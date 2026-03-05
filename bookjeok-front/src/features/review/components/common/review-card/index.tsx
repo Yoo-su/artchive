@@ -60,6 +60,7 @@ export function ReviewCard({
               className="object-cover transition-transform duration-700 group-hover:scale-105"
               sizes="120px"
               priority={priority}
+              unoptimized
             />
           ) : (
             <div className="flex h-full items-center justify-center text-stone-300 text-xs font-light">
