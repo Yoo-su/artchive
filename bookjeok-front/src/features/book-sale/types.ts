@@ -126,7 +126,7 @@ export interface SearchBookSalesParams {
  */
 export interface SearchBookSalesResponse {
   sales: UsedBookSale[];
-  total: number;
+  total?: number;
   page: number;
   limit: number;
   hasNextPage: boolean;
@@ -149,7 +149,7 @@ export interface GetRelatedSalesParams {
  */
 export interface GetRelatedSalesResponse {
   sales: UsedBookSale[];
-  total: number;
+  total?: number;
   page: number;
   hasNextPage: boolean;
 }

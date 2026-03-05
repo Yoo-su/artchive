@@ -103,6 +103,7 @@ export const MyPageView = () => {
                   fill
                   sizes="96px"
                   className="object-cover"
+                  unoptimized
                 />
               ) : (
                 <User className="h-10 w-10 text-stone-400" />

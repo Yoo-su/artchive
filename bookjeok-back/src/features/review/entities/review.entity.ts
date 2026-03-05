@@ -18,7 +18,7 @@ import { ReviewReaction } from './review-reaction.entity';
 import { Tag } from './tag.entity';
 
 @Entity('reviews')
-@Index(['category', 'createdAt'])
+@Index(['category', 'isPublic', 'createdAt', 'id'])
 export class Review {
   @PrimaryGeneratedColumn()
   id: number;

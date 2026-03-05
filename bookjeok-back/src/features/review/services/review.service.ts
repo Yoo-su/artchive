@@ -1,6 +1,8 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, In, EntityManager, Brackets } from 'typeorm';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 import { Book } from '@/features/book/entities/book.entity';
 import { Review } from '@/features/review/entities/review.entity';
@@ -25,6 +27,11 @@ import {
 
 @Injectable()
 export class ReviewService {
+  // 캐시 키 및 TTL (10분)
+  private static readonly POPULAR_REVIEWS_CACHE_KEY = 'popular_reviews';
+  private static readonly FEEDS_CACHE_KEY = 'review_feeds';
+  private static readonly CACHE_TTL = 600000;
+
   constructor(
     @InjectRepository(Review)
     private reviewsRepository: Repository<Review>,
@@ -36,6 +43,7 @@ export class ReviewService {
     private tagsRepository: Repository<Tag>,
     private reviewImageHelper: ReviewImageHelper,
     private dataSource: DataSource,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
   /**
@@ -188,17 +196,22 @@ export class ReviewService {
       qb.skip((page - 1) * limit);
     }
 
-    qb.take(limit);
+    // limit + 1개를 조회하여 다음 페이지 존재 여부 판별 (COUNT 쿼리 제거)
+    qb.take(limit + 1);
 
-    const [reviews, total] = await qb.getManyAndCount();
+    const reviews = await qb.getMany();
+
+    // 페이지네이션 정보 계산
+    const hasNextPage = reviews.length > limit;
+    if (hasNextPage) {
+      reviews.pop(); // 초과 조회분 제거
+    }
 
     const reviewDtos = reviews.map((review) => ({
       ...review,
       tags: review.tagEntities?.map((t) => t.name) || [],
     })) as ReviewResponseDto[];
 
-    // 페이지네이션 정보 계산
-    const hasNextPage = reviews.length === limit;
     let nextCursor: number | null = null;
 
     if (hasNextPage && reviews.length > 0) {
@@ -207,10 +220,8 @@ export class ReviewService {
 
     return {
       reviews: reviewDtos,
-      total,
       page: +page,
       limit: +limit,
-      totalPages: Math.ceil(total / limit),
       hasNextPage,
       nextCursor: nextCursor ?? undefined,
     };
@@ -221,6 +232,12 @@ export class ReviewService {
    * @returns 카테고리별 리뷰 피드 목록
    */
   async findFeeds(): Promise<ReviewFeedDto[]> {
+    // 캐시된 결과가 있으면 즉시 반환 (DB 부하 방지)
+    const cached = await this.cacheManager.get<ReviewFeedDto[]>(
+      ReviewService.FEEDS_CACHE_KEY,
+    );
+    if (cached) return cached;
+
     const categories = BOOK_DOMAINS;
 
     const feedPromises = categories.map(async (category) => {
@@ -247,7 +264,16 @@ export class ReviewService {
 
     const results = await Promise.all(feedPromises);
 
-    return results.filter((feed) => feed !== null) as ReviewFeedDto[];
+    const feeds = results.filter((feed) => feed !== null) as ReviewFeedDto[];
+
+    // 결과를 10분간 캐싱
+    await this.cacheManager.set(
+      ReviewService.FEEDS_CACHE_KEY,
+      feeds,
+      ReviewService.CACHE_TTL,
+    );
+
+    return feeds;
   }
 
   /**
@@ -317,6 +343,12 @@ export class ReviewService {
    * 최근 2주 내 참여도(조회수+리액션+댓글) 높은 순으로 6개 반환
    */
   async findPopular(): Promise<ReviewResponseDto[]> {
+    // 캐시된 결과가 있으면 즉시 반환 (DB 부하 방지)
+    const cached = await this.cacheManager.get<ReviewResponseDto[]>(
+      ReviewService.POPULAR_REVIEWS_CACHE_KEY,
+    );
+    if (cached) return cached;
+
     const threeMonthsAgo = new Date();
     threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
@@ -367,7 +399,16 @@ export class ReviewService {
       .map((id) => reviewMap.get(id))
       .filter((r): r is Review => !!r);
 
-    return this.attachReactionCounts(sortedReviews);
+    const result = await this.attachReactionCounts(sortedReviews);
+
+    // 결과를 10분간 캐싱
+    await this.cacheManager.set(
+      ReviewService.POPULAR_REVIEWS_CACHE_KEY,
+      result,
+      ReviewService.CACHE_TTL,
+    );
+
+    return result;
   }
 
   /**

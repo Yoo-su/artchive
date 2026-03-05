@@ -57,10 +57,10 @@ export interface GetReviewsParams {
 
 export interface GetReviewsResponse {
   reviews: Review[];
-  total: number;
+  total?: number;
   page: number;
   limit: number;
-  totalPages: number;
+  totalPages?: number;
   hasNextPage?: boolean;
   nextCursor?: number;
 }
