@@ -21,6 +21,7 @@ export const BookCard = ({ book }: BookCardProps) => {
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          unoptimized
         />
 
         {/* 하단 그라디언트 오버레이 */}
