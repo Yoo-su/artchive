@@ -1,4 +1,6 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, In } from 'typeorm';
 import { UsedBookSale, SaleStatus } from '../entities/used-book-sale.entity';
@@ -20,12 +22,17 @@ import { BusinessException } from '@/shared/exceptions';
 
 @Injectable()
 export class UsedBookSaleService {
+  // 인기 판매글 캐시 키 및 TTL (10분)
+  private static readonly POPULAR_SALES_CACHE_KEY = 'popular_sales';
+  private static readonly CACHE_TTL = 600000;
+
   constructor(
     @InjectRepository(UsedBookSale)
     private readonly usedBookSaleRepository: Repository<UsedBookSale>,
     private readonly bookService: BookService,
     private readonly userService: UserService,
     private readonly dataSource: DataSource,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
   /**
@@ -103,6 +110,12 @@ export class UsedBookSaleService {
    * 최근 2주 내 조회수 높은 순으로 6개 반환
    */
   async findPopularSales(): Promise<UsedBookSale[]> {
+    // 캐시된 결과가 있으면 즉시 반환 (DB 부하 방지)
+    const cached = await this.cacheManager.get<UsedBookSale[]>(
+      UsedBookSaleService.POPULAR_SALES_CACHE_KEY,
+    );
+    if (cached) return cached;
+
     const threeMonthsAgo = new Date();
     threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
@@ -131,9 +144,18 @@ export class UsedBookSaleService {
     });
 
     const saleMap = new Map(sales.map((s) => [s.id, s]));
-    return ids
+    const result = ids
       .map((id) => saleMap.get(id))
       .filter((s): s is UsedBookSale => !!s);
+
+    // 결과를 10분간 캐싱
+    await this.cacheManager.set(
+      UsedBookSaleService.POPULAR_SALES_CACHE_KEY,
+      result,
+      UsedBookSaleService.CACHE_TTL,
+    );
+
+    return result;
   }
 
   /**
@@ -194,13 +216,18 @@ export class UsedBookSaleService {
     );
     applyCursorFilter(queryBuilder, queryDto);
 
-    queryBuilder.take(limit);
+    // limit + 1개를 조회하여 다음 페이지 존재 여부 판별 (COUNT 쿼리 제거)
+    queryBuilder.take(limit + 1);
 
     const { entities: sales, raw } = await queryBuilder.getRawAndEntities();
-    const total = await queryBuilder.getCount();
 
     // 페이지네이션 정보 계산
-    const hasNextPage = sales.length === limit;
+    const hasNextPage = sales.length > limit;
+    if (hasNextPage) {
+      sales.pop(); // 초과 조회분 제거
+      raw.pop();
+    }
+
     let nextCursor: string | null = null;
 
     if (hasNextPage && sales.length > 0) {
@@ -219,7 +246,6 @@ export class UsedBookSaleService {
 
     return {
       sales,
-      total,
       page,
       limit,
       hasNextPage,
@@ -281,7 +307,7 @@ export class UsedBookSaleService {
       ])
       .orderBy('sale.createdAt', 'DESC')
       .skip((page - 1) * limit)
-      .take(limit);
+      .take(limit + 1); // limit + 1개를 조회하여 다음 페이지 존재 여부 판별
 
     if (city) {
       queryBuilder.andWhere('sale.city = :city', { city });
@@ -290,13 +316,15 @@ export class UsedBookSaleService {
       queryBuilder.andWhere('sale.district = :district', { district });
     }
 
-    const [sales, total] = await queryBuilder.getManyAndCount();
+    const sales = await queryBuilder.getMany();
 
-    const hasNextPage = page * limit < total;
+    const hasNextPage = sales.length > limit;
+    if (hasNextPage) {
+      sales.pop(); // 초과 조회분 제거
+    }
 
     return {
       sales,
-      total,
       page,
       hasNextPage,
     };

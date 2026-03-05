@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -19,6 +20,8 @@ export enum SaleStatus {
 }
 
 @Entity({ name: 'used_book_sales' })
+@Index(['status', 'createdAt', 'id'])
+@Index(['status', 'price', 'id'])
 export class UsedBookSale {
   @PrimaryGeneratedColumn()
   id: number;

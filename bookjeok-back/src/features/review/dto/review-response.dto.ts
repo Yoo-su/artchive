@@ -30,8 +30,8 @@ export class GetReviewsResponseDto {
   @ApiProperty({ type: [ReviewResponseDto] })
   reviews: ReviewResponseDto[];
 
-  @ApiProperty()
-  total: number;
+  @ApiProperty({ required: false })
+  total?: number;
 
   @ApiProperty()
   page: number;
@@ -39,9 +39,9 @@ export class GetReviewsResponseDto {
   @ApiProperty()
   limit: number;
 
-  @ApiProperty()
-  @ApiProperty()
-  totalPages: number;
+  @ApiProperty({ required: false })
+  @ApiProperty({ required: false })
+  totalPages?: number;
 
   @ApiProperty({ required: false })
   nextCursor?: number;
