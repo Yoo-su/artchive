@@ -27,7 +27,7 @@ export default function NotFound() {
                 <div className="flex items-center gap-2">
                   <div className="relative w-10 h-10 transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110">
                     <Image
-                      src="/logo-square.svg"
+                      src="/logo-square-sketch.svg"
                       alt="Bookjeok"
                       fill
                       unoptimized

@@ -28,13 +28,13 @@ export async function generateMetadata({
     openGraph: {
       title: t("title") + " | 북적",
       description: t("description"),
-      images: ["/logo-og.png"],
+      images: ["/logo-og-sketch.png"],
     },
     twitter: {
       card: "summary",
       title: t("title") + " | 북적",
       description: t("description"),
-      images: ["/logo-og.png"],
+      images: ["/logo-og-sketch.png"],
     },
   };
 }

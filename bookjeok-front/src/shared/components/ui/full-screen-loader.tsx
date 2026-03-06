@@ -196,7 +196,7 @@ export const FullScreenLoader = () => {
             }}
           >
             <Image
-              src="/logo-square.svg"
+              src="/logo-square-sketch.svg"
               alt="북적"
               fill
               unoptimized
