@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
@@ -27,11 +28,19 @@ export const Logo = ({ size = "md" }: LogoProps) => {
         initial="initial"
         whileHover="hover"
       >
+        <Image
+          src="/logo-square-sketch.svg"
+          alt="Bookjeok Icon"
+          width={isSmall ? 28 : 30}
+          height={isSmall ? 28 : 30}
+          className="mr-0.5 object-contain"
+          unoptimized
+        />
         {/* 수제 손글씨 텍스트 로고 (프로페셔널 마커 스타일) */}
         <div className="relative flex flex-col justify-center mt-1">
           <svg
             viewBox="0 0 215 100"
-            className={`${isSmall ? "h-[26px]" : "h-[36px]"} w-auto text-stone-900 transition-colors duration-300 group-hover:text-black`}
+            className={`${isSmall ? "h-[26px]" : "h-[36px]"} w-auto text-stone-900`}
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             stroke="currentColor"

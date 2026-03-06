@@ -39,9 +39,10 @@ export const LogoScene = ({ data }: { data: SceneData }) => {
           {/* 로고 이미지 - 쉐도우로 깊이감 추가 */}
           <div className="relative h-32 w-32 md:h-40 md:w-40 drop-shadow-2xl">
             <Image
-              src="/logo-square.svg"
-              alt="Bookjeok Logo"
+              src="/logo-square-sketch.svg"
+              alt="Bookjeok Icon"
               fill
+              unoptimized
               className="object-contain"
               priority
             />

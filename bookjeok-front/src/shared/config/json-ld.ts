@@ -21,10 +21,10 @@ export const getJsonLd = (t: (key: string) => string) => {
         url: "https://bookjeok.com",
         logo: {
           "@type": "ImageObject",
-          url: "https://bookjeok.com/logo-square.svg",
+          url: "https://bookjeok.com/logo-square-sketch.png",
           width: "766",
           height: "766",
-          encodingFormat: "image/svg+xml",
+          encodingFormat: "image/png",
         },
       },
       {
