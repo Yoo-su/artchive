@@ -26,11 +26,10 @@ export const RelatedReviews = ({ isbn }: RelatedReviewsProps) => {
   // 뷰포트 진입 시 데이터 로딩
   const { ref, inView } = useInView({ triggerOnce: true, rootMargin: "200px" });
 
-  const { data, isLoading, isError } = useReviewsQuery({
-    bookIsbn: isbn,
-    limit: 4,
-    enabled: inView,
-  });
+  const { data, isLoading, isError } = useReviewsQuery(
+    { bookIsbn: isbn, limit: 4 },
+    inView,
+  );
 
   const reviews = data?.reviews || [];
   const totalCount = data?.total || 0;

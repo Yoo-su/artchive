@@ -3,9 +3,9 @@ import { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { cache } from "react";
 
-import { reviewKeys } from "@/features/review";
 import { getReview } from "@/features/review/apis";
 import { ReviewJsonLd } from "@/features/review/components/common/review-json-ld";
+import { reviewKeys } from "@/features/review/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { ReviewDetailView } from "@/views/review-detail-view";
 

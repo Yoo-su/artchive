@@ -19,7 +19,7 @@ export async function prefetchRelatedBooks(
 
   try {
     const result = await getBookListServer(params);
-    if (result.success) {
+    if (result && result.items) {
       queryClient.setQueryData(bookKeys.list(params).queryKey, result.items);
     }
   } catch (error) {

@@ -3,8 +3,8 @@ import { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 
-import { artKeys } from "@/features/art";
 import { getArtDetail } from "@/features/art/apis";
+import { artKeys } from "@/features/art/constants/query-keys";
 import { DefaultLayout } from "@/layouts/default-layout";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { ArtDetailView } from "@/views/art-detail-view";

@@ -2,6 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 
+import { CACHE_TIME } from "@/shared/constants/cache";
+
 import {
   checkWishlistStatus,
   getMyProfile,
@@ -31,7 +33,7 @@ export const useMyStatsQuery = () => {
   return useQuery<UserStats>({
     queryKey: userKeys.stats.queryKey,
     queryFn: getUserStats,
-    staleTime: 60 * 1000,
+    staleTime: CACHE_TIME.ONE_MINUTE,
   });
 };
 
@@ -66,7 +68,7 @@ export const useWishlistQuery = () => {
   return useQuery<WishlistItem[]>({
     queryKey: userKeys.wishlist.queryKey,
     queryFn: getWishlist,
-    staleTime: 30 * 1000,
+    staleTime: CACHE_TIME.THIRTY_SECONDS,
   });
 };
 
@@ -82,6 +84,6 @@ export const useWishlistStatusQuery = (
     queryKey: userKeys.wishlistCheck(type, id).queryKey,
     queryFn: () => checkWishlistStatus(type, id),
     enabled,
-    staleTime: 30 * 1000,
+    staleTime: CACHE_TIME.THIRTY_SECONDS,
   });
 };

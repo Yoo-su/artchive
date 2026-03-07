@@ -6,6 +6,8 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query";
 
+import { CACHE_TIME } from "@/shared/constants/cache";
+
 import { getChatMessages, getMyChatRooms } from "./apis";
 import { chatKeys } from "./constants/query-keys";
 import { ChatRoom } from "./types";
@@ -20,7 +22,7 @@ export const useMyChatRoomsQuery = (
   return useQuery({
     queryKey: chatKeys.rooms.queryKey,
     queryFn: getMyChatRooms,
-    staleTime: 30 * 1000,
+    staleTime: CACHE_TIME.THIRTY_SECONDS,
     refetchOnWindowFocus: true,
     ...options,
   });
@@ -42,6 +44,6 @@ export const useInfiniteChatMessagesQuery = (roomId: number | null) => {
     getNextPageParam: () => undefined,
     enabled: !!roomId,
     refetchOnWindowFocus: false,
-    staleTime: Infinity,
+    staleTime: CACHE_TIME.INFINITY,
   });
 };

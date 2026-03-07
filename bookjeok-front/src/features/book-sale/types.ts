@@ -162,8 +162,8 @@ export interface UseInfiniteRelatedSalesQueryProps {
   enabled?: boolean;
 }
 
-export type CommonBookSaleResponse = ApiResponse<UsedBookSale>;
-export type GetMyBookSalesResponse = ApiResponse<UsedBookSale[]>;
+export type CommonBookSaleResponse = UsedBookSale;
+export type GetMyBookSalesResponse = UsedBookSale[];
 
 /**
  * 중고책 마켓 필터 폼의 입력 타입

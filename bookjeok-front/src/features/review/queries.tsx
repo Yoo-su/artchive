@@ -14,38 +14,43 @@ import {
   GetReviewsResponse,
   Review,
 } from "@/features/review/types";
+import { CACHE_TIME } from "@/shared/constants/cache";
 
 import { reviewKeys } from "./constants/query-keys";
 
 /**
  * 리뷰 목록 조회
  */
-export const useReviewsQuery = (params: GetReviewsParams) => {
+export const useReviewsQuery = (
+  params: GetReviewsParams,
+  enabled: boolean = true,
+) => {
   return useQuery({
     queryKey: reviewKeys.list(params).queryKey,
     queryFn: () => getReviews(params),
-    enabled: params.enabled !== false,
+    enabled,
   });
 };
 
 /**
  * 리뷰 목록 무한 스크롤 조회
  */
-export const useReviewsInfiniteQuery = (params: GetReviewsParams) => {
+export const useReviewsInfiniteQuery = (
+  params: GetReviewsParams,
+  enabled: boolean = true,
+) => {
   return useInfiniteQuery({
     queryKey: reviewKeys.list(params).queryKey,
     queryFn: ({ pageParam }) =>
       getReviews({
         ...params,
         cursorId: pageParam as number | undefined,
-        // pageParam이 없으면(undefined) page=1(기본값)로 동작하거나, backend에서 처리.
-        // cursorId가 있으면 page 값은 무시되거나 fallback으로 사용됨.
       }),
     initialPageParam: undefined as number | undefined,
     getNextPageParam: (lastPage: GetReviewsResponse) => {
       return lastPage.nextCursor ?? undefined;
     },
-    enabled: params.enabled !== false,
+    enabled,
     refetchOnMount: true,
   });
 };
@@ -107,7 +112,7 @@ export const useMyReviewReactionQuery = (
     queryKey: [...reviewKeys.detail(id).queryKey, "reaction"],
     queryFn: () => getMyReviewReaction(id),
     enabled,
-    staleTime: 30 * 1000,
+    staleTime: CACHE_TIME.THIRTY_SECONDS,
   });
 };
 

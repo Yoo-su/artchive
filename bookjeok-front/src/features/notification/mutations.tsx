@@ -10,9 +10,11 @@ export const useMarkAsRead = () => {
     mutationFn: markAsRead,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: notificationKeys.unreadCount(),
+        queryKey: notificationKeys.unreadCount.queryKey,
       });
-      queryClient.invalidateQueries({ queryKey: notificationKeys.list() });
+      queryClient.invalidateQueries({
+        queryKey: notificationKeys.list.queryKey,
+      });
     },
   });
 };
@@ -23,8 +25,12 @@ export const useMarkAllAsRead = () => {
   return useMutation({
     mutationFn: markAllAsRead,
     onSuccess: () => {
-      queryClient.setQueryData(notificationKeys.unreadCount(), { count: 0 });
-      queryClient.invalidateQueries({ queryKey: notificationKeys.list() });
+      queryClient.setQueryData(notificationKeys.unreadCount.queryKey, {
+        count: 0,
+      });
+      queryClient.invalidateQueries({
+        queryKey: notificationKeys.list.queryKey,
+      });
     },
   });
 };
@@ -35,9 +41,11 @@ export const useDeleteNotification = () => {
   return useMutation({
     mutationFn: deleteNotification,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: notificationKeys.list() });
       queryClient.invalidateQueries({
-        queryKey: notificationKeys.unreadCount(),
+        queryKey: notificationKeys.list.queryKey,
+      });
+      queryClient.invalidateQueries({
+        queryKey: notificationKeys.unreadCount.queryKey,
       });
     },
   });

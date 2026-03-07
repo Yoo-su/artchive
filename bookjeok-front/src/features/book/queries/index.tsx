@@ -1,5 +1,7 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
+import { CACHE_TIME } from "@/shared/constants/cache";
+
 import {
   getBookDetail,
   getBookList,
@@ -19,8 +21,7 @@ export const useBookListQuery = (params: GetBookListParams) => {
     queryKey: bookKeys.list(params).queryKey,
     queryFn: async () => {
       const result = await getBookList(params);
-      if (!result.success) return [] as BookInfo[];
-      return result.items;
+      return result.items || [];
     },
   });
 };
@@ -33,8 +34,7 @@ export const useBookDetailQuery = (isbn: string) => {
     queryKey: bookKeys.detail(isbn).queryKey,
     queryFn: async () => {
       const response = await getBookDetail(isbn);
-      if (!response.success) return null;
-      return response.items[0];
+      return response.items?.[0] || null;
     },
   });
 };
@@ -52,9 +52,6 @@ export const useInfiniteBookSearch = (query: string) => {
         start: (pageParam - 1) * DEFAULT_DISPLAY + 1,
       };
       const result = await getBookList(params);
-      if (!result.success) {
-        throw new Error("Failed to fetch book list");
-      }
       return {
         items: result.items,
         currentPage: pageParam,
@@ -93,9 +90,6 @@ export const useBookSummaryQuery = (
     queryKey: ["bookSummary", title, author],
     queryFn: async () => {
       const result = await getBookSummary(title, author, description);
-      if (!result.success) {
-        throw new Error(result.message || "요약 정보를 가져오지 못했습니다.");
-      }
       return result;
     },
     enabled: enabled,
@@ -111,7 +105,7 @@ export const usePopularKeywordsQuery = () => {
   return useQuery({
     queryKey: bookKeys.popularKeywords.queryKey,
     queryFn: getPopularKeywords,
-    staleTime: 5 * 60 * 1000,
+    staleTime: CACHE_TIME.FIVE_MINUTES,
     refetchOnMount: true,
   });
 };

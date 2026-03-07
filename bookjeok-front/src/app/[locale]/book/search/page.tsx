@@ -1,8 +1,8 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { bookKeys } from "@/features/book";
 import { getPopularKeywords } from "@/features/book/apis";
+import { bookKeys } from "@/features/book/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
 import BookSearchView from "@/views/book-search-view";
 

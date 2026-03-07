@@ -13,6 +13,10 @@ interface Params {
 }
 
 export const artKeys = createQueryKeys("art", {
-  list: (params: Params) => [params],
-  detail: (id: string) => [id],
+  list: (params: Params) => ({
+    queryKey: [params],
+  }),
+  detail: (id: string) => ({
+    queryKey: [id],
+  }),
 });

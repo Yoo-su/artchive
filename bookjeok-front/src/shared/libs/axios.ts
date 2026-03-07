@@ -58,15 +58,8 @@ const commonResponseInterceptor = (response: AxiosResponse): AxiosResponse => {
     response.data.success === true &&
     response.data.data !== undefined
   ) {
-    const unwrappedData = response.data.data;
-    if (
-      typeof unwrappedData === "object" &&
-      unwrappedData !== null &&
-      !Array.isArray(unwrappedData)
-    ) {
-      unwrappedData.success = true;
-    }
-    response.data = unwrappedData;
+    // 래퍼의 data 부분만 추출하여 반환 (success 자동 주입 제거)
+    response.data = response.data.data;
   }
   return response;
 };

@@ -1,14 +1,13 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { upload } from "@vercel/blob/client";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
-import { bookKeys } from "@/features/book";
 import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { compressImages } from "@/shared/utils/compress-image";
+import { handleMutationError } from "@/shared/utils/error-handler";
 
 import { deleteImages } from "./actions/delete-action";
 import { uploadImages } from "./actions/upload-action";
@@ -18,6 +17,8 @@ import {
   updateBookSale,
   updateBookSaleStatus,
 } from "./apis";
+import { bookSaleKeys } from "./constants/query-keys";
+import { uploadSaleImages } from "./services/image-upload-service";
 import {
   CreateBookSaleParams,
   SaleStatus,
@@ -32,6 +33,7 @@ interface CreateSaleVariables {
 
 /**
  * 중고책 판매글을 생성하는 뮤테이션 훅입니다.
+ * 이미지 압축/업로드는 image-upload-service에 위임합니다.
  */
 export const useCreateBookSaleMutation = () => {
   const router = useRouter();
@@ -40,28 +42,15 @@ export const useCreateBookSaleMutation = () => {
 
   return useMutation<UsedBookSale, Error, CreateSaleVariables>({
     mutationFn: async ({ imageFiles, payload }) => {
-      const compressedFiles = await compressImages(imageFiles);
-
-      const blobs = await Promise.all(
-        compressedFiles.map((file) => {
-          const filePath = `${provider}-${id}/sales-images/${file.name}`;
-          return upload(filePath, file, {
-            access: "public",
-            handleUploadUrl: "/api/upload",
-            clientPayload: JSON.stringify({
-              token: accessToken,
-            }),
-          });
-        }),
+      const imageUrls = await uploadSaleImages(
+        imageFiles,
+        { provider, id },
+        accessToken!,
       );
-      const imageUrls = blobs.map((blob) => blob.url);
 
       const finalPayload = { ...payload, imageUrls };
       const saleResult = await createBookSale(finalPayload);
 
-      if (!saleResult.success) {
-        throw new Error("게시글 등록에 실패했습니다.");
-      }
       return saleResult;
     },
     onSuccess: () => {
@@ -69,8 +58,7 @@ export const useCreateBookSaleMutation = () => {
       router.push(PATHS.MY_PAGE_SALES);
     },
     onError: (error) => {
-      console.error("Submission failed:", error);
-      toast.error(error.message || "오류가 발생했습니다. 다시 시도해주세요.");
+      handleMutationError(error, "판매글 등록");
     },
   });
 };
@@ -80,7 +68,7 @@ export const useCreateBookSaleMutation = () => {
  */
 export const useUpdateBookSaleStatusMutation = () => {
   const queryClient = useQueryClient();
-  const queryKey = bookKeys.mySales.queryKey;
+  const queryKey = bookSaleKeys.mySales.queryKey;
 
   return useMutation({
     mutationFn: updateBookSaleStatus,
@@ -102,7 +90,7 @@ export const useUpdateBookSaleStatusMutation = () => {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: bookKeys._def });
+      queryClient.invalidateQueries({ queryKey: bookSaleKeys._def });
     },
   });
 };
@@ -159,23 +147,20 @@ export const useUpdateBookSaleMutation = () => {
       const finalPayload = { ...payload, imageUrls: finalImageUrls };
 
       const result = await updateBookSale({ saleId, payload: finalPayload });
-      if (!result.success) {
-        throw new Error("게시글 정보 업데이트에 실패했습니다.");
-      }
       return result;
     },
     onSuccess: (data) => {
       toast.success("판매글이 성공적으로 수정되었습니다.");
       queryClient.invalidateQueries({
-        queryKey: bookKeys.mySales.queryKey,
+        queryKey: bookSaleKeys.mySales.queryKey,
       });
       queryClient.invalidateQueries({
-        queryKey: bookKeys.saleDetail(String(data.id)).queryKey,
+        queryKey: bookSaleKeys.saleDetail(String(data.id)).queryKey,
       });
       router.push(PATHS.MY_PAGE_SALES);
     },
     onError: (error) => {
-      toast.error(`수정 중 오류가 발생했습니다: ${error.message}`);
+      handleMutationError(error, "판매글 수정");
     },
   });
 };
@@ -196,13 +181,13 @@ export const useDeleteBookSaleMutation = () => {
     },
     onSuccess: (_, { saleId }) => {
       toast.success("판매글이 삭제되었습니다.");
-      queryClient.invalidateQueries({ queryKey: bookKeys._def });
+      queryClient.invalidateQueries({ queryKey: bookSaleKeys._def });
       if (window.location.pathname.includes(`/book/sales/${saleId}`)) {
         router.push(PATHS.MY_PAGE_SALES);
       }
     },
     onError: (error) => {
-      toast.error(`삭제 중 오류가 발생했습니다: ${error.message}`);
+      handleMutationError(error, "판매글 삭제");
     },
   });
 };
