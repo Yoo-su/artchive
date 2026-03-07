@@ -11,15 +11,13 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ChatService } from '../services/chat.service';
 import { User } from '@/features/user/entities/user.entity';
-import { Logger, UseGuards } from '@nestjs/common';
-import { SocketAuthGuard } from '../guards/socket-auth.guard';
+import { Logger } from '@nestjs/common';
 import { ChatMessage } from '../entities/chat-message.entity';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '@/features/user/services/user.service';
 import { JwtPayload } from '@/features/auth/types/jwt-payload.type';
 import { ChatRoom } from '../entities/chat-room.entity';
 
-@UseGuards(SocketAuthGuard)
 @WebSocketGateway({
   cors: {
     origin: process.env.CLIENT_DOMAIN ?? 'http://localhost:3000',
