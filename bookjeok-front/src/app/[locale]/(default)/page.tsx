@@ -1,13 +1,14 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { bookKeys } from "@/features/book";
 import { getPopularBooks } from "@/features/book/apis";
 import { getPublisherBooksServer } from "@/features/book/apis/server";
 import { HOME_PUBLISHERS } from "@/features/book/constants";
+import { bookKeys } from "@/features/book/constants/query-keys";
 import { getRecentBookSales } from "@/features/book-sale/apis";
-import { reviewKeys } from "@/features/review";
+import { bookSaleKeys } from "@/features/book-sale/constants/query-keys";
 import { getReviews } from "@/features/review/apis";
+import { reviewKeys } from "@/features/review/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { HomeView } from "@/views/home-view";
 
@@ -40,7 +41,7 @@ export default async function Page({
     await Promise.all([
       // 최근 판매글
       queryClient.prefetchQuery({
-        queryKey: bookKeys.recentSales.queryKey,
+        queryKey: bookSaleKeys.recentSales.queryKey,
         queryFn: getRecentBookSales,
       }),
       // 인기 도서

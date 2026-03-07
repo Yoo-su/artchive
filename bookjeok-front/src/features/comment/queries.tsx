@@ -2,6 +2,8 @@
 
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
+import { CACHE_TIME } from "@/shared/constants/cache";
+
 import { getComments, getMyComments } from "./apis";
 import { COMMENTS_PER_PAGE } from "./constants";
 import { commentKeys } from "./constants/query-keys";
@@ -41,6 +43,6 @@ export const useMyCommentsInfiniteQuery = (limit: number = 10) => {
       return lastPage.meta.nextCursor ?? undefined;
     },
     initialPageParam: undefined as number | undefined,
-    staleTime: 60 * 1000,
+    staleTime: CACHE_TIME.ONE_MINUTE,
   });
 };

@@ -1,14 +1,9 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { Edit } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect } from "react";
 
-import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { CommentSection } from "@/features/comment/components/common/comment-section";
 import { CommentTargetType } from "@/features/comment/types";
-import { reviewKeys } from "@/features/review";
-import { getReviewAuthenticated } from "@/features/review/apis";
-import { useReviewDetailQuery } from "@/features/review/queries";
+import { useReviewWithAuth } from "@/features/review/hooks/use-review-with-auth";
 import { Review } from "@/features/review/types";
 import { AdBanner } from "@/shared/components/ads/ad-banner";
 import { Button } from "@/shared/components/shadcn/button";
@@ -31,29 +26,11 @@ interface ReviewDetailProps {
 
 export const ReviewDetail = ({ id, initialReview }: ReviewDetailProps) => {
   const t = useTranslations("review.detail");
-  const { user } = useAuthStore();
-  const queryClient = useQueryClient();
-
-  const { data: review, isLoading } = useReviewDetailQuery(
-    id,
-    initialReview ?? undefined,
-  );
-
-  // 비공개 상태 판별 (review가 있을 때만)
-  const isPrivateMasked = review ? !review.isPublic && !review.content : false;
-  const isAuthor = review ? user?.id === review.userId : false;
-
-  // 본인의 비공개 리뷰인데 마스킹 상태라면, 인증된 요청으로 원본 데이터를 가져옴
-  useEffect(() => {
-    if (isPrivateMasked && isAuthor) {
-      getReviewAuthenticated(id).then((fullReview) => {
-        queryClient.setQueryData(reviewKeys.detail(id).queryKey, fullReview);
-      });
-    }
-  }, [id, isPrivateMasked, isAuthor, queryClient]);
+  const { review, isLoading, isAuthor, isPrivateMasked, isAuthenticating } =
+    useReviewWithAuth(id, initialReview ?? undefined);
 
   // 로딩 중이거나, 본인 비공개 리뷰의 데이터를 가져오는 중이면 스켈레톤 표시
-  if (isLoading || (isPrivateMasked && isAuthor)) {
+  if (isLoading || isAuthenticating) {
     return <ReviewDetailSkeleton />;
   }
 

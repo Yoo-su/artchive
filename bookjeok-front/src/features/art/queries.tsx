@@ -13,15 +13,7 @@ export const useArtListQuery = (params: GetArtListParams) => {
     queryFn: async () => {
       const result = await getArtList(params);
 
-      if (Array.isArray(result)) {
-        return result;
-      }
-
-      if ("success" in result && !result.success) {
-        return [] as ArtItem[];
-      }
-
-      return [] as ArtItem[];
+      return Array.isArray(result) ? result : ([] as ArtItem[]);
     },
   });
 };
@@ -34,10 +26,7 @@ export const useArtDetailQuery = (artId: string) => {
     queryKey: artKeys.detail(artId).queryKey,
     queryFn: async () => {
       const result = await getArtDetail(artId);
-      if (!result.success) {
-        return null;
-      }
-      return result;
+      return result || null;
     },
     enabled: !!artId,
   });
@@ -55,15 +44,7 @@ export const useMainArtsQueries = (
       queryFn: async () => {
         const result = await getArtList({ genreCode, rows: "20" });
 
-        if (Array.isArray(result)) {
-          return result;
-        }
-
-        if ("success" in result && !result.success) {
-          return [] as ArtItem[];
-        }
-
-        return [] as ArtItem[];
+        return Array.isArray(result) ? result : ([] as ArtItem[]);
       },
     })),
   });

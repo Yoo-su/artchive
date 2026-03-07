@@ -1,5 +1,6 @@
-export const notificationKeys = {
-  all: ["notifications"] as const,
-  list: () => [...notificationKeys.all, "list"] as const,
-  unreadCount: () => [...notificationKeys.all, "unreadCount"] as const,
-};
+import { createQueryKeys } from "@lukemorales/query-key-factory";
+
+export const notificationKeys = createQueryKeys("notification", {
+  list: null,
+  unreadCount: null,
+});

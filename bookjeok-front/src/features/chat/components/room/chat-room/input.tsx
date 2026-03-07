@@ -3,7 +3,7 @@ import { SendHorizontal } from "lucide-react";
 import { FormEvent, useCallback, useState } from "react";
 import { toast } from "sonner";
 
-import { chatKeys } from "@/features/chat";
+import { chatKeys } from "@/features/chat/constants/query-keys";
 import { Button } from "@/shared/components/shadcn/button";
 import { Input } from "@/shared/components/shadcn/input";
 import { useSocketContext } from "@/shared/providers/socket-provider";

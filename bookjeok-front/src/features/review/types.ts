@@ -52,7 +52,6 @@ export interface GetReviewsParams {
   userId?: number;
   excludeId?: number;
   cursorId?: number;
-  enabled?: boolean;
 }
 
 export interface GetReviewsResponse {

@@ -41,7 +41,7 @@ export interface GetBookListResponseData {
   start: number;
   total: number;
 }
-export type GetBookListSuccessResponse = ApiResponse<GetBookListResponseData>;
+export type GetBookListSuccessResponse = GetBookListResponseData;
 
 export interface GetBookListErrorResponse {
   success: false;
@@ -59,8 +59,7 @@ export interface GetBookDetailResponseData {
   total: number;
 }
 
-export type GetBookDetailSuccessResponse =
-  ApiResponse<GetBookDetailResponseData>;
+export type GetBookDetailSuccessResponse = GetBookDetailResponseData;
 
 export interface GetBookDetailErrorResponse {
   success: false;

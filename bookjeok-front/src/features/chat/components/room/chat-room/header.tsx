@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useCallback } from "react";
 import { toast } from "sonner";
 
-import { chatKeys } from "@/features/chat";
+import { chatKeys } from "@/features/chat/constants/query-keys";
 import {
   Avatar,
   AvatarFallback,

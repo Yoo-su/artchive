@@ -23,7 +23,7 @@ import { config } from "@/shared/config/env";
  */
 export const getBookListServer = async (
   params: GetBookListParams,
-): Promise<GetBookListSuccessResponse | GetBookListErrorResponse> => {
+): Promise<GetBookListSuccessResponse> => {
   const displayParam = (params.display ?? DEFAULT_DISPLAY).toString();
   const startParam = (params.start ?? DEFAULT_START).toString();
   const sortParam = params.sort ?? DEFAULT_SORT;
@@ -45,19 +45,14 @@ export const getBookListServer = async (
       },
     );
 
-    return {
-      success: true,
-      ...response.data,
-    } as GetBookListSuccessResponse;
+    return response.data as GetBookListSuccessResponse;
   } catch (error) {
     console.error("서버에서 책 목록 조회 실패:", error);
-    return {
-      success: false,
-      message:
-        error instanceof Error
-          ? error.message
-          : "책 목록을 가져오는 데 실패했습니다.",
-    } as GetBookListErrorResponse;
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "책 목록을 가져오는 데 실패했습니다.",
+    );
   }
 };
 
@@ -70,8 +65,7 @@ export const getPublisherBooksServer = async (
   display: number = 10,
 ): Promise<BookInfo[]> => {
   const result = await getBookListServer({ query: publisher, display });
-  if (!result.success) return [];
-  return result.items;
+  return result.items || [];
 };
 
 /**

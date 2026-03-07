@@ -5,8 +5,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
-import { chatKeys } from "@/features/chat";
 import { findOrCreateRoom } from "@/features/chat/apis";
+import { chatKeys } from "@/features/chat/constants/query-keys";
 import { useChatStore } from "@/features/chat/stores/use-chat-store";
 import { WishlistButton } from "@/features/user/components/wishlist/wishlist-button";
 import { CoolMode } from "@/shared/components/magicui/cool-mode";

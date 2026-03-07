@@ -1,34 +1,33 @@
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 
-import {
-  SearchBookSalesParams,
-  UseInfiniteRelatedSalesQueryProps,
-} from "@/features/book-sale/types";
-
 import { GetBookListParams } from "../types";
 
+/**
+ * 도서 관련 쿼리 키 팩토리
+ *
+ * 중고책 판매(book-sale) 관련 키는 book-sale 모듈에서 관리합니다.
+ * @see features/book-sale/constants/query-keys.ts
+ */
 export const bookKeys = createQueryKeys("book", {
-  // 객체 대신 개별 값으로 구성하여 서버/클라이언트 간 키 일치 보장
-  list: (params: GetBookListParams) => [
-    params.query,
-    params.display ?? 10,
-    params.start ?? 1,
-    params.sort ?? "sim",
-  ],
-  detail: (isbn: string) => [isbn],
-  search: (query: string) => [query],
-  marketSales: (params: SearchBookSalesParams) => ["market", params],
-  popularSales: null,
-  mySales: null,
-  relatedSales: ({
-    isbn,
-    city,
-    district,
-    limit,
-  }: UseInfiniteRelatedSalesQueryProps) => [isbn, city, district, limit],
-  saleDetail: (saleId: string) => [saleId],
-  saleForEdit: (saleId: string | number) => ["edit", saleId],
-  recentSales: null,
-  popularBooks: null,
-  popularKeywords: null, // 인기 검색어
+  // 개별 값으로 구성하여 서버/클라이언트 간 키 일치 보장
+  list: (params: GetBookListParams) => ({
+    queryKey: [
+      params.query,
+      params.display ?? 10,
+      params.start ?? 1,
+      params.sort ?? "sim",
+    ],
+  }),
+  detail: (isbn: string) => ({
+    queryKey: [isbn],
+  }),
+  search: (query: string) => ({
+    queryKey: [query],
+  }),
+  popularBooks: {
+    queryKey: null,
+  },
+  popularKeywords: {
+    queryKey: null,
+  },
 });

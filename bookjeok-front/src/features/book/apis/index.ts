@@ -16,7 +16,7 @@ import {
  */
 export const getBookList = async (
   params: GetBookListParams,
-): Promise<GetBookListSuccessResponse | GetBookListErrorResponse> => {
+): Promise<GetBookListSuccessResponse> => {
   const displayParam = (params.display ?? DEFAULT_DISPLAY).toString();
   const startParam = (params.start ?? DEFAULT_START).toString();
   const sortParam = params.sort ?? DEFAULT_SORT;
@@ -38,7 +38,7 @@ export const getBookList = async (
  */
 export const getBookDetail = async (
   isbn: string,
-): Promise<GetBookDetailSuccessResponse | GetBookDetailErrorResponse> => {
+): Promise<GetBookDetailSuccessResponse> => {
   const { data } = await internalAxios.get(API_PATHS.book.detail, {
     params: { isbn },
   });

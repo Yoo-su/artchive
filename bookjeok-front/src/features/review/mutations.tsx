@@ -4,19 +4,20 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { deleteImages } from "@/features/book-sale/actions/delete-action";
-import { reviewKeys } from "@/features/review";
 import {
   createReview,
   deleteReview,
   toggleReviewReaction,
   updateReview,
 } from "@/features/review/apis";
+import { reviewKeys } from "@/features/review/constants/query-keys";
 import {
   Review,
   ReviewFormValues,
   ReviewReactionType,
 } from "@/features/review/types";
 import { MUTATION_KEYS } from "@/shared/constants/mutation-keys";
+import { handleMutationError } from "@/shared/utils/error-handler";
 
 /**
  * 리뷰 리액션을 토글하는 뮤테이션 훅입니다.
@@ -124,8 +125,8 @@ export const useCreateReviewMutation = () => {
       });
       toast.success("리뷰가 작성되었습니다.");
     },
-    onError: () => {
-      toast.error("리뷰 작성 중 오류가 발생했습니다.");
+    onError: (error) => {
+      handleMutationError(error, "리뷰 작성");
     },
   });
 };
@@ -173,8 +174,8 @@ export const useUpdateReviewMutation = () => {
 
       toast.success("리뷰가 수정되었습니다!");
     },
-    onError: (error: any) => {
-      toast.error(error.message || "리뷰 수정 중 오류가 발생했습니다.");
+    onError: (error) => {
+      handleMutationError(error, "리뷰 수정");
     },
   });
 };
@@ -200,8 +201,8 @@ export const useDeleteReviewMutation = () => {
       });
       toast.success("리뷰가 삭제되었습니다.");
     },
-    onError: () => {
-      toast.error("리뷰 삭제 중 오류가 발생했습니다.");
+    onError: (error) => {
+      handleMutationError(error, "리뷰 삭제");
     },
   });
 };

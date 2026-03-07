@@ -4,9 +4,9 @@ import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import { cache } from "react";
 
-import { bookKeys } from "@/features/book";
 import { getBookSaleDetail } from "@/features/book-sale/apis";
 import { BookSaleJsonLd } from "@/features/book-sale/components/common/book-sale-json-ld";
+import { bookSaleKeys } from "@/features/book-sale/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { BookSaleDetailView } from "@/views/book-sale-detail-view";
 
@@ -86,7 +86,7 @@ export default async function Page({ params }: Props) {
 
     // QueryClient에 데이터 설정
     if (sale) {
-      queryClient.setQueryData(bookKeys.saleDetail(id).queryKey, sale);
+      queryClient.setQueryData(bookSaleKeys.saleDetail(id).queryKey, sale);
     }
   } catch (error) {
     console.error("판매글 상세 정보 조회 중 오류 발생:", error);

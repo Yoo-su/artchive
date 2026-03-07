@@ -2,7 +2,7 @@
 
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
-import { bookKeys } from "@/features/book";
+import { CACHE_TIME } from "@/shared/constants/cache";
 
 import {
   getBookSaleDetail,
@@ -13,6 +13,7 @@ import {
   getSaleForEdit,
   searchBookSales,
 } from "./apis";
+import { bookSaleKeys } from "./constants/query-keys";
 import {
   SearchBookSalesParams,
   UseInfiniteRelatedSalesQueryProps,
@@ -23,7 +24,7 @@ import {
  */
 export const useInfiniteBookSalesQuery = (params: SearchBookSalesParams) => {
   return useInfiniteQuery({
-    queryKey: bookKeys.marketSales(params).queryKey,
+    queryKey: bookSaleKeys.marketSales(params).queryKey,
     queryFn: ({ pageParam }) =>
       searchBookSales({
         ...params,
@@ -41,12 +42,12 @@ export const useInfiniteBookSalesQuery = (params: SearchBookSalesParams) => {
  */
 export const useMyBookSalesQuery = () => {
   return useQuery({
-    queryKey: bookKeys.mySales.queryKey,
+    queryKey: bookSaleKeys.mySales.queryKey,
     queryFn: async () => {
       const result = await getMyBookSales();
       return result;
     },
-    staleTime: 30 * 1000,
+    staleTime: CACHE_TIME.THIRTY_SECONDS,
   });
 };
 
@@ -55,7 +56,7 @@ export const useMyBookSalesQuery = () => {
  */
 export const useBookSaleDetailQuery = (saleId: string) => {
   return useQuery({
-    queryKey: bookKeys.saleDetail(saleId).queryKey,
+    queryKey: bookSaleKeys.saleDetail(saleId).queryKey,
     queryFn: async () => {
       const result = await getBookSaleDetail(saleId);
       return result;
@@ -69,7 +70,7 @@ export const useBookSaleDetailQuery = (saleId: string) => {
  */
 export const useBookSaleForEditQuery = (saleId: string) => {
   return useQuery({
-    queryKey: bookKeys.saleForEdit(saleId).queryKey,
+    queryKey: bookSaleKeys.saleForEdit(saleId).queryKey,
     queryFn: () => getSaleForEdit(saleId),
     enabled: !!saleId,
     retry: false,
@@ -87,7 +88,8 @@ export const useInfiniteRelatedSalesQuery = ({
   enabled = true,
 }: UseInfiniteRelatedSalesQueryProps) => {
   return useInfiniteQuery({
-    queryKey: bookKeys.relatedSales({ isbn, city, district, limit }).queryKey,
+    queryKey: bookSaleKeys.relatedSales({ isbn, city, district, limit })
+      .queryKey,
     queryFn: ({ pageParam = 1 }) =>
       getRelatedSales({ isbn, page: pageParam, limit, city, district }),
     initialPageParam: 1,
@@ -111,7 +113,7 @@ export const useRelatedSalesQuery = ({
   enabled?: boolean;
 }) => {
   return useQuery({
-    queryKey: bookKeys.relatedSales({ isbn, limit }).queryKey,
+    queryKey: bookSaleKeys.relatedSales({ isbn, limit }).queryKey,
     queryFn: () => getRelatedSales({ isbn, page: 1, limit }),
     enabled: !!isbn && enabled,
   });
@@ -122,7 +124,7 @@ export const useRelatedSalesQuery = ({
  */
 export const useRecentBookSalesQuery = () => {
   return useQuery({
-    queryKey: bookKeys.recentSales.queryKey,
+    queryKey: bookSaleKeys.recentSales.queryKey,
     queryFn: getRecentBookSales,
   });
 };
@@ -132,7 +134,7 @@ export const useRecentBookSalesQuery = () => {
  */
 export const usePopularBookSalesQuery = () => {
   return useQuery({
-    queryKey: bookKeys.popularSales.queryKey,
+    queryKey: bookSaleKeys.popularSales.queryKey,
     queryFn: getPopularBookSales,
   });
 };

@@ -13,7 +13,7 @@ import {
 } from "@tanstack/react-query";
 
 import { User } from "@/features/auth/types";
-import { userKeys } from "@/features/user";
+import { userKeys } from "@/features/user/constants/query-keys";
 
 import {
   createReadingLog,

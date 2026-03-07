@@ -3,7 +3,8 @@
  *
  * @template T - 실제 데이터 타입
  */
-export type ApiResponse<T = unknown> = T & {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   message?: string;
-};
+  data: T;
+}

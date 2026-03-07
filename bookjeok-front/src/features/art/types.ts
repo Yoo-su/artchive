@@ -91,7 +91,7 @@ export interface ArtDetailItem {
   relates?: Relates; // 관련 정보
 }
 
-export type GetArtDetailResponse = ApiResponse<ArtDetailItem>;
+export type GetArtDetailResponse = ArtDetailItem;
 
 export interface GetArtListParams {
   cpage?: string; // 시작페이지 번호

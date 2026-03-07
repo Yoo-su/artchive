@@ -8,6 +8,7 @@ import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { User } from "@/features/auth/types";
 import { useRouter } from "@/shared/config/i18n/routing";
 import { privateAxios } from "@/shared/libs/axios";
+import { handleMutationError } from "@/shared/utils/error-handler";
 
 import { BookInfo } from "../book/types";
 import {
@@ -37,10 +38,8 @@ export const useWithdrawMutation = () => {
       clearAuth();
       location.href = "/";
     },
-    onError: (error: AxiosError<{ message: string }>) => {
-      toast.error(
-        error.response?.data?.message || "회원 탈퇴 중 오류가 발생했습니다.",
-      );
+    onError: (error) => {
+      handleMutationError(error, "회원 탈퇴");
     },
   });
 };
@@ -124,9 +123,8 @@ export const useUpdateUserMutation = () => {
         },
       );
     },
-    onError: (error: AxiosError) => {
-      toast.error("프로필 수정 중 오류가 발생했습니다.");
-      console.error(error);
+    onError: (error) => {
+      handleMutationError(error, "프로필 수정");
     },
   });
 };

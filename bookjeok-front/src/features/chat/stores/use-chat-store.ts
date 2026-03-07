@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import { create } from "zustand";
 
-import { chatKeys } from "@/features/chat";
+import { chatKeys } from "@/features/chat/constants/query-keys";
 
 import { markMessagesAsRead } from "../apis";
 import { ChatRoom } from "../types";
