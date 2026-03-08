@@ -70,6 +70,7 @@ export const PopularBookSlider = () => {
                       alt={book.title}
                       fill
                       sizes="160px"
+                      priority={index < 4}
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
 
