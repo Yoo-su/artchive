@@ -12,21 +12,20 @@ export const nanum_gothic = Nanum_Gothic({
   weight: ["400", "700", "800"],
   variable: "--font-nanum-gothic",
   display: "swap",
-  preload: false,
+  subsets: ["latin"],
 });
 
 export const pretendard = localFont({
   src: "../../public/fonts/pretendard/PretendardVariable.woff2",
   variable: "--font-pretendard",
   display: "swap",
-  preload: false,
 });
 
 export const bitcount = Bitcount_Prop_Single({
   weight: ["400"],
   variable: "--font-bitcount",
   display: "swap",
-  preload: false,
+  subsets: ["latin"],
 });
 
 export const gowun_batang = Gowun_Batang({
@@ -46,12 +45,12 @@ export const do_hyeon = Do_Hyeon({
   weight: ["400"],
   variable: "--font-do-hyeon",
   display: "swap",
-  preload: false,
+  subsets: ["latin"],
 });
 
 export const diphylleia = Diphylleia({
   weight: ["400"],
   variable: "--font-diphylleia",
   display: "swap",
-  preload: false,
+  subsets: ["latin"],
 });
