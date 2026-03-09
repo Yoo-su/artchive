@@ -22,6 +22,9 @@ export class Book {
   @Column()
   publisher: string;
 
+  @Column({ default: '' })
+  discount: string;
+
   @Column({ type: 'text' })
   description: string;
 

@@ -35,6 +35,7 @@ export class CreateReviewDto {
     publisher: string;
     image: string;
     description: string;
+    discount?: string;
   };
 
   @IsNumber()

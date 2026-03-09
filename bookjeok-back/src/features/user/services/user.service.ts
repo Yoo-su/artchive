@@ -510,6 +510,7 @@ export class UserService implements OnModuleInit {
               publisher: bookData.publisher,
               description: bookData.description,
               image: bookData.image,
+              discount: bookData.discount,
             });
             await queryRunner.manager.save(book);
           } else {

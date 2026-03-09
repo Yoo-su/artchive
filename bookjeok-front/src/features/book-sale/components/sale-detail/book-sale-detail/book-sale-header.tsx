@@ -20,33 +20,73 @@ export const BookSaleHeader = ({ sale }: BookSaleHeaderProps) => {
   const dateLabel =
     sale.updatedAt > sale.createdAt ? t("status.edited") : t("status.created");
 
-  const discountRate =
-    Number(sale.book.discount) > 0
-      ? Math.round(
-          ((Number(sale.book.discount) - sale.price) /
-            Number(sale.book.discount)) *
-            100,
-        )
-      : 0;
+  const originalPrice = Number(sale.book.discount);
+  const isDiscounted = originalPrice > 0 && sale.price < originalPrice;
+  const isPremiumOrNormal = originalPrice > 0 && sale.price >= originalPrice;
+
+  const discountRate = isDiscounted
+    ? Math.round(((originalPrice - sale.price) / originalPrice) * 100)
+    : 0;
 
   return (
     <div>
       <div className="flex items-center gap-2 mb-3">
         <SaleStatusBadge status={sale.status} />
       </div>
-      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">
+      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 leading-snug break-keep">
         {sale.title}
       </h1>
-      <p className="mt-3 text-2xl font-bold text-emerald-600">
-        {sale.price.toLocaleString()}
-        {tCommon("won")}
-        {discountRate > 0 && (
-          <span className="ml-3 text-lg font-medium text-stone-400 line-through">
-            {Number(sale.book.discount).toLocaleString()}
-            {tCommon("won")}
-          </span>
+      <div className="mt-6 flex flex-col gap-0 border-y border-stone-200">
+        {isDiscounted ? (
+          <div className="flex flex-col py-4 gap-2">
+            <div className="flex items-end justify-between">
+              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest leading-none">
+                {t("originalPrice", { fallback: "정가" })}
+              </span>
+              <span className="text-sm font-medium text-stone-400 line-through decoration-1 leading-none">
+                {originalPrice.toLocaleString()}
+                {tCommon("won")}
+              </span>
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mt-1">
+              <span className="self-end sm:self-auto text-[11px] font-black text-white bg-stone-900 px-2 py-1 tracking-widest leading-none">
+                -{discountRate}% {t("discount", { fallback: "OFF" })}
+              </span>
+              <p className="text-4xl sm:text-5xl font-black text-stone-900 tracking-tighter leading-none">
+                {sale.price.toLocaleString()}
+                <span className="text-xl sm:text-2xl font-bold text-stone-800 ml-0.5">
+                  {tCommon("won")}
+                </span>
+              </p>
+            </div>
+          </div>
+        ) : isPremiumOrNormal ? (
+          <div className="flex flex-col py-4 gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mt-1">
+              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">
+                {t("originalPrice", { fallback: "정가" })}{" "}
+                {originalPrice.toLocaleString()}
+                {tCommon("won")}
+              </span>
+              <p className="text-4xl sm:text-5xl font-black text-stone-900 tracking-tighter leading-none">
+                {sale.price.toLocaleString()}
+                <span className="text-xl sm:text-2xl font-bold text-stone-800 ml-0.5">
+                  {tCommon("won")}
+                </span>
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="py-4">
+            <p className="text-4xl sm:text-5xl font-black text-stone-900 tracking-tighter leading-none text-right">
+              {sale.price.toLocaleString()}
+              <span className="text-xl sm:text-2xl font-bold text-stone-800 ml-0.5">
+                {tCommon("won")}
+              </span>
+            </p>
+          </div>
         )}
-      </p>
+      </div>
 
       {/* 메타 정보 영역: 필(pill) 태그 스타일 */}
       <div className="flex flex-wrap items-center gap-2 mt-4">

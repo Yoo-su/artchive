@@ -94,13 +94,31 @@ export const Title = ({ className }: { className?: string }) => {
 // 가격
 export const Price = ({ className }: { className?: string }) => {
   const t = useTranslations("common");
+  const tMarket = useTranslations("market.detail");
   const { sale } = useBookSaleContext();
+
+  const originalPrice = Number(sale.book.discount);
+  const isDiscounted = originalPrice > 0 && sale.price < originalPrice;
+  const discountRate = isDiscounted
+    ? Math.round(((originalPrice - sale.price) / originalPrice) * 100)
+    : 0;
+
   return (
-    <div className={cn("mb-1", className)}>
-      <p className="text-sm font-bold text-white drop-shadow-sm">
+    <div
+      className={cn(
+        "mb-1 flex flex-wrap items-center gap-x-2 gap-y-1",
+        className,
+      )}
+    >
+      <p className="text-[15px] font-black text-white drop-shadow-md line-clamp-1 break-all tracking-tighter">
         {sale.price.toLocaleString()}
-        {t("won")}
+        <span className="text-xs font-bold ml-px">{t("won")}</span>
       </p>
+      {isDiscounted && (
+        <span className="text-[10px] sm:text-[11px] font-black text-stone-900 bg-white/95 px-1.5 py-0.5 rounded-sm shadow-sm tracking-tight leading-none">
+          -{discountRate}%
+        </span>
+      )}
     </div>
   );
 };

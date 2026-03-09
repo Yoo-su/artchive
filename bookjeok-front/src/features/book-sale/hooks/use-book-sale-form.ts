@@ -99,6 +99,7 @@ export const useBookSaleForm = () => {
         publisher: data.book.publisher,
         image: data.book.image,
         pubdate: data.book.pubdate,
+        discount: data.book.discount,
       },
     };
 

@@ -29,6 +29,7 @@ export const createSellFormSchema = (t: (key: string) => string) =>
           image: z.string(),
           description: z.string(),
           pubdate: z.string(),
+          discount: z.string(),
         })
         .nullable()
         .refine((val) => val !== null, t("book_required")),

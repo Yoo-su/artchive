@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsUrl } from 'class-validator';
+import { IsString, IsNotEmpty, IsUrl, IsOptional } from 'class-validator';
 
 export class BookInfoDto {
   @IsString()
@@ -27,4 +27,8 @@ export class BookInfoDto {
 
   @IsString()
   description: string;
+
+  @IsString()
+  @IsOptional()
+  discount?: string;
 }
