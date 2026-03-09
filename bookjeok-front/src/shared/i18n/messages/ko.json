@@ -833,6 +833,8 @@
     },
     "detail": {
       "not_found": "존재하지 않거나 삭제된 판매글입니다.",
+      "discount": "할인",
+      "originalPrice": "정가",
       "book_info": {
         "title": "도서 정보",
         "author": "저자",

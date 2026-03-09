@@ -157,6 +157,7 @@ export const ReviewForm = ({
               publisher: selectedBook.publisher,
               image: selectedBook.image,
               description: selectedBook.description,
+              discount: selectedBook.discount,
             }
           : undefined,
       },

@@ -79,5 +79,6 @@ export interface ReviewFormValues {
     publisher: string;
     image: string;
     description: string;
+    discount?: string;
   };
 }

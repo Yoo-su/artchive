@@ -64,6 +64,7 @@ export interface CreateBookSaleParams {
     publisher: string;
     image: string;
     pubdate: string;
+    discount: string;
   };
 }
 

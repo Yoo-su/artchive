@@ -833,6 +833,8 @@
     },
     "detail": {
       "not_found": "Sale not found or deleted.",
+      "discount": "Off",
+      "originalPrice": "Original",
       "book_info": {
         "title": "Book Info",
         "author": "Author",
