@@ -608,4 +608,12 @@ export class UserService implements OnModuleInit {
     });
     return { isWishlisted: exists };
   }
+
+  /**
+   * 사용자의 마지막 활동 시간을 현재 시간으로 업데이트합니다.
+   * @param userId 유저 ID
+   */
+  async updateLastActiveAt(userId: number): Promise<void> {
+    await this.userRepository.update(userId, { lastActiveAt: new Date() });
+  }
 }

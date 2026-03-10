@@ -113,6 +113,9 @@ export class AuthService {
       user.nickname,
     );
 
+    // 마지막 활동 시간 업데이트
+    await this.userService.updateLastActiveAt(user.id);
+
     return { accessToken, refreshToken, user };
   }
 
@@ -123,6 +126,8 @@ export class AuthService {
    * @returns 새로운 Access Token과 Refresh Token
    */
   async refresh(userId: number, nickname: string) {
+    // 토큰 갱신 시 마지막 활동 시간도 업데이트
+    await this.userService.updateLastActiveAt(userId);
     return await this.getTokens(userId, nickname);
   }
 
