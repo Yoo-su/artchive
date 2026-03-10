@@ -54,6 +54,9 @@ export class User {
   @Column({ default: true })
   isReadingLogPublic: boolean;
 
+  @Column({ nullable: true })
+  lastActiveAt: Date;
+
   @OneToMany(() => UsedBookSale, (sale) => sale.user)
   usedBookSales: UsedBookSale[];
 
