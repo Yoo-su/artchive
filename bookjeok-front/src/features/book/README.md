@@ -1,106 +1,47 @@
 # Frontend Feature: Book
 
-프론트엔드의 `book` 기능은 도서 정보 검색, 중고 서적 판매글 조회, 생성, 수정, 삭제 등 bookjeok의 핵심적인 도서 관련 사용자 경험을 모두 담당합니다.
+프론트엔드의 `book` 기능은 도서 정보 검색, 도서 상세 정보, 인기 도서, 최근 본 책, AI 도서 요약, 인기 검색어 등 도서와 관련된 핵심 정보 제공 및 탐색 경험을 담당합니다. 중고책 판매 관련 로직은 `book-sale` 기능으로 완전 분리되었습니다.
 
 ## 1. 주요 파일 및 역할
 
-- **`features/book/apis/index.ts`**: 백엔드 `/book` 및 `/user` 엔드포인트와 통신하는 모든 API 요청 함수를 정의합니다. (e.g., `getBookList`, `createBookSale`, `getMyBookSales`)
-- **`features/book/queries.tsx`**: `apis.ts`의 함수를 사용하여 TanStack Query 훅을 생성합니다. 데이터 캐싱, 서버 상태 동기화, 무한 스크롤 로직 등을 담당합니다.
-  - `useBookDetailQuery`: ISBN으로 특정 책의 상세 정보를 조회합니다.
-  - `useInfiniteBookSearch`: 검색어에 따라 도서 목록을 무한 스크롤로 조회합니다.
-  - `useInfiniteBookSalesQuery`: 중고책 판매글 목록을 **커서 기반 페이지네이션**으로 조회합니다.
-  - `useMyBookSalesQuery`: 내가 등록한 판매글 목록을 조회합니다.
-- **`features/book/mutations.tsx`**: 데이터 생성/수정/삭제(CUD)를 위한 TanStack Query 뮤테이션 훅을 정의합니다.
-  - `useCreateBookSaleMutation`: 판매글을 생성합니다. 이미지 업로드 로직을 포함합니다.
-  - `useUpdateBookSaleStatusMutation`: 판매글의 상태(판매중, 예약중, 판매완료)를 변경합니다. **낙관적 업데이트(Optimistic Update)**를 적용하여 빠른 UI 반응성을 제공합니다.
-  - `useDeleteBookSaleMutation`: 판매글과 연결된 이미지를 함께 삭제합니다.
-- **`features/book/hooks/`**: 커스텀 훅들
-  - `useBookSaleSearchParams`: URL search params에서 필터 조건 추출 (lat/lng 제외)
-  - `useUserLocation`: 사용자 위치(geolocation) 관리 훅. 거리순 정렬 시 위치 권한 요청 및 상태 관리를 담당합니다.
-- **`features/book/stores/`**: 도서 관련 클라이언트 상태를 관리하는 Zustand 스토어입니다.
-  - `useRecentBookStore`: 최근 본 책 목록을 `sessionStorage`에 저장하고 관리합니다.
+- **`features/book/apis/`**: 백엔드 `/book`, `/llm`, `/search-keyword` 엔드포인트와 통신하는 API 함수들을 정의합니다.
+  - `index.ts`: `getBookList`(검색), `getBookDetail`(상세), `recordBookView`(조회수), `getPopularBooks`(인기 도서), `getBookSummary`(AI 요약), `getPopularKeywords`(인기 검색어), `recordSearchKeyword`(검색어 기록)
+  - `server.ts`: 프론트엔드 환경에서 사용할 수 있도록 래핑된 서버용 API 함수들
+- **`features/book/queries/`**: `apis`의 함수를 사용하여 TanStack Query 훅을 생성합니다. 데이터 캐싱, 무한 스크롤 로직 등을 담당합니다.
+  - `index.tsx`: 
+    - `useBookListQuery`: 검색어 조건에 따른 단일 페이지 도서 목록 조회
+    - `useBookDetailQuery`: ISBN으로 특정 책의 상세 정보를 조회
+    - `useInfiniteBookSearch`: 검색어에 따라 도서 목록을 무한 스크롤로 조회
+    - `usePopularBooksQuery`: 조회수 및 인기도 기반 평점이 높은 도서 목록 조회
+    - `useBookSummaryQuery`: AI 도서 요약 정보 조회
+    - `usePopularKeywordsQuery`: 최근 3일 기준 인기 검색어 목록 조회
+  - `prefetch.ts`: 서버 컴포넌트 환경에서 React Query 캐시를 prefetch하기 위한 유틸리티 함수
+- **`features/book/stores/`**: 도서 관련 클라이언트 상태를 관리하는 Zustand 스토어.
+  - `useRecentBookStore`: 최근 본 책 목록을 `localStorage` 또는 `sessionStorage`에 저장하고 관리.
 - **`features/book/components/`**: **Context-Based Grouping**
-  - **`book-search/`**: 도서 검색 페이지 UI (`book-search-view` 등)
-  - **`book-detail/`**: 도서 상세 정보 (`book-detail-view` 등)
-  - **`book-slider/`**: 도서 슬라이더
-  - **`recent-books/`**: 최근 본 책
-  - **`common/`**: 공통 컴포넌트 (`book-cover`, `book-item` 등)
-- **`features/book/actions/`**: Next.js 서버 액션(Server Actions)을 정의합니다.
-  - `upload-action.ts`: Vercel Blob 스토리지에 이미지를 업로드합니다.
-  - `delete-action.ts`: Vercel Blob 스토리지에서 이미지를 삭제합니다.
+  - **`book-search/`**: 도서 검색 페이지 UI 및 필터
+  - **`book-detail/`**: 도서 상세 정보 뷰 (정보, 평점, 요약 등)
+  - **`book-slider/`**: 도서 캐루셀 슬라이더
+  - **`recent-books/`**: 최근 본 책 UI
+  - **`common/`**: 핵심 공통 컴포넌트 (`book-cover`, `book-item` 등)
+- **`features/book/constants/`**: 디폴트 검색 조건, 정렬 기준 등 
+- **`features/book/types.ts`**: 도서 응답 및 쿼리 파라미터 타입
 
 ## 2. 데이터 흐름 및 핵심 로직
 
-### 중고 서적 판매글 생성 (이미지 업로드 포함)
+### 도서 상세 조회 및 조회수 기록
 
-사용자가 판매글 폼을 작성하고 제출하면, 클라이언트(브라우저)에서 직접 이미지를 Vercel Blob에 업로드한 후, 반환된 이미지 URL을 포함하여 백엔드에 최종 데이터를 전송합니다. 이를 통해 백엔드 서버의 파일 처리 부담을 줄입니다.
+사용자가 도서 상세 페이지에 접근하면 해당 도서의 정보와 요약을 가져오는 동시에, 검색 및 인기도 계산을 위한 조회수 로직을 실행합니다.
 
-```mermaid
-sequenceDiagram
-    participant User as 사용자
-    participant Form as BookSaleForm
-    participant Mutation as useCreateBookSaleMutation
-    participant VercelBlob as Vercel Blob
-    participant Backend as bookjeok 백엔드
+1.  **상세 페이지 접근**: 사용자가 특정 ISBN의 도서 상세 페이지로 진입
+2.  **데이터 페칭**: `useBookDetailQuery`를 통해 백엔드 캐시 또는 DB에서 도서 상세 정보를 가져옴. 동시에 `useBookSummaryQuery`로 도서 요약 정보(AI 번역 제공)를 병렬 페칭 가능.
+3.  **조회수 카운트**: 백그라운드에서 `recordBookView` API가 호출되며 도서 조회 빈도를 기록
+4.  **최근 본 책 업데이트**: 도서 상세 정보를 `useRecentBookStore`에 전달하여 상태값 업데이트, 로컬 스토리지 등에 최신 관람 이적을 남겨 다른 페이지에서도 위젯으로 이용 가능하게 처리.
 
-    User->>Form: 1. 폼 데이터 입력 및 이미지 파일 선택
-    User->>Form: 2. '판매글 등록하기' 버튼 클릭
-    Form->>Mutation: 3. mutate({ imageFiles, payload }) 호출
+### 무한 스크롤 도서 검색 검색기
 
-    Mutation->>VercelBlob: 4. (클라이언트) 이미지 파일 업로드
-    VercelBlob-->>Mutation: 5. 업로드된 이미지 URL 목록 반환
+사용자가 책 검색 페이지에서 검색어를 입력하면 서버 성능을 유지하면서 스크롤에 반응해 점진적으로 탐색 환경을 만듭니다.
 
-    Mutation->>Backend: 6. POST /book/sale (텍스트 정보 + 이미지 URL)
-
-    Note over Backend: 판매글 DB에 저장
-
-    Backend-->>Mutation: 7. 생성된 판매글 데이터 응답
-
-    Mutation->>Mutation: 8. onSuccess 콜백 실행
-    Mutation->>User: 9. "등록 완료" 알림 표시 및 페이지 이동
-```
-
-1.  **폼 제출**: 사용자가 `BookSaleForm`에서 모든 정보를 입력하고 '판매글 등록하기' 버튼을 클릭합니다.
-2.  **뮤테이션 호출**: `useCreateBookSaleMutation`의 `mutate` 함수가 `imageFiles`(File 객체 배열)와 `payload`(텍스트 데이터)를 인자로 받아 호출됩니다.
-3.  **이미지 업로드**: 뮤테이션 함수 내부에서 `@vercel/blob/client`의 `upload` 함수를 호출하여 클라이언트 측에서 직접 이미지 파일들을 Vercel Blob 스토리지로 전송합니다.
-4.  **백엔드 요청**: 이미지 업로드가 완료되고 URL 목록을 받으면, 이 URL들을 `payload`에 포함시켜 백엔드의 `POST /book/sale` API로 최종 데이터를 전송합니다.
-5.  **성공 처리**: 백엔드에서 성공 응답을 받으면, `onSuccess` 콜백이 실행되어 사용자에게 성공 알림을 보여주고 '나의 판매 내역' 페이지로 이동시킵니다.
-
-### 판매 상태 변경 (낙관적 업데이트)
-
-사용자가 '나의 판매 내역' 페이지에서 판매 상태를 변경하면, 서버 응답을 기다리지 않고 즉시 UI를 업데이트하여 사용자 경험을 향상시킵니다.
-
-```mermaid
-sequenceDiagram
-    participant User as 사용자
-    participant Page as 판매 내역 페이지
-    participant Mutation as useUpdateSaleStatusMutation
-    participant QueryClient as TanStack Query Client
-    participant Backend as bookjeok 백엔드
-
-    User->>Page: 1. 판매 상태 변경 (e.g., '판매중' -> '예약중')
-    Page->>Mutation: 2. mutate({ saleId, status }) 호출
-
-    Mutation->>QueryClient: 3. onMutate 실행: 쿼리 취소
-    QueryClient->>QueryClient: 4. setQueryData: 캐시된 데이터를 새 상태로 미리 업데이트
-
-    Note right of Page: UI가 즉시 '예약중'으로 변경됨
-
-    Mutation->>Backend: 5. PATCH /book/sales/:id/status 요청
-
-    alt 서버 요청 성공
-        Backend-->>Mutation: 6. 200 OK 응답
-        Mutation->>QueryClient: 7. onSettled 실행: 관련 쿼리 무효화 (데이터 동기화)
-    else 서버 요청 실패
-        Backend-->>Mutation: 6. 에러 응답
-        Mutation->>QueryClient: 7. onError 실행: onMutate에서 저장한 이전 데이터로 롤백
-        Note right of Page: UI가 다시 '판매중'으로 복원됨
-    end
-```
-
-1.  **상태 변경**: 사용자가 드롭다운 메뉴를 통해 특정 판매글의 상태를 변경합니다.
-2.  **`onMutate` 실행**: `useUpdateBookSaleStatusMutation`의 `mutate` 함수가 호출되면, 실제 API 요청을 보내기 전에 `onMutate` 콜백이 먼저 실행됩니다.
-3.  **UI 즉시 업데이트**: `onMutate` 내에서 `queryClient.setQueryData`를 사용하여 TanStack Query에 캐시된 데이터를 즉시 새로운 상태로 변경합니다. 이로 인해 UI는 서버 응답 없이 바로 업데이트됩니다.
-4.  **서버 요청 및 결과 처리**:
-    - **성공 시**: API 요청이 성공하면 `onSettled` 콜백이 실행되어 관련 쿼리를 무효화(invalidate)함으로써 서버와 클라이언트의 데이터를 최신 상태로 동기화합니다.
-    - **실패 시**: API 요청이 실패하면 `onError` 콜백이 실행되어, `onMutate` 단계에서 백업해 둔 이전 데이터로 쿼리 캐시를 되돌립니다(롤백). UI 또한 원래 상태로 복원됩니다.
+1.  **검색어 입력**: 검색 파라미터 업데이트와 함께 `recordSearchKeyword` API를 통해 검색어 로그 전송
+2.  **무한 스크롤 훅 실행**: `useInfiniteBookSearch`가 현재 설정된 페이지(`start`)와 한 번에 가져올 수(`display`) 파라미터에 맞추어 `getBookList` 실행
+3.  **다음 페이지 요청**: Intersection Observer 등을 통해 리스트의 하단을 감지하면 Tanstack Query의 `fetchNextPage` 호출, 파라미터 오프셋 값 증가와 함께 백그라운드 데이터 캐싱 후 컴포넌트에 병합.

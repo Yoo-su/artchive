@@ -10,6 +10,7 @@
 
 - **`queries.tsx`**: TanStack Query 쿼리 훅을 정의합니다.
   - `useInsightsQuery`: 인사이트 데이터 조회 훅
+  - `useLocationSalesQuery`: 특정 지역의 판매글 목록 모달/팝업 호출 시 사용하는 훅
 
 - **`components/`**: **Context-Based Grouping**
   - **`charts/`**: 다양한 시각화 차트 (`activity-trend-chart`, `category-chart`, `location-heatmap`, `price-histogram`, `reaction-donut-chart`)

@@ -61,7 +61,7 @@ interface UsedBookSale {
 | `useInfiniteBookSalesQuery` | 판매글 검색 (무한 스크롤) |
 | `useMyBookSalesQuery`       | 내 판매글 목록            |
 | `useBookSaleDetailQuery`    | 판매글 상세               |
-| `useBookSaleForEditQuery`   | 수정용 조회               |
+| `useInfiniteRelatedSalesQuery`| 관련 판매글 (무한 스크롤) |
 | `useRelatedSalesQuery`      | 관련 판매글               |
 | `useRecentBookSalesQuery`   | 최근 판매글               |
 | `usePopularBookSalesQuery`  | 인기 판매글               |
@@ -83,3 +83,66 @@ interface UsedBookSale {
 ## API 엔드포인트
 
 모든 API는 `/book/...` 경로를 사용합니다 (백엔드 호환성 유지).
+
+## 데이터 흐름 및 핵심 로직
+
+### 중고 서적 판매글 생성 (이미지 업로드 포함)
+
+사용자가 판매글 폼을 작성하고 제출하면, 클라이언트(브라우저)에서 직접 이미지를 Vercel Blob에 업로드한 후, 반환된 이미지 URL을 포함하여 백엔드에 최종 데이터를 전송합니다.
+
+```mermaid
+sequenceDiagram
+    participant User as 사용자
+    participant Form as BookSaleForm
+    participant Mutation as useCreateBookSaleMutation
+    participant VercelBlob as Vercel Blob
+    participant Backend as bookjeok 백엔드
+
+    User->>Form: 1. 폼 데이터 입력 및 이미지 파일 선택
+    User->>Form: 2. '판매글 등록하기' 버튼 클릭
+    Form->>Mutation: 3. mutate({ imageFiles, payload }) 호출
+
+    Mutation->>VercelBlob: 4. (클라이언트) 이미지 파일 업로드
+    VercelBlob-->>Mutation: 5. 업로드된 이미지 URL 목록 반환
+
+    Mutation->>Backend: 6. POST /book/sale (텍스트 정보 + 이미지 URL)
+
+    Note over Backend: 판매글 DB에 저장
+
+    Backend-->>Mutation: 7. 생성된 판매글 데이터 응답
+
+    Mutation->>Mutation: 8. onSuccess 콜백 실행
+    Mutation->>User: 9. "등록 완료" 알림 표시 및 페이지 이동
+```
+
+### 판매 상태 변경 (낙관적 업데이트)
+
+사용자가 '나의 판매 내역' 페이지에서 판매 상태를 변경하면, 서버 응답을 기다리지 않고 즉시 UI를 업데이트하여 사용자 경험을 향상시킵니다.
+
+```mermaid
+sequenceDiagram
+    participant User as 사용자
+    participant Page as 판매 내역 페이지
+    participant Mutation as useUpdateSaleStatusMutation
+    participant QueryClient as TanStack Query Client
+    participant Backend as bookjeok 백엔드
+
+    User->>Page: 1. 판매 상태 변경 (e.g., '판매중' -> '예약중')
+    Page->>Mutation: 2. mutate({ saleId, status }) 호출
+
+    Mutation->>QueryClient: 3. onMutate 실행: 쿼리 취소
+    QueryClient->>QueryClient: 4. setQueryData: 캐시된 데이터를 새 상태로 미리 업데이트
+
+    Note right of Page: UI가 즉시 '예약중'으로 변경됨
+
+    Mutation->>Backend: 5. PATCH /book/sales/:id/status 요청
+
+    alt 서버 요청 성공
+        Backend-->>Mutation: 6. 200 OK 응답
+        Mutation->>QueryClient: 7. onSettled 실행: 관련 쿼리 무효화 (데이터 동기화)
+    else 서버 요청 실패
+        Backend-->>Mutation: 6. 에러 응답
+        Mutation->>QueryClient: 7. onError 실행: onMutate에서 저장한 이전 데이터로 롤백
+        Note right of Page: UI가 다시 '판매중'으로 복원됨
+    end
+```

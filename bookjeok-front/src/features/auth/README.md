@@ -7,9 +7,9 @@
 - **`features/auth/stores/use-auth-store.ts`**: **Zustand**를 사용하여 인증 상태를 관리하는 스토어입니다.
   - `user`: 로그인한 사용자 정보 객체.
   - `accessToken`, `refreshToken`: 백엔드로부터 받은 JWT.
-  - `setUser`, `setTokens`, `clearAuth`: 상태를 변경하는 액션 함수.
+  - `setUser`, `setTokens`, `setAuth`, `clearAuth`: 상태를 변경하는 액션 함수.
   - `persist` 미들웨어를 사용하여 인증 상태를 `localStorage`에 저장하여 브라우저를 새로고침해도 로그인 상태가 유지되도록 합니다.
-- **`features/auth/apis/index.ts`**: 인증 관련 API를 호출하는 함수가 정의되어 있습니다. `getUserProfile` 함수는 저장된 Access Token을 이용해 현재 로그인된 사용자의 프로필 정보를 백엔드로부터 가져옵니다.
+- **`features/auth/apis/index.ts`**: 인증 관련 API를 호출하는 함수가 정의되어 있습니다. `getUserProfile` 함수는 저장된 Access Token을 이용해 현재 로그인된 사용자의 프로필 정보를 백엔드로부터 가져옵니다. 또한 `emailSignup` 및 `emailLogin` 함수를 통해 이메일 기반 회원가입 및 로그인도 지원합니다.
 - **`features/auth/components/`**: **Context-Based Grouping**
   - **`forms/`**: 로그인/회원가입 폼 (`login-form`, `signup-form`)
   - **`guards/`**: 라우트 가드 (`auth-guard`, `guest-guard`)
