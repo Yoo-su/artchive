@@ -1,8 +1,13 @@
+import dynamic from "next/dynamic";
 import { HTMLAttributes } from "react";
-import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { cn } from "@/shared/utils/cn";
+
+// ReactMarkdown은 AI 추천 위젯 전용이므로 지연 로딩
+const ReactMarkdown = dynamic(() => import("react-markdown"), {
+  ssr: false,
+});
 
 interface ChatBubbleProps extends HTMLAttributes<HTMLDivElement> {
   message: string;

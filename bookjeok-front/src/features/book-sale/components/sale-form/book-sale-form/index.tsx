@@ -1,10 +1,24 @@
 import { BookOpen, Loader2 } from "lucide-react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { BookSearchModal } from "@/features/book/components/common/book-search-modal";
-import { MapLocationSelector } from "@/shared/components/map/map-location-selector";
+
+// 카카오맵 SDK가 무거우므로 지연 로딩
+const MapLocationSelector = dynamic(
+  () =>
+    import("@/shared/components/map/map-location-selector").then(
+      (mod) => mod.MapLocationSelector,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[300px] rounded-lg animate-pulse bg-muted/30" />
+    ),
+  },
+);
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Card,
