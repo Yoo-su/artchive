@@ -1,10 +1,24 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 
 import { ActivityTrendChart } from "@/features/insights/components/charts/activity-trend-chart";
 import { CategoryChart } from "@/features/insights/components/charts/category-chart";
-import { LocationHeatmap } from "@/features/insights/components/charts/location-heatmap";
+
+// 카카오맵 SDK를 포함하므로 지연 로딩
+const LocationHeatmap = dynamic(
+  () =>
+    import("@/features/insights/components/charts/location-heatmap").then(
+      (mod) => mod.LocationHeatmap,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[400px] rounded-lg animate-pulse bg-muted/30" />
+    ),
+  },
+);
 import { PriceHistogram } from "@/features/insights/components/charts/price-histogram";
 import { ReactionDonutChart } from "@/features/insights/components/charts/reaction-donut-chart";
 import { InsightsHeader } from "@/features/insights/components/common/insights-header";

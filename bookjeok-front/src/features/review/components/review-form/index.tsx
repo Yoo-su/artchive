@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BookOpen, Info, Loader2 } from "lucide-react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -16,9 +17,22 @@ import {
   ReviewSchemaValues,
 } from "@/features/review/schemas";
 import { ReviewFormValues } from "@/features/review/types";
-import { TiptapEditor } from "@/shared/components/editor/tiptap-editor";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
+
+// Tiptap 에디터는 무거운 라이브러리이므로 지연 로딩
+const TiptapEditor = dynamic(
+  () =>
+    import("@/shared/components/editor/tiptap-editor").then(
+      (mod) => mod.TiptapEditor,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="border rounded-md min-h-[300px] animate-pulse bg-muted/30" />
+    ),
+  },
+);
 import {
   Form,
   FormControl,

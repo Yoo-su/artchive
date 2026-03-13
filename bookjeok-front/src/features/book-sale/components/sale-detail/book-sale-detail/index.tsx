@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 
 import { Separator } from "@/shared/components/shadcn/separator";
@@ -12,8 +13,18 @@ import { BookSaleActions } from "./book-sale-actions";
 import { BookSaleContent } from "./book-sale-content";
 import { BookSaleHeader } from "./book-sale-header";
 import { BookSaleImageCarousel } from "./book-sale-image-carousel";
-import { SaleLocationMap } from "./sale-location-map";
 import { BookSaleDetailSkeleton } from "./skeleton";
+
+// 카카오맵 SDK가 무거우므로 지연 로딩
+const SaleLocationMap = dynamic(
+  () => import("./sale-location-map").then((mod) => mod.SaleLocationMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[300px] rounded-lg animate-pulse bg-muted/30" />
+    ),
+  },
+);
 
 interface BookSaleDetailProps {
   saleId: string;
