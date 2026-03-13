@@ -6,28 +6,33 @@
 
 - **`apis/index.ts`**: 백엔드 `/reviews` 엔드포인트와 통신하는 API 함수들을 정의합니다.
   - `getReviews`: 리뷰 목록 조회 (필터링/페이지네이션)
-  - `getReviewDetail`: 리뷰 상세 조회
+  - `getReview`: 리뷰 상세 조회
+  - `getReviewAuthenticated`: 비공개 리뷰 포함 상세 조회 (본인 전용)
+  - `getReviewForEdit`: 리뷰 수정용 상세 조회
   - `getPopularReviews`: 인기 리뷰 목록 조회
   - `getReviewFeeds`: 카테고리별 리뷰 피드 조회
+  - `getRecommendedReviews`: 추천 리뷰 목록 조회
   - `createReview`: 리뷰 작성
   - `updateReview`: 리뷰 수정
   - `deleteReview`: 리뷰 삭제
-  - `toggleReaction`: 리액션 토글
-  - `getMyReaction`: 내 리액션 상태 조회
+  - `toggleReviewReaction`: 리액션 토글
+  - `getMyReviewReaction`: 내 리액션 상태 조회
 
 - **`queries.tsx`**: TanStack Query 쿼리 훅을 정의합니다.
   - `useReviewDetailQuery`: 리뷰 상세 조회
+  - `useReviewForEditQuery`: 수정용 리뷰 상세 조회
   - `useReviewsQuery`: 리뷰 목록 조회 (단일 페이지)
   - `useReviewsInfiniteQuery`: 리뷰 목록 무한 스크롤 조회 (**커서 기반 페이지네이션**: `cursorId` 사용)
   - `usePopularReviewsQuery`: 인기 리뷰 조회
   - `useReviewFeedsQuery`: 카테고리별 피드 조회
-  - `useMyReactionQuery`: 내 리액션 상태 조회
+  - `useRecommendedReviewsQuery`: 추천 리뷰 조회
+  - `useMyReviewReactionQuery`: 내 리액션 상태 조회
 
 - **`mutations.tsx`**: TanStack Query 뮤테이션 훅을 정의합니다.
   - `useCreateReviewMutation`: 리뷰 작성
   - `useUpdateReviewMutation`: 리뷰 수정
   - `useDeleteReviewMutation`: 리뷰 삭제
-  - `useToggleReactionMutation`: 리액션 토글 (낙관적 업데이트)
+  - `useToggleReviewReactionMutation`: 리액션 토글 (낙관적 업데이트)
 
 - **`components/`**: **Context-Based Grouping**
   - **`review-list/`**: 리뷰 목록 (`review-list`, `review-card`)

@@ -10,6 +10,7 @@
 - **`features/art/queries.tsx`**: `apis.ts`의 함수들을 사용하여 공연/전시 데이터를 가져오는 TanStack Query 훅을 정의합니다.
   - `useArtListQuery`: `getArtList`를 호출하여 공연 목록을 가져옵니다. API 응답 데이터는 `staleTime: Infinity`로 설정하여 한 번 가져온 목록은 다시 요청하지 않도록 캐싱 전략을 사용합니다.
   - `useArtDetailQuery`: `getArtDetail`을 호출하여 특정 공연의 상세 정보를 가져옵니다. `staleTime`을 24시간으로 설정하여 하루 동안 캐시를 유지합니다.
+  - `useMainArtsQueries`: 메인 페이지용으로 여러 장르의 공연 목록을 병렬로 조회합니다.
 - **`features/art/constants.ts`**: API 요청에 사용되는 장르 코드, 도시 코드, 기본 요청 개수 등 관련 상수들을 정의합니다.
 - **`features/art/types.ts`**: KOPIS API 응답 데이터 구조에 기반한 TypeScript 타입(e.g., `ArtItem`, `ArtDetailItem`)을 정의합니다.
 - **`views/art-detail-view/index.tsx`**: 공연 상세 정보를 표시하는 페이지 UI 컴포넌트입니다. `useArtDetailQuery`를 사용해 데이터를 가져와 렌더링합니다.

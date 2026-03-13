@@ -7,8 +7,8 @@
 - **`apis/index.ts`**: 백엔드 `/reading-logs` 엔드포인트와 통신하는 API 함수들을 정의합니다.
 
 - **`queries.tsx`**: TanStack Query 쿼리/뮤테이션 훅을 정의합니다.
-  - `useMonthlyReadingLogsQuery`: 월별 독서 기록 조회
-  - `useInfiniteReadingLogsQuery`: 무한 스크롤 독서 기록 조회
+  - `useReadingLogsQuery`: 월별 독서 기록 조회
+  - `useReadingLogsInfiniteQuery`: 무한 스크롤 독서 기록 조회
   - `useReadingLogsStatsQuery`: 독서 통계 조회
   - `useReadingLogSettingsQuery`: 공개 설정 조회
   - `useCreateReadingLogMutation`: 독서 기록 생성

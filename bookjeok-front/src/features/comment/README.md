@@ -6,20 +6,22 @@
 
 - **`apis.ts`**: 백엔드 `/comments` 엔드포인트와 통신하는 API 함수들을 정의합니다.
   - `getComments`: 특정 대상(도서/리뷰)의 댓글 목록 조회
-  - `getMyComments`: 내가 작성한 댓글 목록 조회
+  - `getMyComments`: 내가 작성한 댓글 목록 조회 (페이지네이션)
   - `createComment`: 댓글 작성
   - `updateComment`: 댓글 수정
   - `deleteComment`: 댓글 삭제
   - `toggleCommentLike`: 댓글 좋아요 토글
+  - `getMyLikeStatus`: 내 좋아요 상태를 조회
 
 - **`queries.tsx`**: TanStack Query 쿼리 훅을 정의합니다.
   - `useCommentsQuery`: 댓글 목록 조회 훅 (페이지네이션)
-  - `useMyCommentsQuery`: 내가 작성한 댓글 목록 조회 훅
+  - `useMyCommentsInfiniteQuery`: 내가 작성한 댓글 목록 조회 훅 (무한 스크롤)
 
 - **`mutations.tsx`**: TanStack Query 뮤테이션 훅을 정의합니다.
   - `useCreateCommentMutation`: 댓글 작성
   - `useUpdateCommentMutation`: 댓글 수정
-  - `useDeleteCommentMutation`: 댓글 삭제
+  - `useDeleteCommentMutation`: 특정 대상의 일반 댓글 삭제
+  - `useDeleteMyCommentMutation`: 내 댓글 목록 전용 삭제 (마이페이지용)
   - `useToggleCommentLikeMutation`: 댓글 좋아요 토글 (낙관적 업데이트 적용)
 
 - **`components/`**: **Context-Based Grouping**

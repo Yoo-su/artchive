@@ -31,7 +31,7 @@
 
 - **`features/chat/stores/use-chat-store.ts`**:
   - **역할**: 채팅 위젯의 UI 상태를 관리하는 Zustand 스토어입니다.
-  - **상태**: `isChatOpen`(위젯 열림/닫힘), `activeChatRoomId`(현재 열려있는 채팅방 ID), `typingUsers`(입력 중인 사용자 정보) 등을 관리합니다.
+  - **상태**: `isChatOpen`(위젯 열림/닫힘), `activeChatRoomId`(현재 열려있는 채팅방 ID), `typingUsers`(입력 중인 사용자 정보), `isRoomInactive`(상대방 퇴장 여부), `hasJoinedRooms`(소켓 방 입장 여부) 등을 관리합니다.
 
 - **`features/chat/components/`**: **Context-Based Grouping**
   - **`widgets/`**: 전역 채팅 위젯 및 토글 버튼 (`chat-widget`, `chat-toggle-button`)
