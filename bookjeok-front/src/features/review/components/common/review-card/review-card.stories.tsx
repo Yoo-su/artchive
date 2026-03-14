@@ -48,7 +48,7 @@ const mockReview: Review = {
 
 const meta = {
   title: "Feature/ReviewCard",
-  component: ReviewCard,
+  component: ReviewCard.Root,
   parameters: {
     layout: "centered",
   },
@@ -60,7 +60,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof ReviewCard>;
+} satisfies Meta<typeof ReviewCard.Root>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -70,6 +70,17 @@ export const Default: Story = {
   args: {
     review: mockReview,
   },
+  render: (args) => (
+    <ReviewCard.Root {...args}>
+      <ReviewCard.Image />
+      <ReviewCard.Content>
+        <ReviewCard.Meta />
+        <ReviewCard.Title />
+        <ReviewCard.Tags />
+        <ReviewCard.Action />
+      </ReviewCard.Content>
+    </ReviewCard.Root>
+  ),
 };
 
 /** 높은 별점 리뷰 */
@@ -81,6 +92,17 @@ export const HighRating: Story = {
       title: "완벽한 작품! 다섯 개 만점 ★★★★★",
     },
   },
+  render: (args) => (
+    <ReviewCard.Root {...args}>
+      <ReviewCard.Image />
+      <ReviewCard.Content>
+        <ReviewCard.Meta />
+        <ReviewCard.Title />
+        <ReviewCard.Tags />
+        <ReviewCard.Action />
+      </ReviewCard.Content>
+    </ReviewCard.Root>
+  ),
 };
 
 /** 비공개 리뷰 */
@@ -92,15 +114,38 @@ export const Private: Story = {
       title: "나만의 독서 기록",
     },
   },
+  render: (args) => (
+    <ReviewCard.Root {...args}>
+      <ReviewCard.Image />
+      <ReviewCard.Content>
+        <ReviewCard.Meta />
+        <ReviewCard.Title />
+        <ReviewCard.Tags />
+        <ReviewCard.Action />
+      </ReviewCard.Content>
+    </ReviewCard.Root>
+  ),
 };
 
 /** 수정/삭제 액션 포함 (마이페이지용) */
 export const WithActions: Story = {
   args: {
     review: mockReview,
-    onEdit: () => alert("수정 클릭"),
-    onDelete: () => alert("삭제 클릭"),
   },
+  render: (args) => (
+    <ReviewCard.Root {...args}>
+      <ReviewCard.Image />
+      <ReviewCard.Content>
+        <ReviewCard.Meta />
+        <ReviewCard.Title />
+        <ReviewCard.Tags />
+        <ReviewCard.Action 
+          onEdit={() => alert("수정 클릭")} 
+          onDelete={() => alert("삭제 클릭")} 
+        />
+      </ReviewCard.Content>
+    </ReviewCard.Root>
+  ),
 };
 
 /** 태그 없는 리뷰 */
@@ -112,6 +157,17 @@ export const NoTags: Story = {
       title: "태그 없는 간단 리뷰",
     },
   },
+  render: (args) => (
+    <ReviewCard.Root {...args}>
+      <ReviewCard.Image />
+      <ReviewCard.Content>
+        <ReviewCard.Meta />
+        <ReviewCard.Title />
+        <ReviewCard.Tags />
+        <ReviewCard.Action />
+      </ReviewCard.Content>
+    </ReviewCard.Root>
+  ),
 };
 
 /** 여러 카드 리스트 */
@@ -122,8 +178,17 @@ export const List: Story = {
   decorators: [
     () => (
       <div className="grid grid-cols-1 gap-4" style={{ width: "480px" }}>
-        <ReviewCard review={mockReview} />
-        <ReviewCard
+        <ReviewCard.Root review={mockReview}>
+          <ReviewCard.Image />
+          <ReviewCard.Content>
+            <ReviewCard.Meta />
+            <ReviewCard.Title />
+            <ReviewCard.Tags />
+            <ReviewCard.Action />
+          </ReviewCard.Content>
+        </ReviewCard.Root>
+
+        <ReviewCard.Root
           review={{
             ...mockReview,
             id: 2,
@@ -135,8 +200,17 @@ export const List: Story = {
               nickname: "독서광",
             },
           }}
-        />
-        <ReviewCard
+        >
+          <ReviewCard.Image />
+          <ReviewCard.Content>
+            <ReviewCard.Meta />
+            <ReviewCard.Title />
+            <ReviewCard.Tags />
+            <ReviewCard.Action />
+          </ReviewCard.Content>
+        </ReviewCard.Root>
+
+        <ReviewCard.Root
           review={{
             ...mockReview,
             id: 3,
@@ -144,7 +218,15 @@ export const List: Story = {
             rating: 3.5,
             isPublic: false,
           }}
-        />
+        >
+          <ReviewCard.Image />
+          <ReviewCard.Content>
+            <ReviewCard.Meta />
+            <ReviewCard.Title />
+            <ReviewCard.Tags />
+            <ReviewCard.Action />
+          </ReviewCard.Content>
+        </ReviewCard.Root>
       </div>
     ),
   ],

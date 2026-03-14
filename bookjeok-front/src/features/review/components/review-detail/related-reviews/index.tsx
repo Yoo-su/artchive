@@ -86,7 +86,15 @@ export const RelatedReviews = ({ isbn }: RelatedReviewsProps) => {
               key={review.id}
               className="w-[320px]! sm:w-[380px]! select-none"
             >
-              <ReviewCard review={review} priority={index < 2} />
+              <ReviewCard.Root review={review} priority={index < 2}>
+                <ReviewCard.Image />
+                <ReviewCard.Content>
+                  <ReviewCard.Meta />
+                  <ReviewCard.Title />
+                  <ReviewCard.Tags />
+                  <ReviewCard.Action />
+                </ReviewCard.Content>
+              </ReviewCard.Root>
             </SwiperSlide>
           ))}
         </Swiper>

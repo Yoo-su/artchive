@@ -108,7 +108,11 @@ docker run -p 3000:3000 bookjeok-front
 
 ## 💡 기술적 특징 (Highlights)
 
-### 1. 서버/클라이언트 상태 분리
+### 1. 🧠 Headless Component 기반 아키텍처 도입
+- 복잡한 비즈니스 로직(예: 이미지 파일 관리, 최대 허용 개수 검증 등)을 `UI 렌더링`과 분리하여 `useImageUpload` 같은 순수 Custom Hook으로 분리(Headless)했습니다.
+- 이를 통해 UI 재사용성과 로직 테스트 용이성을 극대화하고, 다양한 화면 컴포넌트(`ImageUploader`, `ProfileImageUploader` 등)에서 핵심 로직 패키지를 손쉽게 공유할 수 있습니다.
+
+### 2. 서버/클라이언트 상태 분리
 
 - **TanStack Query**는 서버 데이터(캐싱, 동기화)를 전담하고, **Zustand**는 UI 상태(모달 열림 등)만 관리하여 복잡도를 낮췄습니다.
 

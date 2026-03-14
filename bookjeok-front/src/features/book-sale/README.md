@@ -14,8 +14,8 @@ book-sale/
 ├── hooks/            # 커스텀 훅
 │   ├── use-book-sale-search-params.ts  # URL 파라미터 읽기/쓰기 통합 관리 (유효성 검증 포함)
 │   ├── use-user-location.ts            # 위치 권한 관리
-│   ├── use-book-sale-form.ts           # 등록 폼 로직
-│   └── use-book-sale-edit-form.ts      # 수정 폼 로직
+│   ├── use-book-sale-form.ts           # 등록 폼 로직 (Headless ImageHook 적용)
+│   └── use-book-sale-edit-form.ts      # 수정 폼 로직 (Headless ImageHook 적용)
 ├── actions/          # Server Actions
 │   ├── upload-action.ts    # 이미지 업로드
 │   └── delete-action.ts    # 이미지 삭제
@@ -114,6 +114,11 @@ sequenceDiagram
     Mutation->>Mutation: 8. onSuccess 콜백 실행
     Mutation->>User: 9. "등록 완료" 알림 표시 및 페이지 이동
 ```
+
+> **💡 아키텍처 노트 (Headless Component)**: 
+> 폼 내부의 복잡한 이미지 상태 관리(파일 유효성 검사, URL 미리보기 생성, 개수 초과 관리 등)는 
+> 공용 UI(`ImageUploader`)와 결합되지 않고 순수 로직 훅인 `shared/hooks/use-image-upload.ts`로 
+> 완전 분리(Headless)되어 관리됩니다. 폼은 이 훅을 호출해 렌더링에 필요한 상태만 내려받아 사용합니다.
 
 ### 판매 상태 변경 (낙관적 업데이트)
 

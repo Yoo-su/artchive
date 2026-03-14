@@ -91,7 +91,15 @@ export const RecommendReviews = ({ id, category }: RecommendReviewsProps) => {
             key={review.id}
             className="w-[280px]! sm:w-[320px]! h-auto select-none"
           >
-            <ReviewCard review={review} priority={index < 2} />
+            <ReviewCard.Root review={review} priority={index < 2}>
+              <ReviewCard.Image />
+              <ReviewCard.Content>
+                <ReviewCard.Meta />
+                <ReviewCard.Title />
+                <ReviewCard.Tags />
+                <ReviewCard.Action />
+              </ReviewCard.Content>
+            </ReviewCard.Root>
           </SwiperSlide>
         ))}
       </Swiper>

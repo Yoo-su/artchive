@@ -118,13 +118,19 @@ export function ReviewGridList({
     <div className="space-y-10">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
         {reviews.map((review, index) => (
-          <ReviewCard
+          <ReviewCard.Root
             key={review.id}
             review={review}
             priority={index < 4}
-            onDelete={onDeleteReview}
-            onEdit={onEditReview}
-          />
+          >
+            <ReviewCard.Image />
+            <ReviewCard.Content>
+              <ReviewCard.Meta />
+              <ReviewCard.Title />
+              <ReviewCard.Tags />
+              <ReviewCard.Action onEdit={onEditReview} onDelete={onDeleteReview} />
+            </ReviewCard.Content>
+          </ReviewCard.Root>
         ))}
         {isFetchingNextPage && (
           <>
