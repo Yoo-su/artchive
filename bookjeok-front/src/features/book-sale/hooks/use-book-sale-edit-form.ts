@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { useImageUpload } from "@/shared/hooks/use-image-upload";
+
 import {
   createEditFormSchema,
   EditFormValues,
 } from "../components/sale-form/book-sale-edit-form/schema";
 import { useUpdateBookSaleMutation } from "../mutations";
 import { UpdateBookSaleParams, UsedBookSale } from "../types";
-import { validateAndGetNewImages } from "../utils/image-utils";
 
 interface UseBookSaleEditFormProps {
   sale: UsedBookSale;
@@ -22,12 +23,29 @@ export const useBookSaleEditForm = ({ sale }: UseBookSaleEditFormProps) => {
 
   const isSubmitDisabled = isPending || isSuccess;
 
-  const [existingImages, setExistingImages] = useState<string[]>(
-    sale.imageUrls,
-  );
-  const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
-  const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
   const [deletedImages, setDeletedImages] = useState<string[]>([]);
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
+
+  const {
+    existingImages,
+    newPreviews: newImagePreviews,
+    handleImagesAdd,
+    handleNewImageRemove,
+    handleExistingImageRemove,
+  } = useImageUpload({
+    maxFiles: 5,
+    initialExistingImages: sale.imageUrls,
+    onFilesChange: (files) => {
+      setNewImageFiles(files);
+      const dataTransfer = new DataTransfer();
+      files.forEach((file) => dataTransfer.items.add(file));
+      form.setValue("images", dataTransfer.files, { shouldValidate: true });
+    },
+    onExistingImagesChange: (urls) => {
+      const deleted = sale.imageUrls.filter((url) => !urls.includes(url));
+      setDeletedImages(deleted);
+    },
+  });
 
   const form = useForm<EditFormValues>({
     resolver: zodResolver(createEditFormSchema(t)),
@@ -44,32 +62,7 @@ export const useBookSaleEditForm = ({ sale }: UseBookSaleEditFormProps) => {
     mode: "onBlur",
   });
 
-  useEffect(() => {
-    const dataTransfer = new DataTransfer();
-    newImageFiles.forEach((file) => dataTransfer.items.add(file));
-    form.setValue("images", dataTransfer.files, { shouldValidate: true });
-  }, [newImageFiles, form]);
 
-  const handleImagesAdd = (newFiles: FileList) => {
-    const currentTotal = existingImages.length + newImageFiles.length;
-    const validFiles = validateAndGetNewImages(newFiles, currentTotal);
-
-    if (!validFiles) return;
-
-    setNewImageFiles((prev) => [...prev, ...validFiles]);
-    const previews = validFiles.map((file) => URL.createObjectURL(file));
-    setNewImagePreviews((prev) => [...prev, ...previews]);
-  };
-
-  const handleExistingImageRemove = (urlToRemove: string) => {
-    setExistingImages((prev) => prev.filter((url) => url !== urlToRemove));
-    setDeletedImages((prev) => [...prev, urlToRemove]);
-  };
-
-  const handleNewImageRemove = (indexToRemove: number) => {
-    setNewImageFiles((prev) => prev.filter((_, i) => i !== indexToRemove));
-    setNewImagePreviews((prev) => prev.filter((_, i) => i !== indexToRemove));
-  };
 
   const onSubmit = (data: EditFormValues) => {
     if (existingImages.length + newImageFiles.length === 0) {
