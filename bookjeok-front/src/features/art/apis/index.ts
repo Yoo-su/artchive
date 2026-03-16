@@ -7,7 +7,7 @@ import {
   DEFAULT_PAGE,
   DEFAULT_PRFSTATE,
   DEFAULT_ROWS,
-} from "../constants";
+} from "../constants/config";
 import {
   ArtListErrorResponse,
   ArtListSuccessResponse,

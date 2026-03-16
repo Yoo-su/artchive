@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getPopularBooks } from "@/features/book/apis";
 import { getPublisherBooksServer } from "@/features/book/apis/server";
-import { HOME_PUBLISHERS } from "@/features/book/constants";
+import { HOME_PUBLISHERS } from "@/features/book/constants/data";
 import { bookKeys } from "@/features/book/constants/query-keys";
 import { getRecentBookSales } from "@/features/book-sale/apis";
 import { bookSaleKeys } from "@/features/book-sale/constants/query-keys";

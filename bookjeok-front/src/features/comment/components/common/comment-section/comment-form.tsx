@@ -17,7 +17,7 @@ import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
-import { MAX_COMMENT_LENGTH } from "../../../constants";
+import { MAX_COMMENT_LENGTH } from "../../../constants/config";
 import { useCreateCommentMutation } from "../../../mutations";
 import { CommentTargetType } from "../../../types";
 

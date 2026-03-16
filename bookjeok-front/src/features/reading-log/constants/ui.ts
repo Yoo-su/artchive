@@ -83,5 +83,3 @@ export const SEASONAL_THEMES = {
 
 export type SeasonalTheme =
   (typeof SEASONAL_THEMES)[keyof typeof SEASONAL_THEMES];
-
-export const MAX_MEMO_LENGTH = 50;

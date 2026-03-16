@@ -10,7 +10,7 @@ import {
   EmptyState,
   InsightCard,
 } from "@/features/insights/components/common/insight-card";
-import { COLORS } from "@/features/insights/constants";
+import { COLORS } from "@/features/insights/constants/ui";
 import { LocationSales, LocationStat } from "@/features/insights/types";
 import { config } from "@/shared/config/env";
 

@@ -9,10 +9,8 @@ import {
   EmptyState,
   InsightCard,
 } from "@/features/insights/components/common/insight-card";
-import {
-  CHART_COLORS,
-  PRICE_RANGE_LABELS,
-} from "@/features/insights/constants";
+import { PRICE_RANGE_LABELS } from "@/features/insights/constants/data";
+import { CHART_COLORS } from "@/features/insights/constants/ui";
 import { PriceRangeStat } from "@/features/insights/types";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {

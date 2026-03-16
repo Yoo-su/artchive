@@ -26,7 +26,7 @@ import {
 } from "@/shared/components/shadcn/form";
 import { Textarea } from "@/shared/components/shadcn/textarea";
 
-import { MAX_MEMO_LENGTH } from "../../../constants";
+import { MAX_MEMO_LENGTH } from "../../../constants/config";
 
 interface ReadingLogFormDialogProps {
   book: {

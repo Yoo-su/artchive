@@ -9,7 +9,7 @@ import {
   EmptyState,
   InsightCard,
 } from "@/features/insights/components/common/insight-card";
-import { TREND_COLORS } from "@/features/insights/constants";
+import { TREND_COLORS } from "@/features/insights/constants/ui";
 import { ActivityTrendStat } from "@/features/insights/types";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {

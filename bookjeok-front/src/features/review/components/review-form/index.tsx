@@ -53,7 +53,7 @@ import { Switch } from "@/shared/components/shadcn/switch";
 import { StarRating } from "@/shared/components/ui/star-rating";
 import { useEditorImageHandler } from "@/shared/hooks/use-editor-image-handler";
 
-import { BOOK_DOMAINS } from "../../constants";
+import { BOOK_DOMAINS } from "../../constants/data";
 
 interface ReviewFormProps {
   initialData?: {

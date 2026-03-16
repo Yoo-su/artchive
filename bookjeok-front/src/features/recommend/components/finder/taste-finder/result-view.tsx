@@ -1,6 +1,6 @@
 "use client";
 
-import { NEOGULIP_THEME } from "@/features/recommend/constants/neogulip-theme";
+import { NEOGULIP_TEXTS } from "@/features/recommend/constants/data";
 import { useRecommendStore } from "@/features/recommend/stores/recommend-store";
 import { NeogulipIcon } from "@/shared/components/icons/neogulip-icon";
 import {
@@ -34,15 +34,15 @@ export const TasteFinderResultView = ({ setInput }: ResultViewProps) => {
         </div>
         <div>
           <h4 className="text-xl font-bold text-neogulip-brown-primary">
-            {NEOGULIP_THEME.TEXTS.WAITING_TITLE}
+            {NEOGULIP_TEXTS.WAITING_TITLE}
           </h4>
           <p className="text-base text-neogulip-brown-secondary mt-2 leading-relaxed">
-            {NEOGULIP_THEME.TEXTS.WAITING_DESC_PREFIX}
+            {NEOGULIP_TEXTS.WAITING_DESC_PREFIX}
             <br />딱 맞는{" "}
             <span className="text-neogulip-text font-bold">
-              {NEOGULIP_THEME.TEXTS.WAITING_DESC_HIGHLIGHT}
+              {NEOGULIP_TEXTS.WAITING_DESC_HIGHLIGHT}
             </span>
-            {NEOGULIP_THEME.TEXTS.WAITING_DESC_SUFFIX}
+            {NEOGULIP_TEXTS.WAITING_DESC_SUFFIX}
           </p>
         </div>
       </div>
@@ -53,10 +53,10 @@ export const TasteFinderResultView = ({ setInput }: ResultViewProps) => {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
       <div className="text-center pb-4 border-b border-neogulip-bg-accent">
         <h4 className="text-2xl font-bold text-neogulip-brown-primary flex items-center justify-center gap-2">
-          {NEOGULIP_THEME.TEXTS.SUCCESS_TITLE}
+          {NEOGULIP_TEXTS.SUCCESS_TITLE}
         </h4>
         <p className="mt-2 text-neogulip-brown-secondary">
-          {NEOGULIP_THEME.TEXTS.SUCCESS_DESC}
+          {NEOGULIP_TEXTS.SUCCESS_DESC}
         </p>
       </div>
 
@@ -108,21 +108,21 @@ export const TasteFinderResultView = ({ setInput }: ResultViewProps) => {
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <button className="text-sm text-neogulip-brown-muted hover:text-neogulip-brown-primary underline decoration-dashed transition-colors">
-                {NEOGULIP_THEME.TEXTS.RETRY_LINK}
+                {NEOGULIP_TEXTS.RETRY_LINK}
               </button>
             </AlertDialogTrigger>
             <AlertDialogContent className="bg-neogulip-bg border-neogulip-border rounded-2xl">
               <AlertDialogHeader>
                 <AlertDialogTitle className="text-neogulip-text">
-                  {NEOGULIP_THEME.TEXTS.NEW_SEARCH_TITLE}
+                  {NEOGULIP_TEXTS.NEW_SEARCH_TITLE}
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-neogulip-subtext">
-                  {NEOGULIP_THEME.TEXTS.NEW_SEARCH_DESC}
+                  {NEOGULIP_TEXTS.NEW_SEARCH_DESC}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel className="bg-white border-neogulip-border text-neogulip-subtext hover:bg-neogulip-bg-accent hover:text-neogulip-text rounded-xl">
-                  {NEOGULIP_THEME.TEXTS.NEW_SEARCH_CANCEL}
+                  {NEOGULIP_TEXTS.NEW_SEARCH_CANCEL}
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
@@ -131,7 +131,7 @@ export const TasteFinderResultView = ({ setInput }: ResultViewProps) => {
                   }}
                   className="bg-neogulip-light text-white hover:bg-neogulip-primary rounded-xl"
                 >
-                  {NEOGULIP_THEME.TEXTS.NEW_SEARCH_CONFIRM}
+                  {NEOGULIP_TEXTS.NEW_SEARCH_CONFIRM}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

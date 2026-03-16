@@ -2,7 +2,7 @@ import { AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
-import { SCENES } from "@/features/intro/constants";
+import { SCENES } from "@/features/intro/constants/data";
 import { SceneData } from "@/features/intro/types";
 
 import { LogoScene } from "./logo-scene";

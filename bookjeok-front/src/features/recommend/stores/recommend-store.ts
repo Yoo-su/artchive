@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 
 import { RecommendedBook } from "@/features/recommend/types";
 
-import { NEOGULIP_THEME } from "../constants/neogulip-theme";
+import { NEOGULIP_TEXTS } from "../constants/data";
 
 interface Message {
   id: string;
@@ -28,7 +28,7 @@ export const useRecommendStore = create<RecommendStore>()(
       messages: [
         {
           id: "greeting",
-          text: NEOGULIP_THEME.TEXTS.GREETING,
+          text: NEOGULIP_TEXTS.GREETING,
           isAi: true,
         },
       ],
@@ -43,7 +43,7 @@ export const useRecommendStore = create<RecommendStore>()(
           messages: [
             {
               id: "greeting",
-              text: NEOGULIP_THEME.TEXTS.GREETING,
+              text: NEOGULIP_TEXTS.GREETING,
               isAi: true,
             },
           ],

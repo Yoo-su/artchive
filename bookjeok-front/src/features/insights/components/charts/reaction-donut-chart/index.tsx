@@ -9,9 +9,9 @@ import {
   EmptyState,
   InsightCard,
 } from "@/features/insights/components/common/insight-card";
-import { REACTION_COLORS } from "@/features/insights/constants";
+import { REACTION_COLORS } from "@/features/insights/constants/ui";
 import { ReactionStat } from "@/features/insights/types";
-import { REACTION_CONFIG } from "@/features/review/constants";
+import { REACTION_CONFIG } from "@/features/review/constants/ui";
 import { ReviewReactionType } from "@/features/review/types";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {

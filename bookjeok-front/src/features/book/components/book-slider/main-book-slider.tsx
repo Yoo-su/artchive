@@ -14,7 +14,7 @@ import { TextAnimate } from "@/shared/components/magicui/text-animate";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
-import { HOME_PUBLISHERS } from "../../constants";
+import { HOME_PUBLISHERS } from "../../constants/data";
 import { useBookListQuery } from "../../queries";
 import { BookSliderSkeleton } from "./skeleton";
 

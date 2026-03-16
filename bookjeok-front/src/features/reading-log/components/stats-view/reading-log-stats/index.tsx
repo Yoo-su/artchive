@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { cn } from "@/shared/utils";
 
-import { SeasonalTheme } from "../../../constants";
+import { SeasonalTheme } from "../../../constants/ui";
 import { useReadingLogStatsQuery } from "../../../queries";
 
 interface ReadingLogStatsProps {

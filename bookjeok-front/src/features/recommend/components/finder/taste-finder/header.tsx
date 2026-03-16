@@ -2,7 +2,7 @@
 
 import { RefreshCw } from "lucide-react";
 
-import { NEOGULIP_THEME } from "@/features/recommend/constants/neogulip-theme";
+import { NEOGULIP_TEXTS } from "@/features/recommend/constants/data";
 import { useRecommendStore } from "@/features/recommend/stores/recommend-store";
 import { NeogulipIcon } from "@/shared/components/icons/neogulip-icon";
 import {
@@ -42,16 +42,16 @@ export const TasteFinderHeader = ({
         </div>
         <div>
           <h2 className="font-bold text-neogulip-brown-primary flex items-center gap-2">
-            {NEOGULIP_THEME.TEXTS.NAME}
+            {NEOGULIP_TEXTS.NAME}
             <span className="px-2 py-0.5 text-[10px] bg-neogulip-bg-accent text-neogulip-dark rounded-full border border-neogulip-border">
-              {NEOGULIP_THEME.TEXTS.ROLE}
+              {NEOGULIP_TEXTS.ROLE}
             </span>
             <span className="px-1.5 py-0.5 text-[10px] bg-amber-50 text-amber-600 rounded-full border border-amber-200">
-              {NEOGULIP_THEME.TEXTS.BETA_LABEL}
+              {NEOGULIP_TEXTS.BETA_LABEL}
             </span>
           </h2>
           <p className="text-xs text-neogulip-brown-secondary">
-            {NEOGULIP_THEME.TEXTS.DESCRIPTION}
+            {NEOGULIP_TEXTS.DESCRIPTION}
           </p>
         </div>
       </div>
@@ -67,15 +67,15 @@ export const TasteFinderHeader = ({
         <AlertDialogContent className="bg-neogulip-bg border-neogulip-border rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-neogulip-text">
-              {NEOGULIP_THEME.TEXTS.RESET_TITLE}
+              {NEOGULIP_TEXTS.RESET_TITLE}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-neogulip-subtext">
-              {NEOGULIP_THEME.TEXTS.RESET_DESC}
+              {NEOGULIP_TEXTS.RESET_DESC}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-white border-neogulip-border text-neogulip-subtext hover:bg-neogulip-bg-accent hover:text-neogulip-text rounded-xl">
-              {NEOGULIP_THEME.TEXTS.RESET_CANCEL}
+              {NEOGULIP_TEXTS.RESET_CANCEL}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
@@ -84,7 +84,7 @@ export const TasteFinderHeader = ({
               }}
               className="bg-neogulip-light text-white hover:bg-neogulip-primary rounded-xl"
             >
-              {NEOGULIP_THEME.TEXTS.RESET_CONFIRM}
+              {NEOGULIP_TEXTS.RESET_CONFIRM}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

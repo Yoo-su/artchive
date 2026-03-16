@@ -10,13 +10,13 @@ import {
   toggleReviewReaction,
   updateReview,
 } from "@/features/review/apis";
+import { reviewMutationKeys } from "@/features/review/constants/mutation-keys";
 import { reviewKeys } from "@/features/review/constants/query-keys";
 import {
   Review,
   ReviewFormValues,
   ReviewReactionType,
 } from "@/features/review/types";
-import { MUTATION_KEYS } from "@/shared/constants/mutation-keys";
 import { handleMutationError } from "@/shared/utils/error-handler";
 
 /**
@@ -27,7 +27,7 @@ export const useToggleReviewReactionMutation = (reviewId: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationKey: MUTATION_KEYS.reviewKeys.toggleReaction(reviewId),
+    mutationKey: reviewMutationKeys.toggleReaction(reviewId),
     mutationFn: (type: ReviewReactionType) =>
       toggleReviewReaction(reviewId, type),
     onMutate: async (type) => {

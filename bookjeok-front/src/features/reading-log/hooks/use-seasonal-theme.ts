@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { SEASONAL_THEMES, SeasonalTheme } from "../constants";
+import { SEASONAL_THEMES, SeasonalTheme } from "../constants/ui";
 
 export const getSeasonalTheme = (date: Date): SeasonalTheme => {
   const month = date.getMonth() + 1; // 1 ~ 12

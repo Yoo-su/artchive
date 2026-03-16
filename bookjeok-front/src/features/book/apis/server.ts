@@ -5,7 +5,7 @@ import {
   DEFAULT_DISPLAY,
   DEFAULT_SORT,
   DEFAULT_START,
-} from "@/features/book/constants";
+} from "@/features/book/constants/config";
 import {
   BookInfo,
   GetBookDetailResponseData,
