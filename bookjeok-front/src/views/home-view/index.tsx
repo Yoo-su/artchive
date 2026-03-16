@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import { MainArtSlider } from "@/features/art/components/widgets/art-slider/main-art-slider";
-import { MAIN_ARTS } from "@/features/art/constants";
+import { MAIN_ARTS } from "@/features/art/constants/data";
 import { MainBookSlider } from "@/features/book/components/book-slider/main-book-slider";
 import { PopularBookSlider } from "@/features/book/components/book-slider/popular-book-slider";
 import { RecentSalesSlider } from "@/features/book-sale/components/sale-market/recent-sale-slider";

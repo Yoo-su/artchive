@@ -55,13 +55,3 @@ export const TREND_COLORS = {
   sales: COLORS.stone[800],
   reviews: COLORS.sage,
 };
-
-// 가격 구간 레이블
-export const PRICE_RANGE_LABELS: Record<string, string> = {
-  "0-5000": "~5천원",
-  "5000-10000": "5천~1만원",
-  "10000-20000": "1~2만원",
-  "20000-30000": "2~3만원",
-  "30000-50000": "3~5만원",
-  "50000-100000": "5~10만원",
-};

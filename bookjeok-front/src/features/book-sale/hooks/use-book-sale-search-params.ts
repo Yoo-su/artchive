@@ -8,10 +8,12 @@ import {
   DEFAULT_SORT_ORDER,
   FILTER_ALL,
   MAX_MARKET_PRICE,
+} from "../constants/config";
+import {
   VALID_SALE_STATUSES,
   VALID_SORT_BY,
   VALID_SORT_ORDER,
-} from "../constants";
+} from "../constants/data";
 import {
   FilterFormInputs,
   SaleStatus,

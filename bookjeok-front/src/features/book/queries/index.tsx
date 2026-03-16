@@ -9,7 +9,7 @@ import {
   getPopularBooks,
   getPopularKeywords,
 } from "../apis";
-import { DEFAULT_DISPLAY } from "../constants";
+import { DEFAULT_DISPLAY } from "../constants/config";
 import { bookKeys } from "../constants/query-keys";
 import { BookInfo, GetBookListParams } from "../types";
 

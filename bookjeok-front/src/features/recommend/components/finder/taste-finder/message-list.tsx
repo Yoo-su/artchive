@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
 import { ChatBubble } from "@/features/recommend/components/widgets/chat-bubble";
-import { NEOGULIP_THEME } from "@/features/recommend/constants/neogulip-theme";
+import { NEOGULIP_TEXTS } from "@/features/recommend/constants/data";
 import { useRecommendStore } from "@/features/recommend/stores/recommend-store";
 
 interface MessageListProps {
@@ -17,7 +17,7 @@ const LoadingIndicator = () => {
   const [loopNum, setLoopNum] = useState(0);
   const [typingSpeed, setTypingSpeed] = useState(100);
 
-  const messages = NEOGULIP_THEME.TEXTS.LOADING_MESSAGES;
+  const messages = NEOGULIP_TEXTS.LOADING_MESSAGES;
 
   useEffect(() => {
     const handleTyping = () => {

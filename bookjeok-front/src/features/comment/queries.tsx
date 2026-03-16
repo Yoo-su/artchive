@@ -5,7 +5,7 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { CACHE_TIME } from "@/shared/constants/cache";
 
 import { getComments, getMyComments } from "./apis";
-import { COMMENTS_PER_PAGE } from "./constants";
+import { COMMENTS_PER_PAGE } from "./constants/config";
 import { commentKeys } from "./constants/query-keys";
 import { CommentTargetType } from "./types";
 

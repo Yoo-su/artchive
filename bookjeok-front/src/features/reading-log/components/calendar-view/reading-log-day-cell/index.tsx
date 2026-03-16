@@ -5,7 +5,7 @@ import Image from "next/image";
 
 import { cn } from "@/shared/utils";
 
-import { SeasonalTheme } from "../../../constants";
+import { SeasonalTheme } from "../../../constants/ui";
 import { ReadingLog } from "../../../types";
 
 interface ReadingLogDayCellProps {

@@ -9,7 +9,7 @@ import {
   EmptyState,
   InsightCard,
 } from "@/features/insights/components/common/insight-card";
-import { BAR_CHART_COLORS } from "@/features/insights/constants";
+import { BAR_CHART_COLORS } from "@/features/insights/constants/ui";
 import { CategoryStat } from "@/features/insights/types";
 
 // ApexCharts는 SSR을 지원하지 않으므로 dynamic import

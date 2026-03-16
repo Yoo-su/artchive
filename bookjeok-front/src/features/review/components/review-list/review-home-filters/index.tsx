@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { FreeMode } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { BOOK_DOMAINS } from "@/features/review/constants";
+import { BOOK_DOMAINS } from "@/features/review/constants/data";
 import { cn } from "@/shared/utils";
 
 const CATEGORY_MAP: Record<string, string> = {

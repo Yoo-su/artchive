@@ -7,7 +7,7 @@ import {
   EmptyState,
   InsightCard,
 } from "@/features/insights/components/common/insight-card";
-import { COLORS } from "@/features/insights/constants";
+import { COLORS } from "@/features/insights/constants/ui";
 import { PopularTagStat } from "@/features/insights/types";
 
 interface PopularTagsListProps {

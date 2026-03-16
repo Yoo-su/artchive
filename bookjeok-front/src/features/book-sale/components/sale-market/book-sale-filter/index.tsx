@@ -25,7 +25,7 @@ import {
   DEFAULT_SORT_ORDER,
   FILTER_ALL,
   MAX_MARKET_PRICE,
-} from "../../../constants";
+} from "../../../constants/config";
 import {
   FilterFormInputs,
   SaleStatus,

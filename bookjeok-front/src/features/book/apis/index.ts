@@ -1,7 +1,7 @@
 import { API_PATHS } from "@/shared/constants/apis";
 import { internalAxios, privateAxios, publicAxios } from "@/shared/libs/axios";
 
-import { DEFAULT_DISPLAY, DEFAULT_SORT, DEFAULT_START } from "../constants";
+import { DEFAULT_DISPLAY, DEFAULT_SORT, DEFAULT_START } from "../constants/config";
 import {
   BaseBookInfo,
   GetBookDetailErrorResponse,

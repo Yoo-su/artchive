@@ -30,7 +30,7 @@ import { UserAvatarMenu } from "@/shared/components/ui/user-avatar-menu";
 import { Link, usePathname } from "@/shared/config/i18n/routing";
 import { cn } from "@/shared/utils";
 
-import { COMMENT_LINE_CLAMP, MAX_COMMENT_LENGTH } from "../../../constants";
+import { COMMENT_LINE_CLAMP, MAX_COMMENT_LENGTH } from "../../../constants/config";
 import {
   useDeleteCommentMutation,
   useToggleCommentLikeMutation,

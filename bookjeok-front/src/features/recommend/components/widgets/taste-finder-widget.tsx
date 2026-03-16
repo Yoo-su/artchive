@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { talkToAiLibrarian } from "../../apis";
-import { NEOGULIP_THEME } from "../../constants/neogulip-theme";
+import { NEOGULIP_TEXTS } from "../../constants/data";
 import { useRecommendStore } from "../../stores/recommend-store";
 import { TasteFinderHeader } from "../finder/taste-finder/header";
 import { TasteFinderInputForm } from "../finder/taste-finder/input-form";
@@ -43,7 +43,7 @@ export function TasteFinderWidget() {
     onError: () => {
       addMessage({
         id: Date.now().toString(),
-        text: NEOGULIP_THEME.TEXTS.ERROR,
+        text: NEOGULIP_TEXTS.ERROR,
         isAi: true,
       });
     },

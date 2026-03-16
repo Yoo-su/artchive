@@ -1,4 +1,3 @@
-// Text content moved to i18n messages
 export const SCENES = [
   {
     id: "record" as const,
@@ -16,4 +15,4 @@ export const SCENES = [
     id: "logo" as const,
     accentClass: "text-neogulip-primary", // 브랜드 컬러 사용
   },
-];
+] as const;

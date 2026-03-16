@@ -10,7 +10,7 @@ import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";
 
-import { REACTION_CONFIG } from "../../../constants";
+import { REACTION_CONFIG } from "../../../constants/ui";
 
 interface ReviewDetailActionsProps {
   reviewId: string;
