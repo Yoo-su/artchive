@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { DataSource, EntityManager } from 'typeorm';
 import { UsedBookSaleService } from './used-book-sale.service';
 import { UsedBookSale } from '../entities/used-book-sale.entity';
@@ -55,6 +56,13 @@ describe('UsedBookSaleService', () => {
         { provide: BookService, useValue: mockBookService },
         { provide: UserService, useValue: mockUserService },
         { provide: DataSource, useValue: mockDataSource },
+        {
+          provide: CACHE_MANAGER,
+          useValue: {
+            get: jest.fn(),
+            set: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
