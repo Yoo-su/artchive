@@ -26,6 +26,7 @@ export const bitcount = Bitcount_Prop_Single({
   variable: "--font-bitcount",
   display: "swap",
   subsets: ["latin"],
+  adjustFontFallback: false,
 });
 
 export const gowun_batang = Gowun_Batang({
