@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
-    "clean": "rm -rf .turbo bookjeok-front/.next bookjeok-front/.turbo bookjeok-back/dist",
+    "clean": "rm -rf .turbo apps/web/.next apps/web/.turbo apps/server/dist",
     "build:clean": "pnpm clean && pnpm build",
     "start": "turbo start",
     "lint": "turbo lint",

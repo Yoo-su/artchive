@@ -15,18 +15,18 @@ COPY pnpm-lock.yaml package.json pnpm-workspace.yaml ./
 
 # 2. 백엔드 패키지 설정 복사
 # 의존성 설치를 위해 백엔드의 package.json만 먼저 가져옵니다.
-COPY bookjeok-back/package.json ./bookjeok-back/
+COPY apps/server/package.json ./apps/server/
 
 # 3. 의존성 설치
 # 루트의 lock 파일을 기반으로 모든 의존성을 설치합니다.
 RUN pnpm install --frozen-lockfile
 
 # 4. 백엔드 소스 코드 전체 복사
-COPY bookjeok-back ./bookjeok-back
+COPY apps/server ./apps/server
 
 # 5. 백엔드 빌드
 # 백엔드 폴더로 이동하여 빌드를 수행합니다.
-WORKDIR /app/bookjeok-back
+WORKDIR /app/apps/server
 RUN pnpm build
 
 # 6. 프로덕션 의존성 정리 (선택 사항, 모노레포에서는 복잡할 수 있어 생략하거나 prune 사용)
@@ -51,12 +51,12 @@ COPY --chown=node:node --from=builder /app/node_modules ./node_modules
 COPY --chown=node:node --from=builder /app/package.json ./package.json
 
 # 백엔드의 빌드 결과물 및 node_modules
-COPY --chown=node:node --from=builder /app/bookjeok-back/dist ./bookjeok-back/dist
-COPY --chown=node:node --from=builder /app/bookjeok-back/node_modules ./bookjeok-back/node_modules
-COPY --chown=node:node --from=builder /app/bookjeok-back/package.json ./bookjeok-back/package.json
+COPY --chown=node:node --from=builder /app/apps/server/dist ./apps/server/dist
+COPY --chown=node:node --from=builder /app/apps/server/node_modules ./apps/server/node_modules
+COPY --chown=node:node --from=builder /app/apps/server/package.json ./apps/server/package.json
 
 # 실행 위치를 백엔드 디렉토리로 변경하지 않고, 루트에서 실행하거나 경로를 지정
-WORKDIR /app/bookjeok-back
+WORKDIR /app/apps/server
 
 EXPOSE 3000
 

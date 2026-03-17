@@ -14,7 +14,7 @@
 - **Monorepo**: [TurboRepo](https://turbo.build/) - 빌드 캐싱 및 병렬 실행
 - **Package Manager**: [pnpm](https://pnpm.io/)
 
-### **Frontend (`bookjeok-front`)**
+### **Frontend (`apps/web`)**
 
 - **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
@@ -24,7 +24,7 @@
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
 - **UI Components**: [Radix UI](https://www.radix-ui.com/) (Accessibility Focus), [Framer Motion](https://www.framer.com/motion/)
 
-### **Backend (`bookjeok-back`)**
+### **Backend (`apps/server`)**
 
 - **Framework**: [NestJS 11](https://nestjs.com/)
 - **Architecture**: Layered Architecture (Controller - Service - Repository) 및 의존성 주입(DI) 활용
@@ -71,19 +71,19 @@
 
 ```bash
 bookjeok-monorepo/
-├── bookjeok-front/           # [Next.js 15] Frontend
-│   ├── src/app/              # App Router (Page, Layout, Loading)
-│   ├── src/features/         # 기능별 모듈 (Auth, Book, Chat...) - Co-location
-│   ├── src/shared/           # 공통 UI(Button, Input) 및 유틸리티
-│   ├── Dockerfile            # Standalone 모드 지원
-│   └── ...
+├── apps/
+│   ├── web/                  # [Next.js 15] Frontend
+│   │   ├── src/app/          # App Router (Page, Layout, Loading)
+│   │   ├── src/features/     # 기능별 모듈 - Co-location
+│   │   ├── src/shared/       # 공통 UI 및 유틸리티
+│   │   └── Dockerfile        # Standalone 모드 지원
+│   │
+│   └── server/               # [NestJS 11] Backend
+│       ├── src/features/     # 기능별 모듈
+│       ├── src/shared/       # 공통 모듈 (Guard, Filter, Interceptor)
+│       └── Dockerfile        # Multi-stage Build 적용
 │
-├── bookjeok-back/            # [NestJS 11] Backend
-│   ├── src/features/         # 기능별 모듈 (Module, Controller, Service)
-│   ├── src/shared/           # 공통 모듈 (Guard, Filter, Interceptor)
-│   ├── Dockerfile            # Multi-stage Build 적용
-│   └── ...
-│
+├── packages/                 # 공용 라이브러리 및 설정
 ├── package.json              # Workspace Root
 └── pnpm-workspace.yaml       # Workspace Configuration
 ```
@@ -106,10 +106,10 @@ bookjeok-monorepo/
 
 ```bash
 # 백엔드 이미지 빌드
-docker build -f bookjeok-back/Dockerfile -t bookjeok-back .
+docker build -f apps/server/Dockerfile -t bookjeok-server .
 
 # 프론트엔드 이미지 빌드
-docker build -f bookjeok-front/Dockerfile -t bookjeok-front .
+docker build -f apps/web/Dockerfile -t bookjeok-web .
 
 # 컨테이너 실행
 docker run -p 3000:3000 bookjeok-front

@@ -11,7 +11,9 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # 패키지 매니저 설정
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/web/package.json ./apps/web/
+
 RUN corepack enable && corepack prepare pnpm@latest --activate
 RUN pnpm install --frozen-lockfile
 
@@ -31,7 +33,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Next.js 빌드 실행
-# next.config.ts에 output: 'standalone' 설정이 되어 있어야 최적화된 빌드가 생성됩니다.
+WORKDIR /app/apps/web
 RUN pnpm build
 
 # ------------------------------------------------------------------------------

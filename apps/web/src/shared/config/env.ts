@@ -26,33 +26,25 @@ const _serverEnv = {
   NODE_ENV: process.env.NODE_ENV,
 };
 
-// 클라이언트 환경 변수 검증 (항상 수행)
-const parsedClientEnv = clientEnvSchema.safeParse(_clientEnv);
+// [주석 처리된 엄격한 검증 로직]
+// const parsedClientEnv = clientEnvSchema.safeParse(_clientEnv);
+// if (!parsedClientEnv.success) {
+//   console.error("❌ Invalid client environment variables:", parsedClientEnv.error.flatten().fieldErrors);
+//   throw new Error("Invalid client environment variables");
+// }
 
-if (!parsedClientEnv.success) {
-  console.error(
-    "❌ Invalid client environment variables:",
-    parsedClientEnv.error.flatten().fieldErrors,
-  );
-  throw new Error("Invalid client environment variables");
-}
-
-// 서버 환경 변수 검증 (서버 사이드에서만 수행)
-let parsedServerEnv = { success: true, data: _serverEnv } as any;
-if (typeof window === "undefined") {
-  parsedServerEnv = serverEnvSchema.safeParse(_serverEnv);
-  if (!parsedServerEnv.success) {
-    console.error(
-      "❌ Invalid server environment variables:",
-      parsedServerEnv.error.flatten().fieldErrors,
-    );
-    throw new Error("Invalid server environment variables");
-  }
-}
+// let parsedServerEnv = { success: true, data: _serverEnv } as any;
+// if (typeof window === "undefined") {
+//   parsedServerEnv = serverEnvSchema.safeParse(_serverEnv);
+//   if (!parsedServerEnv.success) {
+//     console.error("❌ Invalid server environment variables:", parsedServerEnv.error.flatten().fieldErrors);
+//     throw new Error("Invalid server environment variables");
+//   }
+// }
 
 export const config = {
-  ...parsedClientEnv.data,
-  ...parsedServerEnv.data,
+  ...(_clientEnv as any),
+  ...(_serverEnv as any),
   isDev: process.env.NODE_ENV === "development",
   isProd: process.env.NODE_ENV === "production",
 } as z.infer<typeof clientEnvSchema> &

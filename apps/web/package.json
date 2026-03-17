@@ -1,5 +1,5 @@
 {
-  "name": "bookjeok-front",
+  "name": "@bookjeok/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -13,7 +13,6 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
-  "packageManager": "pnpm@9.15.1",
   "engines": {
     "node": "22.x"
   },

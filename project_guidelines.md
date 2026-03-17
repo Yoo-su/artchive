@@ -4,7 +4,7 @@
 
 ## 1. 기술 스택 (Technology Stack)
 
-### 프론트엔드 (`bookjeok-front`)
+### 프론트엔드 (`apps/web`)
 
 - **프레임워크**: Next.js 15 (App Router)
 - **언어**: TypeScript
@@ -14,7 +14,7 @@
 - **폼 핸들링**: React Hook Form + Zod
 - **테스트**: Vitest, React Testing Library, Storybook
 
-### 백엔드 (`bookjeok-back`)
+### 백엔드 (`apps/server`)
 
 - **프레임워크**: NestJS
 - **언어**: TypeScript
