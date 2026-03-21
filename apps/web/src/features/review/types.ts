@@ -72,13 +72,4 @@ export interface ReviewFormValues {
   tags: string[];
   rating: number;
   isPublic: boolean;
-  book?: {
-    isbn: string;
-    title: string;
-    author: string;
-    publisher: string;
-    image: string;
-    description: string;
-    discount?: string;
-  };
 }

@@ -12,7 +12,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { UserService } from '../services/user.service';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { User } from '../entities/user.entity';
-import { BookInfoDto } from '@/features/book/dtos/book-info.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { Patch } from '@nestjs/common';
 import { MyProfileResponseDto } from '../dtos/my-profile-response.dto';
@@ -166,10 +165,6 @@ export class UserController {
           description: '타입 (BOOK, SALE)',
         },
         id: { type: 'string', description: 'ID' },
-        bookData: {
-          type: 'object',
-          description: '책 정보 (type이 BOOK일 경우 필수)',
-        },
       },
     },
   })
@@ -180,15 +175,9 @@ export class UserController {
     body: {
       type: 'BOOK' | 'SALE';
       id: string | number;
-      bookData?: BookInfoDto;
     },
   ) {
-    return await this.userService.addToWishlist(
-      user.id,
-      body.type,
-      body.id,
-      body.bookData,
-    );
+    return await this.userService.addToWishlist(user.id, body.type, body.id);
   }
 
   @Delete('wishlist')

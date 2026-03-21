@@ -55,12 +55,10 @@ export const useAddToWishlistMutation = () => {
     mutationFn: ({
       type,
       id,
-      bookData,
     }: {
       type: "BOOK" | "SALE";
       id: string | number;
-      bookData?: BookInfo;
-    }) => addToWishlist(type, id, bookData),
+    }) => addToWishlist(type, id),
     onSuccess: (_, variables) => {
       // 위시리스트 목록 캐시 무효화
       queryClient.invalidateQueries({

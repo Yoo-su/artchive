@@ -18,7 +18,6 @@ interface WishlistButtonProps {
   type: "BOOK" | "SALE";
   id: string | number;
   className?: string;
-  bookData?: BookInfo;
   initialIsWishlisted?: boolean;
 }
 
@@ -26,7 +25,6 @@ export const WishlistButton = ({
   type,
   id,
   className,
-  bookData,
   initialIsWishlisted,
 }: WishlistButtonProps) => {
   const user = useAuthStore((state) => state.user);
@@ -78,7 +76,7 @@ export const WishlistButton = ({
     } else {
       setIsWishlisted(true);
       addToWishlistMutation.mutate(
-        { type, id, bookData },
+        { type, id },
         {
           onError: () => setIsWishlisted(false), // 롤백
         }

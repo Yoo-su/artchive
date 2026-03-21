@@ -27,17 +27,6 @@ export class CreateReviewDto {
   @IsString({ each: true })
   tags: string[];
 
-  @IsOptional()
-  book?: {
-    isbn: string;
-    title: string;
-    author: string;
-    publisher: string;
-    image: string;
-    description: string;
-    discount?: string;
-  };
-
   @IsNumber()
   @Min(0)
   @Max(10)

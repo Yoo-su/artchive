@@ -24,7 +24,9 @@ describe('UsedBookSaleService', () => {
     merge: jest.fn(),
   };
 
-  const mockBookService = {};
+  const mockBookService = {
+    findOrCreateBook: jest.fn(),
+  };
   const mockUserService = {
     findById: jest.fn(),
   };
@@ -76,7 +78,7 @@ describe('UsedBookSaleService', () => {
   describe('createUsedBookSale', () => {
     const userId = 1;
     const createDto: CreateBookSaleDto = {
-      book: { isbn: '123' } as any,
+      bookIsbn: '123',
       price: 10000,
       title: 'Test Sale',
       content: 'Content',
@@ -94,14 +96,18 @@ describe('UsedBookSaleService', () => {
         id: 1,
       } as User);
 
-      // 2. 트랜잭션 내부 동작 시뮬레이션
-      // 2-1. 책 찾기 (이미 존재한다고 가정)
-      (mockManager.findOne as jest.Mock).mockResolvedValue({
+      // 2. 외부에 위임된 책 찾기 동작 시뮬레이션
+      mockBookService.findOrCreateBook.mockResolvedValue({
         isbn: '123',
       } as Book);
 
       // 2-2. 판매글 생성 객체 리턴
-      const expectedSale = { id: 1, ...createDto };
+      const expectedSale = {
+        id: 1,
+        ...createDto,
+        bookIsbn: undefined,
+        book: { isbn: '123' },
+      };
       (mockManager.create as jest.Mock).mockReturnValue(expectedSale);
       (mockManager.save as jest.Mock).mockResolvedValue(expectedSale);
 
@@ -112,36 +118,8 @@ describe('UsedBookSaleService', () => {
       expect(result).toEqual(expectedSale);
       expect(mockUserService.findById).toHaveBeenCalledWith(userId);
       expect(mockDataSource.transaction).toHaveBeenCalled(); // 트랜잭션이 시작되었는지
-      expect(mockManager.findOne).toHaveBeenCalledWith(Book, {
-        where: { isbn: '123' },
-      }); // 트랜잭션 매니저로 책을 찾았는지
-      expect(mockManager.save).toHaveBeenCalledTimes(1); // 책은 이미 있어서 판매글만 save 호출
-    });
-
-    it('책이 없으면 새로 생성 후 판매글을 생성해야 합니다', async () => {
-      mockUserService.findById.mockResolvedValue({
-        id: 1,
-      } as User);
-
-      // 책이 없음
-      (mockManager.findOne as jest.Mock).mockResolvedValue(null);
-      // 책 생성 및 저장
-      const newBook = { isbn: '123', title: 'New Book' };
-      (mockManager.create as jest.Mock).mockImplementation((entity, data) => {
-        if (entity === Book) return newBook;
-        if (entity === UsedBookSale) return { id: 1, ...data } as UsedBookSale;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return data;
-      });
-      (mockManager.save as jest.Mock).mockImplementation(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        (entity, data) => data,
-      );
-
-      await service.createUsedBookSale(createDto, userId);
-
-      // 책 한번, 판매글 한번 -> 총 2번 save 되어야 함
-      expect(mockManager.save).toHaveBeenCalledTimes(2);
+      expect(mockBookService.findOrCreateBook).toHaveBeenCalledWith('123'); // 외부에서 호출되었는지
+      expect(mockManager.save).toHaveBeenCalledTimes(1); // 판매글만 save 호출
     });
 
     it('유저가 없으면 트랜잭션 시작 전에 실패해야 합니다', async () => {
