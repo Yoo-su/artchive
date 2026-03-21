@@ -17,7 +17,6 @@ export const generateGlobalMetadata = (
       icon: [
         { url: "/logo-square-sketch.svg", type: "image/svg+xml" },
         { url: "/logo-square-sketch.png", type: "image/png", sizes: "512x512" },
-        { url: "/favicon.ico?v=2", sizes: "any" },
       ],
       apple: [
         { url: "/logo-square-sketch.png", sizes: "512x512", type: "image/png" },

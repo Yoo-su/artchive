@@ -1,8 +1,6 @@
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, In, EntityManager, Brackets } from 'typeorm';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
 
 import { Book } from '@/features/book/entities/book.entity';
 import { Review } from '@/features/review/entities/review.entity';
@@ -19,7 +17,6 @@ import { ReviewImageHelper } from '../helpers/review-image.helper';
 import { CreateReviewDto } from '../dto/create-review.dto';
 import { GetReviewsQueryDto } from '../dto/get-reviews-query.dto';
 import { UpdateReviewDto } from '../dto/update-review.dto';
-import { BOOK_DOMAINS } from '../constants';
 import {
   GetReviewsResponseDto,
   ReviewFeedDto,
@@ -28,11 +25,6 @@ import {
 
 @Injectable()
 export class ReviewService {
-  // 캐시 키 및 TTL (10분)
-  private static readonly POPULAR_REVIEWS_CACHE_KEY = 'popular_reviews';
-  private static readonly FEEDS_CACHE_KEY = 'review_feeds';
-  private static readonly CACHE_TTL = 600000;
-
   constructor(
     @InjectRepository(Review)
     private reviewsRepository: Repository<Review>,
@@ -44,7 +36,6 @@ export class ReviewService {
     private tagsRepository: Repository<Tag>,
     private reviewImageHelper: ReviewImageHelper,
     private dataSource: DataSource,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly bookService: BookService,
   ) {}
 
@@ -233,45 +224,63 @@ export class ReviewService {
    * @returns 카테고리별 리뷰 피드 목록
    */
   async findFeeds(): Promise<ReviewFeedDto[]> {
-    // 캐시된 결과가 있으면 즉시 반환 (DB 부하 방지)
-    const cached = await this.cacheManager.get<ReviewFeedDto[]>(
-      ReviewService.FEEDS_CACHE_KEY,
-    );
-    if (cached) return cached;
+    // 윈도우 함수(ROW_NUMBER)를 사용하여 각 카테고리별 최신 리뷰 4개씩 한 번에 조회
+    // 12번의 쿼리를 1번으로 단축하여 성능 극대화
+    const rawReviews = await this.reviewsRepository
+      .createQueryBuilder('review')
+      .select([
+        'review.id',
+        'review.title',
+        'review.category',
+        'review.content',
+        'review.rating',
+        'review.viewCount',
+        'review.reactionCount',
+        'review.userId',
+        'review.bookIsbn',
+        'review.isPublic',
+        'review.createdAt',
+      ])
+      .innerJoinAndSelect('review.user', 'user')
+      .innerJoinAndSelect('review.book', 'book')
+      .leftJoinAndSelect('review.tagEntities', 'tag')
+      .where((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select('r.id')
+          .from(Review, 'r')
+          .addSelect(
+            'ROW_NUMBER() OVER(PARTITION BY r.category ORDER BY r.createdAt DESC)',
+            'rn',
+          )
+          .where('r.isPublic = :isPublic', { isPublic: true })
+          .getQuery();
+        return `review.id IN (SELECT id FROM (${subQuery}) t WHERE rn <= 4)`;
+      })
+      .orderBy('review.category', 'ASC')
+      .addOrderBy('review.createdAt', 'DESC')
+      .getMany();
 
-    const categories = BOOK_DOMAINS;
+    // 카테고리별로 그룹화
+    const feedMap = new Map<string, ReviewResponseDto[]>();
 
-    const feedPromises = categories.map(async (category) => {
-      const reviews = await this.reviewsRepository.find({
-        where: { category, isPublic: true },
-        relations: ['user', 'book', 'tagEntities'],
-        order: { createdAt: 'DESC' },
-        take: 4,
-      });
-
-      if (reviews.length === 0) return null;
-
-      // 태그 매핑
-      const reviewDtos = reviews.map((review) => ({
+    rawReviews.forEach((review) => {
+      const dto = {
         ...review,
         tags: review.tagEntities?.map((t) => t.name) || [],
-      })) as ReviewResponseDto[];
+      } as ReviewResponseDto;
 
-      return {
-        category,
-        reviews: reviewDtos,
-      };
+      if (!feedMap.has(review.category)) {
+        feedMap.set(review.category, []);
+      }
+      feedMap.get(review.category)?.push(dto);
     });
 
-    const results = await Promise.all(feedPromises);
-
-    const feeds = results.filter((feed) => feed !== null) as ReviewFeedDto[];
-
-    // 결과를 10분간 캐싱
-    await this.cacheManager.set(
-      ReviewService.FEEDS_CACHE_KEY,
-      feeds,
-      ReviewService.CACHE_TTL,
+    const feeds: ReviewFeedDto[] = Array.from(feedMap.entries()).map(
+      ([category, reviews]) => ({
+        category,
+        reviews,
+      }),
     );
 
     return feeds;
@@ -344,21 +353,8 @@ export class ReviewService {
    * 최근 2주 내 참여도(조회수+리액션+댓글) 높은 순으로 6개 반환
    */
   async findPopular(): Promise<ReviewResponseDto[]> {
-    // 캐시된 결과가 있으면 즉시 반환 (DB 부하 방지)
-    const cached = await this.cacheManager.get<ReviewResponseDto[]>(
-      ReviewService.POPULAR_REVIEWS_CACHE_KEY,
-    );
-    if (cached) return cached;
-
     const threeMonthsAgo = new Date();
     threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-
-    // 참여도 점수 공식
-    const ENGAGEMENT_SCORE = `
-      (COALESCE(review.viewCount, 0) + 
-       COALESCE(review.reactionCount, 0) * 3 + 
-       COUNT(comment.id) * 5)
-    `;
 
     interface PopularReviewRawResult {
       id: number;
@@ -366,18 +362,29 @@ export class ReviewService {
     }
 
     // 최근 인기 리뷰 (최근 3개월, 참여도 순, 6개)
+    // 댓글 집계를 서브쿼리로 분리하여 조인 효율 극대화
     const idResults = await this.reviewsRepository
       .createQueryBuilder('review')
       .select('review.id', 'id')
       .leftJoin(
-        'comments',
-        'comment',
-        "comment.targetType = 'REVIEW' AND comment.targetId = CAST(review.id AS VARCHAR)",
+        (qb) =>
+          qb
+            .select('c.targetId', 'targetId')
+            .addSelect('COUNT(*)', 'count')
+            .from('comments', 'c')
+            .where('c.targetType = :targetType', { targetType: 'REVIEW' })
+            .groupBy('c.targetId'),
+        'comment_counts',
+        'comment_counts.targetId = CAST(review.id AS VARCHAR)',
       )
-      .addSelect(ENGAGEMENT_SCORE, 'score')
+      .addSelect(
+        `(COALESCE(review.viewCount, 0) + 
+          COALESCE(review.reactionCount, 0) * 3 + 
+          COALESCE(comment_counts.count, 0) * 5)`,
+        'score',
+      )
       .where('review.createdAt >= :threeMonthsAgo', { threeMonthsAgo })
       .andWhere('review.isPublic = :isPublic', { isPublic: true })
-      .groupBy('review.id')
       .orderBy('score', 'DESC')
       .limit(6)
       .getRawMany<PopularReviewRawResult>();
@@ -401,13 +408,6 @@ export class ReviewService {
       .filter((r): r is Review => !!r);
 
     const result = await this.attachReactionCounts(sortedReviews);
-
-    // 결과를 10분간 캐싱
-    await this.cacheManager.set(
-      ReviewService.POPULAR_REVIEWS_CACHE_KEY,
-      result,
-      ReviewService.CACHE_TTL,
-    );
 
     return result;
   }
