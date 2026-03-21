@@ -87,6 +87,7 @@ export const ReviewForm = ({
   isEditMode = false,
 }: ReviewFormProps) => {
   const t = useTranslations("review.form");
+  const tFilters = useTranslations("review.filters");
   const tValidation = useTranslations("review.validation");
 
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
@@ -163,17 +164,6 @@ export const ReviewForm = ({
       {
         ...data,
         content,
-        book: selectedBook
-          ? {
-              isbn: selectedBook.isbn,
-              title: selectedBook.title,
-              author: selectedBook.author,
-              publisher: selectedBook.publisher,
-              image: selectedBook.image,
-              description: selectedBook.description,
-              discount: selectedBook.discount,
-            }
-          : undefined,
       },
       deletedImageUrls,
     );
@@ -319,7 +309,7 @@ export const ReviewForm = ({
                     <SelectContent>
                       {BOOK_DOMAINS.map((category) => (
                         <SelectItem key={category} value={category}>
-                          {t(`filters.categories.${CATEGORY_MAP[category]}`, {
+                          {tFilters(`categories.${CATEGORY_MAP[category]}`, {
                             defaultMessage: category,
                           })}
                         </SelectItem>
