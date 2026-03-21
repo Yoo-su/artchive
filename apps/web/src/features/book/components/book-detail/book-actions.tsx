@@ -15,7 +15,6 @@ export const BookActions = ({ isbn, book }: BookActionsProps) => {
       <WishlistButton
         type="BOOK"
         id={isbn}
-        bookData={book}
         className="w-full sm:w-auto border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 px-8 rounded-md"
       />
     </div>

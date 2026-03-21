@@ -10,7 +10,6 @@ import { QueryBookSaleDto, BookSaleSortBy } from '../dtos/query-book-sale.dto';
 import { GetBookSalesQueryDto } from '../dtos/get-book-sales-query.dto';
 import { BookService } from '@/features/book/services/book.service';
 import { UserService } from '@/features/user/services/user.service';
-import { Book } from '@/features/book/entities/book.entity';
 import {
   applyCommonFilters,
   applyCursorFilter,
@@ -50,20 +49,16 @@ export class UsedBookSaleService {
       throw new BusinessException('USER_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
 
+    // 1. 책 정보 찾기 또는 생성 (트랜잭션 외부 독립 보장)
+    const book = await this.bookService.findOrCreateBook(
+      createBookSaleDto.bookIsbn,
+    );
+
     return this.dataSource.transaction(async (manager) => {
-      // 1. 책 정보 찾기 또는 생성 (트랜잭션 내에서 처리)
-      let book = await manager.findOne(Book, {
-        where: { isbn: createBookSaleDto.book.isbn },
-      });
-
-      if (!book) {
-        book = manager.create(Book, createBookSaleDto.book);
-        book = await manager.save(Book, book);
-      }
-
       // 2. 판매글 생성
       const newSale = manager.create(UsedBookSale, {
         ...createBookSaleDto,
+        bookIsbn: undefined, // DTO의 bookIsbn과 Entity 관계 매핑 충돌 방지
         user,
         book,
       });

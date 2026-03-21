@@ -1,8 +1,6 @@
-import { Type } from 'class-transformer';
 import {
   IsString,
   IsNotEmpty,
-  ValidateNested,
   IsArray,
   IsNumber,
   IsPositive,
@@ -10,7 +8,6 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { BookInfoDto } from '@/features/book/dtos/book-info.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateBookSaleDto {
@@ -70,10 +67,10 @@ export class CreateBookSaleDto {
   })
   imageUrls: string[];
 
-  @ValidateNested()
-  @Type(() => BookInfoDto)
-  @ApiProperty({ description: '책 정보', type: BookInfoDto })
-  book: BookInfoDto;
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({ description: '책 ISBN', example: '1234567890123' })
+  bookIsbn: string;
 
   @IsString()
   @IsNotEmpty()

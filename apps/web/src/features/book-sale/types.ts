@@ -56,16 +56,7 @@ export interface CreateBookSaleParams {
   latitude?: number;
   longitude?: number;
   placeName?: string;
-  book: {
-    isbn: string;
-    title: string;
-    description: string;
-    author: string;
-    publisher: string;
-    image: string;
-    pubdate: string;
-    discount: string;
-  };
+  bookIsbn: string;
 }
 
 /**

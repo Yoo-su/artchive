@@ -2,10 +2,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BookService } from './book.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Book } from '../entities/book.entity';
+import { NaverBookSearchService } from './naver-book-search.service';
 
 describe('BookService', () => {
   let service: BookService;
   let module: TestingModule;
+
+  const mockNaverBookSearchService = {
+    search: jest.fn(),
+  };
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
@@ -31,7 +36,12 @@ describe('BookService', () => {
               take: jest.fn().mockReturnThis(),
               getMany: jest.fn().mockResolvedValue([]),
             })),
+            update: jest.fn(),
           },
+        },
+        {
+          provide: NaverBookSearchService,
+          useValue: mockNaverBookSearchService,
         },
       ],
     }).compile();
@@ -41,23 +51,24 @@ describe('BookService', () => {
 
   describe('findOrCreateBook', () => {
     it('should return existing book if found initially', async () => {
-      const bookDto = { isbn: '123' } as any;
+      const isbn = '123';
       const existingBook = { isbn: '123', title: 'Existing' };
 
       const repo = module.get(getRepositoryToken(Book));
       (repo.findOneBy as jest.Mock).mockResolvedValue(existingBook);
 
-      const result = await service.findOrCreateBook(bookDto);
+      const result = await service.findOrCreateBook(isbn);
       expect(result).toEqual(existingBook);
       // createQueryBuilder should not be called if found initially
       expect(repo.createQueryBuilder).not.toHaveBeenCalled();
     });
 
     it('should create new book using INSERT IGNORE if not found', async () => {
-      const bookDto = { isbn: '456' } as any;
+      const isbn = '456';
       const newBook = { isbn: '456', title: 'New' };
 
       const repo = module.get(getRepositoryToken(Book));
+      mockNaverBookSearchService.search.mockResolvedValue([newBook]);
 
       // Mock query builder for insert
       const mockInsertBuilder = {
@@ -75,19 +86,21 @@ describe('BookService', () => {
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce(newBook);
 
-      const result = await service.findOrCreateBook(bookDto);
+      const result = await service.findOrCreateBook(isbn);
 
       expect(result).toEqual(newBook);
+      expect(mockNaverBookSearchService.search).toHaveBeenCalledWith(isbn, 1);
       expect(mockInsertBuilder.insert).toHaveBeenCalled();
       expect(mockInsertBuilder.orIgnore).toHaveBeenCalled();
       expect(mockInsertBuilder.execute).toHaveBeenCalled();
     });
 
     it('should return existing book if INSERT IGNORE was ignored (concurrent creation)', async () => {
-      const bookDto = { isbn: '789' } as any;
+      const isbn = '789';
       const existingBook = { isbn: '789', title: 'Concurrent' };
 
       const repo = module.get(getRepositoryToken(Book));
+      mockNaverBookSearchService.search.mockResolvedValue([existingBook]);
 
       // Mock query builder for insert
       const mockInsertBuilder = {
@@ -106,7 +119,7 @@ describe('BookService', () => {
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce(existingBook);
 
-      const result = await service.findOrCreateBook(bookDto);
+      const result = await service.findOrCreateBook(isbn);
 
       expect(result).toEqual(existingBook);
       expect(mockInsertBuilder.insert).toHaveBeenCalled();

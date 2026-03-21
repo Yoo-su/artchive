@@ -73,18 +73,15 @@ export const checkNickname = async (
  * 위시리스트에 항목을 추가합니다.
  * @param type 타입 (BOOK, SALE)
  * @param id 대상 ID
- * @param bookData 책 정보 (책이 DB에 없을 경우 생성용)
  * @returns 추가된 위시리스트 항목
  */
 export const addToWishlist = async (
   type: "BOOK" | "SALE",
   id: string | number,
-  bookData?: BookInfo,
 ) => {
   const { data } = await privateAxios.post(API_PATHS.user.wishlist, {
     type,
     id,
-    bookData,
   });
   return data;
 };

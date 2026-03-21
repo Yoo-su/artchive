@@ -9,9 +9,13 @@ import { ReviewController } from './controllers/review.controller';
 import { ReviewService } from './services/review.service';
 
 import { ReviewImageHelper } from './helpers/review-image.helper';
+import { BookModule } from '../book/book.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Review, Book, ReviewReaction, Tag])],
+  imports: [
+    TypeOrmModule.forFeature([Review, Book, ReviewReaction, Tag]),
+    BookModule,
+  ],
   controllers: [ReviewController],
   providers: [ReviewService, ReviewImageHelper],
   exports: [ReviewService],

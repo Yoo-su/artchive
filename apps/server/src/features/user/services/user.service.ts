@@ -10,7 +10,6 @@ import {
 import { ChatParticipant } from '@/features/chat/entities/chat-participant.entity';
 import { Wishlist } from '../entities/wishlist.entity';
 import { Book } from '@/features/book/entities/book.entity';
-import { BookInfoDto } from '@/features/book/dtos/book-info.dto';
 import { Review } from '@/features/review/entities/review.entity';
 import { ReviewReaction } from '@/features/review/entities/review-reaction.entity';
 import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
@@ -18,6 +17,7 @@ import { Comment } from '@/features/comment/entities/comment.entity';
 import { CommentLike } from '@/features/comment/entities/comment-like.entity';
 import { ReadReceipt } from '@/features/chat/entities/read-receipt.entity';
 import { BusinessException } from '@/shared/exceptions/business.exception';
+import { BookService } from '@/features/book/services/book.service';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -35,6 +35,7 @@ export class UserService implements OnModuleInit {
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
     private readonly dataSource: DataSource,
+    private readonly bookService: BookService,
   ) {}
 
   private readonly logger = new Logger(UserService.name);
@@ -470,8 +471,12 @@ export class UserService implements OnModuleInit {
     userId: number,
     type: 'BOOK' | 'SALE',
     id: string | number,
-    bookData?: BookInfoDto,
   ) {
+    // 트랜잭션 전 책 존재 보장
+    if (type === 'BOOK') {
+      await this.bookService.findOrCreateBook(id as string);
+    }
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -496,26 +501,12 @@ export class UserService implements OnModuleInit {
       wishlist.user = { id: userId } as User;
 
       if (type === 'BOOK') {
-        let book = await queryRunner.manager.findOne(Book, {
+        const book = await queryRunner.manager.findOne(Book, {
           where: { isbn: id as string },
         });
 
         if (!book) {
-          if (bookData) {
-            // DB에 책이 없고, 책 정보가 제공된 경우 새로 생성
-            book = queryRunner.manager.create(Book, {
-              isbn: bookData.isbn,
-              title: bookData.title,
-              author: bookData.author,
-              publisher: bookData.publisher,
-              description: bookData.description,
-              image: bookData.image,
-              discount: bookData.discount,
-            });
-            await queryRunner.manager.save(book);
-          } else {
-            throw new BusinessException('BOOK_NOT_FOUND', HttpStatus.NOT_FOUND);
-          }
+          throw new BusinessException('BOOK_NOT_FOUND', HttpStatus.NOT_FOUND);
         }
         wishlist.book = book;
       } else {

@@ -12,6 +12,7 @@ import {
 } from '@/features/review/entities/review-reaction.entity';
 import { Tag } from '@/features/review/entities/tag.entity';
 import { BusinessException } from '@/shared/exceptions';
+import { BookService } from '@/features/book/services/book.service';
 
 import { ReviewImageHelper } from '../helpers/review-image.helper';
 
@@ -44,6 +45,7 @@ export class ReviewService {
     private reviewImageHelper: ReviewImageHelper,
     private dataSource: DataSource,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly bookService: BookService,
   ) {}
 
   /**
@@ -56,19 +58,16 @@ export class ReviewService {
     createReviewDto: CreateReviewDto,
     userId: number,
   ): Promise<ReviewResponseDto> {
-    const { book, tags, ...reviewData } = createReviewDto;
+    const { bookIsbn, tags, ...reviewData } = createReviewDto;
+
+    // 트랜잭션 외부에서 도서 보장
+    let finalBookIsbn = bookIsbn;
+    if (bookIsbn) {
+      const book = await this.bookService.findOrCreateBook(bookIsbn);
+      finalBookIsbn = book.isbn;
+    }
 
     return this.dataSource.transaction(async (manager: EntityManager) => {
-      if (book) {
-        const existingBook = await manager.findOne(Book, {
-          where: { isbn: book.isbn },
-        });
-
-        if (!existingBook) {
-          await manager.save(Book, manager.create(Book, book));
-        }
-      }
-
       // 태그 처리
       let tagEntities: Tag[] = [];
       if (tags && tags.length > 0) {
@@ -77,6 +76,7 @@ export class ReviewService {
 
       const review = manager.create(Review, {
         ...reviewData,
+        bookIsbn: finalBookIsbn,
         userId,
         tagEntities,
       });
@@ -96,20 +96,21 @@ export class ReviewService {
   ): Promise<Tag[]> {
     if (tagNames.length === 0) return [];
 
-    // 1. 중복 무시하고 일괄 INSERT (ON CONFLICT DO NOTHING)
+    // 1. 중복 제거 (유니크 위반 방지)
+    const uniqueTagNames = [...new Set(tagNames)];
+
+    // 2. 중복 무시하고 일괄 INSERT (ON CONFLICT DO NOTHING)
     await manager
       .createQueryBuilder()
       .insert()
       .into(Tag)
-      .values(tagNames.map((name) => ({ name })))
+      .values(uniqueTagNames.map((name) => ({ name })))
       .orIgnore()
       .execute();
 
-    // 2. 전체 태그 조회
-    // manager.find(Tag, { where: { name: In(tagNames) } }) 와 같음
-    // 트랜잭션 매니저를 사용해야 하므로 createQueryBuilder 사용 권장
+    // 3. 전체 태그 조회
     return await manager.find(Tag, {
-      where: { name: In(tagNames) },
+      where: { name: In(uniqueTagNames) },
     });
   }
 
