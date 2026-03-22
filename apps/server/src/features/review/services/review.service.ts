@@ -13,6 +13,7 @@ import { BusinessException } from '@/shared/exceptions';
 import { BookService } from '@/features/book/services/book.service';
 
 import { ReviewImageHelper } from '../helpers/review-image.helper';
+import { BOOK_DOMAINS } from '../constants';
 
 import { CreateReviewDto } from '../dto/create-review.dto';
 import { GetReviewsQueryDto } from '../dto/get-reviews-query.dto';
@@ -274,12 +275,10 @@ export class ReviewService {
       feedMap.get(review.category)?.push(review);
     });
 
-    const feeds: ReviewFeedDto[] = Array.from(feedMap.entries()).map(
-      ([category, reviews]) => ({
-        category,
-        reviews,
-      }),
-    );
+    const feeds: ReviewFeedDto[] = BOOK_DOMAINS.map((category) => ({
+      category,
+      reviews: feedMap.get(category) || [],
+    })).filter((feed) => feed.reviews.length > 0);
 
     return feeds;
   }
