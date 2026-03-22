@@ -225,9 +225,21 @@ export class ReviewService {
    * @returns 카테고리별 리뷰 피드 목록
    */
   async findFeeds(): Promise<ReviewFeedDto[]> {
-    // 윈도우 함수(ROW_NUMBER)를 사용하여 각 카테고리별 최신 리뷰 4개씩 한 번에 조회
-    // 12번의 쿼리를 1번으로 단축하여 성능 극대화
-    const rawReviews = await this.reviewsRepository
+    // 1. 각 카테고리별 최신 리뷰 4개씩 조회 (윈도우 함수 활용)
+    const rawReviews = await this.getRawFeedReviews(4);
+
+    // 2. 리액션 카운트 정보 첨부
+    const reviewsWithReactions = await this.attachReactionCounts(rawReviews);
+
+    // 3. 카테고리별로 그룹화 및 피드 구성
+    return this.buildReviewFeeds(reviewsWithReactions);
+  }
+
+  /**
+   * 윈도우 함수(ROW_NUMBER)를 사용하여 카테고리별 최신 리뷰를 일괄 조회합니다.
+   */
+  private async getRawFeedReviews(limitPerCategory: number): Promise<Review[]> {
+    return await this.reviewsRepository
       .createQueryBuilder('review')
       .select([
         'review.id',
@@ -256,19 +268,21 @@ export class ReviewService {
           )
           .where('r."isPublic" = :isPublic', { isPublic: true })
           .getQuery();
-        return `review.id IN (SELECT fid FROM (${subQuery}) t WHERE rn <= 4)`;
+        return `review.id IN (SELECT fid FROM (${subQuery}) t WHERE rn <= :limit)`;
       })
+      .setParameter('limit', limitPerCategory)
       .orderBy('review.category', 'ASC')
       .addOrderBy('review.createdAt', 'DESC')
       .getMany();
+  }
 
-    // 리액션 카운트 정보 첨부
-    const reviewsWithReactions = await this.attachReactionCounts(rawReviews);
-
-    // 카테고리별로 그룹화
+  /**
+   * 리뷰 목록을 카테고리별 피드 DTO 구조로 변환합니다.
+   */
+  private buildReviewFeeds(reviews: ReviewResponseDto[]): ReviewFeedDto[] {
     const feedMap = new Map<string, ReviewResponseDto[]>();
 
-    reviewsWithReactions.forEach((review) => {
+    reviews.forEach((review) => {
       if (!feedMap.has(review.category)) {
         feedMap.set(review.category, []);
       }
@@ -350,17 +364,29 @@ export class ReviewService {
    * 최근 2주 내 참여도(조회수+리액션+댓글) 높은 순으로 6개 반환
    */
   async findPopular(): Promise<ReviewResponseDto[]> {
+    // 1. 참여도가 높은 리뷰 ID 목록 조회
+    const idResults = await this.getPopularReviewIdsWithScores(6);
+    if (idResults.length === 0) return [];
+
+    const ids = idResults.map((r) => r.id);
+
+    // 2. 엔티티 상세 조회 (ID 순서 유지)
+    const sortedReviews = await this.findReviewsByIdsInOrder(ids);
+
+    // 3. 리액션 정보 첨부하여 반환
+    return this.attachReactionCounts(sortedReviews);
+  }
+
+  /**
+   * 최근 3개월간의 참여도(조회수, 리액션, 댓글)를 점수화하여 인기 리뷰 ID를 조회합니다.
+   */
+  private async getPopularReviewIdsWithScores(
+    limit: number,
+  ): Promise<{ id: number; score: number }[]> {
     const threeMonthsAgo = new Date();
     threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-    interface PopularReviewRawResult {
-      id: number;
-      score: number;
-    }
-
-    // 최근 인기 리뷰 (최근 3개월, 참여도 순, 6개)
-    // 댓글 집계를 서브쿼리로 분리하여 조인 효율 극대화
-    const idResults = await this.reviewsRepository
+    return await this.reviewsRepository
       .createQueryBuilder('review')
       .select('review.id', 'id')
       .leftJoin(
@@ -393,30 +419,21 @@ export class ReviewService {
       .where('review."createdAt" >= :threeMonthsAgo', { threeMonthsAgo })
       .andWhere('review."isPublic" = :isPublic', { isPublic: true })
       .orderBy('score', 'DESC')
-      .limit(6)
-      .getRawMany<PopularReviewRawResult>();
+      .limit(limit)
+      .getRawMany();
+  }
 
-    if (idResults.length === 0) {
-      return [];
-    }
-
-    const ids = idResults.map((r) => r.id);
-
-    // 엔티티 상세 조회
+  /**
+   * 보충: ID 목록에 해당하는 리뷰를 주어진 ID 순서대로 조회합니다.
+   */
+  private async findReviewsByIdsInOrder(ids: number[]): Promise<Review[]> {
     const reviews = await this.reviewsRepository.find({
       where: { id: In(ids) },
       relations: ['user', 'book', 'tagEntities'],
     });
 
-    // 순서 유지
     const reviewMap = new Map(reviews.map((r) => [r.id, r]));
-    const sortedReviews = ids
-      .map((id) => reviewMap.get(id))
-      .filter((r): r is Review => !!r);
-
-    const result = await this.attachReactionCounts(sortedReviews);
-
-    return result;
+    return ids.map((id) => reviewMap.get(id)).filter((r): r is Review => !!r);
   }
 
   /**

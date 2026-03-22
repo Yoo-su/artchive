@@ -102,48 +102,25 @@ export class UsedBookSaleService {
 
   /**
    * 인기 판매글을 조회합니다.
-   * 최근 2주 내 조회수 높은 순으로 6개 반환
+   * 최근 3개월 내 조회수 높은 순으로 6개 반환 (결과 캐싱)
    */
   async findPopularSales(): Promise<UsedBookSale[]> {
-    // 캐시된 결과가 있으면 즉시 반환 (DB 부하 방지)
+    // 1. 캐시 확인
     const cached = await this.cacheManager.get<UsedBookSale[]>(
       UsedBookSaleService.POPULAR_SALES_CACHE_KEY,
     );
     if (cached) return cached;
 
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-
-    interface PopularSaleRawResult {
-      id: number;
-    }
-
-    const idResults = await this.usedBookSaleRepository
-      .createQueryBuilder('sale')
-      .select('sale.id', 'id')
-      .where('sale.status = :status', { status: SaleStatus.FOR_SALE })
-      .andWhere('sale.createdAt >= :threeMonthsAgo', { threeMonthsAgo })
-      .orderBy('sale.viewCount', 'DESC')
-      .limit(6)
-      .getRawMany<PopularSaleRawResult>();
-
-    if (idResults.length === 0) {
-      return [];
-    }
+    // 2. 인기 판매글 ID 조회
+    const idResults = await this.getPopularSaleIds(6);
+    if (idResults.length === 0) return [];
 
     const ids = idResults.map((r) => r.id);
 
-    const sales = await this.usedBookSaleRepository.find({
-      where: { id: In(ids) },
-      relations: ['user', 'book'],
-    });
+    // 3. 엔티티 상세 조회 및 순서 유지
+    const result = await this.findSalesByIdsInOrder(ids);
 
-    const saleMap = new Map(sales.map((s) => [s.id, s]));
-    const result = ids
-      .map((id) => saleMap.get(id))
-      .filter((s): s is UsedBookSale => !!s);
-
-    // 결과를 10분간 캐싱
+    // 4. 결과 캐싱 (10분)
     await this.cacheManager.set(
       UsedBookSaleService.POPULAR_SALES_CACHE_KEY,
       result,
@@ -151,6 +128,38 @@ export class UsedBookSaleService {
     );
 
     return result;
+  }
+
+  /**
+   * 최근 3개월간 조회수가 가장 높은 판매 중인 글 ID를 조회합니다.
+   */
+  private async getPopularSaleIds(limit: number): Promise<{ id: number }[]> {
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+    return await this.usedBookSaleRepository
+      .createQueryBuilder('sale')
+      .select('sale.id', 'id')
+      .where('sale.status = :status', { status: SaleStatus.FOR_SALE })
+      .andWhere('sale.createdAt >= :threeMonthsAgo', { threeMonthsAgo })
+      .orderBy('sale.viewCount', 'DESC')
+      .limit(limit)
+      .getRawMany();
+  }
+
+  /**
+   * ID 목록에 해당하는 판매글을 주어진 ID 순서대로 조회합니다.
+   */
+  private async findSalesByIdsInOrder(ids: number[]): Promise<UsedBookSale[]> {
+    const sales = await this.usedBookSaleRepository.find({
+      where: { id: In(ids) },
+      relations: ['user', 'book'],
+    });
+
+    const saleMap = new Map(sales.map((s) => [s.id, s]));
+    return ids
+      .map((id) => saleMap.get(id))
+      .filter((s): s is UsedBookSale => !!s);
   }
 
   /**
