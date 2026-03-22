@@ -2,14 +2,11 @@
 
 import { WishlistButton } from "@/features/user/components/wishlist/wishlist-button";
 
-import { BookInfo as BookType } from "../../types";
-
 interface BookActionsProps {
   isbn: string;
-  book: BookType;
 }
 
-export const BookActions = ({ isbn, book }: BookActionsProps) => {
+export const BookActions = ({ isbn }: BookActionsProps) => {
   return (
     <div className="flex flex-col gap-3 sm:flex-row">
       <WishlistButton
