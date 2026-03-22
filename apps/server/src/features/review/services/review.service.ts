@@ -247,33 +247,31 @@ export class ReviewService {
       .where((qb) => {
         const subQuery = qb
           .subQuery()
-          .select('r.id')
+          .select('r.id', 'fid')
           .from(Review, 'r')
           .addSelect(
-            'ROW_NUMBER() OVER(PARTITION BY r.category ORDER BY r.createdAt DESC)',
+            'ROW_NUMBER() OVER(PARTITION BY r."category" ORDER BY r."createdAt" DESC)',
             'rn',
           )
-          .where('r.isPublic = :isPublic', { isPublic: true })
+          .where('r."isPublic" = :isPublic', { isPublic: true })
           .getQuery();
-        return `review.id IN (SELECT id FROM (${subQuery}) t WHERE rn <= 4)`;
+        return `review.id IN (SELECT fid FROM (${subQuery}) t WHERE rn <= 4)`;
       })
       .orderBy('review.category', 'ASC')
       .addOrderBy('review.createdAt', 'DESC')
       .getMany();
 
+    // 리액션 카운트 정보 첨부
+    const reviewsWithReactions = await this.attachReactionCounts(rawReviews);
+
     // 카테고리별로 그룹화
     const feedMap = new Map<string, ReviewResponseDto[]>();
 
-    rawReviews.forEach((review) => {
-      const dto = {
-        ...review,
-        tags: review.tagEntities?.map((t) => t.name) || [],
-      } as ReviewResponseDto;
-
+    reviewsWithReactions.forEach((review) => {
       if (!feedMap.has(review.category)) {
         feedMap.set(review.category, []);
       }
-      feedMap.get(review.category)?.push(dto);
+      feedMap.get(review.category)?.push(review);
     });
 
     const feeds: ReviewFeedDto[] = Array.from(feedMap.entries()).map(
@@ -369,22 +367,32 @@ export class ReviewService {
       .leftJoin(
         (qb) =>
           qb
-            .select('c.targetId', 'targetId')
+            .select('c."targetId"', 'targetid')
             .addSelect('COUNT(*)', 'count')
             .from('comments', 'c')
-            .where('c.targetType = :targetType', { targetType: 'REVIEW' })
-            .groupBy('c.targetId'),
+            .where('c."targetType" = :targetType', { targetType: 'REVIEW' })
+            .groupBy('c."targetId"'),
         'comment_counts',
-        'comment_counts.targetId = CAST(review.id AS VARCHAR)',
+        'comment_counts.targetid = CAST(review.id AS VARCHAR)',
+      )
+      .leftJoin(
+        (qb) =>
+          qb
+            .select('re."reviewId"', 'reviewid')
+            .addSelect('COUNT(*)', 'count')
+            .from('review_reactions', 're')
+            .groupBy('re."reviewId"'),
+        'reaction_counts',
+        'reaction_counts.reviewid = review.id',
       )
       .addSelect(
-        `(COALESCE(review.viewCount, 0) + 
-          COALESCE(review.reactionCount, 0) * 3 + 
+        `(COALESCE(review."viewCount", 0) + 
+          COALESCE(reaction_counts.count, 0) * 3 + 
           COALESCE(comment_counts.count, 0) * 5)`,
         'score',
       )
-      .where('review.createdAt >= :threeMonthsAgo', { threeMonthsAgo })
-      .andWhere('review.isPublic = :isPublic', { isPublic: true })
+      .where('review."createdAt" >= :threeMonthsAgo', { threeMonthsAgo })
+      .andWhere('review."isPublic" = :isPublic', { isPublic: true })
       .orderBy('score', 'DESC')
       .limit(6)
       .getRawMany<PopularReviewRawResult>();
