@@ -64,22 +64,31 @@ export class ReadingLogService {
   }
 
   /**
-   * 특정 연/월의 독서 기록 목록을 조회합니다.
-   * @param userId 사용자 ID
-   * @param year 조회할 연도 (YYYY)
-   * @param month 조회할 월 (MM)
-   * @returns 해당 월의 독서 기록 리스트
+   * 특정 월의 독서 기록을 조회합니다.
+   * @param userId 유저 ID
+   * @param year 연도
+   * @param month 월 (1-12)
+   * @returns 해당 월의 독서 기록 목록
    */
   async findAllByMonth(userId: number, year: number, month: number) {
-    // TypeORM과 Postgres의 date 타입을 사용하여 해당 연/월의 기록을 조회합니다.
+    const { start, end } = this.getDateRangeOfMonth(year, month);
+
     return await this.readingLogRepository
       .createQueryBuilder('log')
       .where('log.userId = :userId', { userId })
-      .andWhere("TO_CHAR(log.date, 'YYYY-MM') = :monthStr", {
-        monthStr: `${year}-${String(month).padStart(2, '0')}`,
-      })
+      .andWhere('log.date >= :start AND log.date <= :end', { start, end })
       .orderBy('log.date', 'ASC')
       .getMany();
+  }
+
+  /**
+   * 연도와 월을 기반으로 해당 월의 시작일과 종료일(문자열)을 계산합니다.
+   */
+  private getDateRangeOfMonth(year: number, month: number) {
+    const start = `${year}-${String(month).padStart(2, '0')}-01`;
+    const lastDay = new Date(year, month, 0).getDate();
+    const end = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+    return { start, end };
   }
 
   /**
@@ -91,21 +100,29 @@ export class ReadingLogService {
   async getStats(userId: number, year: number, month: number) {
     const qb = this.readingLogRepository.createQueryBuilder('log');
 
-    // 이번 달 읽은 권수
+    // 1. 이번 달 시작일/종료일 계산
+    const { start: monthStart, end: monthEnd } = this.getDateRangeOfMonth(
+      year,
+      month,
+    );
     const monthlyCount = await qb
       .clone()
       .where('log.userId = :userId', { userId })
-      .andWhere("TO_CHAR(log.date, 'YYYY-MM') = :monthStr", {
-        monthStr: `${year}-${String(month).padStart(2, '0')}`,
+      .andWhere('log.date >= :start AND log.date <= :end', {
+        start: monthStart,
+        end: monthEnd,
       })
       .getCount();
 
-    // 올해 읽은 권수
+    // 2. 올해 시작일/종료일 계산
+    const yearStart = `${year}-01-01`;
+    const yearEnd = `${year}-12-31`;
     const yearlyCount = await qb
       .clone()
       .where('log.userId = :userId', { userId })
-      .andWhere("TO_CHAR(log.date, 'YYYY') = :yearStr", {
-        yearStr: String(year),
+      .andWhere('log.date >= :start AND log.date <= :end', {
+        start: yearStart,
+        end: yearEnd,
       })
       .getCount();
 

@@ -77,7 +77,7 @@ export const BookDetail = ({ isbn }: BookDetailProps) => {
 
           <div className="h-px bg-stone-100 my-6" />
 
-          <BookActions isbn={isbn} book={book} />
+          <BookActions isbn={isbn} />
 
           <div className="h-px bg-stone-100 my-6" />
 
