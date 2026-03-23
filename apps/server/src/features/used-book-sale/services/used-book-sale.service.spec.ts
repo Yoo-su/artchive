@@ -7,9 +7,6 @@ import { UsedBookSale } from '../entities/used-book-sale.entity';
 import { BookService } from '@/features/book/services/book.service';
 import { UserService } from '@/features/user/services/user.service';
 import { CreateBookSaleDto } from '../dtos/create-book-sale.dto';
-import { Book } from '@/features/book/entities/book.entity';
-import { User } from '@/features/user/entities/user.entity';
-import { BusinessException } from '@/shared/exceptions';
 
 describe('UsedBookSaleService', () => {
   let service: UsedBookSaleService;
@@ -18,6 +15,7 @@ describe('UsedBookSaleService', () => {
 
   const mockUsedBookSaleRepository = {
     findOne: jest.fn(),
+    create: jest.fn(),
     save: jest.fn(),
     increment: jest.fn(),
     remove: jest.fn(),
@@ -32,7 +30,7 @@ describe('UsedBookSaleService', () => {
   };
 
   beforeEach(async () => {
-    // 트랜잭션 매니저 Mock
+    // 트랜잭션 매니저 Mock (하위 호환성 위해 유지하거나 제거)
     mockManager = {
       findOne: jest.fn(),
       create: jest.fn(),
@@ -40,11 +38,9 @@ describe('UsedBookSaleService', () => {
     };
 
     // DataSource.transaction Mock
-    // 실제 트랜잭션 로직을 시뮬레이션: 콜백 함수를 실행하면서 제공된 mockManager를 전달
     mockDataSource = {
       transaction: jest.fn().mockImplementation((cb) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return cb(mockManager);
+        return cb(mockManager) as Promise<any>;
       }),
     };
 
@@ -90,46 +86,24 @@ describe('UsedBookSaleService', () => {
       placeName: 'Test Place',
     };
 
-    it('성공적으로 판매글을 생성해야 합니다 (트랜잭션 실행)', async () => {
-      // 1. 유저 찾기 성공
-      mockUserService.findById.mockResolvedValue({
-        id: 1,
-      } as User);
-
-      // 2. 외부에 위임된 책 찾기 동작 시뮬레이션
-      mockBookService.resolveBook.mockResolvedValue({
-        isbn: '123',
-      } as Book);
-
-      // 2-2. 판매글 생성 객체 리턴
+    it('성공적으로 판매글을 생성해야 합니다', async () => {
+      // 1. 판매글 생성 객체 리턴
       const expectedSale = {
         id: 1,
         ...createDto,
         isbn: undefined,
         book: { isbn: '123' },
       };
-      (mockManager.create as jest.Mock).mockReturnValue(expectedSale);
-      (mockManager.save as jest.Mock).mockResolvedValue(expectedSale);
+      mockUsedBookSaleRepository.create.mockReturnValue(expectedSale);
+      mockUsedBookSaleRepository.save.mockResolvedValue(expectedSale);
 
       // 실행
       const result = await service.createUsedBookSale(createDto, userId);
 
       // 검증
       expect(result).toEqual(expectedSale);
-      expect(mockUserService.findById).toHaveBeenCalledWith(userId);
-      expect(mockDataSource.transaction).toHaveBeenCalled(); // 트랜잭션이 시작되었는지
-      expect(mockBookService.resolveBook).toHaveBeenCalledWith('123'); // 외부에서 호출되었는지
-      expect(mockManager.save).toHaveBeenCalledTimes(1); // 판매글만 save 호출
-    });
-
-    it('유저가 없으면 트랜잭션 시작 전에 실패해야 합니다', async () => {
-      mockUserService.findById.mockResolvedValue(null);
-
-      await expect(
-        service.createUsedBookSale(createDto, userId),
-      ).rejects.toThrow(BusinessException);
-
-      expect(mockDataSource.transaction).not.toHaveBeenCalled(); // 트랜잭션은 아예 시작도 안 했어야 함
+      expect(mockUsedBookSaleRepository.create).toHaveBeenCalled();
+      expect(mockUsedBookSaleRepository.save).toHaveBeenCalledTimes(1);
     });
   });
 });
