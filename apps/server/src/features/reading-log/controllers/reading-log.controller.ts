@@ -14,6 +14,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ReadingLogService } from '../services/reading-log.service';
 import { CreateReadingLogDto } from '../dto/create-reading-log.dto';
 import { UpdateReadingLogDto } from '../dto/update-reading-log.dto';
+import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -41,7 +42,10 @@ export class ReadingLogController {
     status: 201,
     description: '독서 기록이 성공적으로 생성되었습니다.',
   })
-  create(@Request() req, @Body() createReadingLogDto: CreateReadingLogDto) {
+  create(
+    @Request() req,
+    @Body(BookResolvePipe) createReadingLogDto: CreateReadingLogDto,
+  ) {
     return this.readingLogService.create(req.user.id, createReadingLogDto);
   }
 

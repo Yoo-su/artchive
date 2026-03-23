@@ -25,7 +25,7 @@ describe('UsedBookSaleService', () => {
   };
 
   const mockBookService = {
-    findOrCreateBook: jest.fn(),
+    resolveBook: jest.fn(),
   };
   const mockUserService = {
     findById: jest.fn(),
@@ -78,7 +78,7 @@ describe('UsedBookSaleService', () => {
   describe('createUsedBookSale', () => {
     const userId = 1;
     const createDto: CreateBookSaleDto = {
-      bookIsbn: '123',
+      isbn: '123',
       price: 10000,
       title: 'Test Sale',
       content: 'Content',
@@ -97,7 +97,7 @@ describe('UsedBookSaleService', () => {
       } as User);
 
       // 2. 외부에 위임된 책 찾기 동작 시뮬레이션
-      mockBookService.findOrCreateBook.mockResolvedValue({
+      mockBookService.resolveBook.mockResolvedValue({
         isbn: '123',
       } as Book);
 
@@ -105,7 +105,7 @@ describe('UsedBookSaleService', () => {
       const expectedSale = {
         id: 1,
         ...createDto,
-        bookIsbn: undefined,
+        isbn: undefined,
         book: { isbn: '123' },
       };
       (mockManager.create as jest.Mock).mockReturnValue(expectedSale);
@@ -118,7 +118,7 @@ describe('UsedBookSaleService', () => {
       expect(result).toEqual(expectedSale);
       expect(mockUserService.findById).toHaveBeenCalledWith(userId);
       expect(mockDataSource.transaction).toHaveBeenCalled(); // 트랜잭션이 시작되었는지
-      expect(mockBookService.findOrCreateBook).toHaveBeenCalledWith('123'); // 외부에서 호출되었는지
+      expect(mockBookService.resolveBook).toHaveBeenCalledWith('123'); // 외부에서 호출되었는지
       expect(mockManager.save).toHaveBeenCalledTimes(1); // 판매글만 save 호출
     });
 

@@ -20,7 +20,7 @@ export class GetReviewsQueryDto {
   @ApiPropertyOptional({ description: '책 ISBN' })
   @IsOptional()
   @IsString()
-  bookIsbn?: string;
+  isbn?: string;
 
   @ApiPropertyOptional({ description: '태그 (쉼표로 구분)' })
   @IsOptional()

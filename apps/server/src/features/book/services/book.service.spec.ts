@@ -49,7 +49,7 @@ describe('BookService', () => {
     service = module.get<BookService>(BookService);
   });
 
-  describe('findOrCreateBook', () => {
+  describe('resolveBook', () => {
     it('should return existing book if found initially', async () => {
       const isbn = '123';
       const existingBook = { isbn: '123', title: 'Existing' };
@@ -57,7 +57,7 @@ describe('BookService', () => {
       const repo = module.get(getRepositoryToken(Book));
       (repo.findOneBy as jest.Mock).mockResolvedValue(existingBook);
 
-      const result = await service.findOrCreateBook(isbn);
+      const result = await service.resolveBook(isbn);
       expect(result).toEqual(existingBook);
       // createQueryBuilder should not be called if found initially
       expect(repo.createQueryBuilder).not.toHaveBeenCalled();
@@ -86,7 +86,7 @@ describe('BookService', () => {
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce(newBook);
 
-      const result = await service.findOrCreateBook(isbn);
+      const result = await service.resolveBook(isbn);
 
       expect(result).toEqual(newBook);
       expect(mockNaverBookSearchService.search).toHaveBeenCalledWith(isbn, 1);
@@ -119,7 +119,7 @@ describe('BookService', () => {
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce(existingBook);
 
-      const result = await service.findOrCreateBook(isbn);
+      const result = await service.resolveBook(isbn);
 
       expect(result).toEqual(existingBook);
       expect(mockInsertBuilder.insert).toHaveBeenCalled();

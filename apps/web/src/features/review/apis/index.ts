@@ -59,7 +59,7 @@ export const deleteReview = async (id: number) => {
 export const getReviews = async ({
   page = 1,
   limit = 10,
-  bookIsbn,
+  isbn,
   tag,
   search,
   category,
@@ -70,7 +70,7 @@ export const getReviews = async ({
   const params = new URLSearchParams();
   params.append("page", page.toString());
   params.append("limit", limit.toString());
-  if (bookIsbn) params.append("bookIsbn", bookIsbn);
+  if (isbn) params.append("isbn", isbn);
   if (tag) params.append("tag", tag);
   if (search) params.append("search", search);
   if (category) params.append("category", category);

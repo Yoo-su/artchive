@@ -80,8 +80,8 @@ export function ReadingLogDayCell({
               )}
             >
               <Image
-                src={firstLog.bookImage}
-                alt={firstLog.bookTitle}
+                src={firstLog.book.image}
+                alt={firstLog.book.title}
                 fill
                 unoptimized
                 className="absolute inset-0 w-full h-full object-cover"
@@ -105,7 +105,7 @@ export function ReadingLogDayCell({
                 "hidden sm:block text-[10px] sm:text-xs text-center font-medium leading-tight text-stone-600 truncate px-1 w-full transition-colors group-hover:text-stone-900",
               )}
             >
-              {firstLog.bookTitle}
+              {firstLog.book.title}
             </p>
           </div>
         ) : null}

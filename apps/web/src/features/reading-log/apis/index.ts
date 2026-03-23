@@ -133,8 +133,7 @@ export const getReadingLogsInfinite = async ({
  *
  * @example
  * const newLog = await createReadingLog({
- *   bookIsbn: "1234567890",
- *   bookTitle: "책 제목",
+ *   isbn: "1234567890",
  *   date: "2024-01-15",
  *   memo: "재미있었다",
  * });

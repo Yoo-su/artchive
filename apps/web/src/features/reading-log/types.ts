@@ -1,10 +1,10 @@
+import { BookInfo } from "../book/types";
+
 export interface ReadingLog {
   id: string;
   userId: number;
-  bookIsbn: string;
-  bookTitle: string;
-  bookImage: string;
-  bookAuthor: string;
+  isbn: string;
+  book: BookInfo; // 정규화된 도서 정보 객체 추가
   date: string; // YYYY-MM-DD 형식
   memo?: string;
   createdAt: string;
@@ -12,10 +12,7 @@ export interface ReadingLog {
 }
 
 export interface CreateReadingLogParams {
-  bookIsbn: string;
-  bookTitle: string;
-  bookImage: string;
-  bookAuthor: string;
+  isbn: string;
   date: string;
   memo?: string;
 }

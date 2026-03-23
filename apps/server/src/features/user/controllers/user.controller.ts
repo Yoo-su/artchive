@@ -15,6 +15,7 @@ import { User } from '../entities/user.entity';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { Patch } from '@nestjs/common';
 import { MyProfileResponseDto } from '../dtos/my-profile-response.dto';
+import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
 
 import {
   ApiTags,
@@ -171,13 +172,15 @@ export class UserController {
   @ApiResponse({ status: 201, description: '위시리스트에 추가되었습니다.' })
   async addToWishlist(
     @CurrentUser() user: User,
-    @Body()
+    @Body(BookResolvePipe)
     body: {
       type: 'BOOK' | 'SALE';
-      id: string | number;
+      id: string; // 도서 ISBN 또는 판매글 ID
     },
   ) {
-    return await this.userService.addToWishlist(user.id, body.type, body.id);
+    // SALE 타입인 경우 숫자 ID로 변환하여 처리
+    const targetId = body.type === 'BOOK' ? body.id : Number(body.id);
+    return await this.userService.addToWishlist(user.id, body.type, targetId);
   }
 
   @Delete('wishlist')

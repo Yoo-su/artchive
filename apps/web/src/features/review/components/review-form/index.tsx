@@ -59,7 +59,7 @@ interface ReviewFormProps {
   initialData?: {
     title: string;
     content: string;
-    bookIsbn: string;
+    isbn: string;
     category: string;
     tags: string[];
     rating: number;
@@ -108,7 +108,7 @@ export const ReviewForm = ({
     defaultValues: {
       title: initialData?.title || "",
       content: initialData?.content || "",
-      bookIsbn: initialData?.bookIsbn || "",
+      isbn: initialData?.isbn || "",
       category: initialData?.category || "",
       tags: initialData?.tags || [],
       rating: initialData?.rating || 0,
@@ -124,7 +124,7 @@ export const ReviewForm = ({
 
   const handleBookSelect = (book: BookInfo) => {
     setSelectedBook(book);
-    form.setValue("bookIsbn", book.isbn, { shouldValidate: true });
+    form.setValue("isbn", book.isbn, { shouldValidate: true });
     setIsBookModalOpen(false);
   };
 
@@ -278,10 +278,10 @@ export const ReviewForm = ({
                 </div>
               </div>
             )}
-            <input type="hidden" {...form.register("bookIsbn")} />
-            {form.formState.errors.bookIsbn && (
+            <input type="hidden" {...form.register("isbn")} />
+            {form.formState.errors.isbn && (
               <p className="text-sm font-medium text-destructive">
-                {form.formState.errors.bookIsbn.message}
+                {form.formState.errors.isbn.message}
               </p>
             )}
           </div>

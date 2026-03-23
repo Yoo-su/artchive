@@ -15,7 +15,7 @@ vi.mock("@/features/review/apis", () => ({
 const mockReviewId = 100;
 const mockReview = {
   id: mockReviewId,
-  bookIsbn: "1234",
+  isbn: "1234",
   title: "리뷰 제목",
   content: "리뷰 내용",
   rating: 5,

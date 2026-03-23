@@ -50,14 +50,7 @@ export class ReviewService {
     createReviewDto: CreateReviewDto,
     userId: number,
   ): Promise<ReviewResponseDto> {
-    const { bookIsbn, tags, ...reviewData } = createReviewDto;
-
-    // 트랜잭션 외부에서 도서 보장
-    let finalBookIsbn = bookIsbn;
-    if (bookIsbn) {
-      const book = await this.bookService.findOrCreateBook(bookIsbn);
-      finalBookIsbn = book.isbn;
-    }
+    const { isbn, tags, ...reviewData } = createReviewDto;
 
     return this.dataSource.transaction(async (manager: EntityManager) => {
       // 태그 처리
@@ -68,7 +61,7 @@ export class ReviewService {
 
       const review = manager.create(Review, {
         ...reviewData,
-        bookIsbn: finalBookIsbn,
+        isbn,
         userId,
         tagEntities,
       });
@@ -115,7 +108,7 @@ export class ReviewService {
     const {
       page = 1,
       limit = 10,
-      bookIsbn,
+      isbn,
       tag,
       search,
       category,
@@ -130,8 +123,8 @@ export class ReviewService {
     qb.leftJoinAndSelect('review.tagEntities', 'tags');
 
     // 1. 필터링 조건 먼저 적용
-    if (bookIsbn) {
-      qb.andWhere('review.bookIsbn = :bookIsbn', { bookIsbn });
+    if (isbn) {
+      qb.andWhere('review.isbn = :isbn', { isbn });
     }
 
     if (category) {
@@ -250,7 +243,7 @@ export class ReviewService {
         'review.viewCount',
         'review.reactionCount',
         'review.userId',
-        'review.bookIsbn',
+        'review.isbn',
         'review.isPublic',
         'review.createdAt',
       ])

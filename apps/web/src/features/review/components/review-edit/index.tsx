@@ -64,7 +64,7 @@ export const ReviewEdit = ({ id }: ReviewEditProps) => {
   const initialData = {
     title: review.title,
     content: review.content,
-    bookIsbn: review.bookIsbn,
+    isbn: review.isbn,
     category: review.category || "",
     tags: review.tags || [],
     rating: review.rating || 0,

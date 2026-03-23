@@ -18,7 +18,7 @@ export class BookService {
    * - 동시성 이슈(Race Condition) 해결을 위해 `INSERT ... ON CONFLICT DO NOTHING` 패턴을 사용합니다.
    * - DB에 없을 경우 네이버 API를 통해 백엔드에서 자체적으로 정보를 확보합니다.
    */
-  async findOrCreateBook(isbn: string): Promise<Book> {
+  async resolveBook(isbn: string): Promise<Book> {
     // 1. 빠른 조회 (Happy Path)
     const existingBook = await this.bookRepository.findOneBy({ isbn });
     if (existingBook) {
@@ -62,22 +62,10 @@ export class BookService {
 
   /**
    * 책 상세페이지 조회수를 증가시킵니다.
+   * BookResolvePipe가 사전에 도서 존재를 보장합니다.
    */
   async incrementBookViewCount(isbn: string): Promise<void> {
-    const result = await this.bookRepository.increment(
-      { isbn },
-      'viewCount',
-      1,
-    );
-    // 책이 DB에 없으면 네이버 API를 통해 백그라운드 데이터 캐싱 후 viewCount=1 셋팅
-    if (result.affected === 0) {
-      try {
-        const book = await this.findOrCreateBook(isbn);
-        await this.bookRepository.update(book.isbn, { viewCount: 1 });
-      } catch {
-        // 네이버 API 연동 실패 시 해당 조회 카운트는 조용히 무시 (재시도용 로깅 등 고려)
-      }
-    }
+    await this.bookRepository.increment({ isbn }, 'viewCount', 1);
   }
 
   /**

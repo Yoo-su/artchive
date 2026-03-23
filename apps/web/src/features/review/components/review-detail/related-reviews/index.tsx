@@ -27,7 +27,7 @@ export const RelatedReviews = ({ isbn }: RelatedReviewsProps) => {
   const { ref, inView } = useInView({ triggerOnce: true, rootMargin: "200px" });
 
   const { data, isLoading, isError } = useReviewsQuery(
-    { bookIsbn: isbn, limit: 4 },
+    { isbn: isbn, limit: 4 },
     inView,
   );
 
@@ -45,7 +45,7 @@ export const RelatedReviews = ({ isbn }: RelatedReviewsProps) => {
         </h2>
 
         {totalCount > 4 && (
-          <Link href={`${PATHS.REVIEWS}?bookIsbn=${isbn}`}>
+          <Link href={`${PATHS.REVIEWS}?isbn=${isbn}`}>
             <Button variant="ghost" size="sm" className="text-stone-500">
               {t("more", { count: totalCount })}
             </Button>

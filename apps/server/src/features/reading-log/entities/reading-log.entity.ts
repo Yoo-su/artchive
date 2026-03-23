@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '@/features/user/entities/user.entity';
+import { Book } from '@/features/book/entities/book.entity';
 
 @Entity({ name: 'reading_logs' })
 export class ReadingLog {
@@ -21,17 +22,12 @@ export class ReadingLog {
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @Column()
-  bookIsbn: string;
+  @Column({ name: 'bookIsbn' })
+  isbn: string;
 
-  @Column()
-  bookTitle: string;
-
-  @Column()
-  bookImage: string;
-
-  @Column()
-  bookAuthor: string;
+  @ManyToOne(() => Book, { eager: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'bookIsbn' })
+  book: Book;
 
   @Column({ type: 'date' })
   date: string; // YYYY-MM-DD 형식

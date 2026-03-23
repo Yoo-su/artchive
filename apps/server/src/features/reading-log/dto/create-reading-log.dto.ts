@@ -11,25 +11,7 @@ export class CreateReadingLogDto {
   @ApiProperty({ description: '책 ISBN', example: '9788937460449' })
   @IsString()
   @IsNotEmpty()
-  bookIsbn: string;
-
-  @ApiProperty({ description: '책 제목', example: '소년이 온다' })
-  @IsString()
-  @IsNotEmpty()
-  bookTitle: string;
-
-  @ApiProperty({
-    description: '책 표지 이미지 URL',
-    example: 'https://image.url/book.jpg',
-  })
-  @IsString()
-  @IsNotEmpty()
-  bookImage: string;
-
-  @ApiProperty({ description: '저자', example: '한강' })
-  @IsString()
-  @IsNotEmpty()
-  bookAuthor: string;
+  isbn: string;
 
   @ApiProperty({ description: '읽은 날짜 (YYYY-MM-DD)', example: '2023-10-01' })
   @IsDateString()

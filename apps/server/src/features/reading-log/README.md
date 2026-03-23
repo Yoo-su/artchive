@@ -37,7 +37,7 @@
 | :----------- | :------- | :--------------------- |
 | `id`         | `uuid`   | 기록 고유 ID (PK)      |
 | `userId`     | `number` | 사용자 ID (FK)         |
-| `bookIsbn`   | `string` | 도서 ISBN              |
+| `bookIsbn`   | `string` | 도서 ISBN (코드상 `isbn`으로 접근) |
 | `bookTitle`  | `string` | 도서 제목              |
 | `bookImage`  | `string` | 도서 표지 URL          |
 | `bookAuthor` | `string` | 도서 저자              |

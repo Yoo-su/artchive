@@ -24,6 +24,7 @@ import { UpdateSaleStatusDto } from '@/features/user/dtos/update-sale-status.dto
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { User } from '@/features/user/entities/user.entity';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
 
 // API 경로는 기존과 동일하게 유지 (/book/...)
 @ApiTags('중고책 판매 (Used Book Sale)')
@@ -42,7 +43,7 @@ export class UsedBookSaleController {
     description: '판매글이 성공적으로 생성되었습니다.',
   })
   async createUsedBookSale(
-    @Body() createBookSaleDto: CreateBookSaleDto,
+    @Body(BookResolvePipe) createBookSaleDto: CreateBookSaleDto,
     @CurrentUser() user: User,
   ) {
     const userId = user.id;

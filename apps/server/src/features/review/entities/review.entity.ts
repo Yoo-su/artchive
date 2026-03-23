@@ -48,8 +48,8 @@ export class Review {
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @Column({ nullable: true })
-  bookIsbn: string;
+  @Column({ name: 'bookIsbn', nullable: true })
+  isbn: string;
 
   @ManyToOne(() => Book)
   @JoinColumn({ name: 'bookIsbn' })

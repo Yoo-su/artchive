@@ -56,11 +56,18 @@ export class ReadingLogService {
    * @returns 생성된 독서 기록 엔티티
    */
   async create(userId: number, createReadingLogDto: CreateReadingLogDto) {
+    const { isbn, ...data } = createReadingLogDto;
     const log = this.readingLogRepository.create({
       userId,
-      ...createReadingLogDto,
+      ...data,
+      isbn,
     });
-    return await this.readingLogRepository.save(log);
+    const savedLog = await this.readingLogRepository.save(log);
+
+    // 저장 후 도서 정보를 포함하여 다시 조회
+    return await this.readingLogRepository.findOne({
+      where: { id: savedLog.id },
+    });
   }
 
   /**
@@ -75,6 +82,7 @@ export class ReadingLogService {
 
     return await this.readingLogRepository
       .createQueryBuilder('log')
+      .leftJoinAndSelect('log.book', 'book')
       .where('log.userId = :userId', { userId })
       .andWhere('log.date >= :start AND log.date <= :end', { start, end })
       .orderBy('log.date', 'ASC')
@@ -138,10 +146,11 @@ export class ReadingLogService {
   async findAllInfinite(userId: number, cursorId?: string, limit = 10) {
     const query = this.readingLogRepository
       .createQueryBuilder('log')
+      .leftJoinAndSelect('log.book', 'book')
       .where('log.userId = :userId', { userId })
-      .orderBy('log.date', 'DESC') // 최근 날짜 순
-      .addOrderBy('log.createdAt', 'DESC') // 같은 날짜면 최신 작성 순
-      .take(limit + 1); // 다음 페이지 존재 여부 확인을 위해 +1
+      .orderBy('log.date', 'DESC')
+      .addOrderBy('log.createdAt', 'DESC')
+      .take(limit + 1);
 
     if (cursorId) {
       const cursorLog = await this.readingLogRepository.findOne({
@@ -194,7 +203,12 @@ export class ReadingLogService {
       log.memo = updateReadingLogDto.memo;
     }
 
-    return await this.readingLogRepository.save(log);
+    const updatedLog = await this.readingLogRepository.save(log);
+
+    // 수정 후 도서 정보를 포함하여 다시 조회
+    return await this.readingLogRepository.findOne({
+      where: { id: updatedLog.id },
+    });
   }
 
   /**
