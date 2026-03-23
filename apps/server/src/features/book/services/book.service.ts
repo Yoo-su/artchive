@@ -12,6 +12,9 @@ export class BookService {
     private readonly naverBookSearchService: NaverBookSearchService,
   ) {}
 
+  // 동일 ISBN에 대해 동시에 진행 중인 resolveBook 작업을 관리하는 Map (Request Collapsing)
+  private resolveTasks = new Map<string, Promise<Book>>();
+
   /**
    * 책 정보를 조회하거나 생성합니다.
    * - Read-heavy 워크로드 최적화를 위해 조회를 우선 시도합니다.
@@ -19,50 +22,66 @@ export class BookService {
    * - DB에 없을 경우 네이버 API를 통해 백엔드에서 자체적으로 정보를 확보합니다.
    */
   async resolveBook(isbn: string): Promise<Book> {
-    // 1. 빠른 조회 (Happy Path)
+    // 1. 빠른 조회 (Happy Path) - 이미 존재하면 즉시 반환
     const existingBook = await this.bookRepository.findOneBy({ isbn });
     if (existingBook) {
       return existingBook;
     }
 
-    // 2. 외부 API(네이버)에서 책 정보 조회
-    const books = await this.naverBookSearchService.search(isbn, 1);
-    if (!books || books.length === 0) {
-      throw new NotFoundException('해당 도서를 외부 API에서 찾을 수 없습니다.');
-    }
-    const bookData = books[0];
-
-    // 3. 안전한 생성 (Concurrency Safe)
-    await this.bookRepository
-      .createQueryBuilder()
-      .insert()
-      .into(Book)
-      .values({
-        isbn: bookData.isbn,
-        title: bookData.title,
-        author: bookData.author,
-        publisher: bookData.publisher,
-        description: bookData.description || '',
-        image: bookData.image || '',
-        discount: bookData.discount,
-        viewCount: 0,
-      })
-      .orIgnore() // 중복 발생 시 DB 레벨에서 무시
-      .execute();
-
-    // 4. 최종 조회
-    const book = await this.bookRepository.findOneBy({ isbn: bookData.isbn! });
-
-    if (!book) {
-      throw new Error('Unexpected error: Book not found after creation');
+    // 2. 진행 중인 동일 작업이 있는지 확인 (Request Collapsing)
+    const existingTask = this.resolveTasks.get(isbn);
+    if (existingTask) {
+      return existingTask;
     }
 
-    return book;
+    // 3. 동시 요청 관리를 위해 Promise를 Map에 저장
+    const resolveTask = (async () => {
+      try {
+        // 외부 API(네이버)에서 책 정보 조회
+        const books = await this.naverBookSearchService.search(isbn, 1);
+        if (!books || books.length === 0) {
+          throw new NotFoundException(
+            '해당 도서를 외부 API에서 찾을 수 없습니다.',
+          );
+        }
+        const bookData = books[0];
+
+        // 안전한 데이터 생성 (Concurrency Safe)
+        const newBook = this.bookRepository.create({
+          isbn: bookData.isbn,
+          title: bookData.title,
+          author: bookData.author,
+          publisher: bookData.publisher,
+          description: bookData.description || '',
+          image: bookData.image || '',
+          discount: String(bookData.discount || ''),
+          viewCount: 0,
+        });
+
+        await this.bookRepository
+          .createQueryBuilder()
+          .insert()
+          .into(Book)
+          .values(newBook)
+          .orIgnore() // 중복 발생 시 DB 레벨에서 무시
+          .execute();
+
+        // 불필요한 추가 조회 없이 생성된 객체를 반환 (최적화)
+        // Note: createdAt/updatedAt은 DB 기본값으로 채워지지만,
+        // Sync 시점의 호출자에겐 데이터의 존재 여부가 더 중요하므로 성능을 위해 추가 조회를 지양합니다.
+        return newBook;
+      } finally {
+        // 작업 완료 후 Map에서 제거
+        this.resolveTasks.delete(isbn);
+      }
+    })();
+
+    this.resolveTasks.set(isbn, resolveTask);
+    return resolveTask;
   }
 
   /**
    * 책 상세페이지 조회수를 증가시킵니다.
-   * BookResolvePipe가 사전에 도서 존재를 보장합니다.
    */
   async incrementBookViewCount(isbn: string): Promise<void> {
     await this.bookRepository.increment({ isbn }, 'viewCount', 1);

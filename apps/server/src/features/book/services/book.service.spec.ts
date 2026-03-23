@@ -81,14 +81,14 @@ describe('BookService', () => {
       (repo.createQueryBuilder as jest.Mock).mockReturnValue(mockInsertBuilder);
 
       // 1. Initial find: null
-      // 2. Second find (after insert): returns book
-      (repo.findOneBy as jest.Mock)
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(newBook);
+      (repo.findOneBy as jest.Mock).mockResolvedValueOnce(null);
+      (repo.create as jest.Mock).mockReturnValue(newBook);
 
       const result = await service.resolveBook(isbn);
 
       expect(result).toEqual(newBook);
+      expect(repo.findOneBy).toHaveBeenCalledTimes(1);
+      expect(repo.create).toHaveBeenCalled();
       expect(mockNaverBookSearchService.search).toHaveBeenCalledWith(isbn, 1);
       expect(mockInsertBuilder.insert).toHaveBeenCalled();
       expect(mockInsertBuilder.orIgnore).toHaveBeenCalled();
@@ -114,10 +114,8 @@ describe('BookService', () => {
       (repo.createQueryBuilder as jest.Mock).mockReturnValue(mockInsertBuilder);
 
       // 1. Initial find: null
-      // 2. Second find (after ignored insert): returns the book created by another process
-      (repo.findOneBy as jest.Mock)
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(existingBook);
+      (repo.findOneBy as jest.Mock).mockResolvedValueOnce(null);
+      (repo.create as jest.Mock).mockReturnValue(existingBook);
 
       const result = await service.resolveBook(isbn);
 
@@ -125,7 +123,7 @@ describe('BookService', () => {
       expect(mockInsertBuilder.insert).toHaveBeenCalled();
       expect(mockInsertBuilder.orIgnore).toHaveBeenCalled();
       expect(mockInsertBuilder.execute).toHaveBeenCalled();
-      expect(repo.findOneBy).toHaveBeenCalledTimes(2); // Initial find and retry find
+      expect(repo.findOneBy).toHaveBeenCalledTimes(1); // Initial find only
     });
   });
 
