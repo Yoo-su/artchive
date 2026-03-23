@@ -2,6 +2,7 @@ import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -20,7 +21,8 @@ export class CreateReviewDto {
   content: string;
 
   @IsString()
-  bookIsbn: string;
+  @IsNotEmpty()
+  isbn: string;
 
   @IsArray()
   @ArrayMinSize(1)

@@ -69,6 +69,9 @@ export class UsedBookSale {
   @JoinColumn({ name: 'userId' }) // 외래 키 컬럼명을 'userId'로 명시
   user: User;
 
+  @Column({ name: 'bookIsbn' })
+  isbn: string;
+
   @ManyToOne(() => Book, (book) => book.usedBookSales, {
     eager: true, // 판매글 조회 시 항상 책 정보도 함께 로드
     onDelete: 'SET NULL', // 책 마스터 정보가 삭제되더라도 판매글은 유지 (null로 설정)

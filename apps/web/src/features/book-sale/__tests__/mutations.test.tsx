@@ -37,7 +37,7 @@ const mockSales: UsedBookSale[] = [
     sellerId: 1,
     createdAt: new Date().toISOString(),
     viewCount: 0,
-    bookIsbn: "123",
+    isbn: "123",
   } as unknown as UsedBookSale,
   {
     id: 2,
@@ -47,7 +47,7 @@ const mockSales: UsedBookSale[] = [
     sellerId: 1,
     createdAt: new Date().toISOString(),
     viewCount: 0,
-    bookIsbn: "456",
+    isbn: "456",
   } as unknown as UsedBookSale,
 ];
 

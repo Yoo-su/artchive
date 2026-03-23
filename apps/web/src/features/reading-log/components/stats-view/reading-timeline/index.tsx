@@ -91,12 +91,12 @@ export function ReadingTimeline({ logs }: ReadingTimelineProps) {
                     <Card className="w-[140px] md:w-[160px] overflow-hidden border-none shadow-sm hover:shadow-md transition-shadow group bg-card/50 hover:bg-card">
                       <div className="p-3 space-y-3">
                         <div className="relative aspect-2/3 w-full overflow-hidden rounded-md bg-muted shadow-inner">
-                          {log.bookImage ? (
+                          {log.book?.image ? (
                             <Image
-                              src={log.bookImage}
-                              alt={log.bookTitle}
+                              src={log.book.image}
+                              alt={log.book.title}
                               fill
-                              className="object-cover transition-transform duration-300 group-hover:scale-110"
+                              className="object-cover transition-transform duration-500 group-hover:scale-110"
                             />
                           ) : (
                             <div className="flex h-full items-center justify-center bg-secondary text-muted-foreground text-xs">
@@ -108,15 +108,15 @@ export function ReadingTimeline({ logs }: ReadingTimelineProps) {
                         <div className="space-y-1 text-center">
                           <p
                             className="font-medium text-sm line-clamp-1 truncate"
-                            title={log.bookTitle}
+                            title={log.book?.title}
                           >
-                            {log.bookTitle}
+                            {log.book?.title}
                           </p>
                           <p
                             className="text-xs text-muted-foreground line-clamp-1 truncate"
-                            title={log.bookAuthor}
+                            title={log.book?.author}
                           >
-                            {log.bookAuthor}
+                            {log.book?.author}
                           </p>
                           <time className="block text-[10px] text-primary/80 font-medium pt-1">
                             {format(new Date(log.date), dateFormat, {

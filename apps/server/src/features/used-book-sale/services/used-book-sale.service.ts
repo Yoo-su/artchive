@@ -36,6 +36,7 @@ export class UsedBookSaleService {
 
   /**
    * 중고책 판매글을 생성합니다.
+   * BookResolvePipe를 통해 도서 정보가 DB에 존재함이 보장됩니다.
    * @param createBookSaleDto 판매글 생성 DTO
    * @param userId 작성자 ID
    * @returns 생성된 판매글
@@ -44,27 +45,16 @@ export class UsedBookSaleService {
     createBookSaleDto: CreateBookSaleDto,
     userId: number,
   ): Promise<UsedBookSale> {
-    const user = await this.userService.findById(userId);
-    if (!user) {
-      throw new BusinessException('USER_NOT_FOUND', HttpStatus.NOT_FOUND);
-    }
+    const { isbn, ...saleData } = createBookSaleDto;
 
-    // 1. 책 정보 찾기 또는 생성 (트랜잭션 외부 독립 보장)
-    const book = await this.bookService.findOrCreateBook(
-      createBookSaleDto.bookIsbn,
-    );
-
-    return this.dataSource.transaction(async (manager) => {
-      // 2. 판매글 생성
-      const newSale = manager.create(UsedBookSale, {
-        ...createBookSaleDto,
-        bookIsbn: undefined, // DTO의 bookIsbn과 Entity 관계 매핑 충돌 방지
-        user,
-        book,
-      });
-
-      return manager.save(UsedBookSale, newSale);
+    // 엔티티 생성 및 관계 설정 (ID 참조 방식 활용으로 추가 조회 최소화)
+    const newSale = this.usedBookSaleRepository.create({
+      ...saleData,
+      user: { id: userId } as any, // Shallow reference
+      book: { isbn } as any, // Shallow reference
     });
+
+    return await this.usedBookSaleRepository.save(newSale);
   }
 
   /**
@@ -289,7 +279,7 @@ export class UsedBookSaleService {
 
     const queryBuilder = this.usedBookSaleRepository
       .createQueryBuilder('sale')
-      .where('sale.bookIsbn = :isbn', { isbn })
+      .where('sale.isbn = :isbn', { isbn })
       .leftJoinAndSelect('sale.user', 'user')
       .leftJoinAndSelect('sale.book', 'book')
       .select([

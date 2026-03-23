@@ -70,7 +70,7 @@ export class CreateBookSaleDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ description: '책 ISBN', example: '1234567890123' })
-  bookIsbn: string;
+  isbn: string;
 
   @IsString()
   @IsNotEmpty()

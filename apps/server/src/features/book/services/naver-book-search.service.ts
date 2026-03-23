@@ -66,6 +66,7 @@ export class NaverBookSearchService {
         description: item.description,
         image: item.image,
         isbn: item.isbn,
+        discount: item.discount,
         pubdate: item.pubdate,
       }));
     } catch (error) {

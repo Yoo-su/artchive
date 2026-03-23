@@ -1,4 +1,5 @@
 import {
+  Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
@@ -21,6 +22,9 @@ export class Wishlist {
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: User;
+
+  @Column({ name: 'bookIsbn', nullable: true })
+  isbn: string | null;
 
   @ManyToOne(() => Book, { nullable: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'bookIsbn' })

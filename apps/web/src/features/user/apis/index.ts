@@ -81,7 +81,7 @@ export const addToWishlist = async (
 ) => {
   const { data } = await privateAxios.post(API_PATHS.user.wishlist, {
     type,
-    id,
+    id: String(id),
   });
   return data;
 };

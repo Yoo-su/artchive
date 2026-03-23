@@ -21,7 +21,7 @@ export interface Review {
   id: number;
   title: string;
   content: string;
-  bookIsbn: string;
+  isbn: string;
   rating: number;
   tags: string[];
   category: string;
@@ -45,7 +45,7 @@ export interface ReviewFeed {
 export interface GetReviewsParams {
   page?: number;
   limit?: number;
-  bookIsbn?: string;
+  isbn?: string;
   tag?: string | null;
   search?: string;
   category?: string | null;
@@ -67,7 +67,7 @@ export interface GetReviewsResponse {
 export interface ReviewFormValues {
   title: string;
   content: string;
-  bookIsbn: string;
+  isbn: string;
   category: string;
   tags: string[];
   rating: number;

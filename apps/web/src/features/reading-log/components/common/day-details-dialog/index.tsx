@@ -63,7 +63,7 @@ export function DayDetailsDialog({
 
   const handleBookSelect = (book: BookInfo) => {
     // 해당 날짜에 이미 추가된 책인지 확인
-    const exists = logs.some((log) => log.bookIsbn === book.isbn);
+    const exists = logs.some((log) => log.isbn === book.isbn);
     if (exists) {
       toast.error("이미 추가된 책입니다.");
       return;
@@ -77,10 +77,7 @@ export function DayDetailsDialog({
 
     createMutation.mutate(
       {
-        bookIsbn: selectedBookForCreate.isbn,
-        bookTitle: selectedBookForCreate.title,
-        bookImage: selectedBookForCreate.image,
-        bookAuthor: selectedBookForCreate.author,
+        isbn: selectedBookForCreate.isbn,
         date: format(date, "yyyy-MM-dd"),
         memo,
       },
@@ -185,8 +182,8 @@ export function DayDetailsDialog({
                   >
                     <div className="relative w-20 h-28 shrink-0 rounded-lg overflow-hidden shadow-md bg-stone-100 ring-1 ring-black/5">
                       <Image
-                        src={log.bookImage}
-                        alt={log.bookTitle}
+                        src={log.book.image}
+                        alt={log.book.title}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-110"
                       />
@@ -195,10 +192,10 @@ export function DayDetailsDialog({
                       <div className="flex justify-between items-start gap-2">
                         <div>
                           <h4 className="font-bold text-stone-800 line-clamp-1 text-base font-serif tracking-tight">
-                            {log.bookTitle}
+                            {log.book.title}
                           </h4>
                           <p className="text-xs text-stone-500 font-medium mt-0.5">
-                            {log.bookAuthor}
+                            {log.book.author}
                           </p>
                         </div>
                         <div className="flex items-center -mt-1 -mr-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -257,9 +254,9 @@ export function DayDetailsDialog({
         book={
           editingLog
             ? {
-                title: editingLog.bookTitle,
-                author: editingLog.bookAuthor,
-                image: editingLog.bookImage,
+                title: editingLog.book.title,
+                author: editingLog.book.author,
+                image: editingLog.book.image,
               }
             : null
         }

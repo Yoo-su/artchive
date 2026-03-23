@@ -19,6 +19,10 @@
 | `GET`       | `/check-nickname`  | 닉네임 중복 여부를 확인합니다. (쿼리: `?nickname=xxx`)  | ✅ (Access Token) |
 | `PATCH`     | `/`                | 현재 로그인된 사용자의 프로필을 수정합니다.             | ✅ (Access Token) |
 | `GET`       | `/my-sales`        | 현재 로그인된 사용자가 등록한 모든 판매글을 조회합니다. | ✅ (Access Token) |
+| `GET`       | `/wishlist`        | 내 위시리스트 목록을 조회합니다.                        | ✅ (Access Token) |
+| `POST`      | `/wishlist`        | 위시리스트에 항목을 추가합니다. (id 필드 사용)          | ✅ (Access Token) |
+| `DELETE`    | `/wishlist`        | 위시리스트에서 항목을 제거합니다.                       | ✅ (Access Token) |
+| `GET`       | `/wishlist/check`  | 특정 항목의 위시리스트 여부를 확인합니다.               | ✅ (Access Token) |
 
 ## 3. `User` 엔티티 스키마
 
@@ -40,6 +44,7 @@
 - **`usedBookSales`**: `UsedBookSale` 엔티티와 1:N 관계. 한 명의 사용자는 여러 개의 중고 서적 판매글을 가질 수 있습니다.
 - **`chatParticipants`**: `ChatParticipant` 엔티티와 1:N 관계. 사용자가 참여하고 있는 채팅방 목록을 나타냅니다.
 - **`readReceipts`**: `ReadReceipt` 엔티티와 1:N 관계. 사용자가 읽은 메시지 기록을 나타냅니다.
+- **`wishlists`**: `Wishlist` 엔티티와 1:N 관계. 사용자의 찜 목록 정보를 나타냅니다.
 
 ## 4. 모듈 간의 상호작용
 

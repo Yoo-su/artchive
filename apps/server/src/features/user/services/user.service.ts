@@ -472,11 +472,6 @@ export class UserService implements OnModuleInit {
     type: 'BOOK' | 'SALE',
     id: string | number,
   ) {
-    // 트랜잭션 전 책 존재 보장
-    if (type === 'BOOK') {
-      await this.bookService.findOrCreateBook(id as string);
-    }
-
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();

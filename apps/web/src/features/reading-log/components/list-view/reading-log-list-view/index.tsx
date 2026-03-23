@@ -90,8 +90,8 @@ export function ReadingLogListView() {
             >
               <div className="relative w-24 h-32 shrink-0 rounded-lg overflow-hidden bg-stone-100 shadow-md ring-1 ring-black/5">
                 <Image
-                  src={log.bookImage}
-                  alt={log.bookTitle}
+                  src={log.book.image}
+                  alt={log.book.title}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
                   sizes="100px"
@@ -101,10 +101,10 @@ export function ReadingLogListView() {
                 <div className="flex justify-between items-start gap-4">
                   <div className="min-w-0 flex-1">
                     <h4 className="font-bold text-stone-900 line-clamp-1 mb-1 text-lg font-serif tracking-tight">
-                      {log.bookTitle}
+                      {log.book.title}
                     </h4>
                     <p className="text-sm text-stone-500 line-clamp-1 mb-3 font-medium">
-                      {log.bookAuthor}
+                      {log.book.author}
                     </p>
                   </div>
                   <span

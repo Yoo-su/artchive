@@ -25,6 +25,7 @@ import { CreateReviewDto } from '../dto/create-review.dto';
 import { GetReviewsQueryDto } from '../dto/get-reviews-query.dto';
 import { UpdateReviewDto } from '../dto/update-review.dto';
 import { ReviewService } from '../services/review.service';
+import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
 
 import { Review } from '@/features/review/entities/review.entity';
 import { ReviewReactionType } from '@/features/review/entities/review-reaction.entity';
@@ -57,7 +58,7 @@ export class ReviewController {
     description: '인증되지 않은 사용자입니다.',
   })
   async create(
-    @Body() createReviewDto: CreateReviewDto,
+    @Body(BookResolvePipe) createReviewDto: CreateReviewDto,
     @CurrentUser() user: User,
   ): Promise<Review> {
     return await this.reviewService.create(createReviewDto, user.id);

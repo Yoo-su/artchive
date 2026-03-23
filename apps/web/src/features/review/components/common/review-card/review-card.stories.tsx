@@ -11,7 +11,7 @@ const mockReview: Review = {
   title: "인생을 바꾼 한 권의 책",
   content:
     "<p>이 책은 정말 대단합니다. 읽는 내내 깊은 감동을 받았고, 삶에 대한 새로운 시각을 갖게 되었습니다.</p>",
-  bookIsbn: "9788937460784",
+  isbn: "9788937460784",
   rating: 4.5,
   tags: ["성장", "고전문학", "인생책"],
   category: "소설",

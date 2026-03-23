@@ -63,7 +63,7 @@ export const useBookSaleForm = () => {
       longitude: data.longitude,
       placeName: data.placeName,
       content: data.content,
-      bookIsbn: data.book.isbn,
+      isbn: data.book.isbn,
     };
 
     mutate({ imageFiles, payload });
