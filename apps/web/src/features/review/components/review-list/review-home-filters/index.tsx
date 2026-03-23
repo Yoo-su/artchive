@@ -4,23 +4,9 @@ import { useTranslations } from "next-intl";
 import { FreeMode } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { BOOK_DOMAINS } from "@/features/review/constants/data";
+import { BOOK_DOMAINS, CATEGORY_MAP } from "@/features/review/constants/data";
 import { cn } from "@/shared/utils";
 
-const CATEGORY_MAP: Record<string, string> = {
-  소설: "novel",
-  에세이: "essay",
-  자기계발: "self_help",
-  인문: "humanities",
-  "경제/경영": "economy",
-  과학: "science",
-  예술: "art",
-  역사: "history",
-  철학: "philosophy",
-  종교: "religion",
-  만화: "comic",
-  기타: "others",
-};
 
 interface ReviewHomeFiltersProps {
   searchInput: string;

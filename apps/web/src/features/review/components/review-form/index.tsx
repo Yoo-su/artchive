@@ -53,7 +53,7 @@ import { Switch } from "@/shared/components/shadcn/switch";
 import { StarRating } from "@/shared/components/ui/star-rating";
 import { useEditorImageHandler } from "@/shared/hooks/use-editor-image-handler";
 
-import { BOOK_DOMAINS } from "../../constants/data";
+import { BOOK_DOMAINS, CATEGORY_MAP } from "../../constants/data";
 
 interface ReviewFormProps {
   initialData?: {
@@ -171,20 +171,6 @@ export const ReviewForm = ({
 
   const isProcessing = isSubmitting || isUploading;
 
-  const CATEGORY_MAP: Record<string, string> = {
-    소설: "novel",
-    에세이: "essay",
-    자기계발: "self_help",
-    인문: "humanities",
-    "경제/경영": "economy",
-    과학: "science",
-    예술: "art",
-    역사: "history",
-    철학: "philosophy",
-    종교: "religion",
-    만화: "comic",
-    기타: "others",
-  };
 
   const currentSubmitLabel =
     submitLabel ||

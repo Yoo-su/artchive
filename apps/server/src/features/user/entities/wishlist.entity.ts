@@ -23,11 +23,11 @@ export class Wishlist {
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @Column({ name: 'bookIsbn', nullable: true })
+  @Column({ nullable: true })
   isbn: string | null;
 
   @ManyToOne(() => Book, { nullable: true, onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'bookIsbn' })
+  @JoinColumn({ name: 'isbn' })
   book: Book | null;
 
   @ManyToOne(() => UsedBookSale, { nullable: true, onDelete: 'CASCADE' })

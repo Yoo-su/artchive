@@ -11,13 +11,16 @@ export class BookResolvePipe implements PipeTransform {
   constructor(private readonly bookService: BookService) {}
 
   async transform(value: any, metadata: ArgumentMetadata): Promise<any> {
+    // 1. Body 데이터 처리 (isbn 필드 또는 위시리스트 id)
     if (metadata.type === 'body' && value) {
       const isbnToResolve =
         value.isbn || (value.type === 'BOOK' ? value.id : null);
+
       if (isbnToResolve) {
         await this.bookService.resolveBook(String(isbnToResolve));
       }
     }
+
     // 2. Param 데이터 처리 (isbn 파라미터)
     if (metadata.type === 'param' && value && typeof value === 'string') {
       await this.bookService.resolveBook(value);
