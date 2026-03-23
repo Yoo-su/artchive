@@ -93,9 +93,9 @@ export class BookService {
    */
   async findPopularBooks(): Promise<Book[]> {
     // Subqueries for popularity calculation
-    const salesViewSubQuery = `SELECT COALESCE(SUM(sale."viewCount"), 0) FROM used_book_sales sale WHERE sale."bookIsbn" = book.isbn`;
-    const reviewViewSubQuery = `SELECT COALESCE(SUM(review."viewCount"), 0) FROM reviews review WHERE review."bookIsbn" = book.isbn`;
-    const reviewReactionSubQuery = `SELECT COALESCE(SUM(review."reactionCount"), 0) FROM reviews review WHERE review."bookIsbn" = book.isbn`;
+    const salesViewSubQuery = `SELECT COALESCE(SUM(sale."viewCount"), 0) FROM used_book_sales sale WHERE sale."isbn" = book.isbn`;
+    const reviewViewSubQuery = `SELECT COALESCE(SUM(review."viewCount"), 0) FROM reviews review WHERE review."isbn" = book.isbn`;
+    const reviewReactionSubQuery = `SELECT COALESCE(SUM(review."reactionCount"), 0) FROM reviews review WHERE review."isbn" = book.isbn`;
 
     const rawResults = await this.bookRepository
       .createQueryBuilder('book')

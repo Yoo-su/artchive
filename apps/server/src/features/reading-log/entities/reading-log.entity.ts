@@ -22,11 +22,11 @@ export class ReadingLog {
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @Column({ name: 'bookIsbn' })
+  @Column()
   isbn: string;
 
   @ManyToOne(() => Book, { eager: true, onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'bookIsbn' })
+  @JoinColumn({ name: 'isbn' })
   book: Book;
 
   @Column({ type: 'date' })
