@@ -1,15 +1,15 @@
+import * as apis from "@bookjeok/api-client/book-sale";
 import { SaleStatus, UsedBookSale } from "@bookjeok/core/book-sale";
+import { bookSaleKeys } from "@bookjeok/react-query/book-sale/keys";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import * as apis from "@/features/book-sale/apis";
-import { bookSaleKeys } from "@/features/book-sale/constants/query-keys";
 import { useUpdateBookSaleStatusMutation } from "@/features/book-sale/mutations";
 
 // API 호출 함수들을 모킹
-vi.mock("@/features/book-sale/apis", () => ({
+vi.mock("@bookjeok/api-client/book-sale", () => ({
   updateBookSaleStatus: vi.fn(),
 }));
 
@@ -77,7 +77,7 @@ describe("useUpdateBookSaleStatusMutation", () => {
     const apiPromise = new Promise((resolve) => {
       resolveApi = resolve;
     });
-    
+
     vi.mocked(apis.updateBookSaleStatus).mockReturnValue(apiPromise as any);
 
     const { result } = renderHook(() => useUpdateBookSaleStatusMutation(), {
@@ -91,12 +91,18 @@ describe("useUpdateBookSaleStatusMutation", () => {
       const cachedData = queryClient.getQueryData<UsedBookSale[]>(
         bookSaleKeys.mySales.queryKey,
       );
-      expect(cachedData?.find((item) => item.id === 1)?.status).toBe(SaleStatus.SOLD);
+      expect(cachedData?.find((item) => item.id === 1)?.status).toBe(
+        SaleStatus.SOLD,
+      );
     });
-    
+
     // 나머지 항목은 영향 받지 않아야 함
-    const currentCache = queryClient.getQueryData<UsedBookSale[]>(bookSaleKeys.mySales.queryKey);
-    expect(currentCache?.find((item) => item.id === 2)?.status).toBe(SaleStatus.FOR_SALE);
+    const currentCache = queryClient.getQueryData<UsedBookSale[]>(
+      bookSaleKeys.mySales.queryKey,
+    );
+    expect(currentCache?.find((item) => item.id === 2)?.status).toBe(
+      SaleStatus.FOR_SALE,
+    );
 
     // Promise를 resolve하여 정상 종료시킴
     await act(async () => {

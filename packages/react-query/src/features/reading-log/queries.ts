@@ -1,7 +1,25 @@
 "use client";
-import { createReadingLog, deleteReadingLog, getReadingLogs, getReadingLogSettings, getReadingLogsInfinite,getReadingLogStats, updateReadingLog, updateReadingLogSettings } from "@bookjeok/api-client/reading-log";
-import { CreateReadingLogParams, ReadingLog, UpdateReadingLogParams } from "@bookjeok/core/reading-log";
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  createReadingLog,
+  deleteReadingLog,
+  getReadingLogs,
+  getReadingLogSettings,
+  getReadingLogsInfinite,
+  getReadingLogStats,
+  updateReadingLog,
+  updateReadingLogSettings,
+} from "@bookjeok/api-client/reading-log";
+import {
+  CreateReadingLogParams,
+  ReadingLog,
+  UpdateReadingLogParams,
+} from "@bookjeok/core/reading-log";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
 
 import { readingLogKeys } from "./query-keys";
@@ -25,7 +43,11 @@ export const useReadingLogsQuery = (
 /**
  * 월별 독서 통계 조회
  */
-export const useReadingLogStatsQuery = (year: number, month: number, client: AxiosInstance) => {
+export const useReadingLogStatsQuery = (
+  year: number,
+  month: number,
+  client: AxiosInstance,
+) => {
   return useQuery({
     queryKey: readingLogKeys.stats(year, month).queryKey,
     queryFn: () => getReadingLogStats(client, { year, month }),
@@ -42,20 +64,71 @@ export const useReadingLogSettingsQuery = (client: AxiosInstance) => {
   });
 };
 
+import { User } from "@bookjeok/core/auth";
+
+import { userKeys } from "../user/query-keys";
+
 /**
  * 독서 기록 설정 수정 뮤테이션
  */
-export const useUpdateReadingLogSettingsMutation = (client: AxiosInstance, options?: { onSuccess?: () => void; onError?: (error: unknown) => void }) => {
+export const useUpdateReadingLogSettingsMutation = (
+  client: AxiosInstance,
+  options?: { onSuccess?: () => void; onError?: (error: unknown) => void },
+) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (isReadingLogPublic: boolean) =>
       updateReadingLogSettings(client, isReadingLogPublic),
+    onMutate: async (isReadingLogPublic) => {
+      await queryClient.cancelQueries({
+        queryKey: readingLogKeys.settings.queryKey,
+      });
+      await queryClient.cancelQueries({ queryKey: userKeys.me.queryKey });
+
+      const previousSettings = queryClient.getQueryData(
+        readingLogKeys.settings.queryKey,
+      );
+      const previousUser = queryClient.getQueryData<User>(userKeys.me.queryKey);
+
+      queryClient.setQueryData(
+        readingLogKeys.settings.queryKey,
+        (old: any) => ({
+          ...old,
+          isReadingLogPublic,
+        }),
+      );
+
+      if (previousUser) {
+        queryClient.setQueryData(userKeys.me.queryKey, {
+          ...previousUser,
+          isReadingLogPublic,
+        });
+      }
+
+      return { previousSettings, previousUser };
+    },
+    onError: (err, _variables, context) => {
+      if (context?.previousSettings) {
+        queryClient.setQueryData(
+          readingLogKeys.settings.queryKey,
+          context.previousSettings,
+        );
+      }
+      if (context?.previousUser) {
+        queryClient.setQueryData(userKeys.me.queryKey, context.previousUser);
+      }
+      options?.onError?.(err);
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: readingLogKeys.settings.queryKey });
       options?.onSuccess?.();
     },
-    onError: options?.onError,
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: readingLogKeys.settings.queryKey,
+      });
+      queryClient.invalidateQueries({ queryKey: userKeys.me.queryKey });
+    },
   });
 };
 
@@ -65,7 +138,8 @@ export const useUpdateReadingLogSettingsMutation = (client: AxiosInstance, optio
 export const useReadingLogsInfiniteQuery = (client: AxiosInstance) => {
   return useInfiniteQuery({
     queryKey: readingLogKeys.infinite.queryKey,
-    queryFn: ({ pageParam }) => getReadingLogsInfinite(client, pageParam as string | null),
+    queryFn: ({ pageParam }) =>
+      getReadingLogsInfinite(client, pageParam as string | null),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
@@ -74,11 +148,18 @@ export const useReadingLogsInfiniteQuery = (client: AxiosInstance) => {
 /**
  * 독서 기록 생성 뮤테이션
  */
-export const useCreateReadingLogMutation = (client: AxiosInstance, options?: { onSuccess?: (data: ReadingLog) => void; onError?: (error: unknown) => void }) => {
+export const useCreateReadingLogMutation = (
+  client: AxiosInstance,
+  options?: {
+    onSuccess?: (data: ReadingLog) => void;
+    onError?: (error: unknown) => void;
+  },
+) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: CreateReadingLogParams) => createReadingLog(client, payload),
+    mutationFn: (payload: CreateReadingLogParams) =>
+      createReadingLog(client, payload),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: readingLogKeys._def });
       options?.onSuccess?.(data);
@@ -90,11 +171,18 @@ export const useCreateReadingLogMutation = (client: AxiosInstance, options?: { o
 /**
  * 독서 기록 수정 뮤테이션
  */
-export const useUpdateReadingLogMutation = (client: AxiosInstance, options?: { onSuccess?: (data: ReadingLog) => void; onError?: (error: unknown) => void }) => {
+export const useUpdateReadingLogMutation = (
+  client: AxiosInstance,
+  options?: {
+    onSuccess?: (data: ReadingLog) => void;
+    onError?: (error: unknown) => void;
+  },
+) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: UpdateReadingLogParams) => updateReadingLog(client, params),
+    mutationFn: (params: UpdateReadingLogParams) =>
+      updateReadingLog(client, params),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: readingLogKeys._def });
       options?.onSuccess?.(data);
@@ -106,11 +194,15 @@ export const useUpdateReadingLogMutation = (client: AxiosInstance, options?: { o
 /**
  * 독서 기록 삭제 뮤테이션
  */
-export const useDeleteReadingLogMutation = (client: AxiosInstance, options?: { onSuccess?: () => void; onError?: (error: unknown) => void }) => {
+export const useDeleteReadingLogMutation = (
+  client: AxiosInstance,
+  options?: { onSuccess?: () => void; onError?: (error: unknown) => void },
+) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: { id: string; date: string }) => deleteReadingLog(client, params.id),
+    mutationFn: (params: { id: string; date: string }) =>
+      deleteReadingLog(client, params.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: readingLogKeys._def });
       options?.onSuccess?.();

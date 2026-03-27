@@ -1,6 +1,5 @@
+import { formatPostDate, getSimpleDate } from "@bookjeok/core";
 import { describe, expect, it, vi } from "vitest";
-
-import { formatPostDate, getSimpleDate } from "@/shared/utils/date";
 
 describe("getSimpleDate (yyyymmdd 변환)", () => {
   it("날짜를 yyyymmdd 형식으로 반환한다", () => {

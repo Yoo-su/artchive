@@ -1,14 +1,14 @@
+import * as apis from "@bookjeok/api-client/review";
 import { Review, ReviewReactionType } from "@bookjeok/core/review";
+import { reviewKeys } from "@bookjeok/react-query/review";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import * as apis from "@/features/review/apis";
-import { reviewKeys } from "@/features/review/constants/query-keys";
 import { useToggleReviewReactionMutation } from "@/features/review/mutations";
 
-vi.mock("@/features/review/apis", () => ({
+vi.mock("@bookjeok/api-client/review", () => ({
   toggleReviewReaction: vi.fn(),
 }));
 
@@ -82,10 +82,9 @@ describe("useToggleReviewReactionMutation", () => {
       // 기존 10에서 11로 증가해야 함
       expect(reviewCache?.reactionCounts?.[ReviewReactionType.LIKE]).toBe(11);
 
-      const reactionCache = queryClient.getQueryData<ReviewReactionType | null>([
-        ...reviewKeys.detail(mockReviewId).queryKey,
-        "reaction",
-      ]);
+      const reactionCache = queryClient.getQueryData<ReviewReactionType | null>(
+        [...reviewKeys.detail(mockReviewId).queryKey, "reaction"],
+      );
       expect(reactionCache).toBe(ReviewReactionType.LIKE);
     });
 
@@ -147,7 +146,9 @@ describe("useToggleReviewReactionMutation", () => {
     // LIKE는 10 -> 9
     expect(reviewCache?.reactionCounts?.[ReviewReactionType.LIKE]).toBe(9);
     // INSIGHTFUL은 5 -> 6
-    expect(reviewCache?.reactionCounts?.[ReviewReactionType.INSIGHTFUL]).toBe(6);
+    expect(reviewCache?.reactionCounts?.[ReviewReactionType.INSIGHTFUL]).toBe(
+      6,
+    );
 
     const reactionCache = queryClient.getQueryData<ReviewReactionType | null>([
       ...reviewKeys.detail(mockReviewId).queryKey,
