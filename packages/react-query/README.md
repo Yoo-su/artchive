@@ -41,4 +41,14 @@ const { data } = usePopularBooksQuery(mobileAuthAxios);
 ## ⚠️ 주의사항
 - 훅 내부에 토스트(`toast.error`)나 라우터(`router.push`) 등 **웹 전용 UI 부수 효과를 직접 작성하지 마세요.**
 - 성공/실패 처리는 호출부에서 `onSuccess`, `onError` 콜백이나 래퍼 훅을 통해 처리해야 합니다.
- stone
+
+## 📌 Exports 제외 Feature 안내
+
+아래 feature는 폴더(`src/features/`)와 소스 파일 구조는 마련되어 있지만 **`@bookjeok/api-client`에 대응 API가 없어 `package.json` exports에서 제외**되어 있습니다.
+
+| Feature | 상태 |
+|---|---|
+| `intro` | 미구현 (추후 추가 예정) |
+| `recommend` | 미구현 (추후 추가 예정) |
+
+대응 API 구현 완료 후 `package.json`의 `exports`와 `tsup.config.ts`의 `entry`에 해당 경로를 추가하세요.

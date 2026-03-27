@@ -1,6 +1,7 @@
-import { defineConfig } from "tsup";
+import { baseConfig, defineConfig } from "../tsup.config.base";
 
 export default defineConfig({
+  ...baseConfig,
   entry: [
     "src/index.ts",
     "src/features/**/index.ts",
@@ -8,8 +9,4 @@ export default defineConfig({
     "src/features/**/constants.ts",
     "src/shared/index.ts",
   ],
-  format: ["esm"],
-  dts: true,
-  clean: true,
-  splitting: true,
 });

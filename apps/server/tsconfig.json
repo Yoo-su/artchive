@@ -20,7 +20,8 @@
     "incremental": true,
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "isolatedModules": false
   },
   "include": ["src", "test", "eslint.config.mjs"]
 }

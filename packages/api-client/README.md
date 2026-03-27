@@ -35,4 +35,14 @@ handleApiError(error, {
 ## 🏗 아키텍처 가이드
 - 새로운 API 추가 시 반드시 `packages/api-client/src/features` 아래에 모듈화하여 추가하세요.
 - 비즈니스 로직(상태 관리 등)은 이 패키지에 포함시키지 말고 `@bookjeok/react-query`를 사용하세요.
- stone
+
+## 📌 Exports 제외 Feature 안내
+
+아래 feature는 폴더(`src/features/`)와 소스 파일 구조는 마련되어 있지만 **아직 API가 구현되지 않아 `package.json` exports에서 제외**되어 있습니다.
+
+| Feature | 상태 |
+|---|---|
+| `intro` | 미구현 (추후 추가 예정) |
+| `recommend` | 미구현 (추후 추가 예정) |
+
+구현 완료 후 `package.json`의 `exports`와 `tsup.config.ts`의 `entry`에 해당 경로를 추가하세요.
