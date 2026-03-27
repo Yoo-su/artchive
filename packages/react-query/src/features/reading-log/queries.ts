@@ -9,6 +9,7 @@ import {
   updateReadingLog,
   updateReadingLogSettings,
 } from "@bookjeok/api-client/reading-log";
+import { User } from "@bookjeok/core/auth";
 import {
   CreateReadingLogParams,
   ReadingLog,
@@ -22,6 +23,7 @@ import {
 } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
 
+import { userKeys } from "../user/query-keys";
 import { readingLogKeys } from "./query-keys";
 
 /**
@@ -64,9 +66,6 @@ export const useReadingLogSettingsQuery = (client: AxiosInstance) => {
   });
 };
 
-import { User } from "@bookjeok/core/auth";
-
-import { userKeys } from "../user/query-keys";
 
 /**
  * 독서 기록 설정 수정 뮤테이션
