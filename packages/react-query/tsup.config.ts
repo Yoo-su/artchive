@@ -1,10 +1,10 @@
-import { defineConfig } from 'tsup';
+import { baseConfig, defineConfig } from "../tsup.config.base";
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/features/**/index.ts', 'src/features/**/query-keys.ts'],
-  format: ['cjs', 'esm'],
-  dts: true,
-  splitting: true,
-  sourcemap: true,
-  clean: true,
+  ...baseConfig,
+  entry: [
+    "src/index.ts",
+    "src/features/**/index.ts",
+    "src/features/**/query-keys.ts",
+  ],
 });

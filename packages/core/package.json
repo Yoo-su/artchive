@@ -4,9 +4,8 @@
   "private": true,
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
     },
     "./auth": {
       "types": "./dist/features/auth/index.d.mts",
@@ -150,7 +149,7 @@
     }
   },
   "scripts": {
-    "build": "tsup",
+    "build": "NODE_OPTIONS='--max-old-space-size=4096' tsup",
     "dev": "tsup --watch",
     "lint": "eslint src/",
     "test": "vitest run --passWithNoTests"

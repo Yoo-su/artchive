@@ -4,10 +4,11 @@
   "scripts": {
     "dev": "turbo dev",
     "dev:web": "turbo dev --filter=@bookjeok/web --filter=@bookjeok/server",
+    "dev:native": "turbo dev --filter=@bookjeok/native --filter=@bookjeok/server",
     "dev:server": "turbo dev --filter=@bookjeok/server",
     "dev:all": "turbo dev",
     "build": "turbo build",
-    "clean": "rm -rf .turbo apps/web/.next apps/web/.turbo apps/server/dist",
+    "clean": "rm -rf .turbo apps/web/.next apps/web/.turbo apps/native/.turbo apps/server/dist packages/*/dist packages/*/.turbo",
     "build:clean": "pnpm clean && pnpm build",
     "start": "turbo start",
     "lint": "turbo lint",
