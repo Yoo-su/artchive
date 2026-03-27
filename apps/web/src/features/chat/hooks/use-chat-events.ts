@@ -1,14 +1,14 @@
 "use client";
 
+import { ChatMessage, ChatRoom } from "@bookjeok/core/chat";
+import { chatKeys } from "@bookjeok/react-query/chat";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
-import { chatKeys } from "@/features/chat/constants/query-keys";
 import { useSocketContext } from "@/shared/providers/socket-provider";
 
 import { useChatStore } from "../stores/use-chat-store";
-import { ChatMessage, ChatRoom } from "../types";
 import {
   prependMessageToCache,
   replaceOptimisticMessage,

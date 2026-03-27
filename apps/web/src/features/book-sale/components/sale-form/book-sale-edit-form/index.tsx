@@ -1,3 +1,4 @@
+import { UsedBookSale } from "@bookjeok/core/book-sale";
 import { Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -38,7 +39,6 @@ import { ImageUploader } from "@/shared/components/ui/image-uploader";
 import { LocationSelector } from "@/shared/components/ui/location-selector";
 
 import { useBookSaleEditForm } from "../../../hooks/use-book-sale-edit-form";
-import { UsedBookSale } from "../../../types";
 
 interface BookSaleEditFormProps {
   sale: UsedBookSale;

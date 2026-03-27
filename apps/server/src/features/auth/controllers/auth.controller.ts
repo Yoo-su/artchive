@@ -1,17 +1,16 @@
-import { Controller, Get, Post, UseGuards, Res, Body } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
-import { AuthService } from '../services/auth.service';
-import { ConfigService } from '@nestjs/config';
-import { SocialAuth } from '../decorators/social-auth.decorator';
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { User } from '@/features/user/entities/user.entity';
 
-import { RegisterDto } from '../dtos/register.dto';
+import { SocialAuth } from '../decorators/social-auth.decorator';
 import { LoginDto } from '../dtos/login.dto';
-
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { RegisterDto } from '../dtos/register.dto';
+import { AuthService } from '../services/auth.service';
 
 @ApiTags('인증 (Auth)')
 @Controller('auth')

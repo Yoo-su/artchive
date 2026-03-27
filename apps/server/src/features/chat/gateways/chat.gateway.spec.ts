@@ -1,11 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
 jest.mock('../services/chat.service');
+import { JwtService } from '@nestjs/jwt';
+
+import { UserService } from '@/features/user/services/user.service';
+
 import { ChatService } from '../services/chat.service';
 import { ChatGateway } from './chat.gateway';
-
-import { JwtService } from '@nestjs/jwt';
-import { UserService } from '@/features/user/services/user.service';
 
 describe('ChatGateway', () => {
   let gateway: ChatGateway;

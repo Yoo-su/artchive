@@ -1,5 +1,6 @@
 "use client";
 
+import { SearchBookSalesParams } from "@bookjeok/core/book-sale";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
@@ -8,8 +9,7 @@ import { Spinner } from "@/shared/components/shadcn/spinner";
 
 import { useUserLocation } from "../../../hooks/use-user-location";
 import { useInfiniteBookSalesQuery } from "../../../queries";
-import { SearchBookSalesParams } from "../../../types";
-import { BookSale } from "../../common/book-sale-item";
+import { UsedBookSale } from "../../common/book-sale-item";
 
 interface BookSaleGridProps {
   filterParams: SearchBookSalesParams;
@@ -102,7 +102,7 @@ export const BookSaleGrid = ({ filterParams }: BookSaleGridProps) => {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {Array.from({ length: 12 }).map((_, i) => (
-          <BookSale.Skeleton key={i} />
+          <UsedBookSale.Skeleton key={i} />
         ))}
       </div>
     );
@@ -131,16 +131,16 @@ export const BookSaleGrid = ({ filterParams }: BookSaleGridProps) => {
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {sales.map((sale, idx) => (
-          <BookSale.Root key={sale.id} sale={sale} priority={idx < 3}>
-            <BookSale.Image />
-            <BookSale.Content>
-              <BookSale.Title />
-              <BookSale.Price />
-              <BookSale.Location />
-              <BookSale.Meta />
-            </BookSale.Content>
-            <BookSale.Effect delay={idx * 10} />
-          </BookSale.Root>
+          <UsedBookSale.Root key={sale.id} sale={sale} priority={idx < 3}>
+            <UsedBookSale.Image />
+            <UsedBookSale.Content>
+              <UsedBookSale.Title />
+              <UsedBookSale.Price />
+              <UsedBookSale.Location />
+              <UsedBookSale.Meta />
+            </UsedBookSale.Content>
+            <UsedBookSale.Effect delay={idx * 10} />
+          </UsedBookSale.Root>
         ))}
       </div>
 

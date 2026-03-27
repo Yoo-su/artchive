@@ -3,7 +3,7 @@ import { FreeMode } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { usePopularBookSalesQuery } from "../../../queries";
-import { BookSale } from "../../common/book-sale-item";
+import { UsedBookSale } from "../../common/book-sale-item";
 
 export function PopularBookSaleList() {
   const t = useTranslations("market.popular");
@@ -37,7 +37,7 @@ export function PopularBookSaleList() {
         >
           {Array.from({ length: 5 }).map((_, i) => (
             <SwiperSlide key={i} className="select-none h-auto">
-              <BookSale.Skeleton />
+              <UsedBookSale.Skeleton />
             </SwiperSlide>
           ))}
         </Swiper>
@@ -74,15 +74,15 @@ export function PopularBookSaleList() {
       >
         {sales.map((sale, index) => (
           <SwiperSlide key={sale.id} className="select-none">
-            <BookSale.Root sale={sale} rank={index + 1} priority={index < 4}>
-              <BookSale.Image />
-              <BookSale.Content>
-                <BookSale.Title />
-                <BookSale.Price />
-                <BookSale.Location />
-                <BookSale.Meta />
-              </BookSale.Content>
-            </BookSale.Root>
+            <UsedBookSale.Root sale={sale} rank={index + 1} priority={index < 4}>
+              <UsedBookSale.Image />
+              <UsedBookSale.Content>
+                <UsedBookSale.Title />
+                <UsedBookSale.Price />
+                <UsedBookSale.Location />
+                <UsedBookSale.Meta />
+              </UsedBookSale.Content>
+            </UsedBookSale.Root>
           </SwiperSlide>
         ))}
       </Swiper>

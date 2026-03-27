@@ -1,3 +1,4 @@
+import { UsedBookSale } from "@bookjeok/core/book-sale";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
@@ -9,8 +10,6 @@ import {
 } from "@/shared/components/shadcn/card";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
-
-import { UsedBookSale } from "../../../types";
 
 interface BookInfoCardProps {
   sale: UsedBookSale;

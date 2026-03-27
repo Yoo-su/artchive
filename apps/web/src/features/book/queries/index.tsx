@@ -1,111 +1,52 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { GetBookListParams } from "@bookjeok/core/book";
+import { useBookDetailQuery as useBaseBookDetailQuery, useBookListQuery as useBaseBookListQuery, useBookSummaryQuery as useBaseBookSummaryQuery, useInfiniteBookSearch as useBaseInfiniteBookSearch, usePopularBooksQuery as useBasePopularBooksQuery, usePopularKeywordsQuery as useBasePopularKeywordsQuery } from "@bookjeok/react-query/book";
 
-import { CACHE_TIME } from "@/shared/constants/cache";
-
-import {
-  getBookDetail,
-  getBookList,
-  getBookSummary,
-  getPopularBooks,
-  getPopularKeywords,
-} from "../apis";
-import { DEFAULT_DISPLAY } from "../constants/config";
-import { bookKeys } from "../constants/query-keys";
-import { BookInfo, GetBookListParams } from "../types";
+import { internalAxios } from "@/shared/libs/axios";
 
 /**
- * 책 목록 조회
+ * 책 목록 조회 (프록시 인스턴스 주입)
  */
-export const useBookListQuery = (params: GetBookListParams) => {
-  return useQuery({
-    queryKey: bookKeys.list(params).queryKey,
-    queryFn: async () => {
-      const result = await getBookList(params);
-      return result.items || [];
-    },
-  });
-};
+export const useBookListQuery = (params: GetBookListParams) =>
+  useBaseBookListQuery(params, internalAxios);
 
 /**
- * 책 상세 조회
+ * 책 상세 조회 (프록시 인스턴스 주입)
  */
-export const useBookDetailQuery = (isbn: string) => {
-  return useQuery({
-    queryKey: bookKeys.detail(isbn).queryKey,
-    queryFn: async () => {
-      const response = await getBookDetail(isbn);
-      return response.items?.[0] || null;
-    },
-  });
-};
+export const useBookDetailQuery = (isbn: string) =>
+  useBaseBookDetailQuery(isbn, internalAxios);
 
 /**
- * 책 검색 (무한 스크롤)
+ * 책 검색 (무한 스크롤, 프록시 인스턴스 주입)
  */
-export const useInfiniteBookSearch = (query: string) => {
-  return useInfiniteQuery({
-    queryKey: bookKeys.search(query).queryKey,
-    queryFn: async ({ pageParam = 1 }) => {
-      const params: GetBookListParams = {
-        query,
-        display: DEFAULT_DISPLAY,
-        start: (pageParam - 1) * DEFAULT_DISPLAY + 1,
-      };
-      const result = await getBookList(params);
-      return {
-        items: result.items,
-        currentPage: pageParam,
-        isLastPage: result.items.length < DEFAULT_DISPLAY,
-      };
-    },
-    initialPageParam: 1,
-    getNextPageParam: (lastPage) => {
-      if (lastPage.isLastPage) return undefined;
-      return lastPage.currentPage + 1;
-    },
-    enabled: !!query,
-  });
-};
+export const useInfiniteBookSearch = (query: string) =>
+  useBaseInfiniteBookSearch(query, internalAxios);
 
 /**
- * 인기책 목록
+ * 인기책 목록 (프록시 인스턴스 주입)
  */
-export const usePopularBooksQuery = () => {
-  return useQuery({
-    queryKey: bookKeys.popularBooks.queryKey,
-    queryFn: getPopularBooks,
-  });
-};
+export const usePopularBooksQuery = () =>
+  useBasePopularBooksQuery(internalAxios);
 
 /**
- * LLM 책 요약 조회
+ * LLM 책 요약 조회 (프록시 인스턴스 주입)
  */
 export const useBookSummaryQuery = (
   title: string,
   author: string,
   enabled: boolean,
   description?: string,
-) => {
-  return useQuery({
-    queryKey: ["bookSummary", title, author],
-    queryFn: async () => {
-      const result = await getBookSummary(title, author, description);
-      return result;
-    },
-    enabled: enabled,
-    retry: false,
-  });
-};
+) =>
+  useBaseBookSummaryQuery(
+    title,
+    author,
+    enabled,
+    description,
+    internalAxios,
+  );
 
 /**
- * 인기 검색어 목록
- * 최근 3일 기준 Top 10, 5분 캐싱
+ * 인기 검색어 목록 (프록시 인스턴스 주입)
  */
-export const usePopularKeywordsQuery = () => {
-  return useQuery({
-    queryKey: bookKeys.popularKeywords.queryKey,
-    queryFn: getPopularKeywords,
-    staleTime: CACHE_TIME.FIVE_MINUTES,
-    refetchOnMount: true,
-  });
-};
+export const usePopularKeywordsQuery = (staleTime?: number) =>
+  useBasePopularKeywordsQuery(internalAxios, staleTime);
+

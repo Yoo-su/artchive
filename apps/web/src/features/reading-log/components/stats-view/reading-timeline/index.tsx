@@ -1,5 +1,6 @@
 "use client";
 
+import { ReadingLog } from "@bookjeok/core/reading-log";
 import { format } from "date-fns";
 import { enUS, ko } from "date-fns/locale";
 import { motion } from "framer-motion";
@@ -8,8 +9,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useRef } from "react";
 
 import { Card } from "@/shared/components/shadcn/card";
-
-import { ReadingLog } from "../../../types";
 
 interface ReadingTimelineProps {
   logs: ReadingLog[];

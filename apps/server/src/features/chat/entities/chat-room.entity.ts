@@ -1,14 +1,16 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
-  OneToMany,
+  Entity,
   ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
 import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
-import { ChatParticipant } from './chat-participant.entity';
+
 import { ChatMessage } from './chat-message.entity';
+import { ChatParticipant } from './chat-participant.entity';
 
 @Entity({ name: 'chat_rooms' })
 export class ChatRoom {

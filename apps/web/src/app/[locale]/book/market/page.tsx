@@ -1,11 +1,11 @@
+import { bookSaleKeys } from "@bookjeok/react-query/book-sale/keys";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import {
+  getBookSales,
   getPopularBookSales,
-  searchBookSales,
 } from "@/features/book-sale/apis";
-import { bookSaleKeys } from "@/features/book-sale/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { BookMarketView } from "@/views/book-market-view";
 
@@ -59,7 +59,7 @@ export default async function Page({
       queryClient.prefetchInfiniteQuery({
         queryKey: bookSaleKeys.marketSales({}).queryKey,
         queryFn: ({ pageParam }) =>
-          searchBookSales({
+          getBookSales({
             page: 1,
             cursor: pageParam as string | undefined,
           }),

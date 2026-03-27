@@ -1,14 +1,7 @@
-import { API_PATHS } from "@/shared/constants/apis";
-import { privateAxios } from "@/shared/libs/axios";
+import { createComment as sharedCreateComment, deleteComment as sharedDeleteComment, getComments as sharedGetComments, getMyComments as sharedGetMyComments, getMyLikeStatus as sharedGetMyLikeStatus, toggleCommentLike as sharedToggleCommentLike, updateComment as sharedUpdateComment } from "@bookjeok/api-client/comment";
+import { Comment, CreateCommentParams, GetCommentsParams, GetCommentsResponse, GetMyCommentsResponse, UpdateCommentParams } from "@bookjeok/core/comment";
 
-import {
-  Comment,
-  CreateCommentParams,
-  GetCommentsParams,
-  GetCommentsResponse,
-  GetMyCommentsResponse,
-  UpdateCommentParams,
-} from "../types";
+import { privateAxios } from "@/shared/libs/axios";
 
 /**
  * 댓글 목록을 조회합니다.
@@ -19,11 +12,7 @@ import {
 export const getComments = async (
   params: GetCommentsParams,
 ): Promise<GetCommentsResponse> => {
-  const { data } = await privateAxios.get<GetCommentsResponse>(
-    API_PATHS.comment.base,
-    { params },
-  );
-  return data;
+  return sharedGetComments(privateAxios, params);
 };
 
 /**
@@ -34,11 +23,7 @@ export const getComments = async (
 export const createComment = async (
   params: CreateCommentParams,
 ): Promise<Comment> => {
-  const { data } = await privateAxios.post<Comment>(
-    API_PATHS.comment.base,
-    params,
-  );
-  return data;
+  return sharedCreateComment(privateAxios, params);
 };
 
 /**
@@ -51,11 +36,7 @@ export const updateComment = async (
   id: number,
   params: UpdateCommentParams,
 ): Promise<Comment> => {
-  const { data } = await privateAxios.patch<Comment>(
-    API_PATHS.comment.detail(id),
-    params,
-  );
-  return data;
+  return sharedUpdateComment(privateAxios, id, params);
 };
 
 /**
@@ -63,7 +44,7 @@ export const updateComment = async (
  * @param id 댓글 ID
  */
 export const deleteComment = async (id: number): Promise<void> => {
-  await privateAxios.delete(API_PATHS.comment.detail(id));
+  return sharedDeleteComment(privateAxios, id);
 };
 
 /**
@@ -74,10 +55,7 @@ export const deleteComment = async (id: number): Promise<void> => {
 export const toggleCommentLike = async (
   id: number,
 ): Promise<Comment & { isLiked: boolean }> => {
-  const { data } = await privateAxios.post<Comment & { isLiked: boolean }>(
-    API_PATHS.comment.like(id),
-  );
-  return data;
+  return sharedToggleCommentLike(privateAxios, id);
 };
 
 /**
@@ -86,10 +64,7 @@ export const toggleCommentLike = async (
  * @returns 좋아요 여부
  */
 export const getMyLikeStatus = async (id: number): Promise<boolean> => {
-  const { data } = await privateAxios.get<{ isLiked: boolean }>(
-    API_PATHS.comment.like(id),
-  );
-  return data.isLiked;
+  return sharedGetMyLikeStatus(privateAxios, id);
 };
 
 /**
@@ -103,9 +78,5 @@ export const getMyComments = async (
   limit: number = 10,
   cursorId?: number,
 ): Promise<GetMyCommentsResponse> => {
-  const { data } = await privateAxios.get<GetMyCommentsResponse>(
-    API_PATHS.comment.my,
-    { params: { page, limit, cursorId } },
-  );
-  return data;
+  return sharedGetMyComments(privateAxios, page, limit, cursorId);
 };

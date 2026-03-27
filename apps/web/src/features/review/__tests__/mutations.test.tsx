@@ -1,3 +1,4 @@
+import { Review, ReviewReactionType } from "@bookjeok/core/review";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import React from "react";
@@ -6,7 +7,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as apis from "@/features/review/apis";
 import { reviewKeys } from "@/features/review/constants/query-keys";
 import { useToggleReviewReactionMutation } from "@/features/review/mutations";
-import { Review, ReviewReactionType } from "@/features/review/types";
 
 vi.mock("@/features/review/apis", () => ({
   toggleReviewReaction: vi.fn(),

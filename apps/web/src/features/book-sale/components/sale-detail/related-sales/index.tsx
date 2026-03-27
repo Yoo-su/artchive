@@ -12,7 +12,7 @@ import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";
 
 import { useInfiniteRelatedSalesQuery } from "../../../queries";
-import { BookSale } from "../../common/book-sale-item";
+import { UsedBookSale } from "../../common/book-sale-item";
 import { RelatedSalesSkeleton } from "./skeleton";
 
 interface RelatedSalesProps {
@@ -89,15 +89,15 @@ export const RelatedSales = ({ isbn }: RelatedSalesProps) => {
               key={sale.id}
               className="w-[180px]! sm:w-[220px]! h-auto! select-none pr-4"
             >
-              <BookSale.Root sale={sale} priority={index < 2}>
-                <BookSale.Image />
-                <BookSale.Content>
-                  <BookSale.Title />
-                  <BookSale.Price />
-                  <BookSale.Location className="hidden sm:flex" />
-                  <BookSale.Meta className="hidden sm:flex" />
-                </BookSale.Content>
-              </BookSale.Root>
+              <UsedBookSale.Root sale={sale} priority={index < 2}>
+                <UsedBookSale.Image />
+                <UsedBookSale.Content>
+                  <UsedBookSale.Title />
+                  <UsedBookSale.Price />
+                  <UsedBookSale.Location className="hidden sm:flex" />
+                  <UsedBookSale.Meta className="hidden sm:flex" />
+                </UsedBookSale.Content>
+              </UsedBookSale.Root>
             </SwiperSlide>
           ))}
 

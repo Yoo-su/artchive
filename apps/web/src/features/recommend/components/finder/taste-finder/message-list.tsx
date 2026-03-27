@@ -1,10 +1,10 @@
 "use client";
 
+import { NEOGULIP_TEXTS } from "@bookjeok/core/llm";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
 import { ChatBubble } from "@/features/recommend/components/widgets/chat-bubble";
-import { NEOGULIP_TEXTS } from "@/features/recommend/constants/data";
 import { useRecommendStore } from "@/features/recommend/stores/recommend-store";
 
 interface MessageListProps {

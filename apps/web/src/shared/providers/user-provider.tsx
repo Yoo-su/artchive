@@ -1,10 +1,11 @@
 "use client";
 
+import { getUserProfile } from "@bookjeok/api-client/auth";
 import { ReactNode, useEffect, useState } from "react";
 
-import { getUserProfile } from "@/features/auth/apis";
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { FullScreenLoader } from "@/shared/components/ui/full-screen-loader";
+import { privateAxios } from "@/shared/libs/axios";
 
 interface UesrProviderProps {
   children: ReactNode;
@@ -22,7 +23,7 @@ export default function UserProvider({ children }: UesrProviderProps) {
     const fetchUserProfile = async () => {
       if (accessToken) {
         try {
-          const user = await getUserProfile();
+          const user = await getUserProfile(privateAxios);
           setUser(user);
         } finally {
           setIsLoading(false);

@@ -1,14 +1,15 @@
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
-  ManyToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 
 import { User } from '@/features/user/entities/user.entity';
+
 import { Comment } from './comment.entity';
 
 /**

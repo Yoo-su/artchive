@@ -1,18 +1,19 @@
-import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
+import { Exclude } from 'class-transformer';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+  UpdateDateColumn,
+} from 'typeorm';
+
 import { ChatParticipant } from '@/features/chat/entities/chat-participant.entity';
 import { ReadReceipt } from '@/features/chat/entities/read-receipt.entity';
 import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
 import { Review } from '@/features/review/entities/review.entity';
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Unique,
-  OneToMany,
-} from 'typeorm';
-import { Exclude } from 'class-transformer';
+import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
 
 @Entity({ name: 'users' })
 @Unique(['provider', 'providerId'])

@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { NotificationType } from '../entities/notification.entity';
+
 import { User } from '@/features/user/entities/user.entity';
+
+import { NotificationType } from '../entities/notification.entity';
 
 export class NotificationResponseDto {
   @ApiProperty({ description: '알림 ID' })

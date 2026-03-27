@@ -1,9 +1,10 @@
+import { BookInfo } from "@bookjeok/core/book";
+import { CreateBookSaleParams } from "@bookjeok/core/book-sale";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { BookInfo } from "@/features/book/types";
 import { useImageUpload } from "@/shared/hooks/use-image-upload";
 
 import {
@@ -11,7 +12,6 @@ import {
   SellFormValues,
 } from "../components/sale-form/book-sale-form/schema";
 import { useCreateBookSaleMutation } from "../mutations";
-import { CreateBookSaleParams } from "../types";
 
 export const useBookSaleForm = () => {
   const t = useTranslations("market.validation");

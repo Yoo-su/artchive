@@ -8,9 +8,10 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from '@/features/user/entities/user.entity';
+
 import { Book } from '@/features/book/entities/book.entity';
 import { ChatRoom } from '@/features/chat/entities/chat-room.entity';
+import { User } from '@/features/user/entities/user.entity';
 
 export enum SaleStatus {
   FOR_SALE = 'FOR_SALE', // 판매중

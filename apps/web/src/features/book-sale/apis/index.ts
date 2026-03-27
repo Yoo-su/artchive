@@ -1,18 +1,7 @@
-import { API_PATHS } from "@/shared/constants/apis";
-import { privateAxios, publicAxios } from "@/shared/libs/axios";
+import { createBookSale as sharedCreateBookSale, deleteBookSale as sharedDeleteBookSale, getBookSaleDetail as sharedGetBookSaleDetail, getBookSales as sharedSearchBookSales, getMyBookSales as sharedGetMyBookSales, getPopularBookSales as sharedGetPopularBookSales, getRecentBookSales as sharedGetRecentBookSales, getRelatedSales as sharedGetRelatedSales, getSaleForEdit as sharedGetSaleForEdit, updateBookSale as sharedUpdateBookSale, updateBookSaleStatus as sharedUpdateBookSaleStatus } from "@bookjeok/api-client/book-sale";
+import { CommonBookSaleResponse, CreateBookSaleParams, GetMyBookSalesResponse, GetRelatedSalesParams, GetRelatedSalesResponse, SaleStatus, SearchBookSalesParams, SearchBookSalesResponse, UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core/book-sale";
 
-import {
-  CommonBookSaleResponse,
-  CreateBookSaleParams,
-  GetMyBookSalesResponse,
-  GetRelatedSalesParams,
-  GetRelatedSalesResponse,
-  SaleStatus,
-  SearchBookSalesParams,
-  SearchBookSalesResponse,
-  UpdateBookSaleParams,
-  UsedBookSale,
-} from "../types";
+import { privateAxios, publicAxios } from "@/shared/libs/axios";
 
 /**
  * 중고책 판매글을 등록합니다.
@@ -20,21 +9,14 @@ import {
 export const createBookSale = async (
   payload: CreateBookSaleParams,
 ): Promise<CommonBookSaleResponse> => {
-  const { data } = await privateAxios.post<CommonBookSaleResponse>(
-    API_PATHS.book.sale,
-    payload,
-  );
-  return data;
+  return sharedCreateBookSale(privateAxios, payload);
 };
 
 /**
  * 내가 등록한 중고책 판매글 목록을 조회합니다.
  */
 export const getMyBookSales = async (): Promise<GetMyBookSalesResponse> => {
-  const { data } = await privateAxios.get<GetMyBookSalesResponse>(
-    API_PATHS.book.mySales,
-  );
-  return data;
+  return sharedGetMyBookSales(privateAxios);
 };
 
 /**
@@ -47,21 +29,14 @@ export const updateBookSaleStatus = async ({
   saleId: number;
   status: SaleStatus;
 }): Promise<CommonBookSaleResponse> => {
-  const { data } = await privateAxios.patch<CommonBookSaleResponse>(
-    API_PATHS.book.saleStatus(saleId),
-    { status },
-  );
-  return data;
+  return sharedUpdateBookSaleStatus(privateAxios, { saleId, status });
 };
 
 /**
  * 특정 판매글의 상세 정보를 조회합니다.
  */
 export const getBookSaleDetail = async (saleId: string) => {
-  const { data } = await publicAxios.get<UsedBookSale>(
-    API_PATHS.book.saleDetail(saleId),
-  );
-  return data;
+  return sharedGetBookSaleDetail(publicAxios, saleId);
 };
 
 /**
@@ -70,34 +45,16 @@ export const getBookSaleDetail = async (saleId: string) => {
 export const getSaleForEdit = async (
   saleId: string | number,
 ): Promise<UsedBookSale> => {
-  const { data } = await privateAxios.get<UsedBookSale>(
-    API_PATHS.book.saleForEdit(saleId),
-  );
-  return data;
+  return sharedGetSaleForEdit(privateAxios, saleId);
 };
 
 /**
  * 특정 책(ISBN)에 대한 관련 판매글 목록을 페이지네이션으로 조회합니다.
  */
-export const getRelatedSales = async ({
-  isbn,
-  page,
-  limit,
-  city,
-  district,
-}: GetRelatedSalesParams): Promise<GetRelatedSalesResponse> => {
-  const params = new URLSearchParams({
-    page: String(page),
-    limit: String(limit),
-  });
-  if (city) params.append("city", city);
-  if (district) params.append("district", district);
-
-  const { data } = await publicAxios.get<GetRelatedSalesResponse>(
-    API_PATHS.book.relatedSales(isbn),
-    { params },
-  );
-  return data;
+export const getRelatedSales = async (
+  params: GetRelatedSalesParams,
+): Promise<GetRelatedSalesResponse> => {
+  return sharedGetRelatedSales(publicAxios, params);
 };
 
 /**
@@ -110,63 +67,35 @@ export const updateBookSale = async ({
   saleId: number;
   payload: UpdateBookSaleParams;
 }) => {
-  const { data } = await privateAxios.patch<CommonBookSaleResponse>(
-    API_PATHS.book.updateSale(saleId),
-    payload,
-  );
-  return data;
+  return sharedUpdateBookSale(privateAxios, { saleId, payload });
 };
 
 /**
  * 중고책 판매글을 삭제합니다.
  */
 export const deleteBookSale = async (saleId: number) => {
-  await privateAxios.delete(API_PATHS.book.deleteSale(saleId));
+  return sharedDeleteBookSale(privateAxios, saleId);
 };
 
 /**
  * 최근 등록된 중고책 판매글 목록을 조회합니다.
  */
 export const getRecentBookSales = async (): Promise<UsedBookSale[]> => {
-  const { data } = await publicAxios.get<UsedBookSale[]>(
-    API_PATHS.book.recentSales,
-  );
-  return data;
+  return sharedGetRecentBookSales(publicAxios);
 };
 
 /**
  * 인기 판매글 목록을 조회합니다.
  */
 export const getPopularBookSales = async (): Promise<UsedBookSale[]> => {
-  const { data } = await publicAxios.get<UsedBookSale[]>(
-    API_PATHS.book.popularSales,
-  );
-  return data;
+  return sharedGetPopularBookSales(publicAxios);
 };
 
 /**
  * 중고책 판매글을 검색합니다.
  */
-export const searchBookSales = async (
+export const getBookSales = async (
   params: SearchBookSalesParams,
 ): Promise<SearchBookSalesResponse> => {
-  const queryParams = new URLSearchParams();
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") {
-      if (Array.isArray(value)) {
-        value.forEach((v) => queryParams.append(key, v));
-      } else {
-        queryParams.append(key, String(value));
-      }
-    }
-  });
-
-  const queryString = queryParams.toString();
-  const url = queryString
-    ? `${API_PATHS.book.sales}?${queryString}`
-    : API_PATHS.book.sales;
-
-  const { data } = await publicAxios.get<SearchBookSalesResponse>(url);
-  return data;
+  return sharedSearchBookSales(publicAxios, params);
 };

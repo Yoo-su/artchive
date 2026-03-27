@@ -2,16 +2,17 @@ import {
   CallHandler,
   ExecutionContext,
   Injectable,
-  NestInterceptor,
   Logger,
+  NestInterceptor,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+
 import { NOTIFICATION_KEY } from '../decorators/notification.decorator';
 import { NotificationType } from '../entities/notification.entity';
-import { NotificationStrategyFactory } from '../strategies/notification-strategy.factory';
 import { NotificationService } from '../services/notification.service';
+import { NotificationStrategyFactory } from '../strategies/notification-strategy.factory';
 
 @Injectable()
 export class NotificationInterceptor implements NestInterceptor {

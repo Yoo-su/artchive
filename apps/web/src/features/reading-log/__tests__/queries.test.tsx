@@ -1,10 +1,10 @@
+import { User } from "@bookjeok/core/auth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
-import { User } from "@/features/auth/types";
 import * as apis from "@/features/reading-log/apis";
 import { readingLogKeys } from "@/features/reading-log/constants/query-keys";
 import { useUpdateReadingLogSettingsMutation } from "@/features/reading-log/queries";

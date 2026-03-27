@@ -1,3 +1,4 @@
+import { Notification } from "@bookjeok/core/notification";
 import { formatDistanceToNow } from "date-fns";
 import { enUS, ko } from "date-fns/locale";
 import { Trash2 } from "lucide-react";
@@ -20,7 +21,6 @@ import { cn } from "@/shared/utils";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 import { useDeleteNotification, useMarkAsRead } from "../../mutations";
-import { Notification } from "../../types";
 import { getNotificationLink, getNotificationMessageParams } from "../../utils";
 
 interface NotificationItemProps {

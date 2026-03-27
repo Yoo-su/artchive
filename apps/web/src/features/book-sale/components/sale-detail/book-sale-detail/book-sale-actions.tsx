@@ -1,3 +1,5 @@
+import { UsedBookSale } from "@bookjeok/core/book-sale";
+import { chatKeys } from "@bookjeok/react-query/chat";
 import { useQueryClient } from "@tanstack/react-query";
 import { Edit, Loader2, MessageCircle, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -6,7 +8,6 @@ import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { findOrCreateRoom } from "@/features/chat/apis";
-import { chatKeys } from "@/features/chat/constants/query-keys";
 import { useChatStore } from "@/features/chat/stores/use-chat-store";
 import { WishlistButton } from "@/features/user/components/wishlist/wishlist-button";
 import { CoolMode } from "@/shared/components/magicui/cool-mode";
@@ -28,7 +29,6 @@ import { PATHS } from "@/shared/constants/paths";
 import { useSocketContext } from "@/shared/providers/socket-provider";
 
 import { useDeleteBookSaleMutation } from "../../../mutations";
-import { UsedBookSale } from "../../../types";
 
 interface BookSaleActionsProps {
   sale: UsedBookSale;

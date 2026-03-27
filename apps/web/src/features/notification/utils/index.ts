@@ -1,6 +1,6 @@
-import { PATHS } from "@/shared/constants/paths";
+import { Notification, NotificationType } from "@bookjeok/core/notification";
 
-import { Notification, NotificationType } from "../types";
+import { PATHS } from "@/shared/constants/paths";
 
 export const getNotificationMessageParams = (
   notification: Notification,

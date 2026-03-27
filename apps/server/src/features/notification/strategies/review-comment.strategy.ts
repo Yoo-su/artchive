@@ -1,16 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import {
-  NotificationPayload,
-  NotificationStrategy,
-} from '../types/notification-strategy.type';
-import { NotificationType } from '../entities/notification.entity';
+
 import {
   Comment,
   CommentTargetType,
 } from '@/features/comment/entities/comment.entity';
 import { Review } from '@/features/review/entities/review.entity';
+
+import { NotificationType } from '../entities/notification.entity';
+import {
+  NotificationPayload,
+  NotificationStrategy,
+} from '../types/notification-strategy.type';
 
 @Injectable()
 export class ReviewCommentStrategy implements NotificationStrategy {

@@ -72,20 +72,37 @@
 ```bash
 bookjeok-monorepo/
 ├── apps/
-│   ├── web/                  # [Next.js 15] Frontend
+│   ├── web/                  # [Next.js 15] Web Frontend
 │   │   ├── src/app/          # App Router (Page, Layout, Loading)
-│   │   ├── src/features/     # 기능별 모듈 - Co-location
-│   │   ├── src/shared/       # 공통 UI 및 유틸리티
-│   │   └── Dockerfile        # Standalone 모드 지원
+│   │   ├── src/features/     # 기능별 UI 및 웹 전용 래퍼 훅
+│   │   └── src/shared/       # 웹 전용 UI 컴포넌트 및 설정
 │   │
-│   └── server/               # [NestJS 11] Backend
-│       ├── src/features/     # 기능별 모듈
-│       ├── src/shared/       # 공통 모듈 (Guard, Filter, Interceptor)
-│       └── Dockerfile        # Multi-stage Build 적용
+│   └── server/               # [NestJS 11] Backend API
+│       ├── src/features/     # 도메인별 모듈 (Controller, Service, Entity)
+│       └── src/shared/       # 공통 필터, 가드, 인터셉터
 │
-├── packages/                 # 공용 라이브러리 및 설정
+├── packages/                 # 공용 비즈니스 로직 및 라이브러리 (Shared Brain)
+│   ├── core/                 # 공통 타입, 상수, 순수 유틸리티 (Platform Agnostic)
+│   ├── api-client/           # Axios 기반 API 요청 함수 및 에러 핸들링
+│   └── react-query/          # TanStack Query 기반 데이터 페칭 훅 (DI Pattern)
+│
 ├── package.json              # Workspace Root
 └── pnpm-workspace.yaml       # Workspace Configuration
+```
+
+---
+
+## 🏛 Architecture & Design Principles
+
+북적 모노레포는 멀티 플랫폼(Web, Expo) 확장을 고려하여 **진일보된 의존성 주입(Explicit DI)** 아키텍처를 따릅니다.
+
+### 1. 100% 명시적 의존성 주입 (Explicit DI)
+- 모든 공유 패키지의 API 훅과 함수는 전역 컨텍스트에 의존하지 않고, 호출 시점에 `AxiosInstance`를 직접 주입받습니다.
+- 이를 통해 웹은 브라우저 최적화 클라이언트를, 모바일 앱(Expo)은 네이티브 최적화 클라이언트를 각각 주입하여 **동일한 비즈니스 로직을 100% 공유**합니다.
+
+### 2. 비즈니스 로직의 패키지화
+- UI와 무관한 모든 도메인 지식과 데이터 통신 규격은 `packages/`에 응집되어 있습니다.
+- 새로운 앱(예: Expo)을 추가할 때, UI 레이어만 작성하면 데이터 엔진은 그대로 가져다 쓸 수 있습니다.
 ```
 
 ---

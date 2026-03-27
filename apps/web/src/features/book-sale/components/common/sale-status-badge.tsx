@@ -1,9 +1,8 @@
+import { SaleStatus } from "@bookjeok/core/book-sale";
 import { useTranslations } from "next-intl";
 
 import { Badge } from "@/shared/components/shadcn/badge";
 import { cn } from "@/shared/utils/cn";
-
-import { SaleStatus } from "../../types";
 
 const STATUS_PRESETS: {
   [key in SaleStatus]: { className: string };

@@ -1,15 +1,15 @@
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as cookieParser from 'cookie-parser';
-import { DataSource } from 'typeorm';
 import { NestFactory, Reflector } from '@nestjs/core';
-import helmet from 'helmet';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as compression from 'compression';
+import * as cookieParser from 'cookie-parser';
+import helmet from 'helmet';
+import { DataSource } from 'typeorm';
 
 import { AppModule } from './app/app.module';
-import { TransformInterceptor } from './shared/interceptors/transform.interceptor';
-import { LoggingInterceptor } from './shared/interceptors/logging.interceptor';
 import { GlobalExceptionFilter } from './shared/filters/global-exception.filter';
+import { LoggingInterceptor } from './shared/interceptors/logging.interceptor';
+import { TransformInterceptor } from './shared/interceptors/transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

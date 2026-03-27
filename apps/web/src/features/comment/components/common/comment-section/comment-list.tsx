@@ -1,12 +1,12 @@
 "use client";
 
+import { CommentTargetType } from "@bookjeok/core/comment";
 import { useTranslations } from "next-intl";
 
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { Pagination } from "@/shared/components/ui/pagination";
 
 import { useCommentsQuery } from "../../../queries";
-import { CommentTargetType } from "../../../types";
 import { CommentItem } from "./comment-item";
 
 interface CommentListProps {
@@ -31,6 +31,7 @@ export const CommentList = ({
     targetType,
     targetId,
     page,
+    10,
     enabled,
   );
   const t = useTranslations("comment.list");

@@ -1,10 +1,10 @@
 "use client";
 
+import { User } from "@bookjeok/core/auth";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
-import { User } from "@/features/auth/types";
 import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 

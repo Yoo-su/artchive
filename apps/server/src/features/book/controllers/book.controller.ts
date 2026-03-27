@@ -1,23 +1,24 @@
 import {
   Controller,
-  Post,
   Get,
-  Query,
-  Param,
   HttpCode,
   HttpStatus,
+  Param,
+  Post,
+  Query,
   UseInterceptors,
 } from '@nestjs/common';
-import { BookService } from '../services/book.service';
-import { BookResolvePipe } from '../pipes/book-resolve.pipe';
-import { BookViewCountInterceptor } from '../interceptors/book-view-count.interceptor';
 import {
-  ApiTags,
   ApiOperation,
-  ApiResponse,
   ApiParam,
   ApiQuery,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
+
+import { BookViewCountInterceptor } from '../interceptors/book-view-count.interceptor';
+import { BookResolvePipe } from '../pipes/book-resolve.pipe';
+import { BookService } from '../services/book.service';
 
 @ApiTags('책 (Book)')
 @Controller('book')
@@ -44,7 +45,6 @@ export class BookController {
   })
   @ApiResponse({ status: 204, description: '조회수가 기록되었습니다.' })
   @ApiParam({ name: 'isbn', description: '책 ISBN' })
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   recordBookView(@Param('isbn', BookResolvePipe) _isbn: string): void {
     // 파이프가 도서 존재 보장, 인터셉터가 조회수 처리
   }

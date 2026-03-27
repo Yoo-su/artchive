@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './services/auth.service';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+
+import { UserModule } from '../user/user.module';
 import { AuthController } from './controllers/auth.controller';
-import { NaverStrategy } from './strategies/naver.strategy';
-import { KakaoStrategy } from './strategies/kakao.strategy';
+import { AuthService } from './services/auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
-import { UserModule } from '../user/user.module';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
+import { KakaoStrategy } from './strategies/kakao.strategy';
+import { NaverStrategy } from './strategies/naver.strategy';
 
 @Module({
   imports: [UserModule, PassportModule, JwtModule.register({})],

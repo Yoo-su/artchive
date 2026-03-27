@@ -1,11 +1,11 @@
 "use client";
 
+import { BookInfo } from "@bookjeok/core/book";
 import { Heart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
-import { BookInfo } from "@/features/book/types";
 import {
   useAddToWishlistMutation,
   useRemoveFromWishlistMutation,
@@ -35,7 +35,7 @@ export const WishlistButton = ({
   const { data: statusData, isLoading } = useWishlistStatusQuery(
     type,
     id,
-    shouldFetch
+    { enabled: shouldFetch }
   );
 
   const [isWishlisted, setIsWishlisted] = useState(
@@ -46,8 +46,8 @@ export const WishlistButton = ({
   const removeFromWishlistMutation = useRemoveFromWishlistMutation();
 
   useEffect(() => {
-    if (statusData) {
-      setIsWishlisted(statusData.isWishlisted);
+    if (statusData !== undefined) {
+      setIsWishlisted(statusData);
     }
   }, [statusData]);
 

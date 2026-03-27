@@ -1,11 +1,11 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { InsightsService } from './insights.service';
 import {
   InsightsResponseDto,
   LocationSalesDto,
 } from './dto/insights-response.dto';
+import { InsightsService } from './insights.service';
 
 @ApiTags('insights')
 @Controller('insights')

@@ -1,15 +1,18 @@
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, In } from 'typeorm';
-import { UsedBookSale, SaleStatus } from '../entities/used-book-sale.entity';
-import { CreateBookSaleDto } from '../dtos/create-book-sale.dto';
-import { UpdateBookSaleDto } from '../dtos/update-book-sale.dto';
-import { QueryBookSaleDto, BookSaleSortBy } from '../dtos/query-book-sale.dto';
-import { GetBookSalesQueryDto } from '../dtos/get-book-sales-query.dto';
+import { Cache } from 'cache-manager';
+import { DataSource, In, Repository } from 'typeorm';
+
 import { BookService } from '@/features/book/services/book.service';
 import { UserService } from '@/features/user/services/user.service';
+import { BusinessException } from '@/shared/exceptions';
+
+import { CreateBookSaleDto } from '../dtos/create-book-sale.dto';
+import { GetBookSalesQueryDto } from '../dtos/get-book-sales-query.dto';
+import { BookSaleSortBy, QueryBookSaleDto } from '../dtos/query-book-sale.dto';
+import { UpdateBookSaleDto } from '../dtos/update-book-sale.dto';
+import { SaleStatus, UsedBookSale } from '../entities/used-book-sale.entity';
 import {
   applyCommonFilters,
   applyCursorFilter,
@@ -17,7 +20,6 @@ import {
   applySorting,
   encodeCursor,
 } from '../utils/sale-query.builder';
-import { BusinessException } from '@/shared/exceptions';
 
 @Injectable()
 export class UsedBookSaleService {

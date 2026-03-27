@@ -1,8 +1,7 @@
 "use client";
 
+import { Review } from "@bookjeok/core/review";
 import { createContext, useContext } from "react";
-
-import { Review } from "@/features/review/types";
 
 interface ReviewCardContextValue {
   review: Review;

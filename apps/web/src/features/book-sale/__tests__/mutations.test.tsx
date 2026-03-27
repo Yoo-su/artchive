@@ -1,3 +1,4 @@
+import { SaleStatus, UsedBookSale } from "@bookjeok/core/book-sale";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import React from "react";
@@ -6,7 +7,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as apis from "@/features/book-sale/apis";
 import { bookSaleKeys } from "@/features/book-sale/constants/query-keys";
 import { useUpdateBookSaleStatusMutation } from "@/features/book-sale/mutations";
-import { SaleStatus, UsedBookSale } from "@/features/book-sale/types";
 
 // API 호출 함수들을 모킹
 vi.mock("@/features/book-sale/apis", () => ({

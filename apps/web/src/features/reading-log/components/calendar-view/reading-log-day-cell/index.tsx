@@ -1,12 +1,12 @@
 "use client";
 
+import { ReadingLog } from "@bookjeok/core/reading-log";
 import { format } from "date-fns";
 import Image from "next/image";
 
 import { cn } from "@/shared/utils";
 
 import { SeasonalTheme } from "../../../constants/ui";
-import { ReadingLog } from "../../../types";
 
 interface ReadingLogDayCellProps {
   date: Date;

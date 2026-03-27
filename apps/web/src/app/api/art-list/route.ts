@@ -1,8 +1,8 @@
 // app/api/art-list/route.ts
+import { CityCode, Genre, PrfState } from "@bookjeok/core/art";
 import { XMLParser } from "fast-xml-parser";
 import { NextRequest } from "next/server";
 
-import { CityCode, Genre, PrfState } from "@/features/art/types";
 import { config } from "@/shared/config/env";
 
 export async function GET(request: NextRequest) {

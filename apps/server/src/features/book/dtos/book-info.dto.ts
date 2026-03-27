@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsUrl, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class BookInfoDto {
   @IsString()

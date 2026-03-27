@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
 
-import { searchBookSales } from "@/features/book-sale/apis";
+import { getBookSales } from "@/features/book-sale/apis";
 import { getReviews } from "@/features/review/apis";
 export const dynamic = "force-dynamic";
 
@@ -56,7 +56,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // 3. 동적 라우트: 판매글
     try {
-      const { sales } = await searchBookSales({ page: 1, limit: 50 });
+      const { sales } = await getBookSales({ page: 1, limit: 50 });
       sales.forEach((sale) => {
         sitemapEntries.push({
           url: `${baseUrl}/${locale}/book/sales/${sale.id}`,

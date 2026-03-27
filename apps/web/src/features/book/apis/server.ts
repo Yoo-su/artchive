@@ -1,18 +1,7 @@
+import { BookInfo, DEFAULT_DISPLAY, DEFAULT_SORT, DEFAULT_START, GetBookDetailResponseData, GetBookListErrorResponse, GetBookListParams, GetBookListSuccessResponse } from "@bookjeok/core/book";
 import axios from "axios";
 import { cache } from "react";
 
-import {
-  DEFAULT_DISPLAY,
-  DEFAULT_SORT,
-  DEFAULT_START,
-} from "@/features/book/constants/config";
-import {
-  BookInfo,
-  GetBookDetailResponseData,
-  GetBookListErrorResponse,
-  GetBookListParams,
-  GetBookListSuccessResponse,
-} from "@/features/book/types";
 import { config } from "@/shared/config/env";
 
 /**

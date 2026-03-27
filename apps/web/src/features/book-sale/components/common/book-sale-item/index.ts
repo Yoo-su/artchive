@@ -10,7 +10,7 @@ import {
 import { Root } from "./root";
 import { BookSaleSkeleton } from "./skeleton";
 
-export const BookSale = {
+export const UsedBookSale = {
   Root,
   Image: ImageArea,
   Content,

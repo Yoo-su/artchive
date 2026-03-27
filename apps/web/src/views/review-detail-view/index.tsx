@@ -1,9 +1,9 @@
 "use client";
 
+import { Review } from "@bookjeok/core/review";
 import { useParams } from "next/navigation";
 
 import { ReviewDetail } from "@/features/review/components/review-detail/book-review-detail";
-import { Review } from "@/features/review/types";
 
 interface ReviewDetailViewProps {
   initialReview?: Review | null;

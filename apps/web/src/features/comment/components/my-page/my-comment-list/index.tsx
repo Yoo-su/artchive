@@ -1,5 +1,6 @@
 "use client";
 
+import { CommentTargetType } from "@bookjeok/core/comment";
 import { formatDistanceToNow } from "date-fns";
 import { enUS, ko } from "date-fns/locale";
 import {
@@ -15,7 +16,6 @@ import { useCallback } from "react";
 
 import { useDeleteMyCommentMutation } from "@/features/comment/mutations";
 import { useMyCommentsInfiniteQuery } from "@/features/comment/queries";
-import { CommentTargetType } from "@/features/comment/types";
 import {
   AlertDialog,
   AlertDialogAction,

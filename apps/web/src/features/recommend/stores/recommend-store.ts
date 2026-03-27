@@ -1,9 +1,6 @@
+import { NEOGULIP_TEXTS, RecommendedBook } from "@bookjeok/core/llm";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-import { RecommendedBook } from "@/features/recommend/types";
-
-import { NEOGULIP_TEXTS } from "../constants/data";
 
 interface Message {
   id: string;

@@ -2,34 +2,34 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import {
-  UsedBookSale,
-  SaleStatus,
-} from '@/features/used-book-sale/entities/used-book-sale.entity';
+import { BOOK_DOMAINS } from '@/features/review/constants';
 import { Review } from '@/features/review/entities/review.entity';
 import {
   ReviewReaction,
   ReviewReactionType,
 } from '@/features/review/entities/review-reaction.entity';
 import { Tag } from '@/features/review/entities/tag.entity';
-import { BOOK_DOMAINS } from '@/features/review/constants';
+import {
+  SaleStatus,
+  UsedBookSale,
+} from '@/features/used-book-sale/entities/used-book-sale.entity';
 
 import {
+  ACTIVITY_TREND_DAYS,
+  LOCATION_SALES_LIMIT,
+  LOCATION_STATS_LIMIT,
+  POPULAR_TAGS_LIMIT,
+  PRICE_RANGES,
+} from './constants';
+import {
+  ActivityTrendStat,
+  CategoryStat,
   InsightsResponseDto,
   LocationStat,
-  CategoryStat,
-  PriceRangeStat,
-  ActivityTrendStat,
-  ReactionStat,
   PopularTagStat,
+  PriceRangeStat,
+  ReactionStat,
 } from './dto/insights-response.dto';
-import {
-  PRICE_RANGES,
-  ACTIVITY_TREND_DAYS,
-  POPULAR_TAGS_LIMIT,
-  LOCATION_STATS_LIMIT,
-  LOCATION_SALES_LIMIT,
-} from './constants';
 
 @Injectable()
 export class InsightsService {

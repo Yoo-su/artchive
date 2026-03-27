@@ -1,9 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
-
-import { LlmService } from './llm.service';
 import { ConfigService } from '@nestjs/config';
+import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+
 import { LlmTalkLog } from '../entities/llm-talk-log.entity';
+import { LlmService } from './llm.service';
 
 describe('LlmService', () => {
   let service: LlmService;

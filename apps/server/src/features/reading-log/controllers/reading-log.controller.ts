@@ -4,27 +4,29 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
-  UseGuards,
   Request,
-  Patch,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ReadingLogService } from '../services/reading-log.service';
-import { CreateReadingLogDto } from '../dto/create-reading-log.dto';
-import { UpdateReadingLogDto } from '../dto/update-reading-log.dto';
-import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiOperation,
+  ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
-  ApiQuery,
-  ApiParam,
-  ApiBody,
 } from '@nestjs/swagger';
+
+import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
+
+import { CreateReadingLogDto } from '../dto/create-reading-log.dto';
+import { UpdateReadingLogDto } from '../dto/update-reading-log.dto';
 import { UpdateReadingLogSettingsDto } from '../dtos/update-reading-log-settings.dto';
+import { ReadingLogService } from '../services/reading-log.service';
 
 @ApiTags('독서 기록 (Reading Log)')
 @Controller('reading-logs')

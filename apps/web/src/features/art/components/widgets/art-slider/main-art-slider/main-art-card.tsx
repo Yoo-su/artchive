@@ -1,6 +1,6 @@
+import { ArtItem } from "@bookjeok/core/art";
 import Image from "next/image";
 
-import { ArtItem } from "@/features/art/types";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 

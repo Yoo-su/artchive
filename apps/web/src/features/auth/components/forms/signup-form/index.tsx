@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -8,11 +9,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { emailSignup } from "@/features/auth/apis";
-import {
-  createSignupSchema,
-  SignupSchema,
-  SignupSchemaType,
-} from "@/features/auth/schema";
+import { createSignupSchema, SignupSchemaType } from "@/features/auth/schema";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Form,
@@ -24,6 +21,7 @@ import {
 } from "@/shared/components/shadcn/form";
 import { Input } from "@/shared/components/shadcn/input";
 import { Link, useRouter } from "@/shared/config/i18n/routing";
+import { publicAxios } from "@/shared/libs/axios";
 
 export const SignupForm = () => {
   const t = useTranslations("auth.signup");
@@ -44,7 +42,7 @@ export const SignupForm = () => {
   const onSubmit = async (values: SignupSchemaType) => {
     try {
       setIsLoading(true);
-      await emailSignup({
+      await emailSignup(publicAxios, {
         email: values.email,
         password: values.password,
         nickname: values.nickname,
@@ -52,8 +50,8 @@ export const SignupForm = () => {
 
       toast.success(t("success"));
       router.push("/login");
-    } catch (error: any) {
-      if (error.response?.status === 409) {
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
         const message = error.response.data.message;
         if (message === "EMAIL_ALREADY_EXISTS") {
           form.setError("email", { message: t("error.email_exists") });
@@ -64,13 +62,15 @@ export const SignupForm = () => {
         } else {
           toast.error(t("error.info_exists"));
         }
-      } else {
+      } else if (axios.isAxiosError(error)) {
         const serverMessage = error.response?.data?.message;
         if (serverMessage) {
           toast.error(`오류: ${serverMessage}`);
         } else {
           toast.error(t("error.unknown"));
         }
+      } else {
+        toast.error(t("error.unknown"));
       }
     } finally {
       setIsLoading(false);

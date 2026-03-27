@@ -1,13 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import {
-  NotificationPayload,
-  NotificationStrategy,
-} from '../types/notification-strategy.type';
-import { NotificationType } from '../entities/notification.entity';
+
 import {
   Comment,
   CommentTargetType,
 } from '@/features/comment/entities/comment.entity';
+
+import { NotificationType } from '../entities/notification.entity';
+import {
+  NotificationPayload,
+  NotificationStrategy,
+} from '../types/notification-strategy.type';
 
 @Injectable()
 export class CommentLikeStrategy implements NotificationStrategy {

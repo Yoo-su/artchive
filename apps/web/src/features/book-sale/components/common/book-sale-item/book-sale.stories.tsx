@@ -1,12 +1,11 @@
+import type { UsedBookSale as UsedBookSaleType } from "@bookjeok/core/book-sale";
+import { SaleStatus } from "@bookjeok/core/book-sale";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import type { UsedBookSale } from "@/features/book-sale/types";
-import { SaleStatus } from "@/features/book-sale/types";
-
-import { BookSale } from "./index";
+import { UsedBookSale } from "./index";
 
 // 목데이터
-const mockSale: UsedBookSale = {
+const mockSale: UsedBookSaleType = {
   id: 1,
   title: "데미안 - 깨끗한 상태, 거의 새것",
   price: 5000,
@@ -41,8 +40,8 @@ const mockSale: UsedBookSale = {
 };
 
 const meta = {
-  title: "Feature/BookSale",
-  component: BookSale.Root,
+  title: "Feature/UsedBookSale",
+  component: UsedBookSale.Root,
   parameters: {
     layout: "centered",
   },
@@ -54,7 +53,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof BookSale.Root>;
+} satisfies Meta<typeof UsedBookSale.Root>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -66,15 +65,15 @@ export const Default: Story = {
     children: null,
   },
   render: (args) => (
-    <BookSale.Root sale={args.sale}>
-      <BookSale.Image />
-      <BookSale.Content>
-        <BookSale.Price />
-        <BookSale.Title />
-        <BookSale.Location />
-        <BookSale.Meta />
-      </BookSale.Content>
-    </BookSale.Root>
+    <UsedBookSale.Root sale={args.sale}>
+      <UsedBookSale.Image />
+      <UsedBookSale.Content>
+        <UsedBookSale.Price />
+        <UsedBookSale.Title />
+        <UsedBookSale.Location />
+        <UsedBookSale.Meta />
+      </UsedBookSale.Content>
+    </UsedBookSale.Root>
   ),
 };
 
@@ -90,15 +89,15 @@ export const Reserved: Story = {
     children: null,
   },
   render: (args) => (
-    <BookSale.Root sale={args.sale}>
-      <BookSale.Image />
-      <BookSale.Content>
-        <BookSale.Price />
-        <BookSale.Title />
-        <BookSale.Location />
-        <BookSale.Meta />
-      </BookSale.Content>
-    </BookSale.Root>
+    <UsedBookSale.Root sale={args.sale}>
+      <UsedBookSale.Image />
+      <UsedBookSale.Content>
+        <UsedBookSale.Price />
+        <UsedBookSale.Title />
+        <UsedBookSale.Location />
+        <UsedBookSale.Meta />
+      </UsedBookSale.Content>
+    </UsedBookSale.Root>
   ),
 };
 
@@ -114,15 +113,15 @@ export const Sold: Story = {
     children: null,
   },
   render: (args) => (
-    <BookSale.Root sale={args.sale}>
-      <BookSale.Image />
-      <BookSale.Content>
-        <BookSale.Price />
-        <BookSale.Title />
-        <BookSale.Location />
-        <BookSale.Meta />
-      </BookSale.Content>
-    </BookSale.Root>
+    <UsedBookSale.Root sale={args.sale}>
+      <UsedBookSale.Image />
+      <UsedBookSale.Content>
+        <UsedBookSale.Price />
+        <UsedBookSale.Title />
+        <UsedBookSale.Location />
+        <UsedBookSale.Meta />
+      </UsedBookSale.Content>
+    </UsedBookSale.Root>
   ),
 };
 
@@ -134,15 +133,15 @@ export const WithRank: Story = {
     children: null,
   },
   render: (args) => (
-    <BookSale.Root sale={args.sale} rank={args.rank}>
-      <BookSale.Image />
-      <BookSale.Content>
-        <BookSale.Price />
-        <BookSale.Title />
-        <BookSale.Location />
-        <BookSale.Meta />
-      </BookSale.Content>
-    </BookSale.Root>
+    <UsedBookSale.Root sale={args.sale} rank={args.rank}>
+      <UsedBookSale.Image />
+      <UsedBookSale.Content>
+        <UsedBookSale.Price />
+        <UsedBookSale.Title />
+        <UsedBookSale.Location />
+        <UsedBookSale.Meta />
+      </UsedBookSale.Content>
+    </UsedBookSale.Root>
   ),
 };
 
@@ -158,15 +157,15 @@ export const Discounted: Story = {
     children: null,
   },
   render: (args) => (
-    <BookSale.Root sale={args.sale}>
-      <BookSale.Image />
-      <BookSale.Content>
-        <BookSale.Price />
-        <BookSale.Title />
-        <BookSale.Location />
-        <BookSale.Meta />
-      </BookSale.Content>
-    </BookSale.Root>
+    <UsedBookSale.Root sale={args.sale}>
+      <UsedBookSale.Image />
+      <UsedBookSale.Content>
+        <UsedBookSale.Price />
+        <UsedBookSale.Title />
+        <UsedBookSale.Location />
+        <UsedBookSale.Meta />
+      </UsedBookSale.Content>
+    </UsedBookSale.Root>
   ),
 };
 
@@ -181,7 +180,7 @@ export const Grid: Story = {
       <div className="grid grid-cols-3 gap-4" style={{ width: "720px" }}>
         {[SaleStatus.FOR_SALE, SaleStatus.RESERVED, SaleStatus.SOLD].map(
           (status, i) => (
-            <BookSale.Root
+            <UsedBookSale.Root
               key={status}
               sale={{
                 ...mockSale,
@@ -192,14 +191,14 @@ export const Grid: Story = {
               }}
               rank={i + 1}
             >
-              <BookSale.Image />
-              <BookSale.Content>
-                <BookSale.Price />
-                <BookSale.Title />
-                <BookSale.Location />
-                <BookSale.Meta />
-              </BookSale.Content>
-            </BookSale.Root>
+              <UsedBookSale.Image />
+              <UsedBookSale.Content>
+                <UsedBookSale.Price />
+                <UsedBookSale.Title />
+                <UsedBookSale.Location />
+                <UsedBookSale.Meta />
+              </UsedBookSale.Content>
+            </UsedBookSale.Root>
           ),
         )}
       </div>
@@ -213,5 +212,5 @@ export const Skeleton: Story = {
     sale: mockSale,
     children: null,
   },
-  render: () => <BookSale.Skeleton />,
+  render: () => <UsedBookSale.Skeleton />,
 };

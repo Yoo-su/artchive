@@ -1,19 +1,7 @@
-import { API_PATHS } from "@/shared/constants/apis";
-import { internalAxios } from "@/shared/libs/axios";
-import { getSimpleDate } from "@/shared/utils/date";
+import { getArtDetail as sharedGetArtDetail, getArtList as sharedGetArtList } from "@bookjeok/api-client/art";
+import { ArtListErrorResponse, ArtListSuccessResponse, GetArtDetailResponse, GetArtListParams } from "@bookjeok/core/art";
 
-import {
-  DEFAULT_CITY_CODE,
-  DEFAULT_PAGE,
-  DEFAULT_PRFSTATE,
-  DEFAULT_ROWS,
-} from "../constants/config";
-import {
-  ArtListErrorResponse,
-  ArtListSuccessResponse,
-  GetArtDetailResponse,
-  GetArtListParams,
-} from "../types";
+import { internalAxios } from "@/shared/libs/axios";
 
 /**
  * 공연/예술 목록을 조회합니다.
@@ -23,33 +11,7 @@ import {
 export const getArtList = async (
   params: GetArtListParams,
 ): Promise<ArtListSuccessResponse | ArtListErrorResponse> => {
-  const searchParams = new URLSearchParams();
-
-  const now = new Date(
-    new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" }),
-  );
-  // 기본값: 한 달 전 ~ 한 달 후
-  const defaultStart = new Date(now);
-  defaultStart.setMonth(defaultStart.getMonth() - 1);
-
-  const defaultEnd = new Date(now);
-  defaultEnd.setMonth(defaultEnd.getMonth() + 1);
-
-  const startDateStr = params.startDate ?? getSimpleDate(defaultStart);
-  const endDateStr = params.endDate ?? getSimpleDate(defaultEnd);
-
-  searchParams.set("cpage", params.cpage ?? DEFAULT_PAGE);
-  searchParams.set("rows", params.rows ?? DEFAULT_ROWS);
-  searchParams.set("prfstate", params.prfstate ?? DEFAULT_PRFSTATE);
-  searchParams.set("genreCode", params.genreCode);
-  searchParams.set("startDate", startDateStr);
-  searchParams.set("endDate", endDateStr);
-  searchParams.set("signgucode", params.signgucode ?? DEFAULT_CITY_CODE);
-
-  const url = `${API_PATHS.art.list}?${searchParams.toString()}`;
-  const { data } = await internalAxios.get(url);
-
-  return data;
+  return sharedGetArtList(internalAxios, params);
 };
 
 /**
@@ -59,7 +21,5 @@ export const getArtList = async (
 export const getArtDetail = async (
   artId: string,
 ): Promise<GetArtDetailResponse> => {
-  const { data } = await internalAxios.get(API_PATHS.art.detail(artId));
-
-  return data;
+  return sharedGetArtDetail(internalAxios, artId);
 };

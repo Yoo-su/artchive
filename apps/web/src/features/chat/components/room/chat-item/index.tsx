@@ -1,5 +1,6 @@
 "use client";
 
+import { ChatRoom } from "@bookjeok/core/chat";
 import { useQueryClient } from "@tanstack/react-query";
 import { format, isToday, isYesterday } from "date-fns";
 import { ko } from "date-fns/locale";
@@ -15,7 +16,6 @@ import {
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 import { useChatStore } from "../../../stores/use-chat-store";
-import { ChatRoom } from "../../../types";
 
 const formatLastMessageTime = (date: string) => {
   const messageDate = new Date(date);

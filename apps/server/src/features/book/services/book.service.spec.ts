@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BookService } from './book.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
+
 import { Book } from '../entities/book.entity';
+import { BookService } from './book.service';
 import { NaverBookSearchService } from './naver-book-search.service';
 
 describe('BookService', () => {

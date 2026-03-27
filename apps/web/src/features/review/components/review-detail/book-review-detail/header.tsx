@@ -1,12 +1,12 @@
 "use client";
 
+import { BookInfo } from "@bookjeok/core/book";
+import { Review } from "@bookjeok/core/review";
 import { format } from "date-fns";
 import { BookOpen, Calendar, Eye, Share2 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
-import { BookInfo } from "@/features/book/types";
-import { Review } from "@/features/review/types";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { Separator } from "@/shared/components/shadcn/separator";

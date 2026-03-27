@@ -3,6 +3,9 @@
   "private": true,
   "scripts": {
     "dev": "turbo dev",
+    "dev:web": "turbo dev --filter=@bookjeok/web --filter=@bookjeok/server",
+    "dev:server": "turbo dev --filter=@bookjeok/server",
+    "dev:all": "turbo dev",
     "build": "turbo build",
     "clean": "rm -rf .turbo apps/web/.next apps/web/.turbo apps/server/dist",
     "build:clean": "pnpm clean && pnpm build",

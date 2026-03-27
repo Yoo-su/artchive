@@ -1,12 +1,14 @@
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { DataSource, EntityManager } from 'typeorm';
-import { UsedBookSaleService } from './used-book-sale.service';
-import { UsedBookSale } from '../entities/used-book-sale.entity';
+
 import { BookService } from '@/features/book/services/book.service';
 import { UserService } from '@/features/user/services/user.service';
+
 import { CreateBookSaleDto } from '../dtos/create-book-sale.dto';
+import { UsedBookSale } from '../entities/used-book-sale.entity';
+import { UsedBookSaleService } from './used-book-sale.service';
 
 describe('UsedBookSaleService', () => {
   let service: UsedBookSaleService;

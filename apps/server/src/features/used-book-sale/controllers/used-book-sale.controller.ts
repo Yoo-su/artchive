@@ -1,30 +1,32 @@
 import {
-  Controller,
-  Post,
   Body,
-  UseGuards,
-  Patch,
-  Param,
-  ParseIntPipe,
-  Get,
-  Query,
+  Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { UsedBookSaleService } from '../services/used-book-sale.service';
-import { UsedBookViewCountInterceptor } from '../interceptors/used-book-view-count.interceptor';
-import { CreateBookSaleDto } from '../dtos/create-book-sale.dto';
-import { UpdateBookSaleDto } from '../dtos/update-book-sale.dto';
-import { QueryBookSaleDto } from '../dtos/query-book-sale.dto';
-import { GetBookSalesQueryDto } from '../dtos/get-book-sales-query.dto';
-import { UpdateSaleStatusDto } from '@/features/user/dtos/update-sale-status.dto';
-import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
-import { User } from '@/features/user/entities/user.entity';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+
 import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
+import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
+import { UpdateSaleStatusDto } from '@/features/user/dtos/update-sale-status.dto';
+import { User } from '@/features/user/entities/user.entity';
+
+import { CreateBookSaleDto } from '../dtos/create-book-sale.dto';
+import { GetBookSalesQueryDto } from '../dtos/get-book-sales-query.dto';
+import { QueryBookSaleDto } from '../dtos/query-book-sale.dto';
+import { UpdateBookSaleDto } from '../dtos/update-book-sale.dto';
+import { UsedBookViewCountInterceptor } from '../interceptors/used-book-view-count.interceptor';
+import { UsedBookSaleService } from '../services/used-book-sale.service';
 
 // API 경로는 기존과 동일하게 유지 (/book/...)
 @ApiTags('중고책 판매 (Used Book Sale)')

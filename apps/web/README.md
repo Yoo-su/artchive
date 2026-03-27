@@ -45,21 +45,43 @@
 
 ## 🏗️ 프로젝트 구조 (Structure)
 
-도메인 주도 설계(DDD)의 아이디어를 차용하여 **Feature-Sliced** 구조를 따릅니다.
+ 도메인 주도 설계(DDD)의 아이디어를 차용하여 **Feature-Sliced** 구조를 따르며, 비즈니스 로직은 공유 패키지에 의존합니다.
 
 ```bash
 src
 ├── app/                  # Next.js App Router (Pages, Layouts)
-├── features/             # 비즈니스 로직 및 상태 (Auth, Book, Chat...)
+├── features/             # 기능별 UI 및 웹 전용 래퍼 훅 (Shared Packages 활용)
 │   ├── auth/
 │   ├── book/
 │   └── ...
-├── shared/               # 공용 컴포넌트 및 유틸리티
-│   ├── ui/               # 버튼, 입력창 등 공용 UI
-│   ├── lib/              # 유틸리티 함수
+├── shared/               # 웹 전용 공용 컴포넌트 및 설정
+│   ├── ui/               # 버튼, 입력창 등 웹 전용 UI
+│   ├── lib/              # 웹 전용 유틸리티 (axios 인스턴스 등)
 │   └── config/           # 환경 변수 및 설정
 └── styles/               # 전역 스타일 및 Tailwind 설정
 ```
+
+---
+
+## 🏛️ 아키텍처 가이드 (Architecture)
+
+본 프로젝트는 멀티 플랫폼 확장을 위해 **명시적 의존성 주입(Explicit DI)** 아키텍처를 채택했습니다.
+
+### 1. 공유 패키지 의존성
+- **Business Logic**: `@bookjeok/react-query`의 훅을 사용하여 데이터 페칭을 관리합니다.
+- **API Engine**: `@bookjeok/api-client`의 순수 함수를 사용하여 통신합니다.
+- **Core Assets**: `@bookjeok/core`의 공통 타입과 유틸리티를 사용합니다.
+
+### 2. 래퍼 훅(Wrapper Hooks) 패턴
+공유 패키지의 훅을 직접 쓰지 않고, 웹 전용 Axios 인스턴스를 주입한 래퍼 훅을Feature 내부에 작성하여 사용합니다.
+```typescript
+// src/features/book/queries.ts
+import { usePopularBooksQuery as useBaseQuery } from "@bookjeok/react-query";
+import { publicAxios } from "@/shared/libs/axios";
+
+export const usePopularBooksQuery = () => useBaseQuery(publicAxios);
+```
+이렇게 함으로써 컴포넌트 계층에서는 인스턴스 주입에 신경 쓰지 않고 깔끔하게 훅을 호출할 수 있습니다.
 
 ---
 

@@ -1,5 +1,7 @@
 "use client";
 
+import { BookInfo } from "@bookjeok/core/book";
+import { BOOK_DOMAINS, CATEGORY_MAP, ReviewFormValues } from "@bookjeok/core/review";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BookOpen, Info, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -11,12 +13,10 @@ import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { BookSearchModal } from "@/features/book/components/common/book-search-modal";
-import { BookInfo } from "@/features/book/types";
 import {
   createReviewSchema,
   ReviewSchemaValues,
 } from "@/features/review/schemas";
-import { ReviewFormValues } from "@/features/review/types";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 
@@ -52,8 +52,6 @@ import {
 import { Switch } from "@/shared/components/shadcn/switch";
 import { StarRating } from "@/shared/components/ui/star-rating";
 import { useEditorImageHandler } from "@/shared/hooks/use-editor-image-handler";
-
-import { BOOK_DOMAINS, CATEGORY_MAP } from "../../constants/data";
 
 interface ReviewFormProps {
   initialData?: {

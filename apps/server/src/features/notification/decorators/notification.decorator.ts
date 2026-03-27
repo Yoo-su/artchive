@@ -1,4 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
+
 import { NotificationType } from '../entities/notification.entity';
 
 export const NOTIFICATION_KEY = 'notification_metadata';

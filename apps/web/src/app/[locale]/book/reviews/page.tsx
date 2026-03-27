@@ -1,8 +1,8 @@
+import { reviewKeys } from "@bookjeok/react-query/review/keys";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getPopularReviews, getReviewFeeds } from "@/features/review/apis";
-import { reviewKeys } from "@/features/review/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { ReviewHomeView } from "@/views/review-home-view";
 
@@ -52,7 +52,7 @@ export default async function Page({
         queryFn: getPopularReviews,
       }),
       queryClient.prefetchQuery({
-        queryKey: reviewKeys.feeds.queryKey,
+        queryKey: reviewKeys.feeds().queryKey,
         queryFn: getReviewFeeds,
       }),
     ]);

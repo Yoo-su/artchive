@@ -1,8 +1,10 @@
-import { Injectable, Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import { ReviewService } from '../services/review.service';
+
 import { BaseViewCountInterceptor } from '@/shared/interceptors/base-view-count.interceptor';
+
+import { ReviewService } from '../services/review.service';
 
 @Injectable()
 export class ViewCountInterceptor extends BaseViewCountInterceptor {

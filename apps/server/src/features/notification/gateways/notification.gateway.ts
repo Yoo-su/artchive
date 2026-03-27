@@ -1,3 +1,5 @@
+import { Logger, UseGuards } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -5,11 +7,10 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger, UseGuards } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { UserService } from '@/features/user/services/user.service';
-import { SocketAuthGuard } from '@/features/chat/guards/socket-auth.guard'; // Reusing existing guard
+
 import { JwtPayload } from '@/features/auth/types/jwt-payload.type';
+import { SocketAuthGuard } from '@/features/chat/guards/socket-auth.guard'; // Reusing existing guard
+import { UserService } from '@/features/user/services/user.service';
 
 @UseGuards(SocketAuthGuard)
 @WebSocketGateway({

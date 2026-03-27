@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThanOrEqual } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
+
 import { SearchKeyword } from '../entities/search-keyword.entity';
 import { normalizeKeyword } from '../utils/normalize-keyword.util';
 

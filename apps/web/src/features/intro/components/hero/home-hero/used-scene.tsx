@@ -1,8 +1,8 @@
 "use client";
 
+import { SceneData } from "@bookjeok/core/intro";
 import { motion } from "framer-motion";
 
-import { SceneData } from "@/features/intro/types";
 import { cn } from "@/shared/utils/cn";
 
 // -----------------------------------------------------------------------------

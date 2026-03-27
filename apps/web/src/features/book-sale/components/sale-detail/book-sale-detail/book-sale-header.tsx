@@ -1,9 +1,8 @@
+import { formatPostDate } from "@bookjeok/core";
+import { UsedBookSale } from "@bookjeok/core/book-sale";
 import { Clock, Eye, MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { formatPostDate } from "@/shared/utils/date";
-
-import { UsedBookSale } from "../../../types";
 import { SaleStatusBadge } from "../../common/sale-status-badge";
 
 interface BookSaleHeaderProps {

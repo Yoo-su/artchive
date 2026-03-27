@@ -13,12 +13,35 @@ export const publicAxios = axios.create({
   baseURL,
 });
 
+const commonRequestInterceptor = (
+  config: InternalAxiosRequestConfig,
+): InternalAxiosRequestConfig => {
+  // 클라이언트 사이드에서만 동작하도록 (Next.js SSR 환경 고려)
+  if (typeof window !== "undefined") {
+    // 필요한 경우 공통 헤더 등을 추가할 수 있습니다.
+  }
+  return config;
+};
+
+publicAxios.interceptors.request.use(commonRequestInterceptor);
+
 export const privateAxios = axios.create({
   baseURL,
 });
 
 privateAxios.interceptors.request.use(
   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+    // 특정 API(공연/예술, 도서, 업로드)는 Next.js API Route를 사용하도록 설정
+    if (
+      config.url?.includes("/art-list") ||
+      config.url?.includes("/art-detail") ||
+      config.url?.includes("/book-list") ||
+      config.url?.includes("/book-detail") ||
+      config.url?.includes("/upload")
+    ) {
+      config.baseURL = "/api";
+    }
+
     const accessToken = useAuthStore.getState().accessToken;
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
@@ -53,12 +76,13 @@ const processQueue = (
 };
 
 const commonResponseInterceptor = (response: AxiosResponse): AxiosResponse => {
+  // 서버 응답이 { success, data } 형태인 경우 투명하게 data 필드만 반환합니다.
   if (
     response.data &&
+    typeof response.data === "object" &&
     response.data.success === true &&
     response.data.data !== undefined
   ) {
-    // 래퍼의 data 부분만 추출하여 반환 (success 자동 주입 제거)
     response.data = response.data.data;
   }
   return response;

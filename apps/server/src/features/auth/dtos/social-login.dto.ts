@@ -1,11 +1,11 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsString,
-  IsNotEmpty,
   IsEmail,
+  IsNotEmpty,
   IsOptional,
+  IsString,
   IsUrl,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class SocialLoginDto {
   @IsString()

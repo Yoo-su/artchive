@@ -7,13 +7,14 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
 import { OptionalJwtAuthGuard } from '@/features/auth/guards/optional-jwt-auth.guard';
-import { LlmService } from '../services/llm.service';
+
 import { BookSummaryDto } from '../dtos/book-summary.dto';
 import { TalkRequestDto } from '../dtos/talk-request.dto';
 import { TalkResponseDto } from '../dtos/talk-response.dto';
-
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { LlmService } from '../services/llm.service';
 
 @ApiTags('AI 요약 (LLM)')
 @Controller('llm')

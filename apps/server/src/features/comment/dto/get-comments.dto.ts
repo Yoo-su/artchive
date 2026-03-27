@@ -1,5 +1,6 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+
 import { CommentTargetType } from '../entities/comment.entity';
 
 /**

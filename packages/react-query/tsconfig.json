@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "jsx": "react-jsx",
+    "paths": {
+      "@bookjeok/core/*": ["../core/src/features/*"],
+      "@bookjeok/core": ["../core/src/index.ts"],
+      "@bookjeok/api-client/*": ["../api-client/src/features/*"],
+      "@bookjeok/api-client": ["../api-client/src/index.ts"]
+    },
+    "outDir": "dist"
+  },
+  "include": ["src"]
+}

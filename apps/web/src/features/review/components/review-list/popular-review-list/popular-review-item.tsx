@@ -1,4 +1,5 @@
-import { Review } from "@/features/review/types";
+import { Review } from "@bookjeok/core/review";
+
 import {
   Avatar,
   AvatarFallback,

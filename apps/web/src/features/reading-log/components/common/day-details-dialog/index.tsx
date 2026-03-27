@@ -1,5 +1,5 @@
-"use client";
-
+import { BookInfo } from "@bookjeok/core/book";
+import { ReadingLog } from "@bookjeok/core/reading-log";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import {
@@ -14,7 +14,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { BookSearchModal } from "@/features/book/components/common/book-search-modal";
-import { BookInfo } from "@/features/book/types";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,
@@ -29,8 +28,8 @@ import {
   useCreateReadingLogMutation,
   useDeleteReadingLogMutation,
   useUpdateReadingLogMutation,
-} from "../../../queries";
-import { ReadingLog } from "../../../types";
+} from "../../../mutations";
+import { useReadingLogsQuery } from "../../../queries";
 import { ReadingLogFormDialog } from "../reading-log-form-dialog";
 
 interface DayDetailsDialogProps {
@@ -83,11 +82,7 @@ export function DayDetailsDialog({
       },
       {
         onSuccess: () => {
-          toast.success("책이 기록되었습니다.");
           setSelectedBookForCreate(null);
-        },
-        onError: () => {
-          toast.error("기록 저장 중 오류가 발생했습니다.");
         },
       },
     );
@@ -107,11 +102,7 @@ export function DayDetailsDialog({
       },
       {
         onSuccess: () => {
-          toast.success("메모가 수정되었습니다.");
           setEditingLog(null);
-        },
-        onError: () => {
-          toast.error("수정 중 오류가 발생했습니다.");
         },
       },
     );
@@ -119,17 +110,7 @@ export function DayDetailsDialog({
 
   const handleRemoveLog = (log: ReadingLog) => {
     if (confirm("정말 삭제하시겠습니까?")) {
-      deleteMutation.mutate(
-        { id: log.id, date: log.date },
-        {
-          onSuccess: () => {
-            toast.success("기록이 삭제되었습니다.");
-          },
-          onError: () => {
-            toast.error("삭제 중 오류가 발생했습니다.");
-          },
-        },
-      );
+      deleteMutation.mutate({ id: log.id, date: log.date });
     }
   };
 

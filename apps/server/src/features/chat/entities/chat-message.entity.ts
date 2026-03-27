@@ -1,11 +1,12 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  Entity,
   ManyToOne,
   OneToMany,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
+
 import { User } from '../../user/entities/user.entity';
 import { ChatRoom } from './chat-room.entity';
 import { ReadReceipt } from './read-receipt.entity';

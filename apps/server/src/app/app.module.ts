@@ -1,29 +1,30 @@
-import { Module, OnModuleInit } from '@nestjs/common';
-import { EventEmitterModule } from '@nestjs/event-emitter';
-import { APP_GUARD } from '@nestjs/core';
 import { CacheModule } from '@nestjs/cache-manager';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { DataSource } from 'typeorm';
+
 import { AuthModule } from '@/features/auth/auth.module';
-import { UserModule } from '@/features/user/user.module';
-import { User } from '@/features/user/entities/user.entity';
 import { BookModule } from '@/features/book/book.module';
-import { UsedBookSaleModule } from '@/features/used-book-sale/used-book-sale.module';
-import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { Book } from '@/features/book/entities/book.entity';
 import { ChatModule } from '@/features/chat/chat.module';
-import { LlmModule } from '@/features/llm/llm.module';
-import { ReviewModule } from '@/features/review/review.module';
-import { Review } from '@/features/review/entities/review.entity';
 import { CommentModule } from '@/features/comment/comment.module';
+import { HealthModule } from '@/features/health/health.module';
 import { InsightsModule } from '@/features/insights/insights.module';
+import { LlmModule } from '@/features/llm/llm.module';
+import { NotificationModule } from '@/features/notification/notification.module';
 import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
 import { ReadingLogModule } from '@/features/reading-log/reading-log.module';
+import { Review } from '@/features/review/entities/review.entity';
+import { ReviewModule } from '@/features/review/review.module';
 import { SearchKeywordModule } from '@/features/search-keyword/search-keyword.module';
-import { NotificationModule } from '@/features/notification/notification.module';
-import { HealthModule } from '@/features/health/health.module';
+import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
+import { UsedBookSaleModule } from '@/features/used-book-sale/used-book-sale.module';
+import { User } from '@/features/user/entities/user.entity';
+import { UserModule } from '@/features/user/user.module';
 
 @Module({
   imports: [
