@@ -11,8 +11,11 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # 패키지 매니저 설정
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json turbo.json ./
 COPY apps/web/package.json ./apps/web/
+COPY packages/core/package.json ./packages/core/
+COPY packages/api-client/package.json ./packages/api-client/
+COPY packages/react-query/package.json ./packages/react-query/
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 RUN pnpm install --frozen-lockfile
