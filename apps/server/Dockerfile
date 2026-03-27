@@ -10,7 +10,7 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@9.15.1 --activate
 
 # 1. 워크스페이스(Monorepo) 설정 파일들 복사
-COPY pnpm-lock.yaml package.json pnpm-workspace.yaml tsconfig.base.json turbo.json ./
+COPY pnpm-lock.yaml package.json pnpm-workspace.yaml tsconfig.base.json turbo.json .npmrc ./
 
 # 2. 모든 패키지 및 앱의 package.json 복사 (의존성 설치 최적화)
 COPY apps/server/package.json ./apps/server/
