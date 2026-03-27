@@ -1,5 +1,6 @@
 "use client";
 
+import { ReviewFormValues } from "@bookjeok/core/review";
 import { AxiosError } from "axios";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
@@ -8,7 +9,6 @@ import { toast } from "sonner";
 import { ReviewForm } from "@/features/review/components/review-form";
 import { useUpdateReviewMutation } from "@/features/review/mutations";
 import { useReviewForEditQuery } from "@/features/review/queries";
-import { ReviewFormValues } from "@/features/review/types";
 import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 

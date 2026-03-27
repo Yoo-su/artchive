@@ -1,6 +1,5 @@
+import { ReviewReactionType } from "@bookjeok/core/review";
 import { Heart, Lightbulb, Sparkles } from "lucide-react";
-
-import { ReviewReactionType } from "../types";
 
 export const REACTION_CONFIG = [
   {

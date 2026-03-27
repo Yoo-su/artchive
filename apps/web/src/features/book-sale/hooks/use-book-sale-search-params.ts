@@ -1,27 +1,8 @@
 "use client";
 
+import { DEFAULT_SORT_BY, DEFAULT_SORT_ORDER, FILTER_ALL, FilterFormInputs, MAX_MARKET_PRICE, SaleStatus, SearchBookSalesParams, SortBy, SortOption, SortOrder, VALID_SALE_STATUSES, VALID_SORT_BY, VALID_SORT_ORDER } from "@bookjeok/core/book-sale";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
-
-import {
-  DEFAULT_SORT_BY,
-  DEFAULT_SORT_ORDER,
-  FILTER_ALL,
-  MAX_MARKET_PRICE,
-} from "../constants/config";
-import {
-  VALID_SALE_STATUSES,
-  VALID_SORT_BY,
-  VALID_SORT_ORDER,
-} from "../constants/data";
-import {
-  FilterFormInputs,
-  SaleStatus,
-  SearchBookSalesParams,
-  SortBy,
-  SortOption,
-  SortOrder,
-} from "../types";
 
 /**
  * URL에서 안전하게 숫자를 파싱하는 유틸리티

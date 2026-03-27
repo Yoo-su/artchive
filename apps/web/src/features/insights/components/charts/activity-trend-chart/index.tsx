@@ -1,5 +1,6 @@
 "use client";
 
+import { ActivityTrendStat } from "@bookjeok/core/insights";
 import { TrendingUp } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
@@ -10,7 +11,6 @@ import {
   InsightCard,
 } from "@/features/insights/components/common/insight-card";
 import { TREND_COLORS } from "@/features/insights/constants/ui";
-import { ActivityTrendStat } from "@/features/insights/types";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,

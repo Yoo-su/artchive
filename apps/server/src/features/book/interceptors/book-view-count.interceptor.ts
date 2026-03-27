@@ -1,9 +1,11 @@
-import { Injectable, Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { Request } from 'express';
-import { BookService } from '../services/book.service';
+
 import { BaseViewCountInterceptor } from '@/shared/interceptors/base-view-count.interceptor';
+
+import { BookService } from '../services/book.service';
 
 /**
  * 책 상세페이지 조회수를 기록하는 인터셉터

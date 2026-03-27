@@ -1,3 +1,4 @@
+import { ChatMessage } from "@bookjeok/core/chat";
 import { motion } from "framer-motion";
 import { Check, Loader2 } from "lucide-react";
 import { RefObject } from "react";
@@ -8,8 +9,6 @@ import {
   AvatarImage,
 } from "@/shared/components/shadcn/avatar";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
-
-import { ChatMessage } from "../../../types";
 
 /** 시스템 메시지 버블 */
 const SystemMessageBubble = ({ content }: { content: string }) => (

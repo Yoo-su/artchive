@@ -1,21 +1,23 @@
 import {
   Controller,
+  Delete,
   Get,
-  Patch,
+  HttpStatus,
   Param,
+  ParseIntPipe,
+  Patch,
   Query,
   UseGuards,
-  ParseIntPipe,
-  HttpStatus,
-  Delete,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
-import { NotificationService } from '../services/notification.service';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { User } from '@/features/user/entities/user.entity';
+
 import { GetNotificationsQueryDto } from '../dto/get-notifications-query.dto';
 import { GetNotificationsResponseDto } from '../dto/notification-response.dto';
+import { NotificationService } from '../services/notification.service';
 
 @ApiTags('알림 (Notification)')
 @UseGuards(AuthGuard('jwt'))

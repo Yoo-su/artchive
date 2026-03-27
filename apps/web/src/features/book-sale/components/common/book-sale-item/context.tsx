@@ -1,6 +1,5 @@
+import { UsedBookSale } from "@bookjeok/core/book-sale";
 import { createContext, useContext } from "react";
-
-import { UsedBookSale } from "@/features/book-sale/types";
 
 interface BookSaleContextValue {
   sale: UsedBookSale;
@@ -15,7 +14,7 @@ export function useBookSaleContext() {
 
   if (!context) {
     throw new Error(
-      "BookSale compound components cannot be rendered outside the BookSale.Root component",
+      "UsedBookSale compound components cannot be rendered outside the UsedBookSale.Root component",
     );
   }
 

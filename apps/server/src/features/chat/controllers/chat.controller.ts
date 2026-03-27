@@ -11,18 +11,19 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ChatService } from '../services/chat.service';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { User } from '@/features/user/entities/user.entity';
 
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiQuery,
-  ApiBody,
-  ApiParam,
-} from '@nestjs/swagger';
+import { ChatService } from '../services/chat.service';
 
 @ApiTags('채팅 (Chat)')
 @Controller('chat')

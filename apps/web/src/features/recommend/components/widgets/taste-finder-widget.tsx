@@ -1,10 +1,9 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { NEOGULIP_TEXTS } from "@bookjeok/core/llm";
 import { useState } from "react";
 
-import { talkToAiLibrarian } from "../../apis";
-import { NEOGULIP_TEXTS } from "../../constants/data";
+import { useTalkToAiLibrarianMutation } from "../../mutations";
 import { useRecommendStore } from "../../stores/recommend-store";
 import { TasteFinderHeader } from "../finder/taste-finder/header";
 import { TasteFinderInputForm } from "../finder/taste-finder/input-form";
@@ -17,37 +16,7 @@ export function TasteFinderWidget() {
 
   const [input, setInput] = useState("");
 
-  const { mutate: sendMessage, isPending } = useMutation({
-    mutationFn: (text: string) => {
-      // 이전 대화 기록 (최근 10개만)
-      const history = messages
-        .slice(-10)
-        .map((m) => `${m.isAi ? "AI" : "User"}: ${m.text}`)
-        .join("\n");
-      return talkToAiLibrarian({ message: text, history });
-    },
-    onSuccess: (data) => {
-      addMessage({
-        id: Date.now().toString(),
-        text: data.message,
-        isAi: true,
-      });
-
-      if (data.isFinal) {
-        setIsFinal(true);
-        if (data.recommendedBooks) {
-          setRecommendedBooks(data.recommendedBooks);
-        }
-      }
-    },
-    onError: () => {
-      addMessage({
-        id: Date.now().toString(),
-        text: NEOGULIP_TEXTS.ERROR,
-        isAi: true,
-      });
-    },
-  });
+  const { mutate: sendMessage, isPending } = useTalkToAiLibrarianMutation();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +28,39 @@ export function TasteFinderWidget() {
       isAi: false,
     });
 
-    sendMessage(input);
+    // 이전 대화 기록 (최근 10개만)
+    const history = messages
+      .slice(-10)
+      .map((m) => `${m.isAi ? "AI" : "User"}: ${m.text}`)
+      .join("\n");
+
+    sendMessage(
+      { message: input, history },
+      {
+        onSuccess: (data) => {
+          addMessage({
+            id: Date.now().toString(),
+            text: data.message,
+            isAi: true,
+          });
+
+          if (data.isFinal) {
+            setIsFinal(true);
+            if (data.recommendedBooks) {
+              setRecommendedBooks(data.recommendedBooks);
+            }
+          }
+        },
+        onError: () => {
+          addMessage({
+            id: Date.now().toString(),
+            text: NEOGULIP_TEXTS.ERROR,
+            isAi: true,
+          });
+        },
+      },
+    );
+
     setInput("");
   };
 

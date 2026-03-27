@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy, Profile } from 'passport-naver';
+import { Profile, Strategy } from 'passport-naver';
+
 import { AuthService } from '../services/auth.service';
 
 @Injectable()

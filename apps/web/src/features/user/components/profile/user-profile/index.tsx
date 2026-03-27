@@ -1,3 +1,5 @@
+import { SaleStatus } from "@bookjeok/core/book-sale";
+import { PublicUserProfile } from "@bookjeok/core/user";
 import { format } from "date-fns";
 import { enUS, ko } from "date-fns/locale";
 import { BookOpen, Calendar, ShoppingBag, User } from "lucide-react";
@@ -5,10 +7,8 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 import { SaleStatusBadge } from "@/features/book-sale/components/common/sale-status-badge";
-import { SaleStatus } from "@/features/book-sale/types";
 import { ReadingTimeline } from "@/features/reading-log/components/stats-view/reading-timeline";
 import { usePublicProfileQuery } from "@/features/user/queries";
-import { PublicUserProfile } from "@/features/user/types";
 import { Card, CardContent, CardHeader } from "@/shared/components/shadcn/card";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { NotFoundRedirect } from "@/shared/components/ui/not-found-redirect";

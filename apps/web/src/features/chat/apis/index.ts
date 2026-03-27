@@ -1,18 +1,15 @@
-import { API_PATHS } from "@/shared/constants/apis";
-import { privateAxios } from "@/shared/libs/axios";
+import { findOrCreateRoom as sharedFindOrCreateRoom, getChatMessages as sharedGetChatMessages, getMyChatRooms as sharedGetMyChatRooms, leaveChatRoom as sharedLeaveChatRoom, markMessagesAsRead as sharedMarkMessagesAsRead } from "@bookjeok/api-client/chat";
+import { ChatRoom, GetChatMessagesResponse } from "@bookjeok/core/chat";
 
-import { ChatRoom, GetChatMessagesResponse } from "../types";
+import { privateAxios } from "@/shared/libs/axios";
 
 /**
  * 특정 판매글에 대한 채팅방을 찾거나 생성합니다.
- * @param saleId 판매글 ID
- * @returns 채팅방 정보
  */
-export const findOrCreateRoom = async (saleId: number): Promise<ChatRoom> => {
-  const { data } = await privateAxios.post<ChatRoom>(API_PATHS.chat.rooms, {
-    saleId,
-  });
-  return data;
+export const findOrCreateRoom = async (
+  usedBookSaleId: number,
+): Promise<ChatRoom> => {
+  return sharedFindOrCreateRoom(privateAxios, usedBookSaleId);
 };
 
 /**
@@ -20,8 +17,7 @@ export const findOrCreateRoom = async (saleId: number): Promise<ChatRoom> => {
  * @returns 채팅방 목록
  */
 export const getMyChatRooms = async (): Promise<ChatRoom[]> => {
-  const { data } = await privateAxios.get<ChatRoom[]>(API_PATHS.chat.rooms);
-  return data;
+  return sharedGetMyChatRooms(privateAxios);
 };
 
 /**
@@ -37,11 +33,7 @@ export const getChatMessages = async (
   limit: number = 20,
   cursorId?: number,
 ): Promise<GetChatMessagesResponse> => {
-  const { data } = await privateAxios.get<GetChatMessagesResponse>(
-    API_PATHS.chat.messages(roomId),
-    { params: { page, limit, cursorId } },
-  );
-  return data;
+  return sharedGetChatMessages(privateAxios, roomId, page, limit, cursorId);
 };
 
 /**
@@ -49,8 +41,7 @@ export const getChatMessages = async (
  * @param roomId 채팅방 ID
  */
 export const markMessagesAsRead = async (roomId: number) => {
-  const { data } = await privateAxios.patch(API_PATHS.chat.read(roomId));
-  return data;
+  return sharedMarkMessagesAsRead(privateAxios, roomId);
 };
 
 /**
@@ -58,6 +49,5 @@ export const markMessagesAsRead = async (roomId: number) => {
  * @param roomId 나갈 채팅방의 ID
  */
 export const leaveChatRoom = async (roomId: number) => {
-  const { data } = await privateAxios.delete(API_PATHS.chat.room(roomId));
-  return data;
+  return sharedLeaveChatRoom(privateAxios, roomId);
 };

@@ -1,30 +1,31 @@
 import {
-  Controller,
-  Get,
-  UseGuards,
-  Delete,
-  Post,
   Body,
-  Query,
+  Controller,
+  Delete,
+  Get,
   Param,
+  Post,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { UserService } from '../services/user.service';
-import { CurrentUser } from '../decorators/current-user.decorator';
-import { User } from '../entities/user.entity';
-import { UpdateUserDto } from '../dtos/update-user.dto';
 import { Patch } from '@nestjs/common';
-import { MyProfileResponseDto } from '../dtos/my-profile-response.dto';
+import { AuthGuard } from '@nestjs/passport';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+
 import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
 
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBody,
-  ApiQuery,
-  ApiParam,
-} from '@nestjs/swagger';
+import { CurrentUser } from '../decorators/current-user.decorator';
+import { MyProfileResponseDto } from '../dtos/my-profile-response.dto';
+import { UpdateUserDto } from '../dtos/update-user.dto';
+import { User } from '../entities/user.entity';
+import { UserService } from '../services/user.service';
 
 @ApiTags('사용자 (User)')
 @Controller('user')

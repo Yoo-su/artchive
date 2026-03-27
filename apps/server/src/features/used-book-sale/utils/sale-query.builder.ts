@@ -1,4 +1,5 @@
 import { SelectQueryBuilder } from 'typeorm';
+
 import { BookSaleSortBy, QueryBookSaleDto } from '../dtos/query-book-sale.dto';
 import { UsedBookSale } from '../entities/used-book-sale.entity';
 

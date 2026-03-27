@@ -7,8 +7,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from '@/features/user/entities/user.entity';
+
 import { Book } from '@/features/book/entities/book.entity';
+import { User } from '@/features/user/entities/user.entity';
 
 @Entity({ name: 'reading_logs' })
 export class ReadingLog {

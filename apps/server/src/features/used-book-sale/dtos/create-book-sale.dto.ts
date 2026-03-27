@@ -1,14 +1,14 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsString,
-  IsNotEmpty,
   IsArray,
+  IsNotEmpty,
   IsNumber,
   IsPositive,
+  IsString,
   IsUrl,
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateBookSaleDto {
   @IsString()

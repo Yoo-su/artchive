@@ -1,9 +1,9 @@
 "use client";
 
+import { UsedBookSale } from "@bookjeok/core/book-sale";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
-import { UsedBookSale } from "@/features/book-sale/types";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 

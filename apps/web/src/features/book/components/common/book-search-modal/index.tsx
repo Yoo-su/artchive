@@ -1,5 +1,6 @@
 "use client";
 
+import { BookInfo } from "@bookjeok/core/book";
 import { AnimatePresence, motion } from "framer-motion";
 import debounce from "lodash/debounce";
 import { Loader2, Search } from "lucide-react";
@@ -7,7 +8,6 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useInView } from "react-intersection-observer";
 
-import { BookInfo } from "@/features/book/types";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,

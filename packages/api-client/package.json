@@ -1,0 +1,74 @@
+{
+  "name": "@bookjeok/api-client",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./auth": {
+      "types": "./dist/features/auth/index.d.mts",
+      "import": "./dist/features/auth/index.mjs"
+    },
+    "./book": {
+      "types": "./dist/features/book/index.d.mts",
+      "import": "./dist/features/book/index.mjs"
+    },
+    "./review": {
+      "types": "./dist/features/review/index.d.mts",
+      "import": "./dist/features/review/index.mjs"
+    },
+    "./chat": {
+      "types": "./dist/features/chat/index.d.mts",
+      "import": "./dist/features/chat/index.mjs"
+    },
+    "./comment": {
+      "types": "./dist/features/comment/index.d.mts",
+      "import": "./dist/features/comment/index.mjs"
+    },
+    "./book-sale": {
+      "types": "./dist/features/book-sale/index.d.mts",
+      "import": "./dist/features/book-sale/index.mjs"
+    },
+    "./user": {
+      "types": "./dist/features/user/index.d.mts",
+      "import": "./dist/features/user/index.mjs"
+    },
+    "./notification": {
+      "types": "./dist/features/notification/index.d.mts",
+      "import": "./dist/features/notification/index.mjs"
+    },
+    "./reading-log": {
+      "types": "./dist/features/reading-log/index.d.mts",
+      "import": "./dist/features/reading-log/index.mjs"
+    },
+    "./art": {
+      "types": "./dist/features/art/index.d.mts",
+      "import": "./dist/features/art/index.mjs"
+    },
+    "./insights": {
+      "types": "./dist/features/insights/index.d.mts",
+      "import": "./dist/features/insights/index.mjs"
+    },
+    "./llm": {
+      "types": "./dist/features/llm/index.d.mts",
+      "import": "./dist/features/llm/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint src/",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@bookjeok/core": "workspace:*",
+    "axios": "^1.11.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "tsup": "^8.0.0",
+    "vitest": "^1.0.0"
+  }
+}

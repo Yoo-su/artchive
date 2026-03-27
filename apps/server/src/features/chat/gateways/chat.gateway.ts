@@ -1,22 +1,24 @@
+import { forwardRef, Inject, Logger } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import {
-  WebSocketGateway,
-  SubscribeMessage,
-  MessageBody,
-  WebSocketServer,
   ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { ChatService } from '../services/chat.service';
-import { User } from '@/features/user/entities/user.entity';
-import { Logger } from '@nestjs/common';
-import { ChatMessage } from '../entities/chat-message.entity';
-import { JwtService } from '@nestjs/jwt';
-import { UserService } from '@/features/user/services/user.service';
+
 import { JwtPayload } from '@/features/auth/types/jwt-payload.type';
+import { User } from '@/features/user/entities/user.entity';
+import { UserService } from '@/features/user/services/user.service';
+
+import { ChatMessage } from '../entities/chat-message.entity';
 import { ChatRoom } from '../entities/chat-room.entity';
+import { ChatService } from '../services/chat.service';
 
 @WebSocketGateway({
   cors: {
@@ -35,6 +37,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(ChatGateway.name);
 
   constructor(
+    @Inject(forwardRef(() => ChatService))
     private readonly chatService: ChatService,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,

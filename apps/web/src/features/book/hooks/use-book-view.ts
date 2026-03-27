@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
+import { publicAxios } from "@/shared/libs/axios";
+
 import { recordBookView } from "../apis";
 
 /**
@@ -22,7 +24,7 @@ export const useBookView = (isbn: string) => {
     hasCalledRef.current = true;
 
     // 조회수 기록 API 호출 (실패해도 무시)
-    recordBookView(isbn).catch((error) => {
+    recordBookView(publicAxios, isbn).catch((error) => {
       // 조회수 기록 실패는 사용자 경험에 영향 없으므로 조용히 무시
       console.warn("책 조회수 기록 실패:", error);
     });

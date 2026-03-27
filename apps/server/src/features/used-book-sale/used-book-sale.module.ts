@@ -1,12 +1,13 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsedBookSale } from './entities/used-book-sale.entity';
-import { UsedBookSaleController } from './controllers/used-book-sale.controller';
-import { UsedBookSaleService } from './services/used-book-sale.service';
-import { UsedBookViewCountInterceptor } from './interceptors/used-book-view-count.interceptor';
+import { DataSource } from 'typeorm';
+
 import { BookModule } from '../book/book.module';
 import { UserModule } from '../user/user.module';
-import { DataSource } from 'typeorm';
+import { UsedBookSaleController } from './controllers/used-book-sale.controller';
+import { UsedBookSale } from './entities/used-book-sale.entity';
+import { UsedBookViewCountInterceptor } from './interceptors/used-book-view-count.interceptor';
+import { UsedBookSaleService } from './services/used-book-sale.service';
 
 @Module({
   imports: [

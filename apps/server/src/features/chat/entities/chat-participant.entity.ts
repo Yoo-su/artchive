@@ -1,10 +1,11 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  Unique,
   Column, // Column 추가
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
+
 import { User } from '../../user/entities/user.entity';
 import { ChatRoom } from './chat-room.entity';
 

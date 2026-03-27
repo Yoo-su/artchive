@@ -1,3 +1,4 @@
+import { UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core/book-sale";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -11,7 +12,6 @@ import {
   EditFormValues,
 } from "../components/sale-form/book-sale-edit-form/schema";
 import { useUpdateBookSaleMutation } from "../mutations";
-import { UpdateBookSaleParams, UsedBookSale } from "../types";
 
 interface UseBookSaleEditFormProps {
   sale: UsedBookSale;

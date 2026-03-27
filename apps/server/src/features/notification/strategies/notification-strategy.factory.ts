@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
+
 import { NotificationType } from '../entities/notification.entity';
 import { NotificationStrategy } from '../types/notification-strategy.type';
+import { CommentLikeStrategy } from './comment-like.strategy';
 import { ReviewCommentStrategy } from './review-comment.strategy';
 import { ReviewReactionStrategy } from './review-reaction.strategy';
-import { CommentLikeStrategy } from './comment-like.strategy';
 
 @Injectable()
 export class NotificationStrategyFactory {

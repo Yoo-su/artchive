@@ -1,17 +1,19 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ChatGateway } from './gateways/chat.gateway';
-import { ChatService } from './services/chat.service';
-import { ChatController } from './controllers/chat.controller';
-import { ChatRoom } from './entities/chat-room.entity';
-import { ChatParticipant } from './entities/chat-participant.entity';
-import { ChatMessage } from './entities/chat-message.entity';
-import { AuthModule } from '../auth/auth.module';
-import { UserModule } from '../user/user.module';
-import { BookModule } from '../book/book.module';
+
 import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
+
+import { AuthModule } from '../auth/auth.module';
+import { BookModule } from '../book/book.module';
+import { UserModule } from '../user/user.module';
+import { ChatController } from './controllers/chat.controller';
+import { ChatMessage } from './entities/chat-message.entity';
+import { ChatParticipant } from './entities/chat-participant.entity';
+import { ChatRoom } from './entities/chat-room.entity';
 import { ReadReceipt } from './entities/read-receipt.entity';
+import { ChatGateway } from './gateways/chat.gateway';
 import { SocketAuthGuard } from './guards/socket-auth.guard';
+import { ChatService } from './services/chat.service';
 
 @Module({
   imports: [

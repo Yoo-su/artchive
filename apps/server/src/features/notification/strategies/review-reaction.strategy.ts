@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
+
+import { ReviewResponseDto } from '@/features/review/dto/review-response.dto';
+
+import { NotificationType } from '../entities/notification.entity';
 import {
   NotificationPayload,
   NotificationStrategy,
 } from '../types/notification-strategy.type';
-import { NotificationType } from '../entities/notification.entity';
-import { ReviewResponseDto } from '@/features/review/dto/review-response.dto';
 
 @Injectable()
 export class ReviewReactionStrategy implements NotificationStrategy {

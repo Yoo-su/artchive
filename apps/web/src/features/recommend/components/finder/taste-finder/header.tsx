@@ -1,8 +1,8 @@
 "use client";
 
+import { NEOGULIP_TEXTS } from "@bookjeok/core/llm";
 import { RefreshCw } from "lucide-react";
 
-import { NEOGULIP_TEXTS } from "@/features/recommend/constants/data";
 import { useRecommendStore } from "@/features/recommend/stores/recommend-store";
 import { NeogulipIcon } from "@/shared/components/icons/neogulip-icon";
 import {

@@ -1,10 +1,9 @@
+import { ChatRoom } from "@bookjeok/core/chat";
+import { chatKeys } from "@bookjeok/react-query/chat";
 import { QueryClient } from "@tanstack/react-query";
 import { create } from "zustand";
 
-import { chatKeys } from "@/features/chat/constants/query-keys";
-
 import { markMessagesAsRead } from "../apis";
-import { ChatRoom } from "../types";
 
 interface ChatState {
   isChatOpen: boolean;

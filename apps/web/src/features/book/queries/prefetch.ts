@@ -1,28 +1,22 @@
+import { bookKeys } from "@bookjeok/react-query/book/keys";
 import { QueryClient } from "@tanstack/react-query";
 
-import { getBookListServer } from "../apis/server";
-import { bookKeys } from "../constants/query-keys";
+import { internalAxios } from "@/shared/libs/axios";
+
+import { getBookList } from "../apis";
 
 /**
- * 연관 도서 목록을 프리패치하는 헬퍼 함수
+ * 연관 도서 프리패칭 (서버 사이드)
+ * 주로 저자명 등을 검색어로 하여 프리패칭합니다.
  */
-export async function prefetchRelatedBooks(
+export const prefetchRelatedBooks = async (
   queryClient: QueryClient,
   query: string,
-) {
-  // RelatedBooksSection 컴포넌트에서 사용하는 파라미터와 정확히 일치해야 함
-  const params = {
-    query,
-    display: 20,
-    sort: "sim" as const,
-  };
+) => {
+  if (!query) return;
 
-  try {
-    const result = await getBookListServer(params);
-    if (result && result.items) {
-      queryClient.setQueryData(bookKeys.list(params).queryKey, result.items);
-    }
-  } catch (error) {
-    console.error(`Failed to prefetch books for query: ${query}`, error);
-  }
-}
+  return queryClient.prefetchQuery({
+    queryKey: bookKeys.list({ query, display: 20, sort: "sim" }).queryKey,
+    queryFn: () => getBookList(internalAxios, { query, display: 20, sort: "sim" }),
+  });
+};

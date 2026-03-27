@@ -1,3 +1,4 @@
+import { bookSaleKeys } from "@bookjeok/react-query/book-sale/keys";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
@@ -6,7 +7,6 @@ import { cache } from "react";
 
 import { getBookSaleDetail } from "@/features/book-sale/apis";
 import { BookSaleJsonLd } from "@/features/book-sale/components/common/book-sale-json-ld";
-import { bookSaleKeys } from "@/features/book-sale/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { BookSaleDetailView } from "@/views/book-sale-detail-view";
 

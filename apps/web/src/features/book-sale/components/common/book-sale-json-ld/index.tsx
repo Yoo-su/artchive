@@ -1,5 +1,4 @@
-import { UsedBookSale } from "../../../types";
-
+import { UsedBookSale } from "@bookjeok/core/book-sale";
 interface BookSaleJsonLdProps {
   sale: UsedBookSale;
 }

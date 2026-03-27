@@ -1,17 +1,18 @@
 import {
-  Injectable,
   ConflictException,
+  Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from '@/features/user/services/user.service';
+import * as bcrypt from 'bcrypt';
 
 import { User } from '@/features/user/entities/user.entity';
-import { ConfigService } from '@nestjs/config';
-import { JwtPayload } from '../types/jwt-payload.type';
-import { TOKEN_EXPIRY } from '../auth.constants';
+import { UserService } from '@/features/user/services/user.service';
 import { NicknameGenerator } from '@/features/user/utils/nickname-generator';
+
+import { TOKEN_EXPIRY } from '../auth.constants';
+import { JwtPayload } from '../types/jwt-payload.type';
 
 @Injectable()
 export class AuthService {

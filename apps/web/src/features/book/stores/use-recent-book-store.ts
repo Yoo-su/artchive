@@ -1,9 +1,7 @@
 
+import { BookInfo, RECENT_BOOKS_KEY } from "@bookjeok/core/book";
 import { create } from 'zustand';
 import { createJSONStorage,persist } from 'zustand/middleware';
-
-import { RECENT_BOOKS_KEY } from '../constants/data';
-import { BookInfo } from '../types';
 
 const MAX_RECENT_BOOKS = 10;
 

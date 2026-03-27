@@ -1,8 +1,6 @@
+import { ChatMessage, ChatRoom } from "@bookjeok/core/chat";
+import { chatKeys } from "@bookjeok/react-query/chat";
 import { QueryClient } from "@tanstack/react-query";
-
-import { chatKeys } from "@/features/chat/constants/query-keys";
-
-import { ChatMessage, ChatRoom } from "../types";
 
 type InfiniteMessagesData = {
   pages: { messages: ChatMessage[] }[];

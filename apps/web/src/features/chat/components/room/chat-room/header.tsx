@@ -1,3 +1,5 @@
+import { ChatRoom } from "@bookjeok/core/chat";
+import { chatKeys } from "@bookjeok/react-query/chat";
 import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, LogOut } from "lucide-react";
@@ -5,7 +7,6 @@ import Image from "next/image";
 import { useCallback } from "react";
 import { toast } from "sonner";
 
-import { chatKeys } from "@/features/chat/constants/query-keys";
 import {
   Avatar,
   AvatarFallback,
@@ -16,7 +17,6 @@ import { useSocketContext } from "@/shared/providers/socket-provider";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 import { useChatStore } from "../../../stores/use-chat-store";
-import { ChatRoom } from "../../../types";
 
 interface ChatRoomHeaderProps {
   room: ChatRoom;

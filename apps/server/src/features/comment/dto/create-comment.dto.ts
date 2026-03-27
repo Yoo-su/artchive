@@ -1,4 +1,5 @@
 import { IsEnum, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+
 import { CommentTargetType } from '../entities/comment.entity';
 
 /**

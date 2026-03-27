@@ -1,9 +1,9 @@
+import { bookKeys } from "@bookjeok/react-query/book/keys";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { fetchBookDetail } from "@/features/book/apis/server";
-import { bookKeys } from "@/features/book/constants/query-keys";
 import { prefetchRelatedBooks } from "@/features/book/queries/prefetch";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { BookDetailView } from "@/views/book-detail-view";

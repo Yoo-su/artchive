@@ -1,9 +1,9 @@
+import { insightsKeys } from "@bookjeok/react-query/insights/keys";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 
 import { getInsights } from "@/features/insights/apis";
-import { insightsKeys } from "@/features/insights/constants/query-keys";
 import { getQueryClient } from "@/shared/libs/query-client";
 import InsightsView from "@/views/insights-view";
 

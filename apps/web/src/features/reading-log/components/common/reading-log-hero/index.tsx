@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
@@ -9,10 +7,8 @@ import { Switch } from "@/shared/components/shadcn/switch";
 import { cn } from "@/shared/utils";
 
 import { useSeasonalTheme } from "../../../hooks/use-seasonal-theme";
-import {
-  useReadingLogSettingsQuery,
-  useUpdateReadingLogSettingsMutation,
-} from "../../../queries";
+import { useUpdateReadingLogSettingsMutation } from "../../../mutations";
+import { useReadingLogSettingsQuery } from "../../../queries";
 
 interface ReadingLogHeroProps {
   currentDate: Date;

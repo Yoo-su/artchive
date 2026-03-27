@@ -1,23 +1,25 @@
 import { HttpStatus, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThanOrEqual, DataSource } from 'typeorm';
-import { User } from '../entities/user.entity';
+import { DataSource, MoreThanOrEqual, Repository } from 'typeorm';
+
 import { SocialLoginDto } from '@/features/auth/dtos/social-login.dto';
-import {
-  UsedBookSale,
-  SaleStatus,
-} from '@/features/used-book-sale/entities/used-book-sale.entity';
-import { ChatParticipant } from '@/features/chat/entities/chat-participant.entity';
-import { Wishlist } from '../entities/wishlist.entity';
 import { Book } from '@/features/book/entities/book.entity';
-import { Review } from '@/features/review/entities/review.entity';
-import { ReviewReaction } from '@/features/review/entities/review-reaction.entity';
-import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
+import { BookService } from '@/features/book/services/book.service';
+import { ChatParticipant } from '@/features/chat/entities/chat-participant.entity';
+import { ReadReceipt } from '@/features/chat/entities/read-receipt.entity';
 import { Comment } from '@/features/comment/entities/comment.entity';
 import { CommentLike } from '@/features/comment/entities/comment-like.entity';
-import { ReadReceipt } from '@/features/chat/entities/read-receipt.entity';
+import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
+import { Review } from '@/features/review/entities/review.entity';
+import { ReviewReaction } from '@/features/review/entities/review-reaction.entity';
+import {
+  SaleStatus,
+  UsedBookSale,
+} from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { BusinessException } from '@/shared/exceptions/business.exception';
-import { BookService } from '@/features/book/services/book.service';
+
+import { User } from '../entities/user.entity';
+import { Wishlist } from '../entities/wishlist.entity';
 
 @Injectable()
 export class UserService implements OnModuleInit {

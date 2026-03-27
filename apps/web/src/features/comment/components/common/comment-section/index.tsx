@@ -1,10 +1,10 @@
 "use client";
 
+import { CommentTargetType } from "@bookjeok/core/comment";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useInView } from "react-intersection-observer";
 
-import { CommentTargetType } from "../../../types";
 import { CommentForm } from "./comment-form";
 import { CommentList } from "./comment-list";
 

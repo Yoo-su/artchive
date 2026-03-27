@@ -1,6 +1,6 @@
-import { ShareButton } from "@/shared/components/ui/share-button";
+import { UsedBookSale } from "@bookjeok/core/book-sale";
 
-import { UsedBookSale } from "../../../types";
+import { ShareButton } from "@/shared/components/ui/share-button";
 
 interface BookSaleContentProps {
   sale: UsedBookSale;

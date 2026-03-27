@@ -1,3 +1,4 @@
+import { WishlistItem as WishlistItemType } from "@bookjeok/core/user";
 import { ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -9,7 +10,6 @@ import { Card } from "@/shared/components/shadcn/card";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
-import { WishlistItem as WishlistItemType } from "../../../types";
 import { WishlistButton } from "../wishlist-button";
 
 interface WishlistItemProps {

@@ -1,10 +1,9 @@
+import { BookInfo } from "@bookjeok/core/book";
 import Image from "next/image";
 
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
-
-import { BookInfo } from "../../types";
 
 interface BookCardProps {
   book: BookInfo;

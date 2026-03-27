@@ -1,12 +1,13 @@
+import { HttpModule } from '@nestjs/axios';
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { HttpModule } from '@nestjs/axios';
+
 import { BookController } from './controllers/book.controller';
-import { BookService } from './services/book.service';
-import { NaverBookSearchService } from './services/naver-book-search.service';
 import { Book } from './entities/book.entity';
 import { BookViewCountInterceptor } from './interceptors/book-view-count.interceptor';
 import { BookResolvePipe } from './pipes/book-resolve.pipe';
+import { BookService } from './services/book.service';
+import { NaverBookSearchService } from './services/naver-book-search.service';
 
 @Global()
 @Module({

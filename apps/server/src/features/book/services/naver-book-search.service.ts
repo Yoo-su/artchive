@@ -1,7 +1,8 @@
+import { HttpService } from '@nestjs/axios';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
+
 import { Book } from '../entities/book.entity';
 
 interface NaverBookItem {

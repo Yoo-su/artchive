@@ -1,3 +1,4 @@
+import { User } from "@bookjeok/core/auth";
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -23,8 +24,6 @@ const localStorageMock = (() => {
 Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
 });
-
-import { User } from "../../types";
 
 const mockUser = {
   id: 1,

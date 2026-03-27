@@ -1,5 +1,7 @@
 "use client";
 
+import { formatPrice } from "@bookjeok/core";
+import { DEFAULT_SORT_BY, DEFAULT_SORT_ORDER, FILTER_ALL, FilterFormInputs, MAX_MARKET_PRICE, SaleStatus, SearchBookSalesParams, SortOption } from "@bookjeok/core/book-sale";
 import { RefreshCw, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
@@ -18,20 +20,6 @@ import {
 import { Slider } from "@/shared/components/shadcn/slider";
 import { KOREA_DISTRICTS } from "@/shared/constants/korea-districts";
 import { cn } from "@/shared/utils/cn";
-import { formatPrice } from "@/shared/utils/format-price";
-
-import {
-  DEFAULT_SORT_BY,
-  DEFAULT_SORT_ORDER,
-  FILTER_ALL,
-  MAX_MARKET_PRICE,
-} from "../../../constants/config";
-import {
-  FilterFormInputs,
-  SaleStatus,
-  SearchBookSalesParams,
-  SortOption,
-} from "../../../types";
 
 interface BookSaleFilterProps {
   initialParams: SearchBookSalesParams;

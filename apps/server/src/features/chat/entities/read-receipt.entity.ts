@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Unique } from 'typeorm';
+import { Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
+
 import { User } from '../../user/entities/user.entity';
 import { ChatMessage } from './chat-message.entity';
 

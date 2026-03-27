@@ -1,3 +1,4 @@
+import { SaleStatus, UsedBookSale } from "@bookjeok/core/book-sale";
 import { Edit, MoreVertical, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -24,7 +25,6 @@ import {
   useDeleteBookSaleMutation,
   useUpdateBookSaleStatusMutation,
 } from "../../../mutations";
-import { SaleStatus, UsedBookSale } from "../../../types";
 import { SaleStatusBadge } from "../../common/sale-status-badge";
 
 interface BookSaleHistoryItemProps {

@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -20,6 +21,7 @@ import {
 import { Input } from "@/shared/components/shadcn/input";
 import { config } from "@/shared/config/env";
 import { Link, useRouter } from "@/shared/config/i18n/routing";
+import { publicAxios } from "@/shared/libs/axios";
 
 export const LoginForm = () => {
   const t = useTranslations("auth.login");
@@ -111,15 +113,22 @@ function EmailLoginForm() {
   const onSubmit = async (values: LoginSchemaType) => {
     try {
       setIsLoading(true);
-      const data = await emailLogin(values);
+      const data = await emailLogin(publicAxios, values);
       setAuth(data);
       toast.success(t("success"));
       router.push("/");
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        form.setError("root", {
-          message: t("error.invalid_credentials"),
-        });
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        const message = error.response.data?.message;
+        if (message === "SOCIAL_LOGIN_USER") {
+          form.setError("root", {
+            message: t("error.social_login_user"),
+          });
+        } else {
+          form.setError("root", {
+            message: t("error.invalid_credentials"),
+          });
+        }
       } else {
         toast.error(t("error.general"));
       }

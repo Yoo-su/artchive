@@ -1,15 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ChatService } from './chat.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
-import { ChatRoom } from '../entities/chat-room.entity';
-import { ChatParticipant } from '../entities/chat-participant.entity';
-import { ChatMessage } from '../entities/chat-message.entity';
+
 import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
+import { User } from '@/features/user/entities/user.entity';
+import { BusinessException } from '@/shared/exceptions/business.exception';
+
+import { ChatMessage } from '../entities/chat-message.entity';
+import { ChatParticipant } from '../entities/chat-participant.entity';
+import { ChatRoom } from '../entities/chat-room.entity';
 import { ReadReceipt } from '../entities/read-receipt.entity';
 import { ChatGateway } from '../gateways/chat.gateway';
-import { BusinessException } from '@/shared/exceptions/business.exception';
-import { User } from '@/features/user/entities/user.entity';
+import { ChatService } from './chat.service';
 
 describe('ChatService', () => {
   let service: ChatService;

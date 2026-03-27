@@ -1,17 +1,17 @@
+import { GenerativeModel, GoogleGenerativeAI } from '@google/generative-ai';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GenerativeModel, GoogleGenerativeAI } from '@google/generative-ai';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { MODEL_NAME } from '../constants/llm-model';
-import { BookSummaryResponseDto } from '../dtos/book-summary-response.dto';
-import { getPromptText } from '../utils/get-prompt-text';
-import { extractJson } from '../utils/extract-json';
 
+import { MODEL_NAME } from '../constants/llm-model';
+import { NEOGULIP_CURATION_SYS_PROMPT } from '../constants/neogulip-curation-prompt';
+import { BookSummaryResponseDto } from '../dtos/book-summary-response.dto';
 import { TalkRequestDto } from '../dtos/talk-request.dto';
 import { TalkResponseDto } from '../dtos/talk-response.dto';
 import { LlmTalkLog } from '../entities/llm-talk-log.entity';
-import { NEOGULIP_CURATION_SYS_PROMPT } from '../constants/neogulip-curation-prompt';
+import { extractJson } from '../utils/extract-json';
+import { getPromptText } from '../utils/get-prompt-text';
 
 interface CurationResult {
   message: string;

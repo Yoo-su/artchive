@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SearchKeyword } from './entities/search-keyword.entity';
+
 import { SearchKeywordController } from './controllers/search-keyword.controller';
+import { SearchKeyword } from './entities/search-keyword.entity';
 import { SearchKeywordService } from './services/search-keyword.service';
 
 /**

@@ -1,5 +1,6 @@
 "use client";
 
+import { PRICE_RANGE_LABELS, PriceRangeStat } from "@bookjeok/core/insights";
 import { DollarSign } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
@@ -9,9 +10,7 @@ import {
   EmptyState,
   InsightCard,
 } from "@/features/insights/components/common/insight-card";
-import { PRICE_RANGE_LABELS } from "@/features/insights/constants/data";
 import { CHART_COLORS } from "@/features/insights/constants/ui";
-import { PriceRangeStat } from "@/features/insights/types";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,

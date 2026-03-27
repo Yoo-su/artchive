@@ -1,11 +1,11 @@
 import { Type } from 'class-transformer';
 import {
   IsInt,
+  IsNumber,
   IsOptional,
   IsString,
   Max,
   Min,
-  IsNumber,
 } from 'class-validator';
 
 export class GetBookSalesQueryDto {

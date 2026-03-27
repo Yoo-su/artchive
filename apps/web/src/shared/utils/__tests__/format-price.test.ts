@@ -1,6 +1,5 @@
+import { formatPrice } from "@bookjeok/core";
 import { describe, expect, it } from "vitest";
-
-import { formatPrice } from "@/shared/utils/format-price";
 
 describe("formatPrice (가격 포맷팅 유틸리티)", () => {
   it("한국 원화 형식으로 포맷한다", () => {

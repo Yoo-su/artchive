@@ -1,6 +1,7 @@
 "use client";
 
-import { NEOGULIP_TEXTS } from "@/features/recommend/constants/data";
+import { NEOGULIP_TEXTS, RecommendedBook } from "@bookjeok/core/llm";
+
 import { useRecommendStore } from "@/features/recommend/stores/recommend-store";
 import { NeogulipIcon } from "@/shared/components/icons/neogulip-icon";
 import {
@@ -15,8 +16,6 @@ import {
   AlertDialogTrigger,
 } from "@/shared/components/shadcn/alert-dialog";
 import { useRouter } from "@/shared/config/i18n/routing";
-
-import { RecommendedBook } from "../../../types";
 
 interface ResultViewProps {
   setInput: (value: string) => void;

@@ -1,14 +1,15 @@
 import {
-  Controller,
-  Post,
   Body,
+  Controller,
   Get,
   HttpCode,
   HttpStatus,
+  Post,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { SearchKeywordService } from '../services/search-keyword.service';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
 import { RecordSearchKeywordDto } from '../dtos/record-search-keyword.dto';
+import { SearchKeywordService } from '../services/search-keyword.service';
 
 /**
  * 인기 검색어 컨트롤러

@@ -1,9 +1,9 @@
+import { Notification } from "@bookjeok/core/notification";
+import { notificationKeys } from "@bookjeok/react-query/notification";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { notificationKeys } from "../constants/query-keys";
-import { Notification } from "../types";
 import { getNotificationMessageParams } from "../utils";
 
 export const useNotificationActions = () => {
@@ -12,7 +12,7 @@ export const useNotificationActions = () => {
 
   const handleNewNotification = (notification: Notification) => {
     // 1. 데이터 갱신 (Refetch)
-    queryClient.invalidateQueries({ queryKey: notificationKeys.list.queryKey });
+    queryClient.invalidateQueries({ queryKey: notificationKeys.list().queryKey });
     queryClient.invalidateQueries({
       queryKey: notificationKeys.unreadCount.queryKey,
     });

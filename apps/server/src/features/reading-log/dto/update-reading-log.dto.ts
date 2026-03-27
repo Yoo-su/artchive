@@ -1,7 +1,8 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateReadingLogDto } from './create-reading-log.dto';
-import { IsOptional, IsString, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, IsString, MaxLength } from 'class-validator';
+
+import { CreateReadingLogDto } from './create-reading-log.dto';
 
 export class UpdateReadingLogDto extends PartialType(CreateReadingLogDto) {
   @ApiProperty({

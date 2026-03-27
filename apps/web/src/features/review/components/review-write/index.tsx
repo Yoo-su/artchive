@@ -1,10 +1,10 @@
 "use client";
 
+import { ReviewFormValues } from "@bookjeok/core/review";
 import { useTranslations } from "next-intl";
 
 import { ReviewForm } from "@/features/review/components/review-form";
 import { useCreateReviewMutation } from "@/features/review/mutations";
-import { ReviewFormValues } from "@/features/review/types";
 import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 

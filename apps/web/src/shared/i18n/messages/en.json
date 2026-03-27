@@ -94,6 +94,7 @@
       },
       "error": {
         "invalid_credentials": "Email or password does not match.",
+        "social_login_user": "This email is associated with a social account. Please use social login.",
         "general": "An error occurred during login."
       }
     },

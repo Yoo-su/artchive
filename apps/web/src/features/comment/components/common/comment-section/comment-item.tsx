@@ -1,5 +1,6 @@
 "use client";
 
+import { Comment, CommentTargetType, MAX_COMMENT_LENGTH } from "@bookjeok/core/comment";
 import { formatDistanceToNow } from "date-fns";
 import { enUS, ko } from "date-fns/locale";
 import { Heart, Loader2, MoreVertical, Pencil, Trash2 } from "lucide-react";
@@ -30,13 +31,12 @@ import { UserAvatarMenu } from "@/shared/components/ui/user-avatar-menu";
 import { Link, usePathname } from "@/shared/config/i18n/routing";
 import { cn } from "@/shared/utils";
 
-import { COMMENT_LINE_CLAMP, MAX_COMMENT_LENGTH } from "../../../constants/config";
+import { COMMENT_LINE_CLAMP } from "../../../constants/config";
 import {
   useDeleteCommentMutation,
   useToggleCommentLikeMutation,
   useUpdateCommentMutation,
 } from "../../../mutations";
-import { Comment, CommentTargetType } from "../../../types";
 
 interface CommentItemProps {
   comment: Comment;

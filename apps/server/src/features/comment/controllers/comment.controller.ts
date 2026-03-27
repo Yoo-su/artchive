@@ -1,29 +1,29 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
   Body,
-  Param,
-  Query,
-  ParseIntPipe,
-  UseGuards,
+  Controller,
+  Delete,
+  Get,
   HttpStatus,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOperation, ApiTags, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { OptionalJwtAuthGuard } from '@/features/auth/guards/optional-jwt-auth.guard';
-import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
-import { User } from '@/features/user/entities/user.entity';
 import { Notify } from '@/features/notification/decorators/notification.decorator';
 import { NotificationType } from '@/features/notification/entities/notification.entity';
+import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
+import { User } from '@/features/user/entities/user.entity';
 
-import { CommentService } from '../services/comment.service';
 import { CreateCommentDto } from '../dto/create-comment.dto';
-import { UpdateCommentDto } from '../dto/update-comment.dto';
 import { GetCommentsDto } from '../dto/get-comments.dto';
+import { UpdateCommentDto } from '../dto/update-comment.dto';
+import { CommentService } from '../services/comment.service';
 
 @ApiTags('댓글 (Comment)')
 @Controller('comments')

@@ -1,17 +1,14 @@
-import { API_PATHS } from "@/shared/constants/apis";
-import { publicAxios } from "@/shared/libs/axios";
+import { getInsights as sharedGetInsights, getLocationSales as sharedGetLocationSales } from "@bookjeok/api-client/insights";
+import { InsightsResponse, LocationSales } from "@bookjeok/core/insights";
 
-import { InsightsResponse, LocationSales } from "../types";
+import { publicAxios } from "@/shared/libs/axios";
 
 /**
  * 서비스 인사이트 데이터를 조회합니다.
  * 로그인 없이 접근 가능합니다.
  */
 export const getInsights = async (): Promise<InsightsResponse> => {
-  const { data } = await publicAxios.get<InsightsResponse>(
-    API_PATHS.insights.base
-  );
-  return data;
+  return sharedGetInsights(publicAxios);
 };
 
 /**
@@ -21,11 +18,5 @@ export const getLocationSales = async (
   city: string,
   district: string
 ): Promise<LocationSales[]> => {
-  const { data } = await publicAxios.get<LocationSales[]>(
-    API_PATHS.insights.locationSales,
-    {
-      params: { city, district },
-    }
-  );
-  return data;
+  return sharedGetLocationSales(publicAxios, city, district);
 };

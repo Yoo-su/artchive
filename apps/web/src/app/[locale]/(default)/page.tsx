@@ -1,14 +1,15 @@
+import { HOME_PUBLISHERS } from "@bookjeok/core/book";
+import { bookKeys } from "@bookjeok/react-query/book/keys";
+import { bookSaleKeys } from "@bookjeok/react-query/book-sale/keys";
+import { reviewKeys } from "@bookjeok/react-query/review/keys";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getPopularBooks } from "@/features/book/apis";
 import { getPublisherBooksServer } from "@/features/book/apis/server";
-import { HOME_PUBLISHERS } from "@/features/book/constants/data";
-import { bookKeys } from "@/features/book/constants/query-keys";
 import { getRecentBookSales } from "@/features/book-sale/apis";
-import { bookSaleKeys } from "@/features/book-sale/constants/query-keys";
 import { getReviews } from "@/features/review/apis";
-import { reviewKeys } from "@/features/review/constants/query-keys";
+import { publicAxios } from "@/shared/libs/axios";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { HomeView } from "@/views/home-view";
 
@@ -47,7 +48,7 @@ export default async function Page({
       // 인기 도서
       queryClient.prefetchQuery({
         queryKey: bookKeys.popularBooks.queryKey,
-        queryFn: getPopularBooks,
+        queryFn: () => getPopularBooks(publicAxios),
       }),
       // 최신 리뷰 (1페이지, 10개)
       queryClient.prefetchQuery({

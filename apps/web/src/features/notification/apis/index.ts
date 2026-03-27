@@ -1,27 +1,27 @@
-import { privateAxios } from "@/shared/libs/axios";
+import { deleteNotification as sharedDeleteNotification, getNotifications as sharedGetNotifications, getUnreadNotificationCount as sharedGetUnreadNotificationCount, markAllNotificationsAsRead as sharedMarkAllNotificationsAsRead, markNotificationAsRead as sharedMarkNotificationAsRead } from "@bookjeok/api-client/notification";
+import { GetNotificationsParams, NotificationResponse } from "@bookjeok/core/notification";
 
-import { GetNotificationsParams, NotificationResponse } from "../types";
+import { privateAxios } from "@/shared/libs/axios";
 
 export const getNotifications = async (
   params?: GetNotificationsParams,
 ): Promise<NotificationResponse> => {
-  const { data } = await privateAxios.get("/notifications", { params });
-  return data;
+  return sharedGetNotifications(privateAxios, params ?? {});
 };
 
 export const getUnreadCount = async (): Promise<{ count: number }> => {
-  const { data } = await privateAxios.get("/notifications/unread-count");
-  return data;
+  const count = await sharedGetUnreadNotificationCount(privateAxios);
+  return { count };
 };
 
 export const markAsRead = async (id: number): Promise<void> => {
-  await privateAxios.patch(`/notifications/${id}/read`);
+  return sharedMarkNotificationAsRead(privateAxios, id);
 };
 
 export const markAllAsRead = async (): Promise<void> => {
-  await privateAxios.patch("/notifications/read-all");
+  return sharedMarkAllNotificationsAsRead(privateAxios);
 };
 
 export const deleteNotification = async (id: number): Promise<void> => {
-  await privateAxios.delete(`/notifications/${id}`);
+  return sharedDeleteNotification(privateAxios, id);
 };

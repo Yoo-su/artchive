@@ -1,64 +1,57 @@
 # ------------------------------------------------------------------------------
 # 1단계: 빌드 (Builder Stage)
 # ------------------------------------------------------------------------------
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 # 작업 디렉토리 설정 (루트 기준)
 WORKDIR /app
 
 # pnpm 설치
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@9.15.1 --activate
 
 # 1. 워크스페이스(Monorepo) 설정 파일들 복사
-# pnpm-lock.yaml은 루트에만 있으므로, 이를 참조하기 위해 루트 파일들을 먼저 가져옵니다.
-COPY pnpm-lock.yaml package.json pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml package.json pnpm-workspace.yaml tsconfig.base.json ./
 
-# 2. 백엔드 패키지 설정 복사
-# 의존성 설치를 위해 백엔드의 package.json만 먼저 가져옵니다.
+# 2. 모든 패키지 및 앱의 package.json 복사 (의존성 설치 최적화)
 COPY apps/server/package.json ./apps/server/
+COPY packages/core/package.json ./packages/core/
+COPY packages/api-client/package.json ./packages/api-client/
+COPY packages/react-query/package.json ./packages/react-query/
 
 # 3. 의존성 설치
-# 루트의 lock 파일을 기반으로 모든 의존성을 설치합니다.
 RUN pnpm install --frozen-lockfile
 
-# 4. 백엔드 소스 코드 전체 복사
+# 4. 소스 코드 전체 복사 (packages 포함)
+COPY packages ./packages
 COPY apps/server ./apps/server
 
-# 5. 백엔드 빌드
-# 백엔드 폴더로 이동하여 빌드를 수행합니다.
-WORKDIR /app/apps/server
-RUN pnpm build
-
-# 6. 프로덕션 의존성 정리 (선택 사항, 모노레포에서는 복잡할 수 있어 생략하거나 prune 사용)
-# 여기서는 간단하게 build 결과물을 유지합니다.
+# 5. 백엔드 빌드 (Turbo 활용)
+RUN pnpm build --filter=@bookjeok/server
 
 # ------------------------------------------------------------------------------
 # 2단계: 실행 (Runner Stage)
 # ------------------------------------------------------------------------------
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 
 ENV NODE_ENV production
 WORKDIR /app
 
 # node 사용자 사용
-USER node
+RUN addgroup -g 1001 -S nodejs && adduser -S nestjs -u 1001
+USER nestjs
 
-# 빌드 단계에서 생성된 node_modules와 dist 복사
-# 모노레포 구조를 유지하며 복사합니다.
+# 빌드 결과물 복사
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/apps/server/dist ./apps/server/dist
+COPY --from=builder /app/apps/server/package.json ./apps/server/package.json
+COPY --from=builder /app/packages ./packages
 
-# 루트의 node_modules (공용 의존성)
-COPY --chown=node:node --from=builder /app/node_modules ./node_modules
-COPY --chown=node:node --from=builder /app/package.json ./package.json
-
-# 백엔드의 빌드 결과물 및 node_modules
-COPY --chown=node:node --from=builder /app/apps/server/dist ./apps/server/dist
-COPY --chown=node:node --from=builder /app/apps/server/node_modules ./apps/server/node_modules
-COPY --chown=node:node --from=builder /app/apps/server/package.json ./apps/server/package.json
-
-# 실행 위치를 백엔드 디렉토리로 변경하지 않고, 루트에서 실행하거나 경로를 지정
+# 실행 위치 설정
 WORKDIR /app/apps/server
 
-EXPOSE 3000
+# 포트 설정 (main.ts의 설정인 8000으로 수정)
+EXPOSE 8000
 
 # 실행 명령어
 CMD ["node", "dist/main"]

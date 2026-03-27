@@ -1,8 +1,9 @@
+import { bookKeys } from "@bookjeok/react-query/book/keys";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getPopularKeywords } from "@/features/book/apis";
-import { bookKeys } from "@/features/book/constants/query-keys";
+import { publicAxios } from "@/shared/libs/axios";
 import { getQueryClient } from "@/shared/libs/query-client";
 import BookSearchView from "@/views/book-search-view";
 
@@ -51,7 +52,7 @@ export default async function Page({
   try {
     await queryClient.prefetchQuery({
       queryKey: bookKeys.popularKeywords.queryKey,
-      queryFn: getPopularKeywords,
+      queryFn: () => getPopularKeywords(publicAxios),
     });
   } catch (error) {
     console.error("인기 검색어 프리패치 중 오류 발생:", error);

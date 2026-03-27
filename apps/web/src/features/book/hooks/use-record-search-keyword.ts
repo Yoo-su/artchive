@@ -2,6 +2,8 @@
 
 import { useMutation } from "@tanstack/react-query";
 
+import { publicAxios } from "@/shared/libs/axios";
+
 import { recordSearchKeyword } from "../apis";
 
 /**
@@ -10,7 +12,7 @@ import { recordSearchKeyword } from "../apis";
  */
 export const useRecordSearchKeywordMutation = () => {
   return useMutation({
-    mutationFn: (keyword: string) => recordSearchKeyword(keyword),
+    mutationFn: (keyword: string) => recordSearchKeyword(publicAxios, keyword),
     // 에러가 발생해도 사용자에게 알리지 않음 (UX 방해 금지)
     onError: (error) => {
       console.error("Failed to record search keyword:", error);

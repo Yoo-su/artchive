@@ -1,13 +1,13 @@
 "use client";
 
+import { Review } from "@bookjeok/core/review";
+import { reviewKeys } from "@bookjeok/react-query/review";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { getReviewAuthenticated } from "@/features/review/apis";
-import { reviewKeys } from "@/features/review/constants/query-keys";
 import { useReviewDetailQuery } from "@/features/review/queries";
-import { Review } from "@/features/review/types";
 
 /**
  * 리뷰 상세 데이터를 인증 분기와 함께 제공하는 커스텀 훅입니다.

@@ -1,19 +1,20 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Notification } from './entities/notification.entity';
-import { NotificationController } from './controllers/notification.controller';
-import { NotificationService } from './services/notification.service';
-import { NotificationGateway } from './gateways/notification.gateway';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { NotificationStrategyFactory } from './strategies/notification-strategy.factory';
-import { NotificationInterceptor } from './interceptors/notification.interceptor';
-import { ReviewCommentStrategy } from './strategies/review-comment.strategy';
-import { ReviewReactionStrategy } from './strategies/review-reaction.strategy';
-import { CommentLikeStrategy } from './strategies/comment-like.strategy';
-import { UserModule } from '../user/user.module';
 import { JwtModule } from '@nestjs/jwt';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { Review } from '@/features/review/entities/review.entity';
+
+import { UserModule } from '../user/user.module';
+import { NotificationController } from './controllers/notification.controller';
+import { Notification } from './entities/notification.entity';
+import { NotificationGateway } from './gateways/notification.gateway';
+import { NotificationInterceptor } from './interceptors/notification.interceptor';
+import { NotificationService } from './services/notification.service';
+import { CommentLikeStrategy } from './strategies/comment-like.strategy';
+import { NotificationStrategyFactory } from './strategies/notification-strategy.factory';
+import { ReviewCommentStrategy } from './strategies/review-comment.strategy';
+import { ReviewReactionStrategy } from './strategies/review-reaction.strategy';
 
 @Module({
   imports: [

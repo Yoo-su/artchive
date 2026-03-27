@@ -1,5 +1,6 @@
 "use client";
 
+import { ChatMessage, ChatRoom as ChatRoomType } from "@bookjeok/core/chat";
 import { useEffect, useMemo } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
@@ -39,7 +40,7 @@ export const ChatRoom = () => {
 
   // 현재 채팅방 정보
   const room = useMemo(
-    () => roomsData?.find((r) => r.id === activeChatRoomId),
+    () => roomsData?.find((r: ChatRoomType) => r.id === activeChatRoomId),
     [roomsData, activeChatRoomId],
   );
 

@@ -13,8 +13,7 @@ interface NotificationBellProps {
 
 export const NotificationBell = ({ className }: NotificationBellProps) => {
   const t = useTranslations("notification");
-  const { data } = useUnreadCount();
-  const count = data?.count ?? 0;
+  const { data: count = 0 } = useUnreadCount();
   const showBadge = count > 0;
 
   return (

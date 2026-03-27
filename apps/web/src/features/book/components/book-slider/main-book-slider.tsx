@@ -3,10 +3,12 @@
 import "swiper/css";
 import "swiper/css/effect-coverflow";
 
+import { HOME_PUBLISHERS } from "@bookjeok/core/book";
 import { BookOpen } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { Swiper as SwiperType } from "swiper";
 import { Autoplay, EffectCoverflow } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
@@ -14,7 +16,6 @@ import { TextAnimate } from "@/shared/components/magicui/text-animate";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
-import { HOME_PUBLISHERS } from "../../constants/data";
 import { useBookListQuery } from "../../queries";
 import { BookSliderSkeleton } from "./skeleton";
 
@@ -22,7 +23,7 @@ export const MainBookSlider = () => {
   const t = useTranslations("home.sections.main_books");
   const tError = useTranslations("home.errors");
   const [activePublisher, setActivePublisher] = useState(HOME_PUBLISHERS[0]);
-  const swiperRef = useRef<any>(null);
+  const swiperRef = useRef<SwiperType | null>(null);
 
   const {
     data: books,

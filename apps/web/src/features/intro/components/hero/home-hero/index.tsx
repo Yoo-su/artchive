@@ -1,9 +1,9 @@
+import { SceneData } from "@bookjeok/core/intro";
 import { AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { SCENES } from "@/features/intro/constants/data";
-import { SceneData } from "@/features/intro/types";
 
 import { LogoScene } from "./logo-scene";
 import { RecordScene } from "./record-scene";

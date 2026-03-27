@@ -7,6 +7,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
+
 import { SaleStatus } from '../entities/used-book-sale.entity';
 
 export enum BookSaleSortBy {

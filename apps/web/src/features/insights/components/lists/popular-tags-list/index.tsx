@@ -1,5 +1,6 @@
 "use client";
 
+import { PopularTagStat } from "@bookjeok/core/insights";
 import { Tag } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -8,7 +9,6 @@ import {
   InsightCard,
 } from "@/features/insights/components/common/insight-card";
 import { COLORS } from "@/features/insights/constants/ui";
-import { PopularTagStat } from "@/features/insights/types";
 
 interface PopularTagsListProps {
   data: PopularTagStat[];

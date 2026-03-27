@@ -1,5 +1,6 @@
 "use client";
 
+import { MAX_MEMO_LENGTH } from "@bookjeok/core/reading-log";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -25,8 +26,6 @@ import {
   FormMessage,
 } from "@/shared/components/shadcn/form";
 import { Textarea } from "@/shared/components/shadcn/textarea";
-
-import { MAX_MEMO_LENGTH } from "../../../constants/config";
 
 interface ReadingLogFormDialogProps {
   book: {

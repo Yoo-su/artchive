@@ -1,14 +1,13 @@
+import { ChatMessage } from "@bookjeok/core/chat";
+import { chatKeys } from "@bookjeok/react-query/chat";
 import { useQueryClient } from "@tanstack/react-query";
 import { SendHorizontal } from "lucide-react";
 import { FormEvent, useCallback, useState } from "react";
 import { toast } from "sonner";
 
-import { chatKeys } from "@/features/chat/constants/query-keys";
 import { Button } from "@/shared/components/shadcn/button";
 import { Input } from "@/shared/components/shadcn/input";
 import { useSocketContext } from "@/shared/providers/socket-provider";
-
-import { ChatMessage } from "../../../types";
 
 interface ChatInputProps {
   roomId: number;

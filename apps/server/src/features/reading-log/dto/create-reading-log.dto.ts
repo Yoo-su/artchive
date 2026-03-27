@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsDateString,
   IsNotEmpty,
@@ -5,7 +6,6 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateReadingLogDto {
   @ApiProperty({ description: '책 ISBN', example: '9788937460449' })

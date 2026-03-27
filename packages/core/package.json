@@ -1,0 +1,166 @@
+{
+  "name": "@bookjeok/core",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./auth": {
+      "types": "./dist/features/auth/index.d.mts",
+      "import": "./dist/features/auth/index.mjs"
+    },
+    "./auth/types": {
+      "types": "./dist/features/auth/types.d.mts",
+      "import": "./dist/features/auth/types.mjs"
+    },
+    "./book": {
+      "types": "./dist/features/book/index.d.mts",
+      "import": "./dist/features/book/index.mjs"
+    },
+    "./book/types": {
+      "types": "./dist/features/book/types.d.mts",
+      "import": "./dist/features/book/types.mjs"
+    },
+    "./book/constants": {
+      "types": "./dist/features/book/constants.d.mts",
+      "import": "./dist/features/book/constants.mjs"
+    },
+    "./review": {
+      "types": "./dist/features/review/index.d.mts",
+      "import": "./dist/features/review/index.mjs"
+    },
+    "./review/types": {
+      "types": "./dist/features/review/types.d.mts",
+      "import": "./dist/features/review/types.mjs"
+    },
+    "./review/constants": {
+      "types": "./dist/features/review/constants.d.mts",
+      "import": "./dist/features/review/constants.mjs"
+    },
+    "./chat": {
+      "types": "./dist/features/chat/index.d.mts",
+      "import": "./dist/features/chat/index.mjs"
+    },
+    "./chat/types": {
+      "types": "./dist/features/chat/types.d.mts",
+      "import": "./dist/features/chat/types.mjs"
+    },
+    "./comment": {
+      "types": "./dist/features/comment/index.d.mts",
+      "import": "./dist/features/comment/index.mjs"
+    },
+    "./comment/types": {
+      "types": "./dist/features/comment/types.d.mts",
+      "import": "./dist/features/comment/types.mjs"
+    },
+    "./comment/constants": {
+      "types": "./dist/features/comment/constants.d.mts",
+      "import": "./dist/features/comment/constants.mjs"
+    },
+    "./book-sale": {
+      "types": "./dist/features/book-sale/index.d.mts",
+      "import": "./dist/features/book-sale/index.mjs"
+    },
+    "./book-sale/types": {
+      "types": "./dist/features/book-sale/types.d.mts",
+      "import": "./dist/features/book-sale/types.mjs"
+    },
+    "./book-sale/constants": {
+      "types": "./dist/features/book-sale/constants.d.mts",
+      "import": "./dist/features/book-sale/constants.mjs"
+    },
+    "./user": {
+      "types": "./dist/features/user/index.d.mts",
+      "import": "./dist/features/user/index.mjs"
+    },
+    "./user/types": {
+      "types": "./dist/features/user/types.d.mts",
+      "import": "./dist/features/user/types.mjs"
+    },
+    "./notification": {
+      "types": "./dist/features/notification/index.d.mts",
+      "import": "./dist/features/notification/index.mjs"
+    },
+    "./notification/types": {
+      "types": "./dist/features/notification/types.d.mts",
+      "import": "./dist/features/notification/types.mjs"
+    },
+    "./reading-log": {
+      "types": "./dist/features/reading-log/index.d.mts",
+      "import": "./dist/features/reading-log/index.mjs"
+    },
+    "./reading-log/types": {
+      "types": "./dist/features/reading-log/types.d.mts",
+      "import": "./dist/features/reading-log/types.mjs"
+    },
+    "./reading-log/constants": {
+      "types": "./dist/features/reading-log/constants.d.mts",
+      "import": "./dist/features/reading-log/constants.mjs"
+    },
+    "./art": {
+      "types": "./dist/features/art/index.d.mts",
+      "import": "./dist/features/art/index.mjs"
+    },
+    "./art/types": {
+      "types": "./dist/features/art/types.d.mts",
+      "import": "./dist/features/art/types.mjs"
+    },
+    "./art/constants": {
+      "types": "./dist/features/art/constants.d.mts",
+      "import": "./dist/features/art/constants.mjs"
+    },
+    "./insights": {
+      "types": "./dist/features/insights/index.d.mts",
+      "import": "./dist/features/insights/index.mjs"
+    },
+    "./insights/types": {
+      "types": "./dist/features/insights/types.d.mts",
+      "import": "./dist/features/insights/types.mjs"
+    },
+    "./insights/constants": {
+      "types": "./dist/features/insights/constants.d.mts",
+      "import": "./dist/features/insights/constants.mjs"
+    },
+    "./intro": {
+      "types": "./dist/features/intro/index.d.mts",
+      "import": "./dist/features/intro/index.mjs"
+    },
+    "./intro/types": {
+      "types": "./dist/features/intro/types.d.mts",
+      "import": "./dist/features/intro/types.mjs"
+    },
+    "./llm": {
+      "types": "./dist/features/llm/index.d.mts",
+      "import": "./dist/features/llm/index.mjs"
+    },
+    "./llm/types": {
+      "types": "./dist/features/llm/types.d.mts",
+      "import": "./dist/features/llm/types.mjs"
+    },
+    "./llm/constants": {
+      "types": "./dist/features/llm/constants.d.mts",
+      "import": "./dist/features/llm/constants.mjs"
+    },
+    "./shared": {
+      "types": "./dist/shared/index.d.mts",
+      "import": "./dist/shared/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint src/",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "tsup": "^8.0.0",
+    "vitest": "^1.0.0"
+  }
+}
