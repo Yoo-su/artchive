@@ -1,10 +1,8 @@
 "use client";
-import { getBookDetail, getBookList, getBookSummary, getPopularBooks, getPopularKeywords } from "@bookjeok/api-client/book";
-import { DEFAULT_DISPLAY, GetBookListParams } from "@bookjeok/core/book";
+import { getBookDetail, getBookList, getBookSummary, getExternalBookDetail, getExternalBookList, getPopularBooks, getPopularKeywords } from "@bookjeok/api-client";
+import { bookKeys, DEFAULT_DISPLAY, GetBookListParams } from "@bookjeok/core";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
-
-import { bookKeys } from "./query-keys";
 
 /**
  * 책 목록 조회
@@ -30,6 +28,35 @@ export const useBookDetailQuery = (isbn: string, client: AxiosInstance) => {
     queryKey: bookKeys.detail(isbn).queryKey,
     queryFn: async () => {
       const response = await getBookDetail(client, isbn);
+      return response.items?.[0] || null;
+    },
+  });
+};
+
+/**
+ * 네이버 책 목록 직접 조회 (Expo 등)
+ */
+export const useExternalBookListQuery = (
+  params: GetBookListParams,
+  client: AxiosInstance,
+) => {
+  return useQuery({
+    queryKey: [...bookKeys.list(params).queryKey, "external"],
+    queryFn: async () => {
+      const result = await getExternalBookList(client, params);
+      return result.items || [];
+    },
+  });
+};
+
+/**
+ * 네이버 책 상세 직접 조회 (Expo 등)
+ */
+export const useExternalBookDetailQuery = (isbn: string, client: AxiosInstance) => {
+  return useQuery({
+    queryKey: [...bookKeys.detail(isbn).queryKey, "external"],
+    queryFn: async () => {
+      const response = await getExternalBookDetail(client, isbn);
       return response.items?.[0] || null;
     },
   });

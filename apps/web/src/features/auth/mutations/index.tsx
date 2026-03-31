@@ -1,4 +1,4 @@
-import { useEmailLoginMutation as useBaseEmailLoginMutation, useEmailSignupMutation as useBaseEmailSignupMutation } from "@bookjeok/react-query/auth";
+import { useEmailLoginMutation as useBaseEmailLoginMutation, useEmailSignupMutation as useBaseEmailSignupMutation } from "@bookjeok/react-query";
 import { toast } from "sonner";
 
 import { internalAxios } from "@/shared/libs/axios";

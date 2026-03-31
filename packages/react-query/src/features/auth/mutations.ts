@@ -1,5 +1,5 @@
-import { emailLogin, emailSignup } from "@bookjeok/api-client/auth";
-import { EmailLoginParams, EmailSignupParams, User } from "@bookjeok/core/auth";
+import { emailLogin, emailSignup } from "@bookjeok/api-client";
+import { EmailLoginParams, EmailSignupParams, User } from "@bookjeok/core";
 import { useMutation, UseMutationOptions } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
 

@@ -8,10 +8,12 @@ import { defineConfig, Options } from "tsup";
  * 필요한 패키지에서만 명시적으로 override합니다.
  */
 export const baseConfig: Options = {
-  format: ["esm"],
+  format: ["cjs", "esm"],
   dts: true,
   clean: true,
-  sourcemap: true,
+  sourcemap: false,
+  minify: true,
+  external: ["react", "react-dom", "@tanstack/react-query"],
 };
 
 export { defineConfig };

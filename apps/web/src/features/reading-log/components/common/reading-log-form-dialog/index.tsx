@@ -1,6 +1,6 @@
 "use client";
 
-import { MAX_MEMO_LENGTH } from "@bookjeok/core/reading-log";
+import { MAX_MEMO_LENGTH } from "@bookjeok/core";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useTranslations } from "next-intl";

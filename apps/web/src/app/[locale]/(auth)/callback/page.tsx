@@ -1,6 +1,6 @@
 "use client";
 
-import { User } from "@bookjeok/core/auth";
+import { User } from "@bookjeok/core";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 

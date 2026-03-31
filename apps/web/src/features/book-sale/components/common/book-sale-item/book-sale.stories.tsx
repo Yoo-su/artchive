@@ -1,5 +1,5 @@
-import type { UsedBookSale as UsedBookSaleType } from "@bookjeok/core/book-sale";
-import { SaleStatus } from "@bookjeok/core/book-sale";
+import type { UsedBookSale as UsedBookSaleType } from "@bookjeok/core";
+import { SaleStatus } from "@bookjeok/core";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { UsedBookSale } from "./index";

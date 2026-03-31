@@ -1,5 +1,5 @@
-import { getBookDetail as sharedGetBookDetail, getBookList as sharedGetBookList, getBookSummary as sharedGetBookSummary, getPopularBooks as sharedGetPopularBooks, getPopularKeywords as sharedGetPopularKeywords, recordBookView as sharedRecordBookView, recordSearchKeyword as sharedRecordSearchKeyword } from "@bookjeok/api-client/book";
-import { BaseBookInfo, GetBookDetailSuccessResponse, GetBookListParams, GetBookListSuccessResponse } from "@bookjeok/core/book";
+import { getBookDetail as sharedGetBookDetail, getBookList as sharedGetBookList, getBookSummary as sharedGetBookSummary, getPopularBooks as sharedGetPopularBooks, getPopularKeywords as sharedGetPopularKeywords, recordBookView as sharedRecordBookView, recordSearchKeyword as sharedRecordSearchKeyword } from "@bookjeok/api-client";
+import { BaseBookInfo, GetBookDetailSuccessResponse, GetBookListParams, GetBookListSuccessResponse } from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**

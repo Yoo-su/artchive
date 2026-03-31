@@ -1,7 +1,4 @@
-import { HOME_PUBLISHERS } from "@bookjeok/core/book";
-import { bookKeys } from "@bookjeok/react-query/book/keys";
-import { bookSaleKeys } from "@bookjeok/react-query/book-sale/keys";
-import { reviewKeys } from "@bookjeok/react-query/review/keys";
+import { bookKeys, bookSaleKeys, HOME_PUBLISHERS, reviewKeys } from "@bookjeok/core";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 

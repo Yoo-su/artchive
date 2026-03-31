@@ -1,4 +1,4 @@
-import { UsedBookSale } from "@bookjeok/core/book-sale";
+import { UsedBookSale } from "@bookjeok/core";
 import { createContext, useContext } from "react";
 
 interface BookSaleContextValue {

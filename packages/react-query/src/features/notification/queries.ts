@@ -1,9 +1,8 @@
 "use client";
-import { deleteNotification,getNotifications, getUnreadNotificationCount, markAllNotificationsAsRead, markNotificationAsRead } from "@bookjeok/api-client/notification";
+import { deleteNotification,getNotifications, getUnreadNotificationCount, markAllNotificationsAsRead, markNotificationAsRead } from "@bookjeok/api-client";
+import { notificationKeys } from "@bookjeok/core";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
-
-import { notificationKeys } from "./query-keys";
 
 /**
  * 알림 목록 조회

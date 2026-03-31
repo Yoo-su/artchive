@@ -1,9 +1,7 @@
-import { createBookSale, deleteBookSale, updateBookSale, updateBookSaleStatus } from "@bookjeok/api-client/book-sale";
-import { CreateBookSaleParams, SaleStatus, UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core/book-sale";
+import { createBookSale, deleteBookSale, updateBookSale, updateBookSaleStatus } from "@bookjeok/api-client";
+import { bookSaleKeys, CreateBookSaleParams, SaleStatus, UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
-
-import { bookSaleKeys } from "./query-keys";
 
 /**
  * 중고책 판매글 생성을 위한 순수 뮤테이션 훅

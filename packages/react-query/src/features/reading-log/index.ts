@@ -1,4 +1,4 @@
 "use client";
 
+export { readingLogKeys } from "@bookjeok/core";
 export * from "./queries";
-export * from "./query-keys";

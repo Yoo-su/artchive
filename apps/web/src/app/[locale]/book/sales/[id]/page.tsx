@@ -1,4 +1,4 @@
-import { bookSaleKeys } from "@bookjeok/react-query/book-sale/keys";
+import { bookSaleKeys } from "@bookjeok/core";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";

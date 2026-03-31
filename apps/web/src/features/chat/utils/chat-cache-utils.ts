@@ -1,5 +1,4 @@
-import { ChatMessage, ChatRoom } from "@bookjeok/core/chat";
-import { chatKeys } from "@bookjeok/react-query/chat";
+import { chatKeys, ChatMessage, ChatRoom } from "@bookjeok/core";
 import { QueryClient } from "@tanstack/react-query";
 
 type InfiniteMessagesData = {

@@ -1,4 +1,4 @@
-import { UsedBookSale } from "@bookjeok/core/book-sale";
+import { UsedBookSale } from "@bookjeok/core";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 

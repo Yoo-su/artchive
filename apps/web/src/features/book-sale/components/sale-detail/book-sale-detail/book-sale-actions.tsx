@@ -1,5 +1,4 @@
-import { UsedBookSale } from "@bookjeok/core/book-sale";
-import { chatKeys } from "@bookjeok/react-query/chat";
+import { chatKeys, UsedBookSale } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { Edit, Loader2, MessageCircle, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";

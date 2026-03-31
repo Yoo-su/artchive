@@ -1,6 +1,6 @@
 "use client";
 
-import { ChatMessage, ChatRoom as ChatRoomType } from "@bookjeok/core/chat";
+import { ChatMessage, ChatRoom as ChatRoomType } from "@bookjeok/core";
 import { useEffect, useMemo } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";

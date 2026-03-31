@@ -47,7 +47,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-
+  transpilePackages: [
+    "@bookjeok/react-query",
+    "@bookjeok/core",
+    "@bookjeok/api-client",
+  ],
   experimental: {
     serverActions: {
       bodySizeLimit: "10mb",

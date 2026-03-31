@@ -1,6 +1,6 @@
 "use client";
 
-import { CategoryStat } from "@bookjeok/core/insights";
+import { CategoryStat } from "@bookjeok/core";
 import { BarChart3 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";

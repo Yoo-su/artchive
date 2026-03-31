@@ -1,6 +1,6 @@
 "use client";
 
-import { LocationSales, LocationStat } from "@bookjeok/core/insights";
+import { LocationSales, LocationStat } from "@bookjeok/core";
 import { Loader2, MapPin, Navigation } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";

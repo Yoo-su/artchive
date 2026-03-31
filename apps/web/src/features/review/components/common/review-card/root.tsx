@@ -1,6 +1,6 @@
 "use client";
 
-import { Review } from "@bookjeok/core/review";
+import { Review } from "@bookjeok/core";
 import React, { ReactNode } from "react";
 
 import { Link } from "@/shared/config/i18n/routing";

@@ -1,11 +1,8 @@
 "use client";
-import { getBookSaleDetail, getBookSales, getMyBookSales, getPopularBookSales, getRecentBookSales, getRelatedSales, getSaleForEdit } from "@bookjeok/api-client/book-sale";
-import { CACHE_TIME } from "@bookjeok/core";
-import { CommonBookSaleResponse, SearchBookSalesParams, UsedBookSale,UseInfiniteRelatedSalesQueryProps } from "@bookjeok/core/book-sale";
+import { getBookSaleDetail, getBookSales, getMyBookSales, getPopularBookSales, getRecentBookSales, getRelatedSales, getSaleForEdit } from "@bookjeok/api-client";
+import { bookSaleKeys, CACHE_TIME, CommonBookSaleResponse, SearchBookSalesParams, UsedBookSale, UseInfiniteRelatedSalesQueryProps } from "@bookjeok/core";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
-
-import { bookSaleKeys } from "./query-keys";
 
 /**
  * 판매글 검색 (무한 스크롤)

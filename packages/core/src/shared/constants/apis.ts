@@ -18,7 +18,9 @@ export const API_PATHS = {
   },
   book: {
     list: "/book-list",
+    externalList: "/book/external/list",
     detail: "/book-detail",
+    externalDetail: "/book/external/detail",
     sales: "/book/sales",
     sale: "/book/sale",
     mySales: "/user/my-sales",
@@ -39,7 +41,9 @@ export const API_PATHS = {
   },
   art: {
     list: "/art-list",
+    externalList: "/art/external/list",
     detail: (artId: string) => `/art-detail/${artId}`,
+    externalDetail: (artId: string) => `/art/external/detail/${artId}`,
   },
   llm: {
     talk: "/llm/talk",

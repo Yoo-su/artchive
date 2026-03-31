@@ -1,6 +1,5 @@
 "use client";
 
-export * from "./mutation-keys";
-export * from "./mutations";
+export { reviewKeys, reviewMutationKeys } from "@bookjeok/core";
 export * from "./queries";
-export * from "./query-keys";
+export * from "./mutations";

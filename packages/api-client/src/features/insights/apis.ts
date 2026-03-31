@@ -1,5 +1,4 @@
-import { API_PATHS } from "@bookjeok/core";
-import { InsightsResponse, LocationSales } from "@bookjeok/core/insights";
+import { API_PATHS, InsightsResponse, LocationSales } from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**

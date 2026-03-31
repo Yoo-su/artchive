@@ -1,6 +1,6 @@
 "use client";
 
-import { PopularTagStat } from "@bookjeok/core/insights";
+import { PopularTagStat } from "@bookjeok/core";
 import { Tag } from "lucide-react";
 import { useTranslations } from "next-intl";
 

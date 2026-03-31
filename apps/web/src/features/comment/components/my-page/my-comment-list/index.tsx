@@ -1,6 +1,6 @@
 "use client";
 
-import { CommentTargetType } from "@bookjeok/core/comment";
+import { CommentTargetType } from "@bookjeok/core";
 import { formatDistanceToNow } from "date-fns";
 import { enUS, ko } from "date-fns/locale";
 import {

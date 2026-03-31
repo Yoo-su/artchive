@@ -58,6 +58,7 @@
     "compression": "^1.8.1",
     "cookie": "^1.0.2",
     "cookie-parser": "^1.4.7",
+    "fast-xml-parser": "^5.2.5",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "passport": "^0.7.0",

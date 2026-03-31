@@ -1,5 +1,6 @@
-import { GetBookListParams } from "@bookjeok/core/book";
 import { createQueryKeys } from "@lukemorales/query-key-factory";
+
+import { GetBookListParams } from "./types";
 
 export const bookKeys = createQueryKeys("book", {
   list: (params: GetBookListParams) => ({
@@ -16,10 +17,6 @@ export const bookKeys = createQueryKeys("book", {
   search: (query: string) => ({
     queryKey: [query],
   }),
-  popularBooks: {
-    queryKey: null,
-  },
-  popularKeywords: {
-    queryKey: null,
-  },
+  popularBooks: null,
+  popularKeywords: null,
 });

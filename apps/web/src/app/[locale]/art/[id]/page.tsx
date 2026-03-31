@@ -1,4 +1,4 @@
-import { artKeys } from "@bookjeok/react-query/art/keys";
+import { artKeys } from "@bookjeok/core";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";

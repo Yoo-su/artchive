@@ -1,4 +1,4 @@
-import { Review } from "@bookjeok/core/review";
+import { Review } from "@bookjeok/core";
 interface ReviewJsonLdProps {
   review: Review;
 }

@@ -1,5 +1,5 @@
-import { talkToAiLibrarian } from "@bookjeok/api-client/llm";
-import { TalkRequest, TalkResponse } from "@bookjeok/core/llm";
+import { talkToAiLibrarian } from "@bookjeok/api-client";
+import { TalkRequest, TalkResponse } from "@bookjeok/core";
 import { useMutation, UseMutationOptions } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
 

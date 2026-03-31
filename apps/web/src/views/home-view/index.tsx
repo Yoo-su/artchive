@@ -1,6 +1,6 @@
 "use client";
 
-import { MAIN_ARTS } from "@bookjeok/core/art";
+import { MAIN_ARTS } from "@bookjeok/core";
 import { useTranslations } from "next-intl";
 
 import { MainArtSlider } from "@/features/art/components/widgets/art-slider/main-art-slider";

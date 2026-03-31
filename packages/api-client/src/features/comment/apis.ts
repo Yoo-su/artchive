@@ -1,5 +1,4 @@
-import { API_PATHS } from "@bookjeok/core";
-import { Comment, CreateCommentParams, GetCommentsParams, GetCommentsResponse, GetMyCommentsResponse, UpdateCommentParams } from "@bookjeok/core/comment";
+import { API_PATHS, Comment, CreateCommentParams, GetCommentsParams, GetCommentsResponse, GetMyCommentsResponse, UpdateCommentParams } from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**

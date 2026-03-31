@@ -1,5 +1,5 @@
-import { getInsights as sharedGetInsights, getLocationSales as sharedGetLocationSales } from "@bookjeok/api-client/insights";
-import { InsightsResponse, LocationSales } from "@bookjeok/core/insights";
+import { getInsights as sharedGetInsights, getLocationSales as sharedGetLocationSales } from "@bookjeok/api-client";
+import { InsightsResponse, LocationSales } from "@bookjeok/core";
 
 import { publicAxios } from "@/shared/libs/axios";
 

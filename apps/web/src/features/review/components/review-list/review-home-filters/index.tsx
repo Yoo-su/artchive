@@ -1,6 +1,6 @@
 "use client";
 
-import { BOOK_DOMAINS, CATEGORY_MAP } from "@bookjeok/core/review";
+import { BOOK_DOMAINS, CATEGORY_MAP } from "@bookjeok/core";
 import { useTranslations } from "next-intl";
 import { FreeMode } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";

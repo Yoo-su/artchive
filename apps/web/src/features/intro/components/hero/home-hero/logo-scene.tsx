@@ -1,6 +1,6 @@
 "use client";
 
-import { SceneData } from "@bookjeok/core/intro";
+import { SceneData } from "@bookjeok/core";
 import { motion } from "framer-motion";
 import Image from "next/image";
 

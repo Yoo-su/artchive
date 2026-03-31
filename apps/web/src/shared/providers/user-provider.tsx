@@ -1,6 +1,6 @@
 "use client";
 
-import { getUserProfile } from "@bookjeok/api-client/auth";
+import { getUserProfile } from "@bookjeok/api-client";
 import { ReactNode, useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";

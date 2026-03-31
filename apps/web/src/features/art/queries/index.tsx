@@ -1,5 +1,5 @@
-import { ArtItem, Genre, GetArtListParams, PrfState } from "@bookjeok/core/art";
-import { useArtDetailQuery as useBaseArtDetailQuery, useArtListQuery as useBaseArtListQuery, useMainArtsQueries as useBaseMainArtsQueries } from "@bookjeok/react-query/art";
+import { ArtItem, Genre, GetArtListParams, PrfState } from "@bookjeok/core";
+import { useArtDetailQuery as useBaseArtDetailQuery, useArtListQuery as useBaseArtListQuery, useMainArtsQueries as useBaseMainArtsQueries } from "@bookjeok/react-query";
 
 import { internalAxios } from "@/shared/libs/axios";
 

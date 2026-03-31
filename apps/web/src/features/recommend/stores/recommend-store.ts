@@ -1,4 +1,4 @@
-import { NEOGULIP_TEXTS, RecommendedBook } from "@bookjeok/core/llm";
+import { NEOGULIP_TEXTS, RecommendedBook } from "@bookjeok/core";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 

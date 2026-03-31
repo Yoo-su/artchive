@@ -1,5 +1,5 @@
-import { getArtDetail as sharedGetArtDetail, getArtList as sharedGetArtList } from "@bookjeok/api-client/art";
-import { ArtListErrorResponse, ArtListSuccessResponse, GetArtDetailResponse, GetArtListParams } from "@bookjeok/core/art";
+import { getArtDetail as sharedGetArtDetail, getArtList as sharedGetArtList } from "@bookjeok/api-client";
+import { ArtListErrorResponse, ArtListSuccessResponse, GetArtDetailResponse, GetArtListParams } from "@bookjeok/core";
 
 import { internalAxios } from "@/shared/libs/axios";
 

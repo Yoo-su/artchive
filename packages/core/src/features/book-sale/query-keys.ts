@@ -1,5 +1,6 @@
-import { SearchBookSalesParams, UseInfiniteRelatedSalesQueryProps } from "@bookjeok/core/book-sale";
 import { createQueryKeys } from "@lukemorales/query-key-factory";
+
+import { SearchBookSalesParams, UseInfiniteRelatedSalesQueryProps } from "./types";
 
 /**
  * 중고책 판매 관련 쿼리 키 팩토리
@@ -8,12 +9,8 @@ export const bookSaleKeys = createQueryKeys("bookSale", {
   marketSales: (params: SearchBookSalesParams) => ({
     queryKey: ["market", params],
   }),
-  popularSales: {
-    queryKey: null,
-  },
-  mySales: {
-    queryKey: null,
-  },
+  popularSales: null,
+  mySales: null,
   relatedSales: ({
     isbn,
     city,
@@ -28,7 +25,5 @@ export const bookSaleKeys = createQueryKeys("bookSale", {
   saleForEdit: (saleId: string | number) => ({
     queryKey: ["edit", saleId],
   }),
-  recentSales: {
-    queryKey: null,
-  },
+  recentSales: null,
 });

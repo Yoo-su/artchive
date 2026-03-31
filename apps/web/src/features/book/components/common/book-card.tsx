@@ -1,4 +1,4 @@
-import { BookInfo } from "@bookjeok/core/book";
+import { BookInfo } from "@bookjeok/core";
 import Image from "next/image";
 
 import { Skeleton } from "@/shared/components/shadcn/skeleton";

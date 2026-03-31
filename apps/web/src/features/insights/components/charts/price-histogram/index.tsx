@@ -1,6 +1,6 @@
 "use client";
 
-import { PRICE_RANGE_LABELS, PriceRangeStat } from "@bookjeok/core/insights";
+import { PRICE_RANGE_LABELS, PriceRangeStat } from "@bookjeok/core";
 import { DollarSign } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";

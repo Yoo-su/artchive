@@ -1,7 +1,6 @@
 "use client";
 
-import { ReactionStat } from "@bookjeok/core/insights";
-import { ReviewReactionType } from "@bookjeok/core/review";
+import { ReactionStat ,  ReviewReactionType } from "@bookjeok/core";
 import { Heart } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";

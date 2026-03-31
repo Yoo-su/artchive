@@ -1,4 +1,4 @@
-import { useUserProfileQuery as useBaseUserProfileQuery } from "@bookjeok/react-query/auth";
+import { useUserProfileQuery as useBaseUserProfileQuery } from "@bookjeok/react-query";
 
 import { privateAxios } from "@/shared/libs/axios";
 

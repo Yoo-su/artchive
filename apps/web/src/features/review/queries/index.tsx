@@ -1,15 +1,21 @@
-import { formatPostDate } from "@bookjeok/core";
-import { UsedBookSale } from "@bookjeok/core/book-sale";
-import { GetReviewsParams, Review } from "@bookjeok/core/review";
-import { useMyReviewReactionQuery as useBaseMyReviewReactionQuery, usePopularReviewsQuery as useBasePopularReviewsQuery, useRecommendedReviewsQuery as useBaseRecommendedReviewsQuery, useReviewDetailQuery as useBaseReviewDetailQuery, useReviewFeedsQuery as useBaseReviewFeedsQuery, useReviewForEditQuery as useBaseReviewForEditQuery, useReviewsInfiniteQuery as useBaseReviewsInfiniteQuery, useReviewsQuery as useBaseReviewsQuery } from "@bookjeok/react-query/review";
+import { formatPostDate, GetReviewsParams, Review, UsedBookSale } from "@bookjeok/core";
+import {
+  useMyReviewReactionQuery as useBaseMyReviewReactionQuery,
+  usePopularReviewsQuery as useBasePopularReviewsQuery,
+  useRecommendedReviewsQuery as useBaseRecommendedReviewsQuery,
+  useReviewDetailQuery as useBaseReviewDetailQuery,
+  useReviewFeedsQuery as useBaseReviewFeedsQuery,
+  useReviewForEditQuery as useBaseReviewForEditQuery,
+  useReviewsInfiniteQuery as useBaseReviewsInfiniteQuery,
+  useReviewsQuery as useBaseReviewsQuery,
+} from "@bookjeok/react-query";
 
 import { privateAxios, publicAxios } from "@/shared/libs/axios";
 
 export type {
-  Review,
   ReviewFeed,
   ReviewReactionType as ReviewReaction,
-} from "@bookjeok/core/review";
+} from "@bookjeok/core";
 
 export const useReviewsQuery = (params: GetReviewsParams, enabled: boolean = true) =>
   useBaseReviewsQuery(params, publicAxios, enabled);

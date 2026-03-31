@@ -1,6 +1,6 @@
 "use client";
 
-import { ActivityTrendStat } from "@bookjeok/core/insights";
+import { ActivityTrendStat } from "@bookjeok/core";
 import { TrendingUp } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";

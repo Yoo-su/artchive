@@ -1,4 +1,4 @@
-import { reviewKeys } from "@bookjeok/react-query/review/keys";
+import { reviewKeys } from "@bookjeok/core";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 

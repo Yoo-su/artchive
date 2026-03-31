@@ -1,11 +1,8 @@
 "use client";
-import { getComments, getMyComments } from "@bookjeok/api-client/comment";
-import { CACHE_TIME } from "@bookjeok/core";
-import { CommentTargetType } from "@bookjeok/core/comment";
+import { getComments, getMyComments } from "@bookjeok/api-client";
+import { commentKeys, CACHE_TIME, CommentTargetType } from "@bookjeok/core";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
-
-import { commentKeys } from "./query-keys";
 
 /**
  * 댓글 목록 조회

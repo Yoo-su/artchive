@@ -1,4 +1,4 @@
-import { useInsightsQuery as useBaseInsightsQuery, useLocationSalesQuery as useBaseLocationSalesQuery } from "@bookjeok/react-query/insights";
+import { useInsightsQuery as useBaseInsightsQuery, useLocationSalesQuery as useBaseLocationSalesQuery } from "@bookjeok/react-query";
 
 import { publicAxios } from "@/shared/libs/axios";
 
@@ -11,7 +11,7 @@ export type {
   PopularTagStat,
   PriceRangeStat,
   ReactionStat,
-} from "@bookjeok/core/insights";
+} from "@bookjeok/core";
 
 export const useInsightsQuery = () => useBaseInsightsQuery(publicAxios);
 

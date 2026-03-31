@@ -1,6 +1,6 @@
 "use client";
 
-import { ReviewReactionType } from "@bookjeok/core/review";
+import { ReviewReactionType } from "@bookjeok/core";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";

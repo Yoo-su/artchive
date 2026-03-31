@@ -1,4 +1,4 @@
-import { UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core/book-sale";
+import { UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";

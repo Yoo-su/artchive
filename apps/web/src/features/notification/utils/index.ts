@@ -1,4 +1,4 @@
-import { Notification, NotificationType } from "@bookjeok/core/notification";
+import { Notification, NotificationType } from "@bookjeok/core";
 
 import { PATHS } from "@/shared/constants/paths";
 

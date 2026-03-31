@@ -1,5 +1,6 @@
-import { CommentTargetType } from "@bookjeok/core/comment";
 import { createQueryKeys } from "@lukemorales/query-key-factory";
+
+import { CommentTargetType } from "./types";
 
 export const commentKeys = createQueryKeys("comment", {
   list: (targetType: CommentTargetType, targetId: string, page: number) => ({
@@ -8,7 +9,5 @@ export const commentKeys = createQueryKeys("comment", {
   like: (commentId: number) => ({
     queryKey: [commentId],
   }),
-  my: {
-    queryKey: null,
-  },
+  my: null,
 });

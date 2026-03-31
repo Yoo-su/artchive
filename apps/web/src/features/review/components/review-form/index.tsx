@@ -1,7 +1,6 @@
 "use client";
 
-import { BookInfo } from "@bookjeok/core/book";
-import { BOOK_DOMAINS, CATEGORY_MAP, ReviewFormValues } from "@bookjeok/core/review";
+import { BOOK_DOMAINS, BookInfo, CATEGORY_MAP, ReviewFormValues } from "@bookjeok/core";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BookOpen, Info, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -19,20 +18,6 @@ import {
 } from "@/features/review/schemas";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
-
-// Tiptap 에디터는 무거운 라이브러리이므로 지연 로딩
-const TiptapEditor = dynamic(
-  () =>
-    import("@/shared/components/editor/tiptap-editor").then(
-      (mod) => mod.TiptapEditor,
-    ),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="border rounded-md min-h-[300px] animate-pulse bg-muted/30" />
-    ),
-  },
-);
 import {
   Form,
   FormControl,
@@ -52,6 +37,20 @@ import {
 import { Switch } from "@/shared/components/shadcn/switch";
 import { StarRating } from "@/shared/components/ui/star-rating";
 import { useEditorImageHandler } from "@/shared/hooks/use-editor-image-handler";
+
+// Tiptap 에디터는 무거운 라이브러리이므로 지연 로딩
+const TiptapEditor = dynamic(
+  () =>
+    import("@/shared/components/editor/tiptap-editor").then(
+      (mod) => mod.TiptapEditor,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="border rounded-md min-h-[300px] animate-pulse bg-muted/30" />
+    ),
+  },
+);
 
 interface ReviewFormProps {
   initialData?: {
@@ -408,11 +407,16 @@ export const ReviewForm = ({
                     </p>
                   </div>
                   <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      disabled={isProcessing}
-                    />
+                    {(() => {
+                      const SwitchAny = Switch as any;
+                      return (
+                        <SwitchAny
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={isProcessing}
+                        />
+                      );
+                    })()}
                   </FormControl>
                 </FormItem>
                 <div className="mt-3 flex gap-2 rounded-md bg-blue-50 p-3 text-sm text-blue-700">

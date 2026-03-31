@@ -1,6 +1,6 @@
 "use client";
 
-import { NEOGULIP_TEXTS } from "@bookjeok/core/llm";
+import { NEOGULIP_TEXTS } from "@bookjeok/core";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 

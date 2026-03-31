@@ -1,6 +1,6 @@
 "use client";
 
-import { Review } from "@bookjeok/core/review";
+import { Review } from "@bookjeok/core";
 import { useParams } from "next/navigation";
 
 import { ReviewDetail } from "@/features/review/components/review-detail/book-review-detail";

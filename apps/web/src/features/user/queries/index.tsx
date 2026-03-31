@@ -1,8 +1,8 @@
-import { useMyProfileQuery as useBaseMyProfileQuery, useMyStatsQuery as useBaseMyStatsQuery, useMyWishlistQuery as useBaseWishlistQuery, usePublicUserProfileQuery as useBasePublicProfileQuery, useWishlistStatusQuery as useBaseWishlistStatusQuery } from "@bookjeok/react-query/user";
+import { useMyProfileQuery as useBaseMyProfileQuery, useMyStatsQuery as useBaseMyStatsQuery, useMyWishlistQuery as useBaseWishlistQuery, usePublicUserProfileQuery as useBasePublicProfileQuery, useWishlistStatusQuery as useBaseWishlistStatusQuery } from "@bookjeok/react-query";
 
 import { privateAxios, publicAxios } from "@/shared/libs/axios";
 
-export type { UserStats } from "@bookjeok/core/user";
+export type { UserStats } from "@bookjeok/core";
 
 export const useMyProfileQuery = () => useBaseMyProfileQuery(privateAxios);
 export const useMyStatsQuery = () => useBaseMyStatsQuery(privateAxios);

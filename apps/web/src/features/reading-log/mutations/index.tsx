@@ -1,4 +1,4 @@
-import { useCreateReadingLogMutation as useSharedCreateReadingLogMutation, useDeleteReadingLogMutation as useSharedDeleteReadingLogMutation, useUpdateReadingLogMutation as useSharedUpdateReadingLogMutation, useUpdateReadingLogSettingsMutation as useSharedUpdateReadingLogSettingsMutation } from "@bookjeok/react-query/reading-log";
+import { useCreateReadingLogMutation as useSharedCreateReadingLogMutation, useDeleteReadingLogMutation as useSharedDeleteReadingLogMutation, useUpdateReadingLogMutation as useSharedUpdateReadingLogMutation, useUpdateReadingLogSettingsMutation as useSharedUpdateReadingLogSettingsMutation } from "@bookjeok/react-query";
 import { toast } from "sonner";
 
 import { privateAxios } from "@/shared/libs/axios";

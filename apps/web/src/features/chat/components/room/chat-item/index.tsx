@@ -1,6 +1,6 @@
 "use client";
 
-import { ChatRoom } from "@bookjeok/core/chat";
+import { ChatRoom } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { format, isToday, isYesterday } from "date-fns";
 import { ko } from "date-fns/locale";

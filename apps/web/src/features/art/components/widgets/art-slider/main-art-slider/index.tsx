@@ -1,6 +1,6 @@
 "use client";
 
-import { ArtDomain, Genre, GetArtListParams } from "@bookjeok/core/art";
+import { ArtDomain, Genre, GetArtListParams } from "@bookjeok/core";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Autoplay } from "swiper/modules";

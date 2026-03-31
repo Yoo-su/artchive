@@ -1,5 +1,5 @@
-import { talkToAiLibrarian as sharedTalkToAiLibrarian } from "@bookjeok/api-client/llm";
-import { TalkRequest, TalkResponse } from "@bookjeok/core/llm";
+import { talkToAiLibrarian as sharedTalkToAiLibrarian } from "@bookjeok/api-client";
+import { TalkRequest, TalkResponse } from "@bookjeok/core";
 
 import { privateAxios } from "@/shared/libs/axios";
 

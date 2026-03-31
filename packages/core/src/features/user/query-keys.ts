@@ -4,16 +4,10 @@ export const userKeys = createQueryKeys("user", {
   publicProfile: (handle: string) => ({
     queryKey: [handle],
   }),
-  wishlist: {
-    queryKey: null,
-  },
+  wishlist: null,
   wishlistCheck: (type: string, id: string | number) => ({
     queryKey: [type, id],
   }),
-  stats: {
-    queryKey: null,
-  },
-  me: {
-    queryKey: null,
-  },
+  stats: null,
+  me: null,
 });

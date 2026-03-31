@@ -1,6 +1,6 @@
 "use client";
 
-import { ChatMessage } from "@bookjeok/core/chat";
+import { ChatMessage } from "@bookjeok/core";
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
 interface UseChatScrollProps {

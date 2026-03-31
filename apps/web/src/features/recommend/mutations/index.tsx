@@ -1,4 +1,4 @@
-import { useTalkToAiLibrarianMutation as useBaseTalkToAiLibrarianMutation } from "@bookjeok/react-query/llm";
+import { useTalkToAiLibrarianMutation as useBaseTalkToAiLibrarianMutation } from "@bookjeok/react-query";
 
 import { privateAxios } from "@/shared/libs/axios";
 

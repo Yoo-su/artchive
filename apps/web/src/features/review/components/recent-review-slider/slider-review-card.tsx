@@ -1,6 +1,6 @@
 "use client";
 
-import { Review } from "@bookjeok/core/review";
+import { Review } from "@bookjeok/core";
 import { format } from "date-fns";
 import Image from "next/image";
 import { useTranslations } from "next-intl";

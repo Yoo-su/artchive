@@ -1,5 +1,4 @@
-import { SaleStatus } from "@bookjeok/core/book-sale";
-import { PublicUserProfile } from "@bookjeok/core/user";
+import { PublicUserProfile, SaleStatus } from "@bookjeok/core";
 import { format } from "date-fns";
 import { enUS, ko } from "date-fns/locale";
 import { BookOpen, Calendar, ShoppingBag, User } from "lucide-react";

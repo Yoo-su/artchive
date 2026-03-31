@@ -1,4 +1,4 @@
-import { BookInfo } from "@bookjeok/core/book";
+import { BookInfo } from "@bookjeok/core";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { BookCard } from "./book-card";

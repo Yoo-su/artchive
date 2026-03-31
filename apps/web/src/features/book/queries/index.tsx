@@ -1,5 +1,5 @@
-import { GetBookListParams } from "@bookjeok/core/book";
-import { useBookDetailQuery as useBaseBookDetailQuery, useBookListQuery as useBaseBookListQuery, useBookSummaryQuery as useBaseBookSummaryQuery, useInfiniteBookSearch as useBaseInfiniteBookSearch, usePopularBooksQuery as useBasePopularBooksQuery, usePopularKeywordsQuery as useBasePopularKeywordsQuery } from "@bookjeok/react-query/book";
+import { GetBookListParams } from "@bookjeok/core";
+import { useBookDetailQuery as useBaseBookDetailQuery, useBookListQuery as useBaseBookListQuery, useBookSummaryQuery as useBaseBookSummaryQuery, useInfiniteBookSearch as useBaseInfiniteBookSearch, usePopularBooksQuery as useBasePopularBooksQuery, usePopularKeywordsQuery as useBasePopularKeywordsQuery } from "@bookjeok/react-query";
 
 import { internalAxios } from "@/shared/libs/axios";
 
