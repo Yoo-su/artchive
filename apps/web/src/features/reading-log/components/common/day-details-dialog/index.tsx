@@ -1,5 +1,4 @@
-import { BookInfo } from "@bookjeok/core/book";
-import { ReadingLog } from "@bookjeok/core/reading-log";
+import { BookInfo ,  ReadingLog } from "@bookjeok/core";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import {

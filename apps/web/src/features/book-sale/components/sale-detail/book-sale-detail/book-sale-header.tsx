@@ -1,5 +1,4 @@
-import { formatPostDate } from "@bookjeok/core";
-import { UsedBookSale } from "@bookjeok/core/book-sale";
+import { formatPostDate ,  UsedBookSale } from "@bookjeok/core";
 import { Clock, Eye, MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
 

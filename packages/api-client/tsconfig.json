@@ -3,7 +3,6 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@bookjeok/core/*": ["../core/src/features/*"],
       "@bookjeok/core": ["../core/src/index.ts"]
     },
     "outDir": "dist"

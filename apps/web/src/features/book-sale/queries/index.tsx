@@ -1,9 +1,9 @@
-import { SearchBookSalesParams, UseInfiniteRelatedSalesQueryProps } from "@bookjeok/core/book-sale";
-import { useBookSaleDetailQuery as useBaseBookSaleDetailQuery, useBookSaleForEditQuery as useBaseBookSaleForEditQuery, useInfiniteBookSalesQuery as useBaseInfiniteBookSalesQuery, useInfiniteRelatedSalesQuery as useBaseInfiniteRelatedSalesQuery, useMyBookSalesQuery as useBaseMyBookSalesQuery, usePopularBookSalesQuery as useBasePopularBookSalesQuery, useRecentBookSalesQuery as useBaseRecentBookSalesQuery, useRelatedSalesQuery as useBaseRelatedSalesQuery } from "@bookjeok/react-query/book-sale";
+import { SearchBookSalesParams, UseInfiniteRelatedSalesQueryProps } from "@bookjeok/core";
+import { useBookSaleDetailQuery as useBaseBookSaleDetailQuery, useBookSaleForEditQuery as useBaseBookSaleForEditQuery, useInfiniteBookSalesQuery as useBaseInfiniteBookSalesQuery, useInfiniteRelatedSalesQuery as useBaseInfiniteRelatedSalesQuery, useMyBookSalesQuery as useBaseMyBookSalesQuery, usePopularBookSalesQuery as useBasePopularBookSalesQuery, useRecentBookSalesQuery as useBaseRecentBookSalesQuery, useRelatedSalesQuery as useBaseRelatedSalesQuery } from "@bookjeok/react-query";
 
 import { privateAxios, publicAxios } from "@/shared/libs/axios";
 
-export type { SaleStatus as BookSaleStatus, UsedBookSale } from "@bookjeok/core/book-sale";
+export type { SaleStatus as BookSaleStatus, UsedBookSale } from "@bookjeok/core";
 
 export const useInfiniteBookSalesQuery = (params: SearchBookSalesParams) =>
   useBaseInfiniteBookSalesQuery(params, publicAxios);

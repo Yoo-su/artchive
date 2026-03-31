@@ -1,6 +1,6 @@
 "use client";
 
-import { UsedBookSale } from "@bookjeok/core/book-sale";
+import { UsedBookSale } from "@bookjeok/core";
 import React, { ReactNode } from "react";
 
 import { Link } from "@/shared/config/i18n/routing";

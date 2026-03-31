@@ -2,6 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { BookService } from '../services/book.service';
+import { NaverBookSearchService } from '../services/naver-book-search.service';
 import { BookController } from './book.controller';
 
 describe('BookController', () => {
@@ -22,6 +23,13 @@ describe('BookController', () => {
             findSalesByIsbn: jest.fn(),
             updateUsedBookSale: jest.fn(),
             deleteUsedBookSale: jest.fn(),
+          },
+        },
+        {
+          provide: NaverBookSearchService,
+          useValue: {
+            searchRaw: jest.fn(),
+            searchDetailRaw: jest.fn(),
           },
         },
         {

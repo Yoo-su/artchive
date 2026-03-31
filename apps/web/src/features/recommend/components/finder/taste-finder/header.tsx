@@ -1,6 +1,6 @@
 "use client";
 
-import { NEOGULIP_TEXTS } from "@bookjeok/core/llm";
+import { NEOGULIP_TEXTS } from "@bookjeok/core";
 import { RefreshCw } from "lucide-react";
 
 import { useRecommendStore } from "@/features/recommend/stores/recommend-store";

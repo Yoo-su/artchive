@@ -77,4 +77,80 @@ export class NaverBookSearchService {
       );
     }
   }
+
+  /**
+   * 네이버 책 검색 API를 호출하여 정제되지 않은 원본 응답을 반환합니다. (Expo 연동용 프록시)
+   */
+  async searchRaw(
+    query: string,
+    display: number = 10,
+    start: number = 1,
+    sort: string = 'sim',
+  ): Promise<Record<string, unknown>> {
+    const clientId = this.configService.get<string>('NAVER_CLIENT_ID');
+    const clientSecret = this.configService.get<string>('NAVER_CLIENT_SECRET');
+
+    if (!clientId || !clientSecret) {
+      throw new InternalServerErrorException(
+        '네이버 API 설정이 올바르지 않습니다.',
+      );
+    }
+
+    try {
+      const response = await lastValueFrom(
+        this.httpService.get('https://openapi.naver.com/v1/search/book.json', {
+          params: { query, display, start, sort },
+          headers: {
+            'X-Naver-Client-Id': clientId,
+            'X-Naver-Client-Secret': clientSecret,
+          },
+        }),
+      );
+
+      // TransformInterceptor가 응답을 래핑하므로 실제 데이터만 반환합니다.
+      return response.data as Record<string, unknown>;
+    } catch (error) {
+      console.error('네이버 책 검색 API 호출 실패(raw):', error);
+      throw new InternalServerErrorException(
+        '책 정보를 가져오는 데 실패했습니다.',
+      );
+    }
+  }
+
+  /**
+   * 네이버 책 검색 API를 단건으로 조회하기 위해 isbn 파라미터로 상세 조회합니다. (Expo 연동용 프록시)
+   */
+  async searchDetailRaw(isbn: string): Promise<Record<string, unknown>> {
+    // 내부적으로 d_isbn 파라미터를 쓰거나, query에 isbn 값을 주어 검색
+    const clientId = this.configService.get<string>('NAVER_CLIENT_ID');
+    const clientSecret = this.configService.get<string>('NAVER_CLIENT_SECRET');
+
+    if (!clientId || !clientSecret) {
+      throw new InternalServerErrorException(
+        '네이버 API 설정이 올바르지 않습니다.',
+      );
+    }
+
+    try {
+      const response = await lastValueFrom(
+        this.httpService.get(
+          'https://openapi.naver.com/v1/search/book_adv.json',
+          {
+            params: { d_isbn: isbn },
+            headers: {
+              'X-Naver-Client-Id': clientId,
+              'X-Naver-Client-Secret': clientSecret,
+            },
+          },
+        ),
+      );
+
+      return response.data as Record<string, unknown>;
+    } catch (error) {
+      console.error('네이버 책 상세 검색 API 호출 실패(raw):', error);
+      throw new InternalServerErrorException(
+        '책 상세 정보를 가져오는 데 실패했습니다.',
+      );
+    }
+  }
 }

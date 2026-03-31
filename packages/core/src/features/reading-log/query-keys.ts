@@ -7,10 +7,6 @@ export const readingLogKeys = createQueryKeys("readingLog", {
   stats: (year: number, month: number) => ({
     queryKey: [year, month],
   }),
-  settings: {
-    queryKey: null,
-  },
-  infinite: {
-    queryKey: null,
-  },
+  settings: null,
+  infinite: null,
 });

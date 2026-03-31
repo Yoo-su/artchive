@@ -1,9 +1,8 @@
 "use client";
-import { getInsights, getLocationSales } from "@bookjeok/api-client/insights";
+import { getInsights, getLocationSales } from "@bookjeok/api-client";
+import { insightsKeys } from "@bookjeok/core";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
-
-import { insightsKeys } from "./query-keys";
 
 /**
  * 서비스 인사이트 데이터 조회

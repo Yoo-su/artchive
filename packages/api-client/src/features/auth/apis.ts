@@ -1,5 +1,4 @@
-import { API_PATHS } from "@bookjeok/core";
-import { EmailLoginParams, EmailSignupParams, LoginResponse, User } from "@bookjeok/core/auth";
+import { API_PATHS, EmailLoginParams, EmailSignupParams, LoginResponse, User } from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**

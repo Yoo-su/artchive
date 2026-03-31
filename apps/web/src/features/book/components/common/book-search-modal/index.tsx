@@ -1,6 +1,6 @@
 "use client";
 
-import { BookInfo } from "@bookjeok/core/book";
+import { BookInfo } from "@bookjeok/core";
 import { AnimatePresence, motion } from "framer-motion";
 import debounce from "lodash/debounce";
 import { Loader2, Search } from "lucide-react";

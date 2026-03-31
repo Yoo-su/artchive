@@ -3,7 +3,7 @@
 import "swiper/css";
 import "swiper/css/effect-coverflow";
 
-import { HOME_PUBLISHERS } from "@bookjeok/core/book";
+import { HOME_PUBLISHERS } from "@bookjeok/core";
 import { BookOpen } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";

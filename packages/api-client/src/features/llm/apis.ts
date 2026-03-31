@@ -1,5 +1,4 @@
-import { API_PATHS } from "@bookjeok/core";
-import { TalkRequest, TalkResponse } from "@bookjeok/core/llm";
+import { API_PATHS, TalkRequest, TalkResponse } from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**

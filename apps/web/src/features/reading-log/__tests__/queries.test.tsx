@@ -1,7 +1,5 @@
-import * as apis from "@bookjeok/api-client/reading-log";
-import { User } from "@bookjeok/core/auth";
-import { readingLogKeys } from "@bookjeok/react-query/reading-log/keys";
-import { userKeys } from "@bookjeok/react-query/user/keys";
+import * as apis from "@bookjeok/api-client";
+import { readingLogKeys, User,userKeys } from "@bookjeok/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import React from "react";
@@ -10,7 +8,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { useUpdateReadingLogSettingsMutation } from "@/features/reading-log/mutations";
 
-vi.mock("@bookjeok/api-client/reading-log", () => ({
+vi.mock("@bookjeok/api-client", () => ({
   updateReadingLogSettings: vi.fn(),
 }));
 

@@ -23,7 +23,11 @@ export abstract class BaseViewCountInterceptor implements NestInterceptor {
    * @param request Express Request 객체
    */
   protected getResourceId(request: Request): string | number | undefined {
-    return request.params.id;
+    const id = request.params.id as string | string[] | undefined;
+    if (Array.isArray(id)) {
+      return id[0];
+    }
+    return id;
   }
 
   /**

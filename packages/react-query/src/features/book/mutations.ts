@@ -1,5 +1,5 @@
 "use client";
-import { recordSearchKeyword } from "@bookjeok/api-client/book";
+import { recordSearchKeyword } from "@bookjeok/api-client";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
 

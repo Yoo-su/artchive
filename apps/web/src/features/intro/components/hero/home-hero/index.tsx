@@ -1,4 +1,4 @@
-import { SceneData } from "@bookjeok/core/intro";
+import { SceneData } from "@bookjeok/core";
 import { AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";

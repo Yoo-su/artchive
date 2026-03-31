@@ -1,4 +1,4 @@
-import { CommentTargetType } from "@bookjeok/core/comment";
+import { CommentTargetType } from "@bookjeok/core";
 
 import { BookDetail } from "@/features/book/components/book-detail";
 import { RelatedSales } from "@/features/book-sale/components/sale-detail/related-sales";

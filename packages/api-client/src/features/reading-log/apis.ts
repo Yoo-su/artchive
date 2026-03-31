@@ -1,5 +1,4 @@
-import { API_PATHS } from "@bookjeok/core";
-import { CreateReadingLogParams, ReadingLog, ReadingLogListResponse, ReadingLogStats, UpdateReadingLogParams } from "@bookjeok/core/reading-log";
+import { API_PATHS, CreateReadingLogParams, ReadingLog, ReadingLogListResponse, ReadingLogStats, UpdateReadingLogParams } from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**

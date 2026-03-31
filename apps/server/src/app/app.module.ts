@@ -7,6 +7,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 
+import { ArtModule } from '@/features/art/art.module';
 import { AuthModule } from '@/features/auth/auth.module';
 import { BookModule } from '@/features/book/book.module';
 import { Book } from '@/features/book/entities/book.entity';
@@ -69,6 +70,7 @@ import { UserModule } from '@/features/user/user.module';
     AuthModule,
     UserModule,
     BookModule,
+    ArtModule,
     UsedBookSaleModule,
     ChatModule,
     LlmModule,

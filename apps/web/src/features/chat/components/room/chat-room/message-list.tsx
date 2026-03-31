@@ -1,4 +1,4 @@
-import { ChatMessage } from "@bookjeok/core/chat";
+import { ChatMessage } from "@bookjeok/core";
 import { motion } from "framer-motion";
 import { Check, Loader2 } from "lucide-react";
 import { RefObject } from "react";
@@ -95,8 +95,8 @@ interface MessageListProps {
   messages: ChatMessage[];
   currentUserId?: number;
   isFetchingPreviousPage: boolean;
-  messagesEndRef: RefObject<HTMLDivElement | null>;
-  messageContainerRef: RefObject<HTMLDivElement | null>;
+  messagesEndRef: any;
+  messageContainerRef: any;
   onScroll: () => void;
 }
 

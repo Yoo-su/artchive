@@ -1,6 +1,6 @@
 "use client";
 
-import { BookInfo } from "@bookjeok/core/book";
+import { BookInfo } from "@bookjeok/core";
 import { Heart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";

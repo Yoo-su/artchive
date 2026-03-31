@@ -1,5 +1,4 @@
-import { API_PATHS } from "@bookjeok/core";
-import { CommonBookSaleResponse, CreateBookSaleParams, GetMyBookSalesResponse, GetRelatedSalesParams, GetRelatedSalesResponse, SaleStatus, SearchBookSalesParams, SearchBookSalesResponse, UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core/book-sale";
+import { API_PATHS, CommonBookSaleResponse, CreateBookSaleParams, GetMyBookSalesResponse, GetRelatedSalesParams, GetRelatedSalesResponse, SaleStatus, SearchBookSalesParams, SearchBookSalesResponse, UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**

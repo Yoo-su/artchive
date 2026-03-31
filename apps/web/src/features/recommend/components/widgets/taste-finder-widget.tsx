@@ -1,6 +1,6 @@
 "use client";
 
-import { NEOGULIP_TEXTS } from "@bookjeok/core/llm";
+import { NEOGULIP_TEXTS } from "@bookjeok/core";
 import { useState } from "react";
 
 import { useTalkToAiLibrarianMutation } from "../../mutations";

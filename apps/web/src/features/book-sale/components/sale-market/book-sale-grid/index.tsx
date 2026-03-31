@@ -1,6 +1,6 @@
 "use client";
 
-import { SearchBookSalesParams } from "@bookjeok/core/book-sale";
+import { SearchBookSalesParams } from "@bookjeok/core";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";

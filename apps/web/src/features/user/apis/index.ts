@@ -1,5 +1,5 @@
-import { addToWishlist as sharedAddToWishlist, checkNickname as sharedCheckNickname, checkWishlistStatus as sharedCheckWishlistStatus, getMyProfile as sharedGetMyProfile, getMyWishlist as sharedGetMyWishlist, getPublicUserProfile as sharedGetPublicUserProfile, getUserStats as sharedGetUserStats, removeFromWishlist as sharedRemoveFromWishlist, updateProfile as sharedUpdateProfile } from "@bookjeok/api-client/user";
-import { PublicUserProfile, UserStats, WishlistItem } from "@bookjeok/core/user";
+import { addToWishlist as sharedAddToWishlist, checkNickname as sharedCheckNickname, checkWishlistStatus as sharedCheckWishlistStatus, getMyProfile as sharedGetMyProfile, getMyWishlist as sharedGetMyWishlist, getPublicUserProfile as sharedGetPublicUserProfile, getUserStats as sharedGetUserStats, removeFromWishlist as sharedRemoveFromWishlist, updateProfile as sharedUpdateProfile } from "@bookjeok/api-client";
+import { PublicUserProfile, UserStats, WishlistItem } from "@bookjeok/core";
 
 import { privateAxios, publicAxios } from "@/shared/libs/axios";
 

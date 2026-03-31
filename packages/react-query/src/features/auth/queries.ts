@@ -1,8 +1,7 @@
-import { getUserProfile } from "@bookjeok/api-client/auth";
+import { getUserProfile } from "@bookjeok/api-client";
+import { authKeys } from "@bookjeok/core";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
-
-import { authKeys } from "./query-keys";
 
 /**
  * 현재 로그인한 사용자의 프로필 정보 조회

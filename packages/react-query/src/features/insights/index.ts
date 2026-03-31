@@ -1,4 +1,4 @@
 "use client";
 
 export * from "./queries";
-export * from "./query-keys";
+export { insightsKeys } from "@bookjeok/core";

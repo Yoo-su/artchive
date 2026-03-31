@@ -7,4 +7,7 @@ export default defineConfig({
     "src/features/**/index.ts",
     "src/features/**/query-keys.ts",
   ],
+  banner: {
+    js: '"use client";',
+  },
 });

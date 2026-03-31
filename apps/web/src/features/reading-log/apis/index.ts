@@ -5,8 +5,8 @@
  * 모든 API 호출은 인증된 사용자(privateAxios)를 통해 수행됩니다.
  */
 
-import { createReadingLog as sharedCreateReadingLog, deleteReadingLog as sharedDeleteReadingLog, getReadingLogs as sharedGetReadingLogs, getReadingLogSettings as sharedGetReadingLogSettings, getReadingLogsInfinite as sharedGetReadingLogsInfinite, getReadingLogStats as sharedGetReadingLogStats, updateReadingLog as sharedUpdateReadingLog, updateReadingLogSettings as sharedUpdateReadingLogSettings } from "@bookjeok/api-client/reading-log";
-import { CreateReadingLogParams, ReadingLog, ReadingLogListResponse, ReadingLogStats, UpdateReadingLogParams } from "@bookjeok/core/reading-log";
+import { createReadingLog as sharedCreateReadingLog, deleteReadingLog as sharedDeleteReadingLog, getReadingLogs as sharedGetReadingLogs, getReadingLogSettings as sharedGetReadingLogSettings, getReadingLogsInfinite as sharedGetReadingLogsInfinite, getReadingLogStats as sharedGetReadingLogStats, updateReadingLog as sharedUpdateReadingLog, updateReadingLogSettings as sharedUpdateReadingLogSettings } from "@bookjeok/api-client";
+import { CreateReadingLogParams, ReadingLog, ReadingLogListResponse, ReadingLogStats, UpdateReadingLogParams } from "@bookjeok/core";
 
 import { privateAxios } from "@/shared/libs/axios";
 

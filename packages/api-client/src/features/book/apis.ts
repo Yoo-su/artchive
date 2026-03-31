@@ -1,5 +1,4 @@
-import { API_PATHS } from "@bookjeok/core";
-import { BaseBookInfo, DEFAULT_DISPLAY, DEFAULT_SORT, DEFAULT_START, GetBookDetailSuccessResponse, GetBookListParams, GetBookListSuccessResponse } from "@bookjeok/core/book";
+import { API_PATHS, BaseBookInfo, DEFAULT_DISPLAY, DEFAULT_SORT, DEFAULT_START, GetBookDetailSuccessResponse, GetBookListParams, GetBookListSuccessResponse } from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**
@@ -26,6 +25,29 @@ export const getBookList = async (
 };
 
 /**
+ * 네이버 책 검색결과를 직접 조회합니다. (Expo 등 외부 연동용)
+ */
+export const getExternalBookList = async (
+  client: AxiosInstance,
+  params: GetBookListParams,
+): Promise<GetBookListSuccessResponse> => {
+  const displayParam = (params.display ?? DEFAULT_DISPLAY).toString();
+  const startParam = (params.start ?? DEFAULT_START).toString();
+  const sortParam = params.sort ?? DEFAULT_SORT;
+
+  const { data } = await client.get(API_PATHS.book.externalList, {
+    params: {
+      query: params.query,
+      display: displayParam,
+      start: startParam,
+      sort: sortParam,
+    },
+  });
+
+  return data;
+};
+
+/**
  * 책 상세정보를 조회합니다.
  */
 export const getBookDetail = async (
@@ -33,6 +55,20 @@ export const getBookDetail = async (
   isbn: string,
 ): Promise<GetBookDetailSuccessResponse> => {
   const { data } = await client.get(API_PATHS.book.detail, {
+    params: { isbn },
+  });
+
+  return data;
+};
+
+/**
+ * 네이버 책 상세정보를 직접 조회합니다. (Expo 등 외부 연동용)
+ */
+export const getExternalBookDetail = async (
+  client: AxiosInstance,
+  isbn: string,
+): Promise<GetBookDetailSuccessResponse> => {
+  const { data } = await client.get(API_PATHS.book.externalDetail, {
     params: { isbn },
   });
 

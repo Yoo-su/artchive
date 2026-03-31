@@ -1,4 +1,4 @@
-import { readingLogKeys } from "@bookjeok/react-query/reading-log";
+import { readingLogKeys } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { addMonths, subMonths } from "date-fns";
 import { useEffect } from "react";

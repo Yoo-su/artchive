@@ -1,5 +1,4 @@
-import { Notification } from "@bookjeok/core/notification";
-import { notificationKeys } from "@bookjeok/react-query/notification";
+import { Notification, notificationKeys } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";

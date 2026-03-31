@@ -1,6 +1,6 @@
 "use client";
 
-import { ReviewFormValues } from "@bookjeok/core/review";
+import { ReviewFormValues } from "@bookjeok/core";
 import { useTranslations } from "next-intl";
 
 import { ReviewForm } from "@/features/review/components/review-form";

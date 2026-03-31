@@ -1,6 +1,6 @@
 "use client";
 
-import { ReviewFormValues } from "@bookjeok/core/review";
+import { ReviewFormValues } from "@bookjeok/core";
 import { AxiosError } from "axios";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";

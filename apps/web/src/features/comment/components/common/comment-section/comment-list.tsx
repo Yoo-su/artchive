@@ -1,6 +1,6 @@
 "use client";
 
-import { CommentTargetType } from "@bookjeok/core/comment";
+import { CommentTargetType } from "@bookjeok/core";
 import { useTranslations } from "next-intl";
 
 import { Skeleton } from "@/shared/components/shadcn/skeleton";

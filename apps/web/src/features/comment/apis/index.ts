@@ -1,5 +1,5 @@
-import { createComment as sharedCreateComment, deleteComment as sharedDeleteComment, getComments as sharedGetComments, getMyComments as sharedGetMyComments, getMyLikeStatus as sharedGetMyLikeStatus, toggleCommentLike as sharedToggleCommentLike, updateComment as sharedUpdateComment } from "@bookjeok/api-client/comment";
-import { Comment, CreateCommentParams, GetCommentsParams, GetCommentsResponse, GetMyCommentsResponse, UpdateCommentParams } from "@bookjeok/core/comment";
+import { createComment as sharedCreateComment, deleteComment as sharedDeleteComment, getComments as sharedGetComments, getMyComments as sharedGetMyComments, getMyLikeStatus as sharedGetMyLikeStatus, toggleCommentLike as sharedToggleCommentLike, updateComment as sharedUpdateComment } from "@bookjeok/api-client";
+import { Comment, CreateCommentParams, GetCommentsParams, GetCommentsResponse, GetMyCommentsResponse, UpdateCommentParams } from "@bookjeok/core";
 
 import { privateAxios } from "@/shared/libs/axios";
 

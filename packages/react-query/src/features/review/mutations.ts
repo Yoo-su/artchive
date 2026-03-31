@@ -1,11 +1,8 @@
 "use client";
-import { createReview, deleteReview, toggleReviewReaction, updateReview } from "@bookjeok/api-client/review";
-import { Review, ReviewFormValues, ReviewReactionType } from "@bookjeok/core/review";
+import { createReview, deleteReview, toggleReviewReaction, updateReview } from "@bookjeok/api-client";
+import { Review, ReviewFormValues, reviewKeys, reviewMutationKeys, ReviewReactionType } from "@bookjeok/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
-
-import { reviewMutationKeys } from "./mutation-keys";
-import { reviewKeys } from "./query-keys";
 
 /**
  * 리뷰 리액션을 토글하는 뮤테이션 훅입니다.

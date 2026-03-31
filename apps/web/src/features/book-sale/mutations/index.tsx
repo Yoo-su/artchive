@@ -1,5 +1,5 @@
-import { CreateBookSaleParams, UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core/book-sale";
-import { bookSaleKeys, useCreateBookSaleMutation as useSharedCreateBookSaleMutation, useDeleteBookSaleMutation as useSharedDeleteBookSaleMutation, useUpdateBookSaleMutation as useSharedUpdateBookSaleMutation, useUpdateBookSaleStatusMutation as useSharedUpdateBookSaleStatusMutation } from "@bookjeok/react-query/book-sale";
+import { bookSaleKeys, CreateBookSaleParams, UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core";
+import { useCreateBookSaleMutation as useSharedCreateBookSaleMutation, useDeleteBookSaleMutation as useSharedDeleteBookSaleMutation, useUpdateBookSaleMutation as useSharedUpdateBookSaleMutation, useUpdateBookSaleStatusMutation as useSharedUpdateBookSaleStatusMutation } from "@bookjeok/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";

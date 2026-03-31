@@ -1,6 +1,6 @@
 "use client";
 
-import { CommentTargetType, MAX_COMMENT_LENGTH } from "@bookjeok/core/comment";
+import { CommentTargetType, MAX_COMMENT_LENGTH } from "@bookjeok/core";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 

@@ -1,5 +1,6 @@
-import { GetArtListParams } from "@bookjeok/core/art";
 import { createQueryKeys } from "@lukemorales/query-key-factory";
+
+import { GetArtListParams } from "./types";
 
 export const artKeys = createQueryKeys("art", {
   list: (params: GetArtListParams) => ({

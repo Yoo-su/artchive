@@ -1,5 +1,4 @@
-import { API_PATHS } from "@bookjeok/core";
-import { GetNotificationsParams, NotificationResponse } from "@bookjeok/core/notification";
+import { API_PATHS, GetNotificationsParams, NotificationResponse } from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**

@@ -1,10 +1,8 @@
 "use client";
-import { addToWishlist, removeFromWishlist, updateProfile,withdraw } from "@bookjeok/api-client/user";
-import { PublicUserProfile, UpdateUserProfileParams, WishlistItem } from "@bookjeok/core/user";
+import { addToWishlist, removeFromWishlist, updateProfile,withdraw } from "@bookjeok/api-client";
+import { PublicUserProfile, UpdateUserProfileParams, userKeys, WishlistItem } from "@bookjeok/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
-
-import { userKeys } from "./query-keys";
 
 /**
  * 회원 탈퇴 뮤테이션

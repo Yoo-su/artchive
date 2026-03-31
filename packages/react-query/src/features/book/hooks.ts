@@ -1,5 +1,5 @@
 "use client";
-import { recordBookView } from "@bookjeok/api-client/book";
+import { recordBookView } from "@bookjeok/api-client";
 import { AxiosInstance } from "axios";
 import { useEffect, useRef } from "react";
 

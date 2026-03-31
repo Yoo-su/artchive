@@ -1,5 +1,4 @@
-import { ChatMessage } from "@bookjeok/core/chat";
-import { chatKeys } from "@bookjeok/react-query/chat";
+import { chatKeys, ChatMessage } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { SendHorizontal } from "lucide-react";
 import { FormEvent, useCallback, useState } from "react";

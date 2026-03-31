@@ -1,5 +1,4 @@
-import { API_PATHS } from "@bookjeok/core";
-import { PublicUserProfile, UserStats, WishlistItem } from "@bookjeok/core/user";
+import { API_PATHS, PublicUserProfile, UserStats, WishlistItem } from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**

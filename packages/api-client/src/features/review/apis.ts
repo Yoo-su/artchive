@@ -1,5 +1,4 @@
-import { API_PATHS } from "@bookjeok/core";
-import { GetReviewsParams, GetReviewsResponse, Review, ReviewFeed, ReviewFormValues, ReviewReactionType } from "@bookjeok/core/review";
+import { API_PATHS, GetReviewsParams, GetReviewsResponse, Review, ReviewFeed, ReviewFormValues, ReviewReactionType } from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**

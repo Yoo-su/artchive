@@ -1,5 +1,5 @@
-import type { Review } from "@bookjeok/core/review";
-import { ReviewReactionType } from "@bookjeok/core/review";
+import type { Review } from "@bookjeok/core";
+import { ReviewReactionType } from "@bookjeok/core";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { ReviewCard } from "./index";

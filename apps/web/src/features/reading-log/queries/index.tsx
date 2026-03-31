@@ -1,8 +1,8 @@
-import { useReadingLogSettingsQuery as useBaseReadingLogSettingsQuery, useReadingLogsInfiniteQuery as useBaseReadingLogsInfiniteQuery, useReadingLogsQuery as useBaseReadingLogsQuery, useReadingLogStatsQuery as useBaseReadingLogStatsQuery } from "@bookjeok/react-query/reading-log";
+import { useReadingLogSettingsQuery as useBaseReadingLogSettingsQuery, useReadingLogsInfiniteQuery as useBaseReadingLogsInfiniteQuery, useReadingLogsQuery as useBaseReadingLogsQuery, useReadingLogStatsQuery as useBaseReadingLogStatsQuery } from "@bookjeok/react-query";
 
 import { privateAxios } from "@/shared/libs/axios";
 
-export type { CreateReadingLogParams,ReadingLog } from "@bookjeok/core/reading-log";
+export type { CreateReadingLogParams,ReadingLog } from "@bookjeok/core";
 
 export const useReadingLogsQuery = (year: number, month: number, options?: { enabled?: boolean }) =>
   useBaseReadingLogsQuery(year, month, privateAxios, options);

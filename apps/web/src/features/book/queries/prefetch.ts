@@ -1,4 +1,4 @@
-import { bookKeys } from "@bookjeok/react-query/book/keys";
+import { bookKeys } from "@bookjeok/core";
 import { QueryClient } from "@tanstack/react-query";
 
 import { internalAxios } from "@/shared/libs/axios";

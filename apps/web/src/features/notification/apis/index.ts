@@ -1,5 +1,5 @@
-import { deleteNotification as sharedDeleteNotification, getNotifications as sharedGetNotifications, getUnreadNotificationCount as sharedGetUnreadNotificationCount, markAllNotificationsAsRead as sharedMarkAllNotificationsAsRead, markNotificationAsRead as sharedMarkNotificationAsRead } from "@bookjeok/api-client/notification";
-import { GetNotificationsParams, NotificationResponse } from "@bookjeok/core/notification";
+import { deleteNotification as sharedDeleteNotification, getNotifications as sharedGetNotifications, getUnreadNotificationCount as sharedGetUnreadNotificationCount, markAllNotificationsAsRead as sharedMarkAllNotificationsAsRead, markNotificationAsRead as sharedMarkNotificationAsRead } from "@bookjeok/api-client";
+import { GetNotificationsParams, NotificationResponse } from "@bookjeok/core";
 
 import { privateAxios } from "@/shared/libs/axios";
 

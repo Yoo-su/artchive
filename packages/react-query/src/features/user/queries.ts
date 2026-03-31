@@ -1,9 +1,8 @@
 "use client";
-import { checkWishlistStatus, getMyProfile,getMyWishlist, getPublicUserProfile, getUserStats, toggleWishlist } from "@bookjeok/api-client/user";
+import { checkWishlistStatus, getMyProfile,getMyWishlist, getPublicUserProfile, getUserStats, toggleWishlist } from "@bookjeok/api-client";
+import { userKeys } from "@bookjeok/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
-
-import { userKeys } from "./query-keys";
 
 /**
  * 특정 사용자의 공개 프로필 조회

@@ -1,4 +1,4 @@
-import { WishlistItem as WishlistItemType } from "@bookjeok/core/user";
+import { WishlistItem as WishlistItemType } from "@bookjeok/core";
 import { ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";

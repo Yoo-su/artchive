@@ -1,4 +1,4 @@
-import { useDeleteNotificationMutation as useSharedDeleteNotificationMutation, useMarkAllNotificationsAsReadMutation as useSharedMarkAllNotificationsAsReadMutation, useMarkNotificationAsReadMutation as useSharedMarkNotificationAsReadMutation } from "@bookjeok/react-query/notification";
+import { useDeleteNotificationMutation as useSharedDeleteNotificationMutation, useMarkAllNotificationsAsReadMutation as useSharedMarkAllNotificationsAsReadMutation, useMarkNotificationAsReadMutation as useSharedMarkNotificationAsReadMutation } from "@bookjeok/react-query";
 import { toast } from "sonner";
 
 import { privateAxios } from "@/shared/libs/axios";

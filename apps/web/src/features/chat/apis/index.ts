@@ -1,5 +1,5 @@
-import { findOrCreateRoom as sharedFindOrCreateRoom, getChatMessages as sharedGetChatMessages, getMyChatRooms as sharedGetMyChatRooms, leaveChatRoom as sharedLeaveChatRoom, markMessagesAsRead as sharedMarkMessagesAsRead } from "@bookjeok/api-client/chat";
-import { ChatRoom, GetChatMessagesResponse } from "@bookjeok/core/chat";
+import { findOrCreateRoom as sharedFindOrCreateRoom, getChatMessages as sharedGetChatMessages, getMyChatRooms as sharedGetMyChatRooms, leaveChatRoom as sharedLeaveChatRoom, markMessagesAsRead as sharedMarkMessagesAsRead } from "@bookjeok/api-client";
+import { ChatRoom, GetChatMessagesResponse } from "@bookjeok/core";
 
 import { privateAxios } from "@/shared/libs/axios";
 

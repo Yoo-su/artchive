@@ -1,4 +1,4 @@
-import { SaleStatus } from "@bookjeok/core/book-sale";
+import { SaleStatus } from "@bookjeok/core";
 import { useTranslations } from "next-intl";
 
 import { Badge } from "@/shared/components/shadcn/badge";

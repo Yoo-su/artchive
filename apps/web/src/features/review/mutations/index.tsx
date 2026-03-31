@@ -1,7 +1,7 @@
 "use client";
 
-import { ReviewFormValues } from "@bookjeok/core/review";
-import { useCreateReviewMutation as useSharedCreateReviewMutation, useDeleteReviewMutation as useSharedDeleteReviewMutation, useToggleReviewReactionMutation as useSharedToggleReviewReactionMutation, useUpdateReviewMutation as useSharedUpdateReviewMutation } from "@bookjeok/react-query/review";
+import { ReviewFormValues } from "@bookjeok/core";
+import { useCreateReviewMutation as useSharedCreateReviewMutation, useDeleteReviewMutation as useSharedDeleteReviewMutation, useToggleReviewReactionMutation as useSharedToggleReviewReactionMutation, useUpdateReviewMutation as useSharedUpdateReviewMutation } from "@bookjeok/react-query";
 import { toast } from "sonner";
 
 import { deleteImages } from "@/features/book-sale/actions/delete-action";

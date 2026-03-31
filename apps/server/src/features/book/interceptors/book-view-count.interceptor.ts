@@ -29,7 +29,11 @@ export class BookViewCountInterceptor extends BaseViewCountInterceptor {
    * ISBN은 params.isbn에서 가져옴
    */
   protected getResourceId(request: Request): string | undefined {
-    return request.params.isbn;
+    const isbn = request.params.isbn as string | string[] | undefined;
+    if (Array.isArray(isbn)) {
+      return isbn[0];
+    }
+    return isbn;
   }
 
   protected async incrementCount(isbn: number | string): Promise<void> {

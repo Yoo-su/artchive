@@ -8,13 +8,8 @@ import {
   getReadingLogStats,
   updateReadingLog,
   updateReadingLogSettings,
-} from "@bookjeok/api-client/reading-log";
-import { User } from "@bookjeok/core/auth";
-import {
-  CreateReadingLogParams,
-  ReadingLog,
-  UpdateReadingLogParams,
-} from "@bookjeok/core/reading-log";
+} from "@bookjeok/api-client";
+import { CreateReadingLogParams, ReadingLog, readingLogKeys, UpdateReadingLogParams, User, userKeys } from "@bookjeok/core";
 import {
   useInfiniteQuery,
   useMutation,
@@ -22,9 +17,6 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
-
-import { userKeys } from "../user/query-keys";
-import { readingLogKeys } from "./query-keys";
 
 /**
  * 월별 독서 기록 조회

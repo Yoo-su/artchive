@@ -1,4 +1,4 @@
-import { Notification } from "@bookjeok/core/notification";
+import { Notification } from "@bookjeok/core";
 import { formatDistanceToNow } from "date-fns";
 import { enUS, ko } from "date-fns/locale";
 import { Trash2 } from "lucide-react";

@@ -1,6 +1,6 @@
 "use client";
 
-import { NEOGULIP_TEXTS, RecommendedBook } from "@bookjeok/core/llm";
+import { NEOGULIP_TEXTS, RecommendedBook } from "@bookjeok/core";
 
 import { useRecommendStore } from "@/features/recommend/stores/recommend-store";
 import { NeogulipIcon } from "@/shared/components/icons/neogulip-icon";

@@ -1,11 +1,8 @@
 "use client";
-import { getMyReviewReaction, getPopularReviews, getRecommendedReviews, getReview, getReviewFeeds, getReviewForEdit, getReviews } from "@bookjeok/api-client/review";
-import { CACHE_TIME } from "@bookjeok/core";
-import { GetReviewsParams, GetReviewsResponse, Review } from "@bookjeok/core/review";
+import { getMyReviewReaction, getPopularReviews, getRecommendedReviews, getReview, getReviewFeeds, getReviewForEdit, getReviews } from "@bookjeok/api-client";
+import { CACHE_TIME, GetReviewsParams, GetReviewsResponse, Review,reviewKeys } from "@bookjeok/core";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
-
-import { reviewKeys } from "./query-keys";
 
 /**
  * 리뷰 목록 조회

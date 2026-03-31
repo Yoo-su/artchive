@@ -1,5 +1,5 @@
 
-import { BookInfo, RECENT_BOOKS_KEY } from "@bookjeok/core/book";
+import { BookInfo, RECENT_BOOKS_KEY } from "@bookjeok/core";
 import { create } from 'zustand';
 import { createJSONStorage,persist } from 'zustand/middleware';
 

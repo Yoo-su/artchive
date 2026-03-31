@@ -1,7 +1,6 @@
 "use client";
 
-import { Review } from "@bookjeok/core/review";
-import { reviewKeys } from "@bookjeok/react-query/review";
+import { Review, reviewKeys } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 

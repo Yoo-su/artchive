@@ -1,6 +1,6 @@
 "use client";
 
-import { ReadingLog } from "@bookjeok/core/reading-log";
+import { ReadingLog } from "@bookjeok/core";
 import { format } from "date-fns";
 import Image from "next/image";
 

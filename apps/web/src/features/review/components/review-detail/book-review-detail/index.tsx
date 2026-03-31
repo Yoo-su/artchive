@@ -1,5 +1,4 @@
-import { CommentTargetType } from "@bookjeok/core/comment";
-import { Review } from "@bookjeok/core/review";
+import { CommentTargetType ,  Review } from "@bookjeok/core";
 import { Edit } from "lucide-react";
 import { useTranslations } from "next-intl";
 

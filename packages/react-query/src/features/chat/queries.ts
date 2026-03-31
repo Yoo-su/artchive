@@ -1,11 +1,8 @@
 "use client";
-import { getChatMessages, getMyChatRooms } from "@bookjeok/api-client/chat";
-import { CACHE_TIME } from "@bookjeok/core";
-import { ChatRoom } from "@bookjeok/core/chat";
+import { getChatMessages, getMyChatRooms } from "@bookjeok/api-client";
+import { CACHE_TIME, chatKeys, ChatRoom } from "@bookjeok/core";
 import { useInfiniteQuery, useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
-
-import { chatKeys } from "./query-keys";
 
 /**
  * 내 채팅방 목록 조회

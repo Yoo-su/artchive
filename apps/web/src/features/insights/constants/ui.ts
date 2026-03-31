@@ -1,4 +1,4 @@
-import { ReviewReactionType } from "@bookjeok/core/review";
+import { ReviewReactionType } from "@bookjeok/core";
 // 색상 팔레트: Stone & Mono (Editorial Style)
 export const COLORS = {
   // 메인 (Stone/Gray)

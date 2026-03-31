@@ -1,4 +1,4 @@
-import { useAddToWishlistMutation as useSharedAddToWishlistMutation, useRemoveFromWishlistMutation as useSharedRemoveFromWishlistMutation, useUpdateUserMutation as useSharedUpdateUserMutation, useWithdrawMutation as useSharedWithdrawMutation } from "@bookjeok/react-query/user";
+import { useAddToWishlistMutation as useSharedAddToWishlistMutation, useRemoveFromWishlistMutation as useSharedRemoveFromWishlistMutation, useUpdateUserMutation as useSharedUpdateUserMutation, useWithdrawMutation as useSharedWithdrawMutation } from "@bookjeok/react-query";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";

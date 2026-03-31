@@ -1,6 +1,5 @@
-import * as apis from "@bookjeok/api-client/review";
-import { Review, ReviewReactionType } from "@bookjeok/core/review";
-import { reviewKeys } from "@bookjeok/react-query/review";
+import * as apis from "@bookjeok/api-client";
+import { Review, reviewKeys,ReviewReactionType } from "@bookjeok/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import React from "react";
@@ -8,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useToggleReviewReactionMutation } from "@/features/review/mutations";
 
-vi.mock("@bookjeok/api-client/review", () => ({
+vi.mock("@bookjeok/api-client", () => ({
   toggleReviewReaction: vi.fn(),
 }));
 

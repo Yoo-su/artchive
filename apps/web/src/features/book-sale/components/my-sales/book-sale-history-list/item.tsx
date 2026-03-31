@@ -1,4 +1,4 @@
-import { SaleStatus, UsedBookSale } from "@bookjeok/core/book-sale";
+import { SaleStatus, UsedBookSale } from "@bookjeok/core";
 import { Edit, MoreVertical, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";

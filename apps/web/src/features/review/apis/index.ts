@@ -1,5 +1,5 @@
-import { createReview as sharedCreateReview, deleteReview as sharedDeleteReview, getMyReviewReaction as sharedGetMyReviewReaction, getPopularReviews as sharedGetPopularReviews, getRecommendedReviews as sharedGetRecommendedReviews, getReview as sharedGetReview, getReviewFeeds as sharedGetReviewFeeds, getReviewForEdit as sharedGetReviewForEdit, getReviews as sharedGetReviews, toggleReviewReaction as sharedToggleReviewReaction, updateReview as sharedUpdateReview } from "@bookjeok/api-client/review";
-import { GetReviewsParams, GetReviewsResponse, Review, ReviewFeed, ReviewFormValues, ReviewReactionType } from "@bookjeok/core/review";
+import { createReview as sharedCreateReview, deleteReview as sharedDeleteReview, getMyReviewReaction as sharedGetMyReviewReaction, getPopularReviews as sharedGetPopularReviews, getRecommendedReviews as sharedGetRecommendedReviews, getReview as sharedGetReview, getReviewFeeds as sharedGetReviewFeeds, getReviewForEdit as sharedGetReviewForEdit, getReviews as sharedGetReviews, toggleReviewReaction as sharedToggleReviewReaction, updateReview as sharedUpdateReview } from "@bookjeok/api-client";
+import { GetReviewsParams, GetReviewsResponse, Review, ReviewFeed, ReviewFormValues, ReviewReactionType } from "@bookjeok/core";
 
 import { privateAxios, publicAxios } from "@/shared/libs/axios";
 

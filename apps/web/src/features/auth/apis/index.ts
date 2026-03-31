@@ -1,5 +1,5 @@
-import { emailLogin as sharedEmailLogin, emailSignup as sharedEmailSignup, getUserProfile as sharedGetUserProfile } from "@bookjeok/api-client/auth";
-import { EmailLoginParams, EmailSignupParams } from "@bookjeok/core/auth";
+import { emailLogin as sharedEmailLogin, emailSignup as sharedEmailSignup, getUserProfile as sharedGetUserProfile } from "@bookjeok/api-client";
+import { EmailLoginParams, EmailSignupParams } from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**

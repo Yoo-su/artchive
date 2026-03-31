@@ -1,5 +1,4 @@
-import { API_PATHS } from "@bookjeok/core";
-import { ChatRoom, GetChatMessagesResponse } from "@bookjeok/core/chat";
+import { API_PATHS, ChatRoom, GetChatMessagesResponse } from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**

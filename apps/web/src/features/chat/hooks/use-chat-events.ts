@@ -1,7 +1,6 @@
 "use client";
 
-import { ChatMessage, ChatRoom } from "@bookjeok/core/chat";
-import { chatKeys } from "@bookjeok/react-query/chat";
+import { chatKeys, ChatMessage, ChatRoom } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 

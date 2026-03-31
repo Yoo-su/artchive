@@ -1,9 +1,7 @@
-import { getArtDetail, getArtList } from "@bookjeok/api-client/art";
-import { ArtItem, Genre, GetArtListParams } from "@bookjeok/core/art";
+import { getArtDetail, getArtList, getExternalArtDetail, getExternalArtList } from "@bookjeok/api-client";
+import { ArtItem, artKeys, Genre, GetArtListParams } from "@bookjeok/core";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
-
-import { artKeys } from "./query-keys";
 
 /**
  * 공연/예술 목록 조회
@@ -29,6 +27,36 @@ export const useArtDetailQuery = (artId: string, client: AxiosInstance) => {
     queryKey: artKeys.detail(artId).queryKey,
     queryFn: async () => {
       const result = await getArtDetail(client, artId);
+      return result || null;
+    },
+    enabled: !!artId,
+  });
+};
+
+/**
+ * 외부 공공 API를 통한 공연/예술 목록 조회 (Expo 등)
+ */
+export const useExternalArtListQuery = (
+  params: GetArtListParams,
+  client: AxiosInstance,
+) => {
+  return useQuery({
+    queryKey: [...artKeys.list(params).queryKey, "external"],
+    queryFn: async () => {
+      const result = await getExternalArtList(client, params);
+      return Array.isArray(result) ? result : ([] as ArtItem[]);
+    },
+  });
+};
+
+/**
+ * 외부 공공 API를 통한 공연/예술 상세 조회 (Expo 등)
+ */
+export const useExternalArtDetailQuery = (artId: string, client: AxiosInstance) => {
+  return useQuery({
+    queryKey: [...artKeys.detail(artId).queryKey, "external"],
+    queryFn: async () => {
+      const result = await getExternalArtDetail(client, artId);
       return result || null;
     },
     enabled: !!artId,

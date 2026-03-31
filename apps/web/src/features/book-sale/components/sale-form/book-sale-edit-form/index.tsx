@@ -1,4 +1,4 @@
-import { UsedBookSale } from "@bookjeok/core/book-sale";
+import { UsedBookSale } from "@bookjeok/core";
 import { Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";

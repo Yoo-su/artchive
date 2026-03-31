@@ -1,4 +1,4 @@
-import { User } from "@bookjeok/core/auth";
+import { User } from "@bookjeok/core";
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 

@@ -1,7 +1,6 @@
 "use client";
 
-import { BookInfo } from "@bookjeok/core/book";
-import { Review } from "@bookjeok/core/review";
+import { BookInfo ,  Review } from "@bookjeok/core";
 import { format } from "date-fns";
 import { BookOpen, Calendar, Eye, Share2 } from "lucide-react";
 import Image from "next/image";

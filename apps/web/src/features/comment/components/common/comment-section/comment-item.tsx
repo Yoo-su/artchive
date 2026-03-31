@@ -1,6 +1,6 @@
 "use client";
 
-import { Comment, CommentTargetType, MAX_COMMENT_LENGTH } from "@bookjeok/core/comment";
+import { Comment, CommentTargetType, MAX_COMMENT_LENGTH } from "@bookjeok/core";
 import { formatDistanceToNow } from "date-fns";
 import { enUS, ko } from "date-fns/locale";
 import { Heart, Loader2, MoreVertical, Pencil, Trash2 } from "lucide-react";
