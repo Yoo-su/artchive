@@ -1,6 +1,6 @@
 "use client";
 import { getComments, getMyComments } from "@bookjeok/api-client";
-import { commentKeys, CACHE_TIME, CommentTargetType } from "@bookjeok/core";
+import { CACHE_TIME, commentKeys, CommentTargetType } from "@bookjeok/core";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
 

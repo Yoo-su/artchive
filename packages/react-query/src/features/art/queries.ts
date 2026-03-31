@@ -1,5 +1,5 @@
 import { getArtDetail, getArtList, getExternalArtDetail, getExternalArtList } from "@bookjeok/api-client";
-import { artKeys, ArtItem, Genre, GetArtListParams } from "@bookjeok/core";
+import { ArtItem, artKeys, Genre, GetArtListParams } from "@bookjeok/core";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
 

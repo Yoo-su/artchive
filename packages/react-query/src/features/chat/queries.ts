@@ -1,6 +1,6 @@
 "use client";
 import { getChatMessages, getMyChatRooms } from "@bookjeok/api-client";
-import { chatKeys, CACHE_TIME, ChatRoom } from "@bookjeok/core";
+import { CACHE_TIME, chatKeys, ChatRoom } from "@bookjeok/core";
 import { useInfiniteQuery, useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
 

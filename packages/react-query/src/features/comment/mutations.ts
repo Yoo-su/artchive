@@ -1,6 +1,6 @@
 "use client";
 import { createComment, deleteComment, toggleCommentLike, updateComment } from "@bookjeok/api-client";
-import { commentKeys, Comment, CommentTargetType, CreateCommentParams, UpdateCommentParams } from "@bookjeok/core";
+import { Comment, commentKeys, CommentTargetType, CreateCommentParams, UpdateCommentParams } from "@bookjeok/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
 

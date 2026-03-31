@@ -24,7 +24,10 @@ export abstract class BaseViewCountInterceptor implements NestInterceptor {
    */
   protected getResourceId(request: Request): string | number | undefined {
     const id = request.params.id as string | string[] | undefined;
-    return Array.isArray(id) ? id[0] : id;
+    if (Array.isArray(id)) {
+      return id[0];
+    }
+    return id;
   }
 
   /**

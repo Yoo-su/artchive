@@ -9,7 +9,7 @@ import {
   updateReadingLog,
   updateReadingLogSettings,
 } from "@bookjeok/api-client";
-import { CreateReadingLogParams, readingLogKeys, ReadingLog, UpdateReadingLogParams, User, userKeys } from "@bookjeok/core";
+import { CreateReadingLogParams, ReadingLog, readingLogKeys, UpdateReadingLogParams, User, userKeys } from "@bookjeok/core";
 import {
   useInfiniteQuery,
   useMutation,

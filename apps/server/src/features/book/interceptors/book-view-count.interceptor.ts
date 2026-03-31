@@ -30,7 +30,10 @@ export class BookViewCountInterceptor extends BaseViewCountInterceptor {
    */
   protected getResourceId(request: Request): string | undefined {
     const isbn = request.params.isbn as string | string[] | undefined;
-    return Array.isArray(isbn) ? isbn[0] : isbn;
+    if (Array.isArray(isbn)) {
+      return isbn[0];
+    }
+    return isbn;
   }
 
   protected async incrementCount(isbn: number | string): Promise<void> {
