@@ -1,4 +1,4 @@
-# 🛠️ bookjeok Backend
+# 🛠️ @bookjeok/server (Backend)
 
 bookjeok의 백엔드 서버는 **NestJS 11**을 기반으로 구축되었으며, 안정적인 데이터 관리와 실시간 통신, 그리고 AI 기능을 제공합니다.
 소셜 로그인부터 중고 서적 거래, 실시간 채팅, 그리고 LLM 기반 도서 요약까지 다양한 기능을 지원합니다.
@@ -45,17 +45,14 @@ bookjeok의 백엔드 서버는 **NestJS 11**을 기반으로 구축되었으며
 ```bash
 src
 ├── app.module.ts       # 루트 모듈
-├── main.ts             # 애플리케이션 진입점
-├── features            # 기능별 도메인 모듈 (Co-location)
-│   ├── auth            # 인증
-│   ├── book            # 도서 & 판매
-│   ├── chat            # 채팅
-│   ├── llm             # AI
-│   └── ...
-└── shared              # 공용 모듈
-    ├── decorators      # 커스텀 데코레이터 (@CurrentUser 등)
-    ├── filters         # 전역 예외 필터
-    └── guards          # 인증 가드
+├── main.ts             # 애플리케이션 진입점 (Server Instance)
+├── features            # 도메인별 기능 모듈 (Controller - Service - Repository)
+│   ├── auth            # 인증 및 세션 관리
+│   ├── book            # 도서 정보 및 판매 게시물
+│   ├── chat            # 실시간 소통 인프라 (Socket.IO)
+│   ├── llm             # AI 도서 요약 엔진 (Google Gemini)
+│   └── insight         # 데이터 시각화 및 통계용 연산 로직
+└── shared              # 플랫폼 공용 필터, 가드, 데코레이터
 ```
 
 ## 시작하기 (Getting Started)
@@ -76,7 +73,7 @@ pnpm install
 
 ### 2. 환경 변수 설정 (.env)
 
-`bookjeok-back` 폴더 내에 `.env` 파일을 생성합니다.
+`apps/server` (또는 루트 `.env` 사용 시 경로 주의) 내에 `.env` 파일을 생성합니다.
 
 ```env
 # Database
@@ -104,10 +101,10 @@ GEMINI_API_KEY=...
 
 ```bash
 # 이미지 빌드
-docker build -t bookjeok-back .
+docker build -t bookjeok-server .
 
 # 컨테이너 실행
-docker run -p 8080:3000 --env-file .env bookjeok-back
+docker run -d -p 8080:8080 --env-file .env --name bookjeok-server bookjeok-server
 ```
 
 #### 로컬 실행 (Local)

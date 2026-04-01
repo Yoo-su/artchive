@@ -16,7 +16,9 @@
 
 ### API 호출 예시
 ```typescript
+// 반드시 루트(@bookjeok/api-client)를 통해 임포트하세요.
 import { getPopularBooks } from "@bookjeok/api-client";
+// 프로젝트별 Axios 인스턴스 (예: apps/web/src/shared/libs/axios.ts)
 import { publicAxios } from "./libs/axios";
 
 const data = await getPopularBooks(publicAxios);
@@ -32,9 +34,11 @@ handleApiError(error, {
 });
 ```
 
-## 🏗 아키텍처 가이드
-- 새로운 API 추가 시 반드시 `packages/api-client/src/features` 아래에 모듈화하여 추가하세요.
-- 비즈니스 로직(상태 관리 등)은 이 패키지에 포함시키지 말고 `@bookjeok/react-query`를 사용하세요.
+## 🏗️ 개발 가이드 (Development)
+
+1. **상대 경로 사용**: 패키지 내 다른 모듈 참조 시 반드시 **상대 경로**를 사용하세요. 배럴 파일(`index.ts`) 등을 통한 자기 참조는 순환 의존성을 유발합니다.
+2. **비즈니스 로직 금지**: 이 패키지는 순수 통신 엔진 역할만 수행합니다. React Hook이나 상태 관리가 필요한 로직은 `@bookjeok/react-query`에 작성하세요.
+3. **새 기능 추가**: `src/features/*` 하위에 모듈화하여 추가하고, `index.ts`에서 루트 익스포트 처리합니다.
 
 ## 📌 Exports 제외 Feature 안내
 

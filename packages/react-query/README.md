@@ -11,6 +11,7 @@ Tanstack Query(React Query)를 기반으로 한 북적 플랫폼 공용 데이�
 
 ### 변경된 방식 (명시적)
 - 훅 호출 시 첫 번째 인자로 필요한 `AxiosInstance`를 직접 전달합니다.
+- `import { usePopularBooksQuery } from "@bookjeok/react-query";`
 - `usePopularBooksQuery(publicAxios)`
 
 ## 🚀 사용법
@@ -25,22 +26,24 @@ import { publicAxios } from "@/shared/libs/axios";
 export const usePopularBooksQuery = () => useBaseQuery(publicAxios);
 ```
 
-### 2. Expo 앱에서의 사용
+### 2. 모바일 앱(native)에서의 사용
 ```typescript
-// apps/expo/hooks/useBook.ts
+// apps/native/src/features/book/hooks.ts
 import { usePopularBooksQuery } from "@bookjeok/react-query";
-import { mobileAuthAxios } from "../libs/axios";
+import { mobileAuthAxios } from "@/shared/libs/axios";
 
-const { data } = usePopularBooksQuery(mobileAuthAxios);
+export const { data } = usePopularBooksQuery(mobileAuthAxios);
 ```
 
 ## 📂 폴더 구조
 - `src/features/*`: 도메인별 쿼리 및 뮤테이션 훅.
 - `src/utils`: 쿼리 키 팩토리 등 유틸리티.
 
-## ⚠️ 주의사항
-- 훅 내부에 토스트(`toast.error`)나 라우터(`router.push`) 등 **웹 전용 UI 부수 효과를 직접 작성하지 마세요.**
-- 성공/실패 처리는 호출부에서 `onSuccess`, `onError` 콜백이나 래퍼 훅을 통해 처리해야 합니다.
+## 🏗️ 개발 가이드 (Development)
+
+1. **상대 경로 사용**: 패키지 내 다른 모듈 참조 시 반드시 **상대 경로**를 사용하세요. 상위 배럴 파일(`index.ts`) 등을 통한 자기 참조는 순환 의존성 및 런타임 `undefined` 에러를 유발합니다.
+2. **UI 부수 효과 금지**: 훅 내부에 토스트(`toast.error`)나 라우터(`router.push`) 등 플랫폼 전용 UI 로직을 작성하지 마세요. 반드시 호출부 콜백을 통해 처리해야 합니다.
+3. **새 기능 추가**: `src/features/*` 하위에 모듈화하여 추가하고, `index.ts`에서 루트 익스포트 처리합니다.
 
 ## 📌 Exports 제외 Feature 안내
 
