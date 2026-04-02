@@ -1,13 +1,29 @@
 "use client";
-import { getBookSaleDetail, getBookSales, getMyBookSales, getPopularBookSales, getRecentBookSales, getRelatedSales, getSaleForEdit } from "@bookjeok/api-client";
-import { bookSaleKeys, CACHE_TIME, CommonBookSaleResponse, SearchBookSalesParams, UsedBookSale, UseInfiniteRelatedSalesQueryProps } from "@bookjeok/core";
+import {
+  getBookSaleDetail,
+  getBookSales,
+  getMyBookSales,
+  getPopularBookSales,
+  getRecentBookSales,
+  getRelatedSales,
+  getSaleForEdit,
+} from "@bookjeok/api-client";
+import {
+  bookSaleKeys,
+  CACHE_TIME,
+  SearchBookSalesParams,
+  UseInfiniteRelatedSalesQueryProps,
+} from "@bookjeok/core";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
 
 /**
  * 판매글 검색 (무한 스크롤)
  */
-export const useInfiniteBookSalesQuery = (params: SearchBookSalesParams, client: AxiosInstance) => {
+export const useInfiniteBookSalesQuery = (
+  params: SearchBookSalesParams,
+  client: AxiosInstance,
+) => {
   return useInfiniteQuery({
     queryKey: bookSaleKeys.marketSales(params).queryKey,
     queryFn: ({ pageParam }) =>
@@ -34,7 +50,10 @@ export const useMyBookSalesQuery = (client: AxiosInstance) => {
 /**
  * 판매글 상세 조회
  */
-export const useBookSaleDetailQuery = (saleId: string, client: AxiosInstance) => {
+export const useBookSaleDetailQuery = (
+  saleId: string,
+  client: AxiosInstance,
+) => {
   return useQuery({
     queryKey: bookSaleKeys.saleDetail(saleId).queryKey,
     queryFn: () => getBookSaleDetail(client, saleId),
@@ -45,7 +64,10 @@ export const useBookSaleDetailQuery = (saleId: string, client: AxiosInstance) =>
 /**
  * 수정용 판매글 조회 (본인 글만 조회 가능)
  */
-export const useBookSaleForEditQuery = (saleId: string, client: AxiosInstance) => {
+export const useBookSaleForEditQuery = (
+  saleId: string,
+  client: AxiosInstance,
+) => {
   return useQuery({
     queryKey: bookSaleKeys.saleForEdit(saleId).queryKey,
     queryFn: () => getSaleForEdit(client, saleId),
@@ -69,7 +91,13 @@ export const useInfiniteRelatedSalesQuery = ({
     queryKey: bookSaleKeys.relatedSales({ isbn, city, district, limit })
       .queryKey,
     queryFn: ({ pageParam = 1 }) =>
-      getRelatedSales(client, { isbn, page: pageParam as number, limit, city, district }),
+      getRelatedSales(client, {
+        isbn,
+        page: pageParam as number,
+        limit,
+        city,
+        district,
+      }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.hasNextPage ? allPages.length + 1 : undefined;

@@ -79,6 +79,7 @@ src
 import { usePopularBooksQuery as useBaseQuery } from "@bookjeok/react-query";
 import { publicAxios } from "@/shared/libs/axios";
 
+// 공유 패키지 루트(@bookjeok/react-query)에서 직접 가져온 훅에 인스턴스를 주입하여 사용
 export const usePopularBooksQuery = () => useBaseQuery(publicAxios);
 ```
 이렇게 함으로써 컴포넌트 계층에서는 인스턴스 주입에 신경 쓰지 않고 깔끔하게 훅을 호출할 수 있습니다.
@@ -139,9 +140,8 @@ docker run -p 3000:3000 bookjeok-front
 - **TanStack Query**는 서버 데이터(캐싱, 동기화)를 전담하고, **Zustand**는 UI 상태(모달 열림 등)만 관리하여 복잡도를 낮췄습니다.
 
 ### 2. 보안 강화 (HttpOnly Cookie)
-
-- Access Token을 브라우저 JS가 접근할 수 없는 `HttpOnly` 쿠키에 저장하여 XSS 공격을 방지합니다.
+- Access Token을 브라우저 JS가 접근할 수 없는 `HttpOnly` 쿠키에 저장하여 XSS 공격으로부터 인증 정보를 보호합니다.
+- CSRF 토큰 검증과 병행하여 보안성을 높였습니다.
 
 ### 3. AI 취향 탐색기
-
-- 정형화된 검색이 아닌, AI와의 대화를 통해 내 취향에 맞는 책을 찾아주는 새로운 경험을 제공합니다. (RAG 패턴 활용)
+- 정형화된 검색이 아닌, AI와의 대화(Natural Language)를 통해 내 취향에 맞는 책을 찾아주는 RAG 패턴 기반 서비스입니다.

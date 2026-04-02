@@ -7,8 +7,7 @@ import { publicAxios } from "@/shared/libs/axios";
 import { getQueryClient } from "@/shared/libs/query-client";
 import BookSearchView from "@/views/book-search-view";
 
-// 5분마다 인기 검색어 갱신
-export const revalidate = 300;
+export const revalidate = 3600;
 
 export async function generateMetadata({
   params,

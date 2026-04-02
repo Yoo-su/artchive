@@ -11,8 +11,9 @@
 
 ### **Core**
 
-- **Monorepo**: [TurboRepo](https://turbo.build/) - 빌드 캐싱 및 병렬 실행
-- **Package Manager**: [pnpm](https://pnpm.io/)
+- **Monorepo**: [TurboRepo](https://turbo.build/) - 빌드 캐싱 및 병렬 실행 (의존성 관리 최적화)
+- **Package Manager**: [pnpm](https://pnpm.io/) (Workspace 기능을 활용한 효율적인 코드 공유)
+- **Refactoring Log**: [MONOREPO_REFACTORING_LOG.md](./MONOREPO_REFACTORING_LOG.md) - 최근 진행된 구조 개선 상세 기록
 
 ### **Frontend (`apps/web`)**
 
@@ -72,19 +73,23 @@
 ```bash
 bookjeok-monorepo/
 ├── apps/
-│   ├── web/                  # [Next.js 15] Web Frontend
+│   ├── web/                  # [Next.js 15] Web Frontend (@bookjeok/web)
 │   │   ├── src/app/          # App Router (Page, Layout, Loading)
 │   │   ├── src/features/     # 기능별 UI 및 웹 전용 래퍼 훅
 │   │   └── src/shared/       # 웹 전용 UI 컴포넌트 및 설정
 │   │
-│   └── server/               # [NestJS 11] Backend API
-│       ├── src/features/     # 도메인별 모듈 (Controller, Service, Entity)
-│       └── src/shared/       # 공통 필터, 가드, 인터셉터
+│   ├── server/               # [NestJS 11] Backend API (@bookjeok/server)
+│   │       ├── src/features/     # 도메인별 모듈 (Controller, Service, Entity)
+│   │       └── src/shared/       # 공통 필터, 가드, 인터셉터
+│   │
+│   └── native/               # [Expo/React Native] Mobile App (@bookjeok/native)
+│       ├── src/              # 공유 가능한 네이티브 코드
+│       └── app/              # Expo Router 기반 화면 구조
 │
 ├── packages/                 # 공용 비즈니스 로직 및 라이브러리 (Shared Brain)
-│   ├── core/                 # 공통 타입, 상수, 순수 유틸리티 (Platform Agnostic)
-│   ├── api-client/           # Axios 기반 API 요청 함수 및 에러 핸들링
-│   └── react-query/          # TanStack Query 기반 데이터 페칭 훅 (DI Pattern)
+│   ├── core/                 # 모든 플랫폼용 공통 타입, 상수, 유틸리티 (@bookjeok/core)
+│   ├── api-client/           # Axios 기반 데이터 호출 엔진 (@bookjeok/api-client)
+│   └── react-query/          # TanStack Query 공유 훅 및 캐싱 로직 (@bookjeok/react-query)
 │
 ├── package.json              # Workspace Root
 └── pnpm-workspace.yaml       # Workspace Configuration
@@ -129,8 +134,8 @@ docker build -f apps/server/Dockerfile -t bookjeok-server .
 docker build -f apps/web/Dockerfile -t bookjeok-web .
 
 # 컨테이너 실행
-docker run -p 3000:3000 bookjeok-front
-docker run -p 8080:3000 bookjeok-back
+docker run -d -p 3000:3000 --name bookjeok-web bookjeok-web
+docker run -d -p 8080:8080 --name bookjeok-server bookjeok-server
 ```
 
 ### Option 2: Run Locally (Development)

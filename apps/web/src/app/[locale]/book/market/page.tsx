@@ -2,14 +2,11 @@ import { bookSaleKeys } from "@bookjeok/core";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import {
-  getBookSales,
-  getPopularBookSales,
-} from "@/features/book-sale/apis";
+import { getBookSales, getPopularBookSales } from "@/features/book-sale/apis";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { BookMarketView } from "@/views/book-market-view";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export async function generateMetadata({
   params,

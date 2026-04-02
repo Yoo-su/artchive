@@ -1,4 +1,9 @@
-import { bookKeys, bookSaleKeys, HOME_PUBLISHERS, reviewKeys } from "@bookjeok/core";
+import {
+  bookKeys,
+  bookSaleKeys,
+  HOME_PUBLISHERS,
+  reviewKeys,
+} from "@bookjeok/core";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
@@ -10,7 +15,7 @@ import { publicAxios } from "@/shared/libs/axios";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { HomeView } from "@/views/home-view";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export async function generateMetadata({
   params,

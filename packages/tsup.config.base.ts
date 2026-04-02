@@ -13,7 +13,7 @@ export const baseConfig: Options = {
   clean: true,
   sourcemap: false,
   minify: true,
-  external: ["react", "react-dom", "@tanstack/react-query"],
+  external: ["react", "react-dom", "@tanstack/react-query", "axios", "zustand"],
 };
 
 export { defineConfig };
