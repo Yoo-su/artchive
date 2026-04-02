@@ -1,10 +1,11 @@
 import { bookKeys } from "@bookjeok/core";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { fetchBookDetail } from "@/features/book/apis/server";
 import { prefetchRelatedBooks } from "@/features/book/queries/prefetch";
+import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
+import { createPageMetadata } from "@/shared/config/metadata";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { BookDetailView } from "@/views/book-detail-view";
 
@@ -39,26 +40,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         (book.description.length > 160 ? "..." : "")
       : t("description");
 
-    return {
+    return createPageMetadata({
       title,
       description,
-      openGraph: {
-        title,
-        description,
-        images: book.image ? [book.image] : [],
-      },
-      twitter: {
-        card: "summary_large_image",
-        title,
-        description,
-        images: book.image ? [book.image] : [],
-      },
-    };
+      imageUrl: book.image || null,
+    });
   } catch {
-    return {
+    return createPageMetadata({
       title: t("title"),
       description: t("description"),
-    };
+    });
   }
 }
 
@@ -84,8 +75,8 @@ export default async function Page({ params }: Props) {
   }
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <ServerQueryBoundary queryClient={queryClient}>
       <BookDetailView isbn={isbn} />
-    </HydrationBoundary>
+    </ServerQueryBoundary>
   );
 }

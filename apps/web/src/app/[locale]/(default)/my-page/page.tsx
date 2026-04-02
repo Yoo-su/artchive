@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
+import { createPageMetadata } from "@/shared/config/metadata";
 import { MyPageView } from "@/views/my-page-view";
 
 export async function generateMetadata({
@@ -10,10 +11,10 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "my_page.metadata" });
 
-  return {
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-  };
+  });
 }
 
 export default function Page() {

@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { GuestGuard } from "@/features/auth/components/guards/guest-guard";
 import { DefaultLayout } from "@/layouts/default-layout";
+import { createPageMetadata } from "@/shared/config/metadata";
 import { SignupView } from "@/views/signup-view";
 
 export async function generateMetadata({
@@ -15,10 +16,10 @@ export async function generateMetadata({
     namespace: "auth.signup.metadata",
   });
 
-  return {
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-  };
+  });
 }
 
 export default function SignupPage() {

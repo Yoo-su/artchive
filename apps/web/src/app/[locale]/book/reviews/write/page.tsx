@@ -1,7 +1,7 @@
-import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
 import { AuthGuard } from "@/features/auth/components/guards/auth-guard";
+import { createPageMetadata } from "@/shared/config/metadata";
 import { ReviewWriteView } from "@/views/review-write-view";
 
 export async function generateMetadata({
@@ -15,10 +15,10 @@ export async function generateMetadata({
     namespace: "review.write.metadata",
   });
 
-  return {
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-  };
+  });
 }
 
 export default function Page() {

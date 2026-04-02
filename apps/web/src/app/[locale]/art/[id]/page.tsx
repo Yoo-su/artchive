@@ -1,11 +1,11 @@
 import { artKeys } from "@bookjeok/core";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 
 import { getArtDetail } from "@/features/art/apis";
 import { DefaultLayout } from "@/layouts/default-layout";
-import { getQueryClient } from "@/shared/libs/query-client";
+import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
+import { createPageMetadata } from "@/shared/config/metadata";
 import { ArtDetailView } from "@/views/art-detail-view";
 
 export async function generateMetadata({
@@ -16,10 +16,10 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "art.metadata" });
 
-  return {
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-  };
+  });
 }
 
 type Props = {
@@ -29,23 +29,18 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { locale, id } = await params;
   setRequestLocale(locale);
-  const queryClient = getQueryClient();
-
-  // 서버에서 공연/전시 상세 정보 prefetch
-  try {
-    await queryClient.prefetchQuery({
+  const queries = [
+    {
       queryKey: artKeys.detail(id).queryKey,
       queryFn: () => getArtDetail(id),
-    });
-  } catch (error) {
-    console.error("공연/전시 상세 정보 프리패치 중 오류 발생:", error);
-  }
+    },
+  ];
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <ServerQueryBoundary queries={queries}>
       <DefaultLayout>
         <ArtDetailView artId={id} />
       </DefaultLayout>
-    </HydrationBoundary>
+    </ServerQueryBoundary>
   );
 }
