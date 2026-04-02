@@ -8,9 +8,12 @@
     "dev:server": "turbo dev --filter=@bookjeok/server",
     "dev:all": "turbo dev",
     "build": "turbo build",
+    "build:web": "turbo build --filter=@bookjeok/web",
+    "build:native": "turbo build --filter=@bookjeok/native",
     "clean": "rm -rf .turbo apps/web/.next apps/web/.turbo apps/native/.turbo apps/server/dist packages/*/dist packages/*/.turbo",
     "build:clean": "pnpm clean && pnpm build",
     "start": "turbo start",
+    "start:web": "turbo start --filter=@bookjeok/web --filter=@bookjeok/server",
     "lint": "turbo lint",
     "test": "turbo test"
   },

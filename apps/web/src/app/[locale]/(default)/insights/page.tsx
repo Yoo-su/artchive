@@ -8,7 +8,7 @@ import { getQueryClient } from "@/shared/libs/query-client";
 import InsightsView from "@/views/insights-view";
 
 // 30분마다 데이터 재검증
-export const revalidate = 1800;
+export const revalidate = 21600;
 
 import { getTranslations } from "next-intl/server";
 

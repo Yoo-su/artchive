@@ -10,7 +10,7 @@ import { getQueryClient } from "@/shared/libs/query-client";
 import { ReviewDetailView } from "@/views/review-detail-view";
 
 // 리뷰 내용은 자주 변경되지 않으므로 5분 간격으로 재검증
-export const revalidate = 300;
+export const revalidate = 3600;
 
 interface Props {
   params: Promise<{ locale: string; id: string }>;
