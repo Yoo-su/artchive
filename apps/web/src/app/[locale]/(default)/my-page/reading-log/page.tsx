@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
+import { createPageMetadata } from "@/shared/config/metadata";
 import { ReadingLogView } from "@/views/reading-log-view";
 
 export async function generateMetadata({
@@ -13,10 +14,10 @@ export async function generateMetadata({
     namespace: "reading_log.hero.metadata",
   });
 
-  return {
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-  };
+  });
 }
 
 export default function ReadingLogPage() {

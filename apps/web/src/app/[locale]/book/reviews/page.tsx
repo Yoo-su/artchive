@@ -1,9 +1,9 @@
 import { reviewKeys } from "@bookjeok/core";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getPopularReviews, getReviewFeeds } from "@/features/review/apis";
-import { getQueryClient } from "@/shared/libs/query-client";
+import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
+import { createPageMetadata } from "@/shared/config/metadata";
 import { ReviewHomeView } from "@/views/review-home-view";
 
 export async function generateMetadata({
@@ -14,21 +14,10 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "review.metadata" });
 
-  return {
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-    openGraph: {
-      title: t("title") + " | 북적",
-      description: t("description"),
-      images: ["/logo-og-sketch.png"],
-    },
-    twitter: {
-      card: "summary",
-      title: t("title") + " | 북적",
-      description: t("description"),
-      images: ["/logo-og-sketch.png"],
-    },
-  };
+  });
 }
 
 export const revalidate = 3600;
@@ -41,28 +30,14 @@ export default async function Page({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const queryClient = getQueryClient();
-
-  // 인기 리뷰 및 피드 데이터 프리패치
-
-  try {
-    await Promise.all([
-      queryClient.prefetchQuery({
-        queryKey: reviewKeys.popular.queryKey,
-        queryFn: getPopularReviews,
-      }),
-      queryClient.prefetchQuery({
-        queryKey: reviewKeys.feeds().queryKey,
-        queryFn: getReviewFeeds,
-      }),
-    ]);
-  } catch (error) {
-    console.error("리뷰 홈 데이터 프리패치 중 오류 발생:", error);
-  }
+  const queries = [
+    { queryKey: reviewKeys.popular.queryKey, queryFn: getPopularReviews },
+    { queryKey: reviewKeys.feeds().queryKey, queryFn: getReviewFeeds },
+  ];
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <ServerQueryBoundary queries={queries}>
       <ReviewHomeView />
-    </HydrationBoundary>
+    </ServerQueryBoundary>
   );
 }

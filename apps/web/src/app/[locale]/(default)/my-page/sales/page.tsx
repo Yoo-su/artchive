@@ -1,6 +1,6 @@
-import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
+import { createPageMetadata } from "@/shared/config/metadata";
 import { BookSaleHistoryView } from "@/views/book-sale-history-view";
 
 export async function generateMetadata({
@@ -14,10 +14,10 @@ export async function generateMetadata({
     namespace: "my_page.menu.sales.metadata",
   });
 
-  return {
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-  };
+  });
 }
 
 export default function Page() {

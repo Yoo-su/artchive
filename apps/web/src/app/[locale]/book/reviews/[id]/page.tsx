@@ -1,11 +1,12 @@
 import { reviewKeys } from "@bookjeok/core";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { cache } from "react";
 
 import { getReview } from "@/features/review/apis";
 import { ReviewJsonLd } from "@/features/review/components/common/review-json-ld";
+import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
+import { createPageMetadata } from "@/shared/config/metadata";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { ReviewDetailView } from "@/views/review-detail-view";
 
@@ -49,20 +50,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = `${review.book.title} - ${review.book.author}`;
   const images = review.book.image ? [review.book.image] : [];
 
-  return {
+  const baseMeta = createPageMetadata({
     title,
     description,
+    imageUrl: images[0],
+  });
+
+  return {
+    ...baseMeta,
     openGraph: {
-      title,
-      description,
-      images,
+      ...baseMeta.openGraph,
       type: "article",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images,
     },
     alternates: {
       canonical: `https://bookjeok.com/book/reviews/${reviewId}`,
@@ -86,9 +84,9 @@ export default async function Page({ params }: Props) {
   }
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <ServerQueryBoundary queryClient={queryClient}>
       {review && <ReviewJsonLd review={review} />}
       <ReviewDetailView initialReview={review} />
-    </HydrationBoundary>
+    </ServerQueryBoundary>
   );
 }

@@ -1,5 +1,4 @@
 import { bookSaleKeys } from "@bookjeok/core";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
@@ -7,6 +6,8 @@ import { cache } from "react";
 
 import { getBookSaleDetail } from "@/features/book-sale/apis";
 import { BookSaleJsonLd } from "@/features/book-sale/components/common/book-sale-json-ld";
+import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
+import { createPageMetadata } from "@/shared/config/metadata";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { BookSaleDetailView } from "@/views/book-sale-detail-view";
 
@@ -46,30 +47,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           ? [sale.book.image]
           : [];
 
-    return {
+    const baseMeta = createPageMetadata({
       title,
       description,
+      imageUrl: images[0],
+    });
+
+    return {
+      ...baseMeta,
       openGraph: {
-        title,
-        description,
-        images,
+        ...baseMeta.openGraph,
         type: "article",
-      },
-      twitter: {
-        card: "summary_large_image",
-        title,
-        description,
-        images,
       },
       alternates: {
         canonical: `https://bookjeok.com/book/sales/${id}`,
       },
     };
   } catch {
-    return {
-      title: t("book_info.title"), // Fallback if API fails
+    return createPageMetadata({
+      title: t("book_info.title"),
       description: t("not_found"),
-    };
+    });
   }
 }
 
@@ -93,9 +91,9 @@ export default async function Page({ params }: Props) {
   }
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <ServerQueryBoundary queryClient={queryClient}>
       {sale && <BookSaleJsonLd sale={sale} />}
       <BookSaleDetailView saleId={id} />
-    </HydrationBoundary>
+    </ServerQueryBoundary>
   );
 }

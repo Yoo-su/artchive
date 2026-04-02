@@ -1,10 +1,10 @@
 import { bookKeys } from "@bookjeok/core";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getPopularKeywords } from "@/features/book/apis";
+import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
+import { createPageMetadata } from "@/shared/config/metadata";
 import { publicAxios } from "@/shared/libs/axios";
-import { getQueryClient } from "@/shared/libs/query-client";
 import BookSearchView from "@/views/book-search-view";
 
 export const revalidate = 3600;
@@ -20,21 +20,10 @@ export async function generateMetadata({
     namespace: "book.search.metadata",
   });
 
-  return {
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-    openGraph: {
-      title: t("title"),
-      description: t("description"),
-      images: ["/logo-og-sketch.png"],
-    },
-    twitter: {
-      card: "summary",
-      title: t("title"),
-      description: t("description"),
-      images: ["/logo-og-sketch.png"],
-    },
-  };
+  });
 }
 
 export default async function Page({
@@ -45,21 +34,17 @@ export default async function Page({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const queryClient = getQueryClient();
-
   // 인기 검색어 프리패치 (5분 캐싱)
-  try {
-    await queryClient.prefetchQuery({
+  const queries = [
+    {
       queryKey: bookKeys.popularKeywords.queryKey,
       queryFn: () => getPopularKeywords(publicAxios),
-    });
-  } catch (error) {
-    console.error("인기 검색어 프리패치 중 오류 발생:", error);
-  }
+    },
+  ];
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <ServerQueryBoundary queries={queries}>
       <BookSearchView />
-    </HydrationBoundary>
+    </ServerQueryBoundary>
   );
 }

@@ -1,9 +1,9 @@
 import { bookSaleKeys } from "@bookjeok/core";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getBookSales, getPopularBookSales } from "@/features/book-sale/apis";
-import { getQueryClient } from "@/shared/libs/query-client";
+import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
+import { createPageMetadata } from "@/shared/config/metadata";
 import { BookMarketView } from "@/views/book-market-view";
 
 export const revalidate = 3600;
@@ -19,21 +19,10 @@ export async function generateMetadata({
     namespace: "market.hero.metadata",
   });
 
-  return {
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-    openGraph: {
-      title: t("title") + " | 북적",
-      description: t("description"),
-      images: ["/logo-og-sketch.png"],
-    },
-    twitter: {
-      card: "summary",
-      title: t("title") + " | 북적",
-      description: t("description"),
-      images: ["/logo-og-sketch.png"],
-    },
-  };
+  });
 }
 
 export default async function Page({
@@ -44,32 +33,26 @@ export default async function Page({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const queryClient = getQueryClient();
-
-  // 인기 판매글 및 판매 목록 프리패치
-  try {
-    await Promise.all([
-      queryClient.prefetchQuery({
-        queryKey: bookSaleKeys.popularSales.queryKey,
-        queryFn: getPopularBookSales,
-      }),
-      queryClient.prefetchInfiniteQuery({
-        queryKey: bookSaleKeys.marketSales({}).queryKey,
-        queryFn: ({ pageParam }) =>
-          getBookSales({
-            page: 1,
-            cursor: pageParam as string | undefined,
-          }),
-        initialPageParam: undefined,
-      }),
-    ]);
-  } catch (error) {
-    console.error("중고마켓 홈 데이터 프리패치 중 오류 발생:", error);
-  }
+  const queries = [
+    {
+      queryKey: bookSaleKeys.popularSales.queryKey,
+      queryFn: getPopularBookSales,
+    },
+    {
+      type: "infinite" as const,
+      queryKey: bookSaleKeys.marketSales({}).queryKey,
+      queryFn: ({ pageParam }: any) =>
+        getBookSales({
+          page: 1,
+          cursor: pageParam as string | undefined,
+        }),
+      initialPageParam: undefined,
+    },
+  ];
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <ServerQueryBoundary queries={queries}>
       <BookMarketView />
-    </HydrationBoundary>
+    </ServerQueryBoundary>
   );
 }

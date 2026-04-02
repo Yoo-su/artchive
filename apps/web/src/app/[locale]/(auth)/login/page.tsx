@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { GuestGuard } from "@/features/auth/components/guards/guest-guard";
 import { DefaultLayout } from "@/layouts/default-layout";
+import { createPageMetadata } from "@/shared/config/metadata";
 import { LoginView } from "@/views/login-view";
 
 export async function generateMetadata({
@@ -12,10 +13,10 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "auth.login.metadata" });
 
-  return {
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-  };
+  });
 }
 
 export default function Page() {

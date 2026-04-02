@@ -71,3 +71,33 @@ export const generateGlobalMetadata = (
     },
   };
 };
+
+type CreatePageMetadataProps = {
+  title: string;
+  description: string;
+  imageUrl?: string | null;
+};
+
+export const createPageMetadata = ({
+  title,
+  description,
+  imageUrl,
+}: CreatePageMetadataProps): Metadata => {
+  const images = imageUrl ? [imageUrl] : ["/logo-og-sketch.png"];
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: `${title} | 북적`,
+      description,
+      images,
+    },
+    twitter: {
+      card: imageUrl ? "summary_large_image" : "summary",
+      title: `${title} | 북적`,
+      description,
+      images,
+    },
+  };
+};
