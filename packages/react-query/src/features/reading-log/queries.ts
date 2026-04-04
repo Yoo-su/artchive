@@ -149,8 +149,8 @@ export const useCreateReadingLogMutation = (
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: CreateReadingLogParams) =>
-      createReadingLog(client, payload),
+    mutationFn: ({ idempotencyKey, ...payload }: CreateReadingLogParams & { idempotencyKey?: string }) =>
+      createReadingLog(client, payload as CreateReadingLogParams, { idempotencyKey }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: readingLogKeys._def });
       options?.onSuccess?.(data);

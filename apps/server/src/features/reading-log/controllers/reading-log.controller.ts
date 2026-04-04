@@ -10,6 +10,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
@@ -22,6 +23,7 @@ import {
 } from '@nestjs/swagger';
 
 import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
+import { IdempotencyInterceptor } from '@/shared/interceptors/idempotency.interceptor';
 
 import { CreateReadingLogDto } from '../dto/create-reading-log.dto';
 import { UpdateReadingLogDto } from '../dto/update-reading-log.dto';
@@ -36,6 +38,7 @@ export class ReadingLogController {
   constructor(private readonly readingLogService: ReadingLogService) {}
 
   @Post()
+  @UseInterceptors(IdempotencyInterceptor)
   @ApiOperation({
     summary: '독서 기록 생성',
     description: '새로운 독서 기록을 생성합니다.',

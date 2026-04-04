@@ -26,6 +26,7 @@ async function bootstrap() {
       'Content-Type',
       'Accept',
       'Authorization',
+      'x-idempotency-key',
     ],
   });
 

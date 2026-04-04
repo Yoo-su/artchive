@@ -21,8 +21,10 @@ export const getComments = async (
 export const createComment = async (
   client: AxiosInstance,
   params: CreateCommentParams,
+  options?: { idempotencyKey?: string },
 ): Promise<Comment> => {
-  const { data } = await client.post<Comment>(API_PATHS.comment.base, params);
+  const config = options?.idempotencyKey ? { headers: { 'x-idempotency-key': options.idempotencyKey } } : undefined;
+  const { data } = await client.post<Comment>(API_PATHS.comment.base, params, config);
   return data;
 };
 

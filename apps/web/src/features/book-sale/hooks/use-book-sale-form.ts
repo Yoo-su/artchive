@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { useImageUpload } from "@/shared/hooks/use-image-upload";
+import { useSafeSubmit } from "@/shared/hooks/use-safe-submit";
 
 import {
   createSellFormSchema,
@@ -14,7 +15,9 @@ import { useCreateBookSaleMutation } from "../mutations";
 
 export const useBookSaleForm = () => {
   const t = useTranslations("market.validation");
-  const { mutate, isPending, isSuccess } = useCreateBookSaleMutation();
+
+  const { mutateAsync, isPending, isSuccess } = useCreateBookSaleMutation();
+  const { executeSafeSubmit } = useSafeSubmit();
 
   const isSubmitDisabled = isPending || isSuccess;
 
@@ -65,7 +68,9 @@ export const useBookSaleForm = () => {
       isbn: data.book.isbn,
     };
 
-    mutate({ imageFiles, payload });
+    executeSafeSubmit(async (idempotencyKey) => {
+      await mutateAsync({ imageFiles, payload, idempotencyKey });
+    });
   };
 
   return {

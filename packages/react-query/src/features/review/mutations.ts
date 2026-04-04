@@ -94,7 +94,8 @@ export const useToggleReviewReactionMutation = (reviewId: number, client: AxiosI
 export const useCreateReviewMutation = (client: AxiosInstance, options?: { onSuccess?: () => void }) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: ReviewFormValues) => createReview(client, data),
+    mutationFn: ({ idempotencyKey, ...data }: ReviewFormValues & { idempotencyKey?: string }) =>
+      createReview(client, data as ReviewFormValues, { idempotencyKey }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: reviewKeys.list._def,

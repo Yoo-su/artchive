@@ -23,6 +23,7 @@ import { Review } from '@/features/review/entities/review.entity';
 import { ReviewReactionType } from '@/features/review/entities/review-reaction.entity';
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { User } from '@/features/user/entities/user.entity';
+import { IdempotencyInterceptor } from '@/shared/interceptors/idempotency.interceptor';
 
 import { CreateReviewDto } from '../dto/create-review.dto';
 import { GetReviewsQueryDto } from '../dto/get-reviews-query.dto';
@@ -42,6 +43,7 @@ export class ReviewController {
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(IdempotencyInterceptor)
   @ApiOperation({
     summary: '리뷰 작성',
     description: '새로운 리뷰를 작성합니다.',

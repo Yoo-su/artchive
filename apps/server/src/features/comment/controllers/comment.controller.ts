@@ -11,6 +11,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -19,6 +20,7 @@ import { Notify } from '@/features/notification/decorators/notification.decorato
 import { NotificationType } from '@/features/notification/entities/notification.entity';
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { User } from '@/features/user/entities/user.entity';
+import { IdempotencyInterceptor } from '@/shared/interceptors/idempotency.interceptor';
 
 import { CreateCommentDto } from '../dto/create-comment.dto';
 import { GetCommentsDto } from '../dto/get-comments.dto';
@@ -79,6 +81,7 @@ export class CommentController {
    */
   @Post()
   @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(IdempotencyInterceptor)
   @ApiOperation({
     summary: '댓글 작성',
     description: '새로운 댓글을 작성합니다.',

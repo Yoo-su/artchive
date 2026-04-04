@@ -16,8 +16,8 @@ export const useCreateCommentMutation = (
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (content: string) =>
-      createComment(client, { content, targetType, targetId }),
+    mutationFn: ({ content, idempotencyKey }: { content: string, idempotencyKey?: string }) =>
+      createComment(client, { content, targetType, targetId }, { idempotencyKey }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: commentKeys.list(targetType, targetId, 1).queryKey,

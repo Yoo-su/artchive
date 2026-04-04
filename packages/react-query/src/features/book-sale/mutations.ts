@@ -8,7 +8,8 @@ import { AxiosInstance } from "axios";
  */
 export const useCreateBookSaleMutation = (client: AxiosInstance, options?: { onSuccess?: (data: UsedBookSale) => void; onError?: (error: Error) => void }) => {
   return useMutation({
-    mutationFn: (params: CreateBookSaleParams) => createBookSale(client, params),
+    mutationFn: ({ idempotencyKey, ...params }: CreateBookSaleParams & { idempotencyKey?: string }) => 
+      createBookSale(client, params as CreateBookSaleParams, { idempotencyKey }),
     ...options,
   });
 };

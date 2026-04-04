@@ -17,6 +17,7 @@ import { uploadSaleImages } from "../services/image-upload-service";
 interface CreateSaleVariables {
   imageFiles: File[];
   payload: Omit<CreateBookSaleParams, "imageUrls">;
+  idempotencyKey?: string;
 }
 
 /**
@@ -39,7 +40,7 @@ export const useCreateBookSaleMutation = () => {
 
   return {
     ...sharedMutation,
-    mutate: async ({ imageFiles, payload }: CreateSaleVariables) => {
+    mutate: async ({ imageFiles, payload, idempotencyKey }: CreateSaleVariables) => {
       if (!authUser) throw new Error("인증 정보가 없습니다.");
       const imageUrls = await uploadSaleImages(
         imageFiles,
@@ -48,9 +49,9 @@ export const useCreateBookSaleMutation = () => {
       );
 
       const finalPayload = { ...payload, imageUrls };
-      return sharedMutation.mutate(finalPayload);
+      return sharedMutation.mutate({ ...finalPayload, idempotencyKey } as CreateBookSaleParams & { idempotencyKey?: string });
     },
-    mutateAsync: async ({ imageFiles, payload }: CreateSaleVariables) => {
+    mutateAsync: async ({ imageFiles, payload, idempotencyKey }: CreateSaleVariables) => {
       if (!authUser) throw new Error("인증 정보가 없습니다.");
       const imageUrls = await uploadSaleImages(
         imageFiles,
@@ -59,7 +60,7 @@ export const useCreateBookSaleMutation = () => {
       );
 
       const finalPayload = { ...payload, imageUrls };
-      return sharedMutation.mutateAsync(finalPayload);
+      return sharedMutation.mutateAsync({ ...finalPayload, idempotencyKey } as CreateBookSaleParams & { idempotencyKey?: string });
     },
   };
 };
