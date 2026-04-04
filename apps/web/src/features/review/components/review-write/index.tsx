@@ -7,6 +7,7 @@ import { ReviewForm } from "@/features/review/components/review-form";
 import { useCreateReviewMutation } from "@/features/review/mutations";
 import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
+import { useSafeSubmit } from "@/shared/hooks/use-safe-submit";
 
 export const ReviewWrite = () => {
   const t = useTranslations("review.form");
@@ -17,9 +18,15 @@ export const ReviewWrite = () => {
     isSuccess,
   } = useCreateReviewMutation();
 
+  const { executeSafeSubmit } = useSafeSubmit();
+
   const handleSubmit = async (data: ReviewFormValues) => {
-    await createReview(data);
-    router.push(PATHS.REVIEWS);
+    await executeSafeSubmit(async (idempotencyKey) => {
+      await createReview({ ...data, idempotencyKey } as ReviewFormValues & {
+        idempotencyKey?: string;
+      });
+      router.push(PATHS.REVIEWS);
+    });
   };
 
   return (

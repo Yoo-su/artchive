@@ -22,6 +22,7 @@ import {
   DialogTitle,
 } from "@/shared/components/shadcn/dialog";
 import { ScrollArea } from "@/shared/components/shadcn/scroll-area";
+import { useSafeSubmit } from "@/shared/hooks/use-safe-submit";
 
 import {
   useCreateReadingLogMutation,
@@ -56,6 +57,7 @@ export function DayDetailsDialog({
   const createMutation = useCreateReadingLogMutation();
   const deleteMutation = useDeleteReadingLogMutation();
   const updateMutation = useUpdateReadingLogMutation();
+  const { executeSafeSubmit } = useSafeSubmit();
 
   if (!date) return null;
 
@@ -73,18 +75,21 @@ export function DayDetailsDialog({
   const handleCreateLog = (memo: string) => {
     if (!selectedBookForCreate || !date) return;
 
-    createMutation.mutate(
-      {
-        isbn: selectedBookForCreate.isbn,
-        date: format(date, "yyyy-MM-dd"),
-        memo,
-      },
-      {
-        onSuccess: () => {
-          setSelectedBookForCreate(null);
+    executeSafeSubmit(async (idempotencyKey) => {
+      await createMutation.mutateAsync(
+        {
+          isbn: selectedBookForCreate.isbn,
+          date: format(date, "yyyy-MM-dd"),
+          memo,
+          idempotencyKey,
+        } as any,
+        {
+          onSuccess: () => {
+            setSelectedBookForCreate(null);
+          },
         },
-      },
-    );
+      );
+    });
   };
 
   const handleEditClick = (log: ReadingLog) => {

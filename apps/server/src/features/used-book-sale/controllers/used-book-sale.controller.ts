@@ -20,6 +20,7 @@ import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { UpdateSaleStatusDto } from '@/features/user/dtos/update-sale-status.dto';
 import { User } from '@/features/user/entities/user.entity';
+import { IdempotencyInterceptor } from '@/shared/interceptors/idempotency.interceptor';
 
 import { CreateBookSaleDto } from '../dtos/create-book-sale.dto';
 import { GetBookSalesQueryDto } from '../dtos/get-book-sales-query.dto';
@@ -36,6 +37,7 @@ export class UsedBookSaleController {
 
   @Post('sale')
   @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(IdempotencyInterceptor)
   @ApiOperation({
     summary: '중고책 판매글 작성',
     description: '새로운 중고책 판매글을 작성합니다.',

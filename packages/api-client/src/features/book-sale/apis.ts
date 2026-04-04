@@ -7,10 +7,13 @@ import { AxiosInstance } from "axios";
 export const createBookSale = async (
   client: AxiosInstance,
   params: CreateBookSaleParams,
+  options?: { idempotencyKey?: string },
 ): Promise<UsedBookSale> => {
+  const config = options?.idempotencyKey ? { headers: { 'x-idempotency-key': options.idempotencyKey } } : undefined;
   const { data } = await client.post<UsedBookSale>(
     API_PATHS.book.sale,
     params,
+    config
   );
   return data;
 };

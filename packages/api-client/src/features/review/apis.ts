@@ -7,8 +7,10 @@ import { AxiosInstance } from "axios";
 export const createReview = async (
   client: AxiosInstance,
   formValues: ReviewFormValues,
+  options?: { idempotencyKey?: string },
 ) => {
-  const { data } = await client.post<Review>(API_PATHS.review.base, formValues);
+  const config = options?.idempotencyKey ? { headers: { 'x-idempotency-key': options.idempotencyKey } } : undefined;
+  const { data } = await client.post<Review>(API_PATHS.review.base, formValues, config);
   return data;
 };
 

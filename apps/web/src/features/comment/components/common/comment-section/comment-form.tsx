@@ -15,6 +15,7 @@ import { Spinner } from "@/shared/components/shadcn/spinner";
 import { Textarea } from "@/shared/components/shadcn/textarea";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
+import { useSafeSubmit } from "@/shared/hooks/use-safe-submit";
 import { cn } from "@/shared/utils";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
@@ -32,18 +33,21 @@ export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
   const [content, setContent] = useState("");
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = !!user;
-  const { mutate: createComment, isPending } = useCreateCommentMutation(
+  const { mutateAsync: createCommentAsync, isPending } = useCreateCommentMutation(
     targetType,
     targetId,
   );
   const t = useTranslations("comment.form");
 
+  const { executeSafeSubmit } = useSafeSubmit();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim() || isPending) return;
 
-    createComment(content.trim(), {
-      onSuccess: () => setContent(""),
+    executeSafeSubmit(async (idempotencyKey) => {
+      await createCommentAsync({ content: content.trim(), idempotencyKey });
+      setContent("");
     });
   };
 

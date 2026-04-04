@@ -36,10 +36,13 @@ export const getReadingLogsInfinite = async (
 export const createReadingLog = async (
   client: AxiosInstance,
   payload: CreateReadingLogParams,
+  options?: { idempotencyKey?: string },
 ): Promise<ReadingLog> => {
+  const config = options?.idempotencyKey ? { headers: { 'x-idempotency-key': options.idempotencyKey } } : undefined;
   const response = await client.post<ReadingLog>(
     API_PATHS.readingLog.base,
     payload,
+    config
   );
   return response.data;
 };
