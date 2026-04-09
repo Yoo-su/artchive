@@ -9,7 +9,12 @@ export class SmartCacheStore {
 
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
 
-  async set(prefix: string, key: string, value: any, ttl?: number): Promise<void> {
+  async set<T>(
+    prefix: string,
+    key: string,
+    value: T,
+    ttl?: number,
+  ): Promise<void> {
     await this.cacheManager.set(key, value, ttl);
 
     if (!this.prefixKeyMap.has(prefix)) {
@@ -18,8 +23,8 @@ export class SmartCacheStore {
     this.prefixKeyMap.get(prefix)!.add(key);
   }
 
-  async get(key: string): Promise<any> {
-    return await this.cacheManager.get(key);
+  async get<T>(key: string): Promise<T | undefined | null> {
+    return await this.cacheManager.get<T>(key);
   }
 
   async invalidateByPrefix(prefix: string): Promise<void> {
@@ -31,7 +36,7 @@ export class SmartCacheStore {
     );
 
     await Promise.all(deletionPromises);
-    
+
     // 메모리 누수 방지
     this.prefixKeyMap.delete(prefix);
   }

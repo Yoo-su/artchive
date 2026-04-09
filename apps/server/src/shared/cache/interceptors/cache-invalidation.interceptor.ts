@@ -18,7 +18,7 @@ export class CacheInvalidationInterceptor implements NestInterceptor {
     private readonly smartCacheStore: SmartCacheStore,
   ) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const prefixes = this.reflector.get<string[]>(
       INVALIDATE_CACHE_KEY,
       context.getHandler(),
@@ -29,11 +29,13 @@ export class CacheInvalidationInterceptor implements NestInterceptor {
     }
 
     return next.handle().pipe(
-      tap(async () => {
-        // CUD 성공 시에만 해당 prefix들의 캐시를 일괄 삭제합니다.
-        for (const prefix of prefixes) {
-          await this.smartCacheStore.invalidateByPrefix(prefix);
-        }
+      tap(() => {
+        void (async () => {
+          // CUD 성공 시에만 해당 prefix들의 캐시를 일괄 삭제합니다.
+          for (const prefix of prefixes) {
+            await this.smartCacheStore.invalidateByPrefix(prefix);
+          }
+        })();
       }),
     );
   }

@@ -23,9 +23,11 @@ export class ActivityService {
     this.buffer.push(payload);
 
     if (this.buffer.length >= this.MAX_BUFFER_SIZE) {
-      this.flush();
+      void this.flush();
     } else if (!this.flushTimer) {
-      this.flushTimer = setTimeout(() => this.flush(), this.FLUSH_INTERVAL_MS);
+      this.flushTimer = setTimeout(() => {
+        void this.flush();
+      }, this.FLUSH_INTERVAL_MS);
     }
   }
 
@@ -43,7 +45,9 @@ export class ActivityService {
 
     try {
       await this.activityLogRepository.insert(logsToSave);
-      this.logger.debug(`Successfully flushed ${logsToSave.length} activity logs to DB.`);
+      this.logger.debug(
+        `Successfully flushed ${logsToSave.length} activity logs to DB.`,
+      );
     } catch (error) {
       this.logger.error('Failed to save activity logs to DB', error.stack);
       // 저장 실패 시 다시 버퍼로 돌려놓는 전략은 상황에 따라 선택 (여기서는 무시하여 메모리 누수 방지)

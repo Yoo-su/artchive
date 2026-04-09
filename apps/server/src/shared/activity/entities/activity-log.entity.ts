@@ -1,4 +1,9 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 import { ActivityType } from '../activity-type.enum';
 
@@ -26,7 +31,7 @@ export class ActivityLog {
   userAgent: string;
 
   @Column({ type: 'jsonb', nullable: true })
-  details: Record<string, any>;
+  details: Record<string, unknown>;
 
   @CreateDateColumn()
   createdAt: Date;
