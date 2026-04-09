@@ -10,8 +10,11 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { OptionalJwtAuthGuard } from '@/features/auth/guards/optional-jwt-auth.guard';
+import { ActivityType } from '@/shared/activity/activity-type.enum';
+import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 
 import { BookSummaryDto } from '../dtos/book-summary.dto';
+import { BookSummaryResponseDto } from '../dtos/book-summary-response.dto';
 import { TalkRequestDto } from '../dtos/talk-request.dto';
 import { TalkResponseDto } from '../dtos/talk-response.dto';
 import { LlmService } from '../services/llm.service';
@@ -23,6 +26,7 @@ export class LlmController {
 
   @Post('book-summary')
   @UseGuards(AuthGuard('jwt'))
+  @TrackActivity(ActivityType.LLM_BOOK_SUMMARY)
   @ApiOperation({
     summary: '책 요약 생성',
     description: '책 제목과 저자 정보를 바탕으로 AI 요약 및 후기를 생성합니다.',
@@ -30,7 +34,7 @@ export class LlmController {
   @ApiResponse({ status: 201, description: '생성된 요약 정보를 반환합니다.' })
   async getBookSummary(
     @Body(new ValidationPipe()) bookSummaryDto: BookSummaryDto,
-  ) {
+  ): Promise<BookSummaryResponseDto> {
     const { title, author, description } = bookSummaryDto;
     const summary = await this.llmService.generateBookSummary(
       title,
@@ -42,6 +46,7 @@ export class LlmController {
 
   @Post('talk')
   @UseGuards(OptionalJwtAuthGuard)
+  @TrackActivity(ActivityType.LLM_TALK)
   @ApiOperation({
     summary: 'AI 사서와 대화 (추천)',
     description:

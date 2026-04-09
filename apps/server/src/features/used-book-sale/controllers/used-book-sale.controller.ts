@@ -20,6 +20,8 @@ import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { UpdateSaleStatusDto } from '@/features/user/dtos/update-sale-status.dto';
 import { User } from '@/features/user/entities/user.entity';
+import { ActivityType } from '@/shared/activity/activity-type.enum';
+import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 import { IdempotencyInterceptor } from '@/shared/interceptors/idempotency.interceptor';
 
 import { CreateBookSaleDto } from '../dtos/create-book-sale.dto';
@@ -38,6 +40,7 @@ export class UsedBookSaleController {
   @Post('sale')
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(IdempotencyInterceptor)
+  @TrackActivity(ActivityType.SALE_CREATE)
   @ApiOperation({
     summary: '중고책 판매글 작성',
     description: '새로운 중고책 판매글을 작성합니다.',
@@ -70,6 +73,7 @@ export class UsedBookSaleController {
 
   @Patch('sales/:id/status')
   @UseGuards(AuthGuard('jwt'))
+  @TrackActivity(ActivityType.SALE_STATUS_CHANGE)
   @ApiOperation({
     summary: '판매글 상태 변경',
     description: '판매글의 상태(판매중, 예약중, 판매완료)를 변경합니다.',
@@ -163,6 +167,7 @@ export class UsedBookSaleController {
 
   @Patch('sales/:id')
   @UseGuards(AuthGuard('jwt'))
+  @TrackActivity(ActivityType.SALE_UPDATE)
   @ApiOperation({
     summary: '판매글 수정',
     description: '판매글의 내용을 수정합니다.',

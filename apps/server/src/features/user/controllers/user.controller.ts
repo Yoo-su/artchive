@@ -20,6 +20,8 @@ import {
 } from '@nestjs/swagger';
 
 import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
+import { ActivityType } from '@/shared/activity/activity-type.enum';
+import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { MyProfileResponseDto } from '../dtos/my-profile-response.dto';
@@ -101,6 +103,7 @@ export class UserController {
 
   @Patch()
   @UseGuards(AuthGuard('jwt'))
+  @TrackActivity(ActivityType.PROFILE_UPDATE)
   @ApiOperation({
     summary: '내 정보 수정',
     description: '로그인한 사용자의 정보를 수정합니다.',
@@ -139,6 +142,7 @@ export class UserController {
 
   @Delete('me')
   @UseGuards(AuthGuard('jwt'))
+  @TrackActivity(ActivityType.ACCOUNT_DELETE)
   @ApiOperation({
     summary: '회원 탈퇴',
     description: '회원 탈퇴를 진행합니다.',
@@ -153,6 +157,7 @@ export class UserController {
 
   @Post('wishlist')
   @UseGuards(AuthGuard('jwt'))
+  @TrackActivity(ActivityType.WISHLIST_ADD)
   @ApiOperation({
     summary: '위시리스트 추가',
     description: '책이나 판매글을 위시리스트에 추가합니다.',
@@ -186,6 +191,7 @@ export class UserController {
 
   @Delete('wishlist')
   @UseGuards(AuthGuard('jwt'))
+  @TrackActivity(ActivityType.WISHLIST_REMOVE)
   @ApiOperation({
     summary: '위시리스트 삭제',
     description: '위시리스트에서 항목을 제거합니다.',

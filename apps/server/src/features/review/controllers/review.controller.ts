@@ -23,6 +23,10 @@ import { Review } from '@/features/review/entities/review.entity';
 import { ReviewReactionType } from '@/features/review/entities/review-reaction.entity';
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { User } from '@/features/user/entities/user.entity';
+import { ActivityType } from '@/shared/activity/activity-type.enum';
+import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
+import { InvalidateCache } from '@/shared/cache/decorators/invalidate-cache.decorator';
+import { SmartCache } from '@/shared/cache/decorators/smart-cache.decorator';
 import { IdempotencyInterceptor } from '@/shared/interceptors/idempotency.interceptor';
 
 import { CreateReviewDto } from '../dto/create-review.dto';
@@ -44,6 +48,8 @@ export class ReviewController {
   @Post()
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(IdempotencyInterceptor)
+  @InvalidateCache('reviews', 'reviews-popular')
+  @TrackActivity(ActivityType.REVIEW_CREATE)
   @ApiOperation({
     summary: '리뷰 작성',
     description: '새로운 리뷰를 작성합니다.',
@@ -95,6 +101,7 @@ export class ReviewController {
   }
 
   @Get('popular')
+  @SmartCache({ prefix: 'reviews-popular', ttl: 180000, keyStrategy: 'ip' })
   @ApiOperation({
     summary: '인기 리뷰 조회',
     description: '조회수와 리액션 수를 기준으로 인기 리뷰를 조회합니다.',

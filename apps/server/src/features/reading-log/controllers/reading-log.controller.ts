@@ -23,6 +23,8 @@ import {
 } from '@nestjs/swagger';
 
 import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
+import { ActivityType } from '@/shared/activity/activity-type.enum';
+import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 import { IdempotencyInterceptor } from '@/shared/interceptors/idempotency.interceptor';
 
 import { CreateReadingLogDto } from '../dto/create-reading-log.dto';
@@ -39,6 +41,7 @@ export class ReadingLogController {
 
   @Post()
   @UseInterceptors(IdempotencyInterceptor)
+  @TrackActivity(ActivityType.READING_LOG_CREATE)
   @ApiOperation({
     summary: '독서 기록 생성',
     description: '새로운 독서 기록을 생성합니다.',
