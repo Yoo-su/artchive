@@ -6,6 +6,8 @@ import { Response } from 'express';
 
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { User } from '@/features/user/entities/user.entity';
+import { ActivityType } from '@/shared/activity/activity-type.enum';
+import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 
 import { SocialAuth } from '../decorators/social-auth.decorator';
 import { LoginDto } from '../dtos/login.dto';
@@ -113,6 +115,7 @@ export class AuthController {
   }
 
   @Post('signup')
+  @TrackActivity(ActivityType.REGISTER)
   @ApiOperation({
     summary: '이메일 회원가입',
     description: '이메일과 비밀번호로 회원가입을 진행합니다.',
@@ -122,6 +125,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @TrackActivity(ActivityType.LOGIN)
   @ApiOperation({
     summary: '이메일 로그인',
     description: '이메일과 비밀번호로 로그인을 진행합니다.',

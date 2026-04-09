@@ -16,6 +16,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { ActivityType } from '@/shared/activity/activity-type.enum';
+import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 import { BookViewCountInterceptor } from '../interceptors/book-view-count.interceptor';
 import { BookResolvePipe } from '../pipes/book-resolve.pipe';
 import { BookService } from '../services/book.service';
@@ -42,6 +44,7 @@ export class BookController {
   @Post(':isbn/view')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseInterceptors(BookViewCountInterceptor)
+  @TrackActivity(ActivityType.BOOK_VIEW)
   @ApiOperation({
     summary: '책 상세 조회수 기록',
     description:

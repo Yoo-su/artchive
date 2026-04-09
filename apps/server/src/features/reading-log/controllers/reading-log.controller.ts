@@ -11,6 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UseInterceptors } from '@nestjs/common';
+import { ActivityType } from '@/shared/activity/activity-type.enum';
+import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
@@ -39,6 +41,7 @@ export class ReadingLogController {
 
   @Post()
   @UseInterceptors(IdempotencyInterceptor)
+  @TrackActivity(ActivityType.READING_LOG_CREATE)
   @ApiOperation({
     summary: '독서 기록 생성',
     description: '새로운 독서 기록을 생성합니다.',

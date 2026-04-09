@@ -20,6 +20,8 @@ import { Notify } from '@/features/notification/decorators/notification.decorato
 import { NotificationType } from '@/features/notification/entities/notification.entity';
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { User } from '@/features/user/entities/user.entity';
+import { ActivityType } from '@/shared/activity/activity-type.enum';
+import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 import { IdempotencyInterceptor } from '@/shared/interceptors/idempotency.interceptor';
 
 import { CreateCommentDto } from '../dto/create-comment.dto';
@@ -82,6 +84,7 @@ export class CommentController {
   @Post()
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(IdempotencyInterceptor)
+  @TrackActivity(ActivityType.COMMENT_CREATE)
   @ApiOperation({
     summary: '댓글 작성',
     description: '새로운 댓글을 작성합니다.',
@@ -107,6 +110,7 @@ export class CommentController {
    */
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
+  @TrackActivity(ActivityType.COMMENT_UPDATE)
   @ApiOperation({
     summary: '댓글 수정',
     description: '작성한 댓글을 수정합니다.',
@@ -133,6 +137,7 @@ export class CommentController {
    */
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
+  @TrackActivity(ActivityType.COMMENT_DELETE)
   @ApiOperation({
     summary: '댓글 삭제',
     description: '작성한 댓글을 삭제합니다.',
@@ -158,6 +163,7 @@ export class CommentController {
    */
   @Post(':id/like')
   @UseGuards(AuthGuard('jwt'))
+  @TrackActivity(ActivityType.COMMENT_LIKE)
   @ApiOperation({
     summary: '댓글 좋아요 토글',
     description: '댓글에 좋아요를 추가하거나 취소합니다.',
