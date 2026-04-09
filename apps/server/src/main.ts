@@ -1,3 +1,7 @@
+// 애플리케이션 전역 타임존을 한국/서울(KST)로 설정
+// 모든 Date 객체, TypeORM 타임스탬프, 로깅 등에 적용됨
+process.env.TZ = 'Asia/Seoul';
+
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
