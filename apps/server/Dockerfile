@@ -34,6 +34,7 @@ RUN pnpm build --filter=@bookjeok/server
 FROM node:22-alpine AS runner
 
 ENV NODE_ENV production
+ENV TZ Asia/Seoul
 WORKDIR /app
 
 # node 사용자 사용
