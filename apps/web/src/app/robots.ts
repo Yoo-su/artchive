@@ -25,7 +25,12 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: ["/", "/ko/", "/en/"],
-        disallow: ["/my-page/"],
+        disallow: [
+          "/my-page/",
+          "/*/book/*/detail", // 도서 상세 페이지 크롤링 차단
+          "/ko/book/*/detail",
+          "/en/book/*/detail",
+        ],
       },
     ],
     sitemap: "https://bookjeok.com/sitemap.xml",
