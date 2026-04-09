@@ -48,7 +48,7 @@ export class ReviewController {
   @Post()
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(IdempotencyInterceptor)
-  @InvalidateCache('reviews', 'reviews-popular') 
+  @InvalidateCache('reviews', 'reviews-popular')
   @TrackActivity(ActivityType.REVIEW_CREATE)
   @ApiOperation({
     summary: '리뷰 작성',

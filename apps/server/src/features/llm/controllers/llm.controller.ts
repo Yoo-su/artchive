@@ -14,6 +14,7 @@ import { ActivityType } from '@/shared/activity/activity-type.enum';
 import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 
 import { BookSummaryDto } from '../dtos/book-summary.dto';
+import { BookSummaryResponseDto } from '../dtos/book-summary-response.dto';
 import { TalkRequestDto } from '../dtos/talk-request.dto';
 import { TalkResponseDto } from '../dtos/talk-response.dto';
 import { LlmService } from '../services/llm.service';
@@ -33,7 +34,7 @@ export class LlmController {
   @ApiResponse({ status: 201, description: '생성된 요약 정보를 반환합니다.' })
   async getBookSummary(
     @Body(new ValidationPipe()) bookSummaryDto: BookSummaryDto,
-  ) {
+  ): Promise<BookSummaryResponseDto> {
     const { title, author, description } = bookSummaryDto;
     const summary = await this.llmService.generateBookSummary(
       title,

@@ -2,6 +2,7 @@ import {
   CallHandler,
   ExecutionContext,
   Injectable,
+  Logger,
   NestInterceptor,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -17,6 +18,8 @@ import { SmartCacheStore } from '../smart-cache.store';
 
 @Injectable()
 export class SmartCacheInterceptor implements NestInterceptor {
+  private readonly logger = new Logger(SmartCacheInterceptor.name);
+
   constructor(
     private readonly reflector: Reflector,
     private readonly smartCacheStore: SmartCacheStore,
@@ -36,7 +39,9 @@ export class SmartCacheInterceptor implements NestInterceptor {
     }
 
     const { prefix, ttl = 60000, keyStrategy = 'ip' } = options;
-    const request = context.switchToHttp().getRequest();
+    const request = context
+      .switchToHttp()
+      .getRequest<Request & { user?: { id: number } }>();
     const cacheKey = this.generateCacheKey(prefix, keyStrategy, request);
 
     // 1. 캐시 확인
@@ -47,11 +52,17 @@ export class SmartCacheInterceptor implements NestInterceptor {
 
     // 2. 캐시 미스 시 로직 실행 후 저장
     return next.handle().pipe(
-      tap((response) => {
+      tap((response: unknown) => {
         void (async () => {
-          // 성공적인 응답(데이터가 있는 경우)만 캐싱
-          if (response !== undefined) {
-            await this.smartCacheStore.set(prefix, cacheKey, response, ttl);
+          try {
+            // 성공적인 응답(데이터가 있는 경우)만 캐싱
+            if (response !== undefined && response !== null) {
+              await this.smartCacheStore.set(prefix, cacheKey, response, ttl);
+            }
+          } catch (error: unknown) {
+            this.logger.error(
+              `Cache set error for key ${cacheKey}: ${error instanceof Error ? error.message : String(error)}`,
+            );
           }
         })();
       }),
@@ -61,15 +72,15 @@ export class SmartCacheInterceptor implements NestInterceptor {
   private generateCacheKey(
     prefix: string,
     strategy: string,
-    request: Request & { user?: { id: number } },
+    request: Request & { user?: { id: number | string } },
   ): string {
     const ip =
-      request.headers['x-forwarded-for']?.toString().split(',')[0] ||
+      (request.headers['x-forwarded-for'] as string)?.split(',')[0] ||
       request.ip ||
       request.socket?.remoteAddress ||
       'unknown_ip';
 
-    const userId = request.user?.id || 'guest';
+    const userId = request.user?.id ? String(request.user.id) : 'guest';
     const query = JSON.stringify(request.query || {});
 
     // URL, 파라미터 정보까지 포함하여 유니크하게 구성

@@ -18,6 +18,7 @@ import {
 
 import { ActivityType } from '@/shared/activity/activity-type.enum';
 import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
+
 import { BookViewCountInterceptor } from '../interceptors/book-view-count.interceptor';
 import { BookResolvePipe } from '../pipes/book-resolve.pipe';
 import { BookService } from '../services/book.service';

@@ -11,8 +11,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UseInterceptors } from '@nestjs/common';
-import { ActivityType } from '@/shared/activity/activity-type.enum';
-import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
@@ -25,6 +23,8 @@ import {
 } from '@nestjs/swagger';
 
 import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
+import { ActivityType } from '@/shared/activity/activity-type.enum';
+import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 import { IdempotencyInterceptor } from '@/shared/interceptors/idempotency.interceptor';
 
 import { CreateReadingLogDto } from '../dto/create-reading-log.dto';

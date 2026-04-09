@@ -15,6 +15,7 @@
     "start": "turbo start",
     "start:web": "turbo start --filter=@bookjeok/web --filter=@bookjeok/server",
     "lint": "turbo lint",
+    "lint:fix": "turbo lint -- --fix",
     "test": "turbo test"
   },
   "devDependencies": {

@@ -13,8 +13,6 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ActivityType } from '@/shared/activity/activity-type.enum';
-import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -22,6 +20,8 @@ import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { UpdateSaleStatusDto } from '@/features/user/dtos/update-sale-status.dto';
 import { User } from '@/features/user/entities/user.entity';
+import { ActivityType } from '@/shared/activity/activity-type.enum';
+import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 import { IdempotencyInterceptor } from '@/shared/interceptors/idempotency.interceptor';
 
 import { CreateBookSaleDto } from '../dtos/create-book-sale.dto';

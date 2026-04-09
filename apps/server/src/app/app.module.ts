@@ -25,10 +25,10 @@ import { SearchKeywordModule } from '@/features/search-keyword/search-keyword.mo
 import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { UsedBookSaleModule } from '@/features/used-book-sale/used-book-sale.module';
 import { User } from '@/features/user/entities/user.entity';
-import { ActivityLog } from '@/shared/activity/entities/activity-log.entity';
-import { ActivityModule } from '@/shared/activity/activity.module';
-import { SmartCacheModule } from '@/shared/cache/smart-cache.module';
 import { UserModule } from '@/features/user/user.module';
+import { ActivityModule } from '@/shared/activity/activity.module';
+import { ActivityLog } from '@/shared/activity/entities/activity-log.entity';
+import { SmartCacheModule } from '@/shared/cache/smart-cache.module';
 
 @Module({
   imports: [

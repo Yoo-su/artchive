@@ -3,12 +3,24 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { ActivityType } from '../activity-type.enum';
 import { ActivityLog } from '../entities/activity-log.entity';
+
+/** 인터셉터에서 이벤트로 전달되는 로그 데이터 형태 기록 */
+interface ActivityLogPayload {
+  userId: number | null;
+  activityType: ActivityType;
+  method: string;
+  path: string;
+  ip: string;
+  userAgent: string;
+  details: Record<string, unknown> | null;
+}
 
 @Injectable()
 export class ActivityService {
   private readonly logger = new Logger(ActivityService.name);
-  private buffer: Partial<ActivityLog>[] = [];
+  private buffer: ActivityLogPayload[] = [];
   private readonly MAX_BUFFER_SIZE = 50;
   private readonly FLUSH_INTERVAL_MS = 1000;
   private flushTimer: NodeJS.Timeout | null = null;
@@ -19,7 +31,7 @@ export class ActivityService {
   ) {}
 
   @OnEvent('ACTIVITY_LOG.CREATED', { async: true })
-  handleActivityCreatedEvent(payload: Partial<ActivityLog>) {
+  handleActivityCreatedEvent(payload: ActivityLogPayload) {
     this.buffer.push(payload);
 
     if (this.buffer.length >= this.MAX_BUFFER_SIZE) {
@@ -44,12 +56,20 @@ export class ActivityService {
     this.buffer = []; // 버퍼 초기화
 
     try {
-      await this.activityLogRepository.insert(logsToSave);
+      // save()는 DeepPartial<T>[]을 받으므로 null → undefined 변환만으로 타입 호환 가능
+      await this.activityLogRepository.save(
+        logsToSave.map((log) => ({
+          ...log,
+          userId: log.userId ?? undefined,
+          details: log.details ?? undefined,
+        })),
+      );
       this.logger.debug(
         `Successfully flushed ${logsToSave.length} activity logs to DB.`,
       );
-    } catch (error) {
-      this.logger.error('Failed to save activity logs to DB', error.stack);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.stack : String(error);
+      this.logger.error('Failed to save activity logs to DB', message);
       // 저장 실패 시 다시 버퍼로 돌려놓는 전략은 상황에 따라 선택 (여기서는 무시하여 메모리 누수 방지)
     }
   }

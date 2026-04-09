@@ -2,6 +2,7 @@ import {
   CallHandler,
   ExecutionContext,
   Injectable,
+  Logger,
   NestInterceptor,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -15,6 +16,8 @@ import { TRACK_ACTIVITY_KEY } from '../decorators/track-activity.decorator';
 
 @Injectable()
 export class ActivityTrackingInterceptor implements NestInterceptor {
+  private readonly logger = new Logger(ActivityTrackingInterceptor.name);
+
   constructor(
     private readonly reflector: Reflector,
     private readonly eventEmitter: EventEmitter2,
@@ -52,14 +55,14 @@ export class ActivityTrackingInterceptor implements NestInterceptor {
       const user = request.user;
 
       const ip =
-        request.headers['x-forwarded-for']?.toString().split(',')[0] ||
+        (request.headers['x-forwarded-for'] as string)?.split(',')[0] ||
         request.ip ||
         request.socket?.remoteAddress;
 
       const userAgent = request.get('user-agent') || '';
 
       // URL 파라미터나 body에서 주요 식별자만 가볍게 추출
-      const details = {
+      const details: Record<string, unknown> = {
         ...(Object.keys(request.params || {}).length > 0
           ? { params: request.params }
           : {}),
@@ -68,20 +71,19 @@ export class ActivityTrackingInterceptor implements NestInterceptor {
       };
 
       const logData = {
-        userId: user?.id || null,
+        userId: user?.id ? Number(user.id) : null,
         activityType,
         method: request.method,
         path: request.originalUrl || request.url,
-        ip,
+        ip: ip || 'unknown',
         userAgent,
         details: Object.keys(details).length > 0 ? details : null,
       };
 
       this.eventEmitter.emit('ACTIVITY_LOG.CREATED', logData);
-    } catch (error) {
-      console.error(
-        `Failed to dispatch activity log for ${activityType}:`,
-        error,
+    } catch (error: unknown) {
+      this.logger.error(
+        `Failed to dispatch activity log for ${activityType}: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }

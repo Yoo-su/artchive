@@ -19,9 +19,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
 import { ActivityType } from '@/shared/activity/activity-type.enum';
 import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
-import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
 
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { MyProfileResponseDto } from '../dtos/my-profile-response.dto';

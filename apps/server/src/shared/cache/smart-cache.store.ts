@@ -32,7 +32,12 @@ export class SmartCacheStore {
     if (!keys || keys.size === 0) return;
 
     const deletionPromises = Array.from(keys).map((key) =>
-      this.cacheManager.del(key),
+      this.cacheManager.del(key).catch((err) => {
+        console.error(
+          `Failed to delete cache key ${key} for prefix ${prefix}:`,
+          err,
+        );
+      }),
     );
 
     await Promise.all(deletionPromises);
