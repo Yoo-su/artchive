@@ -91,14 +91,16 @@ export const CommentItem = ({
   };
 
   return (
-    <div className={cn(
-      "group relative w-full p-4 sm:p-5 mb-4",
-      "bg-white dark:bg-stone-900/40",
-      "rounded-[32px] rounded-tl-[10px]", // 몽실몽실한 구름 형태의 말풍선
-      "border border-stone-100 dark:border-stone-800/60",
-      "shadow-[0_8px_40px_-12px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.08)]",
-      "transition-all duration-300"
-    )}>
+    <div
+      className={cn(
+        "group relative w-full p-4 sm:p-5 mb-4",
+        "bg-white dark:bg-stone-900/40",
+        "rounded-[32px] rounded-tl-[10px]", // 몽실몽실한 구름 형태의 말풍선
+        "border border-stone-100 dark:border-stone-800/60",
+        "shadow-[0_8px_40px_-12px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.08)]",
+        "transition-all duration-300",
+      )}
+    >
       {/* 헤더: 아바타 & 닉네임 & 메뉴 */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
@@ -143,140 +145,144 @@ export const CommentItem = ({
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="min-w-[100px]">
-                    <DropdownMenuItem
-                      onClick={() => setIsEditing(true)}
-                      disabled={isDeletePending}
-                      className="text-xs"
-                    >
-                      <Pencil className="h-3 w-3 mr-1.5" />
-                      {t("edit")}
-                    </DropdownMenuItem>
-                    <AlertDialogTrigger asChild>
-                      <DropdownMenuItem
-                        disabled={isDeletePending}
-                        onSelect={(e) => e.preventDefault()}
-                        className="text-xs text-destructive focus:text-destructive"
-                      >
-                        {isDeletePending ? (
-                          <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-3 w-3 mr-1.5" />
-                        )}
-                        {t("delete")}
-                      </DropdownMenuItem>
-                    </AlertDialogTrigger>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      {t("delete_confirm.title")}
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {t("delete_confirm.desc")}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => deleteComment(comment.id)}
-                    >
-                      {t("delete")}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-          </div>
+              <DropdownMenuContent align="end" className="min-w-[100px]">
+                <DropdownMenuItem
+                  onClick={() => setIsEditing(true)}
+                  disabled={isDeletePending}
+                  className="text-xs"
+                >
+                  <Pencil className="h-3 w-3 mr-1.5" />
+                  {t("edit")}
+                </DropdownMenuItem>
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem
+                    disabled={isDeletePending}
+                    onSelect={(e) => e.preventDefault()}
+                    className="text-xs text-destructive focus:text-destructive"
+                  >
+                    {isDeletePending ? (
+                      <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-3 w-3 mr-1.5" />
+                    )}
+                    {t("delete")}
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t("delete_confirm.title")}</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {t("delete_confirm.desc")}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+                <AlertDialogAction onClick={() => deleteComment(comment.id)}>
+                  {t("delete")}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+      </div>
 
-        {/* 본문 & 액션 영역 - 아바타 우측 정렬선에 맞춤 */}
-        <div className="pl-[2.75rem] pr-2">
-          {isEditing ? (
-            <div className="space-y-3 mt-1">
-              <Textarea
-                value={editContent}
-                onChange={(e) => setEditContent(e.target.value)}
-                maxLength={MAX_COMMENT_LENGTH}
-                className="min-h-[80px] resize-none text-[14px] bg-stone-50 border-stone-200 focus-visible:ring-stone-900 rounded-[16px] px-4 py-3"
-              />
-              <div className="flex gap-2 justify-end">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 text-[12px] px-4 rounded-full border-stone-200 hover:bg-stone-100 hover:text-stone-900 text-stone-500 font-medium"
-                  onClick={() => {
-                    setIsEditing(false);
-                    setEditContent(comment.content);
-                  }}
-                >
-                  {t("cancel")}
-                </Button>
-                <Button
-                  size="sm"
-                  className="h-8 text-[12px] px-5 rounded-full bg-stone-900 text-white hover:bg-stone-800 transition-colors font-medium shadow-md shadow-stone-900/10"
-                  onClick={handleUpdate}
-                  disabled={!editContent.trim() || isUpdatePending}
-                >
-                  {isUpdatePending ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    t("save")
-                  )}
-                </Button>
-              </div>
+      {/* 본문 & 액션 영역 - 아바타 우측 정렬선에 맞춤 */}
+      <div className="pl-11 pr-2">
+        {isEditing ? (
+          <div className="space-y-3 mt-1">
+            <Textarea
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              maxLength={MAX_COMMENT_LENGTH}
+              className="min-h-[80px] resize-none text-[14px] bg-stone-50 border-stone-200 focus-visible:ring-stone-900 rounded-[16px] px-4 py-3"
+            />
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 text-[12px] px-4 rounded-full border-stone-200 hover:bg-stone-100 hover:text-stone-900 text-stone-500 font-medium"
+                onClick={() => {
+                  setIsEditing(false);
+                  setEditContent(comment.content);
+                }}
+              >
+                {t("cancel")}
+              </Button>
+              <Button
+                size="sm"
+                className="h-8 text-[12px] px-5 rounded-full bg-stone-900 text-white hover:bg-stone-800 transition-colors font-medium shadow-md shadow-stone-900/10"
+                onClick={handleUpdate}
+                disabled={!editContent.trim() || isUpdatePending}
+              >
+                {isUpdatePending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  t("save")
+                )}
+              </Button>
             </div>
-          ) : (
-            <p
+          </div>
+        ) : (
+          <p
+            className={cn(
+              "text-[14px] leading-[1.7] text-stone-700 font-light whitespace-pre-wrap wrap-break-word",
+              !isExpanded && isLongComment && "line-clamp-3",
+            )}
+          >
+            {comment.content}
+          </p>
+        )}
+
+        {/* 더 보기 버튼 */}
+        {!isEditing && isLongComment && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="text-[12px] text-stone-400 hover:text-stone-900 transition-colors mt-2 font-medium underline underline-offset-4 decoration-stone-200 hover:decoration-stone-400"
+          >
+            {isExpanded ? t("fold") : t("more")}
+          </button>
+        )}
+        {/* 액션 바 */}
+        {!isEditing && (
+          <div className="flex items-center gap-4 mt-3 pb-1">
+            <button
+              onClick={handleLike}
+              disabled={!isAuthenticated || isLikePending}
               className={cn(
-                "text-[14px] leading-[1.7] text-stone-700 font-light whitespace-pre-wrap break-words",
-                !isExpanded && isLongComment && "line-clamp-3",
+                "group/like flex items-center gap-2 text-[12px] transition-all duration-300 outline-hidden",
+                comment.isLiked
+                  ? "text-stone-900 font-medium"
+                  : "text-stone-400 hover:text-stone-900",
+                !isAuthenticated && "cursor-not-allowed opacity-50",
               )}
             >
-              {comment.content}
-            </p>
-          )}
-
-          {/* 더 보기 버튼 */}
-          {!isEditing && isLongComment && (
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="text-[12px] text-stone-400 hover:text-stone-900 transition-colors mt-2 font-medium underline underline-offset-4 decoration-stone-200 hover:decoration-stone-400"
-            >
-              {isExpanded ? t("fold") : t("more")}
-            </button>
-          )}
-          {/* 액션 바 */}
-          {!isEditing && (
-            <div className="flex items-center gap-4 mt-3 pb-1">
-              <button
-                onClick={handleLike}
-                disabled={!isAuthenticated || isLikePending}
+              <div
                 className={cn(
-                  "group/like flex items-center gap-2 text-[12px] transition-all duration-300 outline-hidden",
+                  "flex items-center justify-center p-1.5 rounded-[12px] transition-all duration-300",
                   comment.isLiked
-                    ? "text-stone-900 font-medium"
-                    : "text-stone-400 hover:text-stone-900",
-                  !isAuthenticated && "cursor-not-allowed opacity-50",
+                    ? "bg-stone-900 text-white shadow-sm"
+                    : "bg-stone-50 text-stone-400 group-hover/like:bg-stone-100",
                 )}
               >
-                <div className={cn(
-                  "flex items-center justify-center p-1.5 rounded-[12px] transition-all duration-300",
-                  comment.isLiked ? "bg-stone-900 text-white shadow-sm" : "bg-stone-50 text-stone-400 group-hover/like:bg-stone-100"
-                )}>
-                  <Heart
-                    className={cn(
-                      "h-3.5 w-3.5 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
-                      comment.isLiked && "fill-current scale-110",
-                    )}
-                    strokeWidth={comment.isLiked ? 0 : 2}
-                  />
-                </div>
-                {comment.likeCount > 0 && <span className="tabular-nums tracking-wide">{comment.likeCount}</span>}
-              </button>
-            </div>
-          )}
-        </div>
+                <Heart
+                  className={cn(
+                    "h-3.5 w-3.5 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
+                    comment.isLiked && "fill-current scale-110",
+                  )}
+                  strokeWidth={comment.isLiked ? 0 : 2}
+                />
+              </div>
+              {comment.likeCount > 0 && (
+                <span className="tabular-nums tracking-wide">
+                  {comment.likeCount}
+                </span>
+              )}
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

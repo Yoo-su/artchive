@@ -939,5 +939,19 @@
       "like_error": "좋아요 처리에 실패했습니다."
     },
     "title": "댓글"
+  },
+  "terms_page": {
+    "metadata": {
+      "title": "이용약관",
+      "description": "북적(bookjeok) 서비스 이용약관입니다."
+    },
+    "title": "이용약관"
+  },
+  "privacy_page": {
+    "metadata": {
+      "title": "개인정보처리방침",
+      "description": "북적(bookjeok) 서비스 개인정보처리방침입니다."
+    },
+    "title": "개인정보처리방침"
   }
 }

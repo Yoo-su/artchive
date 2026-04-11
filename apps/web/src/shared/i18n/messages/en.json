@@ -939,5 +939,19 @@
       "like_error": "Failed to process like."
     },
     "title": "Comments"
+  },
+  "terms_page": {
+    "metadata": {
+      "title": "Terms of Service",
+      "description": "Bookjeok Terms of Service."
+    },
+    "title": "Terms of Service"
+  },
+  "privacy_page": {
+    "metadata": {
+      "title": "Privacy Policy",
+      "description": "Bookjeok Privacy Policy."
+    },
+    "title": "Privacy Policy"
   }
 }

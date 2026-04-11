@@ -126,10 +126,10 @@ export const DefaultFooter = () => {
               &copy; {currentYear} bookjeok. All rights reserved.
             </p>
             <div className="flex gap-6">
-              <Link href="#" className="hover:text-stone-600 transition-colors">
+              <Link href={PATHS.TERMS} className="hover:text-stone-600 transition-colors">
                 {t("terms")}
               </Link>
-              <Link href="#" className="hover:text-stone-600 transition-colors">
+              <Link href={PATHS.PRIVACY} className="hover:text-stone-600 transition-colors">
                 {t("privacy")}
               </Link>
             </div>

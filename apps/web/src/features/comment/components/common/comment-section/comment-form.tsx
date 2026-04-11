@@ -33,10 +33,8 @@ export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
   const [content, setContent] = useState("");
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = !!user;
-  const { mutateAsync: createCommentAsync, isPending } = useCreateCommentMutation(
-    targetType,
-    targetId,
-  );
+  const { mutateAsync: createCommentAsync, isPending } =
+    useCreateCommentMutation(targetType, targetId);
   const t = useTranslations("comment.form");
 
   const { executeSafeSubmit } = useSafeSubmit();
@@ -72,14 +70,16 @@ export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="mb-8">
-      <div className={cn(
-        "relative w-full p-4 sm:p-5",
-        "bg-white dark:bg-stone-900/40",
-        "rounded-[32px] rounded-tr-[10px]", // 몽실몽실한 구름 형태의 작성 폼 (꼬리 우상단)
-        "border border-stone-100 dark:border-stone-800/60",
-        "shadow-[0_8px_40px_-12px_rgba(0,0,0,0.05)] focus-within:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.08)] focus-within:border-stone-200",
-        "transition-all duration-300"
-      )}>
+      <div
+        className={cn(
+          "relative w-full p-4 sm:p-5",
+          "bg-white dark:bg-stone-900/40",
+          "rounded-[32px] rounded-tr-[10px]", // 몽실몽실한 구름 형태의 작성 폼 (꼬리 우상단)
+          "border border-stone-100 dark:border-stone-800/60",
+          "shadow-[0_8px_40px_-12px_rgba(0,0,0,0.05)] focus-within:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.08)] focus-within:border-stone-200",
+          "transition-all duration-300",
+        )}
+      >
         {/* 헤더: 사용자 정보 */}
         <div className="flex items-center gap-3 mb-2">
           <Avatar className="w-8 h-8 shrink-0 ring-1 ring-stone-200">
@@ -97,7 +97,7 @@ export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
         </div>
 
         {/* 입력 및 액션 영역 - 아바타 우측 라인에 정렬 */}
-        <div className="pl-[2.75rem] pr-2">
+        <div className="pl-11 pr-2">
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -124,9 +124,9 @@ export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
               disabled={!content.trim() || isPending}
               className={cn(
                 "h-8 text-[12px] px-5 rounded-full font-medium transition-all duration-300",
-                content.trim() 
+                content.trim()
                   ? "bg-stone-900 text-white hover:bg-stone-800 shadow-md shadow-stone-900/10"
-                  : "bg-stone-100 text-stone-400 cursor-not-allowed"
+                  : "bg-stone-100 text-stone-400 cursor-not-allowed",
               )}
             >
               {isPending ? <Spinner className="w-4 h-4" /> : t("submit")}
