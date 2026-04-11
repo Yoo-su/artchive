@@ -145,3 +145,6 @@ docker run -p 3000:3000 bookjeok-front
 
 ### 3. AI 취향 탐색기
 - 정형화된 검색이 아닌, AI와의 대화(Natural Language)를 통해 내 취향에 맞는 책을 찾아주는 RAG 패턴 기반 서비스입니다.
+
+### 4. 사용자 행동 분석 (Analytics)
+- **Microsoft Clarity**를 연동하여 사용자의 히트맵(Heatmap) 및 세션 데이터를 수집하여 UX 개선에 활용합니다.

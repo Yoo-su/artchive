@@ -4,6 +4,7 @@ const clientEnvSchema = z.object({
   NEXT_PUBLIC_API_URL: z.string().url(),
   NEXT_PUBLIC_KAKAO_APP_KEY: z.string().min(1),
   NEXT_PUBLIC_GOOGLE_ADSENSE_ID: z.string().optional(),
+  NEXT_PUBLIC_CLARITY_PROJECT_ID: z.string().optional(),
 });
 
 const serverEnvSchema = z.object({
@@ -17,6 +18,7 @@ const _clientEnv = {
   NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   NEXT_PUBLIC_KAKAO_APP_KEY: process.env.NEXT_PUBLIC_KAKAO_APP_KEY,
   NEXT_PUBLIC_GOOGLE_ADSENSE_ID: process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID,
+  NEXT_PUBLIC_CLARITY_PROJECT_ID: process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID,
 };
 
 const _serverEnv = {
