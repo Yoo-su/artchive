@@ -52,7 +52,14 @@ export const MainArtSlider = ({
     <section className="w-full py-16 overflow-hidden">
       {/* 헤더 섹션 - 갤러리/카탈로그 스타일의 가로 균형 에디토리얼 레이아웃 */}
       <div className="max-w-7xl mx-auto px-4 mb-14 relative z-10">
-        <div className={cn("flex flex-col border-t border-stone-200 pt-8 gap-8 relative z-10", align === "right" ? "items-end text-right" : "items-start text-left")}>
+        <div
+          className={cn(
+            "flex flex-col border-t border-stone-200 pt-8 gap-8 relative z-10",
+            align === "right"
+              ? "items-end text-right"
+              : "items-start text-left",
+          )}
+        >
           <div className={cn(align === "right" ? "text-right" : "text-left")}>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-[40px] text-stone-900 font-medium tracking-tight break-keep leading-tight">
               <span className="block sm:inline sm:mr-3 text-[22px] sm:text-4xl lg:text-[40px] text-stone-400 font-light mb-1 sm:mb-0">
@@ -60,13 +67,25 @@ export const MainArtSlider = ({
               </span>
               {titleSuffix}
             </h2>
-            <p className={cn("mt-3 text-sm sm:text-base text-stone-500 font-light break-keep max-w-lg", align === "right" ? "ml-auto" : "")}>
+            <p
+              className={cn(
+                "mt-3 text-sm sm:text-base text-stone-500 font-light break-keep max-w-lg",
+                align === "right" ? "ml-auto" : "",
+              )}
+            >
               {desc}
             </p>
           </div>
 
           {/* 장르 필터 - 가로 스크롤을 통한 기품있는 모바일 탭 (스크롤바 제거) */}
-          <div className={cn("flex items-center gap-6 sm:gap-8 overflow-x-auto max-w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]", align === "right" ? "justify-end pr-1 pl-4" : "justify-start pl-1 pr-4")}>
+          <div
+            className={cn(
+              "flex items-center gap-6 sm:gap-8 overflow-x-auto max-w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]",
+              align === "right"
+                ? "justify-end pr-1 pl-4"
+                : "justify-start pl-1 pr-4",
+            )}
+          >
             {chips.map((chip) => (
               <button
                 key={chip.genreCode}
@@ -75,12 +94,12 @@ export const MainArtSlider = ({
                   "text-sm sm:text-base cursor-pointer transition-all duration-300 relative pb-1 whitespace-nowrap",
                   activeGenre === chip.genreCode
                     ? "text-stone-900 font-medium"
-                    : "text-stone-400 hover:text-stone-600 font-light"
+                    : "text-stone-400 hover:text-stone-600 font-light",
                 )}
               >
                 {chip.title}
                 {activeGenre === chip.genreCode && (
-                  <span className="absolute bottom-0 left-0 w-full h-[1px] bg-stone-900 animate-in fade-in zoom-in duration-300" />
+                  <span className="absolute bottom-0 left-0 w-full h-px bg-stone-900 animate-in fade-in zoom-in duration-300" />
                 )}
               </button>
             ))}

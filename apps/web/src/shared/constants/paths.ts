@@ -20,4 +20,6 @@ export const PATHS = {
   USER_PROFILE: (handle: string) => `/users/${handle}`,
   INSIGHTS: "/insights",
   READING_LOG: "/my-page/reading-log",
+  TERMS: "/terms",
+  PRIVACY: "/privacy",
 } as const;
