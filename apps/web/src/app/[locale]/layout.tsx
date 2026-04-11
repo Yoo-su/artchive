@@ -14,6 +14,7 @@ import {
 
 import { ChatProvider } from "@/features/chat/providers/chat-provider";
 import { NotificationProvider } from "@/features/notification/providers/notification-provider";
+import GoogleAnalytics from "@/shared/components/analytics/google-analytics";
 import MicrosoftClarity from "@/shared/components/analytics/microsoft-clarity";
 import { Toaster } from "@/shared/components/shadcn/sonner";
 import { config } from "@/shared/config/env";
@@ -91,6 +92,7 @@ export default async function Layout({
 
             <Analytics />
             <SpeedInsights />
+            <GoogleAnalytics />
             <MicrosoftClarity />
           </QueryProvider>
           <Toaster position="bottom-center" />
