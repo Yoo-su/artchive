@@ -24,21 +24,22 @@ const NoResults = () => {
 };
 
 interface MainArtSliderProps {
-  badge: string;
+  badge?: string; // backward compat safely
   titlePrefix: string;
   titleSuffix: string;
   desc: string;
   chips: ArtDomain[];
   queryOptions?: Omit<GetArtListParams, "genreCode">;
+  align?: "left" | "right";
 }
 
 export const MainArtSlider = ({
-  badge,
   titlePrefix,
   titleSuffix,
   desc,
   chips,
   queryOptions,
+  align = "left",
 }: MainArtSliderProps) => {
   const [activeGenre, setActiveGenre] = useState<Genre>(chips[0].genreCode);
 
@@ -51,21 +52,21 @@ export const MainArtSlider = ({
     <section className="w-full py-16 overflow-hidden">
       {/* 헤더 섹션 - 갤러리/카탈로그 스타일의 가로 균형 에디토리얼 레이아웃 */}
       <div className="max-w-7xl mx-auto px-4 mb-14 relative z-10">
-        <div className="flex flex-col border-t border-stone-200 pt-8 gap-8">
-          <div>
+        <div className={cn("flex flex-col border-t border-stone-200 pt-8 gap-8 relative z-10", align === "right" ? "items-end text-right" : "items-start text-left")}>
+          <div className={cn(align === "right" ? "text-right" : "text-left")}>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-[40px] text-stone-900 font-medium tracking-tight break-keep leading-tight">
               <span className="block sm:inline sm:mr-3 text-[22px] sm:text-4xl lg:text-[40px] text-stone-400 font-light mb-1 sm:mb-0">
                 {titlePrefix}
               </span>
               {titleSuffix}
             </h2>
-            <p className="mt-3 text-sm sm:text-base text-stone-500 font-light break-keep max-w-lg">
+            <p className={cn("mt-3 text-sm sm:text-base text-stone-500 font-light break-keep max-w-lg", align === "right" ? "ml-auto" : "")}>
               {desc}
             </p>
           </div>
 
           {/* 장르 필터 - 가로 스크롤을 통한 기품있는 모바일 탭 (스크롤바 제거) */}
-          <div className="flex items-center gap-6 sm:gap-8 overflow-x-auto max-w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className={cn("flex items-center gap-6 sm:gap-8 overflow-x-auto max-w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]", align === "right" ? "justify-end pr-1 pl-4" : "justify-start pl-1 pr-4")}>
             {chips.map((chip) => (
               <button
                 key={chip.genreCode}
