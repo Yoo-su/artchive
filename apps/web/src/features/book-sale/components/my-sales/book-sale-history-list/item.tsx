@@ -1,7 +1,7 @@
 import { SaleStatus, UsedBookSale } from "@bookjeok/core";
 import { Edit, MoreVertical, Trash2 } from "lucide-react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
@@ -20,6 +20,7 @@ import {
 } from "@/shared/components/shadcn/select";
 import { Link, useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
+import { formatDate } from "@/shared/utils/format-date";
 
 import {
   useDeleteBookSaleMutation,
@@ -37,6 +38,7 @@ export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
   const tActions = useTranslations("market.detail.actions");
   const tCommon = useTranslations("common");
   const router = useRouter();
+  const locale = useLocale();
 
   const { mutate: updateSaleStatus } = useUpdateBookSaleStatusMutation();
   const { mutate: deleteSale, isPending: isDeleting } =
@@ -93,7 +95,7 @@ export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
                 className="h-5 px-1.5 text-[10px]"
               />
               <span className="text-xs text-stone-400">
-                {new Date(sale.createdAt).toLocaleDateString()}
+                {formatDate(sale.createdAt, locale, "short")}
               </span>
             </div>
             <h3 className="font-serif font-bold text-lg text-stone-900 line-clamp-1 leading-tight group-hover:text-stone-600 transition-colors">

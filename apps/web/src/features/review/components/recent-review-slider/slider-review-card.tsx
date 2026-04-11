@@ -1,9 +1,8 @@
 "use client";
 
 import { Review } from "@bookjeok/core";
-import { format } from "date-fns";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import {
   Avatar,
@@ -12,6 +11,7 @@ import {
 } from "@/shared/components/shadcn/avatar";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
+import { formatDate } from "@/shared/utils/format-date";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 interface SliderReviewCardProps {
@@ -24,6 +24,7 @@ interface SliderReviewCardProps {
  */
 export const SliderReviewCard = ({ review }: SliderReviewCardProps) => {
   const tCommon = useTranslations("common");
+  const locale = useLocale();
   const book = review.book;
 
   return (
@@ -115,7 +116,7 @@ export const SliderReviewCard = ({ review }: SliderReviewCardProps) => {
               </span>
             </div>
             <span className="text-[10px] text-stone-300 font-light">
-              {format(new Date(review.createdAt), "MM.dd")}
+              {formatDate(review.createdAt, locale, "monthDay")}
             </span>
           </div>
         </div>

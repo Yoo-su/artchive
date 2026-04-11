@@ -31,18 +31,20 @@ export const PopularBookSlider = () => {
   return (
     <section className="w-full py-16 bg-white">
       <div className="max-w-6xl mx-auto px-4">
-        {/* 헤더 - 대형 세리프 숫자 강조 스타일 */}
-        <div className="mb-10 flex items-end gap-4">
-          <span className="text-6xl sm:text-7xl font-extralight text-stone-200 leading-none tracking-tighter select-none">
+        {/* 헤더 - 기품있는 버티컬 라인 에디토리얼 스타일 */}
+        <div className="mb-14 relative flex items-end">
+          <div className="absolute -top-8 sm:-top-16 -left-2 sm:-left-4 text-[100px] sm:text-[140px] font-serif italic text-stone-100/50 leading-none tracking-tighter select-none pointer-events-none z-0">
             TOP
-          </span>
-          <div className="pb-1">
-            <h2 className="text-lg font-semibold text-stone-900 tracking-tight">
-              {t("title")}
-            </h2>
-            <p className="text-xs text-stone-400 font-light mt-0.5">
-              {t("subtitle")}
-            </p>
+          </div>
+          <div className="relative z-10 flex justify-between items-end w-full">
+            <div className="border-l-[3px] border-stone-900 pl-5 sm:pl-6">
+              <h2 className="font-serif text-3xl sm:text-4xl lg:text-[40px] font-medium text-stone-900 tracking-tight break-keep">
+                {t("title")}
+              </h2>
+              <p className="text-sm sm:text-base text-stone-500 font-light mt-3 max-w-md break-keep">
+                {t("subtitle")}
+              </p>
+            </div>
           </div>
         </div>
 

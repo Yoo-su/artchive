@@ -1,8 +1,6 @@
 "use client";
 
 import { CommentTargetType } from "@bookjeok/core";
-import { formatDistanceToNow } from "date-fns";
-import { enUS, ko } from "date-fns/locale";
 import {
   BookOpen,
   Heart,
@@ -11,7 +9,7 @@ import {
   PenLine,
   Trash2,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback } from "react";
 
 import { useDeleteMyCommentMutation } from "@/features/comment/mutations";
@@ -30,9 +28,10 @@ import {
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
-import { Link, usePathname } from "@/shared/config/i18n/routing";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";
+import { formatRelativeTime } from "@/shared/utils/format-date";
 
 /**
  * 타겟 타입에 따른 링크 생성
@@ -55,8 +54,7 @@ const getTargetLink = (targetType: CommentTargetType, targetId: string) => {
  */
 export const MyCommentList = () => {
   const t = useTranslations("my_comments");
-  const pathname = usePathname();
-  const locale = pathname.startsWith("/en") ? enUS : ko;
+  const locale = useLocale();
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
     useMyCommentsInfiniteQuery();
   const { mutate: deleteComment, isPending: isDeleting } =
@@ -135,10 +133,7 @@ export const MyCommentList = () => {
                       )}
                     </div>
                     <span className="shrink-0 text-xs text-stone-400">
-                      {formatDistanceToNow(new Date(comment.createdAt), {
-                        addSuffix: true,
-                        locale,
-                      })}
+                      {formatRelativeTime(comment.createdAt, locale)}
                     </span>
                   </div>
                 </Link>

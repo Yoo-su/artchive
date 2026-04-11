@@ -70,32 +70,32 @@ export const MainBookSlider = () => {
           as="h2"
           animation="blurInUp"
           by="character"
-          className="text-4xl md:text-5xl font-serif font-medium tracking-tight text-stone-900"
+          className="text-4xl md:text-5xl font-serif font-semibold tracking-tight text-stone-900 pb-2"
         >
           {t("title")}
         </TextAnimate>
-        <p className="mt-4 text-base md:text-lg text-stone-500 font-light max-w-xl">
+        <p className="mt-4 text-base md:text-lg text-stone-500 font-light max-w-xl tracking-wide">
           {t("subtitle")}
         </p>
       </div>
 
-      {/* 출판사 필터 칩 - 미니멀 텍스트 탭 (중앙 정렬) */}
-      <div className="container mx-auto max-w-4xl px-4 md:px-0 mb-12">
-        <div className="flex items-center justify-center gap-6 md:gap-8 flex-wrap">
+      {/* 출판사 필터 칩 - 트렌디한 필(Pill) 스타일 */}
+      <div className="container mx-auto max-w-4xl px-4 md:px-0 mb-12 flex justify-center">
+        <div className="inline-flex items-center gap-1 p-1.5 bg-white/60 backdrop-blur-xl rounded-full shadow-[0_2px_20px_-5px_rgba(0,0,0,0.05)] border border-white/40 overflow-x-auto max-w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {HOME_PUBLISHERS.map((publisher) => (
             <button
               key={publisher}
               onClick={() => setActivePublisher(publisher)}
-              className={`text-sm md:text-base cursor-pointer transition-all duration-300 relative pb-1 ${
+              className={`relative px-5 md:px-7 py-2 md:py-2.5 rounded-full text-sm md:text-base transition-all duration-500 whitespace-nowrap ${
                 activePublisher === publisher
-                  ? "text-stone-900 font-medium"
-                  : "text-stone-400 hover:text-stone-600 font-light"
+                  ? "text-stone-900 font-semibold shadow-sm"
+                  : "text-stone-400 hover:text-stone-700 font-medium"
               }`}
             >
-              {publisher}
               {activePublisher === publisher && (
-                <span className="absolute bottom-0 left-0 w-full h-px bg-stone-900 animate-in fade-in zoom-in duration-300" />
+                <span className="absolute inset-0 bg-white rounded-full shadow-[0_4px_10px_-4px_rgba(0,0,0,0.1)] -z-10 animate-in zoom-in-95 duration-300" />
               )}
+              {publisher}
             </button>
           ))}
         </div>
@@ -138,33 +138,35 @@ export const MainBookSlider = () => {
               {displayBooks.map((book, index) => (
                 <SwiperSlide
                   key={`${book.isbn}-${index}`} // 고유 키 보장
-                  className="w-[140px]! md:w-[200px]! select-none transition-opacity duration-300"
+                  className="w-[180px]! md:w-[240px]! select-none transition-opacity duration-300"
                 >
                   <Link
                     href={PATHS.BOOK_DETAIL(book.isbn)}
                     passHref
                     className="block group"
                   >
-                    <div className="relative w-full aspect-2/3 mb-4 bg-stone-200 overflow-hidden shadow-sm group-hover:shadow-lg transition-all duration-500 ease-out border border-stone-100">
+                    <div className="relative w-full aspect-2/3 mb-6 bg-stone-100 rounded-xl overflow-hidden shadow-[0_10px_30px_-5px_rgba(0,0,0,0.15)] group-hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.2)] transition-all duration-700 ease-out transform-gpu group-hover:-translate-y-2 border border-stone-200/50">
                       <Image
                         src={book.image || "/images/placeholder-book.svg"}
                         alt={book.title}
                         fill
                         priority={true} // Swiper Loop 복제 이슈 방지를 위한 즉시 로딩
                         unoptimized={true} // 복제 슬라이드 이미지 깨짐 방지
-                        sizes="(max-width: 768px) 160px, 220px"
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        sizes="(max-width: 768px) 180px, 240px"
+                        className="object-cover transition-transform duration-1000 group-hover:scale-105"
                       />
-                      {/* 미니멀 오버레이 - 호버 시 미세한 어두움 효과 */}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
+                      {/* 입체감을 위한 내부 그림자 및 효과 */}
+                      <div className="absolute inset-0 ring-1 ring-inset ring-white/20 rounded-xl" />
+                      <div className="absolute inset-0 bg-linear-to-tr from-black/10 via-transparent to-white/10 group-hover:opacity-0 transition-opacity duration-500" />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
                     </div>
 
                     {/* 책 정보 - 활성 슬라이드에만 표시 */}
-                    <div className="relative w-[200px] md:w-[280px] left-1/2 -translate-x-1/2 space-y-1 pt-2 select-none opacity-0 translate-y-4 transition-all duration-500 ease-out delay-200 in-[.swiper-slide-active]:opacity-100 in-[.swiper-slide-active]:translate-y-0 text-center">
-                      <h3 className="text-stone-900 font-medium text-lg md:text-xl leading-tight">
+                    <div className="relative w-[240px] md:w-[320px] left-1/2 -translate-x-1/2 space-y-1.5 pt-2 select-none opacity-0 translate-y-6 transition-all duration-700 ease-in-out delay-100 in-[.swiper-slide-active]:opacity-100 in-[.swiper-slide-active]:translate-y-0 text-center">
+                      <h3 className="text-stone-900 font-bold text-lg md:text-2xl leading-tight line-clamp-1 px-4">
                         {book.title}
                       </h3>
-                      <p className="text-stone-500 text-sm md:text-base font-light">
+                      <p className="text-stone-500 text-sm md:text-base font-medium tracking-wide">
                         {book.author}
                       </p>
                     </div>

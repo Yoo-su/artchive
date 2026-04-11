@@ -2,13 +2,13 @@
 
 import { ReadingLog } from "@bookjeok/core";
 import { format } from "date-fns";
-import { enUS, ko } from "date-fns/locale";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useRef } from "react";
 
 import { Card } from "@/shared/components/shadcn/card";
+import { formatDate } from "@/shared/utils/format-date";
 
 interface ReadingTimelineProps {
   logs: ReadingLog[];
@@ -17,8 +17,6 @@ interface ReadingTimelineProps {
 export function ReadingTimeline({ logs }: ReadingTimelineProps) {
   const t = useTranslations("reading_log.timeline");
   const locale = useLocale();
-  const dateLocale = locale === "ko" ? ko : enUS;
-  const dateFormat = locale === "ko" ? "dd일" : "d";
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -118,9 +116,7 @@ export function ReadingTimeline({ logs }: ReadingTimelineProps) {
                             {log.book?.author}
                           </p>
                           <time className="block text-[10px] text-primary/80 font-medium pt-1">
-                            {format(new Date(log.date), dateFormat, {
-                              locale: dateLocale,
-                            })}
+                            {formatDate(log.date, locale, "day")}
                           </time>
                         </div>
                       </div>

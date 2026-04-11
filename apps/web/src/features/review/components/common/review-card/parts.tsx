@@ -1,7 +1,7 @@
 "use client";
 
-import { format } from "date-fns";
 import Image from "next/image";
+import { useLocale } from "next-intl";
 import { ReactNode } from "react";
 
 import {
@@ -10,6 +10,7 @@ import {
   AvatarImage,
 } from "@/shared/components/shadcn/avatar";
 import { cn } from "@/shared/utils/cn";
+import { formatDate } from "@/shared/utils/format-date";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 import { useReviewCardContext } from "./context";
@@ -68,6 +69,7 @@ export const Content = ({
 
 export const Meta = ({ className }: { className?: string }) => {
   const { review } = useReviewCardContext();
+  const locale = useLocale();
   const book = review.book;
 
   return (
@@ -77,7 +79,7 @@ export const Meta = ({ className }: { className?: string }) => {
       </span>
       <span className="w-0.5 h-0.5 rounded-full bg-stone-300 shrink-0" />
       <span className="text-[11px] text-stone-300 font-light">
-        {format(new Date(review.createdAt), "yyyy.MM.dd")}
+        {formatDate(review.createdAt, locale, "short")}
       </span>
       {review.rating > 0 && (
         <>

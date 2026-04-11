@@ -1,6 +1,5 @@
 import { BookInfo ,  ReadingLog } from "@bookjeok/core";
 import { format } from "date-fns";
-import { ko } from "date-fns/locale";
 import {
   Calendar as CalendarIcon,
   Pencil,
@@ -9,6 +8,7 @@ import {
   Trash2,
 } from "lucide-react";
 import Image from "next/image";
+import { useLocale } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -23,6 +23,7 @@ import {
 } from "@/shared/components/shadcn/dialog";
 import { ScrollArea } from "@/shared/components/shadcn/scroll-area";
 import { useSafeSubmit } from "@/shared/hooks/use-safe-submit";
+import { formatDate } from "@/shared/utils/format-date";
 
 import {
   useCreateReadingLogMutation,
@@ -46,6 +47,7 @@ export function DayDetailsDialog({
   onOpenChange,
 }: DayDetailsDialogProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const locale = useLocale();
 
   // 생성 모드 상태
   const [selectedBookForCreate, setSelectedBookForCreate] =
@@ -127,7 +129,7 @@ export function DayDetailsDialog({
               <span className="flex items-center justify-center w-9 h-9 rounded-xl shadow-sm bg-stone-100 text-stone-600">
                 <CalendarIcon className="w-5 h-5" />
               </span>
-              {format(date, "M월 d일 eeee", { locale: ko })}
+              {formatDate(date, locale, "monthDayWeekday")}
             </DialogTitle>
             <DialogDescription className="text-stone-500">
               오늘 읽은 책들의 감상을 남겨보세요.
