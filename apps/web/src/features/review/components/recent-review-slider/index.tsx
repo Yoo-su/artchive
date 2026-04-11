@@ -22,25 +22,18 @@ export const RecentReviewSlider = () => {
   const reviews = reviewsData?.reviews || [];
 
   const SliderHeader = () => (
-    <div className="text-right mb-12">
-      <div className="mb-4 flex items-center justify-end gap-2">
-        <span className="text-[10px] font-bold text-stone-500 tracking-[0.2em] uppercase">
-          {t("badge")}
-        </span>
-        <div className="h-px w-8 bg-stone-300" />
-      </div>
-      <Link href={PATHS.REVIEWS} className="group inline-block">
-        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl transition-opacity group-hover:opacity-70">
-          <span className="block text-gray-400 font-medium text-2xl mb-1">
-            {t("title_prefix")}
-          </span>
-          <ArrowRight className="inline-block w-6 h-6 mr-2 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 rotate-180" />
+    <div className="mb-14 flex flex-col items-center text-center relative z-10 px-4">
+      <Link href={PATHS.REVIEWS} className="group flex flex-col items-center">
+        <h2 className="font-serif text-3xl sm:text-4xl lg:text-[40px] text-stone-900 font-medium tracking-tight break-keep leading-tight">
+          <span className="block text-[22px] sm:text-4xl lg:text-[40px] text-stone-400 font-light mb-1 sm:mb-2">{t("title_prefix")}</span>
           {t("title_suffix")}
         </h2>
+        <div className="w-12 h-[1px] bg-stone-300 my-5 group-hover:w-24 group-hover:bg-stone-900 transition-all duration-500" />
+        <p className="text-sm sm:text-base text-stone-500 font-light break-keep max-w-lg">
+          {t("desc")}
+        </p>
+        <ArrowRight className="w-5 h-5 text-stone-300 mt-4 group-hover:text-stone-900 group-hover:translate-y-1 transition-all duration-500 rotate-90" strokeWidth={1.5} />
       </Link>
-      <p className="mt-4 text-lg text-gray-500 max-w-2xl ml-auto">
-        {t("desc")}
-      </p>
     </div>
   );
 

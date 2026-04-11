@@ -49,45 +49,41 @@ export const MainArtSlider = ({
 
   return (
     <section className="w-full py-16 overflow-hidden">
-      {/* 헤더 섹션 - 좌측 정렬, 라인+뱃지 스타일 */}
-      <div className="max-w-7xl mx-auto px-4 mb-12">
-        <div className="text-left">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="h-px w-8 bg-stone-300" />
-            <span className="text-[10px] font-bold text-stone-500 tracking-[0.2em] uppercase">
-              {badge}
-            </span>
+      {/* 헤더 섹션 - 갤러리/카탈로그 스타일의 가로 균형 에디토리얼 레이아웃 */}
+      <div className="max-w-7xl mx-auto px-4 mb-14 relative z-10">
+        <div className="flex flex-col border-t border-stone-200 pt-8 gap-8">
+          <div>
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-[40px] text-stone-900 font-medium tracking-tight break-keep leading-tight">
+              <span className="block sm:inline sm:mr-3 text-[22px] sm:text-4xl lg:text-[40px] text-stone-400 font-light mb-1 sm:mb-0">
+                {titlePrefix}
+              </span>
+              {titleSuffix}
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-stone-500 font-light break-keep max-w-lg">
+              {desc}
+            </p>
           </div>
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
-            <span className="block text-gray-400 font-medium text-2xl mb-1">
-              {titlePrefix}
-            </span>
-            {titleSuffix}
-          </h2>
-          <p className="mt-4 text-base text-stone-500 font-light max-w-2xl">
-            {desc}
-          </p>
-        </div>
 
-        {/* 장르 필터 - 미니멀 텍스트 탭 */}
-        <div className="mt-10 flex items-center gap-6 md:gap-8 flex-wrap">
-          {chips.map((chip) => (
-            <button
-              key={chip.genreCode}
-              onClick={() => setActiveGenre(chip.genreCode)}
-              className={cn(
-                "text-sm md:text-base cursor-pointer transition-all duration-300 relative pb-1",
-                activeGenre === chip.genreCode
-                  ? "text-stone-900 font-medium"
-                  : "text-stone-400 hover:text-stone-600 font-light",
-              )}
-            >
-              {chip.title}
-              {activeGenre === chip.genreCode && (
-                <span className="absolute bottom-0 left-0 w-full h-px bg-stone-900 animate-in fade-in zoom-in duration-300" />
-              )}
-            </button>
-          ))}
+          {/* 장르 필터 - 가로 스크롤을 통한 기품있는 모바일 탭 (스크롤바 제거) */}
+          <div className="flex items-center gap-6 sm:gap-8 overflow-x-auto max-w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            {chips.map((chip) => (
+              <button
+                key={chip.genreCode}
+                onClick={() => setActiveGenre(chip.genreCode)}
+                className={cn(
+                  "text-sm sm:text-base cursor-pointer transition-all duration-300 relative pb-1 whitespace-nowrap",
+                  activeGenre === chip.genreCode
+                    ? "text-stone-900 font-medium"
+                    : "text-stone-400 hover:text-stone-600 font-light"
+                )}
+              >
+                {chip.title}
+                {activeGenre === chip.genreCode && (
+                  <span className="absolute bottom-0 left-0 w-full h-[1px] bg-stone-900 animate-in fade-in zoom-in duration-300" />
+                )}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

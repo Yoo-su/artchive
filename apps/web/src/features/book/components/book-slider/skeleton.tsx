@@ -30,17 +30,17 @@ export const BookSliderSkeleton = () => (
         {[...Array(7)].map((_, index) => (
           <SwiperSlide
             key={index}
-            className="w-[140px]! md:w-[200px]! select-none"
+            className="w-[180px]! md:w-[240px]! select-none"
           >
             <div className="block">
-              <div className="relative w-full aspect-2/3 mb-4 bg-stone-200 overflow-hidden shadow-sm border border-stone-100">
-                <Skeleton className="w-full h-full bg-stone-200" />
+              <div className="relative w-full aspect-2/3 mb-6 bg-stone-100 rounded-xl overflow-hidden border border-stone-200/50 shadow-[0_10px_30px_-5px_rgba(0,0,0,0.15)]">
+                <Skeleton className="w-full h-full bg-stone-200/60" />
               </div>
 
-              {/* 책 정보 영역 - 활성 슬라이드에만 표시 */}
-              <div className="space-y-1 pt-2 select-none opacity-0 translate-y-4 transition-all duration-500 ease-out delay-200 in-[.swiper-slide-active]:opacity-100 in-[.swiper-slide-active]:translate-y-0 text-center">
-                <Skeleton className="h-6 w-32 md:w-40 mx-auto bg-stone-200" />
-                <Skeleton className="h-4 w-24 md:w-32 mx-auto bg-stone-200" />
+              {/* 책 정보 영역 스켈레톤 (오퍼시티 없이 항상 노출, 위치 조정) */}
+              <div className="relative w-[240px] md:w-[320px] left-1/2 -translate-x-1/2 space-y-2 text-center pt-2">
+                <Skeleton className="h-6 md:h-8 w-32 md:w-48 mx-auto bg-stone-200/60" />
+                <Skeleton className="h-4 md:h-5 w-24 md:w-32 mx-auto bg-stone-200/80" />
               </div>
             </div>
           </SwiperSlide>

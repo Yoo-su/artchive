@@ -1,7 +1,6 @@
 "use client";
 
 import { format, parseISO } from "date-fns";
-import { enUS, ko } from "date-fns/locale";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useEffect } from "react";
@@ -9,6 +8,7 @@ import { useInView } from "react-intersection-observer";
 
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { cn } from "@/shared/utils";
+import { getDateLocale } from "@/shared/utils/format-date";
 
 import { getSeasonalTheme } from "../../../hooks/use-seasonal-theme";
 import { useReadingLogsInfiniteQuery } from "../../../queries";
@@ -17,7 +17,7 @@ import { DayDetailsDialog } from "../../common/day-details-dialog";
 export function ReadingLogListView() {
   const t = useTranslations("reading_log.list");
   const locale = useLocale();
-  const dateLocale = locale === "ko" ? ko : enUS;
+  const dateLocale = getDateLocale(locale);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useReadingLogsInfiniteQuery();

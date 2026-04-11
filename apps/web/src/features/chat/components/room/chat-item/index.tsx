@@ -2,10 +2,10 @@
 
 import { ChatRoom } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
-import { format, isToday, isYesterday } from "date-fns";
-import { ko } from "date-fns/locale";
+import { isToday, isYesterday } from "date-fns";
 import { motion } from "framer-motion";
 import { MessageSquareText } from "lucide-react";
+import { useLocale } from "next-intl";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import {
@@ -13,21 +13,29 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/shared/components/shadcn/avatar";
+import { formatDate } from "@/shared/utils/format-date";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 import { useChatStore } from "../../../stores/use-chat-store";
 
-const formatLastMessageTime = (date: string) => {
+// 로케일별 "어제" 텍스트
+const YESTERDAY_TEXT: Record<string, string> = {
+  ko: "어제",
+  en: "Yesterday",
+};
+
+const formatLastMessageTime = (date: string, locale: string) => {
   const messageDate = new Date(date);
-  if (isToday(messageDate)) return format(messageDate, "p", { locale: ko });
-  if (isYesterday(messageDate)) return "어제";
-  return format(messageDate, "MMM d일", { locale: ko });
+  if (isToday(messageDate)) return formatDate(messageDate, locale, "time");
+  if (isYesterday(messageDate)) return YESTERDAY_TEXT[locale] ?? YESTERDAY_TEXT.en;
+  return formatDate(messageDate, locale, "monthDayShort");
 };
 
 export const ChatItem = ({ room }: { room: ChatRoom }) => {
   const { openChatRoom } = useChatStore();
   const currentUser = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
+  const locale = useLocale();
 
   const opponent = room.participants.find(
     (p) => p.user.id !== currentUser?.id,
@@ -70,7 +78,7 @@ export const ChatItem = ({ room }: { room: ChatRoom }) => {
             </div>
             {room.lastMessage && (
               <p className="text-xs text-gray-400 shrink-0">
-                {formatLastMessageTime(room.lastMessage.createdAt)}
+                {formatLastMessageTime(room.lastMessage.createdAt, locale)}
               </p>
             )}
           </div>

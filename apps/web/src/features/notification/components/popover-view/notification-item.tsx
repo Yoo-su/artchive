@@ -1,6 +1,4 @@
 import { Notification } from "@bookjeok/core";
-import { formatDistanceToNow } from "date-fns";
-import { enUS, ko } from "date-fns/locale";
 import { Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -18,6 +16,7 @@ import {
 } from "@/shared/components/shadcn/tooltip";
 import { Link } from "@/shared/config/i18n/routing";
 import { cn } from "@/shared/utils";
+import { formatRelativeTime } from "@/shared/utils/format-date";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 import { useDeleteNotification, useMarkAsRead } from "../../mutations";
@@ -34,7 +33,6 @@ export const NotificationItem = ({
 }: NotificationItemProps) => {
   const t = useTranslations("notification");
   const locale = useLocale();
-  const dateLocale = locale === "ko" ? ko : enUS;
 
   const { mutate: markAsRead } = useMarkAsRead();
   const { mutate: deleteNotification } = useDeleteNotification();
@@ -89,10 +87,7 @@ export const NotificationItem = ({
             </p>
             <div className="flex items-center gap-1.5">
               <span className="text-[11px] text-muted-foreground/80 shrink-0 font-medium tracking-tight">
-                {formatDistanceToNow(new Date(notification.createdAt), {
-                  addSuffix: true,
-                  locale: dateLocale,
-                })}
+                {formatRelativeTime(notification.createdAt, locale)}
               </span>
               {!notification.isRead && (
                 <span className="h-2 w-2 rounded-full bg-orange-500 shadow-sm ring-2 ring-background" />

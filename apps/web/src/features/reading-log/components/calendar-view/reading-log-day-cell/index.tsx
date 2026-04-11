@@ -3,8 +3,10 @@
 import { ReadingLog } from "@bookjeok/core";
 import { format } from "date-fns";
 import Image from "next/image";
+import { useLocale } from "next-intl";
 
 import { cn } from "@/shared/utils";
+import { formatDate } from "@/shared/utils/format-date";
 
 import { SeasonalTheme } from "../../../constants/ui";
 
@@ -23,6 +25,7 @@ export function ReadingLogDayCell({
   onClick,
   theme,
 }: ReadingLogDayCellProps) {
+  const locale = useLocale();
   const isToday =
     format(date, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
   const hasLogs = logs.length > 0;
@@ -60,7 +63,7 @@ export function ReadingLogDayCell({
                 ),
           )}
         >
-          {format(date, "d")}
+          {formatDate(date, locale, "day")}
         </span>
       </div>
 

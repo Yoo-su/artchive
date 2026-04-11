@@ -1,10 +1,9 @@
 "use client";
 
 import { BookInfo ,  Review } from "@bookjeok/core";
-import { format } from "date-fns";
 import { BookOpen, Calendar, Eye, Share2 } from "lucide-react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
@@ -14,6 +13,7 @@ import { StarRating } from "@/shared/components/ui/star-rating";
 import { UserAvatarMenu } from "@/shared/components/ui/user-avatar-menu";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
+import { formatDate } from "@/shared/utils/format-date";
 
 interface ReviewDetailHeaderProps {
   review: Review;
@@ -22,6 +22,7 @@ interface ReviewDetailHeaderProps {
 
 export function ReviewDetailHeader({ review, book }: ReviewDetailHeaderProps) {
   const t = useTranslations("review.detail");
+  const locale = useLocale();
 
   return (
     <header className="relative bg-white pt-20 pb-12">
@@ -36,7 +37,7 @@ export function ReviewDetailHeader({ review, book }: ReviewDetailHeaderProps) {
             dateTime={review.createdAt}
             className="font-normal text-stone-400"
           >
-            {format(new Date(review.createdAt), "MMMM d, yyyy")}
+            {formatDate(review.createdAt, locale, "full")}
           </time>
         </div>
 

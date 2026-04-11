@@ -1,9 +1,7 @@
 import { PublicUserProfile, SaleStatus } from "@bookjeok/core";
-import { format } from "date-fns";
-import { enUS, ko } from "date-fns/locale";
 import { BookOpen, Calendar, ShoppingBag, User } from "lucide-react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { SaleStatusBadge } from "@/features/book-sale/components/common/sale-status-badge";
 import { ReadingTimeline } from "@/features/reading-log/components/stats-view/reading-timeline";
@@ -11,8 +9,9 @@ import { usePublicProfileQuery } from "@/features/user/queries";
 import { Card, CardContent, CardHeader } from "@/shared/components/shadcn/card";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { NotFoundRedirect } from "@/shared/components/ui/not-found-redirect";
-import { Link, usePathname } from "@/shared/config/i18n/routing";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
+import { formatDate } from "@/shared/utils/format-date";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 interface UserProfileProps {
@@ -73,8 +72,7 @@ interface UserProfileHeaderProps {
 
 const UserProfileHeader = ({ profile }: UserProfileHeaderProps) => {
   const t = useTranslations("user_profile");
-  const pathname = usePathname();
-  const locale = pathname.startsWith("/en") ? enUS : ko;
+  const locale = useLocale();
 
   return (
     <Card className="mb-8">
@@ -100,9 +98,7 @@ const UserProfileHeader = ({ profile }: UserProfileHeaderProps) => {
             <Calendar className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
             <span className="truncate">
               {t("joined", {
-                date: format(new Date(profile.createdAt), "yyyy.MM", {
-                  locale,
-                }),
+                date: formatDate(profile.createdAt, locale, "yearMonth"),
               })}
             </span>
           </div>

@@ -1,10 +1,8 @@
 "use client";
 
 import { Comment, CommentTargetType, MAX_COMMENT_LENGTH } from "@bookjeok/core";
-import { formatDistanceToNow } from "date-fns";
-import { enUS, ko } from "date-fns/locale";
 import { Heart, Loader2, MoreVertical, Pencil, Trash2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
@@ -28,8 +26,8 @@ import {
 } from "@/shared/components/shadcn/dropdown-menu";
 import { Textarea } from "@/shared/components/shadcn/textarea";
 import { UserAvatarMenu } from "@/shared/components/ui/user-avatar-menu";
-import { Link, usePathname } from "@/shared/config/i18n/routing";
 import { cn } from "@/shared/utils";
+import { formatRelativeTime } from "@/shared/utils/format-date";
 
 import { COMMENT_LINE_CLAMP } from "../../../constants/config";
 import {
@@ -60,8 +58,7 @@ export const CommentItem = ({
   const [editContent, setEditContent] = useState(comment.content);
 
   const t = useTranslations("comment.item");
-  const pathname = usePathname();
-  const locale = pathname.startsWith("/en") ? enUS : ko;
+  const locale = useLocale();
 
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = !!user;
@@ -74,10 +71,7 @@ export const CommentItem = ({
   const { mutate: deleteComment, isPending: isDeletePending } =
     useDeleteCommentMutation(targetType, targetId, page);
 
-  const timeAgo = formatDistanceToNow(new Date(comment.createdAt), {
-    addSuffix: true,
-    locale,
-  });
+  const timeAgo = formatRelativeTime(comment.createdAt, locale);
 
   const isLongComment =
     comment.content.split("\n").length > COMMENT_LINE_CLAMP ||

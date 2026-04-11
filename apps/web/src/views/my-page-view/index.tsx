@@ -1,7 +1,5 @@
 "use client";
 
-import { format } from "date-fns";
-import { enUS, ko } from "date-fns/locale";
 import {
   BookOpen,
   Calendar,
@@ -14,7 +12,7 @@ import {
   User,
 } from "lucide-react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { UserStatsDashboard } from "@/features/user/components/dashboard/user-stats-dashboard";
@@ -22,15 +20,15 @@ import { ProfileEditModal } from "@/features/user/components/profile/profile-edi
 import { WithdrawalModal } from "@/features/user/components/profile/withdrawal-modal";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
-import { Link, usePathname } from "@/shared/config/i18n/routing";
+import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
+import { formatDate } from "@/shared/utils/format-date";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 export const MyPageView = () => {
   const t = useTranslations("my_page");
   const user = useAuthStore((state) => state.user);
-  const pathname = usePathname();
-  const locale = pathname.startsWith("/en") ? enUS : ko;
+  const locale = useLocale();
 
   // 활동 메뉴 정의
   const activityMenus = [
@@ -134,9 +132,7 @@ export const MyPageView = () => {
                   <Calendar className="h-3.5 w-3.5" />
                   <span>
                     {t("profile.joined", {
-                      date: format(new Date(user.createdAt), "yyyy.MM", {
-                        locale,
-                      }),
+                      date: formatDate(user.createdAt, locale, "yearMonth"),
                     })}
                   </span>
                 </div>
