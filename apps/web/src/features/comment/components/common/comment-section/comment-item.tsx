@@ -91,62 +91,58 @@ export const CommentItem = ({
   };
 
   return (
-    <div className="flex gap-3 group">
-      {/* 아바타 */}
-      <UserAvatarMenu
-        user={comment.user}
-        showNickname={false}
-        size="md"
-        menuSide="right"
-        menuAlign="center"
-        className={cn(
-          "shrink-0",
-          isOwner && "ring-2 ring-sky-200 rounded-full",
-        )}
-      />
-
-      {/* 말풍선 */}
-      <div className="flex-1 min-w-0">
-        {/* 구름 스타일 말풍선 */}
-        <div
-          className={cn(
-            "relative px-4 py-3 rounded-2xl rounded-tl-sm",
-            "shadow-[0_2px_12px_rgba(0,0,0,0.04)]",
-            "backdrop-blur-sm",
-            "transition-all duration-200",
-            "hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)]",
-            "bg-linear-to-br from-white/80 to-white/60 dark:from-white/10 dark:to-white/5",
-          )}
-        >
-          {/* 헤더 */}
-          <div className="flex items-center justify-between gap-2 mb-1.5">
-            <div className="flex items-center gap-1.5 min-w-0">
-              <span className="font-medium text-sm truncate">
+    <div className={cn(
+      "group relative w-full p-4 sm:p-5 mb-4",
+      "bg-white dark:bg-stone-900/40",
+      "rounded-[32px] rounded-tl-[10px]", // 몽실몽실한 구름 형태의 말풍선
+      "border border-stone-100 dark:border-stone-800/60",
+      "shadow-[0_8px_40px_-12px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.08)]",
+      "transition-all duration-300"
+    )}>
+      {/* 헤더: 아바타 & 닉네임 & 메뉴 */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          <UserAvatarMenu
+            user={comment.user}
+            showNickname={false}
+            size="sm"
+            menuSide="bottom"
+            menuAlign="start"
+            className={cn(
+              "shrink-0",
+              isOwner && "ring-1 ring-stone-200 rounded-full",
+            )}
+          />
+          <div className="flex flex-col justify-center">
+            <div className="flex items-center gap-1.5">
+              <span className="font-serif font-medium text-[15px] tracking-tight text-stone-900">
                 {comment.user.nickname}
               </span>
               {isOwner && (
-                <span className="shrink-0 text-[10px] text-primary/70 font-medium">
-                  · {t("me")}
+                <span className="shrink-0 text-[10px] text-stone-600 bg-stone-100 px-1.5 py-0.5 rounded-[4px] font-medium border border-stone-200">
+                  {t("me")}
                 </span>
               )}
-              <span className="shrink-0 text-[11px] text-muted-foreground/60">
-                · {timeAgo}
-              </span>
             </div>
+            <span className="text-[11px] text-stone-400 font-light mt-0.5 tabular-nums tracking-wide">
+              {timeAgo}
+            </span>
+          </div>
+        </div>
 
-            {/* 드롭다운 메뉴 */}
-            {isOwner && !isEditing && (
-              <AlertDialog>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-full"
-                    >
-                      <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
-                    </Button>
-                  </DropdownMenuTrigger>
+        {/* 드롭다운 메뉴 */}
+        {isOwner && !isEditing && (
+          <AlertDialog>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full hover:bg-stone-100 text-stone-400"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="min-w-[100px]">
                     <DropdownMenuItem
                       onClick={() => setIsEditing(true)}
@@ -194,20 +190,21 @@ export const CommentItem = ({
             )}
           </div>
 
-          {/* 본문 */}
+        {/* 본문 & 액션 영역 - 아바타 우측 정렬선에 맞춤 */}
+        <div className="pl-[2.75rem] pr-2">
           {isEditing ? (
-            <div className="space-y-2">
+            <div className="space-y-3 mt-1">
               <Textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
                 maxLength={MAX_COMMENT_LENGTH}
-                className="min-h-[60px] resize-none text-sm bg-background/50"
+                className="min-h-[80px] resize-none text-[14px] bg-stone-50 border-stone-200 focus-visible:ring-stone-900 rounded-[16px] px-4 py-3"
               />
-              <div className="flex gap-1.5 justify-end">
+              <div className="flex gap-2 justify-end">
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
-                  className="h-7 text-xs"
+                  className="h-8 text-[12px] px-4 rounded-full border-stone-200 hover:bg-stone-100 hover:text-stone-900 text-stone-500 font-medium"
                   onClick={() => {
                     setIsEditing(false);
                     setEditContent(comment.content);
@@ -217,12 +214,12 @@ export const CommentItem = ({
                 </Button>
                 <Button
                   size="sm"
-                  className="h-7 text-xs"
+                  className="h-8 text-[12px] px-5 rounded-full bg-stone-900 text-white hover:bg-stone-800 transition-colors font-medium shadow-md shadow-stone-900/10"
                   onClick={handleUpdate}
                   disabled={!editContent.trim() || isUpdatePending}
                 >
                   {isUpdatePending ? (
-                    <Loader2 className="h-3 w-3 animate-spin" />
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   ) : (
                     t("save")
                   )}
@@ -232,7 +229,7 @@ export const CommentItem = ({
           ) : (
             <p
               className={cn(
-                "text-[13px] leading-relaxed text-foreground/85 whitespace-pre-wrap break-all",
+                "text-[14px] leading-[1.7] text-stone-700 font-light whitespace-pre-wrap break-words",
                 !isExpanded && isLongComment && "line-clamp-3",
               )}
             >
@@ -244,38 +241,42 @@ export const CommentItem = ({
           {!isEditing && isLongComment && (
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-[11px] text-primary/70 hover:text-primary transition-colors mt-1"
+              className="text-[12px] text-stone-400 hover:text-stone-900 transition-colors mt-2 font-medium underline underline-offset-4 decoration-stone-200 hover:decoration-stone-400"
             >
               {isExpanded ? t("fold") : t("more")}
             </button>
           )}
-        </div>
-
-        {/* 액션 바 (말풍선 외부) */}
-        {!isEditing && (
-          <div className="flex items-center gap-3 mt-1.5 ml-1">
-            <button
-              onClick={handleLike}
-              disabled={!isAuthenticated || isLikePending}
-              className={cn(
-                "flex items-center gap-1 text-[11px] transition-all",
-                comment.isLiked
-                  ? "text-rose-500"
-                  : "text-muted-foreground/50 hover:text-rose-400",
-                !isAuthenticated && "cursor-not-allowed",
-              )}
-            >
-              <Heart
+          {/* 액션 바 */}
+          {!isEditing && (
+            <div className="flex items-center gap-4 mt-3 pb-1">
+              <button
+                onClick={handleLike}
+                disabled={!isAuthenticated || isLikePending}
                 className={cn(
-                  "h-3.5 w-3.5 transition-transform",
-                  comment.isLiked && "fill-current scale-110",
+                  "group/like flex items-center gap-2 text-[12px] transition-all duration-300 outline-hidden",
+                  comment.isLiked
+                    ? "text-stone-900 font-medium"
+                    : "text-stone-400 hover:text-stone-900",
+                  !isAuthenticated && "cursor-not-allowed opacity-50",
                 )}
-              />
-              {comment.likeCount > 0 && <span>{comment.likeCount}</span>}
-            </button>
-          </div>
-        )}
-      </div>
+              >
+                <div className={cn(
+                  "flex items-center justify-center p-1.5 rounded-[12px] transition-all duration-300",
+                  comment.isLiked ? "bg-stone-900 text-white shadow-sm" : "bg-stone-50 text-stone-400 group-hover/like:bg-stone-100"
+                )}>
+                  <Heart
+                    className={cn(
+                      "h-3.5 w-3.5 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
+                      comment.isLiked && "fill-current scale-110",
+                    )}
+                    strokeWidth={comment.isLiked ? 0 : 2}
+                  />
+                </div>
+                {comment.likeCount > 0 && <span className="tabular-nums tracking-wide">{comment.likeCount}</span>}
+              </button>
+            </div>
+          )}
+        </div>
     </div>
   );
 };
