@@ -36,7 +36,7 @@ export const UserProfile = ({ handle }: UserProfileProps) => {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-8">
+    <div className="container mx-auto max-w-4xl px-4 py-8" data-clarity-mask="true">
       <UserProfileHeader profile={profile} />
       <UserProfileStats stats={profile.stats} />
 
