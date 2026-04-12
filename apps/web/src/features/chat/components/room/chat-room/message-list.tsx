@@ -85,7 +85,7 @@ const MessageBubble = ({ message, isMine }: MessageBubbleProps) => {
             : "bg-gray-100 text-gray-800 rounded-bl-none"
         } ${isSending ? "opacity-70" : ""}`}
       >
-        <p className="text-sm">{message.content}</p>
+        <p className="text-sm" data-clarity-mask="true">{message.content}</p>
       </div>
     </div>
   );

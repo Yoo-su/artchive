@@ -70,9 +70,9 @@ export const ChatItem = ({ room }: { room: ChatRoom }) => {
         </div>
         <div className="flex justify-between items-start mt-1.5">
           <div className="flex items-center justify-between text-sm text-gray-500 w-10/12">
-            <div className="flex items-center gap-1.5 truncate">
+            <div className="flex items-center gap-1.5 truncate text-gray-500 w-10/12">
               <MessageSquareText className="h-4 w-4 shrink-0" />
-              <p className="truncate">
+              <p className="truncate" data-clarity-mask="true">
                 {room.lastMessage?.content || "아직 메시지가 없습니다."}
               </p>
             </div>

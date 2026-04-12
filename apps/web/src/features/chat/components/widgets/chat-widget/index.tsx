@@ -24,7 +24,8 @@ export const ChatWidget = () => {
           transition={{ duration: 0.3, ease: "easeInOut" }}
           className="fixed bottom-24 right-6 z-999 h-[70vh] w-[90vw] max-w-sm"
         >
-          <Card className="h-full w-full flex flex-col shadow-2xl overflow-hidden">
+          {/* Clarity 세션 녹화에서 채팅 내용 마스킹 */}
+          <Card className="h-full w-full flex flex-col shadow-2xl overflow-hidden" data-clarity-mask="true">
             {activeChatRoomId ? <ChatRoom /> : <ChatList />}
           </Card>
         </motion.div>
