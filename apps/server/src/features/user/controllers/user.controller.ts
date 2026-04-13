@@ -157,7 +157,10 @@ export class UserController {
 
   @Post('wishlist')
   @UseGuards(AuthGuard('jwt'))
-  @TrackActivity(ActivityType.WISHLIST_ADD)
+  @TrackActivity(ActivityType.WISHLIST_ADD, (req) => ({
+    type: req.body.type,
+    id: req.body.id,
+  }))
   @ApiOperation({
     summary: '위시리스트 추가',
     description: '책이나 판매글을 위시리스트에 추가합니다.',
@@ -191,7 +194,10 @@ export class UserController {
 
   @Delete('wishlist')
   @UseGuards(AuthGuard('jwt'))
-  @TrackActivity(ActivityType.WISHLIST_REMOVE)
+  @TrackActivity(ActivityType.WISHLIST_REMOVE, (req) => ({
+    type: req.query.type,
+    id: req.query.id,
+  }))
   @ApiOperation({
     summary: '위시리스트 삭제',
     description: '위시리스트에서 항목을 제거합니다.',

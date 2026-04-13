@@ -84,7 +84,10 @@ export class CommentController {
   @Post()
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(IdempotencyInterceptor)
-  @TrackActivity(ActivityType.COMMENT_CREATE)
+  @TrackActivity(ActivityType.COMMENT_CREATE, (req) => ({
+    targetType: req.body.targetType,
+    targetId: req.body.targetId,
+  }))
   @ApiOperation({
     summary: '댓글 작성',
     description: '새로운 댓글을 작성합니다.',
@@ -110,7 +113,7 @@ export class CommentController {
    */
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
-  @TrackActivity(ActivityType.COMMENT_UPDATE)
+  @TrackActivity(ActivityType.COMMENT_UPDATE, (req) => ({ id: req.params.id }))
   @ApiOperation({
     summary: '댓글 수정',
     description: '작성한 댓글을 수정합니다.',
@@ -137,7 +140,7 @@ export class CommentController {
    */
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
-  @TrackActivity(ActivityType.COMMENT_DELETE)
+  @TrackActivity(ActivityType.COMMENT_DELETE, (req) => ({ id: req.params.id }))
   @ApiOperation({
     summary: '댓글 삭제',
     description: '작성한 댓글을 삭제합니다.',
@@ -163,7 +166,7 @@ export class CommentController {
    */
   @Post(':id/like')
   @UseGuards(AuthGuard('jwt'))
-  @TrackActivity(ActivityType.COMMENT_LIKE)
+  @TrackActivity(ActivityType.COMMENT_LIKE, (req) => ({ id: req.params.id }))
   @ApiOperation({
     summary: '댓글 좋아요 토글',
     description: '댓글에 좋아요를 추가하거나 취소합니다.',
