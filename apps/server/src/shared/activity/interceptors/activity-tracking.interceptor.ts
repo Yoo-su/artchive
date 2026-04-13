@@ -11,8 +11,10 @@ import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
-import { ActivityType } from '../activity-type.enum';
-import { TRACK_ACTIVITY_KEY } from '../decorators/track-activity.decorator';
+import {
+  TRACK_ACTIVITY_KEY,
+  TrackActivityMetadata,
+} from '../decorators/track-activity.decorator';
 
 @Injectable()
 export class ActivityTrackingInterceptor implements NestInterceptor {
@@ -24,29 +26,31 @@ export class ActivityTrackingInterceptor implements NestInterceptor {
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
-    const activityType = this.reflector.get<ActivityType>(
+    const metadata = this.reflector.get<TrackActivityMetadata>(
       TRACK_ACTIVITY_KEY,
       context.getHandler(),
     );
 
     // 대상이 아닌 경우 바로 통과
-    if (!activityType) {
+    if (!metadata) {
       return next.handle();
     }
 
     return next.handle().pipe(
       tap(() => {
         // 응답이 성공적으로 나간 후 비동기로 처리
-        this.processActivityLog(context, activityType);
+        this.processActivityLog(context, metadata);
       }),
     );
   }
 
   private processActivityLog(
     context: ExecutionContext,
-    activityType: ActivityType,
+    metadata: TrackActivityMetadata,
   ) {
     if (context.getType() !== 'http') return;
+
+    const { activityType, extractor } = metadata;
 
     try {
       const request = context
@@ -61,14 +65,8 @@ export class ActivityTrackingInterceptor implements NestInterceptor {
 
       const userAgent = request.get('user-agent') || '';
 
-      // URL 파라미터나 body에서 주요 식별자만 가볍게 추출
-      const details: Record<string, unknown> = {
-        ...(Object.keys(request.params || {}).length > 0
-          ? { params: request.params }
-          : {}),
-        ...(request.body?.keyword ? { keyword: request.body.keyword } : {}),
-        ...(request.body?.type ? { type: request.body.type } : {}), // reaction type 등
-      };
+      // 오직 추출기(extractor)를 통해서만 추가 상세 정보를 수집합니다. (암묵적 수집 제거)
+      const details = extractor ? extractor(request) : null;
 
       const logData = {
         userId: user?.id ? Number(user.id) : null,
@@ -77,7 +75,7 @@ export class ActivityTrackingInterceptor implements NestInterceptor {
         path: request.originalUrl || request.url,
         ip: ip || 'unknown',
         userAgent,
-        details: Object.keys(details).length > 0 ? details : null,
+        details: details && Object.keys(details).length > 0 ? details : null,
       };
 
       this.eventEmitter.emit('ACTIVITY_LOG.CREATED', logData);

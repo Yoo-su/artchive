@@ -26,7 +26,9 @@ export class SearchKeywordController {
 
   @Post()
   @HttpCode(HttpStatus.NO_CONTENT)
-  @TrackActivity(ActivityType.BOOK_SEARCH)
+  @TrackActivity(ActivityType.BOOK_SEARCH, (req) => ({
+    keyword: req.body.keyword,
+  }))
   @ApiOperation({
     summary: '검색어 기록',
     description:

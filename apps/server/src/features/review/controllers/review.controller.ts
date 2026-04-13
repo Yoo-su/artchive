@@ -49,7 +49,7 @@ export class ReviewController {
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(IdempotencyInterceptor)
   @InvalidateCache('reviews', 'reviews-popular')
-  @TrackActivity(ActivityType.REVIEW_CREATE)
+  @TrackActivity(ActivityType.REVIEW_CREATE, (req) => ({ isbn: req.body.isbn }))
   @ApiOperation({
     summary: '리뷰 작성',
     description: '새로운 리뷰를 작성합니다.',
@@ -146,6 +146,7 @@ export class ReviewController {
   @Get(':id')
   @UseGuards(OptionalJwtAuthGuard)
   @UseInterceptors(ViewCountInterceptor)
+  @TrackActivity(ActivityType.REVIEW_VIEW, (req) => ({ id: req.params.id }))
   @ApiOperation({
     summary: '리뷰 상세 조회',
     description:
@@ -196,6 +197,10 @@ export class ReviewController {
 
   @Post(':id/reactions')
   @UseGuards(AuthGuard('jwt'))
+  @TrackActivity(ActivityType.REVIEW_REACTION, (req) => ({
+    id: req.params.id,
+    type: req.body.type,
+  }))
   @ApiOperation({
     summary: '리뷰 리액션 토글',
     description: '리뷰에 대한 리액션을 추가하거나 제거합니다.',
@@ -217,6 +222,7 @@ export class ReviewController {
 
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
+  @TrackActivity(ActivityType.REVIEW_UPDATE, (req) => ({ id: req.params.id }))
   @ApiOperation({
     summary: '리뷰 수정',
     description: '작성한 리뷰를 수정합니다.',
@@ -245,6 +251,7 @@ export class ReviewController {
 
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
+  @TrackActivity(ActivityType.REVIEW_DELETE, (req) => ({ id: req.params.id }))
   @ApiOperation({
     summary: '리뷰 삭제',
     description: '작성한 리뷰를 삭제합니다.',

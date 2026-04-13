@@ -40,7 +40,7 @@ export class UsedBookSaleController {
   @Post('sale')
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(IdempotencyInterceptor)
-  @TrackActivity(ActivityType.SALE_CREATE)
+  @TrackActivity(ActivityType.SALE_CREATE, (req) => ({ isbn: req.body.isbn }))
   @ApiOperation({
     summary: '중고책 판매글 작성',
     description: '새로운 중고책 판매글을 작성합니다.',
@@ -73,7 +73,10 @@ export class UsedBookSaleController {
 
   @Patch('sales/:id/status')
   @UseGuards(AuthGuard('jwt'))
-  @TrackActivity(ActivityType.SALE_STATUS_CHANGE)
+  @TrackActivity(ActivityType.SALE_STATUS_CHANGE, (req) => ({
+    id: req.params.id,
+    status: req.body.status,
+  }))
   @ApiOperation({
     summary: '판매글 상태 변경',
     description: '판매글의 상태(판매중, 예약중, 판매완료)를 변경합니다.',
@@ -137,6 +140,7 @@ export class UsedBookSaleController {
 
   @Get('sales/:id')
   @UseInterceptors(UsedBookViewCountInterceptor)
+  @TrackActivity(ActivityType.SALE_VIEW, (req) => ({ id: req.params.id }))
   @ApiOperation({
     summary: '판매글 상세 조회',
     description: '특정 판매글의 상세 정보를 조회합니다.',
@@ -167,7 +171,7 @@ export class UsedBookSaleController {
 
   @Patch('sales/:id')
   @UseGuards(AuthGuard('jwt'))
-  @TrackActivity(ActivityType.SALE_UPDATE)
+  @TrackActivity(ActivityType.SALE_UPDATE, (req) => ({ id: req.params.id }))
   @ApiOperation({
     summary: '판매글 수정',
     description: '판매글의 내용을 수정합니다.',
@@ -196,6 +200,7 @@ export class UsedBookSaleController {
   @Delete('sales/:id')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.NO_CONTENT)
+  @TrackActivity(ActivityType.SALE_DELETE, (req) => ({ id: req.params.id }))
   @ApiOperation({ summary: '판매글 삭제', description: '판매글을 삭제합니다.' })
   @ApiResponse({
     status: 204,

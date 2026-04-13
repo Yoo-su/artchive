@@ -45,7 +45,7 @@ export class BookController {
   @Post(':isbn/view')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseInterceptors(BookViewCountInterceptor)
-  @TrackActivity(ActivityType.BOOK_VIEW)
+  @TrackActivity(ActivityType.BOOK_VIEW, (req) => ({ isbn: req.params.isbn }))
   @ApiOperation({
     summary: '책 상세 조회수 기록',
     description:
