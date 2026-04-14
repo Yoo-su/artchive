@@ -10,8 +10,14 @@ const intlMiddleware = createMiddleware(routing);
 
 export default function middleware(request: NextRequest) {
   const userAgent = request.headers.get("user-agent") || "";
+  const country = request.headers.get("x-vercel-ip-country") || "";
 
-  // 차단 대상 봇인지 확인
+  // 1. 중국 지역 트래픽 차단
+  if (country === "CN") {
+    return new NextResponse(null, { status: 403 });
+  }
+
+  // 2. 차단 대상 봇인지 확인 (User-Agent 기반)
   const isBlockedBot = BLOCKED_BOT_PATTERNS.some((pattern) =>
     pattern.test(userAgent),
   );
