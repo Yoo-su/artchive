@@ -1,5 +1,25 @@
-import { createReview as sharedCreateReview, deleteReview as sharedDeleteReview, getMyReviewReaction as sharedGetMyReviewReaction, getPopularReviews as sharedGetPopularReviews, getRecommendedReviews as sharedGetRecommendedReviews, getReview as sharedGetReview, getReviewFeeds as sharedGetReviewFeeds, getReviewForEdit as sharedGetReviewForEdit, getReviews as sharedGetReviews, toggleReviewReaction as sharedToggleReviewReaction, updateReview as sharedUpdateReview } from "@bookjeok/api-client";
-import { GetReviewsParams, GetReviewsResponse, Review, ReviewFeed, ReviewFormValues, ReviewReactionType } from "@bookjeok/core";
+import {
+  createReview as sharedCreateReview,
+  deleteReview as sharedDeleteReview,
+  getMyReviewReaction as sharedGetMyReviewReaction,
+  getPopularReviews as sharedGetPopularReviews,
+  getRecommendedReviews as sharedGetRecommendedReviews,
+  getReview as sharedGetReview,
+  getReviewFeeds as sharedGetReviewFeeds,
+  getReviewForEdit as sharedGetReviewForEdit,
+  getReviews as sharedGetReviews,
+  recordReviewView as sharedRecordReviewView,
+  toggleReviewReaction as sharedToggleReviewReaction,
+  updateReview as sharedUpdateReview,
+} from "@bookjeok/api-client";
+import {
+  GetReviewsParams,
+  GetReviewsResponse,
+  Review,
+  ReviewFeed,
+  ReviewFormValues,
+  ReviewReactionType,
+} from "@bookjeok/core";
 
 import { privateAxios, publicAxios } from "@/shared/libs/axios";
 
@@ -117,4 +137,12 @@ export const toggleReviewReaction = async (
   type: ReviewReactionType,
 ) => {
   return sharedToggleReviewReaction(privateAxios, id, type);
+};
+
+/**
+ * 리뷰 상세페이지 조회수를 기록합니다.
+ * @param id 리뷰 ID
+ */
+export const recordReviewView = async (id: number) => {
+  return sharedRecordReviewView(publicAxios, id);
 };

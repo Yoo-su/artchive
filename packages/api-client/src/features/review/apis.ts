@@ -1,4 +1,12 @@
-import { API_PATHS, GetReviewsParams, GetReviewsResponse, Review, ReviewFeed, ReviewFormValues, ReviewReactionType } from "@bookjeok/core";
+import {
+  API_PATHS,
+  GetReviewsParams,
+  GetReviewsResponse,
+  Review,
+  ReviewFeed,
+  ReviewFormValues,
+  ReviewReactionType,
+} from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**
@@ -9,8 +17,14 @@ export const createReview = async (
   formValues: ReviewFormValues,
   options?: { idempotencyKey?: string },
 ) => {
-  const config = options?.idempotencyKey ? { headers: { 'x-idempotency-key': options.idempotencyKey } } : undefined;
-  const { data } = await client.post<Review>(API_PATHS.review.base, formValues, config);
+  const config = options?.idempotencyKey
+    ? { headers: { "x-idempotency-key": options.idempotencyKey } }
+    : undefined;
+  const { data } = await client.post<Review>(
+    API_PATHS.review.base,
+    formValues,
+    config,
+  );
   return data;
 };
 
@@ -117,7 +131,10 @@ export const getRecommendedReviews = async (
 /**
  * 나의 리액션 정보를 조회합니다.
  */
-export const getMyReviewReaction = async (client: AxiosInstance, id: number) => {
+export const getMyReviewReaction = async (
+  client: AxiosInstance,
+  id: number,
+) => {
   const { data } = await client.get<ReviewReactionType | null>(
     API_PATHS.review.myReaction(id),
   );
@@ -137,4 +154,13 @@ export const toggleReviewReaction = async (
     { type },
   );
   return data;
+};
+/**
+ * 리뷰 상세페이지 조회수를 기록합니다.
+ */
+export const recordReviewView = async (
+  client: AxiosInstance,
+  id: number,
+): Promise<void> => {
+  await client.post(API_PATHS.review.recordView(id));
 };

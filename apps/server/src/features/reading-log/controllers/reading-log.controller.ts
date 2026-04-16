@@ -149,7 +149,9 @@ export class ReadingLogController {
   }
 
   @Patch(':id')
-  @TrackActivity(ActivityType.READING_LOG_UPDATE, (req) => ({ id: req.params.id }))
+  @TrackActivity(ActivityType.READING_LOG_UPDATE, (req) => ({
+    id: req.params.id,
+  }))
   @ApiOperation({
     summary: '독서 기록 수정',
     description: '기존 독서 기록의 메모 등을 수정합니다.',
@@ -169,7 +171,9 @@ export class ReadingLogController {
   }
 
   @Delete(':id')
-  @TrackActivity(ActivityType.READING_LOG_DELETE, (req) => ({ id: req.params.id }))
+  @TrackActivity(ActivityType.READING_LOG_DELETE, (req) => ({
+    id: req.params.id,
+  }))
   @ApiOperation({
     summary: '독서 기록 삭제',
     description: '특정 독서 기록을 삭제합니다.',

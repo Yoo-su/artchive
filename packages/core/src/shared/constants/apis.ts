@@ -33,6 +33,7 @@ export const API_PATHS = {
     recentSales: "/book/sales/recent",
     popularBooks: "/book/popular",
     recordView: (isbn: string) => `/book/${isbn}/view`,
+    recordSaleView: (saleId: number) => `/book/sales/${saleId}/view`,
     popularSales: "/book/sales/popular",
   },
   searchKeyword: {
@@ -77,6 +78,7 @@ export const API_PATHS = {
   review: {
     base: "/reviews",
     detail: (id: number | string) => `/reviews/${id}`,
+    recordView: (id: number | string) => `/reviews/${id}/view`,
     edit: (id: number | string) => `/reviews/${id}/edit`,
     feeds: "/reviews/feeds",
     popular: "/reviews/popular",

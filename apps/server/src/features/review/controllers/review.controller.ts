@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpStatus,
   Param,
   ParseIntPipe,
@@ -145,8 +146,6 @@ export class ReviewController {
 
   @Get(':id')
   @UseGuards(OptionalJwtAuthGuard)
-  @UseInterceptors(ViewCountInterceptor)
-  @TrackActivity(ActivityType.REVIEW_VIEW, (req) => ({ id: req.params.id }))
   @ApiOperation({
     summary: '리뷰 상세 조회',
     description:
@@ -171,6 +170,23 @@ export class ReviewController {
     @CurrentUser() user: User | null,
   ): Promise<ReviewResponseDto> {
     return await this.reviewService.findOne(id, user?.id);
+  }
+
+  @Post(':id/view')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseInterceptors(ViewCountInterceptor)
+  @TrackActivity(ActivityType.REVIEW_VIEW, (req) => ({ id: req.params.id }))
+  @ApiOperation({
+    summary: '리뷰 조회수 기록',
+    description: '리뷰 상세페이지 접근 시 조회수를 기록합니다.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: '조회수가 기록되었습니다.',
+  })
+  @ApiParam({ name: 'id', description: '리뷰 ID' })
+  recordView(@Param('id', ParseIntPipe) _id: number): void {
+    // 인터셉터에서 조회수 및 활동 로그 처리
   }
 
   @Get(':id/recommend')
