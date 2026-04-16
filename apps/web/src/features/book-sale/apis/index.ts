@@ -1,4 +1,4 @@
-import { createBookSale as sharedCreateBookSale, deleteBookSale as sharedDeleteBookSale, getBookSaleDetail as sharedGetBookSaleDetail, getBookSales as sharedSearchBookSales, getMyBookSales as sharedGetMyBookSales, getPopularBookSales as sharedGetPopularBookSales, getRecentBookSales as sharedGetRecentBookSales, getRelatedSales as sharedGetRelatedSales, getSaleForEdit as sharedGetSaleForEdit, updateBookSale as sharedUpdateBookSale, updateBookSaleStatus as sharedUpdateBookSaleStatus } from "@bookjeok/api-client";
+import { createBookSale as sharedCreateBookSale, deleteBookSale as sharedDeleteBookSale, getBookSaleDetail as sharedGetBookSaleDetail, getBookSales as sharedSearchBookSales, getMyBookSales as sharedGetMyBookSales, getPopularBookSales as sharedGetPopularBookSales, getRecentBookSales as sharedGetRecentBookSales, getRelatedSales as sharedGetRelatedSales, getSaleForEdit as sharedGetSaleForEdit, recordSaleView as sharedRecordSaleView, updateBookSale as sharedUpdateBookSale, updateBookSaleStatus as sharedUpdateBookSaleStatus } from "@bookjeok/api-client";
 import { CommonBookSaleResponse, CreateBookSaleParams, GetMyBookSalesResponse, GetRelatedSalesParams, GetRelatedSalesResponse, SaleStatus, SearchBookSalesParams, SearchBookSalesResponse, UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core";
 
 import { privateAxios, publicAxios } from "@/shared/libs/axios";
@@ -98,4 +98,11 @@ export const getBookSales = async (
   params: SearchBookSalesParams,
 ): Promise<SearchBookSalesResponse> => {
   return sharedSearchBookSales(publicAxios, params);
+};
+
+/**
+ * 중고책 판매글 상세페이지 조회수를 기록합니다.
+ */
+export const recordSaleView = async (saleId: number): Promise<void> => {
+  return sharedRecordSaleView(publicAxios, saleId);
 };

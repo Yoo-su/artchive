@@ -1,4 +1,16 @@
-import { API_PATHS, CommonBookSaleResponse, CreateBookSaleParams, GetMyBookSalesResponse, GetRelatedSalesParams, GetRelatedSalesResponse, SaleStatus, SearchBookSalesParams, SearchBookSalesResponse, UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core";
+import {
+  API_PATHS,
+  CommonBookSaleResponse,
+  CreateBookSaleParams,
+  GetMyBookSalesResponse,
+  GetRelatedSalesParams,
+  GetRelatedSalesResponse,
+  SaleStatus,
+  SearchBookSalesParams,
+  SearchBookSalesResponse,
+  UpdateBookSaleParams,
+  UsedBookSale,
+} from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**
@@ -9,11 +21,13 @@ export const createBookSale = async (
   params: CreateBookSaleParams,
   options?: { idempotencyKey?: string },
 ): Promise<UsedBookSale> => {
-  const config = options?.idempotencyKey ? { headers: { 'x-idempotency-key': options.idempotencyKey } } : undefined;
+  const config = options?.idempotencyKey
+    ? { headers: { "x-idempotency-key": options.idempotencyKey } }
+    : undefined;
   const { data } = await client.post<UsedBookSale>(
     API_PATHS.book.sale,
     params,
-    config
+    config,
   );
   return data;
 };
@@ -47,7 +61,10 @@ export const updateBookSaleStatus = async (
 /**
  * 특정 판매글의 상세 정보를 조회합니다.
  */
-export const getBookSaleDetail = async (client: AxiosInstance, saleId: string) => {
+export const getBookSaleDetail = async (
+  client: AxiosInstance,
+  saleId: string,
+) => {
   const { data } = await client.get<UsedBookSale>(
     API_PATHS.book.saleDetail(saleId),
   );
@@ -125,7 +142,9 @@ export const getRecentBookSales = async (
 export const getPopularBookSales = async (
   client: AxiosInstance,
 ): Promise<UsedBookSale[]> => {
-  const { data } = await client.get<UsedBookSale[]>(API_PATHS.book.popularSales);
+  const { data } = await client.get<UsedBookSale[]>(
+    API_PATHS.book.popularSales,
+  );
   return data;
 };
 
@@ -155,4 +174,13 @@ export const getBookSales = async (
 
   const { data } = await client.get<SearchBookSalesResponse>(url);
   return data;
+};
+/**
+ * 중고책 판매글 상세페이지 조회수를 기록합니다.
+ */
+export const recordSaleView = async (
+  client: AxiosInstance,
+  saleId: number,
+): Promise<void> => {
+  await client.post(API_PATHS.book.recordSaleView(saleId));
 };

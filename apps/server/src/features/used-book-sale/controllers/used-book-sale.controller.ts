@@ -139,8 +139,6 @@ export class UsedBookSaleController {
   }
 
   @Get('sales/:id')
-  @UseInterceptors(UsedBookViewCountInterceptor)
-  @TrackActivity(ActivityType.SALE_VIEW, (req) => ({ id: req.params.id }))
   @ApiOperation({
     summary: '판매글 상세 조회',
     description: '특정 판매글의 상세 정보를 조회합니다.',
@@ -150,6 +148,23 @@ export class UsedBookSaleController {
   @ApiParam({ name: 'id', description: '판매글 ID' })
   async getSaleById(@Param('id', ParseIntPipe) id: number) {
     return await this.usedBookSaleService.findSaleById(id);
+  }
+
+  @Post('sales/:id/view')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseInterceptors(UsedBookViewCountInterceptor)
+  @TrackActivity(ActivityType.SALE_VIEW, (req) => ({ id: req.params.id }))
+  @ApiOperation({
+    summary: '판매글 조회수 기록',
+    description: '판매글 상세페이지 접근 시 조회수를 기록합니다.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: '조회수가 기록되었습니다.',
+  })
+  @ApiParam({ name: 'id', description: '판매글 ID' })
+  recordSaleView(@Param('id', ParseIntPipe) _id: number): void {
+    // 인터셉터에서 조회수 및 활동 로그 처리
   }
 
   @Get(':isbn/sales')
