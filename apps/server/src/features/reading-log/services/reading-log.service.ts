@@ -145,9 +145,17 @@ export class ReadingLogService {
       };
     });
 
-    const nextCursor = hasNextPage
-      ? `${bookGroups[bookGroups.length - 1].latestDate}|${bookGroups[bookGroups.length - 1].isbn}`
-      : null;
+    let nextCursor = null;
+    if (hasNextPage) {
+      const lastGroup = bookGroups[bookGroups.length - 1];
+      const dateStr =
+        lastGroup.latestDate instanceof Date
+          ? lastGroup.latestDate.toISOString().split('T')[0]
+          : typeof lastGroup.latestDate === 'string'
+            ? lastGroup.latestDate.split('T')[0]
+            : String(lastGroup.latestDate);
+      nextCursor = `${dateStr}|${lastGroup.isbn}`;
+    }
 
     return { items, nextCursor };
   }

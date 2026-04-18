@@ -83,7 +83,9 @@ export function LoungeFeedList() {
     );
   }
 
-  if (isError) {
+  const items = data?.pages.flatMap((page) => page.items) || [];
+
+  if (isError && items.length === 0) {
     return (
       <section>
         <div className="py-20 text-center">
@@ -93,7 +95,7 @@ export function LoungeFeedList() {
     );
   }
 
-  const items = data?.pages.flatMap((page) => page.items) || [];
+
 
   if (items.length === 0) {
     return <LoungeEmptyState />;
@@ -137,8 +139,11 @@ export function LoungeFeedList() {
             <span className="ml-1.5 font-light">{t("loading_more")}</span>
           </div>
         )}
-        {!hasNextPage && items.length > 0 && (
+        {!hasNextPage && items.length > 0 && !isError && (
           <p className="text-stone-300 text-xs font-light">{t("all_loaded")}</p>
+        )}
+        {isError && items.length > 0 && (
+          <p className="text-red-400 text-xs font-light">데이터를 불러오는 중 문제가 발생했습니다.</p>
         )}
       </div>
 
