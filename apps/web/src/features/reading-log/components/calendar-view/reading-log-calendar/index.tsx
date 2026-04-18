@@ -51,11 +51,13 @@ export function ReadingLogCalendar({
   useReadingLogPrefetch(currentDate.getFullYear(), currentDate.getMonth() + 1);
 
   // API 호출 (달력 모드일 때만)
-  const { data: logs = [], isFetching } = useReadingLogsQuery(
-    currentDate.getFullYear(),
-    currentDate.getMonth() + 1,
-    { enabled: viewMode === "calendar" },
-  );
+  const {
+    data: logs = [],
+    isLoading,
+    isFetching,
+  } = useReadingLogsQuery(currentDate.getFullYear(), currentDate.getMonth() + 1, {
+    enabled: viewMode === "calendar",
+  });
 
   const handlePrevMonth = () => onDateChange(subMonths(currentDate, 1));
   const handleNextMonth = () => onDateChange(addMonths(currentDate, 1));
@@ -98,7 +100,7 @@ export function ReadingLogCalendar({
 
       {viewMode === "list" ? (
         <ReadingLogListView />
-      ) : isFetching ? (
+      ) : isLoading ? (
         <ReadingLogCalendarSkeleton />
       ) : (
         <div
