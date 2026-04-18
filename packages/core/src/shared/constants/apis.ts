@@ -74,6 +74,10 @@ export const API_PATHS = {
     list: "/reading-logs/list",
     settings: "/reading-logs/settings",
     detail: (id: string) => `/reading-logs/${id}`,
+    // ✅ 라운지 API 경로 추가
+    loungeFeed: "/reading-logs/lounge",
+    loungePopular: "/reading-logs/lounge/popular",
+    loungeBookReaders: (isbn: string) => `/reading-logs/lounge/book/${isbn}/readers`,
   },
   review: {
     base: "/reviews",

@@ -1,5 +1,6 @@
 export const PATHS = {
   HOME: "/",
+  LOUNGE: "/lounge",
   LOGIN: "/login",
   BOOK_SEARCH: "/book/search",
   BOOK_DETAIL: (isbn: string) => `/book/${isbn}/detail`,

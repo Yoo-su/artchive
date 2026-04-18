@@ -254,6 +254,8 @@
       "menu_reviews": "책리뷰",
       "menu_insights": "인사이트",
       "menu_login": "로그인",
+      "lounge": "독서 라운지",
+      "menu_lounge": "라운지",
       "main_menu": "메인 메뉴",
       "menu_open": "메뉴 열기"
     },
@@ -953,5 +955,50 @@
       "description": "북적(bookjeok) 서비스 개인정보처리방침입니다."
     },
     "title": "개인정보처리방침"
+  },
+  "lounge": {
+    "metadata": {
+      "title": "독서 라운지",
+      "description": "북적 독자들의 실시간 독서 활동을 확인하고 이야기 나누세요."
+    },
+    "hero": {
+      "title": "요즘 다른 독자들은 어떤 책을 읽고 있을까요?",
+      "subtitle": "북적 독자들의 생생한 독서 활동을 둘러보세요.\n누군가의 독서 기록이 당신의 새로운 영감이 될 수 있습니다."
+    },
+    "home_widget": {
+      "badge": "READING LOUNGE",
+      "title_prefix": "다른 독자들이",
+      "title_suffix": "지금 읽고 있는 책",
+      "desc": "지금 이 순간, 이웃 독자들의 마음을 사로잡은 책들을 단숨에 확인해보세요.",
+      "view_all": "라운지 입장하기",
+      "readers_count": "{count}명"
+    },
+    "popular": {
+      "badge": "TRENDING NOW",
+      "title": "이웃 독자들이 푹 빠져있는 도서",
+      "subtitle": "최근 한 달간 가장 많은 독자들이 깊이 몰입한 책들을 소개합니다.",
+      "readers_count": "{count}명이 함께 읽고 있어요"
+    },
+    "feed": {
+      "title": "방금 전 올라온 독자들의 기록",
+      "error": "독자들의 기록을 불러오지 못했어요.",
+      "loading_more": "기록 더 불러오는 중...",
+      "all_loaded": "최근 독서 활동을 모두 확인하셨습니다.",
+      "readers_reading": "총 {count}명이 읽었어요",
+      "readers_extra": "외 {count}명이 읽었어요",
+      "date_read": "{date}",
+      "empty": {
+        "title": "아직 누군가의 기록이 닿지 않았어요",
+        "desc": "가장 먼저 독서 기록을 남겨보세요!",
+        "cta_record": "지금 기록하기",
+        "cta_login": "로그인하고 시작하기"
+      }
+    },
+    "detail_modal": {
+      "total_readers": "총 {count}명의 독자가 기록했습니다",
+      "read_on": "{date}",
+      "loading": "불러오는 중...",
+      "empty": "아직 이 책에 대한 다른 기록이 없습니다."
+    }
   }
 }

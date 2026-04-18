@@ -255,7 +255,9 @@
       "menu_insights": "Insights",
       "main_menu": "Main Menu",
       "menu_open": "Open Menu",
-      "menu_login": "Login"
+      "menu_login": "Login",
+      "lounge": "Reading Lounge",
+      "menu_lounge": "Lounge"
     },
     "auth": {
       "login": "Login",
@@ -953,5 +955,50 @@
       "description": "Bookjeok Privacy Policy."
     },
     "title": "Privacy Policy"
+  },
+  "lounge": {
+    "metadata": {
+      "title": "Reading Lounge",
+      "description": "Check real-time reading activities of Bookjeok readers and share stories."
+    },
+    "hero": {
+      "title": "What Are the Other Readers Exploring?",
+      "subtitle": "Peek into the vivid reading logs of other Bookjeok readers.\nSomeone's shared highlights might become your next inspiration."
+    },
+    "home_widget": {
+      "badge": "READING LOUNGE",
+      "title_prefix": "Books Others Are",
+      "title_suffix": "Currently Reading",
+      "desc": "Check out the books capturing the hearts of our readers right now.",
+      "view_all": "Enter Lounge",
+      "readers_count": "{count} Readers"
+    },
+    "popular": {
+      "badge": "TRENDING NOW",
+      "title": "Trending Books Loved by the Community",
+      "subtitle": "Discover the books that captured the most readers in the last 30 days.",
+      "readers_count": "{count} readers are reading"
+    },
+    "feed": {
+      "title": "Latest Reading Journeys from the Community",
+      "error": "Failed to load readers' records.",
+      "loading_more": "Loading more logs...",
+      "all_loaded": "You've seen all recent activities.",
+      "readers_reading": "{count} readers total",
+      "readers_extra": "and {count} others read this",
+      "date_read": "{date}",
+      "empty": {
+        "title": "No reading logs yet",
+        "desc": "Be the first to leave a reading record!",
+        "cta_record": "Record Now",
+        "cta_login": "Login and Start"
+      }
+    },
+    "detail_modal": {
+      "total_readers": "{count} total readers shared this book",
+      "read_on": "{date}",
+      "loading": "Loading...",
+      "empty": "No recent activities for this book yet."
+    }
   }
 }
