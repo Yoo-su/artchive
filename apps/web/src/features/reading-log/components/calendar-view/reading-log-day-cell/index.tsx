@@ -1,7 +1,7 @@
 "use client";
 
 import { ReadingLog } from "@bookjeok/core";
-import { format } from "date-fns";
+import { format, isAfter, startOfDay } from "date-fns";
 import Image from "next/image";
 import { useLocale } from "next-intl";
 
@@ -28,20 +28,19 @@ export function ReadingLogDayCell({
   const locale = useLocale();
   const isToday =
     format(date, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
+  const isFuture = isAfter(date, startOfDay(new Date()));
   const hasLogs = logs.length > 0;
   const firstLog = hasLogs ? logs[0] : null;
   const extraCount = Math.max(0, logs.length - 1);
 
   return (
     <div
-      onClick={onClick}
+      onClick={isFuture ? undefined : onClick}
       className={cn(
-        "relative p-2 h-full flex flex-col transition-all duration-300 cursor-pointer group hover:z-10",
-        // 기본 배경: 투명 -> 호버 시 약간의 테마 색상 (아주 연하게)
-        // 기본 배경: 투명 -> 호버 시 약간의 테마 색상 (아주 연하게)
-        theme.hoverBg, // hover bg color
+        "relative p-2 h-full flex flex-col transition-all duration-300 group hover:z-10",
+        isFuture ? "cursor-default" : "cursor-pointer",
+        !isFuture && theme.hoverBg,
         !isCurrentMonth && "opacity-30 pointer-events-none bg-stone-50/50",
-        // 오늘 날짜 배경 강조 (선택적)
         isToday && "bg-stone-50/50",
       )}
     >
@@ -58,8 +57,9 @@ export function ReadingLogDayCell({
                   theme.ring,
                 )
               : cn(
-                  "text-stone-500 font-medium group-hover:scale-110 group-hover:bg-white group-hover:shadow-sm",
-                  `group-hover:${theme.activeText}`,
+                  "text-stone-500 font-medium",
+                  !isFuture && "group-hover:scale-110 group-hover:bg-white group-hover:shadow-sm",
+                  !isFuture && `group-hover:${theme.activeText}`,
                 ),
           )}
         >

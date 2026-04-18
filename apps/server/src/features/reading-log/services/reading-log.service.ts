@@ -58,7 +58,7 @@ export class ReadingLogService {
 
     subQuery.limit(LOUNGE_PAGE_SIZE + 1);
 
-    const bookGroups: { isbn: string; latestDate: string }[] =
+    const bookGroups: { isbn: string; latestDate: string | Date }[] =
       await subQuery.getRawMany();
 
     const hasNextPage = bookGroups.length > LOUNGE_PAGE_SIZE;
@@ -95,10 +95,17 @@ export class ReadingLogService {
     >();
 
     for (const group of bookGroups) {
+      const dateStr =
+        group.latestDate instanceof Date
+          ? group.latestDate.toISOString().split('T')[0]
+          : typeof group.latestDate === 'string'
+            ? group.latestDate.split('T')[0]
+            : String(group.latestDate);
+
       groupMap.set(group.isbn, {
         isbn: group.isbn,
         book: null,
-        latestDate: group.latestDate,
+        latestDate: dateStr,
         readersMap: new Map(),
       });
     }
@@ -145,9 +152,12 @@ export class ReadingLogService {
       };
     });
 
-    const nextCursor = hasNextPage
-      ? `${bookGroups[bookGroups.length - 1].latestDate}|${bookGroups[bookGroups.length - 1].isbn}`
-      : null;
+    let nextCursor: string | null = null;
+    if (hasNextPage) {
+      const lastGroup = bookGroups[bookGroups.length - 1];
+      const formattedLatestDate = groupMap.get(lastGroup.isbn)!.latestDate;
+      nextCursor = `${formattedLatestDate}|${lastGroup.isbn}`;
+    }
 
     return { items, nextCursor };
   }
