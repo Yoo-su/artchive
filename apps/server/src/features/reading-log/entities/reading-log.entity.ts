@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -12,6 +13,9 @@ import { Book } from '@/features/book/entities/book.entity';
 import { User } from '@/features/user/entities/user.entity';
 
 @Entity({ name: 'reading_logs' })
+@Index(['isbn', 'date']) // 라운지 피드 (isbn별 그룹화 및 최신 날짜 정렬) 용도
+@Index(['date']) // 라운지 인기작 (최근 N일 조회) 용도
+@Index(['userId', 'date']) // 개인 독서 기록 조회 용도
 export class ReadingLog {
   @PrimaryGeneratedColumn('uuid')
   id: string;
