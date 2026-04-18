@@ -10,7 +10,7 @@ import { formatRelativeTime } from "@/shared/utils/format-date";
 
 interface LoungeFeedCardProps {
   item: LoungeBookCard;
-  onCardClick: (isbn: string) => void;
+  onCardClick: (item: LoungeBookCard) => void;
 }
 
 export function LoungeFeedCard({ item, onCardClick }: LoungeFeedCardProps) {
@@ -19,7 +19,7 @@ export function LoungeFeedCard({ item, onCardClick }: LoungeFeedCardProps) {
 
   return (
     <div
-      onClick={() => onCardClick(item.isbn)}
+      onClick={() => onCardClick(item)}
       className={cn(
         "group relative flex gap-5 p-4 rounded-2xl cursor-pointer",
         "bg-white border border-stone-100",

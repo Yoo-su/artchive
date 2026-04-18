@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 import { useLoungePopularQuery } from "@/features/reading-log/queries";
 import { AvatarCircles } from "@/shared/components/magicui/avatar-circles";
@@ -69,80 +70,68 @@ export function LoungeHomeWidget() {
         </div>
 
         {/* 수평 스크롤 카드 */}
-        <div className="flex gap-5 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <Swiper
+          slidesPerView="auto"
+          spaceBetween={20}
+          className="pb-4 pt-4 -mt-4 -mx-4 px-4! md:-mx-0 md:px-0! overflow-visible!"
+        >
           {data.items.slice(0, 6).map((item, index) => (
-            <motion.div
+            <SwiperSlide
               key={item.isbn}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.08, duration: 0.4 }}
-              className="shrink-0 w-40 sm:w-44 group"
+              className="!w-40 sm:!w-44 select-none group"
             >
-              <Link href={PATHS.LOUNGE}>
-                {/* 도서 표지 */}
-                <div className="relative aspect-2/3 w-full rounded-xl overflow-hidden bg-stone-50 mb-3.5 shadow-sm transition-shadow duration-300 group-hover:shadow-lg">
-                  {item.book.image ? (
-                    <Image
-                      src={item.book.image}
-                      alt={item.book.title}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center p-3">
-                      <span className="text-xs text-stone-400 text-center font-medium">
-                        {item.book.title}
-                      </span>
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.08, duration: 0.4 }}
+              >
+                <Link href={PATHS.LOUNGE}>
+                  {/* 도서 표지 */}
+                  <div className="relative aspect-2/3 w-full rounded-xl overflow-hidden bg-stone-50 mb-3.5 shadow-sm transition-shadow duration-300 group-hover:shadow-lg">
+                    {item.book.image ? (
+                      <Image
+                        src={item.book.image}
+                        alt={item.book.title}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center p-3">
+                        <span className="text-xs text-stone-400 text-center font-medium">
+                          {item.book.title}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* 독자 수 뱃지 */}
+                    <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full font-medium">
+                      {t("readers_count", { count: item.readerCount })}
                     </div>
-                  )}
-
-                  {/* 독자 수 뱃지 */}
-                  <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full font-medium">
-                    {t("readers_count", { count: item.readerCount })}
                   </div>
-                </div>
 
-                {/* 도서 정보 */}
-                <h3 className="text-sm font-semibold text-stone-900 line-clamp-2 leading-snug mb-1.5 group-hover:text-stone-600 transition-colors">
-                  {item.book.title}
-                </h3>
+                  {/* 도서 정보 */}
+                  <h3 className="text-sm font-semibold text-stone-900 line-clamp-2 leading-snug mb-1.5 group-hover:text-stone-600 transition-colors">
+                    {item.book.title}
+                  </h3>
 
-                {/* Avatar Circles */}
-                <AvatarCircles
-                  size="sm"
-                  avatars={item.recentReaders.map((r) => ({
-                    imageUrl: r.profileImageUrl,
-                    name: r.nickname,
-                  }))}
-                  extraCount={
-                    item.readerCount > item.recentReaders.length
-                      ? item.readerCount - item.recentReaders.length
-                      : 0
-                  }
-                />
-              </Link>
-            </motion.div>
+                  {/* Avatar Circles */}
+                  <AvatarCircles
+                    size="sm"
+                    avatars={item.recentReaders.map((r) => ({
+                      imageUrl: r.profileImageUrl,
+                      name: r.nickname,
+                    }))}
+                    extraCount={
+                      item.readerCount > item.recentReaders.length
+                        ? item.readerCount - item.recentReaders.length
+                        : 0
+                    }
+                  />
+                </Link>
+              </motion.div>
+            </SwiperSlide>
           ))}
-
-          {/* 전체 보기 카드 */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.4 }}
-            className="shrink-0 w-40 sm:w-44"
-          >
-            <Link href={PATHS.LOUNGE} className="block">
-              <div className="aspect-2/3 w-full border-2 border-dashed border-stone-200 rounded-xl flex flex-col items-center justify-center transition-colors hover:border-stone-400 group/more">
-                <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center mb-3 transition-transform group-hover/more:translate-x-0.5">
-                  <ArrowRight className="text-stone-400" size={20} />
-                </div>
-                <p className="text-sm font-medium text-stone-600">
-                  {t("view_all")}
-                </p>
-              </div>
-            </Link>
-          </motion.div>
-        </div>
+        </Swiper>
       </div>
     </section>
   );

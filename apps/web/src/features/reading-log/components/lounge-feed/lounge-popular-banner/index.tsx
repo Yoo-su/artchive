@@ -1,15 +1,22 @@
 "use client";
 
-import { motion } from "framer-motion";
-import Image from "next/image";
+import type { LoungePopularBook } from "@bookjeok/core";
 import { useTranslations } from "next-intl";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 import { useLoungePopularQuery } from "@/features/reading-log/queries";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 
 import { LoungePopularBannerCard } from "./lounge-popular-banner-card";
+interface LoungePopularBannerProps {
+  onCardClick?: (
+    isbn: string,
+    book: LoungePopularBook["book"],
+    totalCount: number,
+  ) => void;
+}
 
-export function LoungePopularBanner() {
+export function LoungePopularBanner({ onCardClick }: LoungePopularBannerProps) {
   const t = useTranslations("lounge.popular");
   const { data, isLoading } = useLoungePopularQuery();
 
@@ -48,15 +55,20 @@ export function LoungePopularBanner() {
       </div>
 
       {/* 수평 스크롤 카드 */}
-      <div className="flex gap-5 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <Swiper
+        slidesPerView="auto"
+        spaceBetween={20}
+        className="pb-4 pt-4 -mt-4 -mx-4 px-4! md:mx-0 md:px-0!"
+      >
         {data.items.map((item, index) => (
-          <LoungePopularBannerCard
-            key={item.isbn}
-            item={item}
-            index={index}
-          />
+          <SwiperSlide key={item.isbn} className="!w-44 select-none cursor-pointer" onClick={() => onCardClick && onCardClick(item.isbn, item.book, Number(item.readerCount))}>
+            <LoungePopularBannerCard
+              item={item}
+              index={index}
+            />
+          </SwiperSlide>
         ))}
-      </div>
+      </Swiper>
     </section>
   );
 }

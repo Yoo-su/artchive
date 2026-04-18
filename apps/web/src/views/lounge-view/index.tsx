@@ -1,12 +1,37 @@
 "use client";
 
+import type { LoungeBookCard } from "@bookjeok/core";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
+import { LoungeBookDetailModal } from "@/features/reading-log/components/lounge-feed/lounge-book-detail-modal";
 import { LoungeFeedList } from "@/features/reading-log/components/lounge-feed/lounge-feed-list";
 import { LoungePopularBanner } from "@/features/reading-log/components/lounge-feed/lounge-popular-banner";
 
 export function LoungeView() {
   const t = useTranslations("lounge");
+
+  const [modalData, setModalData] = useState<{
+    isbn: string;
+    book?: LoungeBookCard["book"];
+    totalCount?: number;
+  } | null>(null);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = (
+    isbn: string,
+    book?: LoungeBookCard["book"],
+    totalCount?: number,
+  ) => {
+    setModalData({ isbn, book, totalCount });
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setTimeout(() => setModalData(null), 300);
+  };
 
   return (
     <div className="min-h-screen">
@@ -24,12 +49,21 @@ export function LoungeView() {
         {/* 콘텐츠 영역 */}
         <div className="space-y-20 md:space-y-28">
           {/* 인기 도서 배너 */}
-          <LoungePopularBanner />
+          <LoungePopularBanner onCardClick={handleOpenModal} />
 
           {/* 최신 활동 피드 */}
-          <LoungeFeedList />
+          <LoungeFeedList onCardClick={handleOpenModal} />
         </div>
       </div>
+
+      {/* 뷰 레벨 공통 상세 모달 */}
+      <LoungeBookDetailModal
+        isbn={modalData?.isbn || null}
+        initialBook={modalData?.book || null}
+        initialTotalCount={modalData?.totalCount || 0}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }

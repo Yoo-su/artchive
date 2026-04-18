@@ -1,5 +1,6 @@
 "use client";
 
+import type { LoungeBookCard } from "@bookjeok/core";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
@@ -21,12 +22,19 @@ interface LoungeBookDetailModalProps {
   isbn: string | null;
   isOpen: boolean;
   onClose: () => void;
+  initialBook?: Pick<
+    LoungeBookCard["book"],
+    "title" | "author" | "image"
+  > | null;
+  initialTotalCount?: number;
 }
 
 export function LoungeBookDetailModal({
   isbn,
   isOpen,
   onClose,
+  initialBook,
+  initialTotalCount,
 }: LoungeBookDetailModalProps) {
   const t = useTranslations("lounge.detail_modal");
   const locale = useLocale();
@@ -55,9 +63,9 @@ export function LoungeBookDetailModal({
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const book = data?.pages[0]?.book;
+  const book = data?.pages[0]?.book || initialBook;
   const readers = data?.pages.flatMap((page) => page.items) || [];
-  const totalCount = data?.pages[0]?.totalCount || 0;
+  const totalCount = data?.pages[0]?.totalCount ?? initialTotalCount ?? 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>

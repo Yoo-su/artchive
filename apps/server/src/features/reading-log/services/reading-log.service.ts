@@ -205,6 +205,7 @@ export class ReadingLogService {
       .where('rl.isbn IN (:...isbns)', { isbns })
       .andWhere('u.isReadingLogPublic = :isPublic', { isPublic: true })
       .andWhere('u.deletedAt IS NULL')
+      .andWhere('rl.date >= :sinceDate', { sinceDate: sinceDateStr })
       .orderBy('rl.date', 'DESC')
       .getMany();
 

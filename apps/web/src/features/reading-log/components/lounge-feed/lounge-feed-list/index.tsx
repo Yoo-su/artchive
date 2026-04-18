@@ -1,5 +1,6 @@
 "use client";
 
+import type { LoungeBookCard } from "@bookjeok/core";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
@@ -7,14 +8,19 @@ import { useEffect, useRef, useState } from "react";
 import { useLoungeFeedInfiniteQuery } from "@/features/reading-log/queries";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 
-import { LoungeBookDetailModal } from "../lounge-book-detail-modal";
 import { LoungeEmptyState } from "../lounge-empty-state";
 import { LoungeFeedCard } from "../lounge-feed-card";
 
-export function LoungeFeedList() {
+interface LoungeFeedListProps {
+  onCardClick?: (
+    isbn: string,
+    book: LoungeBookCard["book"],
+    totalCount: number,
+  ) => void;
+}
+
+export function LoungeFeedList({ onCardClick }: LoungeFeedListProps) {
   const t = useTranslations("lounge.feed");
-  const [selectedIsbn, setSelectedIsbn] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
     data,
@@ -46,15 +52,10 @@ export function LoungeFeedList() {
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const handleCardClick = (isbn: string) => {
-    setSelectedIsbn(isbn);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    // 모달 닫힘 애니메이션을 위해 약간의 지연 후 ISBN 초기화
-    setTimeout(() => setSelectedIsbn(null), 300);
+  const handleCardClick = (item: LoungeBookCard) => {
+    if (onCardClick) {
+      onCardClick(item.isbn, item.book, item.totalReaderCount);
+    }
   };
 
   if (isLoading) {
@@ -94,8 +95,6 @@ export function LoungeFeedList() {
       </section>
     );
   }
-
-
 
   if (items.length === 0) {
     return <LoungeEmptyState />;
@@ -143,16 +142,11 @@ export function LoungeFeedList() {
           <p className="text-stone-300 text-xs font-light">{t("all_loaded")}</p>
         )}
         {isError && items.length > 0 && (
-          <p className="text-red-400 text-xs font-light">데이터를 불러오는 중 문제가 발생했습니다.</p>
+          <p className="text-red-400 text-xs font-light">
+            데이터를 불러오는 중 문제가 발생했습니다.
+          </p>
         )}
       </div>
-
-      {/* 상세 모달 */}
-      <LoungeBookDetailModal
-        isbn={selectedIsbn}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
     </section>
   );
 }
