@@ -1,10 +1,16 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 import { User } from '@/features/user/entities/user.entity';
 import { BusinessException } from '@/shared/exceptions/business.exception';
 
+import {
+  LOUNGE_MAX_READERS,
+  LOUNGE_PAGE_SIZE,
+  LOUNGE_POPULAR_COUNT,
+  LOUNGE_POPULAR_DAYS,
+} from '../constants';
 import { CreateReadingLogDto } from '../dto/create-reading-log.dto';
 import { UpdateReadingLogDto } from '../dto/update-reading-log.dto';
 import { ReadingLog } from '../entities/reading-log.entity';
@@ -16,7 +22,320 @@ export class ReadingLogService {
     private readonly readingLogRepository: Repository<ReadingLog>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly dataSource: DataSource,
   ) {}
+
+  /**
+   * 라운지 피드를 조회합니다.
+   * 공개 설정된 모든 사용자의 독서 기록을 ISBN별로 그룹화하여 반환합니다.
+   * 동일 사용자가 같은 책을 여러 번 읽은 경우 최신 기록만 반영합니다.
+   *
+   * @param cursor 페이지네이션 커서 (format: "YYYY-MM-DD|isbn")
+   * @returns 그룹화된 피드 아이템 + 다음 커서
+   */
+  async getLoungeFeed(cursor?: string) {
+    // 1단계: ISBN별 최신 독서 날짜 조회 (공개 사용자만)
+    const subQuery = this.readingLogRepository
+      .createQueryBuilder('rl')
+      .select('rl.isbn', 'isbn')
+      .addSelect('MAX(rl.date)', 'latestDate')
+      .innerJoin('rl.user', 'u')
+      .where('u.isReadingLogPublic = :isPublic', { isPublic: true })
+      .andWhere('u.deletedAt IS NULL')
+      .groupBy('rl.isbn')
+      .orderBy('"latestDate"', 'DESC')
+      .addOrderBy('rl.isbn', 'DESC');
+
+    if (cursor) {
+      const [cursorDate, cursorIsbn] = cursor.split('|');
+      if (cursorDate && cursorIsbn) {
+        subQuery.having(
+          '(MAX(rl.date) < :cursorDate OR (MAX(rl.date) = :cursorDate AND rl.isbn < :cursorIsbn))',
+          { cursorDate, cursorIsbn },
+        );
+      }
+    }
+
+    subQuery.limit(LOUNGE_PAGE_SIZE + 1);
+
+    const bookGroups: { isbn: string; latestDate: string }[] =
+      await subQuery.getRawMany();
+
+    const hasNextPage = bookGroups.length > LOUNGE_PAGE_SIZE;
+    if (hasNextPage) bookGroups.pop();
+
+    if (bookGroups.length === 0) {
+      return { items: [], nextCursor: null };
+    }
+
+    const isbns = bookGroups.map((g) => g.isbn);
+
+    // 2단계: 해당 ISBN들의 독서 기록 + 사용자 정보 + 도서 정보 조회
+    const logs = await this.readingLogRepository
+      .createQueryBuilder('rl')
+      .leftJoinAndSelect('rl.book', 'book')
+      .innerJoin('rl.user', 'u')
+      .addSelect(['u.id', 'u.nickname', 'u.handle', 'u.profileImageUrl'])
+      .where('rl.isbn IN (:...isbns)', { isbns })
+      .andWhere('u.isReadingLogPublic = :isPublic', { isPublic: true })
+      .andWhere('u.deletedAt IS NULL')
+      .orderBy('rl.date', 'DESC')
+      .addOrderBy('rl.createdAt', 'DESC')
+      .getMany();
+
+    // 3단계: ISBN별로 그룹화 + 사용자별 최신 기록만 유지 (재독 중복 제거)
+    const groupMap = new Map<
+      string,
+      {
+        isbn: string;
+        book: any;
+        latestDate: string;
+        readersMap: Map<number, any>;
+      }
+    >();
+
+    for (const group of bookGroups) {
+      groupMap.set(group.isbn, {
+        isbn: group.isbn,
+        book: null,
+        latestDate: group.latestDate,
+        readersMap: new Map(),
+      });
+    }
+
+    for (const log of logs) {
+      const group = groupMap.get(log.isbn);
+      if (!group) continue;
+
+      if (!group.book && log.book) {
+        group.book = {
+          isbn: log.book.isbn,
+          title: log.book.title,
+          author: log.book.author,
+          publisher: log.book.publisher,
+          image: log.book.image,
+          description: log.book.description,
+        };
+      }
+
+      // 사용자별 최신 기록만 유지 (이미 있으면 skip - 이미 date DESC 정렬됨)
+      if (!group.readersMap.has(log.userId)) {
+        group.readersMap.set(log.userId, {
+          userId: log.userId,
+          nickname: (log as any).user?.nickname || '',
+          handle: (log as any).user?.handle || '',
+          profileImageUrl: (log as any).user?.profileImageUrl || null,
+          date: log.date,
+          memo: log.memo || null,
+        });
+      }
+    }
+
+    // 4단계: 응답 포맷으로 변환
+    const items = bookGroups.map((bg) => {
+      const group = groupMap.get(bg.isbn)!;
+      const allReaders = Array.from(group.readersMap.values());
+
+      return {
+        isbn: group.isbn,
+        book: group.book,
+        latestDate: group.latestDate,
+        readers: allReaders.slice(0, LOUNGE_MAX_READERS),
+        totalReaderCount: allReaders.length,
+      };
+    });
+
+    const nextCursor = hasNextPage
+      ? `${bookGroups[bookGroups.length - 1].latestDate}|${bookGroups[bookGroups.length - 1].isbn}`
+      : null;
+
+    return { items, nextCursor };
+  }
+
+  /**
+   * 라운지 인기 도서를 조회합니다.
+   * 최근 30일간 가장 많은 사용자가 읽은 도서 Top 10을 반환합니다.
+   *
+   * @returns 인기 도서 목록
+   */
+  async getLoungePopular() {
+    const sinceDate = new Date();
+    sinceDate.setDate(sinceDate.getDate() - LOUNGE_POPULAR_DAYS);
+    const sinceDateStr = sinceDate.toISOString().split('T')[0];
+
+    // ISBN별 고유 독자 수 집계
+    const popularBooks: {
+      isbn: string;
+      readerCount: string;
+    }[] = await this.readingLogRepository
+      .createQueryBuilder('rl')
+      .select('rl.isbn', 'isbn')
+      .addSelect('COUNT(DISTINCT rl.userId)', 'readerCount')
+      .innerJoin('rl.user', 'u')
+      .where('u.isReadingLogPublic = :isPublic', { isPublic: true })
+      .andWhere('u.deletedAt IS NULL')
+      .andWhere('rl.date >= :sinceDate', { sinceDate: sinceDateStr })
+      .groupBy('rl.isbn')
+      .orderBy('"readerCount"', 'DESC')
+      .limit(LOUNGE_POPULAR_COUNT)
+      .getRawMany();
+
+    if (popularBooks.length === 0) {
+      return { items: [] };
+    }
+
+    const isbns = popularBooks.map((pb) => pb.isbn);
+
+    // 도서 정보 + 최근 독자 정보 조회
+    const logs = await this.readingLogRepository
+      .createQueryBuilder('rl')
+      .leftJoinAndSelect('rl.book', 'book')
+      .innerJoin('rl.user', 'u')
+      .addSelect(['u.nickname', 'u.handle', 'u.profileImageUrl'])
+      .where('rl.isbn IN (:...isbns)', { isbns })
+      .andWhere('u.isReadingLogPublic = :isPublic', { isPublic: true })
+      .andWhere('u.deletedAt IS NULL')
+      .orderBy('rl.date', 'DESC')
+      .getMany();
+
+    // ISBN별 그룹화
+    const bookMap = new Map<string, any>();
+    for (const pb of popularBooks) {
+      bookMap.set(pb.isbn, {
+        isbn: pb.isbn,
+        book: null,
+        readerCount: Number(pb.readerCount),
+        readersSet: new Set<number>(),
+        recentReaders: [] as any[],
+      });
+    }
+
+    for (const log of logs) {
+      const entry = bookMap.get(log.isbn);
+      if (!entry) continue;
+
+      if (!entry.book && log.book) {
+        entry.book = {
+          isbn: log.book.isbn,
+          title: log.book.title,
+          author: log.book.author,
+          publisher: log.book.publisher,
+          image: log.book.image,
+          description: log.book.description,
+        };
+      }
+
+      if (
+        !entry.readersSet.has(log.userId) &&
+        entry.recentReaders.length < LOUNGE_MAX_READERS
+      ) {
+        entry.readersSet.add(log.userId);
+        entry.recentReaders.push({
+          nickname: (log as any).user?.nickname || '',
+          handle: (log as any).user?.handle || '',
+          profileImageUrl: (log as any).user?.profileImageUrl || null,
+        });
+      }
+    }
+
+    const items = popularBooks.map((pb) => {
+      const entry = bookMap.get(pb.isbn);
+      return {
+        isbn: entry.isbn,
+        book: entry.book,
+        readerCount: entry.readerCount,
+        recentReaders: entry.recentReaders,
+      };
+    });
+
+    return { items };
+  }
+
+  /**
+   * 특정 도서의 전체 독자 목록을 조회합니다.
+   * 상세 모달에서 무한 스크롤로 모든 독자를 보여줄 때 사용됩니다.
+   *
+   * @param isbn 도서 ISBN
+   * @param cursor 페이지네이션 커서 (userId)
+   * @returns 독자 목록 + 다음 커서 + 전체 수
+   */
+  async getLoungeBookReaders(isbn: string, cursor?: string) {
+    const PAGE_SIZE = 20;
+
+    // 도서 정보 조회
+    const bookEntity = await this.dataSource
+      .getRepository('Book')
+      .findOne({ where: { isbn } });
+
+    const book = bookEntity
+      ? {
+          isbn: bookEntity.isbn,
+          title: bookEntity.title,
+          author: bookEntity.author,
+          publisher: bookEntity.publisher,
+          image: bookEntity.image,
+          description: bookEntity.description,
+        }
+      : null;
+
+    // 전체 독자 수 (고유 사용자)
+    const totalCountResult = await this.readingLogRepository
+      .createQueryBuilder('rl')
+      .select('COUNT(DISTINCT rl.userId)', 'count')
+      .innerJoin('rl.user', 'u')
+      .where('rl.isbn = :isbn', { isbn })
+      .andWhere('u.isReadingLogPublic = :isPublic', { isPublic: true })
+      .andWhere('u.deletedAt IS NULL')
+      .getRawOne();
+
+    const totalCount = Number(totalCountResult?.count || 0);
+
+    // 사용자별 최신 기록만 조회 (서브쿼리로 각 사용자의 최신 date 가져오기)
+    const query = this.readingLogRepository
+      .createQueryBuilder('rl')
+      .innerJoin('rl.user', 'u')
+      .addSelect(['u.id', 'u.nickname', 'u.handle', 'u.profileImageUrl'])
+      .where('rl.isbn = :isbn', { isbn })
+      .andWhere('u.isReadingLogPublic = :isPublic', { isPublic: true })
+      .andWhere('u.deletedAt IS NULL')
+      .orderBy('rl.date', 'DESC')
+      .addOrderBy('rl.createdAt', 'DESC');
+
+    if (cursor) {
+      query.andWhere('rl.userId < :cursor', { cursor: Number(cursor) });
+    }
+
+    const logs = await query.take(PAGE_SIZE * 3).getMany(); // 여유 있게 가져와서 중복 제거
+
+    // 사용자별 최신 기록만 유지 (재독 중복 제거)
+    const seenUsers = new Set<number>();
+    const items: any[] = [];
+
+    for (const log of logs) {
+      if (seenUsers.has(log.userId)) continue;
+      seenUsers.add(log.userId);
+
+      items.push({
+        userId: log.userId,
+        nickname: (log as any).user?.nickname || '',
+        handle: (log as any).user?.handle || '',
+        profileImageUrl: (log as any).user?.profileImageUrl || null,
+        date: log.date,
+        memo: log.memo || null,
+      });
+
+      if (items.length >= PAGE_SIZE + 1) break;
+    }
+
+    const hasNextPage = items.length > PAGE_SIZE;
+    if (hasNextPage) items.pop();
+
+    const nextCursor = hasNextPage
+      ? String(items[items.length - 1].userId)
+      : null;
+
+    return { book, items, nextCursor, totalCount };
+  }
 
   /**
    * 독서 기록 설정을 조회합니다.

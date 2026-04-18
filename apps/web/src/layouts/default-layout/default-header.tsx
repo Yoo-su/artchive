@@ -106,6 +106,15 @@ export const DefaultHeader = () => {
             </Link>
           )}
 
+          {/* 2.5 라운지 (공개) */}
+          <Link
+            href={PATHS.LOUNGE}
+            className={getLinkClass(PATHS.LOUNGE)}
+          >
+            {t("nav.menu_lounge")}
+            {isActive(PATHS.LOUNGE) && <HandDrawnUnderline />}
+          </Link>
+
           {/* 3. 중고마켓 그룹 */}
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>

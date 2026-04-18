@@ -5,10 +5,26 @@
  * 모든 API 호출은 인증된 사용자(privateAxios)를 통해 수행됩니다.
  */
 
-import { createReadingLog as sharedCreateReadingLog, deleteReadingLog as sharedDeleteReadingLog, getReadingLogs as sharedGetReadingLogs, getReadingLogSettings as sharedGetReadingLogSettings, getReadingLogsInfinite as sharedGetReadingLogsInfinite, getReadingLogStats as sharedGetReadingLogStats, updateReadingLog as sharedUpdateReadingLog, updateReadingLogSettings as sharedUpdateReadingLogSettings } from "@bookjeok/api-client";
-import { CreateReadingLogParams, ReadingLog, ReadingLogListResponse, ReadingLogStats, UpdateReadingLogParams } from "@bookjeok/core";
+import {
+  createReadingLog as sharedCreateReadingLog,
+  deleteReadingLog as sharedDeleteReadingLog,
+  getLoungePopular as sharedGetLoungePopular,
+  getReadingLogs as sharedGetReadingLogs,
+  getReadingLogSettings as sharedGetReadingLogSettings,
+  getReadingLogsInfinite as sharedGetReadingLogsInfinite,
+  getReadingLogStats as sharedGetReadingLogStats,
+  updateReadingLog as sharedUpdateReadingLog,
+  updateReadingLogSettings as sharedUpdateReadingLogSettings,
+} from "@bookjeok/api-client";
+import {
+  CreateReadingLogParams,
+  ReadingLog,
+  ReadingLogListResponse,
+  ReadingLogStats,
+  UpdateReadingLogParams,
+} from "@bookjeok/core";
 
-import { privateAxios } from "@/shared/libs/axios";
+import { privateAxios, publicAxios } from "@/shared/libs/axios";
 
 /**
  * 월별 독서 기록을 조회합니다.
@@ -108,4 +124,11 @@ export const updateReadingLog = async (params: UpdateReadingLogParams) => {
  */
 export const deleteReadingLog = async (id: string) => {
   return sharedDeleteReadingLog(privateAxios, id);
+};
+
+/**
+ * 라운지 인기 도서를 조회합니다.
+ */
+export const getLoungePopular = async () => {
+  return sharedGetLoungePopular(publicAxios);
 };

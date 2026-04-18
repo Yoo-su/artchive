@@ -2,6 +2,9 @@
 import {
   createReadingLog,
   deleteReadingLog,
+  getLoungeBookReaders,
+  getLoungeFeed,
+  getLoungePopular,
   getReadingLogs,
   getReadingLogSettings,
   getReadingLogsInfinite,
@@ -9,7 +12,7 @@ import {
   updateReadingLog,
   updateReadingLogSettings,
 } from "@bookjeok/api-client";
-import { CreateReadingLogParams, ReadingLog, readingLogKeys, UpdateReadingLogParams, User, userKeys } from "@bookjeok/core";
+import { CreateReadingLogParams, LoungeBookReadersResponse, LoungeFeedResponse, LoungePopularResponse, ReadingLog, readingLogKeys, UpdateReadingLogParams, User, userKeys } from "@bookjeok/core";
 import {
   useInfiniteQuery,
   useMutation,
@@ -148,9 +151,18 @@ export const useCreateReadingLogMutation = (
 ) => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: ({ idempotencyKey, ...payload }: CreateReadingLogParams & { idempotencyKey?: string }) =>
-      createReadingLog(client, payload as CreateReadingLogParams, { idempotencyKey }),
+  return useMutation<
+    ReadingLog,
+    Error,
+    CreateReadingLogParams & { idempotencyKey?: string }
+  >({
+    mutationFn: ({
+      idempotencyKey,
+      ...payload
+    }: CreateReadingLogParams & { idempotencyKey?: string }) =>
+      createReadingLog(client, payload as CreateReadingLogParams, {
+        idempotencyKey,
+      }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: readingLogKeys._def });
       options?.onSuccess?.(data);
@@ -171,7 +183,7 @@ export const useUpdateReadingLogMutation = (
 ) => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<ReadingLog, Error, UpdateReadingLogParams>({
     mutationFn: (params: UpdateReadingLogParams) =>
       updateReadingLog(client, params),
     onSuccess: (data) => {
@@ -199,5 +211,50 @@ export const useDeleteReadingLogMutation = (
       options?.onSuccess?.();
     },
     onError: options?.onError,
+  });
+};
+
+/**
+ * 라운지 피드 무한 스크롤 조회 (공개 - publicAxios 주입)
+ */
+export const useLoungeFeedInfiniteQuery = (client: AxiosInstance) => {
+  return useInfiniteQuery({
+    queryKey: readingLogKeys.loungeFeed.queryKey,
+    queryFn: ({ pageParam }) =>
+      getLoungeFeed(client, pageParam as string | null),
+    initialPageParam: null as string | null,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    staleTime: 60 * 1000, // 1분 (공개 피드이므로 적절한 staleTime)
+  });
+};
+
+/**
+ * 라운지 인기 도서 조회 (공개 - publicAxios 주입)
+ */
+export const useLoungePopularQuery = (client: AxiosInstance) => {
+  return useQuery({
+    queryKey: readingLogKeys.loungePopular.queryKey,
+    queryFn: () => getLoungePopular(client),
+    staleTime: 5 * 60 * 1000, // 5분 (인기도서는 자주 변하지 않으므로)
+  });
+};
+
+/**
+ * 특정 도서의 전체 독자 목록 무한 스크롤 (공개 - publicAxios 주입)
+ * 상세 모달에서 사용
+ */
+export const useLoungeBookReadersInfiniteQuery = (
+  client: AxiosInstance,
+  isbn: string,
+  enabled = true,
+) => {
+  return useInfiniteQuery({
+    queryKey: readingLogKeys.loungeBookReaders(isbn).queryKey,
+    queryFn: ({ pageParam }) =>
+      getLoungeBookReaders(client, isbn, pageParam as string | null),
+    initialPageParam: null as string | null,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    enabled,
+    staleTime: 60 * 1000,
   });
 };

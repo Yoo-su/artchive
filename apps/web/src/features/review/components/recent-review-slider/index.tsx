@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -22,19 +22,19 @@ export const RecentReviewSlider = () => {
   const reviews = reviewsData?.reviews || [];
 
   const SliderHeader = () => (
-    <div className="mb-14 flex flex-col border-b border-stone-200 pb-5 sm:pb-6 relative z-10 text-left px-4 sm:px-0">
+    <div className="mb-14 flex flex-col border-b border-stone-200 pb-5 sm:pb-6 relative z-10 text-right px-4 sm:px-0">
       <Link href={PATHS.REVIEWS} className="group flex justify-between items-end w-full relative z-10">
-        <div className="pr-4">
+        <div className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full border border-stone-300 group-hover:bg-stone-900 group-hover:border-stone-900 transition-all duration-500 shrink-0">
+          <ArrowLeft className="w-5 h-5 text-stone-500 group-hover:text-white transition-colors duration-500 rotate-45 group-hover:rotate-0" strokeWidth={1.5} />
+        </div>
+        <div className="pl-4">
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-[40px] text-stone-900 font-medium tracking-tight break-keep leading-tight">
             <span className="block sm:inline sm:mr-3 text-[22px] sm:text-4xl lg:text-[40px] text-stone-400 font-light mb-1 sm:mb-0">{t("title_prefix")}</span>
             {t("title_suffix")}
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-stone-500 font-light break-keep">
+          <p className="mt-3 text-sm sm:text-base text-stone-500 font-light break-keep ml-auto">
             {t("desc")}
           </p>
-        </div>
-        <div className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full border border-stone-300 group-hover:bg-stone-900 group-hover:border-stone-900 transition-all duration-500 ml-2 shrink-0">
-          <ArrowRight className="w-5 h-5 text-stone-500 group-hover:text-white transition-colors duration-500 -rotate-45 group-hover:rotate-0" strokeWidth={1.5} />
         </div>
       </Link>
     </div>

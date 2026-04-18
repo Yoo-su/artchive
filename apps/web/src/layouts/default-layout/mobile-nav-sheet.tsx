@@ -50,6 +50,10 @@ export const MobileNavSheet = () => {
           label: t("book_search"),
         },
         {
+          href: PATHS.LOUNGE,
+          label: t("lounge"),
+        },
+        {
           href: PATHS.READING_LOG,
           label: t("reading_log"),
           requiresAuth: true,

@@ -9,4 +9,10 @@ export const readingLogKeys = createQueryKeys("readingLog", {
   }),
   settings: null,
   infinite: null,
+  // ✅ 라운지 전용 쿼리 키 추가
+  loungeFeed: null,
+  loungePopular: null,
+  loungeBookReaders: (isbn: string) => ({
+    queryKey: [isbn],
+  }),
 });

@@ -8,6 +8,7 @@ import { MainBookSlider } from "@/features/book/components/book-slider/main-book
 import { PopularBookSlider } from "@/features/book/components/book-slider/popular-book-slider";
 import { RecentSalesSlider } from "@/features/book-sale/components/sale-market/recent-sale-slider";
 import { HomeHero } from "@/features/intro/components/hero/home-hero";
+import { LoungeHomeWidget } from "@/features/reading-log/components/lounge-feed/lounge-home-widget";
 import { TasteFinderWidget } from "@/features/recommend/components/widgets/taste-finder-widget";
 import { RecentReviewSlider } from "@/features/review/components/recent-review-slider";
 import { AdBanner } from "@/shared/components/ads/ad-banner";
@@ -28,6 +29,8 @@ export const HomeView = () => {
       {/* <TasteFinderWidget /> */}
 
       <PopularBookSlider />
+
+      <LoungeHomeWidget />
 
       <RecentSalesSlider />
 

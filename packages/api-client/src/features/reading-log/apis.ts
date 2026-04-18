@@ -1,4 +1,4 @@
-import { API_PATHS, CreateReadingLogParams, ReadingLog, ReadingLogListResponse, ReadingLogStats, UpdateReadingLogParams } from "@bookjeok/core";
+import { API_PATHS, CreateReadingLogParams, LoungeBookReadersResponse, LoungeFeedResponse, LoungePopularResponse, ReadingLog, ReadingLogListResponse, ReadingLogStats, UpdateReadingLogParams } from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**
@@ -111,4 +111,52 @@ export const updateReadingLogSettings = async (
     },
   );
   return response.data;
+};
+
+/**
+ * 라운지 피드를 조회합니다. (공개 API - 인증 불필요)
+ * 모든 공개 사용자의 독서 기록을 책 단위로 그룹화하여 반환합니다.
+ */
+export const getLoungeFeed = async (
+  client: AxiosInstance,
+  cursor: string | null = null,
+): Promise<LoungeFeedResponse> => {
+  const { data } = await client.get<LoungeFeedResponse>(
+    API_PATHS.readingLog.loungeFeed,
+    {
+      params: { cursor },
+    },
+  );
+  return data;
+};
+
+/**
+ * 라운지 인기 도서를 조회합니다. (공개 API - 인증 불필요)
+ * 최근 30일간 가장 많이 읽힌 도서 Top 10을 반환합니다.
+ */
+export const getLoungePopular = async (
+  client: AxiosInstance,
+): Promise<LoungePopularResponse> => {
+  const { data } = await client.get<LoungePopularResponse>(
+    API_PATHS.readingLog.loungePopular,
+  );
+  return data;
+};
+
+/**
+ * 특정 도서의 전체 독자 목록을 조회합니다. (공개 API - 인증 불필요)
+ * 상세 모달에서 무한 스크롤로 사용됩니다.
+ */
+export const getLoungeBookReaders = async (
+  client: AxiosInstance,
+  isbn: string,
+  cursor: string | null = null,
+): Promise<LoungeBookReadersResponse> => {
+  const { data } = await client.get<LoungeBookReadersResponse>(
+    API_PATHS.readingLog.loungeBookReaders(isbn),
+    {
+      params: { cursor },
+    },
+  );
+  return data;
 };

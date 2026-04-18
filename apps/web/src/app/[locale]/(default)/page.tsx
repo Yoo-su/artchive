@@ -2,6 +2,7 @@ import {
   bookKeys,
   bookSaleKeys,
   HOME_PUBLISHERS,
+  readingLogKeys,
   reviewKeys,
 } from "@bookjeok/core";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -9,6 +10,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPopularBooks } from "@/features/book/apis";
 import { getPublisherBooksServer } from "@/features/book/apis/server";
 import { getRecentBookSales } from "@/features/book-sale/apis";
+import { getLoungePopular } from "@/features/reading-log/apis";
 import { getReviews } from "@/features/review/apis";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { publicAxios } from "@/shared/libs/axios";
@@ -56,6 +58,10 @@ export default async function Page({
         display: 10,
       }).queryKey,
       queryFn: () => getPublisherBooksServer(HOME_PUBLISHERS[0], 10),
+    },
+    {
+      queryKey: readingLogKeys.loungePopular.queryKey,
+      queryFn: getLoungePopular,
     },
   ];
 
