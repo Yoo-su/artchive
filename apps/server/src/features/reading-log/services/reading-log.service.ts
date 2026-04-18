@@ -95,10 +95,17 @@ export class ReadingLogService {
     >();
 
     for (const group of bookGroups) {
+      const dateStr =
+        group.latestDate instanceof Date
+          ? group.latestDate.toISOString().split('T')[0]
+          : typeof group.latestDate === 'string'
+            ? group.latestDate.split('T')[0]
+            : String(group.latestDate);
+
       groupMap.set(group.isbn, {
         isbn: group.isbn,
         book: null,
-        latestDate: group.latestDate,
+        latestDate: dateStr,
         readersMap: new Map(),
       });
     }
@@ -148,13 +155,8 @@ export class ReadingLogService {
     let nextCursor: string | null = null;
     if (hasNextPage) {
       const lastGroup = bookGroups[bookGroups.length - 1];
-      const dateStr =
-        lastGroup.latestDate instanceof Date
-          ? lastGroup.latestDate.toISOString().split('T')[0]
-          : typeof lastGroup.latestDate === 'string'
-            ? lastGroup.latestDate.split('T')[0]
-            : String(lastGroup.latestDate);
-      nextCursor = `${dateStr}|${lastGroup.isbn}`;
+      const formattedLatestDate = groupMap.get(lastGroup.isbn)!.latestDate;
+      nextCursor = `${formattedLatestDate}|${lastGroup.isbn}`;
     }
 
     return { items, nextCursor };
