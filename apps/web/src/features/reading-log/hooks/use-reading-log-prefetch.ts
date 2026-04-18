@@ -1,6 +1,6 @@
 import { readingLogKeys } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
-import { addMonths, subMonths } from "date-fns";
+import { addMonths, isAfter, startOfMonth, subMonths } from "date-fns";
 import { useEffect } from "react";
 
 import { CACHE_TIME } from "@/shared/constants/cache";
@@ -15,7 +15,12 @@ export const useReadingLogPrefetch = (year: number, month: number) => {
     const prevDate = subMonths(currentDate, 1);
     const nextDate = addMonths(currentDate, 1);
 
-    const targetDates = [prevDate, nextDate];
+    const targetDates = [prevDate];
+
+    // nextDate가 현재 달(오늘)을 초과하는 '미래 달'이 아닐 경우에만 prefetch에 포함
+    if (!isAfter(startOfMonth(nextDate), startOfMonth(new Date()))) {
+      targetDates.push(nextDate);
+    }
 
     targetDates.forEach((date) => {
       const targetYear = date.getFullYear();
