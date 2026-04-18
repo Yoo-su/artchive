@@ -164,6 +164,20 @@ export const useCreateReadingLogMutation = (
         idempotencyKey,
       }),
     onSuccess: (data) => {
+      if (data.date) {
+        const [yearStr, monthStr] = data.date.split('-');
+        const year = parseInt(yearStr, 10);
+        const month = parseInt(monthStr, 10);
+
+        queryClient.setQueryData<ReadingLog[]>(
+          readingLogKeys.list(year, month).queryKey,
+          (old) => {
+            if (!old) return [data];
+            return [...old, data].sort((a, b) => a.date.localeCompare(b.date));
+          },
+        );
+      }
+      // 동기화를 위해 백그라운드로 캐시 전체 무효화
       queryClient.invalidateQueries({ queryKey: readingLogKeys._def });
       options?.onSuccess?.(data);
     },
@@ -187,6 +201,21 @@ export const useUpdateReadingLogMutation = (
     mutationFn: (params: UpdateReadingLogParams) =>
       updateReadingLog(client, params),
     onSuccess: (data) => {
+      if (data.date) {
+        const [yearStr, monthStr] = data.date.split('-');
+        const year = parseInt(yearStr, 10);
+        const month = parseInt(monthStr, 10);
+
+        queryClient.setQueryData<ReadingLog[]>(
+          readingLogKeys.list(year, month).queryKey,
+          (old) => {
+            if (!old) return [data];
+            return old
+              .map((log) => (log.id === data.id ? data : log))
+              .sort((a, b) => a.date.localeCompare(b.date));
+          },
+        );
+      }
       queryClient.invalidateQueries({ queryKey: readingLogKeys._def });
       options?.onSuccess?.(data);
     },
@@ -206,7 +235,20 @@ export const useDeleteReadingLogMutation = (
   return useMutation({
     mutationFn: (params: { id: string; date: string }) =>
       deleteReadingLog(client, params.id),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      if (variables.date) {
+        const [yearStr, monthStr] = variables.date.split('-');
+        const year = parseInt(yearStr, 10);
+        const month = parseInt(monthStr, 10);
+
+        queryClient.setQueryData<ReadingLog[]>(
+          readingLogKeys.list(year, month).queryKey,
+          (old) => {
+            if (!old) return old;
+            return old.filter((log) => log.id !== variables.id);
+          },
+        );
+      }
       queryClient.invalidateQueries({ queryKey: readingLogKeys._def });
       options?.onSuccess?.();
     },
