@@ -58,7 +58,7 @@ export class ReadingLogService {
 
     subQuery.limit(LOUNGE_PAGE_SIZE + 1);
 
-    const bookGroups: { isbn: string; latestDate: string }[] =
+    const bookGroups: { isbn: string; latestDate: string | Date }[] =
       await subQuery.getRawMany();
 
     const hasNextPage = bookGroups.length > LOUNGE_PAGE_SIZE;
@@ -145,7 +145,7 @@ export class ReadingLogService {
       };
     });
 
-    let nextCursor = null;
+    let nextCursor: string | null = null;
     if (hasNextPage) {
       const lastGroup = bookGroups[bookGroups.length - 1];
       const dateStr =
