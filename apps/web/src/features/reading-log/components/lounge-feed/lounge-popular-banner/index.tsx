@@ -61,11 +61,15 @@ export function LoungePopularBanner({ onCardClick }: LoungePopularBannerProps) {
         className="pb-4 pt-4 -mt-4 -mx-4 px-4! md:mx-0 md:px-0!"
       >
         {data.items.map((item, index) => (
-          <SwiperSlide key={item.isbn} className="!w-44 select-none cursor-pointer" onClick={() => onCardClick && onCardClick(item.isbn, item.book, Number(item.readerCount))}>
-            <LoungePopularBannerCard
-              item={item}
-              index={index}
-            />
+          <SwiperSlide
+            key={item.isbn}
+            className="w-44! select-none cursor-pointer"
+            onClick={() =>
+              onCardClick &&
+              onCardClick(item.isbn, item.book, Number(item.readerCount))
+            }
+          >
+            <LoungePopularBannerCard item={item} index={index} />
           </SwiperSlide>
         ))}
       </Swiper>

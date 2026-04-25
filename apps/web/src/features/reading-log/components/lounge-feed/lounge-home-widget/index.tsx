@@ -73,12 +73,12 @@ export function LoungeHomeWidget() {
         <Swiper
           slidesPerView="auto"
           spaceBetween={20}
-          className="pb-4 pt-4 -mt-4 -mx-4 px-4! md:-mx-0 md:px-0! overflow-visible!"
+          className="pb-4 pt-4 -mt-4 -mx-4 px-4! md:mx-0 md:px-0! overflow-visible!"
         >
           {data.items.slice(0, 6).map((item, index) => (
             <SwiperSlide
               key={item.isbn}
-              className="!w-40 sm:!w-44 select-none group"
+              className="w-40! sm:w-44! select-none group"
             >
               <motion.div
                 initial={{ opacity: 0, y: 12 }}

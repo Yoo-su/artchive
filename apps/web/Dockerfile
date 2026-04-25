@@ -1,77 +1,65 @@
-# ------------------------------------------------------------------------------
+# ==============================================================================
 # 1단계: 의존성 설치 (Deps Stage)
-# package.json과 lock 파일만 복사하여 의존성을 설치합니다.
-# 캐싱을 최적화하기 위해 별도 단계로 분리합니다.
-# ------------------------------------------------------------------------------
+# 소스 코드 변경 시에도 캐시를 활용하여 의존성 설치를 건너뛰기 위해 분리
+# ==============================================================================
 FROM node:22-alpine AS deps
 
-# libc6-compat 설치: 일부 네이티브 모듈(예: sharp, swc)이 alpine에서 동작하기 위해 필요할 수 있습니다.
+# Alpine 네이티브 모듈 호환성 패키지
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
-# 패키지 매니저 설정
+# 모노레포 설정 파일 및 각 패키지의 package.json 복사
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json turbo.json .npmrc ./
 COPY apps/web/package.json ./apps/web/
 COPY packages/core/package.json ./packages/core/
 COPY packages/api-client/package.json ./packages/api-client/
 COPY packages/react-query/package.json ./packages/react-query/
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# pnpm 설치 및 의존성 설치
+RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
 RUN pnpm install --frozen-lockfile
 
-# ------------------------------------------------------------------------------
+# ==============================================================================
 # 2단계: 빌드 (Builder Stage)
-# 소스 코드를 복사하고 Next.js 애플리케이션을 빌드합니다.
-# ------------------------------------------------------------------------------
+# deps 단계의 node_modules를 가져와 Next.js 앱을 빌드
+# ==============================================================================
 FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# pnpm 설정
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
 
-# 이전 단계에서 설치한 node_modules 복사
+# deps 단계에서 설치한 node_modules 가져오기
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Next.js 빌드 실행
-WORKDIR /app/apps/web
-RUN pnpm build
+# web 앱과 의존 패키지를 함께 빌드
+RUN pnpm build --filter=@bookjeok/web...
 
-# ------------------------------------------------------------------------------
+# ==============================================================================
 # 3단계: 실행 (Runner Stage)
-# 실제 운영 환경에서 실행될 가벼운 이미지입니다.
-# ------------------------------------------------------------------------------
+# standalone 빌드 결과물만 포함하는 최종 경량 이미지
+# ==============================================================================
 FROM node:22-alpine AS runner
 
 WORKDIR /app
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
+ENV HOSTNAME="0.0.0.0"
 
-# 보안을 위해 시스템 그룹/유저 생성 및 사용
-# root 권한으로 실행하지 않도록 합니다.
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# 비-root 유저 생성 및 전환 (보안)
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
-# Next.js의 public 폴더 복사 (이미지, 폰트 등 정적 파일)
-COPY --from=builder /app/public ./public
+# standalone 빌드 결과물 및 정적 파일 복사
+COPY --from=builder /app/apps/web/public ./apps/web/public
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 
-# 'standalone' 빌드 결과물 복사
-# standalone 모드는 실행에 필요한 최소한의 파일만 .next/standalone에 생성합니다.
-# 따라서 node_modules 전체를 복사할 필요가 없어 이미지 크기가 획기적으로 줄어듭니다.
-
-# 보안을 위해 파일 소유권을 nextjs 유저로 변경
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# 실행 유저 변경
 USER nextjs
 
-# 포트 설정
 EXPOSE 3000
-ENV PORT 3000
+ENV PORT=3000
 
-# 서버 실행
-# standalone 모드에서는 'next start'가 아닌 생성된 'server.js'를 node로 직접 실행합니다.
-CMD ["node", "server.js"]
+CMD ["node", "apps/web/server.js"]

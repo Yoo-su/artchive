@@ -1,9 +1,14 @@
-# Dependencies
+# ==============================================================================
+# .dockerignore
+# Docker 빌드 시 빌드 컨텍스트에서 제외할 파일/폴더를 정의합니다.
+# 제외 이유: 빌드 속도 향상, 이미지 크기 절감, 보안 강화
+# ==============================================================================
+
+# 의존성 — Docker 안에서 pnpm install로 새로 설치하므로 불필요
 node_modules
 **/node_modules
-pnpm-debug.log
 
-# Build outputs
+# 빌드 결과물 — Docker 안에서 pnpm build로 새로 생성하므로 불필요
 dist
 **/dist
 .next
@@ -12,26 +17,44 @@ dist
 **/.turbo
 out
 
-# Environment variables
+# 환경변수 — ⚠️ 보안! 비밀키가 이미지에 포함되면 안 됩니다
 .env
-.env.local
-.env.production
-.env.development
+.env.*
 
-# Git
+# Git — 빌드와 무관하며 수십 MB를 차지
 .git
 .gitignore
 
-# OS files
+# CI/CD — 빌드와 무관한 파이프라인 설정 파일
+.github
+.gitlab-ci.yml
+
+# Docker 관련 — 자기 자신을 이미지에 넣을 필요 없음
+Dockerfile
+**/Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# 테스트/개발 도구 — 프로덕션 빌드에 불필요
+coverage
+**/coverage
+.storybook
+storybook-static
+
+# OS 파일 — 운영체제가 자동 생성하는 메타데이터
 .DS_Store
 Thumbs.db
 
-# Docker
-Dockerfile
-.dockerignore
+# 로그 파일
+*.log
+pnpm-debug.log*
+npm-debug.log*
 
-# Documentation
+# 문서 — 빌드에 불필요한 프로젝트 문서들
 README.md
 docs
 **/docs
-*.md
+LOUNGE_IMPLEMENTATION_PLAN.md
+COMMUNITY_ENHANCEMENT_PLAN.md
+MONOREPO_REFACTORING_LOG.md
+project_guidelines.md
