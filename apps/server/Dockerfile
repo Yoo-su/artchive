@@ -58,13 +58,11 @@ COPY --from=builder /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --from=builder /app/.npmrc ./.npmrc
 COPY --from=builder /app/apps/server/package.json ./apps/server/package.json
 
-# 공유 패키지의 빌드 결과물만 복사 (소스 코드 제외)
+# 공유 패키지의 package.json만 복사 (pnpm workspace 해석에 필요)
+# packages는 웹에서만 사용하므로 dist(빌드 결과물)는 복사하지 않음
 COPY --from=builder /app/packages/core/package.json ./packages/core/package.json
-COPY --from=builder /app/packages/core/dist ./packages/core/dist
 COPY --from=builder /app/packages/api-client/package.json ./packages/api-client/package.json
-COPY --from=builder /app/packages/api-client/dist ./packages/api-client/dist
 COPY --from=builder /app/packages/react-query/package.json ./packages/react-query/package.json
-COPY --from=builder /app/packages/react-query/dist ./packages/react-query/dist
 
 # devDependencies 제외, 프로덕션 의존성만 설치
 RUN pnpm install --prod --frozen-lockfile
