@@ -1,58 +1,84 @@
-# ------------------------------------------------------------------------------
-# 1단계: 빌드 (Builder Stage)
-# ------------------------------------------------------------------------------
-FROM node:22-alpine AS builder
+# ==============================================================================
+# 1단계: 의존성 설치 (Deps Stage)
+# 소스 코드 변경 시에도 캐시를 활용하여 의존성 설치를 건너뛰기 위해 분리
+# ==============================================================================
+FROM node:22-alpine AS deps
 
-# 작업 디렉토리 설정 (루트 기준)
 WORKDIR /app
 
-# pnpm 설치
-RUN corepack enable && corepack prepare pnpm@9.15.1 --activate
-
-# 1. 워크스페이스(Monorepo) 설정 파일들 복사
+# 모노레포 설정 파일 및 각 패키지의 package.json 복사
 COPY pnpm-lock.yaml package.json pnpm-workspace.yaml tsconfig.base.json turbo.json .npmrc ./
-
-# 2. 모든 패키지 및 앱의 package.json 복사 (의존성 설치 최적화)
 COPY apps/server/package.json ./apps/server/
 COPY packages/core/package.json ./packages/core/
 COPY packages/api-client/package.json ./packages/api-client/
 COPY packages/react-query/package.json ./packages/react-query/
 
-# 3. 의존성 설치
+# pnpm 설치 및 의존성 설치
+RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
 RUN pnpm install --frozen-lockfile
 
-# 4. 소스 코드 전체 복사 (packages 포함)
+# ==============================================================================
+# 2단계: 빌드 (Builder Stage)
+# deps 단계의 node_modules를 가져와 NestJS 앱을 빌드 (TypeScript → JavaScript)
+# ==============================================================================
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
+
+# deps 단계에서 설치한 node_modules 가져오기
+COPY --from=deps /app/node_modules ./node_modules
+
+# 필요한 소스 코드만 선별 복사
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json turbo.json .npmrc ./
 COPY packages ./packages
 COPY apps/server ./apps/server
 
-# 5. 백엔드 빌드 (Turbo 활용)
-RUN pnpm build --filter=@bookjeok/server
+# server 앱과 의존 패키지를 함께 빌드
+RUN pnpm build --filter=@bookjeok/server...
 
-# ------------------------------------------------------------------------------
-# 2단계: 실행 (Runner Stage)
-# ------------------------------------------------------------------------------
+# ==============================================================================
+# 3단계: 실행 (Runner Stage)
+# 프로덕션 의존성과 빌드 결과물(dist/)만 포함하는 최종 경량 이미지
+# ==============================================================================
 FROM node:22-alpine AS runner
 
-ENV NODE_ENV production
-ENV TZ Asia/Seoul
+ENV NODE_ENV=production
+ENV TZ=Asia/Seoul
+
 WORKDIR /app
 
-# node 사용자 사용
-RUN addgroup -g 1001 -S nodejs && adduser -S nestjs -u 1001
-USER nestjs
+RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
 
-# 빌드 결과물 복사
-COPY --from=builder /app/node_modules ./node_modules
+# 프로덕션 의존성 설치를 위한 설정 파일 복사
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/apps/server/dist ./apps/server/dist
+COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=builder /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=builder /app/.npmrc ./.npmrc
 COPY --from=builder /app/apps/server/package.json ./apps/server/package.json
-COPY --from=builder /app/packages ./packages
 
-# 실행 위치 설정
+# 공유 패키지의 빌드 결과물만 복사 (소스 코드 제외)
+COPY --from=builder /app/packages/core/package.json ./packages/core/package.json
+COPY --from=builder /app/packages/core/dist ./packages/core/dist
+COPY --from=builder /app/packages/api-client/package.json ./packages/api-client/package.json
+COPY --from=builder /app/packages/api-client/dist ./packages/api-client/dist
+COPY --from=builder /app/packages/react-query/package.json ./packages/react-query/package.json
+COPY --from=builder /app/packages/react-query/dist ./packages/react-query/dist
+
+# devDependencies 제외, 프로덕션 의존성만 설치
+RUN pnpm install --prod --frozen-lockfile
+
+# NestJS 빌드 결과물 복사
+COPY --from=builder /app/apps/server/dist ./apps/server/dist
+
+# 비-root 유저 생성 및 전환 (보안)
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nestjs
+
+USER nestjs
 WORKDIR /app/apps/server
 
-# 포트 설정 (main.ts의 설정인 8000으로 수정)
 EXPOSE 8000
 
-# 실행 명령어
 CMD ["node", "dist/main"]
