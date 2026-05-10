@@ -18,13 +18,13 @@ export default function middleware(request: NextRequest) {
   }
 
   // 2. 차단 대상 봇인지 확인 (User-Agent 기반)
-  const isBlockedBot = BLOCKED_BOT_PATTERNS.some((pattern) =>
+  /* const isBlockedBot = BLOCKED_BOT_PATTERNS.some((pattern) =>
     pattern.test(userAgent),
   );
 
   if (isBlockedBot) {
     return new NextResponse("Too Many Requests", { status: 429 });
-  }
+  } */
 
   return intlMiddleware(request);
 }
