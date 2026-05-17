@@ -8,6 +8,7 @@ import { BookService } from '@/features/book/services/book.service';
 import { UserService } from '@/features/user/services/user.service';
 import { BusinessException } from '@/shared/exceptions';
 
+import { POPULAR_SALE_MONTHS } from '../constants';
 import { CreateBookSaleDto } from '../dtos/create-book-sale.dto';
 import { GetBookSalesQueryDto } from '../dtos/get-book-sales-query.dto';
 import { BookSaleSortBy, QueryBookSaleDto } from '../dtos/query-book-sale.dto';
@@ -94,7 +95,7 @@ export class UsedBookSaleService {
 
   /**
    * 인기 판매글을 조회합니다.
-   * 최근 3개월 내 조회수 높은 순으로 6개 반환 (결과 캐싱)
+   * 최근 1년 내 조회수 높은 순으로 6개 반환 (결과 캐싱)
    */
   async findPopularSales(): Promise<UsedBookSale[]> {
     // 1. 캐시 확인
@@ -123,11 +124,11 @@ export class UsedBookSaleService {
   }
 
   /**
-   * 최근 3개월간 조회수가 가장 높은 판매 중인 글 ID를 조회합니다.
+   * 최근 1년간 조회수가 가장 높은 판매 중인 글 ID를 조회합니다.
    */
   private async getPopularSaleIds(limit: number): Promise<{ id: number }[]> {
     const threeMonthsAgo = new Date();
-    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - POPULAR_SALE_MONTHS);
 
     return await this.usedBookSaleRepository
       .createQueryBuilder('sale')

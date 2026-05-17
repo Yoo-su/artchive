@@ -14,3 +14,5 @@ export const BOOK_DOMAINS = [
 ] as const;
 
 export type BookDomain = (typeof BOOK_DOMAINS)[number];
+
+export const POPULAR_REVIEW_MONTHS = 12;

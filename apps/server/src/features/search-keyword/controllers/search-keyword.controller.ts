@@ -43,7 +43,7 @@ export class SearchKeywordController {
   @Get('popular')
   @ApiOperation({
     summary: '인기 검색어 조회',
-    description: '최근 3일 기준 인기 검색어 Top 10을 조회합니다.',
+    description: '최근 1년 기준 인기 검색어 Top 10을 조회합니다.',
   })
   @ApiResponse({
     status: 200,

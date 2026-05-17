@@ -1,0 +1,1 @@
+export const POPULAR_KEYWORD_DAYS = 365;

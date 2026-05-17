@@ -37,7 +37,7 @@ export class LoungeController {
   @ApiOperation({
     summary: '라운지 인기 도서 조회',
     description:
-      '최근 30일간 가장 많이 읽힌 인기 도서 Top 10을 반환합니다. 인증 불필요.',
+      '최근 1년간 가장 많이 읽힌 인기 도서 Top 10을 반환합니다. 인증 불필요.',
   })
   @ApiResponse({
     status: 200,
