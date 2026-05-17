@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 
+import { POPULAR_KEYWORD_DAYS } from '../constants';
 import { SearchKeyword } from '../entities/search-keyword.entity';
 import { normalizeKeyword } from '../utils/normalize-keyword.util';
 
@@ -48,7 +49,7 @@ export class SearchKeywordService {
 
   /**
    * 인기 검색어를 조회합니다.
-   * 최근 3일 이내에 검색된 키워드 중 검색 횟수가 높은 순으로 반환합니다.
+   * 최근 1년 이내에 검색된 키워드 중 검색 횟수가 높은 순으로 반환합니다.
    * @param limit 반환할 최대 개수 (기본값: 10)
    * @returns 인기 검색어 목록
    */
@@ -56,12 +57,12 @@ export class SearchKeywordService {
     limit = 10,
   ): Promise<{ keyword: string; searchCount: number }[]> {
     const threeDaysAgo = new Date();
-    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - POPULAR_KEYWORD_DAYS);
 
     const keywords = await this.searchKeywordRepository.find({
       where: {
         lastSearchedAt: MoreThanOrEqual(threeDaysAgo),
-        searchCount: MoreThanOrEqual(3),
+        searchCount: MoreThanOrEqual(1),
       },
       order: {
         searchCount: 'DESC',

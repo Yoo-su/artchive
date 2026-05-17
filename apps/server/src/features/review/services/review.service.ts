@@ -12,7 +12,7 @@ import {
 import { Tag } from '@/features/review/entities/tag.entity';
 import { BusinessException } from '@/shared/exceptions';
 
-import { BOOK_DOMAINS } from '../constants';
+import { BOOK_DOMAINS, POPULAR_REVIEW_MONTHS } from '../constants';
 import { CreateReviewDto } from '../dto/create-review.dto';
 import { GetReviewsQueryDto } from '../dto/get-reviews-query.dto';
 import {
@@ -370,13 +370,13 @@ export class ReviewService {
   }
 
   /**
-   * 최근 3개월간의 참여도(조회수, 리액션, 댓글)를 점수화하여 인기 리뷰 ID를 조회합니다.
+   * 최근 1년간의 참여도(조회수, 리액션, 댓글)를 점수화하여 인기 리뷰 ID를 조회합니다.
    */
   private async getPopularReviewIdsWithScores(
     limit: number,
   ): Promise<{ id: number; score: number }[]> {
     const threeMonthsAgo = new Date();
-    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - POPULAR_REVIEW_MONTHS);
 
     return await this.reviewsRepository
       .createQueryBuilder('review')
