@@ -1,0 +1,48 @@
+name: Deploy Server to Azure Container Apps
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/server/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+  # 수동 배포 트리거 (원할 때 버튼을 눌러서 배포 가능)
+  workflow_dispatch:
+
+env:
+  AZURE_CONTAINER_REGISTRY: "bookjeokacr0871"
+  CONTAINER_APP_NAME: "bookjeok-server"
+  RESOURCE_GROUP: "bookjeok-rg"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Log in to ACR
+        run: az acr login --name ${{ env.AZURE_CONTAINER_REGISTRY }}
+
+      - name: Build and Push Docker image
+        run: |
+          IMAGE_TAG=${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_APP_NAME }}:${{ github.sha }}
+
+          # 모노레포 구조를 위해 루트에서 빌드 컨텍스트(.)를 잡고 Dockerfile은 -f로 지정
+          docker build -f apps/server/Dockerfile -t $IMAGE_TAG .
+          docker push $IMAGE_TAG
+
+      - name: Deploy to Azure Container Apps
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          resourceGroup: ${{ env.RESOURCE_GROUP }}
+          containerAppName: ${{ env.CONTAINER_APP_NAME }}
+          imageToDeploy: ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_APP_NAME }}:${{ github.sha }}
