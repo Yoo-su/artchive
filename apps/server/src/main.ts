@@ -75,7 +75,7 @@ async function bootstrap() {
       console.log('Server is closing, closing database connection...');
       if (dataSource.isInitialized) {
         await dataSource.destroy();
-        console.log('Database connection closed');
+        console.log('Database connection closed.');
       }
     });
 
