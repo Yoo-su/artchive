@@ -48,3 +48,6 @@ jobs:
           resourceGroup: ${{ env.RESOURCE_GROUP }}
           containerAppName: ${{ env.CONTAINER_APP_NAME }}
           imageToDeploy: ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_APP_NAME }}:${{ github.sha }}
+          registryUrl: ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io
+          registryUsername: ${{ secrets.REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.REGISTRY_PASSWORD }}
