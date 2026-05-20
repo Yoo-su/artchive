@@ -1,3 +1,8 @@
+import * as dns from 'node:dns';
+
+// Azure 환경에서 Supabase IPv6 ENETUNREACH 에러 우회를 위해 IPv4 우선 조회 강제
+dns.setDefaultResultOrder('ipv4first');
+
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
