@@ -26,6 +26,10 @@ export class UsedBookSaleModule implements OnModuleInit {
    * 모듈 초기화 시 GiST 인덱스 생성 (거리 기반 검색 최적화)
    */
   async onModuleInit() {
+    // 거리 계산을 위한 PostgreSQL cube 및 earthdistance 확장 활성화
+    await this.dataSource.query('CREATE EXTENSION IF NOT EXISTS cube');
+    await this.dataSource.query('CREATE EXTENSION IF NOT EXISTS earthdistance');
+
     await this.dataSource.query(
       'CREATE INDEX IF NOT EXISTS "used_book_sales_location_idx" ON "used_book_sales" USING GiST (ll_to_earth("latitude", "longitude"))',
     );
