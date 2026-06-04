@@ -4,7 +4,7 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       // Google 내부 R&D용 크롤러 (Search Console 라이브 테스트 및 진단 지원을 위해 허용)
-      {
+      /* {
         userAgent: "GoogleOther",
         allow: ["/"],
       },
@@ -20,7 +20,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "Google-Extended",
         disallow: ["/"],
-      },
+      }, */
       // 일반 크롤러 허용 (Googlebot, Naveron 등 포함)
       {
         userAgent: "*",
@@ -33,4 +33,3 @@ export default function robots(): MetadataRoute.Robots {
     sitemap: "https://bookjeok.com/sitemap.xml",
   };
 }
-
