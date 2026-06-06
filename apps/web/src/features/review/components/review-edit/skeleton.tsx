@@ -8,7 +8,7 @@ import { Skeleton } from "@/shared/components/shadcn/skeleton";
  */
 export const ReviewEditSkeleton = () => {
   return (
-    <div className="container mx-auto py-8 max-w-4xl">
+    <div className="container mx-auto py-8 w-full">
       {/* 제목 */}
       <Skeleton className="h-9 w-48 mb-8" />
 

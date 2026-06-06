@@ -19,7 +19,7 @@ export function LoungeHomeWidget() {
   if (isLoading) {
     return (
       <section className="w-full py-16 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="w-full mx-auto px-4">
           <div className="mb-14 border-b border-stone-200 pb-5 animate-pulse">
             <Skeleton className="h-10 w-64 mb-3" />
             <Skeleton className="h-4 w-48" />
@@ -42,7 +42,7 @@ export function LoungeHomeWidget() {
 
   return (
     <section className="w-full py-16 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="w-full mx-auto px-4">
         {/* 섹션 헤더: 기존 RecentReviewSlider, RecentSalesSlider의 헤더 패턴 */}
         <div className="mb-14 flex flex-col border-b border-stone-200 pb-5 sm:pb-6 text-left">
           <Link

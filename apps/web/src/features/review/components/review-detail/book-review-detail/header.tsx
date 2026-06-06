@@ -26,7 +26,7 @@ export function ReviewDetailHeader({ review, book }: ReviewDetailHeaderProps) {
 
   return (
     <header className="relative bg-white pt-20 pb-12">
-      <div className="container mx-auto px-4 max-w-3xl">
+      <div className="container mx-auto px-4 w-full">
         {/* 카테고리 & 날짜 - 상단 메타데이터 */}
         <div className="flex items-center gap-3 text-sm font-medium tracking-wider text-stone-500 mb-6 uppercase">
           <span className="text-secondary-foreground">

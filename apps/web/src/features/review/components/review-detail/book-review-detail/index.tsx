@@ -45,7 +45,7 @@ export const ReviewDetail = ({ id, initialReview }: ReviewDetailProps) => {
     <article className="min-h-screen bg-white pb-20">
       <ReviewDetailHeader review={review} book={book} />
 
-      <div className="container mx-auto px-4 max-w-3xl py-12">
+      <div className="container mx-auto px-4 w-full py-12">
         {isPrivateMasked ? (
           <PrivateReviewOverlay />
         ) : (

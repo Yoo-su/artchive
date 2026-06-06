@@ -36,7 +36,7 @@ export const UserProfile = ({ handle }: UserProfileProps) => {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-8" data-clarity-mask="true">
+    <div className="container mx-auto w-full px-4 py-8" data-clarity-mask="true">
       <UserProfileHeader profile={profile} />
       <UserProfileStats stats={profile.stats} />
 
@@ -263,7 +263,7 @@ const UserRecentSales = ({ sales }: UserRecentSalesProps) => {
  * 로딩 스켈레톤
  */
 export const UserProfileSkeleton = () => (
-  <div className="container mx-auto max-w-4xl px-4 py-8">
+  <div className="container mx-auto w-full px-4 py-8">
     <Card className="mb-8">
       <CardContent className="flex items-center gap-4 p-4 sm:gap-6 sm:p-6">
         <Skeleton className="h-20 w-20 shrink-0 rounded-full sm:h-24 sm:w-24" />

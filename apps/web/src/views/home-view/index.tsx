@@ -7,10 +7,8 @@ import { MainArtSlider } from "@/features/art/components/widgets/art-slider/main
 import { MainBookSlider } from "@/features/book/components/book-slider/main-book-slider";
 import { PopularBookSlider } from "@/features/book/components/book-slider/popular-book-slider";
 import { RecentSalesSlider } from "@/features/book-sale/components/sale-market/recent-sale-slider";
-import { HomeHero } from "@/features/intro/components/hero/home-hero";
 import { LoungeHomeWidget } from "@/features/reading-log/components/lounge-feed/lounge-home-widget";
-import { TasteFinderWidget } from "@/features/recommend/components/widgets/taste-finder-widget";
-import { RecentReviewSlider } from "@/features/review/components/recent-review-slider";
+import { RecentReviewList } from "@/features/review/components/recent-review-list";
 import { AdBanner } from "@/shared/components/ads/ad-banner";
 
 export const HomeView = () => {
@@ -41,7 +39,7 @@ export const HomeView = () => {
         className="w-full my-4"
       />
 
-      <RecentReviewSlider />
+      <RecentReviewList />
 
       <div>
         <MainArtSlider

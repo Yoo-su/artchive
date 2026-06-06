@@ -82,7 +82,7 @@ export const MarketHero = () => {
 
 const SpringDivider = () => {
   return (
-    <div className="relative h-24 w-full max-w-4xl opacity-30 dark:opacity-20">
+    <div className="relative h-24 w-full opacity-30 dark:opacity-20">
       <motion.svg
         viewBox="0 0 1000 100"
         fill="none"

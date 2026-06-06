@@ -65,7 +65,7 @@ export const MainBookSlider = () => {
 
   return (
     <div className="w-full bg-stone-50/30 py-16 md:py-24 overflow-hidden">
-      <div className="container mx-auto max-w-4xl px-4 md:px-0 mb-12 flex flex-col items-center text-center">
+      <div className="container mx-auto w-full px-4 md:px-0 mb-12 flex flex-col items-center text-center">
         <TextAnimate
           as="h2"
           animation="blurInUp"
@@ -80,7 +80,7 @@ export const MainBookSlider = () => {
       </div>
 
       {/* 출판사 필터 칩 - 트렌디한 필(Pill) 스타일 */}
-      <div className="container mx-auto max-w-4xl px-4 md:px-0 mb-12 flex justify-center">
+      <div className="container mx-auto w-full px-4 md:px-0 mb-12 flex justify-center">
         <div className="inline-flex items-center gap-1 p-1.5 bg-white/60 backdrop-blur-xl rounded-full shadow-[0_2px_20px_-5px_rgba(0,0,0,0.05)] border border-white/40 overflow-x-auto max-w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {HOME_PUBLISHERS.map((publisher) => (
             <button

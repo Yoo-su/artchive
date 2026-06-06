@@ -10,7 +10,7 @@
         "1": "Finding books...",
         "2": "Loading data...",
         "3": "Almost there...",
-        "4": "Reading journey with Bookjeok"
+        "4": "Discover more books on Bookjeok"
       }
     }
   },
@@ -40,7 +40,7 @@
   },
   "json_ld": {
     "name": "Bookjeok",
-    "description": "Connect books and people at Bookjeok. Share honest book reviews, trade used books, and discover new reading experiences.",
+    "description": "Share honest book reviews, trade used books, and manage your reading log.",
     "nav": {
       "market": "Used Market",
       "review": "Book Reviews",
@@ -48,17 +48,17 @@
     }
   },
   "meta": {
-    "default_title": "Bookjeok - Where Books and People Meet",
+    "default_title": "Bookjeok - Reading Log, Reviews & Used Book Trading",
     "template_title": "%s | Bookjeok",
-    "description": "Connect books and people at Bookjeok. Share honest book reviews, trade used books, and discover new reading experiences.",
+    "description": "Share book reviews, trade used books, and manage your reading log.",
     "keywords": "Bookjeok, Book Reviews, Used Books, Reading Log, Book Recommendations, Book Club",
     "og": {
-      "title": "Bookjeok - Connect Books and People",
-      "description": "Honest book reviews and used book trading. Start your own library at Bookjeok."
+      "title": "Bookjeok - Reading Log, Reviews & Used Book Trading",
+      "description": "Book reviews, used book trading, and reading logs. Get started on Bookjeok."
     },
     "twitter": {
-      "title": "Bookjeok - Connect Books and People",
-      "description": "Honest reviews and used book trading. Share the joy of reading at Bookjeok."
+      "title": "Bookjeok - Reading Log, Reviews & Used Book Trading",
+      "description": "Book reviews and used book trading in one place. Get started on Bookjeok."
     }
   },
   "notification": {
@@ -145,7 +145,7 @@
     "sections": {
       "main_books": {
         "title": "Featured Books",
-        "subtitle": "Bestsellers from selected publishers."
+        "subtitle": "Check out bestsellers from top publishers."
       },
       "popular_books": {
         "title": "Trending Now",
@@ -155,13 +155,13 @@
         "badge": "MARKET",
         "title_prefix": "Latest",
         "title_suffix": "Used Books",
-        "desc": "Check out the recently listed used books."
+        "desc": "Browse recently listed used books."
       },
       "recent_reviews": {
         "badge": "COMMUNITY",
         "title_prefix": "Recent",
         "title_suffix": "Book Reviews",
-        "desc": "Read the latest reviews from other readers."
+        "desc": "Check out the latest reviews from other readers."
       },
       "art": {
         "spotlight": {
@@ -216,24 +216,24 @@
   "intro": {
     "scenes": {
       "record": {
-        "header": "When Records\nBecome Memories",
+        "header": "Stack Up\nYour Reads",
         "sub": "Your Personal Reading Log",
-        "desc": "Every reading becomes your history\nthe moment it is recorded"
+        "desc": "Record what you read\nand build your own reading timeline"
       },
       "used": {
-        "header": "Time to Waken\nSleeping Books",
-        "sub": "Neighborhood User Market",
-        "desc": "A paused story in your library\nbecomes a new beginning for someone else"
+        "header": "Pass It On\nTo the Next Reader",
+        "sub": "Local Used Book Trading",
+        "desc": "A book from your shelf\nbecomes the next reader's discovery"
       },
       "review": {
-        "header": "Because Taste\nIs Contagious",
-        "sub": "Trusted Book Reviews",
-        "desc": "Honest thoughts and ratings gathered\nto help make better choices"
+        "header": "Check Before\nYou Read",
+        "sub": "Honest Book Reviews",
+        "desc": "Honest reviews from readers\nhelp you make better choices"
       },
       "logo": {
-        "header": "Where Your Stories\nCome Alive",
-        "sub": "Experience Bookjeok",
-        "desc": "Start building your own library now"
+        "header": "A Space for\nBook Lovers",
+        "sub": "Get Started with Bookjeok",
+        "desc": "Build your own library"
       }
     }
   },
@@ -270,7 +270,7 @@
     "language_switcher": "Language"
   },
   "footer": {
-    "description": "A comprehensive book platform for managing reading logs, trading used books, and sharing book reviews.",
+    "description": "Reading log, used book trading, and book reviews—all in one place.",
     "service": "Service",
     "contact": "Contact",
     "terms": "Terms",
@@ -293,7 +293,7 @@
       "button_label": "Search",
       "no_results": "No results found for ''{query}''.",
       "check_typo": "Please check for typos or try different keywords.",
-      "empty_state": "Search for books you're interested in and fill your library.",
+      "empty_state": "Search for books you'd like to read.",
       "all_loaded": "All search results loaded.",
       "popular_keywords": "Popular Keywords",
       "popular_top": "Top {count} Keywords",
@@ -334,7 +334,7 @@
       },
       "related_books_title": "Other books by ''{author}''",
       "related_reviews": {
-        "title": "Stories from Readers",
+        "title": "Reader Reviews",
         "more": "More ({count})",
         "error": "Failed to load reviews.",
         "empty": "No reviews written yet.",
@@ -348,7 +348,7 @@
   "review": {
     "hero": {
       "title": "[Book, Reviews]",
-      "subtitle": "Meet honest impressions from readers.\nJoin the journey to find your next book.",
+      "subtitle": "Read honest impressions from readers.\nA helpful guide for choosing your next book.",
       "image_alt": "Review List Cover Image",
       "button_write": "Write Review"
     },
@@ -386,7 +386,7 @@
       "empty_search_title": "No search results",
       "empty_search_desc": "Try different keywords or categories.",
       "empty_list_title": "No reviews written yet",
-      "empty_list_desc": "Be the first to share your story about a book. Your story can be a great inspiration to someone.",
+      "empty_list_desc": "Share your thoughts on a book you've read. It helps other readers make better choices.",
       "view_all": "View All",
       "write_first": "Write First Review"
     },
@@ -461,7 +461,7 @@
         "description": "Check your monthly reading records."
       },
       "title": "My Reading Log",
-      "subtitle": "See the depth of knowledge accumulating every month.\nRecording your growth.",
+      "subtitle": "Track your monthly reading and look back on your progress.\nSee your reading habits at a glance.",
       "public_toggle": "Public Log",
       "public_label_on": "Visible to others",
       "public_label_off": "Only visible to me",
@@ -743,14 +743,14 @@
         "title": "Used Market",
         "description": "Trade various used books and discover new stories."
       },
-      "title": "Circulating Stories",
+      "title": "Books Finding New Readers",
       "subtitle": "CIRCULATION",
       "messages": {
-        "0": "Waiting for a new owner\nin someone's library",
-        "1": "Time held in old books\nbegins to flow again",
-        "2": "A book was passed on\nin a corner of Seoul",
-        "3": "Forgotten sentences\nmet new eyes",
-        "4": "Empty spaces in bookshelves\nare filled with other stories"
+        "0": "Waiting for the next reader\nin someone's bookshelf",
+        "1": "A once-read book\nfound its way to someone new",
+        "2": "A book was passed along\nin a neighborhood nearby",
+        "3": "A book sitting on a shelf\nmet a new reader",
+        "4": "A finished book\nheads to another bookshelf"
       }
     },
     "popular": {
@@ -959,46 +959,46 @@
   "lounge": {
     "metadata": {
       "title": "Reading Lounge",
-      "description": "Check real-time reading activities of Bookjeok readers and share stories."
+      "description": "See what other readers have been reading lately."
     },
     "hero": {
-      "title": "What Are the Other Readers Exploring?",
-      "subtitle": "Peek into the vivid reading logs of other Bookjeok readers.\nSomeone's shared highlights might become your next inspiration."
+      "title": "What Are Others Reading These Days?",
+      "subtitle": "Browse reading logs from other readers.\nA great reference for picking your next book."
     },
     "home_widget": {
       "badge": "READING LOUNGE",
       "title_prefix": "Books Others Are",
       "title_suffix": "Currently Reading",
-      "desc": "Check out the books capturing the hearts of our readers right now.",
-      "view_all": "Enter Lounge",
+      "desc": "See what other readers have been reading lately.",
+      "view_all": "Browse Lounge",
       "readers_count": "{count} Readers"
     },
     "popular": {
       "badge": "TRENDING NOW",
-      "title": "Trending Books Loved by the Community",
-      "subtitle": "Discover the books that captured the most readers in the last 30 days.",
-      "readers_count": "{count} readers are reading"
+      "title": "Popular Books This Month",
+      "subtitle": "The most recorded books by readers in the last 30 days.",
+      "readers_count": "{count} readers"
     },
     "feed": {
-      "title": "Latest Reading Journeys from the Community",
+      "title": "Recent Reading Logs",
       "error": "Failed to load readers' records.",
       "loading_more": "Loading more logs...",
-      "all_loaded": "You've seen all recent activities.",
+      "all_loaded": "All logs loaded.",
       "readers_reading": "{count} readers total",
       "readers_extra": "and {count} others read this",
       "date_read": "{date}",
       "empty": {
         "title": "No reading logs yet",
-        "desc": "Be the first to leave a reading record!",
+        "desc": "Be the first to leave a reading log!",
         "cta_record": "Record Now",
         "cta_login": "Login and Start"
       }
     },
     "detail_modal": {
-      "total_readers": "{count} total readers shared this book",
+      "total_readers": "{count} readers total",
       "read_on": "{date}",
       "loading": "Loading...",
-      "empty": "No recent activities for this book yet."
+      "empty": "No other reading logs for this book yet."
     }
   }
 }

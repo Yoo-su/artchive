@@ -66,7 +66,7 @@ export const BookSaleDetail = ({ saleId }: BookSaleDetailProps) => {
   );
 
   return (
-    <div className="max-w-5xl mx-auto py-8 md:py-12 px-4">
+    <div className="w-full mx-auto py-8 md:py-12 px-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
         <div className="space-y-8">
           <BookSaleImageCarousel images={images} alt={sale.title} />

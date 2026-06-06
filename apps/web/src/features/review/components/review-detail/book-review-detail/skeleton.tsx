@@ -11,7 +11,7 @@ export const ReviewDetailSkeleton = () => {
     <article className="min-h-screen bg-white pb-20">
       {/* Header 스켈레톤 */}
       <header className="relative bg-stone-50 border-b border-stone-100 pt-20 pb-16">
-        <div className="container mx-auto px-4 max-w-4xl text-center">
+        <div className="container mx-auto px-4 w-full text-center">
           {/* 카테고리 및 별점 */}
           <div className="flex flex-col items-center gap-4 mb-6">
             <Skeleton className="h-6 w-24 rounded-full" />
@@ -52,7 +52,7 @@ export const ReviewDetailSkeleton = () => {
       </header>
 
       {/* Content 및 Actions 스켈레톤 */}
-      <div className="container mx-auto px-4 max-w-4xl py-16">
+      <div className="container mx-auto px-4 w-full py-16">
         {/* 콘텐츠 영역 */}
         <div className="space-y-4 mb-12">
           <Skeleton className="h-5 w-full" />

@@ -35,7 +35,7 @@ export function LoungeView() {
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 py-12 md:py-20">
+      <div className="w-full mx-auto px-4 py-12 md:py-20">
         {/* 히어로 섹션: 기존 서비스 헤더 스타일과 통일 */}
         <div className="mb-16 md:mb-20 border-b border-stone-200 pb-6">
           <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-stone-900 font-medium tracking-tight leading-tight">

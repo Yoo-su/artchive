@@ -1,7 +1,7 @@
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 
 export const BookSaleDetailSkeleton = () => (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto py-12 px-4">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full mx-auto py-12 px-4">
     {/* Image Gallery Skeleton */}
     <div className="flex flex-col gap-4">
       <Skeleton className="w-full aspect-square rounded-lg" />

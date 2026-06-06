@@ -46,7 +46,7 @@ export function ReviewHomeHero() {
       <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-black/10" />
 
       {/* 콘텐츠 - 하단 정렬 */}
-      <div className="relative z-10 max-w-6xl mx-auto px-8 h-full flex flex-col justify-end pb-12 md:pb-16">
+      <div className="relative z-10 w-full mx-auto px-8 h-full flex flex-col justify-end pb-12 md:pb-16">
         <div
           className={`max-w-xl transition-all duration-700 ${
             isImageLoaded

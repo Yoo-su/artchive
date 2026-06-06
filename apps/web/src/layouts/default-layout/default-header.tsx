@@ -72,7 +72,7 @@ export const DefaultHeader = () => {
 
   return (
     <header className="sticky top-0 left-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-stone-100">
-      <div className="flex items-center justify-between max-w-4xl w-full px-4 py-4 mx-auto">
+      <div className="flex items-center justify-between max-w-5xl w-full px-4 py-4 mx-auto">
         {/* 좌측: 모바일 메뉴 + 로고 */}
         <div className="flex items-center gap-4">
           {/* 모바일 햄버거 메뉴 */}
@@ -107,10 +107,7 @@ export const DefaultHeader = () => {
           )}
 
           {/* 2.5 라운지 (공개) */}
-          <Link
-            href={PATHS.LOUNGE}
-            className={getLinkClass(PATHS.LOUNGE)}
-          >
+          <Link href={PATHS.LOUNGE} className={getLinkClass(PATHS.LOUNGE)}>
             {t("nav.menu_lounge")}
             {isActive(PATHS.LOUNGE) && <HandDrawnUnderline />}
           </Link>

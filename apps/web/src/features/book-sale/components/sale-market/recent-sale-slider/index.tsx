@@ -55,7 +55,7 @@ export const RecentSalesSlider = () => {
   if (isLoading) {
     return (
       <section className="w-full py-16  overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="w-full mx-auto px-4">
           <SliderHeader />
         </div>
         <RecentSalesSliderSkeleton />
@@ -69,7 +69,7 @@ export const RecentSalesSlider = () => {
 
   return (
     <section className="w-full py-16 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="w-full mx-auto px-4">
         <SliderHeader />
       </div>
       <Swiper

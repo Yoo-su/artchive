@@ -51,7 +51,7 @@ export const MainArtSlider = ({
   return (
     <section className="w-full py-16 overflow-hidden">
       {/* 헤더 섹션 - 갤러리/카탈로그 스타일의 가로 균형 에디토리얼 레이아웃 */}
-      <div className="max-w-7xl mx-auto px-4 mb-14 relative z-10">
+      <div className="w-full mx-auto px-4 mb-14 relative z-10">
         <div
           className={cn(
             "flex flex-col border-t border-stone-200 pt-8 gap-8 relative z-10",

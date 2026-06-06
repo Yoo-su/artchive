@@ -14,7 +14,7 @@ export const ArtDetailSkeleton = () => (
       <div className="hidden lg:block absolute inset-0 bg-linear-to-r from-transparent via-white/70 to-white" />
 
       {/* 콘텐츠 영역 */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 h-full">
+      <div className="relative z-10 w-full mx-auto px-6 md:px-10 h-full">
         <div className="flex flex-col lg:flex-row lg:items-center min-h-[500px] lg:min-h-[600px]">
           <div className="hidden lg:block lg:w-1/3" />
           <div className="flex-1 py-10 lg:py-16 lg:pl-12">
@@ -47,7 +47,7 @@ export const ArtDetailSkeleton = () => (
     </div>
 
     {/* 콘텐츠 섹션 스켈레톤 */}
-    <div className="max-w-6xl mx-auto p-6 md:p-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div className="w-full mx-auto p-6 md:p-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2 space-y-8">
         <Skeleton className="h-4 w-24 bg-stone-100" />
         <Skeleton className="h-64 w-full bg-stone-100" />
