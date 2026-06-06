@@ -54,7 +54,7 @@ export const SearchHero = () => {
       </div>
 
       {/* 2. 메인 씬 */}
-      <div className="relative z-10 w-full max-w-4xl px-6 flex flex-col items-center">
+      <div className="relative z-10 w-full px-6 flex flex-col items-center">
         {/* SVG 애니메이션 영역 */}
         <div className="relative w-full h-[220px] mb-8 pointer-events-none">
           <svg

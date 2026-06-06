@@ -61,7 +61,7 @@ export const DefaultFooter = () => {
         {/* 내부 유리 반사 효과 */}
         <div className="absolute inset-0 bg-linear-to-b from-white/30 via-transparent to-transparent pointer-events-none" />
 
-        <div className="relative mx-auto w-full max-w-4xl px-4 py-8 md:py-12">
+        <div className="relative mx-auto w-full max-w-5xl px-4 py-8 md:py-12">
           <div className="flex flex-col gap-12 md:flex-row md:justify-between">
             {/* 좌측 섹션: 브랜드 & 설명 */}
             <div className="space-y-4 md:max-w-xs">
@@ -126,10 +126,16 @@ export const DefaultFooter = () => {
               &copy; {currentYear} bookjeok. All rights reserved.
             </p>
             <div className="flex gap-6">
-              <Link href={PATHS.TERMS} className="hover:text-stone-600 transition-colors">
+              <Link
+                href={PATHS.TERMS}
+                className="hover:text-stone-600 transition-colors"
+              >
                 {t("terms")}
               </Link>
-              <Link href={PATHS.PRIVACY} className="hover:text-stone-600 transition-colors">
+              <Link
+                href={PATHS.PRIVACY}
+                className="hover:text-stone-600 transition-colors"
+              >
                 {t("privacy")}
               </Link>
             </div>

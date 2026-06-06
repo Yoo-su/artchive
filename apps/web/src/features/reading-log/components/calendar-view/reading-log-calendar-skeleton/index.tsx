@@ -9,7 +9,7 @@ export function ReadingLogCalendarSkeleton() {
   const weekDayNames = ["일", "월", "화", "수", "목", "금", "토"];
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-8">
+    <div className="w-full mx-auto space-y-8">
       <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl shadow-stone-200/50 border border-white/60 overflow-hidden ring-1 ring-stone-100">
         {/* 요일 헤더 - 단색 심플 스타일 */}
         <div className="grid grid-cols-7 border-b border-stone-100/50 bg-stone-50/50">

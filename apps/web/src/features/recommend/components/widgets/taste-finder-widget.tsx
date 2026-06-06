@@ -65,7 +65,7 @@ export function TasteFinderWidget() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl overflow-hidden rounded-3xl bg-neogulip-bg shadow-xl ring-1 ring-black/5 flex flex-col md:flex-row h-[850px] md:h-[600px] transition-all duration-300 hover:shadow-neogulip-shadow/20 my-12">
+    <div className="mx-auto w-full overflow-hidden rounded-3xl bg-neogulip-bg shadow-xl ring-1 ring-black/5 flex flex-col md:flex-row h-[850px] md:h-[600px] transition-all duration-300 hover:shadow-neogulip-shadow/20 my-12">
       {/* 채팅 영역 */}
       <div className="flex flex-col w-full h-[55%] md:h-auto md:w-[55%] border-r border-neogulip-bg-accent bg-neogulip-bg min-h-0 md:min-h-full">
         <TasteFinderHeader setInput={setInput} />

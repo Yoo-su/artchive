@@ -30,7 +30,7 @@ export const PopularBookSlider = () => {
 
   return (
     <section className="w-full py-16 bg-white">
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="w-full mx-auto px-4">
         {/* 헤더 - 기품있는 버티컬 라인 에디토리얼 스타일 */}
         <div className="mb-14 relative flex items-end">
           <div className="absolute -top-8 sm:-top-16 -left-2 sm:-left-4 text-[100px] sm:text-[140px] font-serif italic text-stone-100/50 leading-none tracking-tighter select-none pointer-events-none z-0">
@@ -123,7 +123,7 @@ export const PopularBookSlider = () => {
 const PopularBookSliderSkeleton = () => {
   return (
     <section className="w-full py-16 bg-white">
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="w-full mx-auto px-4">
         {/* 헤더 스켈레톤 */}
         <div className="mb-10 flex items-end gap-4 animate-pulse">
           <Skeleton className="h-16 w-24 bg-stone-100" />

@@ -81,7 +81,7 @@ export const ArtDetail = ({ artId }: ArtDetailProps) => {
         <div className="lg:hidden absolute inset-0 bg-linear-to-t from-white via-white/50 to-transparent" />
 
         {/* 콘텐츠 영역 */}
-        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 h-full">
+        <div className="relative z-10 w-full mx-auto px-6 md:px-10 h-full">
           <div className="flex flex-col lg:flex-row lg:items-center min-h-[500px] lg:min-h-[600px]">
             {/* 좌측 여백 (포스터 영역) */}
             <div className="hidden lg:block lg:w-1/3" />
@@ -167,7 +167,7 @@ export const ArtDetail = ({ artId }: ArtDetailProps) => {
       </div>
 
       {/* 메인 콘텐츠 */}
-      <div className="max-w-6xl mx-auto p-6 md:p-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="w-full mx-auto p-6 md:p-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* 왼쪽 컬럼 */}
         <div className="lg:col-span-2 space-y-10">
           {/* 공연 장면 슬라이더 */}
