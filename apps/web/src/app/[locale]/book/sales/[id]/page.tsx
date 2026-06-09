@@ -51,6 +51,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       imageUrl: images[0],
+      locale,
+      path: `/book/sales/${id}`,
     });
 
     return {
@@ -58,9 +60,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       openGraph: {
         ...baseMeta.openGraph,
         type: "article",
-      },
-      alternates: {
-        canonical: `https://bookjeok.com/book/sales/${id}`,
       },
     };
   } catch {

@@ -68,7 +68,7 @@ export default async function Layout({
   // 다국어 메시지 로드
   const messages = await getMessages();
   const t = await getTranslations({ locale });
-  const jsonLdData = getJsonLd(t);
+  const jsonLdData = getJsonLd(t, locale);
 
   return (
     <html

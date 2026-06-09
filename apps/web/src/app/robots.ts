@@ -26,7 +26,11 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: ["/", "/ko/", "/en/"],
         disallow: [
-          "/my-page/", // 개인 정보 관련 마이페이지 차단
+          "/my-page/",
+          "/*/my-page/",
+          "/*/my-page/*",
+          "/ko/my-page/",
+          "/en/my-page/", // 다국어(ko, en) 마이페이지 및 하위 경로 차단
         ],
       },
     ],

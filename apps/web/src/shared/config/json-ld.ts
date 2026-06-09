@@ -1,4 +1,5 @@
-export const getJsonLd = (t: (key: string) => string) => {
+export const getJsonLd = (t: (key: string) => string, locale: string = "ko") => {
+  const siteUrl = `https://bookjeok.com/${locale}`;
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -7,18 +8,18 @@ export const getJsonLd = (t: (key: string) => string) => {
         name: t("json_ld.name"),
         alternateName: ["북적", "bookjeok", "Bookjeok"],
         description: t("json_ld.description"),
-        url: "https://bookjeok.com",
+        url: siteUrl,
         potentialAction: {
           "@type": "SearchAction",
           target:
-            "https://bookjeok.com/book/search?keyword={search_term_string}",
+            `https://bookjeok.com/${locale}/book/search?keyword={search_term_string}`,
           "query-input": "required name=search_term_string",
         },
       },
       {
         "@type": "Organization",
         name: t("json_ld.name"),
-        url: "https://bookjeok.com",
+        url: siteUrl,
         logo: {
           "@type": "ImageObject",
           url: "https://bookjeok.com/logo-square-sketch.png",
@@ -30,17 +31,17 @@ export const getJsonLd = (t: (key: string) => string) => {
       {
         "@type": "SiteNavigationElement",
         name: t("json_ld.nav.market"),
-        url: "https://bookjeok.com/book/market",
+        url: `https://bookjeok.com/${locale}/book/market`,
       },
       {
         "@type": "SiteNavigationElement",
         name: t("json_ld.nav.review"),
-        url: "https://bookjeok.com/review",
+        url: `https://bookjeok.com/${locale}/book/reviews`,
       },
       {
         "@type": "SiteNavigationElement",
         name: t("json_ld.nav.search"),
-        url: "https://bookjeok.com/book/search",
+        url: `https://bookjeok.com/${locale}/book/search`,
       },
     ],
   };

@@ -76,16 +76,20 @@ type CreatePageMetadataProps = {
   title: string;
   description: string;
   imageUrl?: string | null;
+  locale?: string;
+  path?: string;
 };
 
 export const createPageMetadata = ({
   title,
   description,
   imageUrl,
+  locale,
+  path,
 }: CreatePageMetadataProps): Metadata => {
   const images = imageUrl ? [imageUrl] : ["/logo-og-sketch.png"];
 
-  return {
+  const metadata: Metadata = {
     title,
     description,
     openGraph: {
@@ -100,4 +104,19 @@ export const createPageMetadata = ({
       images,
     },
   };
+
+  if (path) {
+    const cleanPath = path.startsWith("/") ? path : `/${path}`;
+    const currentLocale = locale || "ko";
+
+    metadata.alternates = {
+      canonical: `/${currentLocale}${cleanPath}`,
+      languages: {
+        ko: `/ko${cleanPath}`,
+        en: `/en${cleanPath}`,
+      },
+    };
+  }
+
+  return metadata;
 };
