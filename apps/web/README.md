@@ -12,7 +12,7 @@
 - **🤖 AI 통합**: Google Gemini 기반의 도서 요약 및 취향 탐색기(Taste Finder).
 - **🔒 보안**: HttpOnly Cookie 기반의 JWT 인증 시스템으로 XSS 방지.
 - **💬 실시간 소통**: Socket.IO 기반의 실시간 채팅 및 알림 시스템.
-- **🌍 다국어 지원**: `next-intl`을 활용한 한국어/영어 완벽 지원 및 SEO 친화적 URL 구조.
+- **🌍 다국어 지원 & SEO**: `next-intl`을 활용한 한국어/영어 완벽 지원, 페이지별 dynamic canonical 및 hreflang alternates 자동 매핑, Next.js 15 alternates 표준 Sitemap 최적화.
 
 ---
 
@@ -148,3 +148,9 @@ docker run -p 3000:3000 bookjeok-front
 
 ### 4. 사용자 행동 분석 (Analytics)
 - **Google Analytics 4 (GA4)** 및 **Microsoft Clarity**를 연동하여 트래픽 추적(정량적 데이터)과 사용자의 히트맵/세션 데이터(정성적 데이터)를 결합 수집하여 UX 개선에 활용합니다.
+
+### 5. 🔍 체계적인 검색엔진 최적화 (SEO)
+- **다국어 Sitemap 최적화**: Next.js 15의 `alternates` 표준 방식을 적용하여 중복 엔트리 없이 구글 등 검색엔진에 한국어와 영어 대체 주소 간의 연관 관계를 알려줍니다.
+- **Dynamic Canonical & Alternates**: `createPageMetadata`에 `locale`과 `path` 파라미터를 추가하여 각 언어별 canonical URL과 `hreflang` 태그를 동적으로 자동 생성합니다.
+- **다국어 Robots 차단 보완**: 다국어 경로(`/*/my-page/` 등)를 포함하여 크롤러가 개인정보 성격의 마이페이지에 접근하지 못하도록 `robots.txt` 규칙을 보완했습니다.
+- **동적 JSON-LD 데이터 다국어화**: 사이트 구조화 데이터 생성 시 접속한 언어(`locale`)에 맞는 정밀한 URL로 매핑하며, 무효한 리뷰 경로 수정 등 마크업 정합성을 높였습니다.
