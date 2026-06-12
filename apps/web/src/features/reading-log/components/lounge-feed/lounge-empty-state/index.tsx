@@ -2,6 +2,7 @@
 
 import { BookOpen, LogIn, PenLine } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 
 import { useUserProfileQuery } from "@/features/auth/queries";
 import { Button } from "@/shared/components/shadcn/button";
@@ -11,6 +12,11 @@ import { PATHS } from "@/shared/constants/paths";
 export function LoungeEmptyState() {
   const t = useTranslations("lounge.feed.empty");
   const { data: user } = useUserProfileQuery();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <div className="py-24 flex flex-col items-center text-center max-w-md mx-auto">
@@ -28,7 +34,9 @@ export function LoungeEmptyState() {
       </p>
 
       {/* CTA 버튼 */}
-      {user ? (
+      {!mounted ? (
+        <div className="w-36 h-12 bg-stone-100 rounded-full animate-pulse border border-stone-200/60" />
+      ) : user ? (
         <Link href={PATHS.READING_LOG}>
           <Button className="bg-stone-900 text-white hover:bg-stone-800 h-12 px-8 rounded-full font-medium text-sm transition-all duration-300 hover:shadow-lg">
             <PenLine className="mr-2" size={18} />

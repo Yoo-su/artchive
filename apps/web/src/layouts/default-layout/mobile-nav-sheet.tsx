@@ -1,6 +1,6 @@
 import { Menu } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import {
@@ -36,7 +36,14 @@ export const MobileNavSheet = () => {
   const tSheet = useTranslations("sheet.sections");
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentUser = mounted ? user : null;
 
   const isActive = (path: string) => pathname?.startsWith(path);
 
@@ -140,7 +147,7 @@ export const MobileNavSheet = () => {
           {navSections.map((section) => {
             // 인증이 필요한 아이템만 있는 섹션은 로그인 시에만 표시
             const visibleItems = section.items.filter(
-              (item) => !item.requiresAuth || user,
+              (item) => !item.requiresAuth || currentUser,
             );
 
             if (visibleItems.length === 0) return null;

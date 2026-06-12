@@ -28,9 +28,14 @@ export const WishlistButton = ({
   initialIsWishlisted,
 }: WishlistButtonProps) => {
   const user = useAuthStore((state) => state.user);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  const currentUser = mounted ? user : null;
 
   // initialIsWishlisted가 주어지면 쿼리를 실행하지 않음 (이미 상태를 알고 있음)
-  const shouldFetch = !!user && initialIsWishlisted === undefined;
+  const shouldFetch = !!currentUser && initialIsWishlisted === undefined;
 
   const { data: statusData, isLoading } = useWishlistStatusQuery(
     type,
@@ -63,7 +68,7 @@ export const WishlistButton = ({
     e.stopPropagation();
 
     // 비로그인 시 버튼이 disabled이므로 여기로 오지 않지만, 방어 코드 유지
-    if (!user) return;
+    if (!currentUser) return;
 
     if (isWishlisted) {
       setIsWishlisted(false);
@@ -87,7 +92,7 @@ export const WishlistButton = ({
   // 로딩 중이거나 비로그인 상태면 disabled (단, 초기값이 있으면 로딩 무시)
   const isButtonLoading = isLoading && initialIsWishlisted === undefined;
 
-  if (isButtonLoading || !user) {
+  if (isButtonLoading || !currentUser) {
     return (
       <Button
         variant="ghost"

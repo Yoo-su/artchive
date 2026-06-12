@@ -2,6 +2,7 @@
 
 import { Loader2, RefreshCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { Link } from "@/shared/config/i18n/routing";
@@ -32,7 +33,13 @@ export const AISummary = ({
 }: BookSummaryProps) => {
   const t = useTranslations("book.detail.ai_summary");
   const user = useAuthStore((state) => state.user);
-  const isLoggedIn = !!user;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isLoggedIn = mounted && !!user;
 
   if (!isRequested) {
     return (
@@ -48,7 +55,9 @@ export const AISummary = ({
             {t("prompt_desc")}
           </p>
 
-          {isLoggedIn ? (
+          {!mounted ? (
+            <div className="w-44 h-11 bg-stone-100 rounded-full animate-pulse border border-stone-200/60" />
+          ) : isLoggedIn ? (
             <button
               onClick={onRequestSummary}
               className="group relative px-6 py-3 text-sm font-medium text-gray-900 transition-all duration-300 ease-out border border-gray-200 rounded-full hover:border-gray-900 hover:bg-gray-900 hover:text-white focus:outline-hidden focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"

@@ -2,7 +2,7 @@
 
 import { CommentTargetType, MAX_COMMENT_LENGTH } from "@bookjeok/core";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import {
@@ -32,7 +32,11 @@ interface CommentFormProps {
 export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
   const [content, setContent] = useState("");
   const user = useAuthStore((state) => state.user);
-  const isAuthenticated = !!user;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { mutateAsync: createCommentAsync, isPending } =
     useCreateCommentMutation(targetType, targetId);
   const t = useTranslations("comment.form");
@@ -48,6 +52,26 @@ export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
       setContent("");
     });
   };
+
+  if (!mounted) {
+    return (
+      <div className="w-full p-4 sm:p-5 mb-8 bg-white dark:bg-stone-900/40 rounded-[32px] rounded-tr-[10px] border border-stone-100 dark:border-stone-800/60 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.05)] animate-pulse">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800" />
+          <div className="w-24 h-4 bg-stone-100 dark:bg-stone-800 rounded" />
+        </div>
+        <div className="pl-11 pr-2">
+          <div className="h-12 bg-stone-50 dark:bg-stone-900/60 rounded-2xl mb-4" />
+          <div className="flex justify-between items-center border-t border-stone-100/60 dark:border-stone-800/60 pt-3">
+            <div className="w-16 h-3 bg-stone-100 dark:bg-stone-800 rounded" />
+            <div className="w-20 h-8 bg-stone-200 dark:bg-stone-700 rounded-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const isAuthenticated = !!user;
 
   if (!isAuthenticated) {
     return (

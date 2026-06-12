@@ -2,6 +2,7 @@
 
 import { ReviewReactionType } from "@bookjeok/core";
 import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { useToggleReviewReactionMutation } from "@/features/review/mutations";
@@ -23,7 +24,14 @@ export function ReviewDetailActions({
   reactionCounts,
 }: ReviewDetailActionsProps) {
   const router = useRouter();
-  const { user } = useAuthStore();
+  const userState = useAuthStore((state) => state.user);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const user = mounted ? userState : null;
   const { mutate: toggleReaction, isPending: isMutating } =
     useToggleReviewReactionMutation(Number(reviewId));
 
