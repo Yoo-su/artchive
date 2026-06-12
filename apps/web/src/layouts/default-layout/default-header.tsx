@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { NotificationPopover } from "@/features/notification/components/popover-view/notification-popover";
@@ -52,8 +53,15 @@ const HandDrawnUnderline = () => (
 
 export const DefaultHeader = () => {
   const t = useTranslations("header");
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentUser = mounted ? user : null;
 
   const isActive = (path: string) => pathname?.startsWith(path);
 
@@ -96,7 +104,7 @@ export const DefaultHeader = () => {
           </Link>
 
           {/* 2. 독서 기록 (로그인 전용) */}
-          {user && (
+          {currentUser && (
             <Link
               href={PATHS.READING_LOG}
               className={getLinkClass(PATHS.READING_LOG)}
@@ -137,7 +145,7 @@ export const DefaultHeader = () => {
                     <span>{t("nav.market_home")}</span>
                   </Link>
                 </DropdownMenuItem>
-                {user && (
+                {currentUser && (
                   <>
                     <DropdownMenuItem asChild className={dropdownItemClass}>
                       <Link
@@ -187,7 +195,7 @@ export const DefaultHeader = () => {
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
-              {user && (
+              {currentUser && (
                 <DropdownMenuGroup>
                   <DropdownMenuItem asChild className={dropdownItemClass}>
                     <Link
@@ -215,24 +223,31 @@ export const DefaultHeader = () => {
           </Link>
         </nav>
 
-        {/* 우측: 사용자 메뉴 */}
-        <div className="flex items-center gap-3">
-          <LanguageSwitcher className="hidden md:flex" />
-          {user ? (
-            <>
-              <div className="mr-1">
-                <NotificationPopover />
+          {/* 우측: 사용자 메뉴 */}
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher className="hidden md:flex" />
+            {!mounted ? (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-stone-100/80 animate-pulse border border-stone-200/40 flex items-center justify-center">
+                  <div className="w-5 h-5 rounded-full bg-stone-200/50" />
+                </div>
+                <div className="w-10 h-10 rounded-full bg-stone-200/60 animate-pulse border border-stone-200/40" />
               </div>
-              <UserPopover />
-            </>
-          ) : (
-            <Link href={PATHS.LOGIN}>
-              <span className="text-sm font-medium text-stone-400 hover:text-stone-900 transition-colors tracking-wide uppercase">
-                {t("nav.menu_login")}
-              </span>
-            </Link>
-          )}
-        </div>
+            ) : currentUser ? (
+              <>
+                <div className="mr-1">
+                  <NotificationPopover />
+                </div>
+                <UserPopover />
+              </>
+            ) : (
+              <Link href={PATHS.LOGIN}>
+                <span className="text-sm font-medium text-stone-400 hover:text-stone-900 transition-colors tracking-wide uppercase">
+                  {t("nav.menu_login")}
+                </span>
+              </Link>
+            )}
+          </div>
       </div>
     </header>
   );

@@ -2,7 +2,7 @@ import { chatKeys, UsedBookSale } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { Edit, Loader2, MessageCircle, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
@@ -36,7 +36,12 @@ interface BookSaleActionsProps {
 /** 판매자 정보 + 액션 버튼 (수정/삭제/채팅/찜) */
 export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
   const t = useTranslations("market.detail");
-  const currentUser = useAuthStore((state) => state.user);
+  const user = useAuthStore((state) => state.user);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  const currentUser = mounted ? user : null;
   const isOwner = currentUser?.id === sale.user.id;
   const [isCreatingChat, setIsCreatingChat] = useState(false);
   const { openChatRoom } = useChatStore();
@@ -79,7 +84,14 @@ export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
         label={t("actions.seller")}
         size="lg"
       />
-      {isOwner ? (
+      {!mounted ? (
+        <div className="flex gap-2 w-full sm:w-auto items-center justify-end animate-pulse">
+          {sale.status === "FOR_SALE" && (
+            <div className="w-11 h-11 bg-stone-100 rounded-md border border-stone-200/60" />
+          )}
+          <div className="w-32 h-11 bg-stone-200/80 rounded-md" />
+        </div>
+      ) : isOwner ? (
         <div className="flex gap-2">
           <Button asChild variant="outline" size="sm">
             <Link href={PATHS.MY_PAGE_SALES_EDIT(String(sale.id))}>

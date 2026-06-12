@@ -1,6 +1,7 @@
 "use client";
 
 import { getUserProfile } from "@bookjeok/api-client";
+import { usePathname } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
@@ -14,6 +15,7 @@ export default function UserProvider({ children }: UesrProviderProps) {
   const { setUser, accessToken } = useAuthStore();
   const [isHydrated, setIsHydrated] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const pathname = usePathname();
 
   useEffect(() => {
     setIsHydrated(true);
@@ -38,6 +40,20 @@ export default function UserProvider({ children }: UesrProviderProps) {
     }
   }, [accessToken, setUser, isHydrated]);
 
-  if (isLoading || !isHydrated) return <FullScreenLoader />;
+  // Normalize path by removing locale prefix (e.g. /ko/my-page -> /my-page)
+  const isPrivateRoute = (path: string | null): boolean => {
+    if (!path) return false;
+    const cleanPath = `/${path.split("/").slice(2).join("/")}`;
+    return (
+      cleanPath.startsWith("/my-page") ||
+      cleanPath === "/book/sales/register" ||
+      cleanPath === "/book/reviews/write" ||
+      cleanPath.endsWith("/edit")
+    );
+  };
+
+  const shouldBlock = isPrivateRoute(pathname) && (isLoading || !isHydrated);
+
+  if (shouldBlock) return <FullScreenLoader />;
   return <>{children}</>;
 }

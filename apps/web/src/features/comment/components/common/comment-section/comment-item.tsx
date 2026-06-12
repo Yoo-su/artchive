@@ -3,7 +3,7 @@
 import { Comment, CommentTargetType, MAX_COMMENT_LENGTH } from "@bookjeok/core";
 import { Heart, Loader2, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import {
@@ -61,8 +61,13 @@ export const CommentItem = ({
   const locale = useLocale();
 
   const user = useAuthStore((state) => state.user);
-  const isAuthenticated = !!user;
-  const isOwner = user?.id === comment.userId;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  const currentUser = mounted ? user : null;
+  const isAuthenticated = !!currentUser;
+  const isOwner = currentUser?.id === comment.userId;
 
   const { mutate: toggleLike, isPending: isLikePending } =
     useToggleCommentLikeMutation(targetType, targetId, page);

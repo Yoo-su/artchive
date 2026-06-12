@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { ChatToggleButton } from "@/features/chat/components/widgets/chat-toggle-button";
@@ -12,6 +12,11 @@ import { useSocketContext } from "@/shared/providers/socket-provider";
 
 export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const user = useAuthStore((state) => state.user);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  const currentUser = mounted ? user : null;
   const { socket, isConnected } = useSocketContext();
   const { registerChatEventListeners, unregisterChatEventListeners } =
     useChatEvents();
@@ -74,7 +79,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       {children}
-      {user && (
+      {currentUser && (
         <>
           <ChatToggleButton />
           <ChatWidget />

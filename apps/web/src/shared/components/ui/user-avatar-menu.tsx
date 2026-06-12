@@ -1,7 +1,7 @@
 "use client";
 
 import { User as UserIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import {
@@ -69,7 +69,12 @@ export function UserAvatarMenu({
   menuAlign = "start",
   className,
 }: UserAvatarMenuProps) {
-  const currentUser = useAuthStore((state) => state.user);
+  const authUser = useAuthStore((state) => state.user);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  const currentUser = mounted ? authUser : null;
   const isLoggedIn = !!currentUser;
 
   const avatarContent = (
