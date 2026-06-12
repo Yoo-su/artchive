@@ -27,8 +27,9 @@ export const generateGlobalMetadata = (
     alternates: {
       canonical: "./",
       languages: {
-        ko: "/ko",
-        en: "/en",
+        "ko-KR": "/ko",
+        "en-US": "/en",
+        "x-default": "/ko",
       },
     },
     openGraph: {
@@ -112,8 +113,9 @@ export const createPageMetadata = ({
     metadata.alternates = {
       canonical: `/${currentLocale}${cleanPath}`,
       languages: {
-        ko: `/ko${cleanPath}`,
-        en: `/en${cleanPath}`,
+        "ko-KR": `/ko${cleanPath}`,
+        "en-US": `/en${cleanPath}`,
+        "x-default": `/ko${cleanPath}`,
       },
     };
   }
