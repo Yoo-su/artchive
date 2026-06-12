@@ -49,8 +49,8 @@ export default async function Page({
       queryFn: () => getPopularBooks(publicAxios),
     },
     {
-      queryKey: reviewKeys.list({ page: 1, limit: 10 }).queryKey,
-      queryFn: () => getReviews({ page: 1, limit: 10 }),
+      queryKey: reviewKeys.list({ page: 1, limit: 5 }).queryKey,
+      queryFn: () => getReviews({ page: 1, limit: 5 }),
     },
     {
       queryKey: bookKeys.list({
