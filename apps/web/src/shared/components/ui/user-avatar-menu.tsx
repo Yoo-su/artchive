@@ -71,6 +71,7 @@ export function UserAvatarMenu({
 }: UserAvatarMenuProps) {
   const authUser = useAuthStore((state) => state.user);
   const [mounted, setMounted] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -120,8 +121,6 @@ export function UserAvatarMenu({
   // 로그인 상태: 드롭다운 메뉴
   // 모바일에서 스크롤 시 의도치 않게 메뉴가 열리는 것을 방지하기 위해
   // open 상태를 직접 관리합니다.
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   return (
     <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
       <DropdownMenuTrigger asChild>
