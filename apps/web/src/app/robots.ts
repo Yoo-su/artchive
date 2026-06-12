@@ -21,16 +21,13 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "Google-Extended",
         disallow: ["/"],
       }, */
-      // 일반 크롤러 허용 (Googlebot, Naveron 등 포함)
+      // 일반 크롤러 허용 (Googlebot, Naver 등 포함)
       {
         userAgent: "*",
-        allow: ["/", "/ko/", "/en/"],
+        allow: ["/"],
         disallow: [
-          "/my-page/",
-          "/*/my-page/",
-          "/*/my-page/*",
-          "/ko/my-page/",
-          "/en/my-page/", // 다국어(ko, en) 마이페이지 및 하위 경로 차단
+          "/ko/my-page/", // 한국어 마이페이지 및 하위 경로 차단
+          "/en/my-page/", // 영어 마이페이지 및 하위 경로 차단
         ],
       },
     ],

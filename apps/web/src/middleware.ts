@@ -30,6 +30,6 @@ export default function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // 모든 경로에 대해 미들웨어를 실행하되, api, _next, 정적 파일은 제외합니다.
-  matcher: ["/((?!api|_next|.*\\..*).*)"],
+  // 모든 경로에 대해 미들웨어를 실행하되, api, _next, _vercel, 정적 파일은 제외합니다.
+  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
 };
