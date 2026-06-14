@@ -33,6 +33,7 @@
 | `GET`       | `/:isbn/sales`      | 특정 도서(ISBN)에 대한 판매글 목록을 조회합니다. | ❌                |
 | `POST`      | `/search-keywords` | 검색어를 기록합니다 (인기 검색어 집계용). | ❌  |
 | `GET`       | `/search-keywords/popular` | 최근 1년 기준 인기 검색어 Top 10을 조회합니다. | ❌  |
+| `GET`       | `/:isbn/stats`      | 특정 도서(ISBN)의 독서 및 위시리스트 통계 정보를 조회합니다. | ❌                |
 
 ### 2.1. 커서 기반 페이지네이션
 

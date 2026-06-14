@@ -313,6 +313,12 @@
       "author_suffix": "(Auth)",
       "description_title": "Description",
       "more_books": "More",
+      "stats": {
+        "readers": "readers",
+        "wishlisted": "wishlisted",
+        "readers_tooltip": "{count} readers read this book.",
+        "wishlist_tooltip": "{count} readers wishlisted this book."
+      },
       "ai_summary": {
         "title": "AI Library Assistant",
         "description": "Key information analyzed by Gemini",
@@ -962,8 +968,8 @@
       "description": "See what other readers have been reading lately."
     },
     "hero": {
-      "title": "What Are Others Reading These Days?",
-      "subtitle": "Browse reading logs from other readers.\nA great reference for picking your next book."
+      "title": "Neighborhood bookshelves",
+      "subtitle": "Browse the latest reading logs and thoughts shared by other readers."
     },
     "home_widget": {
       "badge": "READING LOUNGE",

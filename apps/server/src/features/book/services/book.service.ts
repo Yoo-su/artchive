@@ -2,6 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
+import { Wishlist } from '@/features/user/entities/wishlist.entity';
+
 import { Book } from '../entities/book.entity';
 import { NaverBookSearchService } from './naver-book-search.service';
 
@@ -10,6 +13,10 @@ export class BookService {
   constructor(
     @InjectRepository(Book)
     private readonly bookRepository: Repository<Book>,
+    @InjectRepository(ReadingLog)
+    private readonly readingLogRepository: Repository<ReadingLog>,
+    @InjectRepository(Wishlist)
+    private readonly wishlistRepository: Repository<Wishlist>,
     private readonly naverBookSearchService: NaverBookSearchService,
   ) {}
 
@@ -157,5 +164,30 @@ export class BookService {
       })
       .take(20)
       .getMany();
+  }
+
+  /**
+   * 특정 책의 통계 정보를 조회합니다 (읽은 유저 수, 위시리스트 유저 수).
+   * @param isbn - 책 ISBN
+   */
+  async getBookStats(
+    isbn: string,
+  ): Promise<{ readingUserCount: number; wishlistUserCount: number }> {
+    const readingUserCountResult = await this.readingLogRepository
+      .createQueryBuilder('log')
+      .select('COUNT(DISTINCT log.userId)', 'count')
+      .where('log.isbn = :isbn', { isbn })
+      .getRawOne<{ count: string }>();
+
+    const wishlistUserCountResult = await this.wishlistRepository
+      .createQueryBuilder('wishlist')
+      .select('COUNT(DISTINCT wishlist.userId)', 'count')
+      .where('wishlist.isbn = :isbn', { isbn })
+      .getRawOne<{ count: string }>();
+
+    return {
+      readingUserCount: parseInt(readingUserCountResult?.count || '0', 10),
+      wishlistUserCount: parseInt(wishlistUserCountResult?.count || '0', 10),
+    };
   }
 }

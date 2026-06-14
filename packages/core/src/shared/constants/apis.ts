@@ -35,6 +35,7 @@ export const API_PATHS = {
     recordView: (isbn: string) => `/book/${isbn}/view`,
     recordSaleView: (saleId: number) => `/book/sales/${saleId}/view`,
     popularSales: "/book/sales/popular",
+    stats: (isbn: string) => `/book/${isbn}/stats`,
   },
   searchKeyword: {
     record: "/search-keywords",

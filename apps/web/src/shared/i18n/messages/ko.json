@@ -313,6 +313,12 @@
       "author_suffix": "저",
       "description_title": "작품 소개",
       "more_books": "더보기",
+      "stats": {
+        "readers": "독자",
+        "wishlisted": "위시리스트",
+        "readers_tooltip": "{count}명의 독자가 이 책을 읽었습니다.",
+        "wishlist_tooltip": "{count}명의 독자가 이 책을 찜했습니다."
+      },
       "ai_summary": {
         "title": "AI 서재 비서",
         "description": "Gemini가 분석한 책의 핵심 정보입니다",
@@ -962,8 +968,8 @@
       "description": "다른 독자들이 최근 어떤 책을 읽었는지 확인해보세요."
     },
     "hero": {
-      "title": "다른 독자들은 요즘 뭘 읽고 있을까?",
-      "subtitle": "다른 독자들의 독서 기록을 둘러보세요.\n다음에 읽을 책을 고르는 데 참고가 될 거예요."
+      "title": "이웃 독자들의 책장",
+      "subtitle": "다른 독자들이 남긴 최근 독서 기록과 감상을 둘러봅니다."
     },
     "home_widget": {
       "badge": "READING LOUNGE",

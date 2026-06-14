@@ -14,6 +14,9 @@ export const bookKeys = createQueryKeys("book", {
   detail: (isbn: string) => ({
     queryKey: [isbn],
   }),
+  stats: (isbn: string) => ({
+    queryKey: [isbn],
+  }),
   search: (query: string) => ({
     queryKey: [query],
   }),
