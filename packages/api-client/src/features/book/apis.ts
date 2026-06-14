@@ -1,4 +1,4 @@
-import { API_PATHS, BaseBookInfo, DEFAULT_DISPLAY, DEFAULT_SORT, DEFAULT_START, GetBookDetailSuccessResponse, GetBookListParams, GetBookListSuccessResponse } from "@bookjeok/core";
+import { API_PATHS, BaseBookInfo, BookStats, DEFAULT_DISPLAY, DEFAULT_SORT, DEFAULT_START, GetBookDetailSuccessResponse, GetBookListParams, GetBookListSuccessResponse } from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**
@@ -141,5 +141,16 @@ export const getPopularKeywords = async (
   const { data } = await client.get<PopularKeyword[]>(
     API_PATHS.searchKeyword.popular,
   );
+  return data;
+};
+
+/**
+ * 책 통계 정보를 조회합니다 (읽은 유저 수, 위시리스트 유저 수).
+ */
+export const getBookStats = async (
+  client: AxiosInstance,
+  isbn: string,
+): Promise<BookStats> => {
+  const { data } = await client.get<BookStats>(API_PATHS.book.stats(isbn));
   return data;
 };

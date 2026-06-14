@@ -65,3 +65,8 @@ export interface GetBookDetailErrorResponse {
   success: false;
   message: string;
 }
+
+export interface BookStats {
+  readingUserCount: number;
+  wishlistUserCount: number;
+}

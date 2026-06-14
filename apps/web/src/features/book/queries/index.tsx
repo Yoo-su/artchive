@@ -1,5 +1,13 @@
 import { GetBookListParams } from "@bookjeok/core";
-import { useBookDetailQuery as useBaseBookDetailQuery, useBookListQuery as useBaseBookListQuery, useBookSummaryQuery as useBaseBookSummaryQuery, useInfiniteBookSearch as useBaseInfiniteBookSearch, usePopularBooksQuery as useBasePopularBooksQuery, usePopularKeywordsQuery as useBasePopularKeywordsQuery } from "@bookjeok/react-query";
+import {
+  useBookDetailQuery as useBaseBookDetailQuery,
+  useBookListQuery as useBaseBookListQuery,
+  useBookStatsQuery as useBaseBookStatsQuery,
+  useBookSummaryQuery as useBaseBookSummaryQuery,
+  useInfiniteBookSearch as useBaseInfiniteBookSearch,
+  usePopularBooksQuery as useBasePopularBooksQuery,
+  usePopularKeywordsQuery as useBasePopularKeywordsQuery,
+} from "@bookjeok/react-query";
 
 import { internalAxios, privateAxios, publicAxios } from "@/shared/libs/axios";
 
@@ -49,3 +57,9 @@ export const useBookSummaryQuery = (
  */
 export const usePopularKeywordsQuery = (staleTime?: number) =>
   useBasePopularKeywordsQuery(publicAxios, staleTime);
+
+/**
+ * 책 통계 조회 (직접 API 통신 인스턴스 주입)
+ */
+export const useBookStatsQuery = (isbn: string) =>
+  useBaseBookStatsQuery(isbn, publicAxios);

@@ -1,6 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
+import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
+import { Wishlist } from '@/features/user/entities/wishlist.entity';
+
 import { Book } from '../entities/book.entity';
 import { BookService } from './book.service';
 import { NaverBookSearchService } from './naver-book-search.service';
@@ -38,6 +41,18 @@ describe('BookService', () => {
               getMany: jest.fn().mockResolvedValue([]),
             })),
             update: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(ReadingLog),
+          useValue: {
+            createQueryBuilder: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(Wishlist),
+          useValue: {
+            createQueryBuilder: jest.fn(),
           },
         },
         {
@@ -159,6 +174,37 @@ describe('BookService', () => {
       expect(mockQueryBuilder.addSelect).toHaveBeenCalledTimes(3);
       expect(result).toHaveLength(1);
       expect(result[0].isbn).toBe('1');
+    });
+  });
+
+  describe('getBookStats', () => {
+    it('should return readingUserCount and wishlistUserCount', async () => {
+      const isbn = '123';
+      const readingLogRepo = module.get(getRepositoryToken(ReadingLog));
+      const wishlistRepo = module.get(getRepositoryToken(Wishlist));
+
+      const mockReadingQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        getRawOne: jest.fn().mockResolvedValue({ count: '3' }),
+      };
+      const mockWishlistQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        getRawOne: jest.fn().mockResolvedValue({ count: '5' }),
+      };
+
+      (readingLogRepo.createQueryBuilder as jest.Mock).mockReturnValue(mockReadingQueryBuilder);
+      (wishlistRepo.createQueryBuilder as jest.Mock).mockReturnValue(mockWishlistQueryBuilder);
+
+      const result = await service.getBookStats(isbn);
+
+      expect(result).toEqual({
+        readingUserCount: 3,
+        wishlistUserCount: 5,
+      });
+      expect(readingLogRepo.createQueryBuilder).toHaveBeenCalledWith('log');
+      expect(wishlistRepo.createQueryBuilder).toHaveBeenCalledWith('wishlist');
     });
   });
 });

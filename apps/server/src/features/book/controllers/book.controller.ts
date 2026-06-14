@@ -126,4 +126,19 @@ export class BookController {
   ): Promise<Record<string, unknown>> {
     return await this.naverBookSearchService.searchDetailRaw(isbn);
   }
+
+  @Get(':isbn/stats')
+  @ApiOperation({
+    summary: '책 통계 정보 조회',
+    description:
+      '특정 책을 읽은 유저 수와 위시리스트에 등록한 유저 수를 조회합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '책 통계 정보를 반환합니다.',
+  })
+  @ApiParam({ name: 'isbn', description: '책 ISBN' })
+  async getBookStats(@Param('isbn') isbn: string) {
+    return await this.bookService.getBookStats(isbn);
+  }
 }

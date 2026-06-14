@@ -1,6 +1,6 @@
 "use client";
-import { getBookDetail, getBookList, getBookSummary, getExternalBookDetail, getExternalBookList, getPopularBooks, getPopularKeywords } from "@bookjeok/api-client";
-import { bookKeys, DEFAULT_DISPLAY, GetBookListParams } from "@bookjeok/core";
+import { getBookDetail, getBookList, getBookStats, getBookSummary, getExternalBookDetail, getExternalBookList, getPopularBooks, getPopularKeywords } from "@bookjeok/api-client";
+import { bookKeys, BookStats, DEFAULT_DISPLAY, GetBookListParams } from "@bookjeok/core";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
 
@@ -137,5 +137,16 @@ export const usePopularKeywordsQuery = (
     queryFn: () => getPopularKeywords(client),
     staleTime: staleTime,
     refetchOnMount: true,
+  });
+};
+
+/**
+ * 책 통계 조회
+ */
+export const useBookStatsQuery = (isbn: string, client: AxiosInstance) => {
+  return useQuery({
+    queryKey: bookKeys.stats(isbn).queryKey,
+    queryFn: () => getBookStats(client, isbn),
+    enabled: !!isbn,
   });
 };
