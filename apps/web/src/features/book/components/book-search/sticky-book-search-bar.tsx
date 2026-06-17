@@ -1,14 +1,13 @@
 "use client";
 
 import { Search, X } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Input } from "@/shared/components/shadcn/input";
 import { cn } from "@/shared/utils/cn";
 
-import { useRecordSearchKeywordMutation } from "../../hooks/use-record-search-keyword";
+import { useBookSearchParams } from "../../hooks/use-book-search-params";
 
 interface StickyBookSearchBarProps {
   isVisible: boolean;
@@ -27,63 +26,23 @@ export const StickyBookSearchBar = ({
 }: StickyBookSearchBarProps) => {
   const t = useTranslations("book.search");
   const inputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
 
-  // 검색어 기록 뮤테이션 (fire-and-forget)
-  const { mutate: recordKeyword } = useRecordSearchKeywordMutation();
-
-  // URL에서 현재 검색어 가져오기
-  const queryFromUrl = searchParams.get(paramName) || "";
-  const [inputValue, setInputValue] = useState(queryFromUrl);
-
-  // URL 변경 시 인풋 값 동기화 (뒤로가기/앞으로가기 지원)
-  useEffect(() => {
-    setInputValue(queryFromUrl);
-  }, [queryFromUrl]);
-
-  // 검색 실행 함수
-  const executeSearch = useCallback(() => {
-    const trimmedValue = inputValue.trim();
-    const params = new URLSearchParams(searchParams.toString());
-
-    if (trimmedValue) {
-      params.set(paramName, trimmedValue);
-      // 검색어 기록 (fire-and-forget)
-      recordKeyword(trimmedValue);
-    } else {
-      params.delete(paramName);
-    }
-
-    const queryString = params.toString();
-    router.push(`${pathname}${queryString ? `?${queryString}` : ""}`, {
-      scroll: false,
-    });
-  }, [inputValue, router, pathname, searchParams, paramName, recordKeyword]);
-
-  // 엔터키 핸들러
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      executeSearch();
-    }
-  };
+  const {
+    inputValue,
+    setInputValue,
+    executeSearch,
+    handleKeyDown,
+    handleClear: baseHandleClear,
+  } = useBookSearchParams({ paramName });
 
   // 입력값 변경 핸들러
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
 
-  // 검색어 초기화
+  // 검색어 초기화 핸들러 (포커스 이동 포함)
   const handleClear = () => {
-    setInputValue("");
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete(paramName);
-    const queryString = params.toString();
-    router.push(`${pathname}${queryString ? `?${queryString}` : ""}`, {
-      scroll: false,
-    });
+    baseHandleClear();
     inputRef.current?.focus();
   };
 
