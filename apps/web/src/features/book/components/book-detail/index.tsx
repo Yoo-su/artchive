@@ -1,12 +1,13 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Separator } from "@/shared/components/shadcn/separator";
 
-import { useBookDetails } from "../../hooks/use-book-details";
-import { useBookSummaryQuery } from "../../queries";
+import { useBookView } from "../../hooks/use-book-view";
+import { useBookDetailQuery, useBookSummaryQuery } from "../../queries";
+import { useRecentBookStore } from "../../stores/use-recent-book-store";
 import { AISummary } from "./ai-summary";
 import { BookActions } from "./book-actions";
 import { BookCover } from "./book-cover";
@@ -26,8 +27,19 @@ export const BookDetail = ({ isbn }: BookDetailProps) => {
     data: book,
     isLoading,
     isError,
-  } = useBookDetails(isbn);
+    isSuccess,
+  } = useBookDetailQuery(isbn);
+  const addRecentBook = useRecentBookStore((state) => state.addRecentBook);
   const [isSummaryRequested, setIsSummaryRequested] = useState(false);
+
+  // 책 상세페이지 조회수 기록 (버그 수정됨)
+  useBookView(isbn);
+
+  useEffect(() => {
+    if (isSuccess && book) {
+      addRecentBook(book);
+    }
+  }, [isSuccess, book, addRecentBook]);
 
   const {
     data: summary,
