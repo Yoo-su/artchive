@@ -13,7 +13,7 @@ import { useRecentBookStore } from "../stores/use-recent-book-store";
  * - 조회수 기록 API 호출 (StrictMode 이중 호출 및 24시간 중복 카운트 방어)
  * - 최근 본 도서 스토어 등록
  */
-export const useTrackBookVisit = (isbn: string, book: BookInfo | null) => {
+export const useTrackBookVisit = (isbn: string, book: BookInfo | null | undefined) => {
   const addRecentBook = useRecentBookStore((state) => state.addRecentBook);
   const lastCalledIsbnRef = useRef<string | null>(null);
 
