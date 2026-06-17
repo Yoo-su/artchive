@@ -5,8 +5,8 @@ import { useState } from "react";
 
 import { Separator } from "@/shared/components/shadcn/separator";
 
-import { useBookDetails } from "../../hooks/use-book-details";
-import { useBookSummaryQuery } from "../../queries";
+import { useTrackBookVisit } from "../../hooks/use-track-book-visit";
+import { useBookDetailQuery, useBookSummaryQuery } from "../../queries";
 import { AISummary } from "./ai-summary";
 import { BookActions } from "./book-actions";
 import { BookCover } from "./book-cover";
@@ -26,7 +26,10 @@ export const BookDetail = ({ isbn }: BookDetailProps) => {
     data: book,
     isLoading,
     isError,
-  } = useBookDetails(isbn);
+  } = useBookDetailQuery(isbn);
+
+  // 방문 트래킹 부수효과 (조회수 및 최근 본 도서 등록)
+  useTrackBookVisit(isbn, book);
   const [isSummaryRequested, setIsSummaryRequested] = useState(false);
 
   const {
