@@ -7,6 +7,7 @@ import {
   useInfiniteBookSearch as useBaseInfiniteBookSearch,
   usePopularBooksQuery as useBasePopularBooksQuery,
   usePopularKeywordsQuery as useBasePopularKeywordsQuery,
+  useRecordSearchKeywordMutation as useBaseRecordSearchKeywordMutation,
 } from "@bookjeok/react-query";
 
 import { internalAxios, privateAxios, publicAxios } from "@/shared/libs/axios";
@@ -63,3 +64,9 @@ export const usePopularKeywordsQuery = (staleTime?: number) =>
  */
 export const useBookStatsQuery = (isbn: string) =>
   useBaseBookStatsQuery(isbn, publicAxios);
+
+/**
+ * 검색어를 기록하는 뮤테이션 훅 (직접 API 통신 인스턴스 주입)
+ */
+export const useRecordSearchKeywordMutation = (options?: { onSuccess?: () => void; onError?: (error: unknown) => void }) =>
+  useBaseRecordSearchKeywordMutation(publicAxios, options);

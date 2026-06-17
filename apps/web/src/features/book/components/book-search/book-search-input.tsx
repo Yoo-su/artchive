@@ -1,13 +1,11 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
 
 import { Input } from "@/shared/components/shadcn/input";
 
-import { useRecordSearchKeywordMutation } from "../../hooks/use-record-search-keyword";
+import { useBookSearchParams } from "../../hooks/use-book-search-params";
 
 interface BookSearchInputProps {
   /** 쿼리 파라미터 이름 (기본값: "q") */
@@ -21,48 +19,13 @@ interface BookSearchInputProps {
  */
 export const BookSearchInput = ({ paramName = "q" }: BookSearchInputProps) => {
   const t = useTranslations("book.search");
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  // 검색어 기록 뮤테이션 (fire-and-forget)
-  const { mutate: recordKeyword } = useRecordSearchKeywordMutation();
-
-  // URL에서 현재 검색어 가져오기
-  const queryFromUrl = searchParams.get(paramName) || "";
-  const [inputValue, setInputValue] = useState(queryFromUrl);
-
-  // URL 변경 시 인풋 값 동기화 (뒤로가기/앞으로가기 지원)
-  useEffect(() => {
-    setInputValue(queryFromUrl);
-  }, [queryFromUrl]);
-
-  // 검색 실행 함수
-  const executeSearch = useCallback(() => {
-    const trimmedValue = inputValue.trim();
-    const params = new URLSearchParams(searchParams.toString());
-
-    if (trimmedValue) {
-      params.set(paramName, trimmedValue);
-      // 검색어 기록 (fire-and-forget)
-      recordKeyword(trimmedValue);
-    } else {
-      params.delete(paramName);
-    }
-
-    const queryString = params.toString();
-    router.push(`${pathname}${queryString ? `?${queryString}` : ""}`, {
-      scroll: false,
-    });
-  }, [inputValue, router, pathname, searchParams, paramName, recordKeyword]);
-
-  // 엔터키 핸들러
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      executeSearch();
-    }
-  };
+  
+  const {
+    inputValue,
+    setInputValue,
+    executeSearch,
+    handleKeyDown,
+  } = useBookSearchParams({ paramName });
 
   // 입력값 변경 핸들러
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
