@@ -10,16 +10,19 @@ import { StickyBookSearchBar } from "@/features/book/components/book-search/stic
 import { ScrollTopButton } from "@/shared/components/ui/scroll-top-button";
 
 export default function BookSearchView() {
-  const { ref, inView } = useInView({
+  const { ref, inView, entry } = useInView({
     initialInView: true,
     threshold: 0,
     rootMargin: "-80px 0px 0px 0px", // 헤더 높이만큼 보정
   });
 
+  // 오리지널 검색창이 헤더(80px) 위로 완전히 사라졌을 때만 sticky 검색바를 노출
+  const isStickyVisible = !inView && !!entry && entry.boundingClientRect.top < 80;
+
   return (
     <div className="w-full min-h-screen py-4">
       {/* 스크롤 시 나타나는 Sticky 검색바 */}
-      <StickyBookSearchBar isVisible={!inView} />
+      <StickyBookSearchBar isVisible={isStickyVisible} />
 
       {/* Hero */}
       <SearchHero />
