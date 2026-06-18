@@ -194,8 +194,12 @@ describe('BookService', () => {
         getRawOne: jest.fn().mockResolvedValue({ count: '5' }),
       };
 
-      (readingLogRepo.createQueryBuilder as jest.Mock).mockReturnValue(mockReadingQueryBuilder);
-      (wishlistRepo.createQueryBuilder as jest.Mock).mockReturnValue(mockWishlistQueryBuilder);
+      (readingLogRepo.createQueryBuilder as jest.Mock).mockReturnValue(
+        mockReadingQueryBuilder,
+      );
+      (wishlistRepo.createQueryBuilder as jest.Mock).mockReturnValue(
+        mockWishlistQueryBuilder,
+      );
 
       const result = await service.getBookStats(isbn);
 

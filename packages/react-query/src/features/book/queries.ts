@@ -1,7 +1,7 @@
 "use client";
-import { getBookDetail, getBookList, getBookStats, getBookSummary, getExternalBookDetail, getExternalBookList, getPopularBooks, getPopularKeywords } from "@bookjeok/api-client";
+import { getBookDetail, getBookList, getBookStats, getBookSummary, getExternalBookDetail, getExternalBookList, getPopularBooks, getPopularKeywords,getSavedBookSummary } from "@bookjeok/api-client";
 import { bookKeys, BookStats, DEFAULT_DISPLAY, GetBookListParams } from "@bookjeok/core";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation,useQuery } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
 
 /**
@@ -104,24 +104,56 @@ export const usePopularBooksQuery = (client: AxiosInstance) => {
 };
 
 /**
- * LLM 책 요약 조회
+ * LLM 책 요약 조회 (저장된 정보 조회)
  */
 export const useBookSummaryQuery = (
-  title: string,
-  author: string,
-  enabled: boolean,
-  description?: string,
+  isbn: string,
   client?: AxiosInstance,
 ) => {
   return useQuery({
-    queryKey: ["bookSummary", title, author],
+    queryKey: ["bookSummary", isbn],
     queryFn: async () => {
       if (!client) return null;
-      const result = await getBookSummary(client, title, author, description);
-      return result;
+      try {
+        const result = await getSavedBookSummary(client, isbn);
+        return result || null;
+      } catch {
+        return null;
+      }
     },
-    enabled: enabled && !!client,
+    enabled: !!isbn && !!client,
     retry: false,
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
+};
+
+/**
+ * LLM 책 요약 생성 Mutation
+ */
+export const useGenerateBookSummaryMutation = (
+  client?: AxiosInstance,
+  options?: {
+    onSuccess?: (data: any) => void;
+    onError?: (error: unknown) => void;
+  },
+) => {
+  return useMutation({
+    mutationFn: async ({
+      title,
+      author,
+      description,
+      isbn,
+    }: {
+      title: string;
+      author: string;
+      description?: string;
+      isbn?: string;
+    }) => {
+      if (!client) throw new Error("API client is required");
+      return getBookSummary(client, title, author, description, isbn);
+    },
+    ...options,
   });
 };
 

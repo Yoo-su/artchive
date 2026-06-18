@@ -19,4 +19,12 @@ export class BookSummaryDto {
     required: false,
   })
   description?: string;
+
+  @IsString()
+  @ApiProperty({
+    description: 'ISBN (선택 사항)',
+    example: '9788937460777',
+    required: false,
+  })
+  isbn?: string;
 }
