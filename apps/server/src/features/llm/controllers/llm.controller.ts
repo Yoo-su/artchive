@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  Get,
+  Param,
   Post,
   Req,
   UseGuards,
@@ -24,6 +26,30 @@ import { LlmService } from '../services/llm.service';
 export class LlmController {
   constructor(private readonly llmService: LlmService) {}
 
+  @Get('book-summary/:isbn')
+  @ApiOperation({
+    summary: '저장된 책 요약 조회',
+    description: '기존에 생성되어 저장된 AI 도서 요약 정보를 조회합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '저장된 요약 정보를 반환하거나 null을 반환합니다.',
+  })
+  async getSavedBookSummary(
+    @Param('isbn') isbn: string,
+  ): Promise<BookSummaryResponseDto | null> {
+    const saved = await this.llmService.getSavedSummary(isbn);
+    if (!saved) {
+      return null;
+    }
+    return {
+      summary: saved.summary,
+      keyPoints: saved.keyPoints,
+      targetAudience: saved.targetAudience,
+      keywords: saved.keywords,
+    };
+  }
+
   @Post('book-summary')
   @UseGuards(AuthGuard('jwt'))
   @TrackActivity(ActivityType.LLM_BOOK_SUMMARY)
@@ -35,11 +61,12 @@ export class LlmController {
   async getBookSummary(
     @Body(new ValidationPipe()) bookSummaryDto: BookSummaryDto,
   ): Promise<BookSummaryResponseDto> {
-    const { title, author, description } = bookSummaryDto;
+    const { title, author, description, isbn } = bookSummaryDto;
     const summary = await this.llmService.generateBookSummary(
       title,
       author,
       description,
+      isbn,
     );
     return summary;
   }

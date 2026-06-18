@@ -1,12 +1,13 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { Separator } from "@/shared/components/shadcn/separator";
 
 import { useBookView } from "../../hooks/use-book-view";
-import { useBookDetailQuery, useBookSummaryQuery } from "../../queries";
+import { useBookDetailQuery, useBookSummaryQuery, useGenerateBookSummaryMutation } from "../../queries";
 import { useRecentBookStore } from "../../stores/use-recent-book-store";
 import { AISummary } from "./ai-summary";
 import { BookActions } from "./book-actions";
@@ -23,6 +24,7 @@ interface BookDetailProps {
 
 export const BookDetail = ({ isbn }: BookDetailProps) => {
   const t = useTranslations();
+  const queryClient = useQueryClient();
   const {
     data: book,
     isLoading,
@@ -41,19 +43,39 @@ export const BookDetail = ({ isbn }: BookDetailProps) => {
     }
   }, [isSuccess, book, addRecentBook]);
 
+  // 1. 이미 저장된 요약 정보 조회 (비인증 GET)
   const {
-    data: summary,
-    isLoading: isSummaryLoading,
-    isError: isSummaryError,
-  } = useBookSummaryQuery(
-    book?.title || "",
-    book?.author || "",
-    !!book && isSummaryRequested,
-    book?.description,
-  );
+    data: savedSummary,
+    isLoading: isSavedSummaryLoading,
+  } = useBookSummaryQuery(isbn);
+
+  // 2. AI 요약 정보 생성 요청 Mutation (인증 POST)
+  const {
+    mutate: generateSummary,
+    data: generatedSummary,
+    isPending: isGenerating,
+    isError: isGeneratingError,
+  } = useGenerateBookSummaryMutation({
+    onSuccess: (data) => {
+      // 캐시 갱신
+      queryClient.setQueryData(["bookSummary", isbn], data);
+    },
+  });
+
+  const summary = savedSummary || generatedSummary;
+  const isSummaryLoading = isSavedSummaryLoading || isGenerating;
+  const isSummaryError = isGeneratingError;
+  const isRequested = isSummaryRequested || !!savedSummary;
 
   const handleRequestSummary = () => {
+    if (!book) return;
     setIsSummaryRequested(true);
+    generateSummary({
+      title: book.title,
+      author: book.author,
+      description: book.description,
+      isbn,
+    });
   };
 
   if (isLoading) return <BookDetailSkeleton />;
@@ -101,7 +123,7 @@ export const BookDetail = ({ isbn }: BookDetailProps) => {
         isLoading={isSummaryLoading}
         isError={isSummaryError}
         onRequestSummary={handleRequestSummary}
-        isRequested={isSummaryRequested}
+        isRequested={isRequested}
       />
     </section>
   );

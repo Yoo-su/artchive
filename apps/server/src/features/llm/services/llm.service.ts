@@ -4,11 +4,14 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { BookService } from '@/features/book/services/book.service';
+
 import { MODEL_NAME } from '../constants/llm-model';
 import { NEOGULIP_CURATION_SYS_PROMPT } from '../constants/neogulip-curation-prompt';
 import { BookSummaryResponseDto } from '../dtos/book-summary-response.dto';
 import { TalkRequestDto } from '../dtos/talk-request.dto';
 import { TalkResponseDto } from '../dtos/talk-response.dto';
+import { AiBookSummary } from '../entities/ai-book-summary.entity';
 import { LlmTalkLog } from '../entities/llm-talk-log.entity';
 import { extractJson } from '../utils/extract-json';
 import { getPromptText } from '../utils/get-prompt-text';
@@ -28,12 +31,15 @@ export class LlmService {
   private model: GenerativeModel;
 
   /**
-   * ConfigService를 주입받아 API 키를 안전하게 사용합니다.
+   * ConfigService와 Repository들을 주입받습니다.
    */
   constructor(
     private readonly configService: ConfigService,
     @InjectRepository(LlmTalkLog)
     private readonly logRepository: Repository<LlmTalkLog>,
+    @InjectRepository(AiBookSummary)
+    private readonly aiBookSummaryRepository: Repository<AiBookSummary>,
+    private readonly bookService: BookService,
   ) {
     const apiKey = this.configService.get<string>('GEMINI_API_KEY') ?? '';
     this.genAI = new GoogleGenerativeAI(apiKey);
@@ -43,16 +49,40 @@ export class LlmService {
   }
 
   /**
-   * 책 제목과 저자를 기반으로 AI 요약 및 후기를 생성합니다.
+   * DB에서 기 저장된 AI 도서 요약을 조회합니다.
+   * @param isbn - 도서 ISBN
+   */
+  async getSavedSummary(isbn: string): Promise<AiBookSummary | null> {
+    return this.aiBookSummaryRepository.findOneBy({ isbn });
+  }
+
+  /**
+   * 책 제목과 저자를 기반으로 AI 요약 및 후기를 생성하거나 기존 결과를 반환합니다.
    * @param title - 책 제목
    * @param author - 저자
-   * @returns 생성된 요약 텍스트
+   * @param description - 책 설명
+   * @param isbn - 도서 ISBN (저장 및 조회용)
+   * @returns 생성되거나 조회된 요약 텍스트
    */
   async generateBookSummary(
     title: string,
     author: string,
     description?: string,
+    isbn?: string,
   ): Promise<BookSummaryResponseDto> {
+    // 1. 이미 저장된 요약이 있는지 확인
+    if (isbn) {
+      const saved = await this.getSavedSummary(isbn);
+      if (saved) {
+        return {
+          summary: saved.summary,
+          keyPoints: saved.keyPoints,
+          targetAudience: saved.targetAudience,
+          keywords: saved.keywords,
+        };
+      }
+    }
+
     try {
       const prompt = getPromptText(title, author, description);
 
@@ -60,13 +90,43 @@ export class LlmService {
       const response = result.response;
       const text = response.text();
 
+      let parsedSummary: BookSummaryResponseDto;
       // JSON 파싱 시도 (통합 헬퍼 사용)
       try {
-        return extractJson<BookSummaryResponseDto>(text);
+        parsedSummary = extractJson<BookSummaryResponseDto>(text);
       } catch (e) {
         console.warn('JSON 파싱 실패, 원본 텍스트 반환', e);
-        return { summary: text };
+        parsedSummary = { summary: text };
       }
+
+      // keywords 해시태그 '#' 제거하여 통일
+      if (parsedSummary.keywords) {
+        parsedSummary.keywords = parsedSummary.keywords.map((k) =>
+          k.startsWith('#') ? k.substring(1) : k,
+        );
+      }
+
+      // 2. 생성에 성공하고 isbn이 존재하는 경우 DB에 캐싱 저장
+      if (isbn && parsedSummary.summary) {
+        try {
+          // DB에 책 기본 정보 생성/조회 보장
+          await this.bookService.resolveBook(isbn);
+
+          const summaryEntity = this.aiBookSummaryRepository.create({
+            isbn,
+            summary: parsedSummary.summary,
+            keyPoints: parsedSummary.keyPoints || [],
+            targetAudience: parsedSummary.targetAudience || '',
+            keywords: parsedSummary.keywords || [],
+          });
+
+          await this.aiBookSummaryRepository.save(summaryEntity);
+        } catch (dbError) {
+          console.error('AI 요약 DB 저장에 실패했습니다:', dbError);
+        }
+      }
+
+      return parsedSummary;
     } catch (error) {
       console.error('Gemini API 호출에 실패했습니다:', error);
       throw new InternalServerErrorException(

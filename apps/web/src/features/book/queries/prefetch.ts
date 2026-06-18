@@ -1,7 +1,8 @@
+import { getSavedBookSummary } from "@bookjeok/api-client";
 import { bookKeys } from "@bookjeok/core";
 import { QueryClient } from "@tanstack/react-query";
 
-import { internalAxios } from "@/shared/libs/axios";
+import { internalAxios, publicAxios } from "@/shared/libs/axios";
 
 import { getBookList } from "../apis";
 
@@ -18,5 +19,27 @@ export const prefetchRelatedBooks = async (
   return queryClient.prefetchQuery({
     queryKey: bookKeys.list({ query, display: 20, sort: "sim" }).queryKey,
     queryFn: () => getBookList(internalAxios, { query, display: 20, sort: "sim" }),
+  });
+};
+
+/**
+ * AI 도서 요약 정보 프리패칭 (서버 사이드)
+ */
+export const prefetchBookSummary = async (
+  queryClient: QueryClient,
+  isbn: string,
+) => {
+  if (!isbn) return;
+
+  return queryClient.prefetchQuery({
+    queryKey: ["bookSummary", isbn],
+    queryFn: async () => {
+      try {
+        const result = await getSavedBookSummary(publicAxios, isbn);
+        return result || null;
+      } catch {
+        return null;
+      }
+    },
   });
 };

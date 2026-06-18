@@ -98,6 +98,17 @@ export const getPopularBooks = async (
 };
 
 /**
+ * 저장된 책 요약 정보를 조회합니다.
+ */
+export const getSavedBookSummary = async (
+  client: AxiosInstance,
+  isbn: string,
+) => {
+  const { data } = await client.get(API_PATHS.llm.getSummary(isbn));
+  return data;
+};
+
+/**
  * 책에 대한 요약 및 후기를 생성하거나 조회합니다.
  */
 export const getBookSummary = async (
@@ -105,11 +116,13 @@ export const getBookSummary = async (
   title: string,
   author: string,
   description?: string,
+  isbn?: string,
 ) => {
   const { data } = await client.post(API_PATHS.llm.summary, {
     title,
     author,
     description,
+    isbn,
   });
   return data;
 };

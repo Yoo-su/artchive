@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { fetchBookDetail } from "@/features/book/apis/server";
-import { prefetchRelatedBooks } from "@/features/book/queries/prefetch";
+import { prefetchBookSummary,prefetchRelatedBooks } from "@/features/book/queries/prefetch";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
 import { getQueryClient } from "@/shared/libs/query-client";
@@ -65,9 +65,10 @@ export default async function Page({ params }: Props) {
       const book = data.items[0];
       queryClient.setQueryData(bookKeys.detail(isbn).queryKey, book);
 
-      // 저자 연관 도서 프리패칭
+      // 저자 연관 도서 및 AI 요약 프리패칭
       await Promise.allSettled([
         book.author && prefetchRelatedBooks(queryClient, book.author),
+        prefetchBookSummary(queryClient, isbn),
       ]);
     }
   } catch {

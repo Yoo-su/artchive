@@ -4,6 +4,7 @@ import {
   useBookListQuery as useBaseBookListQuery,
   useBookStatsQuery as useBaseBookStatsQuery,
   useBookSummaryQuery as useBaseBookSummaryQuery,
+  useGenerateBookSummaryMutation as useBaseGenerateBookSummaryMutation,
   useInfiniteBookSearch as useBaseInfiniteBookSearch,
   usePopularBooksQuery as useBasePopularBooksQuery,
   usePopularKeywordsQuery as useBasePopularKeywordsQuery,
@@ -37,21 +38,19 @@ export const usePopularBooksQuery = () =>
   useBasePopularBooksQuery(publicAxios);
 
 /**
- * LLM 책 요약 조회 (JWT 토큰이 필요한 직접 API 통신 인스턴스 주입)
+ * LLM 책 요약 조회 (공개 GET API용 publicAxios 주입)
  */
-export const useBookSummaryQuery = (
-  title: string,
-  author: string,
-  enabled: boolean,
-  description?: string,
-) =>
-  useBaseBookSummaryQuery(
-    title,
-    author,
-    enabled,
-    description,
-    privateAxios,
-  );
+export const useBookSummaryQuery = (isbn: string) =>
+  useBaseBookSummaryQuery(isbn, publicAxios);
+
+/**
+ * LLM 책 요약 생성 Mutation (JWT 인증이 필요한 privateAxios 주입)
+ */
+export const useGenerateBookSummaryMutation = (options?: {
+  onSuccess?: (data: any) => void;
+  onError?: (error: unknown) => void;
+}) =>
+  useBaseGenerateBookSummaryMutation(privateAxios, options);
 
 /**
  * 인기 검색어 목록 (직접 API 통신 인스턴스 주입)
