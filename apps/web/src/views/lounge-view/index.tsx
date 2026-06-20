@@ -7,6 +7,7 @@ import { useState } from "react";
 import { LoungeBookDetailModal } from "@/features/reading-log/components/lounge-feed/lounge-book-detail-modal";
 import { LoungeFeedList } from "@/features/reading-log/components/lounge-feed/lounge-feed-list";
 import { LoungePopularBanner } from "@/features/reading-log/components/lounge-feed/lounge-popular-banner";
+import { AdBanner } from "@/shared/components/ads/ad-banner";
 
 export function LoungeView() {
   const t = useTranslations("lounge");
@@ -37,7 +38,7 @@ export function LoungeView() {
     <div className="min-h-screen">
       <div className="w-full mx-auto px-4 py-12 md:py-20">
         {/* 히어로 섹션: 기존 서비스 헤더 스타일과 통일 */}
-        <div className="mb-16 md:mb-20 border-b border-stone-200 pb-6">
+        <div className="mb-10 md:mb-12 border-b border-stone-200 pb-6">
           <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-stone-900 font-medium tracking-tight leading-tight">
             {t("hero.title")}
           </h1>
@@ -45,6 +46,13 @@ export function LoungeView() {
             {t("hero.subtitle")}
           </p>
         </div>
+
+        {/* 광고 배너 */}
+        <AdBanner
+          dataAdSlot="6040704861"
+          dataAdFormat="horizontal"
+          className="w-full mb-12 md:mb-16"
+        />
 
         {/* 콘텐츠 영역 */}
         <div className="space-y-20 md:space-y-28">
