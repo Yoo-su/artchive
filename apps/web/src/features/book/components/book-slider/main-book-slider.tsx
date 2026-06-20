@@ -1,14 +1,10 @@
 "use client";
 
-import "swiper/css";
-import "swiper/css/effect-coverflow";
-
 import { HOME_PUBLISHERS } from "@bookjeok/core";
 import { BookOpen } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { Swiper as SwiperType } from "swiper";
+import { useMemo, useState } from "react";
 import { Autoplay, EffectCoverflow } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
@@ -23,7 +19,6 @@ export const MainBookSlider = () => {
   const t = useTranslations("home.sections.main_books");
   const tError = useTranslations("home.errors");
   const [activePublisher, setActivePublisher] = useState(HOME_PUBLISHERS[0]);
-  const swiperRef = useRef<SwiperType | null>(null);
 
   const {
     data: books,
@@ -44,23 +39,6 @@ export const MainBookSlider = () => {
       .fill(books)
       .flat()
       .slice(0, Math.max(minCount, books.length * 3)); // 넉넉하게 복제
-  }, [books]);
-
-  // Swiper 업데이트 함수 (출판사 변경 시 슬라이드 위치 조정용)
-  const updateSwiper = () => {
-    if (swiperRef.current) {
-      requestAnimationFrame(() => {
-        if (swiperRef.current) {
-          swiperRef.current.update();
-          swiperRef.current.slideToLoop(0, 0, false); // Loop 모드에서는 slideToLoop 사용
-        }
-      });
-    }
-  };
-
-  // 출판사(데이터) 변경 시 Swiper 업데이트
-  useEffect(() => {
-    updateSwiper();
   }, [books]);
 
   return (
@@ -114,11 +92,15 @@ export const MainBookSlider = () => {
         <div className="w-full relative">
           <div className="book-swiper-container overflow-visible! px-4 md:px-0">
             <Swiper
-              onSwiper={(swiper) => (swiperRef.current = swiper)}
+              key={activePublisher}
               effect={"coverflow"}
               grabCursor={true}
               centeredSlides={true}
               loop={displayBooks.length > 5}
+              loopAdditionalSlides={5}
+              watchSlidesProgress={true}
+              observer={true}
+              observeParents={true}
               slidesPerView={"auto"}
               coverflowEffect={{
                 rotate: 0,

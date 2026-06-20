@@ -1,8 +1,5 @@
 "use client";
 
-import "swiper/css";
-import "swiper/css/effect-coverflow";
-
 import { EffectCoverflow } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
@@ -15,6 +12,8 @@ export const BookSliderSkeleton = () => (
         effect={"coverflow"}
         grabCursor={false}
         centeredSlides={true}
+        observer={true}
+        observeParents={true}
         slidesPerView={"auto"}
         initialSlide={3}
         coverflowEffect={{
@@ -37,8 +36,8 @@ export const BookSliderSkeleton = () => (
                 <Skeleton className="w-full h-full bg-stone-200/60" />
               </div>
 
-              {/* 책 정보 영역 스켈레톤 (오퍼시티 없이 항상 노출, 위치 조정) */}
-              <div className="relative w-[240px] md:w-[320px] left-1/2 -translate-x-1/2 space-y-2 text-center pt-2">
+              {/* 책 정보 영역 스켈레톤 (활성 슬라이드에만 표시) */}
+              <div className="relative w-[240px] md:w-[320px] left-1/2 -translate-x-1/2 space-y-2 text-center pt-2 select-none opacity-0 translate-y-6 transition-all duration-700 ease-in-out delay-100 in-[.swiper-slide-active]:opacity-100 in-[.swiper-slide-active]:translate-y-0">
                 <Skeleton className="h-6 md:h-8 w-32 md:w-48 mx-auto bg-stone-200/60" />
                 <Skeleton className="h-4 md:h-5 w-24 md:w-32 mx-auto bg-stone-200/80" />
               </div>
