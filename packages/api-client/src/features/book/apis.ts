@@ -117,12 +117,14 @@ export const getBookSummary = async (
   author: string,
   description?: string,
   isbn?: string,
+  publisher?: string,
 ) => {
   const { data } = await client.post(API_PATHS.llm.summary, {
     title,
     author,
     description,
     isbn,
+    publisher,
   });
   return data;
 };

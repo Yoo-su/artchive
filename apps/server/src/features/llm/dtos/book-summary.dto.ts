@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class BookSummaryDto {
   @IsString()
@@ -13,6 +13,7 @@ export class BookSummaryDto {
   author: string;
 
   @IsString()
+  @IsOptional()
   @ApiProperty({
     description: '추가 설명 (선택 사항)',
     example: '줄거리 위주로 요약해줘',
@@ -21,10 +22,20 @@ export class BookSummaryDto {
   description?: string;
 
   @IsString()
+  @IsOptional()
   @ApiProperty({
     description: 'ISBN (선택 사항)',
     example: '9788937460777',
     required: false,
   })
   isbn?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: '출판사 (선택 사항)',
+    example: '민음사',
+    required: false,
+  })
+  publisher?: string;
 }

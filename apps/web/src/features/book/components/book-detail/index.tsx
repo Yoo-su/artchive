@@ -75,6 +75,7 @@ export const BookDetail = ({ isbn }: BookDetailProps) => {
       author: book.author,
       description: book.description,
       isbn,
+      publisher: book.publisher,
     });
   };
 
