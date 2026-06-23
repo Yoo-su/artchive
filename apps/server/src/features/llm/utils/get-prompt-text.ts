@@ -13,7 +13,9 @@ export const getPromptText = (
   description?: string,
   publisher?: string,
 ) => {
-  const publisherTag = publisher ? `\n  <publisher>${publisher}</publisher>` : '';
+  const publisherTag = publisher
+    ? `\n  <publisher>${publisher}</publisher>`
+    : '';
 
   const bookContext = `
 <target_book>

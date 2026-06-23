@@ -3,6 +3,7 @@
 export {
   useCreateReadingLogMutation,
   useDeleteReadingLogMutation,
+  useLoungeActiveReadersQuery,
   useLoungeBookReadersInfiniteQuery,
   useLoungeFeedInfiniteQuery,
   useLoungePopularQuery,

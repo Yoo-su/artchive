@@ -53,17 +53,20 @@ export const generateGlobalMetadata = (
       description: t("meta.twitter.description"),
       images: ["/logo-og-sketch.png"],
     },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-video-preview": -1,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-      },
-    },
+    robots:
+      process.env.VERCEL_ENV !== "production"
+        ? { index: false, follow: false }
+        : {
+            index: true,
+            follow: true,
+            googleBot: {
+              index: true,
+              follow: true,
+              "max-video-preview": -1,
+              "max-image-preview": "large",
+              "max-snippet": -1,
+            },
+          },
     verification: {
       google: "04FIlPfM3tjBU80tzoVObOuhIYffXxg0AzUK8ZuL41s",
       other: {

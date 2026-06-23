@@ -985,6 +985,15 @@
       "subtitle": "최근 한 달간 가장 많은 독자가 기록한 도서입니다.",
       "readers_count": "{count}명이 읽었어요"
     },
+    "active_readers": {
+      "title": "꾸준히 읽는 사람들",
+      "subtitle": "최근 3개월간 가장 열심히, 꾸준히 읽은 독자들이에요.",
+      "recent_label": "최근 3개월",
+      "total_label": "누적",
+      "count_unit": "{count}권",
+      "more": "더보기",
+      "collapse": "접기"
+    },
     "feed": {
       "title": "최근 독서 기록",
       "error": "독자들의 기록을 불러오지 못했어요.",

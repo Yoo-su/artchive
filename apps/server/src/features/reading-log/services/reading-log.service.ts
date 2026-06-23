@@ -263,6 +263,64 @@ export class ReadingLogService {
   }
 
   /**
+   * 라운지 열성 독서가를 조회합니다.
+   * 최근 3개월간 가장 활발하게 독서 기록을 남긴 공개 사용자 목록을 반환합니다.
+   *
+   * @param limit 조회할 최대 사용자 수 (기본값: 10)
+   * @returns 열성 독서가 목록
+   */
+  async getLoungeActiveReaders(limit = 10) {
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    const sinceDateStr = threeMonthsAgo.toISOString().split('T')[0];
+
+    // 1. 최근 3개월 독서수 및 누적 독서수 집계
+    const rawUsers: {
+      id: number;
+      nickname: string;
+      handle: string;
+      profileImageUrl: string | null;
+      recentCount: string;
+      totalCount: string;
+    }[] = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoin('user.readingLogs', 'rl')
+      .select([
+        'user.id AS id',
+        'user.nickname AS nickname',
+        'user.handle AS handle',
+        'user.profileImageUrl AS "profileImageUrl"',
+      ])
+      .addSelect('COUNT(rl.id)', 'totalCount')
+      .addSelect(
+        'COUNT(CASE WHEN rl.date >= :sinceDate THEN 1 END)',
+        'recentCount',
+      )
+      .where('user.isReadingLogPublic = :isPublic', { isPublic: true })
+      .andWhere('user.deletedAt IS NULL')
+      .setParameter('sinceDate', sinceDateStr)
+      .groupBy('user.id')
+      .orderBy('"recentCount"', 'DESC')
+      .addOrderBy('"totalCount"', 'DESC')
+      .limit(limit)
+      .getRawMany();
+
+    // 2. 가공하여 최종 결과 반환
+    const items = rawUsers.map((ru) => ({
+      user: {
+        id: ru.id,
+        nickname: ru.nickname,
+        handle: ru.handle,
+        profileImageUrl: ru.profileImageUrl,
+      },
+      recentCount: parseInt(ru.recentCount || '0', 10),
+      totalCount: parseInt(ru.totalCount || '0', 10),
+    }));
+
+    return { items };
+  }
+
+  /**
    * 특정 도서의 전체 독자 목록을 조회합니다.
    * 상세 모달에서 무한 스크롤로 모든 독자를 보여줄 때 사용됩니다.
    *

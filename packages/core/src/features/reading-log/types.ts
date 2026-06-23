@@ -77,3 +77,20 @@ export interface LoungeBookReadersResponse {
   nextCursor: string | null; // "userId" 형태
   totalCount: number;
 }
+
+/** 라운지 열성 독서가 정보 */
+export interface ActiveReader {
+  user: {
+    id: number;
+    nickname: string;
+    handle: string;
+    profileImageUrl: string | null;
+  };
+  recentCount: number;
+  totalCount: number;
+}
+
+/** 라운지 열성 독서가 API 응답 */
+export interface ActiveReadersResponse {
+  items: ActiveReader[];
+}
