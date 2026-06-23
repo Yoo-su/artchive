@@ -61,33 +61,6 @@ export function ReadingTimeline({ logs }: ReadingTimelineProps) {
     setShowRightButton(canScrollRight);
   };
 
-  // 마우스 휠 스크롤을 가로 스크롤로 매핑
-  useEffect(() => {
-    const el = scrollContainerRef.current;
-    if (!el) return;
-
-    const onWheel = (e: WheelEvent) => {
-      if (e.deltaY === 0) return;
-
-      const isScrollable = el.scrollWidth > el.clientWidth;
-      if (!isScrollable) return;
-
-      const isAtLeftEnd = el.scrollLeft <= 2;
-      const isAtRightEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2;
-
-      // 끝에 도달했고, 그 방향으로 더 스크롤하려는 경우 세로 스크롤 허용
-      if ((e.deltaY < 0 && isAtLeftEnd) || (e.deltaY > 0 && isAtRightEnd)) {
-        return;
-      }
-
-      // 그 외에는 세로 스크롤을 막고 가로 스크롤로 전환
-      e.preventDefault();
-      el.scrollLeft += e.deltaY;
-    };
-
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
-  }, [logs]);
 
   // 가로 스크롤 감지 및 화면 리사이즈 감지
   useEffect(() => {
