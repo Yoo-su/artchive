@@ -147,6 +147,7 @@ describe('BookService', () => {
     it('should execute query builder with subqueries', async () => {
       const repo = module.get(getRepositoryToken(Book));
       const mockQueryBuilder = {
+        where: jest.fn().mockReturnThis(),
         addSelect: jest.fn().mockReturnThis(),
         select: jest.fn().mockReturnThis(),
         orderBy: jest.fn().mockReturnThis(),
@@ -157,9 +158,9 @@ describe('BookService', () => {
             isbn: '1',
             title: 'Pop',
             viewCount: 10,
-            totalSaleViews: 5,
-            totalReviewViews: 5,
-            totalReviewReactions: 5,
+            readingLogCount: 5,
+            reviewCount: 5,
+            wishlistCount: 5,
             createdAt: new Date(),
             updatedAt: new Date(),
           },

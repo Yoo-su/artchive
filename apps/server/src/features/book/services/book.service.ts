@@ -97,19 +97,26 @@ export class BookService {
 
   /**
    * 인기 도서 목록을 조회합니다.
-   * - 인기도 = (책 조회수 * 1) + (판매글 조회수 * 2) + (리뷰 조회수 * 2) + (리액션 * 3)
+   * - 인기도 = (책 조회수 * 1) + (독서기록 수 * 10) + (위시리스트 수 * 8) + (리뷰 수 * 5)
    */
   async findPopularBooks(): Promise<Book[]> {
-    // Subqueries for popularity calculation
-    const salesViewSubQuery = `SELECT COALESCE(SUM(sale."viewCount"), 0) FROM used_book_sales sale WHERE sale."isbn" = book.isbn`;
-    const reviewViewSubQuery = `SELECT COALESCE(SUM(review."viewCount"), 0) FROM reviews review WHERE review."isbn" = book.isbn`;
-    const reviewReactionSubQuery = `SELECT COALESCE(SUM(review."reactionCount"), 0) FROM reviews review WHERE review."isbn" = book.isbn`;
+    // 각 연관 테이블의 누적 개수를 구하는 서브쿼리 정의
+    const readingLogCountSubQuery = `SELECT COUNT(*) FROM reading_logs log WHERE log."isbn" = book.isbn`;
+    const reviewCountSubQuery = `SELECT COUNT(*) FROM reviews review WHERE review."isbn" = book.isbn`;
+    const wishlistCountSubQuery = `SELECT COUNT(*) FROM wishlists wish WHERE wish."isbn" = book.isbn`;
 
     const rawResults = await this.bookRepository
       .createQueryBuilder('book')
-      .addSelect(`(${salesViewSubQuery})`, 'totalSaleViews')
-      .addSelect(`(${reviewViewSubQuery})`, 'totalReviewViews')
-      .addSelect(`(${reviewReactionSubQuery})`, 'totalReviewReactions')
+      // 조회수가 1 이상이거나, 독서기록/리뷰/찜 중 하나라도 활동이 있는 도서로 대상을 압축 (성능 최적화 및 초기 데이터 안전성 확보)
+      .where(
+        `book.viewCount > 0 
+         OR EXISTS (SELECT 1 FROM reading_logs log WHERE log."isbn" = book.isbn) 
+         OR EXISTS (SELECT 1 FROM wishlists wish WHERE wish."isbn" = book.isbn) 
+         OR EXISTS (SELECT 1 FROM reviews review WHERE review."isbn" = book.isbn)`
+      )
+      .addSelect(`(${readingLogCountSubQuery})`, 'readingLogCount')
+      .addSelect(`(${reviewCountSubQuery})`, 'reviewCount')
+      .addSelect(`(${wishlistCountSubQuery})`, 'wishlistCount')
       .select([
         'book.isbn AS isbn',
         'book.title AS title',
@@ -124,9 +131,9 @@ export class BookService {
       ])
       .orderBy(
         `COALESCE(book.viewCount, 0) * 1 
-         + (${salesViewSubQuery}) * 2 
-         + (${reviewViewSubQuery}) * 2 
-         + (${reviewReactionSubQuery}) * 3`,
+         + (${readingLogCountSubQuery}) * 10 
+         + (${wishlistCountSubQuery}) * 8 
+         + (${reviewCountSubQuery}) * 5`,
         'DESC',
       )
       .addOrderBy('"viewCount"', 'DESC')
