@@ -112,7 +112,7 @@ export class BookService {
         `book.viewCount > 0 
          OR EXISTS (SELECT 1 FROM reading_logs log WHERE log."isbn" = book.isbn) 
          OR EXISTS (SELECT 1 FROM wishlists wish WHERE wish."isbn" = book.isbn) 
-         OR EXISTS (SELECT 1 FROM reviews review WHERE review."isbn" = book.isbn)`
+         OR EXISTS (SELECT 1 FROM reviews review WHERE review."isbn" = book.isbn)`,
       )
       .addSelect(`(${readingLogCountSubQuery})`, 'readingLogCount')
       .addSelect(`(${reviewCountSubQuery})`, 'reviewCount')

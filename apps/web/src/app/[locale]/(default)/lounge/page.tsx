@@ -1,6 +1,11 @@
+import { readingLogKeys } from "@bookjeok/core";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { getLoungeActiveReaders, getLoungePopular } from "@/features/reading-log/apis";
+import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { LoungeView } from "@/views/lounge-view";
+
+export const revalidate = 3600;
 
 export async function generateMetadata({
   params,
@@ -23,5 +28,20 @@ export default async function LoungePage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  return <LoungeView />;
+  const queries = [
+    {
+      queryKey: readingLogKeys.loungePopular.queryKey,
+      queryFn: getLoungePopular,
+    },
+    {
+      queryKey: readingLogKeys.loungeActiveReaders.queryKey,
+      queryFn: getLoungeActiveReaders,
+    },
+  ];
+
+  return (
+    <ServerQueryBoundary queries={queries}>
+      <LoungeView />
+    </ServerQueryBoundary>
+  );
 }

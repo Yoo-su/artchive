@@ -4,6 +4,7 @@ import type { LoungeBookCard } from "@bookjeok/core";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { LoungeActiveReaders } from "@/features/reading-log/components/lounge-feed/lounge-active-readers";
 import { LoungeBookDetailModal } from "@/features/reading-log/components/lounge-feed/lounge-book-detail-modal";
 import { LoungeFeedList } from "@/features/reading-log/components/lounge-feed/lounge-feed-list";
 import { LoungePopularBanner } from "@/features/reading-log/components/lounge-feed/lounge-popular-banner";
@@ -56,6 +57,9 @@ export function LoungeView() {
 
         {/* 콘텐츠 영역 */}
         <div className="space-y-20 md:space-y-28">
+          {/* 열성 독서가 명예의 전당 */}
+          <LoungeActiveReaders />
+
           {/* 인기 도서 배너 */}
           <LoungePopularBanner onCardClick={handleOpenModal} />
 

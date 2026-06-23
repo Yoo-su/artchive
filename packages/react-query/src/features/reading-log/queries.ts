@@ -2,6 +2,7 @@
 import {
   createReadingLog,
   deleteReadingLog,
+  getLoungeActiveReaders,
   getLoungeBookReaders,
   getLoungeFeed,
   getLoungePopular,
@@ -12,7 +13,7 @@ import {
   updateReadingLog,
   updateReadingLogSettings,
 } from "@bookjeok/api-client";
-import { CreateReadingLogParams, LoungeBookReadersResponse, LoungeFeedResponse, LoungePopularResponse, ReadingLog, readingLogKeys, UpdateReadingLogParams, User, userKeys } from "@bookjeok/core";
+import { ActiveReadersResponse, CreateReadingLogParams, LoungeBookReadersResponse, LoungeFeedResponse, LoungePopularResponse, ReadingLog, readingLogKeys, UpdateReadingLogParams, User, userKeys } from "@bookjeok/core";
 import {
   useInfiniteQuery,
   useMutation,
@@ -278,6 +279,17 @@ export const useLoungePopularQuery = (client: AxiosInstance) => {
     queryKey: readingLogKeys.loungePopular.queryKey,
     queryFn: () => getLoungePopular(client),
     staleTime: 5 * 60 * 1000, // 5분 (인기도서는 자주 변하지 않으므로)
+  });
+};
+
+/**
+ * 라운지 열성 독서가 조회 (공개 - publicAxios 주입)
+ */
+export const useLoungeActiveReadersQuery = (client: AxiosInstance) => {
+  return useQuery({
+    queryKey: readingLogKeys.loungeActiveReaders.queryKey,
+    queryFn: () => getLoungeActiveReaders(client),
+    staleTime: 5 * 60 * 1000, // 5분 (자주 변하지 않으므로)
   });
 };
 

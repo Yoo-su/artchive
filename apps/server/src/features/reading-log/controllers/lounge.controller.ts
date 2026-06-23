@@ -47,6 +47,20 @@ export class LoungeController {
     return this.readingLogService.getLoungePopular();
   }
 
+  @Get('active-readers')
+  @ApiOperation({
+    summary: '라운지 열성 독서가 조회',
+    description:
+      '최근 3개월간 가장 활발하게 독서 기록을 남긴 공개 사용자 목록을 반환합니다. 인증 불필요.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '열성 독서가 목록을 반환합니다.',
+  })
+  getLoungeActiveReaders() {
+    return this.readingLogService.getLoungeActiveReaders();
+  }
+
   @Get('book/:isbn/readers')
   @ApiOperation({
     summary: '특정 도서의 전체 독자 목록 조회',

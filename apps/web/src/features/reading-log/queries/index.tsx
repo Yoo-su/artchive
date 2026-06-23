@@ -1,4 +1,5 @@
 import {
+  useLoungeActiveReadersQuery as useBaseLoungeActiveReadersQuery,
   useLoungeBookReadersInfiniteQuery as useBaseLoungeBookReadersInfiniteQuery,
   useLoungeFeedInfiniteQuery as useBaseLoungeFeedInfiniteQuery,
   useLoungePopularQuery as useBaseLoungePopularQuery,
@@ -31,6 +32,9 @@ export const useLoungeFeedInfiniteQuery = () =>
 
 export const useLoungePopularQuery = () =>
   useBaseLoungePopularQuery(publicAxios);
+
+export const useLoungeActiveReadersQuery = () =>
+  useBaseLoungeActiveReadersQuery(publicAxios);
 
 export const useLoungeBookReadersInfiniteQuery = (isbn: string, enabled = true) =>
   useBaseLoungeBookReadersInfiniteQuery(publicAxios, isbn, enabled);

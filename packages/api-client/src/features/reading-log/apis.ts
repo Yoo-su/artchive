@@ -1,4 +1,4 @@
-import { API_PATHS, CreateReadingLogParams, LoungeBookReadersResponse, LoungeFeedResponse, LoungePopularResponse, ReadingLog, ReadingLogListResponse, ReadingLogStats, UpdateReadingLogParams } from "@bookjeok/core";
+import { ActiveReadersResponse,API_PATHS, CreateReadingLogParams, LoungeBookReadersResponse, LoungeFeedResponse, LoungePopularResponse, ReadingLog, ReadingLogListResponse, ReadingLogStats, UpdateReadingLogParams } from "@bookjeok/core";
 import { AxiosInstance } from "axios";
 
 /**
@@ -139,6 +139,18 @@ export const getLoungePopular = async (
 ): Promise<LoungePopularResponse> => {
   const { data } = await client.get<LoungePopularResponse>(
     API_PATHS.readingLog.loungePopular,
+  );
+  return data;
+};
+
+/**
+ * 라운지 열성 독서가 목록을 조회합니다. (공개 API - 인증 불필요)
+ */
+export const getLoungeActiveReaders = async (
+  client: AxiosInstance,
+): Promise<ActiveReadersResponse> => {
+  const { data } = await client.get<ActiveReadersResponse>(
+    API_PATHS.readingLog.loungeActiveReaders,
   );
   return data;
 };

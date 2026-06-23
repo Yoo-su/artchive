@@ -12,6 +12,7 @@ export const readingLogKeys = createQueryKeys("readingLog", {
   // ✅ 라운지 전용 쿼리 키 추가
   loungeFeed: null,
   loungePopular: null,
+  loungeActiveReaders: null,
   loungeBookReaders: (isbn: string) => ({
     queryKey: [isbn],
   }),

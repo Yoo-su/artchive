@@ -8,6 +8,7 @@
 import {
   createReadingLog as sharedCreateReadingLog,
   deleteReadingLog as sharedDeleteReadingLog,
+  getLoungeActiveReaders as sharedGetLoungeActiveReaders,
   getLoungePopular as sharedGetLoungePopular,
   getReadingLogs as sharedGetReadingLogs,
   getReadingLogSettings as sharedGetReadingLogSettings,
@@ -131,4 +132,11 @@ export const deleteReadingLog = async (id: string) => {
  */
 export const getLoungePopular = async () => {
   return sharedGetLoungePopular(publicAxios);
+};
+
+/**
+ * 라운지 열성 독서가를 조회합니다.
+ */
+export const getLoungeActiveReaders = async () => {
+  return sharedGetLoungeActiveReaders(publicAxios);
 };

@@ -985,6 +985,15 @@
       "subtitle": "The most recorded books by readers in the last 30 days.",
       "readers_count": "{count} readers"
     },
+    "active_readers": {
+      "title": "Avid Readers",
+      "subtitle": "The most dedicated and consistent readers over the past 3 months.",
+      "recent_label": "Last 3 Months",
+      "total_label": "Total",
+      "count_unit": "{count} books",
+      "more": "Show More",
+      "collapse": "Show Less"
+    },
     "feed": {
       "title": "Recent Reading Logs",
       "error": "Failed to load readers' records.",
