@@ -62,6 +62,7 @@ export class LlmService {
    * @param author - 저자
    * @param description - 책 설명
    * @param isbn - 도서 ISBN (저장 및 조회용)
+   * @param publisher - 출판사 (선택)
    * @returns 생성되거나 조회된 요약 텍스트
    */
   async generateBookSummary(
@@ -69,6 +70,7 @@ export class LlmService {
     author: string,
     description?: string,
     isbn?: string,
+    publisher?: string,
   ): Promise<BookSummaryResponseDto> {
     // 1. 이미 저장된 요약이 있는지 확인
     if (isbn) {
@@ -84,7 +86,7 @@ export class LlmService {
     }
 
     try {
-      const prompt = getPromptText(title, author, description);
+      const prompt = getPromptText(title, author, description, publisher);
 
       const result = await this.model.generateContent(prompt);
       const response = result.response;

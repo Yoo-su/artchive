@@ -61,12 +61,13 @@ export class LlmController {
   async getBookSummary(
     @Body(new ValidationPipe()) bookSummaryDto: BookSummaryDto,
   ): Promise<BookSummaryResponseDto> {
-    const { title, author, description, isbn } = bookSummaryDto;
+    const { title, author, description, isbn, publisher } = bookSummaryDto;
     const summary = await this.llmService.generateBookSummary(
       title,
       author,
       description,
       isbn,
+      publisher,
     );
     return summary;
   }

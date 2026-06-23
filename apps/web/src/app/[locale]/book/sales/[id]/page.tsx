@@ -11,7 +11,7 @@ import { createPageMetadata } from "@/shared/config/metadata";
 import { getQueryClient } from "@/shared/libs/query-client";
 import { BookSaleDetailView } from "@/views/book-sale-detail-view";
 
-// 판매 상태 변경이 빠르게 반영되도록 1분 간격으로 재검증
+// 판매 상태 변경이 빠르게 반영되도록 5분 간격으로 재검증
 export const revalidate = 300;
 
 type Props = {

@@ -144,14 +144,16 @@ export const useGenerateBookSummaryMutation = (
       author,
       description,
       isbn,
+      publisher,
     }: {
       title: string;
       author: string;
       description?: string;
       isbn?: string;
+      publisher?: string;
     }) => {
       if (!client) throw new Error("API client is required");
-      return getBookSummary(client, title, author, description, isbn);
+      return getBookSummary(client, title, author, description, isbn, publisher);
     },
     ...options,
   });

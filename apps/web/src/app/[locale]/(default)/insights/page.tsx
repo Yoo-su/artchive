@@ -7,7 +7,7 @@ import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
 import InsightsView from "@/views/insights-view";
 
-// 30분마다 데이터 재검증
+// 6시간마다 데이터 재검증
 export const revalidate = 21600;
 
 export async function generateMetadata({
