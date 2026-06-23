@@ -5,6 +5,11 @@ import { getReviews } from "@/features/review/apis";
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Preview 환경(test.bookjeok.com 등)에서는 sitemap 비활성화
+  if (process.env.VERCEL_ENV !== "production") {
+    return [];
+  }
+
   const baseUrl = "https://bookjeok.com";
   const defaultLocale = "ko";
 

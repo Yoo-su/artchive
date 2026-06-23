@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -7,6 +8,9 @@ import { useLoungeActiveReadersQuery } from "@/features/reading-log/queries";
 
 import { ReaderRow } from "./reader-row";
 import { LoungeActiveReadersSkeleton } from "./skeleton";
+
+const COLLAPSED_COUNT = 3;
+const MAX_COUNT = 10;
 
 export function LoungeActiveReaders() {
   const t = useTranslations("lounge.active_readers");
@@ -21,16 +25,14 @@ export function LoungeActiveReaders() {
     return null;
   }
 
-  // 기본적으로 1, 2, 3위 노출, 더보기 활성화 시 최대 10위 노출
-  const visibleItems = isExpanded
-    ? data.items.slice(0, 10)
-    : data.items.slice(0, 3);
-
-  const hasMoreThanThree = data.items.length > 3;
+  const allItems = data.items.slice(0, MAX_COUNT);
+  const topItems = allItems.slice(0, COLLAPSED_COUNT);
+  const expandableItems = allItems.slice(COLLAPSED_COUNT);
+  const hasExpandable = expandableItems.length > 0;
 
   return (
     <section className="mb-14">
-      {/* 섹션 헤더: 인기 책 슬라이더와 디자인 일치 */}
+      {/* 섹션 헤더 */}
       <div className="mb-6 border-b border-stone-200 pb-5">
         <h2 className="font-serif text-3xl sm:text-4xl text-stone-900 font-medium tracking-tight">
           {t("title")}
@@ -40,15 +42,75 @@ export function LoungeActiveReaders() {
         </p>
       </div>
 
-      {/* 테이블 리스트 */}
+      {/* 상위 1~3위: 항상 노출 */}
       <div className="flex flex-col border-t border-stone-200/80">
-        {visibleItems.map((item, idx) => (
+        {topItems.map((item, idx) => (
           <ReaderRow key={item.user.id} item={item} rank={idx + 1} />
         ))}
       </div>
 
+      {/* 4~10위: 접기/펼치기 애니메이션 영역 */}
+      <AnimatePresence initial={false}>
+        {isExpanded && hasExpandable && (
+          <motion.div
+            key="expandable-readers"
+            initial="collapsed"
+            animate="open"
+            exit="collapsed"
+            variants={{
+              open: {
+                height: "auto",
+                opacity: 1,
+                transition: {
+                  height: { duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] },
+                  opacity: { duration: 0.25 },
+                  staggerChildren: 0.05,
+                  delayChildren: 0.02,
+                },
+              },
+              collapsed: {
+                height: 0,
+                opacity: 0,
+                transition: {
+                  height: { duration: 0.35, ease: [0.04, 0.62, 0.23, 0.98] },
+                  opacity: { duration: 0.2 },
+                  staggerChildren: 0.03,
+                  staggerDirection: -1,
+                },
+              },
+            }}
+            className="overflow-hidden"
+          >
+            <div>
+              {expandableItems.map((item, idx) => (
+                <motion.div
+                  key={item.user.id}
+                  variants={{
+                    open: {
+                      opacity: 1,
+                      y: 0,
+                      transition: { type: "spring", stiffness: 300, damping: 26 },
+                    },
+                    collapsed: {
+                      opacity: 0,
+                      y: 12,
+                      transition: { duration: 0.2 },
+                    },
+                  }}
+                >
+                  <ReaderRow
+                    item={item}
+                    rank={COLLAPSED_COUNT + idx + 1}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* 접기/펼치기 버튼 */}
-      {hasMoreThanThree && (
+      {hasExpandable && (
         <div className="mt-6 flex justify-center">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
@@ -76,3 +138,4 @@ export function LoungeActiveReaders() {
     </section>
   );
 }
+

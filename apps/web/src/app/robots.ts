@@ -1,6 +1,13 @@
 import { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
+  // Preview 환경(test.bookjeok.com 등)에서는 모든 크롤러 차단
+  if (process.env.VERCEL_ENV !== "production") {
+    return {
+      rules: [{ userAgent: "*", disallow: ["/"] }],
+    };
+  }
+
   return {
     rules: [
       // Google 내부 R&D용 크롤러 (Search Console 라이브 테스트 및 진단 지원을 위해 허용)

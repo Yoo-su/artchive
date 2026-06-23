@@ -8,6 +8,8 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/shared/components/shadcn/avatar";
+import { Link } from "@/shared/config/i18n/routing";
+import { PATHS } from "@/shared/constants/paths";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 interface ReaderRowProps {
@@ -19,48 +21,36 @@ export const ReaderRow = ({ item, rank }: ReaderRowProps) => {
   const t = useTranslations("lounge.active_readers");
   const { user, recentCount, totalCount } = item;
 
-  // 순위에 따른 메달 컬러 및 스타일 정의
-  const getRankStyle = (r: number) => {
-    switch (r) {
-      case 1:
-        return "text-amber-500 bg-amber-50 border-amber-200/50";
-      case 2:
-        return "text-stone-400 bg-stone-50 border-stone-200/50";
-      case 3:
-        return "text-amber-700 bg-amber-50/50 border-amber-700/10";
-      default:
-        return "text-stone-400 bg-stone-50/20 border-stone-200/30";
-    }
-  };
-
   return (
     <div className="flex items-center justify-between py-4 border-b border-stone-100 hover:bg-stone-50/50 px-3 sm:px-5 -mx-2 sm:-mx-4 rounded-xl transition-all duration-300 ease-out">
       {/* 좌측 영역: 순위 + 아바타 + 닉네임 */}
       <div className="flex items-center gap-3 sm:gap-4 min-w-0">
         {/* 순위 배지 */}
-        <span
-          className={`flex items-center justify-center w-6 h-6 rounded-full border text-xs font-serif font-bold shrink-0 ${getRankStyle(
-            rank,
-          )}`}
-        >
+        <span className="flex items-center justify-center w-6 h-6 rounded-full border border-stone-200/30 bg-stone-50/20 text-xs font-semibold text-stone-600 shrink-0 leading-none">
           {rank}
         </span>
 
-        {/* 아바타 */}
-        <Avatar className="w-8 h-8 sm:w-9 sm:h-9 border border-stone-200/80 shrink-0">
-          <AvatarImage
-            src={getProfileImageUrl(user.profileImageUrl)}
-            alt={user.nickname}
-          />
-          <AvatarFallback className="bg-stone-100 text-[10px] sm:text-xs font-light text-stone-400">
-            {user.nickname?.[0] || "U"}
-          </AvatarFallback>
-        </Avatar>
+        {/* 아바타 & 닉네임 링크 */}
+        <Link
+          href={PATHS.USER_PROFILE(user.handle)}
+          className="flex items-center gap-3 sm:gap-4 min-w-0 group/link outline-hidden rounded-lg"
+        >
+          {/* 아바타 */}
+          <Avatar className="w-8 h-8 sm:w-9 sm:h-9 border border-stone-200/80 shrink-0 group-hover/link:border-stone-400 transition-colors">
+            <AvatarImage
+              src={getProfileImageUrl(user.profileImageUrl)}
+              alt={user.nickname}
+            />
+            <AvatarFallback className="bg-stone-100 text-[10px] sm:text-xs font-light text-stone-400">
+              {user.nickname?.[0] || "U"}
+            </AvatarFallback>
+          </Avatar>
 
-        {/* 닉네임 */}
-        <span className="font-medium text-stone-800 text-sm sm:text-base truncate">
-          {user.nickname}
-        </span>
+          {/* 닉네임 */}
+          <span className="font-medium text-stone-800 text-sm sm:text-base truncate group-hover/link:text-stone-900 group-hover/link:underline decoration-stone-300 transition-colors underline-offset-4">
+            {user.nickname}
+          </span>
+        </Link>
       </div>
 
       {/* 우측 영역: 독서 지표 통계 */}
@@ -88,3 +78,4 @@ export const ReaderRow = ({ item, rank }: ReaderRowProps) => {
     </div>
   );
 };
+
