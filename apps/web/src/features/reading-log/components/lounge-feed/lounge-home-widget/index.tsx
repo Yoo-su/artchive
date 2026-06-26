@@ -27,7 +27,7 @@ export function LoungeHomeWidget() {
           <div className="flex gap-5 overflow-hidden">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="w-44 shrink-0">
-                <Skeleton className="aspect-2/3 w-full rounded-xl mb-3" />
+                <Skeleton className="aspect-2/3 w-full mb-3" />
                 <Skeleton className="h-4 w-full mb-2" />
                 <Skeleton className="h-3 w-2/3" />
               </div>
@@ -68,13 +68,14 @@ export function LoungeHomeWidget() {
             </div>
           </Link>
         </div>
+      </div>
 
-        {/* 수평 스크롤 카드 */}
-        <Swiper
-          slidesPerView="auto"
-          spaceBetween={20}
-          className="pb-4 pt-4 -mt-4 -mx-4 px-4! md:mx-0 md:px-0! overflow-visible!"
-        >
+      {/* 수평 스크롤 카드 */}
+      <Swiper
+        slidesPerView="auto"
+        spaceBetween={20}
+        className="pb-4 pt-4 -mt-4 px-4! overflow-visible!"
+      >
           {data.items.slice(0, 6).map((item, index) => (
             <SwiperSlide
               key={item.isbn}
@@ -87,7 +88,7 @@ export function LoungeHomeWidget() {
               >
                 <Link href={PATHS.LOUNGE}>
                   {/* 도서 표지 */}
-                  <div className="relative aspect-2/3 w-full rounded-xl overflow-hidden bg-stone-50 mb-3.5 shadow-sm transition-shadow duration-300 group-hover:shadow-lg">
+                  <div className="relative aspect-2/3 w-full overflow-hidden bg-stone-50 mb-3.5 shadow-sm transition-shadow duration-300 group-hover:shadow-lg">
                     {item.book.image ? (
                       <Image
                         src={item.book.image}
@@ -132,7 +133,6 @@ export function LoungeHomeWidget() {
             </SwiperSlide>
           ))}
         </Swiper>
-      </div>
     </section>
   );
 }
