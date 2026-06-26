@@ -52,8 +52,8 @@ export const UserProfile = ({ handle }: UserProfileProps) => {
 
       {/* 독서 기록 캘린더 */}
       {profile.readingLogs && profile.readingLogs.length > 0 && (
-        <div className="mb-8 bg-white p-6 rounded-3xl border border-stone-200/60 shadow-sm">
-          <h3 className="font-serif text-xl font-semibold text-stone-900 mb-6 pl-1">
+        <div className="mb-8 p-0 bg-transparent border-0 shadow-none md:bg-white md:p-6 rounded-3xl md:border md:border-stone-200/60 md:shadow-sm">
+          <h3 className="font-serif text-xl font-semibold text-stone-900 mb-6 pl-1 px-4 md:px-0">
             {t("reading_log_calendar_title", { name: profile.nickname })}
           </h3>
           <ReadingLogCalendar
