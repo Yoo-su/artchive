@@ -7,10 +7,11 @@ import { CACHE_TIME } from "@/shared/constants/cache";
 
 import { getReadingLogs, getReadingLogStats } from "../apis";
 
-export const useReadingLogPrefetch = (year: number, month: number) => {
+export const useReadingLogPrefetch = (year: number, month: number, enabled = true) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    if (!enabled) return;
     const currentDate = new Date(year, month - 1);
     const prevDate = subMonths(currentDate, 1);
     const nextDate = addMonths(currentDate, 1);

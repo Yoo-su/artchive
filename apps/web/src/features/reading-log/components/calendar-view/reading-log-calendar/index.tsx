@@ -1,5 +1,6 @@
 "use client";
 
+import { ReadingLog } from "@bookjeok/core";
 import {
   addMonths,
   eachDayOfInterval,
@@ -32,11 +33,15 @@ import { ReadingLogDayCell } from "../reading-log-day-cell";
 interface ReadingLogCalendarProps {
   currentDate: Date;
   onDateChange: (date: Date) => void;
+  readOnly?: boolean;
+  initialLogs?: ReadingLog[];
 }
 
 export function ReadingLogCalendar({
   currentDate,
   onDateChange,
+  readOnly = false,
+  initialLogs = [],
 }: ReadingLogCalendarProps) {
   const t = useTranslations("reading_log.calendar");
   // 내부 상태는 선택된 날짜와 다이얼로그, 뷰 모드만 관리
@@ -47,17 +52,20 @@ export function ReadingLogCalendar({
   // 계절 테마 훅 사용
   const theme = useSeasonalTheme(currentDate);
 
-  // 인접한 월 데이터 prefetch
-  useReadingLogPrefetch(currentDate.getFullYear(), currentDate.getMonth() + 1);
+  // 인접한 월 데이터 prefetch - readOnly가 아닐 때만
+  useReadingLogPrefetch(currentDate.getFullYear(), currentDate.getMonth() + 1, !readOnly);
 
-  // API 호출 (달력 모드일 때만)
+  // API 호출 (달력 모드일 때만, readOnly가 아닐 때만)
   const {
-    data: logs = [],
-    isLoading,
+    data: fetchedLogs = [],
+    isLoading: isQueryLoading,
     isFetching,
   } = useReadingLogsQuery(currentDate.getFullYear(), currentDate.getMonth() + 1, {
-    enabled: viewMode === "calendar",
+    enabled: viewMode === "calendar" && !readOnly,
   });
+
+  const logs = readOnly ? initialLogs : fetchedLogs;
+  const isLoading = readOnly ? false : isQueryLoading;
 
   const handlePrevMonth = () => onDateChange(subMonths(currentDate, 1));
   const handleNextMonth = () => onDateChange(addMonths(currentDate, 1));
@@ -86,7 +94,7 @@ export function ReadingLogCalendar({
 
   return (
     <div className="w-full mx-auto space-y-6">
-      <ReadingLogStats currentDate={currentDate} theme={theme} />
+      {!readOnly && <ReadingLogStats currentDate={currentDate} theme={theme} />}
 
       <ReadingLogControls
         viewMode={viewMode}
@@ -95,10 +103,11 @@ export function ReadingLogCalendar({
         onDateChange={onDateChange}
         onPrevMonth={handlePrevMonth}
         onNextMonth={handleNextMonth}
-        isLoading={isFetching}
+        isLoading={readOnly ? false : isFetching}
+        readOnly={readOnly}
       />
 
-      {viewMode === "list" ? (
+      {viewMode === "list" && !readOnly ? (
         <ReadingLogListView />
       ) : isLoading ? (
         <ReadingLogCalendarSkeleton />
@@ -154,6 +163,7 @@ export function ReadingLogCalendar({
         logs={selectedDate ? getLogsForDate(selectedDate) : []}
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
+        readOnly={readOnly}
       />
     </div>
   );

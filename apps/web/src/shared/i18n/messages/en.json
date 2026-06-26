@@ -529,6 +529,13 @@
       "submit_edit": "Update",
       "processing": "Processing...",
       "error_max_length": "Memo can be up to {max} characters."
+    },
+    "details_dialog": {
+      "desc_write": "Leave a one-line thought for the books you read today.",
+      "desc_read": "Reading records for this day.",
+      "empty_write": "No books recorded yet.",
+      "empty_write_sub": "Try recording the books you read today.",
+      "empty_read": "No books recorded."
     }
   },
   "insights": {
@@ -734,6 +741,7 @@
     },
     "not_found": "User not found or deleted.",
     "joined": "Joined {date}",
+    "reading_log_calendar_title": "{name}'s Reading Log",
     "stats": {
       "sales_count": "Books for Sale",
       "reviews_count": "Reviews"

@@ -24,6 +24,7 @@ interface ReadingLogControlsProps {
   onPrevMonth?: () => void;
   onNextMonth?: () => void;
   isLoading?: boolean;
+  readOnly?: boolean;
 }
 
 export function ReadingLogControls({
@@ -34,6 +35,7 @@ export function ReadingLogControls({
   onPrevMonth,
   onNextMonth,
   isLoading,
+  readOnly = false,
 }: ReadingLogControlsProps) {
   const t = useTranslations("reading_log.controls");
   const tCalendar = useTranslations("reading_log.calendar");
@@ -163,39 +165,41 @@ export function ReadingLogControls({
       </div>
 
       {/* 뷰 모드 토글 (캘린더/리스트) */}
-      <div className="flex items-center gap-6">
-        <button
-          onClick={() => onViewModeChange("calendar")}
-          className={cn(
-            "text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300 relative py-1",
-            viewMode === "calendar"
-              ? "text-stone-900"
-              : "text-stone-400 hover:text-stone-600",
-          )}
-        >
-          {t("view_calendar")}
-          {viewMode === "calendar" && (
-            <span className="absolute -bottom-1 left-0 right-0 h-px bg-stone-900 animate-in fade-in zoom-in duration-300" />
-          )}
-        </button>
+      {!readOnly && (
+        <div className="flex items-center gap-6">
+          <button
+            onClick={() => onViewModeChange("calendar")}
+            className={cn(
+              "text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300 relative py-1",
+              viewMode === "calendar"
+                ? "text-stone-900"
+                : "text-stone-400 hover:text-stone-600",
+            )}
+          >
+            {t("view_calendar")}
+            {viewMode === "calendar" && (
+              <span className="absolute -bottom-1 left-0 right-0 h-px bg-stone-900 animate-in fade-in zoom-in duration-300" />
+            )}
+          </button>
 
-        <div className="w-px h-3 bg-stone-200" />
+          <div className="w-px h-3 bg-stone-200" />
 
-        <button
-          onClick={() => onViewModeChange("list")}
-          className={cn(
-            "text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300 relative py-1",
-            viewMode === "list"
-              ? "text-stone-900"
-              : "text-stone-400 hover:text-stone-600",
-          )}
-        >
-          {t("view_list")}
-          {viewMode === "list" && (
-            <span className="absolute -bottom-1 left-0 right-0 h-px bg-stone-900 animate-in fade-in zoom-in duration-300" />
-          )}
-        </button>
-      </div>
+          <button
+            onClick={() => onViewModeChange("list")}
+            className={cn(
+              "text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300 relative py-1",
+              viewMode === "list"
+                ? "text-stone-900"
+                : "text-stone-400 hover:text-stone-600",
+            )}
+          >
+            {t("view_list")}
+            {viewMode === "list" && (
+              <span className="absolute -bottom-1 left-0 right-0 h-px bg-stone-900 animate-in fade-in zoom-in duration-300" />
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

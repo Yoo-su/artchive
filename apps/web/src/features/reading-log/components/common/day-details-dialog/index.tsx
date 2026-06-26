@@ -8,7 +8,7 @@ import {
   Trash2,
 } from "lucide-react";
 import Image from "next/image";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -38,6 +38,7 @@ interface DayDetailsDialogProps {
   logs: ReadingLog[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  readOnly?: boolean;
 }
 
 export function DayDetailsDialog({
@@ -45,9 +46,11 @@ export function DayDetailsDialog({
   logs,
   open,
   onOpenChange,
+  readOnly = false,
 }: DayDetailsDialogProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const locale = useLocale();
+  const t = useTranslations("reading_log.details_dialog");
 
   // 생성 모드 상태
   const [selectedBookForCreate, setSelectedBookForCreate] =
@@ -132,33 +135,35 @@ export function DayDetailsDialog({
               {formatDate(date, locale, "monthDayWeekday")}
             </DialogTitle>
             <DialogDescription className="text-stone-500">
-              오늘 읽은 책들의 감상을 남겨보세요.
+              {readOnly ? t("desc_read") : t("desc_write")}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mt-4 mb-2">
-            <BookSearchModal
-              open={isSearchOpen}
-              onOpenChange={setIsSearchOpen}
-              onSelect={handleBookSelect}
-              trigger={
-                <Button
-                  variant="outline"
-                  className="w-full justify-center h-12 border-dashed transition-all hover:bg-stone-50 hover:border-stone-300 border-stone-200 text-stone-500 bg-white"
-                  onClick={() => setIsSearchOpen(true)}
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  새로운 책 기록하기
-                </Button>
-              }
-            />
-          </div>
+          {!readOnly && (
+            <div className="mt-4 mb-2">
+              <BookSearchModal
+                open={isSearchOpen}
+                onOpenChange={setIsSearchOpen}
+                onSelect={handleBookSelect}
+                trigger={
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center h-12 border-dashed transition-all hover:bg-stone-50 hover:border-stone-300 border-stone-200 text-stone-500 bg-white"
+                    onClick={() => setIsSearchOpen(true)}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    새로운 책 기록하기
+                  </Button>
+                }
+              />
+            </div>
+          )}
 
           <ScrollArea className="max-h-[60vh] mt-2 -mx-6 px-6">
             {logs.length === 0 ? (
               <div className="py-12 text-center text-stone-400 bg-stone-50/50 rounded-xl border border-dashed border-stone-200 text-sm mx-1">
-                <p>아직 기록된 책이 없습니다.</p>
-                <p className="mt-1">위 버튼을 눌러 독서 기록을 시작해보세요!</p>
+                <p>{readOnly ? t("empty_read") : t("empty_write")}</p>
+                {!readOnly && <p className="mt-1">{t("empty_write_sub")}</p>}
               </div>
             ) : (
               <div className="space-y-4 p-1">
@@ -185,24 +190,26 @@ export function DayDetailsDialog({
                             {log.book.author}
                           </p>
                         </div>
-                        <div className="flex items-center -mt-1 -mr-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-stone-400 hover:text-stone-700 hover:bg-stone-50 transition-colors"
-                            onClick={() => handleEditClick(log)}
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-stone-400 hover:text-rose-500 hover:bg-rose-50 transition-colors"
-                            onClick={() => handleRemoveLog(log)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
+                        {!readOnly && (
+                          <div className="flex items-center -mt-1 -mr-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-stone-400 hover:text-stone-700 hover:bg-stone-50 transition-colors"
+                              onClick={() => handleEditClick(log)}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-stone-400 hover:text-rose-500 hover:bg-rose-50 transition-colors"
+                              onClick={() => handleRemoveLog(log)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        )}
                       </div>
 
                       {log.memo && (

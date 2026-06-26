@@ -2,8 +2,10 @@ import { PublicUserProfile, SaleStatus } from "@bookjeok/core";
 import { BookOpen, Calendar, ShoppingBag, User } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
+import { useState } from "react";
 
 import { SaleStatusBadge } from "@/features/book-sale/components/common/sale-status-badge";
+import { ReadingLogCalendar } from "@/features/reading-log/components/calendar-view/reading-log-calendar";
 import { ReadingTimeline } from "@/features/reading-log/components/stats-view/reading-timeline";
 import { usePublicProfileQuery } from "@/features/user/queries";
 import { Card, CardContent, CardHeader } from "@/shared/components/shadcn/card";
@@ -26,6 +28,7 @@ interface UserProfileProps {
 export const UserProfile = ({ handle }: UserProfileProps) => {
   const t = useTranslations("user_profile");
   const { data: profile, isLoading, error } = usePublicProfileQuery(handle);
+  const [currentDate, setCurrentDate] = useState<Date>(() => new Date());
 
   if (isLoading) {
     return <UserProfileSkeleton />;
@@ -41,9 +44,24 @@ export const UserProfile = ({ handle }: UserProfileProps) => {
       <UserProfileStats stats={profile.stats} />
 
       {/* 독서 기록 타임라인 */}
-      {profile.readingLogs && profile.readingLogs.length > 0 && (
+      {/* {profile.readingLogs && profile.readingLogs.length > 0 && (
         <div className="mb-8">
           <ReadingTimeline logs={profile.readingLogs} />
+        </div>
+      )} */}
+
+      {/* 독서 기록 캘린더 */}
+      {profile.readingLogs && profile.readingLogs.length > 0 && (
+        <div className="mb-8 bg-white p-6 rounded-3xl border border-stone-200/60 shadow-sm">
+          <h3 className="font-serif text-xl font-semibold text-stone-900 mb-6 pl-1">
+            {t("reading_log_calendar_title", { name: profile.nickname })}
+          </h3>
+          <ReadingLogCalendar
+            currentDate={currentDate}
+            onDateChange={setCurrentDate}
+            readOnly
+            initialLogs={profile.readingLogs}
+          />
         </div>
       )}
 
