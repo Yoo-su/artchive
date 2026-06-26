@@ -529,6 +529,13 @@
       "submit_edit": "수정하기",
       "processing": "처리중...",
       "error_max_length": "메모는 최대 {max}자까지 입력 가능합니다."
+    },
+    "details_dialog": {
+      "desc_write": "오늘 읽은 책을 한 줄의 감상으로 남겨보세요.",
+      "desc_read": "이날의 독서 기록입니다.",
+      "empty_write": "아직 기록된 책이 없습니다.",
+      "empty_write_sub": "오늘 읽은 책을 기록해 보세요.",
+      "empty_read": "기록된 책이 없습니다."
     }
   },
   "insights": {
@@ -734,6 +741,7 @@
     },
     "not_found": "존재하지 않거나 삭제된 사용자입니다.",
     "joined": "{date} 가입",
+    "reading_log_calendar_title": "{name}님의 독서 기록",
     "stats": {
       "sales_count": "판매 중인 도서",
       "reviews_count": "작성한 리뷰"
