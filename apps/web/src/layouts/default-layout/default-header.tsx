@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
-import { NotificationPopover } from "@/features/notification/components/popover-view/notification-popover";
+import { NotificationPopover } from "@/features/notification/components/notification-popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
