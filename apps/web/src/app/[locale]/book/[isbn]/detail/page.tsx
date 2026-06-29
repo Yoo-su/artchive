@@ -3,7 +3,8 @@ import { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { fetchBookDetail } from "@/features/book/apis/server";
-import { prefetchBookSummary,prefetchRelatedBooks } from "@/features/book/queries/prefetch";
+import { BookJsonLd } from "@/features/book/components/common/book-json-ld";
+import { prefetchBookSummary, prefetchRelatedBooks } from "@/features/book/queries/prefetch";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
 import { getQueryClient } from "@/shared/libs/query-client";
@@ -44,11 +45,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       imageUrl: book.image || null,
+      locale,
+      path: `/book/${isbn}/detail`,
     });
   } catch {
     return createPageMetadata({
       title: t("title"),
       description: t("description"),
+      locale,
+      path: `/book/${isbn}/detail`,
     });
   }
 }
@@ -58,11 +63,12 @@ export default async function Page({ params }: Props) {
   setRequestLocale(locale);
 
   const queryClient = getQueryClient();
+  let book = null;
 
   try {
     const data = await fetchBookDetail(isbn);
     if (data.items && data.items.length > 0) {
-      const book = data.items[0];
+      book = data.items[0];
       queryClient.setQueryData(bookKeys.detail(isbn).queryKey, book);
 
       // 저자 연관 도서 및 AI 요약 프리패칭
@@ -77,6 +83,7 @@ export default async function Page({ params }: Props) {
 
   return (
     <ServerQueryBoundary queryClient={queryClient}>
+      {book && <BookJsonLd book={book} locale={locale} />}
       <BookDetailView isbn={isbn} />
     </ServerQueryBoundary>
   );

@@ -1,16 +1,18 @@
 import { Review } from "@bookjeok/core";
 interface ReviewJsonLdProps {
   review: Review;
+  locale?: string;
 }
 
 /**
  * 도서 리뷰의 구조화 데이터 (JSON-LD)
  * Google 리치 스니펫에 리뷰 작성자, 평점, 책 정보 등을 노출하기 위한 Review 스키마
  */
-export function ReviewJsonLd({ review }: ReviewJsonLdProps) {
+export function ReviewJsonLd({ review, locale = "ko" }: ReviewJsonLdProps) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Review",
+    url: `https://bookjeok.com/${locale}/book/reviews/${review.id}`,
     name: review.title,
     reviewBody: review.content.replace(/<[^>]*>/g, "").slice(0, 500), // HTML 태그 제거 및 500자 제한
     datePublished: review.createdAt,

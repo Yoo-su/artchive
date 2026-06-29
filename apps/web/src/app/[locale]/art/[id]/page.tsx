@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { cache } from "react";
 
 import { getArtDetail } from "@/features/art/apis";
+import { ArtJsonLd } from "@/features/art/components/common/art-json-ld";
 import { DefaultLayout } from "@/layouts/default-layout";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
@@ -32,6 +33,8 @@ export async function generateMetadata({
       return createPageMetadata({
         title: t("title"),
         description: t("description"),
+        locale,
+        path: `/art/${id}`,
       });
     }
 
@@ -39,11 +42,15 @@ export async function generateMetadata({
       title: art.prfnm,
       description: `${art.fcltynm} | ${art.prfpdfrom} ~ ${art.prfpdto}`,
       imageUrl: art.poster,
+      locale,
+      path: `/art/${id}`,
     });
   } catch {
     return createPageMetadata({
       title: t("title"),
       description: t("description"),
+      locale,
+      path: `/art/${id}`,
     });
   }
 }
@@ -55,6 +62,10 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { locale, id } = await params;
   setRequestLocale(locale);
+
+  // 캐시된 API 호출
+  const art = await getCachedArt(id);
+
   const queries = [
     {
       queryKey: artKeys.detail(id).queryKey,
@@ -64,6 +75,7 @@ export default async function Page({ params }: Props) {
 
   return (
     <ServerQueryBoundary queries={queries}>
+      {art && <ArtJsonLd art={art} locale={locale} />}
       <DefaultLayout>
         <ArtDetailView artId={id} />
       </DefaultLayout>

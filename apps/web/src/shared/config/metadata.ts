@@ -82,6 +82,7 @@ type CreatePageMetadataProps = {
   imageUrl?: string | null;
   locale?: string;
   path?: string;
+  noIndex?: boolean;
 };
 
 export const createPageMetadata = ({
@@ -90,6 +91,7 @@ export const createPageMetadata = ({
   imageUrl,
   locale,
   path,
+  noIndex = false,
 }: CreatePageMetadataProps): Metadata => {
   const images = imageUrl ? [imageUrl] : ["/logo-og-sketch.png"];
 
@@ -107,6 +109,12 @@ export const createPageMetadata = ({
       description,
       images,
     },
+    ...(noIndex && {
+      robots: {
+        index: false,
+        follow: true,
+      },
+    }),
   };
 
   if (path) {

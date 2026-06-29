@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getLoungeActiveReaders, getLoungePopular } from "@/features/reading-log/apis";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
+import { createPageMetadata } from "@/shared/config/metadata";
 import { LoungeView } from "@/views/lounge-view";
 
 export const revalidate = 3600;
@@ -14,10 +15,12 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "lounge.metadata" });
-  return {
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-  };
+    locale,
+    path: "/lounge",
+  });
 }
 
 export default async function LoungePage({

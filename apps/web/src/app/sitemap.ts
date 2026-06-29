@@ -21,6 +21,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/book/market", changeFrequency: "hourly" as const, priority: 0.9 },
     { path: "/book/reviews", changeFrequency: "daily" as const, priority: 0.8 },
     { path: "/book/search", changeFrequency: "monthly" as const, priority: 0.5 },
+    { path: "/insights", changeFrequency: "weekly" as const, priority: 0.3 },
+    { path: "/lounge", changeFrequency: "daily" as const, priority: 0.8 },
+    { path: "/privacy", changeFrequency: "yearly" as const, priority: 0.3 },
+    { path: "/terms", changeFrequency: "yearly" as const, priority: 0.3 },
   ];
 
   staticPaths.forEach(({ path, changeFrequency, priority }) => {
@@ -38,10 +42,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   });
 
+  const bookIsbns = new Set<string>();
+
   // 2. 동적 라우트: 리뷰
   try {
     const { reviews } = await getReviews({ page: 1, limit: 50 });
     reviews.forEach((review) => {
+      if (review.book?.isbn) {
+        bookIsbns.add(review.book.isbn);
+      }
       sitemapEntries.push({
         url: `${baseUrl}/${defaultLocale}/book/reviews/${review.id}`,
         lastModified: new Date(review.updatedAt),
@@ -63,6 +72,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const { sales } = await getBookSales({ page: 1, limit: 50 });
     sales.forEach((sale) => {
+      if (sale.book?.isbn) {
+        bookIsbns.add(sale.book.isbn);
+      }
       sitemapEntries.push({
         url: `${baseUrl}/${defaultLocale}/book/sales/${sale.id}`,
         lastModified: sale.updatedAt ? new Date(sale.updatedAt) : new Date(),
@@ -79,6 +91,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   } catch (error) {
     console.error("Failed to fetch sales for sitemap:", error);
   }
+
+  // 4. 동적 라우트: 도서 상세 정보
+  bookIsbns.forEach((isbn) => {
+    sitemapEntries.push({
+      url: `${baseUrl}/${defaultLocale}/book/${isbn}/detail`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.6,
+      alternates: {
+        languages: {
+          ko: `${baseUrl}/ko/book/${isbn}/detail`,
+          en: `${baseUrl}/en/book/${isbn}/detail`,
+        },
+      },
+    });
+  });
 
   return sitemapEntries;
 }
