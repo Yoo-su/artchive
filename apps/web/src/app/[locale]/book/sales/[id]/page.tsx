@@ -91,7 +91,7 @@ export default async function Page({ params }: Props) {
 
   return (
     <ServerQueryBoundary queryClient={queryClient}>
-      {sale && <BookSaleJsonLd sale={sale} />}
+      {sale && <BookSaleJsonLd sale={sale} locale={locale} />}
       <BookSaleDetailView saleId={id} />
     </ServerQueryBoundary>
   );

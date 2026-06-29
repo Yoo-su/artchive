@@ -84,7 +84,7 @@ export default async function Page({ params }: Props) {
 
   return (
     <ServerQueryBoundary queryClient={queryClient}>
-      {review && <ReviewJsonLd review={review} />}
+      {review && <ReviewJsonLd review={review} locale={locale} />}
       <ReviewDetailView initialReview={review} />
     </ServerQueryBoundary>
   );

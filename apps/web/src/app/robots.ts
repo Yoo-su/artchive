@@ -33,8 +33,10 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: ["/"],
         disallow: [
-          "/ko/my-page/", // 한국어 마이페이지 및 하위 경로 차단
-          "/en/my-page/", // 영어 마이페이지 및 하위 경로 차단
+          "/*/my-page",
+          "/*/login",
+          "/*/signup",
+          "/*/callback",
         ],
       },
     ],

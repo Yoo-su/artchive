@@ -17,6 +17,8 @@ export async function generateMetadata({
   return createPageMetadata({
     title: tMeta("title"),
     description: tMeta("description"),
+    locale,
+    path: "/privacy",
   });
 }
 
