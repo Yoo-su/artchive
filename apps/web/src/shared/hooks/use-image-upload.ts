@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { validateImageForUpload } from "@/shared/utils/compress-image";
@@ -35,12 +35,15 @@ export const useImageUpload = ({
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [newPreviews, setNewPreviews] = useState<string[]>([]);
 
-  // 메모리 누수 방지를 위한 objectURL 정리
+  const previewsRef = useRef<string[]>([]);
+  previewsRef.current = newPreviews;
+
+  // 컴포넌트 언마운트 시 메모리 누수 방지를 위한 objectURL 일괄 해제
   useEffect(() => {
     return () => {
-      newPreviews.forEach((url) => URL.revokeObjectURL(url));
+      previewsRef.current.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, [newPreviews]);
+  }, []);
 
   const handleImagesAdd = useCallback(
     (files: FileList) => {

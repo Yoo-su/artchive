@@ -78,7 +78,12 @@ export const ShareButton = ({
 
   // 카카오 SDK 초기화
   useEffect(() => {
+    let isMounted = true;
+    let addedScript: HTMLScriptElement | null = null;
+    let existingScriptToCleanup: Element | null = null;
+
     const initKakao = () => {
+      if (!isMounted) return;
       const appKey = config.NEXT_PUBLIC_KAKAO_APP_KEY;
 
       if (!appKey) {
@@ -107,18 +112,29 @@ export const ShareButton = ({
           'script[src*="kakao_js_sdk"]',
         );
         if (existingScript) {
+          existingScriptToCleanup = existingScript;
           existingScript.addEventListener("load", initKakao);
-          return;
+        } else {
+          const script = document.createElement("script");
+          script.src = "https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js";
+          script.crossOrigin = "anonymous";
+          script.async = true;
+          script.onload = initKakao;
+          document.head.appendChild(script);
+          addedScript = script;
         }
-
-        const script = document.createElement("script");
-        script.src = "https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js";
-        script.crossOrigin = "anonymous";
-        script.async = true;
-        script.onload = initKakao;
-        document.head.appendChild(script);
       }
     }
+
+    return () => {
+      isMounted = false;
+      if (existingScriptToCleanup) {
+        existingScriptToCleanup.removeEventListener("load", initKakao);
+      }
+      if (addedScript) {
+        addedScript.onload = null;
+      }
+    };
   }, []);
 
   // 링크 복사
