@@ -1,5 +1,6 @@
 import { bookKeys } from "@bookjeok/core";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { fetchBookDetail } from "@/features/book/apis/server";
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const data = await fetchBookDetail(isbn);
     // items가 없거나 비어있는 경우 처리
-    if (!data.items || data.items.length === 0) {
+    if (!data || !data.items || data.items.length === 0) {
       throw new Error(t("not_found"));
     }
 
@@ -67,7 +68,7 @@ export default async function Page({ params }: Props) {
 
   try {
     const data = await fetchBookDetail(isbn);
-    if (data.items && data.items.length > 0) {
+    if (data && data.items && data.items.length > 0) {
       book = data.items[0];
       queryClient.setQueryData(bookKeys.detail(isbn).queryKey, book);
 
@@ -81,9 +82,13 @@ export default async function Page({ params }: Props) {
     // API 호출 실패 시 조용한 처리
   }
 
+  if (!book) {
+    notFound();
+  }
+
   return (
     <ServerQueryBoundary queryClient={queryClient}>
-      {book && <BookJsonLd book={book} locale={locale} />}
+      <BookJsonLd book={book} locale={locale} />
       <BookDetailView isbn={isbn} />
     </ServerQueryBoundary>
   );

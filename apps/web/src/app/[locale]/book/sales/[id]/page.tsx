@@ -1,5 +1,6 @@
 import { bookSaleKeys } from "@bookjeok/core";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import { cache } from "react";
@@ -80,18 +81,20 @@ export default async function Page({ params }: Props) {
   try {
     // 캐시된 API 호출
     sale = await getCachedBookSale(id);
-
-    // QueryClient에 데이터 설정
-    if (sale) {
-      queryClient.setQueryData(bookSaleKeys.saleDetail(id).queryKey, sale);
-    }
   } catch (error) {
     console.error("판매글 상세 정보 조회 중 오류 발생:", error);
   }
 
+  if (!sale) {
+    notFound();
+  }
+
+  // QueryClient에 데이터 설정
+  queryClient.setQueryData(bookSaleKeys.saleDetail(id).queryKey, sale);
+
   return (
     <ServerQueryBoundary queryClient={queryClient}>
-      {sale && <BookSaleJsonLd sale={sale} locale={locale} />}
+      <BookSaleJsonLd sale={sale} locale={locale} />
       <BookSaleDetailView saleId={id} />
     </ServerQueryBoundary>
   );
