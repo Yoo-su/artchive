@@ -31,6 +31,11 @@ export const generateGlobalMetadata = (
         "en-US": "/en",
         "x-default": "/ko",
       },
+      types: {
+        "application/rss+xml": [
+          { url: "/rss.xml", title: "북적 RSS 피드" },
+        ],
+      },
     },
     openGraph: {
       title: t("meta.og.title"),
