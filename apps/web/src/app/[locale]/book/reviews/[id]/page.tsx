@@ -1,5 +1,6 @@
 import { reviewKeys } from "@bookjeok/core";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { cache } from "react";
 
@@ -77,14 +78,16 @@ export default async function Page({ params }: Props) {
   // 캐시된 API 호출
   const review = await getCachedReview(reviewId);
 
-  // QueryClient에 데이터 설정
-  if (review) {
-    queryClient.setQueryData(reviewKeys.detail(reviewId).queryKey, review);
+  if (!review) {
+    notFound();
   }
+
+  // QueryClient에 데이터 설정
+  queryClient.setQueryData(reviewKeys.detail(reviewId).queryKey, review);
 
   return (
     <ServerQueryBoundary queryClient={queryClient}>
-      {review && <ReviewJsonLd review={review} locale={locale} />}
+      <ReviewJsonLd review={review} locale={locale} />
       <ReviewDetailView initialReview={review} />
     </ServerQueryBoundary>
   );
