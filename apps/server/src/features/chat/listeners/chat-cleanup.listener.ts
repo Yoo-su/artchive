@@ -14,7 +14,10 @@ export class ChatCleanupListener {
    * 읽음 확인 내역(ReadReceipt)을 일괄 삭제합니다.
    */
   @OnEvent('user.withdrawn')
-  async handleUserWithdrawn(event: { userId: number; entityManager: EntityManager }) {
+  async handleUserWithdrawn(event: {
+    userId: number;
+    entityManager: EntityManager;
+  }) {
     const { userId, entityManager } = event;
 
     try {

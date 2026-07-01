@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 
-import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
+import { SaleStatus, UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { User } from '@/features/user/entities/user.entity';
 import { BusinessException } from '@/shared/exceptions/business.exception';
 
@@ -60,6 +60,7 @@ describe('ChatService', () => {
     chatParticipantRepo = {
       create: jest.fn(),
       findOne: jest.fn(),
+      find: jest.fn(),
     };
 
     chatMessageRepo = {
@@ -111,6 +112,17 @@ describe('ChatService', () => {
     it('자신의 판매글에 채팅을 시도하면 예외를 던져야 합니다', async () => {
       (usedBookSaleRepo.findOne as jest.Mock).mockResolvedValue({
         user: { id: 1 },
+      });
+
+      await expect(service.getChatRoom(1, 1)).rejects.toThrow(
+        BusinessException,
+      );
+    });
+
+    it('탈퇴한 회원의 판매글로 채팅방 개설을 시도하면 예외를 던져야 합니다', async () => {
+      (usedBookSaleRepo.findOne as jest.Mock).mockResolvedValue({
+        user: { id: 2 },
+        status: SaleStatus.WITHDRAWN,
       });
 
       await expect(service.getChatRoom(1, 1)).rejects.toThrow(
@@ -179,6 +191,10 @@ describe('ChatService', () => {
       const room = { id: 1, updatedAt: new Date() };
 
       (chatParticipantRepo.findOne as jest.Mock).mockResolvedValue({ id: 1 });
+      (chatParticipantRepo.find as jest.Mock).mockResolvedValue([
+        { user: { id: 1 }, isActive: true },
+        { user: { id: 2 }, isActive: true },
+      ]);
       (chatRoomRepo.findOneBy as jest.Mock).mockResolvedValue(room);
       (chatMessageRepo.create as jest.Mock).mockReturnValue({ content: 'hi' });
       (chatMessageRepo.save as jest.Mock).mockResolvedValue({
@@ -190,6 +206,20 @@ describe('ChatService', () => {
 
       expect(chatRoomRepo.save).toHaveBeenCalled(); // 시간 업데이트 확인
       expect(chatMessageRepo.save).toHaveBeenCalled(); // 메시지 저장 확인
+    });
+
+    it('상대방이 탈퇴한 경우 메시지를 전송할 수 없습니다', async () => {
+      const user = { id: 1 } as User;
+
+      (chatParticipantRepo.findOne as jest.Mock).mockResolvedValue({ id: 1 });
+      (chatParticipantRepo.find as jest.Mock).mockResolvedValue([
+        { user: { id: 1 }, isActive: true },
+        { user: { id: 2, deletedAt: new Date() }, isActive: true },
+      ]);
+
+      await expect(
+        service.saveMessage('hi', 1, user),
+      ).rejects.toThrow(BusinessException);
     });
   });
 });

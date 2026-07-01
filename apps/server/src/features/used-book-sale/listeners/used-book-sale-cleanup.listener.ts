@@ -12,7 +12,10 @@ export class UsedBookSaleCleanupListener {
    * 유저 탈퇴 시 해당 유저의 중고책 판매글 상태를 WITHDRAWN(탈퇴숨김)으로 일괄 업데이트합니다.
    */
   @OnEvent('user.withdrawn')
-  async handleUserWithdrawn(event: { userId: number; entityManager: EntityManager }) {
+  async handleUserWithdrawn(event: {
+    userId: number;
+    entityManager: EntityManager;
+  }) {
     const { userId, entityManager } = event;
 
     try {

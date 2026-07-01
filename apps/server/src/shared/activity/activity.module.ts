@@ -9,7 +9,11 @@ import { ActivityService } from './services/activity.service';
 @Global()
 @Module({
   imports: [TypeOrmModule.forFeature([ActivityLog])],
-  providers: [ActivityService, ActivityTrackingInterceptor, ActivityCleanupListener],
+  providers: [
+    ActivityService,
+    ActivityTrackingInterceptor,
+    ActivityCleanupListener,
+  ],
   exports: [ActivityService, ActivityTrackingInterceptor],
 })
 export class ActivityModule {}

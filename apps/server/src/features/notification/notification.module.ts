@@ -10,11 +10,7 @@ import { NotificationCleanupListener } from './listeners/notification-cleanup.li
 import { NotificationService } from './services/notification.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Notification]),
-    UserModule,
-    JwtModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Notification]), UserModule, JwtModule],
   controllers: [NotificationController],
   providers: [
     NotificationService,

@@ -14,7 +14,10 @@ export class CommentCleanupListener {
    * 작성한 댓글(Comment)의 userId를 null로 일괄 업데이트하여 익명화합니다.
    */
   @OnEvent('user.withdrawn')
-  async handleUserWithdrawn(event: { userId: number; entityManager: EntityManager }) {
+  async handleUserWithdrawn(event: {
+    userId: number;
+    entityManager: EntityManager;
+  }) {
     const { userId, entityManager } = event;
 
     try {

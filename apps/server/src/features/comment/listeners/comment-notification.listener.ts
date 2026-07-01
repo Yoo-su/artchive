@@ -3,9 +3,9 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { Review } from '@/features/review/entities/review.entity';
 import { NotificationType } from '@/features/notification/entities/notification.entity';
 import { NotificationService } from '@/features/notification/services/notification.service';
+import { Review } from '@/features/review/entities/review.entity';
 
 import { Comment, CommentTargetType } from '../entities/comment.entity';
 
@@ -63,7 +63,11 @@ export class CommentNotificationListener {
    * 댓글 좋아요 클릭 시 댓글 작성자에게 알림을 발송합니다.
    */
   @OnEvent('comment.liked')
-  async handleCommentLiked(event: { comment: Comment; actorId: number; isLiked: boolean }) {
+  async handleCommentLiked(event: {
+    comment: Comment;
+    actorId: number;
+    isLiked: boolean;
+  }) {
     const { comment, actorId, isLiked } = event;
 
     try {

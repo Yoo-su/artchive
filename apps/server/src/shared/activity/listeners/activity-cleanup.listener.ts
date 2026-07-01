@@ -12,7 +12,10 @@ export class ActivityCleanupListener {
    * 유저 탈퇴 시 해당 유저의 활동 기록(ActivityLog) 내의 userId를 null로 업데이트하여 비식별화(익명화) 처리합니다.
    */
   @OnEvent('user.withdrawn')
-  async handleUserWithdrawn(event: { userId: number; entityManager: EntityManager }) {
+  async handleUserWithdrawn(event: {
+    userId: number;
+    entityManager: EntityManager;
+  }) {
     const { userId, entityManager } = event;
 
     try {

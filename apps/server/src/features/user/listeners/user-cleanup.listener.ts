@@ -12,7 +12,10 @@ export class UserCleanupListener {
    * 유저 탈퇴 시 해당 유저의 위시리스트 데이터를 일괄 삭제합니다.
    */
   @OnEvent('user.withdrawn')
-  async handleUserWithdrawn(event: { userId: number; entityManager: EntityManager }) {
+  async handleUserWithdrawn(event: {
+    userId: number;
+    entityManager: EntityManager;
+  }) {
     const { userId, entityManager } = event;
 
     try {

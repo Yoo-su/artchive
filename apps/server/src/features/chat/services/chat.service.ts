@@ -2,7 +2,10 @@ import { forwardRef, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
-import { SaleStatus, UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
+import {
+  SaleStatus,
+  UsedBookSale,
+} from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { User } from '@/features/user/entities/user.entity';
 import { BusinessException } from '@/shared/exceptions/business.exception';
 

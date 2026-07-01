@@ -12,7 +12,10 @@ export class NotificationCleanupListener {
    * 유저 탈퇴 시 해당 유저가 수신한 모든 알림(Notification) 데이터를 일괄 물리 삭제합니다.
    */
   @OnEvent('user.withdrawn')
-  async handleUserWithdrawn(event: { userId: number; entityManager: EntityManager }) {
+  async handleUserWithdrawn(event: {
+    userId: number;
+    entityManager: EntityManager;
+  }) {
     const { userId, entityManager } = event;
 
     try {

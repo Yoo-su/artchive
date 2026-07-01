@@ -9,15 +9,17 @@ import { ReviewResponseDto } from '@/features/review/dto/review-response.dto';
 export class ReviewNotificationListener {
   private readonly logger = new Logger(ReviewNotificationListener.name);
 
-  constructor(
-    private readonly notificationService: NotificationService,
-  ) {}
+  constructor(private readonly notificationService: NotificationService) {}
 
   /**
    * 리뷰 리액션 추가 시 리뷰 작성자에게 알림을 발송합니다.
    */
   @OnEvent('review.reacted')
-  async handleReviewReacted(event: { review: ReviewResponseDto; actorId: number; isAdded: boolean }) {
+  async handleReviewReacted(event: {
+    review: ReviewResponseDto;
+    actorId: number;
+    isAdded: boolean;
+  }) {
     const { review, actorId, isAdded } = event;
 
     try {

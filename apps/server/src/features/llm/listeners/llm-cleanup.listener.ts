@@ -13,7 +13,10 @@ export class LlmCleanupListener {
    * LlmTalkLog.userId가 string 형식이므로 String(userId)로 매핑하여 일치시킵니다.
    */
   @OnEvent('user.withdrawn')
-  async handleUserWithdrawn(event: { userId: number; entityManager: EntityManager }) {
+  async handleUserWithdrawn(event: {
+    userId: number;
+    entityManager: EntityManager;
+  }) {
     const { userId, entityManager } = event;
 
     try {

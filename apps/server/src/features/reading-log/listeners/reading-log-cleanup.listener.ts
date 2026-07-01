@@ -12,7 +12,10 @@ export class ReadingLogCleanupListener {
    * 유저 탈퇴 시 해당 유저의 독서 기록(ReadingLog)을 일괄 삭제합니다.
    */
   @OnEvent('user.withdrawn')
-  async handleUserWithdrawn(event: { userId: number; entityManager: EntityManager }) {
+  async handleUserWithdrawn(event: {
+    userId: number;
+    entityManager: EntityManager;
+  }) {
     const { userId, entityManager } = event;
 
     try {
