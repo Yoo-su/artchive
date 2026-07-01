@@ -38,7 +38,7 @@ export function ReviewFeedList() {
   return (
     <div className="space-y-16">
       {feedsData.map((feed, feedIndex) => (
-        <div key={feed.category} className="review-feed-section">
+        <section key={feed.category} className="review-feed-section">
           {/* 카테고리 헤더 */}
           <div className="flex items-center justify-between mb-8 px-1">
             <div className="flex items-center gap-3">
@@ -94,7 +94,7 @@ export function ReviewFeedList() {
               </SwiperSlide>
             ))}
           </Swiper>
-        </div>
+        </section>
       ))}
     </div>
   );

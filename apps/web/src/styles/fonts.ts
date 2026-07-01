@@ -12,7 +12,7 @@ export const nanum_gothic = Nanum_Gothic({
   weight: ["400", "700", "800"],
   variable: "--font-nanum-gothic",
   display: "swap",
-  subsets: ["latin"],
+  preload: false,
 });
 
 export const pretendard = localFont({
@@ -33,7 +33,7 @@ export const gowun_batang = Gowun_Batang({
   weight: ["400", "700"],
   variable: "--font-gowun-batang",
   display: "swap",
-  subsets: ["latin"],
+  preload: false,
 });
 
 export const song_myung = Song_Myung({
@@ -46,12 +46,12 @@ export const do_hyeon = Do_Hyeon({
   weight: ["400"],
   variable: "--font-do-hyeon",
   display: "swap",
-  subsets: ["latin"],
+  preload: false,
 });
 
 export const diphylleia = Diphylleia({
   weight: ["400"],
   variable: "--font-diphylleia",
   display: "swap",
-  subsets: ["latin"],
+  preload: false,
 });
