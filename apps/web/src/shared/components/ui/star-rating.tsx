@@ -43,10 +43,38 @@ export const StarRating = ({
 
   const displayValue = hoverValue ?? value;
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (readonly || disabled) return;
+
+    let newValue = value;
+    if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+      e.preventDefault();
+      newValue = Math.min(5, value + 0.5);
+      onChange?.(newValue);
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+      e.preventDefault();
+      newValue = Math.max(0, value - 0.5);
+      onChange?.(newValue);
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      onChange?.(0);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      onChange?.(5);
+    }
+  };
+
   return (
     <div
+      role={readonly || disabled ? undefined : "slider"}
+      aria-label="평점 선택"
+      aria-valuemin={readonly || disabled ? undefined : 0}
+      aria-valuemax={readonly || disabled ? undefined : 5}
+      aria-valuenow={readonly || disabled ? undefined : value}
+      tabIndex={readonly || disabled ? -1 : 0}
+      onKeyDown={handleKeyDown}
       className={cn(
-        "flex items-center gap-1",
+        "flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded-md p-1 -m-1",
         disabled && "opacity-50 cursor-not-allowed",
         className
       )}
@@ -74,6 +102,7 @@ export const StarRating = ({
                 filled && "text-amber-400 fill-amber-400 drop-shadow-sm"
               )}
               strokeWidth={1.5}
+              aria-hidden="true"
             />
             {half && (
               <div className="absolute top-0 left-0 w-1/2 h-full overflow-hidden">
@@ -81,6 +110,7 @@ export const StarRating = ({
                   className="w-full h-full text-amber-400 fill-amber-400 drop-shadow-sm"
                   strokeWidth={1.5}
                   style={{ width: size, height: size }}
+                  aria-hidden="true"
                 />
               </div>
             )}

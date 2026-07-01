@@ -27,6 +27,7 @@ const HandDrawnUnderline = () => (
     className="absolute left-0 -top-2.5 w-full h-3 pointer-events-none text-stone-900"
     viewBox="0 0 100 10"
     preserveAspectRatio="none"
+    aria-hidden="true"
   >
     <style>{`
       @keyframes draw-spring {

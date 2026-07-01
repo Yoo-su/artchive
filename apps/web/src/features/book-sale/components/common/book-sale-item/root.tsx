@@ -36,7 +36,7 @@ export const Root = ({
         passHref
         className={cn("block h-full w-full group", className)}
       >
-        <div className="relative h-full w-full overflow-hidden">{children}</div>
+        <article className="relative h-full w-full overflow-hidden">{children}</article>
       </Link>
     </BookSaleContext.Provider>
   );

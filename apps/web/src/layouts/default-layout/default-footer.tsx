@@ -12,6 +12,7 @@ const WaveDecoration = () => (
       viewBox="0 0 1200 80"
       preserveAspectRatio="none"
       className="w-full h-10 md:h-14"
+      aria-hidden="true"
     >
       {/* 뒤쪽 물결 (연한 stone) */}
       <path

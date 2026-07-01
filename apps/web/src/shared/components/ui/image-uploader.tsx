@@ -58,6 +58,13 @@ export const ImageUploader = ({
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLLabelElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      inputRef.current?.click();
+    }
+  };
+
   return (
     <div className={cn("flex flex-wrap items-center gap-4", className)}>
       {/* Existing Images */}
@@ -65,7 +72,7 @@ export const ImageUploader = ({
         <div key={url} className="relative group">
           <Image
             src={url}
-            alt={`업로드된 이미지 ${index + 1}`}
+            alt={`기존 이미지 ${index + 1}`}
             width={96}
             height={96}
             unoptimized
@@ -75,10 +82,10 @@ export const ImageUploader = ({
             <button
               type="button"
               onClick={() => onExistingImageRemove(url)}
-              aria-label={`기존 이미지 삭제`}
+              aria-label={`기존 이미지 ${index + 1} 삭제`}
               className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white shadow-md hover:bg-red-600 transition-colors opacity-70 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
             >
-              <X className="w-3 h-3" />
+              <X className="w-3 h-3" aria-hidden="true" />
             </button>
           )}
         </div>
@@ -89,7 +96,7 @@ export const ImageUploader = ({
         <div key={src} className="relative group">
           <Image
             src={src}
-            alt={`미리보기 이미지 ${index + 1}`}
+            alt={`새 이미지 미리보기 ${index + 1}`}
             width={96}
             height={96}
             unoptimized
@@ -98,10 +105,10 @@ export const ImageUploader = ({
           <button
             type="button"
             onClick={() => onImageRemove(index)}
-            aria-label={`이미지 ${index + 1} 삭제`}
+            aria-label={`새 이미지 ${index + 1} 삭제`}
             className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white shadow-md hover:bg-red-600 transition-colors opacity-70 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
           >
-            <X className="w-3 h-3" />
+            <X className="w-3 h-3" aria-hidden="true" />
           </button>
         </div>
       ))}
@@ -110,9 +117,11 @@ export const ImageUploader = ({
         <>
           <label
             htmlFor="image-upload"
-            className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed rounded-lg cursor-pointer border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all"
+            tabIndex={0}
+            onKeyDown={handleKeyDown}
+            className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed rounded-lg cursor-pointer border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-500 focus-visible:ring-offset-2"
           >
-            <ImagePlus className="w-8 h-8 text-gray-400 mb-1" />
+            <ImagePlus className="w-8 h-8 text-gray-400 mb-1" aria-hidden="true" />
             <span className="text-xs text-gray-500 font-medium">
               이미지 추가
             </span>

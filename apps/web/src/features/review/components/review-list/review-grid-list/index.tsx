@@ -116,29 +116,30 @@ export function ReviewGridList({
 
   return (
     <div className="space-y-10">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
+      <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
         {reviews.map((review, index) => (
-          <ReviewCard.Root
-            key={review.id}
-            review={review}
-            priority={index < 4}
-          >
-            <ReviewCard.Image />
-            <ReviewCard.Content>
-              <ReviewCard.Meta />
-              <ReviewCard.Title />
-              <ReviewCard.Tags />
-              <ReviewCard.Action onEdit={onEditReview} onDelete={onDeleteReview} />
-            </ReviewCard.Content>
-          </ReviewCard.Root>
+          <li key={review.id}>
+            <ReviewCard.Root
+              review={review}
+              priority={index < 4}
+            >
+              <ReviewCard.Image />
+              <ReviewCard.Content>
+                <ReviewCard.Meta />
+                <ReviewCard.Title />
+                <ReviewCard.Tags />
+                <ReviewCard.Action onEdit={onEditReview} onDelete={onDeleteReview} />
+              </ReviewCard.Content>
+            </ReviewCard.Root>
+          </li>
         ))}
         {isFetchingNextPage && (
           <>
-            <ReviewCardSkeleton />
-            <ReviewCardSkeleton />
+            <li><ReviewCardSkeleton /></li>
+            <li><ReviewCardSkeleton /></li>
           </>
         )}
-      </div>
+      </ul>
 
       {/* Infinite Scroll Trigger */}
       <div ref={ref} className="h-10 invisible" />

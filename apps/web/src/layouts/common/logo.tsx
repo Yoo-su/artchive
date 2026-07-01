@@ -30,7 +30,7 @@ export const Logo = ({ size = "md" }: LogoProps) => {
       >
         <Image
           src="/logo-square-sketch.svg"
-          alt="Bookjeok Icon"
+          alt=""
           width={isSmall ? 28 : 30}
           height={isSmall ? 28 : 30}
           className="mr-0.5 object-contain"
@@ -47,6 +47,7 @@ export const Logo = ({ size = "md" }: LogoProps) => {
             strokeWidth="5.5"
             strokeLinecap="round"
             strokeLinejoin="round"
+            aria-hidden="true"
           >
             {/* b */}
             <path d="M 20,18 Q 18,45 20,72" />

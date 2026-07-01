@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Link2, MessageCircle, Share2, X } from "lucide-react";
+import Script from "next/script";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -76,65 +77,30 @@ export const ShareButton = ({
   const shareUrl =
     url || (typeof window !== "undefined" ? window.location.href : "");
 
-  // 카카오 SDK 초기화
-  useEffect(() => {
-    let isMounted = true;
-    let addedScript: HTMLScriptElement | null = null;
-    let existingScriptToCleanup: Element | null = null;
+  const initKakao = () => {
+    const appKey = config.NEXT_PUBLIC_KAKAO_APP_KEY;
 
-    const initKakao = () => {
-      if (!isMounted) return;
-      const appKey = config.NEXT_PUBLIC_KAKAO_APP_KEY;
-
-      if (!appKey) {
-        return;
-      }
-
-      if (window.Kakao && !window.Kakao.isInitialized()) {
-        try {
-          window.Kakao.init(appKey);
-          setKakaoReady(true);
-        } catch {
-          // 초기화 실패 시 조용히 실패
-        }
-      } else if (window.Kakao?.isInitialized()) {
-        setKakaoReady(true);
-      }
-    };
-
-    // 카카오 SDK 스크립트 로드
-    if (typeof window !== "undefined") {
-      if (window.Kakao) {
-        initKakao();
-      } else {
-        // 이미 스크립트가 로드 중인지 확인
-        const existingScript = document.querySelector(
-          'script[src*="kakao_js_sdk"]',
-        );
-        if (existingScript) {
-          existingScriptToCleanup = existingScript;
-          existingScript.addEventListener("load", initKakao);
-        } else {
-          const script = document.createElement("script");
-          script.src = "https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js";
-          script.crossOrigin = "anonymous";
-          script.async = true;
-          script.onload = initKakao;
-          document.head.appendChild(script);
-          addedScript = script;
-        }
-      }
+    if (!appKey) {
+      return;
     }
 
-    return () => {
-      isMounted = false;
-      if (existingScriptToCleanup) {
-        existingScriptToCleanup.removeEventListener("load", initKakao);
+    if (window.Kakao && !window.Kakao.isInitialized()) {
+      try {
+        window.Kakao.init(appKey);
+        setKakaoReady(true);
+      } catch {
+        // 초기화 실패 시 조용히 실패
       }
-      if (addedScript) {
-        addedScript.onload = null;
-      }
-    };
+    } else if (window.Kakao?.isInitialized()) {
+      setKakaoReady(true);
+    }
+  };
+
+  // 카카오 SDK 초기화
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.Kakao) {
+      initKakao();
+    }
   }, []);
 
   // 링크 복사
@@ -193,64 +159,76 @@ export const ShareButton = ({
   };
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className={cn(
-            "text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-full",
-            showLabel ? "h-8 px-3 gap-1.5" : "h-8 w-8 p-0",
-            className,
-          )}
-        >
-          <Share2 className="w-4 h-4" />
-          {showLabel && <span className="text-xs">공유하기</span>}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-2" align="center">
-        <div className="flex gap-1">
-          {/* 카카오톡 */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-9 w-9 p-0 rounded-full hover:bg-yellow-100"
-            onClick={handleKakaoShare}
-            title="카카오톡으로 공유"
-          >
-            <MessageCircle className="w-4 h-4 text-yellow-600" />
-          </Button>
-
-          {/* 트위터(X) */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-9 w-9 p-0 rounded-full hover:bg-black hover:text-white"
-            onClick={handleTwitterShare}
-            title="X(트위터)에 공유"
-          >
-            <X className="w-4 h-4" />
-          </Button>
-
-          {/* 링크 복사 */}
+    <>
+      <Script
+        src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js"
+        crossOrigin="anonymous"
+        strategy="afterInteractive"
+        onLoad={initKakao}
+      />
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <PopoverTrigger asChild>
           <Button
             variant="ghost"
             size="sm"
             className={cn(
-              "h-9 w-9 p-0 rounded-full",
-              copied ? "bg-emerald-100 text-emerald-600" : "hover:bg-stone-100",
+              "text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-full",
+              showLabel ? "h-8 px-3 gap-1.5" : "h-8 w-8 p-0",
+              className,
             )}
-            onClick={handleCopyLink}
-            title="링크 복사"
+            aria-label={showLabel ? undefined : "콘텐츠 공유하기"}
           >
-            {copied ? (
-              <Check className="w-4 h-4" />
-            ) : (
-              <Link2 className="w-4 h-4" />
-            )}
+            <Share2 className="w-4 h-4" aria-hidden="true" />
+            {showLabel && <span className="text-xs">공유하기</span>}
           </Button>
-        </div>
-      </PopoverContent>
-    </Popover>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-2" align="center">
+          <div className="flex gap-1">
+            {/* 카카오톡 */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-9 w-9 p-0 rounded-full hover:bg-yellow-100"
+              onClick={handleKakaoShare}
+              title="카카오톡으로 공유"
+              aria-label="카카오톡으로 공유"
+            >
+              <MessageCircle className="w-4 h-4 text-yellow-600" aria-hidden="true" />
+            </Button>
+
+            {/* 트위터(X) */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-9 w-9 p-0 rounded-full hover:bg-black hover:text-white"
+              onClick={handleTwitterShare}
+              title="X(트위터)에 공유"
+              aria-label="X(트위터)에 공유"
+            >
+              <X className="w-4 h-4" aria-hidden="true" />
+            </Button>
+
+            {/* 링크 복사 */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "h-9 w-9 p-0 rounded-full",
+                copied ? "bg-emerald-100 text-emerald-600" : "hover:bg-stone-100",
+              )}
+              onClick={handleCopyLink}
+              title="링크 복사"
+              aria-label={copied ? "링크 복사 완료" : "링크 복사"}
+            >
+              {copied ? (
+                <Check className="w-4 h-4" aria-hidden="true" />
+              ) : (
+                <Link2 className="w-4 h-4" aria-hidden="true" />
+              )}
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </>
   );
 };

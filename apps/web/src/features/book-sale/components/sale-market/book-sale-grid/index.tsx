@@ -100,11 +100,13 @@ export const BookSaleGrid = ({ filterParams }: BookSaleGridProps) => {
   // 첫 페이지 로딩 중일 때 스켈레톤 UI 표시
   if (isFetching && !isFetchingNextPage && !data) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {Array.from({ length: 12 }).map((_, i) => (
-          <UsedBookSale.Skeleton key={i} />
+          <li key={i}>
+            <UsedBookSale.Skeleton />
+          </li>
         ))}
-      </div>
+      </ul>
     );
   }
 
@@ -129,20 +131,22 @@ export const BookSaleGrid = ({ filterParams }: BookSaleGridProps) => {
   // 성공적으로 데이터를 가져왔을 때
   return (
     <div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {sales.map((sale, idx) => (
-          <UsedBookSale.Root key={sale.id} sale={sale} priority={idx < 3}>
-            <UsedBookSale.Image />
-            <UsedBookSale.Content>
-              <UsedBookSale.Title />
-              <UsedBookSale.Price />
-              <UsedBookSale.Location />
-              <UsedBookSale.Meta />
-            </UsedBookSale.Content>
-            <UsedBookSale.Effect delay={idx * 10} />
-          </UsedBookSale.Root>
+          <li key={sale.id}>
+            <UsedBookSale.Root sale={sale} priority={idx < 3}>
+              <UsedBookSale.Image />
+              <UsedBookSale.Content>
+                <UsedBookSale.Title />
+                <UsedBookSale.Price />
+                <UsedBookSale.Location />
+                <UsedBookSale.Meta />
+              </UsedBookSale.Content>
+              <UsedBookSale.Effect delay={idx * 10} />
+            </UsedBookSale.Root>
+          </li>
         ))}
-      </div>
+      </ul>
 
       {/* 다음 페이지를 불러오기 위한 트리거 요소 */}
       <div ref={ref} className="h-10" />

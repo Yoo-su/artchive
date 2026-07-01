@@ -25,7 +25,7 @@ export const NavigationButtons = () => {
           className="w-12 h-full text-white rounded-none hover:bg-white/10 disabled:text-white/30 disabled:bg-transparent transition-colors"
           aria-label="뒤로 가기"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className="h-5 w-5" aria-hidden="true" />
         </Button>
 
         <Separator orientation="vertical" className="h-6 bg-white/20" />
@@ -37,7 +37,7 @@ export const NavigationButtons = () => {
           className="w-12 h-full text-white rounded-none hover:bg-white/10 disabled:text-white/30 disabled:bg-transparent transition-colors"
           aria-label="앞으로 가기"
         >
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className="h-5 w-5" aria-hidden="true" />
         </Button>
       </motion.div>
     </div>
