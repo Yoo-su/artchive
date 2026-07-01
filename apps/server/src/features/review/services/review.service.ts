@@ -572,6 +572,7 @@ export class ReviewService {
    * @param type 리액션 타입
    */
   async toggleReaction(id: number, userId: number, type: ReviewReactionType) {
+    let isAdded = true;
     await this.dataSource.transaction(async (manager) => {
       const review = await manager.findOne(Review, { where: { id } });
       if (!review) {
@@ -587,6 +588,7 @@ export class ReviewService {
           // 리액션 삭제 (같은 타입 클릭 시)
           await manager.remove(ReviewReaction, existingReaction);
           await manager.decrement(Review, { id }, 'reactionCount', 1);
+          isAdded = false;
         } else {
           // 리액션 변경
           existingReaction.type = type;
@@ -611,6 +613,7 @@ export class ReviewService {
       this.eventEmitter.emit('review.reacted', {
         review: result,
         actorId: userId,
+        isAdded,
       });
     }
 

@@ -11,10 +11,7 @@ export const useNotificationActions = () => {
 
   const handleNewNotification = (notification: Notification) => {
     // 1. 데이터 갱신 (Refetch)
-    queryClient.invalidateQueries({ queryKey: notificationKeys.list().queryKey });
-    queryClient.invalidateQueries({
-      queryKey: notificationKeys.unreadCount.queryKey,
-    });
+    queryClient.invalidateQueries({ queryKey: notificationKeys._def });
 
     // 2. UI 피드백 (Toast)
     const { key, params } = getNotificationMessageParams(notification);
