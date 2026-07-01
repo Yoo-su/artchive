@@ -16,8 +16,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { OptionalJwtAuthGuard } from '@/features/auth/guards/optional-jwt-auth.guard';
-import { Notify } from '@/features/notification/decorators/notification.decorator';
-import { NotificationType } from '@/features/notification/entities/notification.entity';
+
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { User } from '@/features/user/entities/user.entity';
 import { ActivityType } from '@/shared/activity/activity-type.enum';
@@ -100,7 +99,6 @@ export class CommentController {
     status: HttpStatus.UNAUTHORIZED,
     description: '인증되지 않은 사용자입니다.',
   })
-  @Notify(NotificationType.REVIEW_COMMENT)
   async createComment(
     @Body() dto: CreateCommentDto,
     @CurrentUser() user: User,
@@ -176,7 +174,6 @@ export class CommentController {
     description: '좋아요가 성공적으로 반영되었습니다.',
   })
   @ApiParam({ name: 'id', description: '댓글 ID' })
-  @Notify(NotificationType.COMMENT_LIKE)
   async toggleLike(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: User,

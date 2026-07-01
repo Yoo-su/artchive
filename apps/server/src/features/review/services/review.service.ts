@@ -1,4 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, DataSource, EntityManager, In, Repository } from 'typeorm';
 
@@ -37,6 +38,7 @@ export class ReviewService {
     private reviewImageHelper: ReviewImageHelper,
     private dataSource: DataSource,
     private readonly bookService: BookService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   /**
@@ -603,7 +605,16 @@ export class ReviewService {
       }
     });
 
-    return this.findOne(id);
+    const result = await this.findOne(id);
+
+    if (result) {
+      this.eventEmitter.emit('review.reacted', {
+        review: result,
+        actorId: userId,
+      });
+    }
+
+    return result;
   }
 
   /**

@@ -1,4 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -23,6 +24,7 @@ export class CommentService {
     private readonly commentRepository: Repository<Comment>,
     @InjectRepository(CommentLike)
     private readonly commentLikeRepository: Repository<CommentLike>,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   /**
@@ -207,11 +209,16 @@ export class CommentService {
 
     const savedComment = await this.commentRepository.save(comment);
 
-    // 유저 정보 포함해서 반환
-    return this.commentRepository.findOne({
+    const result = await this.commentRepository.findOne({
       where: { id: savedComment.id },
       relations: ['user'],
     });
+
+    if (result) {
+      this.eventEmitter.emit('comment.created', { comment: result });
+    }
+
+    return result;
   }
 
   /**
@@ -277,10 +284,20 @@ export class CommentService {
       relations: ['user'],
     });
 
-    return {
+    const result = {
       ...updatedComment,
       isLiked,
     };
+
+    if (updatedComment) {
+      this.eventEmitter.emit('comment.liked', {
+        comment: updatedComment,
+        actorId: userId,
+        isLiked,
+      });
+    }
+
+    return result;
   }
 
   /**
