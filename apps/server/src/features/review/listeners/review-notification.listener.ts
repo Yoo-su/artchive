@@ -17,10 +17,13 @@ export class ReviewNotificationListener {
    * 리뷰 리액션 추가 시 리뷰 작성자에게 알림을 발송합니다.
    */
   @OnEvent('review.reacted')
-  async handleReviewReacted(event: { review: ReviewResponseDto; actorId: number }) {
-    const { review, actorId } = event;
+  async handleReviewReacted(event: { review: ReviewResponseDto; actorId: number; isAdded: boolean }) {
+    const { review, actorId, isAdded } = event;
 
     try {
+      // 리액션을 취소(해제)한 경우 알림 제외
+      if (!isAdded) return;
+
       // 본인 글에 리액션을 남긴 경우 알림 제외
       if (review.userId === actorId) return;
 
