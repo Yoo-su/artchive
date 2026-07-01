@@ -18,8 +18,7 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { OptionalJwtAuthGuard } from '@/features/auth/guards/optional-jwt-auth.guard';
 import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
-import { Notify } from '@/features/notification/decorators/notification.decorator';
-import { NotificationType } from '@/features/notification/entities/notification.entity';
+
 import { Review } from '@/features/review/entities/review.entity';
 import { ReviewReactionType } from '@/features/review/entities/review-reaction.entity';
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
@@ -227,7 +226,6 @@ export class ReviewController {
     type: ReviewResponseDto,
   })
   @ApiParam({ name: 'id', description: '리뷰 ID' })
-  @Notify(NotificationType.REVIEW_REACTION)
   async toggleReaction(
     @Param('id', ParseIntPipe) id: number,
     @Body('type') type: ReviewReactionType,
