@@ -13,6 +13,7 @@ import { ChatRoom } from './entities/chat-room.entity';
 import { ReadReceipt } from './entities/read-receipt.entity';
 import { ChatGateway } from './gateways/chat.gateway';
 import { SocketAuthGuard } from './guards/socket-auth.guard';
+import { ChatCleanupListener } from './listeners/chat-cleanup.listener';
 import { ChatService } from './services/chat.service';
 
 @Module({
@@ -28,7 +29,7 @@ import { ChatService } from './services/chat.service';
     UserModule,
     BookModule,
   ],
-  providers: [ChatGateway, ChatService, SocketAuthGuard],
+  providers: [ChatGateway, ChatService, SocketAuthGuard, ChatCleanupListener],
   controllers: [ChatController],
 })
 export class ChatModule {}

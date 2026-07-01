@@ -1,4 +1,5 @@
 import { HttpStatus, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, MoreThanOrEqual, Repository } from 'typeorm';
 
@@ -6,12 +7,8 @@ import { SocialLoginDto } from '@/features/auth/dtos/social-login.dto';
 import { Book } from '@/features/book/entities/book.entity';
 import { BookService } from '@/features/book/services/book.service';
 import { ChatParticipant } from '@/features/chat/entities/chat-participant.entity';
-import { ReadReceipt } from '@/features/chat/entities/read-receipt.entity';
-import { Comment } from '@/features/comment/entities/comment.entity';
-import { CommentLike } from '@/features/comment/entities/comment-like.entity';
 import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
 import { Review } from '@/features/review/entities/review.entity';
-import { ReviewReaction } from '@/features/review/entities/review-reaction.entity';
 import {
   SaleStatus,
   UsedBookSale,
@@ -38,6 +35,7 @@ export class UserService implements OnModuleInit {
     private readonly reviewRepository: Repository<Review>,
     private readonly dataSource: DataSource,
     private readonly bookService: BookService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   private readonly logger = new Logger(UserService.name);
@@ -415,42 +413,11 @@ export class UserService implements OnModuleInit {
 
       await queryRunner.manager.save(user);
 
-      // 2. 모든 상품 숨김 처리 (WITHDRAWN)
-      await queryRunner.manager.update(
-        UsedBookSale,
-        { user: { id: userId } },
-        { status: SaleStatus.WITHDRAWN },
-      );
-
-      // 3. 채팅방 참여 상태 비활성화 (isActive = false)
-      await queryRunner.manager.update(
-        ChatParticipant,
-        { user: { id: userId } },
-        { isActive: false },
-      );
-
-      // 4. 리뷰 관련 데이터 삭제
-      // 4-1. 유저가 남긴 리액션 삭제
-      await queryRunner.manager.delete(ReviewReaction, {
-        user: { id: userId },
+      // 2. 도메인 클린업 이벤트 동기식 발행 (EntityManager 주입)
+      await this.eventEmitter.emitAsync('user.withdrawn', {
+        userId,
+        entityManager: queryRunner.manager,
       });
-      // 4-2. 유저가 작성한 리뷰 삭제
-      await queryRunner.manager.delete(Review, { user: { id: userId } });
-
-      // 5. 위시리스트 삭제
-      await queryRunner.manager.delete(Wishlist, { user: { id: userId } });
-
-      // 6. 댓글 좋아요 삭제 (댓글 익명화 전에 처리)
-      await queryRunner.manager.delete(CommentLike, { userId });
-
-      // 7. 댓글 익명화 (userId를 null로 설정하여 사용자 연결 해제)
-      await queryRunner.manager.update(Comment, { userId }, { userId: null });
-
-      // 8. 독서 기록 삭제
-      await queryRunner.manager.delete(ReadingLog, { userId });
-
-      // 9. 읽음 확인 기록 삭제
-      await queryRunner.manager.delete(ReadReceipt, { user: { id: userId } });
 
       await queryRunner.commitTransaction();
     } catch (err) {

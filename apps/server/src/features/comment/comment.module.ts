@@ -7,6 +7,7 @@ import { Review } from '@/features/review/entities/review.entity';
 import { CommentController } from './controllers/comment.controller';
 import { Comment } from './entities/comment.entity';
 import { CommentLike } from './entities/comment-like.entity';
+import { CommentCleanupListener } from './listeners/comment-cleanup.listener';
 import { CommentNotificationListener } from './listeners/comment-notification.listener';
 import { CommentService } from './services/comment.service';
 
@@ -16,7 +17,11 @@ import { CommentService } from './services/comment.service';
     NotificationModule,
   ],
   controllers: [CommentController],
-  providers: [CommentService, CommentNotificationListener],
+  providers: [
+    CommentService,
+    CommentNotificationListener,
+    CommentCleanupListener,
+  ],
   exports: [CommentService],
 })
 export class CommentModule {}

@@ -6,6 +6,7 @@ import { BookModule } from '../book/book.module';
 import { LlmController } from './controllers/llm.controller';
 import { AiBookSummary } from './entities/ai-book-summary.entity';
 import { LlmTalkLog } from './entities/llm-talk-log.entity';
+import { LlmCleanupListener } from './listeners/llm-cleanup.listener';
 import { LlmService } from './services/llm.service';
 
 @Module({
@@ -15,7 +16,7 @@ import { LlmService } from './services/llm.service';
     TypeOrmModule.forFeature([LlmTalkLog, AiBookSummary]),
   ],
   controllers: [LlmController],
-  providers: [LlmService],
+  providers: [LlmService, LlmCleanupListener],
   exports: [LlmService],
 })
 export class LlmModule {}

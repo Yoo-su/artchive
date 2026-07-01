@@ -6,6 +6,7 @@ import { UserModule } from '../user/user.module';
 import { NotificationController } from './controllers/notification.controller';
 import { Notification } from './entities/notification.entity';
 import { NotificationGateway } from './gateways/notification.gateway';
+import { NotificationCleanupListener } from './listeners/notification-cleanup.listener';
 import { NotificationService } from './services/notification.service';
 
 @Module({
@@ -18,6 +19,7 @@ import { NotificationService } from './services/notification.service';
   providers: [
     NotificationService,
     NotificationGateway,
+    NotificationCleanupListener,
   ],
   exports: [NotificationService],
 })

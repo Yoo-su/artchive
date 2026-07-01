@@ -10,6 +10,7 @@ import { Review } from '../review/entities/review.entity';
 import { UserController } from './controllers/user.controller';
 import { User } from './entities/user.entity';
 import { Wishlist } from './entities/wishlist.entity';
+import { UserCleanupListener } from './listeners/user-cleanup.listener';
 import { UserService } from './services/user.service';
 
 @Module({
@@ -25,7 +26,7 @@ import { UserService } from './services/user.service';
     BookModule,
   ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService, UserCleanupListener],
   exports: [UserService],
 })
 export class UserModule {}

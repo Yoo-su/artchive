@@ -2,7 +2,7 @@ import { forwardRef, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
-import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
+import { SaleStatus, UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { User } from '@/features/user/entities/user.entity';
 import { BusinessException } from '@/shared/exceptions/business.exception';
 
@@ -43,6 +43,12 @@ export class ChatService {
     });
     if (!sale) {
       throw new BusinessException('SALE_NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
+    if (sale.status === SaleStatus.WITHDRAWN) {
+      throw new BusinessException(
+        'SALE_ALREADY_WITHDRAWN',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     const sellerId = sale.user.id;
     if (buyerId === sellerId) {
@@ -352,6 +358,25 @@ export class ChatService {
 
     if (!participant) {
       throw new BusinessException('CHAT_FORBIDDEN', HttpStatus.FORBIDDEN);
+    }
+
+    // 상대방 검증: 상대방 참여자가 비활성화(isActive = false) 또는 탈퇴(deletedAt is not null) 상태인 경우 메시지 전송 불가
+    const otherParticipants = await this.chatParticipantRepository.find({
+      where: {
+        chatRoom: { id: roomId },
+      },
+      relations: ['user'],
+    });
+
+    const hasWithdrawnParticipant = otherParticipants.some(
+      (p) => p.user.id !== sender.id && (!p.isActive || p.user.deletedAt),
+    );
+
+    if (hasWithdrawnParticipant) {
+      throw new BusinessException(
+        'CHAT_PARTICIPANT_WITHDRAWN',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const chatRoom = await this.chatRoomRepository.findOneBy({ id: roomId });
