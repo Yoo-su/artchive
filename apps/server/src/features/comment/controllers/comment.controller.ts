@@ -16,7 +16,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { OptionalJwtAuthGuard } from '@/features/auth/guards/optional-jwt-auth.guard';
-
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { User } from '@/features/user/entities/user.entity';
 import { ActivityType } from '@/shared/activity/activity-type.enum';

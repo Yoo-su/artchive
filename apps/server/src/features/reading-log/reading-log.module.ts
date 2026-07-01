@@ -5,11 +5,12 @@ import { User } from '../user/entities/user.entity';
 import { LoungeController } from './controllers/lounge.controller';
 import { ReadingLogController } from './controllers/reading-log.controller';
 import { ReadingLog } from './entities/reading-log.entity';
+import { ReadingLogCleanupListener } from './listeners/reading-log-cleanup.listener';
 import { ReadingLogService } from './services/reading-log.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ReadingLog, User])],
   controllers: [ReadingLogController, LoungeController],
-  providers: [ReadingLogService],
+  providers: [ReadingLogService, ReadingLogCleanupListener],
 })
 export class ReadingLogModule {}

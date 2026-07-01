@@ -283,6 +283,7 @@ export class UsedBookSaleService {
     const queryBuilder = this.usedBookSaleRepository
       .createQueryBuilder('sale')
       .where('sale.isbn = :isbn', { isbn })
+      .andWhere('sale.status = :status', { status: SaleStatus.FOR_SALE })
       .leftJoinAndSelect('sale.user', 'user')
       .leftJoinAndSelect('sale.book', 'book')
       .select([

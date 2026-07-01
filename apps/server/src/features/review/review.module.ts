@@ -10,6 +10,7 @@ import { Review } from './entities/review.entity';
 import { ReviewReaction } from './entities/review-reaction.entity';
 import { Tag } from './entities/tag.entity';
 import { ReviewImageHelper } from './helpers/review-image.helper';
+import { ReviewCleanupListener } from './listeners/review-cleanup.listener';
 import { ReviewNotificationListener } from './listeners/review-notification.listener';
 import { ReviewService } from './services/review.service';
 
@@ -20,7 +21,12 @@ import { ReviewService } from './services/review.service';
     NotificationModule,
   ],
   controllers: [ReviewController],
-  providers: [ReviewService, ReviewImageHelper, ReviewNotificationListener],
+  providers: [
+    ReviewService,
+    ReviewImageHelper,
+    ReviewNotificationListener,
+    ReviewCleanupListener,
+  ],
   exports: [ReviewService],
 })
 export class ReviewModule {}

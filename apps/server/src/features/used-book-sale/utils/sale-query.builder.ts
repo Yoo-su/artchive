@@ -1,7 +1,7 @@
 import { SelectQueryBuilder } from 'typeorm';
 
 import { BookSaleSortBy, QueryBookSaleDto } from '../dtos/query-book-sale.dto';
-import { UsedBookSale } from '../entities/used-book-sale.entity';
+import { SaleStatus, UsedBookSale } from '../entities/used-book-sale.entity';
 
 export const applyCommonFilters = (
   queryBuilder: SelectQueryBuilder<UsedBookSale>,
@@ -34,6 +34,10 @@ export const applyCommonFilters = (
     const statusArray = Array.isArray(status) ? status : [status];
     queryBuilder.andWhere('sale.status IN (:...status)', {
       status: statusArray,
+    });
+  } else {
+    queryBuilder.andWhere('sale.status != :withdrawnStatus', {
+      withdrawnStatus: SaleStatus.WITHDRAWN,
     });
   }
 };

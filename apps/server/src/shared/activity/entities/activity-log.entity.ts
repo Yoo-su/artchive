@@ -13,7 +13,7 @@ export class ActivityLog {
   id: string;
 
   @Column({ nullable: true })
-  userId: number;
+  userId: number | null;
 
   @Column({ type: 'varchar' })
   activityType: ActivityType;

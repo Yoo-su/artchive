@@ -72,6 +72,10 @@ export const ERROR_CODES = {
     code: 'SALE_003',
     message: '이미 판매 완료된 상품입니다.',
   },
+  SALE_ALREADY_WITHDRAWN: {
+    code: 'SALE_004',
+    message: '탈퇴한 회원의 판매글이므로 처리할 수 없습니다.',
+  },
 
   // ============================================
   // 리뷰 관련 에러 (REVIEW)
@@ -127,6 +131,10 @@ export const ERROR_CODES = {
   CHAT_ALREADY_LEFT: {
     code: 'CHAT_005',
     message: '이미 나간 채팅방입니다.',
+  },
+  CHAT_PARTICIPANT_WITHDRAWN: {
+    code: 'CHAT_006',
+    message: '대화 상대방이 탈퇴하여 메시지를 전송할 수 없습니다.',
   },
 
   // ============================================
