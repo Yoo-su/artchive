@@ -1,4 +1,9 @@
-import { GenerativeModel, GoogleGenerativeAI } from '@google/generative-ai';
+import {
+  GenerativeModel,
+  GoogleGenerativeAI,
+  Schema,
+  SchemaType,
+} from '@google/generative-ai';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -88,7 +93,40 @@ export class LlmService {
     try {
       const prompt = getPromptText(title, author, description, publisher);
 
-      const result = await this.model.generateContent(prompt);
+      const bookSummarySchema: Schema = {
+        type: SchemaType.OBJECT,
+        properties: {
+          summary: {
+            type: SchemaType.STRING,
+            description:
+              '도서의 구체적 서사와 핵심 갈등을 담은 공백 포함 250~350자 내외의 1개 완성형 문단',
+          },
+          keyPoints: {
+            type: SchemaType.ARRAY,
+            items: { type: SchemaType.STRING },
+            description: '핵심 인사이트 리스트 3개',
+          },
+          targetAudience: {
+            type: SchemaType.STRING,
+            description: '추천하는 독자의 구체적 상황이나 고민',
+          },
+          keywords: {
+            type: SchemaType.ARRAY,
+            items: { type: SchemaType.STRING },
+            description: '책과 연관된 태그(키워드) 목록 5개',
+          },
+        },
+        required: ['summary', 'keyPoints', 'targetAudience', 'keywords'],
+      };
+
+      const result = await this.model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseMimeType: 'application/json',
+          responseSchema: bookSummarySchema,
+          temperature: 0.2,
+        },
+      });
       const response = result.response;
       const text = response.text();
 
