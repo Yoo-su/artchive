@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
-import { Wishlist } from '@/features/user/entities/wishlist.entity';
+import { ReadingLogService } from '@/features/reading-log/services/reading-log.service';
+import { WishlistService } from '@/features/wishlist/services/wishlist.service';
 
 import { Book } from '../entities/book.entity';
 import { NaverBookSearchService } from './naver-book-search.service';
@@ -13,10 +13,8 @@ export class BookService {
   constructor(
     @InjectRepository(Book)
     private readonly bookRepository: Repository<Book>,
-    @InjectRepository(ReadingLog)
-    private readonly readingLogRepository: Repository<ReadingLog>,
-    @InjectRepository(Wishlist)
-    private readonly wishlistRepository: Repository<Wishlist>,
+    private readonly readingLogService: ReadingLogService,
+    private readonly wishlistService: WishlistService,
     private readonly naverBookSearchService: NaverBookSearchService,
   ) {}
 
@@ -180,21 +178,21 @@ export class BookService {
   async getBookStats(
     isbn: string,
   ): Promise<{ readingUserCount: number; wishlistUserCount: number }> {
-    const readingUserCountResult = await this.readingLogRepository
-      .createQueryBuilder('log')
-      .select('COUNT(DISTINCT log.userId)', 'count')
-      .where('log.isbn = :isbn', { isbn })
-      .getRawOne<{ count: string }>();
-
-    const wishlistUserCountResult = await this.wishlistRepository
-      .createQueryBuilder('wishlist')
-      .select('COUNT(DISTINCT wishlist.userId)', 'count')
-      .where('wishlist.isbn = :isbn', { isbn })
-      .getRawOne<{ count: string }>();
+    const readingUserCount =
+      await this.readingLogService.countUniqueReaders(isbn);
+    const wishlistUserCount =
+      await this.wishlistService.countUniqueWishlistUsers(isbn);
 
     return {
-      readingUserCount: parseInt(readingUserCountResult?.count || '0', 10),
-      wishlistUserCount: parseInt(wishlistUserCountResult?.count || '0', 10),
+      readingUserCount,
+      wishlistUserCount,
     };
+  }
+
+  /**
+   * ISBN으로 도서를 단건 조회합니다. (외부 생성 흐름 없이 단순 조회 전용)
+   */
+  async findBookByIsbn(isbn: string): Promise<Book | null> {
+    return await this.bookRepository.findOneBy({ isbn });
   }
 }

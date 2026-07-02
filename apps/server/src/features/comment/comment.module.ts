@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { BookModule } from '@/features/book/book.module';
 import { NotificationModule } from '@/features/notification/notification.module';
-import { Review } from '@/features/review/entities/review.entity';
+import { ReviewModule } from '@/features/review/review.module';
 
 import { CommentController } from './controllers/comment.controller';
 import { Comment } from './entities/comment.entity';
@@ -13,8 +14,10 @@ import { CommentService } from './services/comment.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Comment, CommentLike, Review]),
+    TypeOrmModule.forFeature([Comment, CommentLike]),
     NotificationModule,
+    ReviewModule,
+    BookModule,
   ],
   controllers: [CommentController],
   providers: [

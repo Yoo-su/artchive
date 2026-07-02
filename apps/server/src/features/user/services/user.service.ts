@@ -4,8 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, MoreThanOrEqual, Repository } from 'typeorm';
 
 import { SocialLoginDto } from '@/features/auth/dtos/social-login.dto';
-import { Book } from '@/features/book/entities/book.entity';
-import { BookService } from '@/features/book/services/book.service';
 import { ChatParticipant } from '@/features/chat/entities/chat-participant.entity';
 import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
 import { Review } from '@/features/review/entities/review.entity';
@@ -16,7 +14,6 @@ import {
 import { BusinessException } from '@/shared/exceptions/business.exception';
 
 import { User } from '../entities/user.entity';
-import { Wishlist } from '../entities/wishlist.entity';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -27,14 +24,9 @@ export class UserService implements OnModuleInit {
     private readonly usedBookSaleRepository: Repository<UsedBookSale>,
     @InjectRepository(ChatParticipant)
     private readonly chatParticipantRepository: Repository<ChatParticipant>,
-    @InjectRepository(Wishlist)
-    private readonly wishlistRepository: Repository<Wishlist>,
-    @InjectRepository(Book)
-    private readonly bookRepository: Repository<Book>,
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
     private readonly dataSource: DataSource,
-    private readonly bookService: BookService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -426,142 +418,6 @@ export class UserService implements OnModuleInit {
     } finally {
       await queryRunner.release();
     }
-  }
-
-  /**
-   * 위시리스트에 항목을 추가합니다.
-   * @param userId 유저 ID
-   * @param type 타입 (BOOK, SALE)
-   * @param id 대상 ID (ISBN 또는 Sale ID)
-   * @param bookData 책 정보 (책이 DB에 없을 경우 생성용)
-   * @returns 위시리스트 항목
-   */
-  async addToWishlist(
-    userId: number,
-    type: 'BOOK' | 'SALE',
-    id: string | number,
-  ) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      // 이미 찜했는지 확인
-      const existing = await queryRunner.manager.findOne(Wishlist, {
-        where: {
-          user: { id: userId },
-          ...(type === 'BOOK'
-            ? { book: { isbn: id as string } }
-            : { usedBookSale: { id: id as number } }),
-        },
-      });
-
-      if (existing) {
-        await queryRunner.commitTransaction();
-        return existing;
-      }
-
-      const wishlist = new Wishlist();
-      wishlist.user = { id: userId } as User;
-
-      if (type === 'BOOK') {
-        const book = await queryRunner.manager.findOne(Book, {
-          where: { isbn: id as string },
-        });
-
-        if (!book) {
-          throw new BusinessException('BOOK_NOT_FOUND', HttpStatus.NOT_FOUND);
-        }
-        wishlist.book = book;
-      } else {
-        const sale = await queryRunner.manager.findOne(UsedBookSale, {
-          where: { id: id as number },
-        });
-        if (!sale) {
-          throw new BusinessException('SALE_NOT_FOUND', HttpStatus.NOT_FOUND);
-        }
-        if (sale.status !== SaleStatus.FOR_SALE) {
-          throw new BusinessException(
-            'WISHLIST_INVALID_STATUS',
-            HttpStatus.BAD_REQUEST,
-          );
-        }
-        wishlist.usedBookSale = sale;
-      }
-
-      const savedWishlist = await queryRunner.manager.save(wishlist);
-      await queryRunner.commitTransaction();
-      return savedWishlist;
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw err;
-    } finally {
-      await queryRunner.release();
-    }
-  }
-
-  /**
-   * 위시리스트에서 항목을 제거합니다.
-   * @param userId 유저 ID
-   * @param type 타입 (BOOK, SALE)
-   * @param id 대상 ID
-   * @returns 제거된 항목
-   */
-  async removeFromWishlist(
-    userId: number,
-    type: 'BOOK' | 'SALE',
-    id: string | number,
-  ) {
-    const wishlist = await this.wishlistRepository.findOne({
-      where: {
-        user: { id: userId },
-        ...(type === 'BOOK'
-          ? { book: { isbn: id as string } }
-          : { usedBookSale: { id: id as number } }),
-      },
-    });
-
-    if (!wishlist) {
-      throw new BusinessException('WISHLIST_NOT_FOUND', HttpStatus.NOT_FOUND);
-    }
-
-    return await this.wishlistRepository.remove(wishlist);
-  }
-
-  /**
-   * 유저의 위시리스트 목록을 조회합니다.
-   * @param userId 유저 ID
-   * @returns 위시리스트 목록
-   */
-  async getWishlist(userId: number) {
-    return await this.wishlistRepository.find({
-      where: { user: { id: userId } },
-      relations: ['book', 'usedBookSale', 'usedBookSale.book'],
-      order: { createdAt: 'DESC' },
-    });
-  }
-
-  /**
-   * 특정 항목이 위시리스트에 있는지 확인합니다.
-   * @param userId 유저 ID
-   * @param type 타입 (BOOK, SALE)
-   * @param id 대상 ID
-   * @returns 포함 여부
-   */
-  async checkWishlistStatus(
-    userId: number,
-    type: 'BOOK' | 'SALE',
-    id: string | number,
-  ) {
-    const exists = await this.wishlistRepository.exists({
-      where: {
-        user: { id: userId },
-        ...(type === 'BOOK'
-          ? { book: { isbn: id as string } }
-          : { usedBookSale: { id: id as number } }),
-      },
-    });
-    return { isWishlisted: exists };
   }
 
   /**

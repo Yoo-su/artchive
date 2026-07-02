@@ -320,6 +320,16 @@ export class ReviewService {
   }
 
   /**
+   * 리뷰 ID로 리뷰 내용을 조회합니다. (삭제된 리뷰도 null 반환)
+   */
+  async findReviewById(id: number): Promise<Review | null> {
+    return await this.reviewsRepository.findOne({
+      where: { id },
+      relations: ['book'],
+    });
+  }
+
+  /**
    * 수정을 위한 리뷰 조회 (소유권 검증 포함)
    * 본인의 리뷰만 조회 가능하며, 타인의 리뷰 접근 시 403 FORBIDDEN을 반환합니다.
    * @param id 리뷰 ID

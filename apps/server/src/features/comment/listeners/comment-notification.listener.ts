@@ -1,11 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 import { NotificationType } from '@/features/notification/entities/notification.entity';
 import { NotificationService } from '@/features/notification/services/notification.service';
-import { Review } from '@/features/review/entities/review.entity';
+import { ReviewService } from '@/features/review/services/review.service';
 
 import { Comment, CommentTargetType } from '../entities/comment.entity';
 
@@ -14,8 +12,7 @@ export class CommentNotificationListener {
   private readonly logger = new Logger(CommentNotificationListener.name);
 
   constructor(
-    @InjectRepository(Review)
-    private readonly reviewRepository: Repository<Review>,
+    private readonly reviewService: ReviewService,
     private readonly notificationService: NotificationService,
   ) {}
 
@@ -31,10 +28,7 @@ export class CommentNotificationListener {
       if (comment.targetType !== CommentTargetType.REVIEW) return;
 
       const reviewId = parseInt(comment.targetId, 10);
-      const review = await this.reviewRepository.findOne({
-        where: { id: reviewId },
-        relations: ['book'],
-      });
+      const review = await this.reviewService.findReviewById(reviewId);
 
       if (!review) return;
 

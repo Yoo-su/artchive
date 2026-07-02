@@ -6,6 +6,7 @@ import {
   SaleStatus,
   UsedBookSale,
 } from '@/features/used-book-sale/entities/used-book-sale.entity';
+import { UsedBookSaleService } from '@/features/used-book-sale/services/used-book-sale.service';
 import { User } from '@/features/user/entities/user.entity';
 import { BusinessException } from '@/shared/exceptions/business.exception';
 
@@ -25,7 +26,9 @@ describe('ChatService', () => {
   let chatRoomRepo: Partial<Repository<ChatRoom>>;
   let chatParticipantRepo: Partial<Repository<ChatParticipant>>;
   let chatMessageRepo: Partial<Repository<ChatMessage>>;
-  let usedBookSaleRepo: Partial<Repository<UsedBookSale>>;
+
+  // Services
+  let usedBookSaleService: any;
 
   // Gateway
   let chatGateway: Partial<ChatGateway>;
@@ -71,8 +74,8 @@ describe('ChatService', () => {
       save: jest.fn(),
     };
 
-    usedBookSaleRepo = {
-      findOne: jest.fn(),
+    usedBookSaleService = {
+      findSaleById: jest.fn(),
     };
 
     chatGateway = {
@@ -91,8 +94,8 @@ describe('ChatService', () => {
         },
         { provide: getRepositoryToken(ChatMessage), useValue: chatMessageRepo },
         {
-          provide: getRepositoryToken(UsedBookSale),
-          useValue: usedBookSaleRepo,
+          provide: UsedBookSaleService,
+          useValue: usedBookSaleService,
         },
         { provide: getRepositoryToken(ReadReceipt), useValue: {} },
         { provide: ChatGateway, useValue: chatGateway },
@@ -105,7 +108,7 @@ describe('ChatService', () => {
 
   describe('getChatRoom', () => {
     it('판매글이 없으면 예외를 던져야 합니다', async () => {
-      (usedBookSaleRepo.findOne as jest.Mock).mockResolvedValue(null);
+      (usedBookSaleService.findSaleById as jest.Mock).mockResolvedValue(null);
 
       await expect(service.getChatRoom(1, 1)).rejects.toThrow(
         BusinessException,
@@ -113,7 +116,7 @@ describe('ChatService', () => {
     });
 
     it('자신의 판매글에 채팅을 시도하면 예외를 던져야 합니다', async () => {
-      (usedBookSaleRepo.findOne as jest.Mock).mockResolvedValue({
+      (usedBookSaleService.findSaleById as jest.Mock).mockResolvedValue({
         user: { id: 1 },
       });
 
@@ -123,7 +126,7 @@ describe('ChatService', () => {
     });
 
     it('탈퇴한 회원의 판매글로 채팅방 개설을 시도하면 예외를 던져야 합니다', async () => {
-      (usedBookSaleRepo.findOne as jest.Mock).mockResolvedValue({
+      (usedBookSaleService.findSaleById as jest.Mock).mockResolvedValue({
         user: { id: 2 },
         status: SaleStatus.WITHDRAWN,
       });
@@ -137,7 +140,7 @@ describe('ChatService', () => {
       const sale = { id: 1, user: { id: 2 } };
       const existingRoom = { id: 10, participants: [] };
 
-      (usedBookSaleRepo.findOne as jest.Mock).mockResolvedValue(sale);
+      (usedBookSaleService.findSaleById as jest.Mock).mockResolvedValue(sale);
 
       const queryBuilder = chatRoomRepo.createQueryBuilder!();
       (queryBuilder.getOne as jest.Mock).mockResolvedValue(existingRoom);
@@ -153,7 +156,7 @@ describe('ChatService', () => {
       const sale = { id: 1, user: { id: 2 } }; // Seller = 2
       const buyerId = 1;
 
-      (usedBookSaleRepo.findOne as jest.Mock).mockResolvedValue(sale);
+      (usedBookSaleService.findSaleById as jest.Mock).mockResolvedValue(sale);
 
       // 기존 방 없음
       const queryBuilder = chatRoomRepo.createQueryBuilder!();

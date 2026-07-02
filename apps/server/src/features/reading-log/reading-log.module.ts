@@ -12,5 +12,6 @@ import { ReadingLogService } from './services/reading-log.service';
   imports: [TypeOrmModule.forFeature([ReadingLog, User])],
   controllers: [ReadingLogController, LoungeController],
   providers: [ReadingLogService, ReadingLogCleanupListener],
+  exports: [ReadingLogService],
 })
 export class ReadingLogModule {}

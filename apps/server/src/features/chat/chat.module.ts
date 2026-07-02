@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
+import { UsedBookSaleModule } from '@/features/used-book-sale/used-book-sale.module';
 
 import { AuthModule } from '../auth/auth.module';
 import { BookModule } from '../book/book.module';
@@ -22,12 +22,12 @@ import { ChatService } from './services/chat.service';
       ChatRoom,
       ChatParticipant,
       ChatMessage,
-      UsedBookSale,
       ReadReceipt,
     ]),
     AuthModule,
     UserModule,
     BookModule,
+    UsedBookSaleModule,
   ],
   providers: [ChatGateway, ChatService, SocketAuthGuard, ChatCleanupListener],
   controllers: [ChatController],

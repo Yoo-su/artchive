@@ -7,7 +7,12 @@ import axios, {
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { config } from "@/shared/config/env";
 
-const baseURL = config.NEXT_PUBLIC_API_URL;
+// 런타임 환경(서버/브라우저) 및 구동 방식(컨테이너/생로컬)에 따라 베이스 API 주소 동적 결정
+// - SSR/ISR (서버): 내부망 주소(API_URL) 우선 적용 ➔ 미지정 시 로컬 주소(NEXT_PUBLIC_API_URL)로 폴백
+// - CSR (브라우저): 항상 브라우저용 포트 매핑 주소(NEXT_PUBLIC_API_URL) 사용
+const baseURL = typeof window === "undefined"
+  ? (process.env.API_URL || config.NEXT_PUBLIC_API_URL)
+  : config.NEXT_PUBLIC_API_URL;
 
 export const publicAxios = axios.create({
   baseURL,

@@ -2,8 +2,8 @@ import { HttpModule } from '@nestjs/axios';
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
-import { Wishlist } from '@/features/user/entities/wishlist.entity';
+import { ReadingLogModule } from '@/features/reading-log/reading-log.module';
+import { WishlistModule } from '@/features/wishlist/wishlist.module';
 
 import { BookController } from './controllers/book.controller';
 import { Book } from './entities/book.entity';
@@ -14,7 +14,12 @@ import { NaverBookSearchService } from './services/naver-book-search.service';
 
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([Book, ReadingLog, Wishlist]), HttpModule],
+  imports: [
+    TypeOrmModule.forFeature([Book]),
+    HttpModule,
+    ReadingLogModule,
+    WishlistModule,
+  ],
   controllers: [BookController],
   providers: [
     BookService,

@@ -618,4 +618,17 @@ export class ReadingLogService {
     }
     await this.readingLogRepository.remove(log);
   }
+
+  /**
+   * 특정 책을 읽은 고유 유저 수를 구합니다.
+   */
+  async countUniqueReaders(isbn: string): Promise<number> {
+    const result = await this.readingLogRepository
+      .createQueryBuilder('log')
+      .select('COUNT(DISTINCT log.userId)', 'count')
+      .where('log.isbn = :isbn', { isbn })
+      .getRawOne<{ count: string }>();
+
+    return parseInt(result?.count || '0', 10);
+  }
 }

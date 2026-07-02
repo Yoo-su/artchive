@@ -3,8 +3,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { Book } from '@/features/book/entities/book.entity';
-import { Review } from '@/features/review/entities/review.entity';
+import { BookService } from '@/features/book/services/book.service';
+import { ReviewService } from '@/features/review/services/review.service';
 import { BusinessException } from '@/shared/exceptions';
 
 import { CreateCommentDto } from '../dto/create-comment.dto';
@@ -24,6 +24,8 @@ export class CommentService {
     private readonly commentRepository: Repository<Comment>,
     @InjectRepository(CommentLike)
     private readonly commentLikeRepository: Repository<CommentLike>,
+    private readonly reviewService: ReviewService,
+    private readonly bookService: BookService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -132,20 +134,17 @@ export class CommentService {
         let targetSubtitle: string | null = null;
 
         if (comment.targetType === CommentTargetType.REVIEW) {
-          // 리뷰의 경우: 리뷰 제목과 도서 제목
-          const review = await this.commentRepository.manager.findOne(Review, {
-            where: { id: parseInt(comment.targetId, 10) },
-            relations: ['book'],
-          });
+          // 리뷰의 경우: 예외를 뱉지 않는 안전 조회 전용 메서드 사용
+          const review = await this.reviewService.findReviewById(
+            parseInt(comment.targetId, 10),
+          );
           if (review) {
             targetTitle = review.title;
             targetSubtitle = review.book?.title ?? null;
           }
         } else if (comment.targetType === CommentTargetType.BOOK) {
-          // 도서의 경우: ISBN으로 도서 정보 조회
-          const book = await this.commentRepository.manager.findOne(Book, {
-            where: { isbn: comment.targetId },
-          });
+          // 도서의 경우: ISBN으로 도서 서비스 단건 조회
+          const book = await this.bookService.findBookByIsbn(comment.targetId);
           if (book) {
             targetTitle = book.title;
           }

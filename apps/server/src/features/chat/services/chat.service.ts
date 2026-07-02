@@ -6,6 +6,7 @@ import {
   SaleStatus,
   UsedBookSale,
 } from '@/features/used-book-sale/entities/used-book-sale.entity';
+import { UsedBookSaleService } from '@/features/used-book-sale/services/used-book-sale.service';
 import { User } from '@/features/user/entities/user.entity';
 import { BusinessException } from '@/shared/exceptions/business.exception';
 
@@ -24,8 +25,7 @@ export class ChatService {
     private readonly chatParticipantRepository: Repository<ChatParticipant>,
     @InjectRepository(ChatMessage)
     private readonly chatMessageRepository: Repository<ChatMessage>,
-    @InjectRepository(UsedBookSale)
-    private readonly usedBookSaleRepository: Repository<UsedBookSale>,
+    private readonly usedBookSaleService: UsedBookSaleService,
     @InjectRepository(ReadReceipt)
     private readonly readReceiptRepository: Repository<ReadReceipt>,
     @Inject(forwardRef(() => ChatGateway))
@@ -40,10 +40,7 @@ export class ChatService {
    * @returns 채팅방 엔티티
    */
   async getChatRoom(saleId: number, buyerId: number): Promise<ChatRoom> {
-    const sale = await this.usedBookSaleRepository.findOne({
-      where: { id: saleId },
-      relations: ['user'],
-    });
+    const sale = await this.usedBookSaleService.findSaleById(saleId);
     if (!sale) {
       throw new BusinessException('SALE_NOT_FOUND', HttpStatus.NOT_FOUND);
     }

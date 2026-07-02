@@ -61,6 +61,7 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 3000
+      API_URL: ${API_URL:-http://server:8000}
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
       NEXT_PUBLIC_KAKAO_APP_KEY: ${NEXT_PUBLIC_KAKAO_APP_KEY}
       NEXT_PUBLIC_GOOGLE_ADSENSE_ID: ${NEXT_PUBLIC_GOOGLE_ADSENSE_ID}
