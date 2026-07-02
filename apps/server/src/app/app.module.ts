@@ -26,6 +26,7 @@ import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.
 import { UsedBookSaleModule } from '@/features/used-book-sale/used-book-sale.module';
 import { User } from '@/features/user/entities/user.entity';
 import { UserModule } from '@/features/user/user.module';
+import { WishlistModule } from '@/features/wishlist/wishlist.module';
 import { ActivityModule } from '@/shared/activity/activity.module';
 import { ActivityLog } from '@/shared/activity/entities/activity-log.entity';
 import { SmartCacheModule } from '@/shared/cache/smart-cache.module';
@@ -46,7 +47,10 @@ import { SmartCacheModule } from '@/shared/cache/smart-cache.module';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'production' ? undefined : '.env',
+      envFilePath:
+        process.env.NODE_ENV === 'production'
+          ? undefined
+          : ['.env', '../../.env'],
     }),
 
     TypeOrmModule.forRootAsync({
@@ -72,6 +76,7 @@ import { SmartCacheModule } from '@/shared/cache/smart-cache.module';
     }),
     AuthModule,
     UserModule,
+    WishlistModule,
     BookModule,
     ArtModule,
     UsedBookSaleModule,

@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
-import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
-import { Wishlist } from '@/features/user/entities/wishlist.entity';
+import { ReadingLogService } from '@/features/reading-log/services/reading-log.service';
+import { WishlistService } from '@/features/wishlist/services/wishlist.service';
 
 import { Book } from '../entities/book.entity';
 import { BookService } from './book.service';
@@ -14,6 +14,14 @@ describe('BookService', () => {
 
   const mockNaverBookSearchService = {
     search: jest.fn(),
+  };
+
+  const mockReadingLogService = {
+    countUniqueReaders: jest.fn(),
+  };
+
+  const mockWishlistService = {
+    countUniqueWishlistUsers: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -44,16 +52,12 @@ describe('BookService', () => {
           },
         },
         {
-          provide: getRepositoryToken(ReadingLog),
-          useValue: {
-            createQueryBuilder: jest.fn(),
-          },
+          provide: ReadingLogService,
+          useValue: mockReadingLogService,
         },
         {
-          provide: getRepositoryToken(Wishlist),
-          useValue: {
-            createQueryBuilder: jest.fn(),
-          },
+          provide: WishlistService,
+          useValue: mockWishlistService,
         },
         {
           provide: NaverBookSearchService,
@@ -181,26 +185,8 @@ describe('BookService', () => {
   describe('getBookStats', () => {
     it('should return readingUserCount and wishlistUserCount', async () => {
       const isbn = '123';
-      const readingLogRepo = module.get(getRepositoryToken(ReadingLog));
-      const wishlistRepo = module.get(getRepositoryToken(Wishlist));
-
-      const mockReadingQueryBuilder = {
-        select: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        getRawOne: jest.fn().mockResolvedValue({ count: '3' }),
-      };
-      const mockWishlistQueryBuilder = {
-        select: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        getRawOne: jest.fn().mockResolvedValue({ count: '5' }),
-      };
-
-      (readingLogRepo.createQueryBuilder as jest.Mock).mockReturnValue(
-        mockReadingQueryBuilder,
-      );
-      (wishlistRepo.createQueryBuilder as jest.Mock).mockReturnValue(
-        mockWishlistQueryBuilder,
-      );
+      mockReadingLogService.countUniqueReaders.mockResolvedValue(3);
+      mockWishlistService.countUniqueWishlistUsers.mockResolvedValue(5);
 
       const result = await service.getBookStats(isbn);
 
@@ -208,8 +194,12 @@ describe('BookService', () => {
         readingUserCount: 3,
         wishlistUserCount: 5,
       });
-      expect(readingLogRepo.createQueryBuilder).toHaveBeenCalledWith('log');
-      expect(wishlistRepo.createQueryBuilder).toHaveBeenCalledWith('wishlist');
+      expect(mockReadingLogService.countUniqueReaders).toHaveBeenCalledWith(
+        isbn,
+      );
+      expect(mockWishlistService.countUniqueWishlistUsers).toHaveBeenCalledWith(
+        isbn,
+      );
     });
   });
 });
