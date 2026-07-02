@@ -34,6 +34,10 @@ RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Next.js 빌드타임 환경변수 주입을 위한 ARG/ENV 정의
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 # web 앱과 의존 패키지를 함께 빌드
 RUN pnpm build --filter=@bookjeok/web...
 

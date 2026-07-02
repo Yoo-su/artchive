@@ -2,7 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 
-import { SaleStatus, UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
+import {
+  SaleStatus,
+  UsedBookSale,
+} from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { User } from '@/features/user/entities/user.entity';
 import { BusinessException } from '@/shared/exceptions/business.exception';
 
@@ -217,9 +220,9 @@ describe('ChatService', () => {
         { user: { id: 2, deletedAt: new Date() }, isActive: true },
       ]);
 
-      await expect(
-        service.saveMessage('hi', 1, user),
-      ).rejects.toThrow(BusinessException);
+      await expect(service.saveMessage('hi', 1, user)).rejects.toThrow(
+        BusinessException,
+      );
     });
   });
 });
