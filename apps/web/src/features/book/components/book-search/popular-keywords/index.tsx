@@ -2,10 +2,10 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
+import { usePathname, useRouter } from "@/shared/config/i18n/routing";
 import { cn } from "@/shared/utils";
 
 import { usePopularKeywordsQuery } from "../../../queries";
@@ -44,10 +44,11 @@ export const PopularKeywords = () => {
     (keyword: string) => {
       const params = new URLSearchParams();
       params.set("q", keyword);
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      const newUrl = `${pathname}?${params.toString()}`;
+      window.history.pushState(null, "", newUrl);
       setIsHovered(false);
     },
-    [router, pathname],
+    [pathname],
   );
 
   // 로딩 중이거나 데이터가 없으면 렌더링하지 않음

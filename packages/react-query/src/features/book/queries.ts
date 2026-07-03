@@ -1,7 +1,7 @@
 "use client";
 import { getBookDetail, getBookList, getBookStats, getBookSummary, getExternalBookDetail, getExternalBookList, getPopularBooks, getPopularKeywords,getSavedBookSummary } from "@bookjeok/api-client";
 import { bookKeys, BookStats, DEFAULT_DISPLAY, GetBookListParams } from "@bookjeok/core";
-import { useInfiniteQuery, useMutation,useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, keepPreviousData } from "@tanstack/react-query";
 import { AxiosInstance } from "axios";
 
 /**
@@ -90,6 +90,7 @@ export const useInfiniteBookSearch = (
       return lastPage.currentPage + 1;
     },
     enabled: !!query,
+    placeholderData: keepPreviousData,
   });
 };
 

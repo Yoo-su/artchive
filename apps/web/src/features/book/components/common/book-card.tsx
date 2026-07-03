@@ -9,35 +9,33 @@ interface BookCardProps {
   book: BookInfo;
 }
 
-// 도서 카드 - 이미지 배경 + 하단 오버레이 패턴
+// 도서 카드 - 표지 + 하단 메타 분리 레이아웃
 export const BookCard = ({ book }: BookCardProps) => {
   return (
     <Link href={PATHS.BOOK_DETAIL(book.isbn)} className="group block">
-      <div className="relative w-full aspect-3/4 overflow-hidden bg-stone-100">
+      {/* 표지 이미지 */}
+      <div className="relative w-full aspect-3/4 overflow-hidden rounded-sm bg-stone-100 shadow-md transition-all duration-300 ease-out group-hover:-translate-y-1 group-hover:shadow-lg">
         <Image
           src={book.image.replace("?type=m1", "")}
           alt={book.title}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          className="object-cover"
           unoptimized
         />
 
-        {/* 하단 그라디언트 오버레이 */}
-        <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
-
         {/* 호버 오버레이 */}
-        <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
+        <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/8" />
+      </div>
 
-        {/* 하단 정보 */}
-        <div className="absolute bottom-0 left-0 right-0 p-3">
-          <h3 className="text-sm font-semibold text-white line-clamp-1 drop-shadow-sm">
-            {book.title}
-          </h3>
-          <p className="mt-0.5 text-[10px] text-white/60 truncate">
-            {book.author}
-          </p>
-        </div>
+      {/* 하단 메타 정보 */}
+      <div className="mt-2.5 px-0.5">
+        <h3 className="text-sm font-medium text-stone-800 line-clamp-1 transition-colors duration-200 group-hover:text-stone-950">
+          {book.title}
+        </h3>
+        <p className="mt-0.5 text-xs text-stone-400 truncate">
+          {book.author}
+        </p>
       </div>
     </Link>
   );
@@ -46,13 +44,11 @@ export const BookCard = ({ book }: BookCardProps) => {
 // 도서 카드 스켈레톤
 BookCard.Skeleton = function BookCardSkeleton() {
   return (
-    <div className="relative w-full overflow-hidden">
-      <div className="relative aspect-3/4 w-full bg-stone-100 animate-pulse">
-        <div className="absolute inset-0 bg-linear-to-t from-stone-200/80 via-stone-100/30 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-3 space-y-1">
-          <Skeleton className="h-4 w-3/4 bg-stone-200/50" />
-          <Skeleton className="h-3 w-1/2 bg-stone-200/30" />
-        </div>
+    <div className="block">
+      <div className="relative w-full aspect-3/4 overflow-hidden rounded-sm bg-stone-100 shadow-md animate-pulse" />
+      <div className="mt-2.5 px-0.5 space-y-1.5">
+        <Skeleton className="h-4 w-3/4 bg-stone-200/60" />
+        <Skeleton className="h-3 w-1/2 bg-stone-200/40" />
       </div>
     </div>
   );

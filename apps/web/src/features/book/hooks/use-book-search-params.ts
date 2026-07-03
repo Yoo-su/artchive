@@ -1,7 +1,9 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+
+import { usePathname, useRouter } from "@/shared/config/i18n/routing";
 
 import { useRecordSearchKeywordMutation } from "../queries";
 
@@ -43,10 +45,9 @@ export const useBookSearchParams = ({ paramName = "q" }: UseBookSearchParamsProp
     }
 
     const queryString = params.toString();
-    router.push(`${pathname}${queryString ? `?${queryString}` : ""}`, {
-      scroll: false,
-    });
-  }, [inputValue, router, pathname, searchParams, paramName, recordKeyword]);
+    const newUrl = `${pathname}${queryString ? `?${queryString}` : ""}`;
+    window.history.pushState(null, "", newUrl);
+  }, [inputValue, pathname, searchParams, paramName, recordKeyword]);
 
   // 엔터키 핸들러
   const handleKeyDown = useCallback(
@@ -65,10 +66,9 @@ export const useBookSearchParams = ({ paramName = "q" }: UseBookSearchParamsProp
     const params = new URLSearchParams(searchParams.toString());
     params.delete(paramName);
     const queryString = params.toString();
-    router.push(`${pathname}${queryString ? `?${queryString}` : ""}`, {
-      scroll: false,
-    });
-  }, [router, pathname, searchParams, paramName]);
+    const newUrl = `${pathname}${queryString ? `?${queryString}` : ""}`;
+    window.history.pushState(null, "", newUrl);
+  }, [pathname, searchParams, paramName]);
 
   return {
     inputValue,
