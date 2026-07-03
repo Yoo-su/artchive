@@ -1,6 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { BookInfo } from "@bookjeok/core";
+import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -8,6 +9,7 @@ import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
 import { useInfiniteBookSearch } from "@/features/book/queries";
+import { cn } from "@/shared/utils/cn";
 
 import { BookCard } from "../../common/book-card";
 import { BookSearchResultListSkeleton } from "./skeleton";
@@ -50,8 +52,8 @@ export const BookSearchResultList = ({
     }
   }, [inView, hasNextPage, isFetching, fetchNextPage]);
 
-  // Case 1: 최초 로딩 상태 (첫 페이지를 불러오는 중)
-  if (status === "pending" && isFetching && !isFetchingNextPage) {
+  // Case 1: 최초 로딩 상태 (첫 페이지를 불러오는 중, 이전 데이터 없음)
+  if (status === "pending" && isFetching && !isFetchingNextPage && !data) {
     return <BookSearchResultListSkeleton />;
   }
 
@@ -83,40 +85,50 @@ export const BookSearchResultList = ({
     );
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.03,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.3,
+      },
+    },
+  };
+
+  const isTransitioning = isFetching && !isFetchingNextPage && status === "success";
+
   return (
-    <div>
-      <motion.div
-        className="grid gap-x-4 gap-y-8 grid-cols-2 sm:grid-cols-4"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          hidden: { opacity: 0 },
-          visible: {
-            opacity: 1,
-            transition: {
-              staggerChildren: 0.1,
-            },
-          },
-        }}
-      >
-        <AnimatePresence mode="popLayout">
-          {data?.pages.flatMap((page, pageIndex) =>
-            page.items.map((book, bookIndex) => (
+    <div className={cn("transition-opacity duration-300", isTransitioning && "opacity-40 pointer-events-none")}>
+      <div className="grid gap-x-4 gap-y-6 grid-cols-2 sm:grid-cols-4">
+        {data?.pages.map((page: any, pageIndex: number) => (
+          <motion.div
+            key={`page-${pageIndex}`}
+            className="col-span-full grid gap-x-4 gap-y-6 grid-cols-2 sm:grid-cols-4"
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+          >
+            {(page.items as BookInfo[] | undefined)?.map((book: BookInfo, bookIndex: number) => (
               <motion.div
                 key={book.isbn || `book-${pageIndex}-${bookIndex}`}
-                layout
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: { opacity: 1, y: 0 },
-                }}
-                transition={{ duration: 0.4 }}
+                variants={itemVariants}
               >
                 <BookCard book={book} />
               </motion.div>
-            )),
-          )}
-        </AnimatePresence>
-      </motion.div>
+            ))}
+          </motion.div>
+        ))}
+      </div>
 
       {/* 다음 페이지를 불러오기 위한 트리거 요소 */}
       <div ref={ref} className="h-10" />
