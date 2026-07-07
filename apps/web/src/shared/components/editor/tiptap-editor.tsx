@@ -9,10 +9,10 @@ import TextAlign from "@tiptap/extension-text-align";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Underline from "@tiptap/extension-underline";
 import { EditorContent, useEditor } from "@tiptap/react";
-import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
 import { Bold, Heading2, Italic } from "lucide-react";
-import { useCallback, useEffect, useRef } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ImageResize from "tiptap-extension-resize-image";
 
 import { Button } from "@/shared/components/shadcn/button";
@@ -33,6 +33,30 @@ export const TiptapEditor = ({
   placeholder = "내용을 입력하세요...",
   onImageAdd,
 }: TiptapEditorProps) => {
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
+
+  const updateMenuPosition = useCallback((editor: any) => {
+    const { view, state } = editor;
+    const { from, to } = state.selection;
+    const selectedText = state.doc.textBetween(from, to, " ");
+
+    if (from === to || !selectedText.trim()) {
+      setMenuPos(null);
+      return;
+    }
+
+    const start = view.coordsAtPos(from);
+    const end = view.coordsAtPos(to);
+
+    const editorRect = view.dom.getBoundingClientRect();
+    const padding = 75; // 퀵 툴바 절반 너비만큼의 세이프 마진
+    const rawLeft = (start.left + end.left) / 2 - editorRect.left;
+    const left = Math.max(padding, Math.min(editorRect.width - padding, rawLeft));
+    const top = start.top - editorRect.top - 55; // 기존 -45에서 -55로 벌려 텍스트와의 미세 간격 확보
+
+    setMenuPos({ top, left });
+  }, []);
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -92,6 +116,17 @@ export const TiptapEditor = ({
     },
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
+      updateMenuPosition(editor);
+    },
+    onSelectionUpdate: ({ editor }) => {
+      updateMenuPosition(editor);
+    },
+    onBlur: ({ editor }) => {
+      setTimeout(() => {
+        if (!editor.isFocused) {
+          setMenuPos(null);
+        }
+      }, 150);
     },
   });
 
@@ -143,7 +178,7 @@ export const TiptapEditor = ({
   }
 
   return (
-    <div className="border rounded-md overflow-hidden relative">
+    <div className="border rounded-md relative bg-background">
       <input
         type="file"
         ref={fileInputRef}
@@ -154,52 +189,60 @@ export const TiptapEditor = ({
 
       <EditorToolbar editor={editor} onImageAdd={handleImageClick} />
 
-      {editor && (
-        <BubbleMenu
-          editor={editor}
-          className="flex bg-background border rounded-md shadow-md p-1 gap-1"
-        >
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => editor.chain().focus().toggleBold().run()}
-            className={cn(
-              "h-8 w-8 p-0",
-              editor.isActive("bold") && "bg-muted text-primary"
-            )}
+      <AnimatePresence>
+        {editor && menuPos && (
+          <motion.div
+            animate={{ x: menuPos.left, y: menuPos.top, scale: 1, opacity: 1 }}
+            initial={{ x: menuPos.left, y: menuPos.top, scale: 0.85, opacity: 0 }}
+            exit={{ scale: 0.85, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 450, damping: 30 }}
+            onMouseDown={(e) => e.preventDefault()}
+            onTouchStart={(e) => e.preventDefault()}
+            className="absolute z-50 flex bg-background border rounded-md shadow-md p-1 gap-1 -translate-x-1/2"
+            style={{ transformOrigin: "bottom center" }}
           >
-            <Bold className="w-4 h-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={cn(
-              "h-8 w-8 p-0",
-              editor.isActive("italic") && "bg-muted text-primary"
-            )}
-          >
-            <Italic className="w-4 h-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 2 }).run()
-            }
-            className={cn(
-              "h-8 w-8 p-0",
-              editor.isActive("heading", { level: 2 }) &&
-                "bg-muted text-primary"
-            )}
-          >
-            <Heading2 className="w-4 h-4" />
-          </Button>
-        </BubbleMenu>
-      )}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => editor.chain().focus().toggleBold().run()}
+              className={cn(
+                "h-8 w-8 p-0",
+                editor.isActive("bold") && "bg-muted text-primary"
+              )}
+            >
+              <Bold className="w-4 h-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => editor.chain().focus().toggleItalic().run()}
+              className={cn(
+                "h-8 w-8 p-0",
+                editor.isActive("italic") && "bg-muted text-primary"
+              )}
+            >
+              <Italic className="w-4 h-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() =>
+                editor.chain().focus().toggleHeading({ level: 2 }).run()
+              }
+              className={cn(
+                "h-8 w-8 p-0",
+                editor.isActive("heading", { level: 2 }) &&
+                  "bg-muted text-primary"
+              )}
+            >
+              <Heading2 className="w-4 h-4" />
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <EditorContent editor={editor} />
     </div>
