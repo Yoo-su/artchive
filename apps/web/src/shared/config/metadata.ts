@@ -27,8 +27,8 @@ export const generateGlobalMetadata = (
     alternates: {
       canonical: "./",
       languages: {
-        "ko-KR": "/ko",
-        "en-US": "/en",
+        ko: "/ko",
+        en: "/en",
         "x-default": "/ko",
       },
       types: {
@@ -129,8 +129,8 @@ export const createPageMetadata = ({
     metadata.alternates = {
       canonical: `/${currentLocale}${cleanPath}`,
       languages: {
-        "ko-KR": `/ko${cleanPath}`,
-        "en-US": `/en${cleanPath}`,
+        ko: `/ko${cleanPath}`,
+        en: `/en${cleanPath}`,
         "x-default": `/ko${cleanPath}`,
       },
     };

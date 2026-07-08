@@ -6,6 +6,7 @@ import { cache } from "react";
 
 import { getReview } from "@/features/review/apis";
 import { ReviewJsonLd } from "@/features/review/components/common/review-json-ld";
+import { BreadcrumbJsonLd } from "@/shared/components/breadcrumb-json-ld";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
 import { getQueryClient } from "@/shared/libs/query-client";
@@ -85,9 +86,17 @@ export default async function Page({ params }: Props) {
   // QueryClient에 데이터 설정
   queryClient.setQueryData(reviewKeys.detail(reviewId).queryKey, review);
 
+  const t = await getTranslations({ locale, namespace: "header" });
+  const breadcrumbs = [
+    { name: locale === "ko" ? "홈" : "Home", url: `/${locale}` },
+    { name: t("nav.menu_reviews"), url: `/${locale}/book/reviews` },
+    { name: review.title, url: `/${locale}/book/reviews/${id}` },
+  ];
+
   return (
     <ServerQueryBoundary queryClient={queryClient}>
       <ReviewJsonLd review={review} locale={locale} />
+      <BreadcrumbJsonLd items={breadcrumbs} />
       <ReviewDetailView initialReview={review} />
     </ServerQueryBoundary>
   );
