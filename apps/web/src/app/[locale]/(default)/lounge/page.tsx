@@ -2,6 +2,7 @@ import { readingLogKeys } from "@bookjeok/core";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getLoungeActiveReaders, getLoungePopular } from "@/features/reading-log/apis";
+import { BreadcrumbJsonLd } from "@/shared/components/breadcrumb-json-ld";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
 import { LoungeView } from "@/views/lounge-view";
@@ -30,6 +31,12 @@ export default async function LoungePage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: "header" });
+
+  const breadcrumbs = [
+    { name: locale === "ko" ? "홈" : "Home", url: `/${locale}` },
+    { name: t("nav.menu_lounge"), url: `/${locale}/lounge` },
+  ];
 
   const queries = [
     {
@@ -44,6 +51,7 @@ export default async function LoungePage({
 
   return (
     <ServerQueryBoundary queries={queries}>
+      <BreadcrumbJsonLd items={breadcrumbs} />
       <LoungeView />
     </ServerQueryBoundary>
   );

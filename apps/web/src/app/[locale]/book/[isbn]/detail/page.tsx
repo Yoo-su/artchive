@@ -6,6 +6,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { fetchBookDetail } from "@/features/book/apis/server";
 import { BookJsonLd } from "@/features/book/components/common/book-json-ld";
 import { prefetchBookSummary, prefetchRelatedBooks } from "@/features/book/queries/prefetch";
+import { BreadcrumbJsonLd } from "@/shared/components/breadcrumb-json-ld";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
 import { getQueryClient } from "@/shared/libs/query-client";
@@ -86,9 +87,17 @@ export default async function Page({ params }: Props) {
     notFound();
   }
 
+  const t = await getTranslations({ locale, namespace: "header" });
+  const breadcrumbs = [
+    { name: locale === "ko" ? "홈" : "Home", url: `/${locale}` },
+    { name: t("nav.menu_search"), url: `/${locale}/book/search` },
+    { name: book.title, url: `/${locale}/book/${isbn}/detail` },
+  ];
+
   return (
     <ServerQueryBoundary queryClient={queryClient}>
       <BookJsonLd book={book} locale={locale} />
+      <BreadcrumbJsonLd items={breadcrumbs} />
       <BookDetailView isbn={isbn} />
     </ServerQueryBoundary>
   );

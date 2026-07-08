@@ -2,6 +2,7 @@ import { reviewKeys } from "@bookjeok/core";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getPopularReviews, getReviewFeeds } from "@/features/review/apis";
+import { BreadcrumbJsonLd } from "@/shared/components/breadcrumb-json-ld";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
 import { ReviewHomeView } from "@/views/review-home-view";
@@ -31,6 +32,12 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: "header" });
+
+  const breadcrumbs = [
+    { name: locale === "ko" ? "홈" : "Home", url: `/${locale}` },
+    { name: t("nav.menu_reviews"), url: `/${locale}/book/reviews` },
+  ];
 
   const queries = [
     { queryKey: reviewKeys.popular.queryKey, queryFn: getPopularReviews },
@@ -39,6 +46,7 @@ export default async function Page({
 
   return (
     <ServerQueryBoundary queries={queries}>
+      <BreadcrumbJsonLd items={breadcrumbs} />
       <ReviewHomeView />
     </ServerQueryBoundary>
   );

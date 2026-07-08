@@ -7,6 +7,7 @@ import { cache } from "react";
 
 import { getBookSaleDetail } from "@/features/book-sale/apis";
 import { BookSaleJsonLd } from "@/features/book-sale/components/common/book-sale-json-ld";
+import { BreadcrumbJsonLd } from "@/shared/components/breadcrumb-json-ld";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
 import { getQueryClient } from "@/shared/libs/query-client";
@@ -92,9 +93,17 @@ export default async function Page({ params }: Props) {
   // QueryClient에 데이터 설정
   queryClient.setQueryData(bookSaleKeys.saleDetail(id).queryKey, sale);
 
+  const t = await getTranslations({ locale, namespace: "header" });
+  const breadcrumbs = [
+    { name: locale === "ko" ? "홈" : "Home", url: `/${locale}` },
+    { name: t("nav.menu_market"), url: `/${locale}/book/market` },
+    { name: sale.title, url: `/${locale}/book/sales/${id}` },
+  ];
+
   return (
     <ServerQueryBoundary queryClient={queryClient}>
       <BookSaleJsonLd sale={sale} locale={locale} />
+      <BreadcrumbJsonLd items={breadcrumbs} />
       <BookSaleDetailView saleId={id} />
     </ServerQueryBoundary>
   );
