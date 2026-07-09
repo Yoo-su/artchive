@@ -67,13 +67,22 @@ export class ReadingLogController {
     description: '해당 월의 독서 기록 목록을 반환합니다.',
   })
   @ApiQuery({ name: 'year', description: '조회할 연도 (YYYY)', example: 2023 })
-  @ApiQuery({ name: 'month', description: '조회할 월 (1-12)', example: 10 })
+  @ApiQuery({
+    name: 'month',
+    required: false,
+    description: '조회할 월 (1-12, 선택)',
+    example: 10,
+  })
   findAll(
     @Request() req,
     @Query('year') year: number,
-    @Query('month') month: number,
+    @Query('month') month?: number,
   ) {
-    return this.readingLogService.findAllByMonth(req.user.id, year, month);
+    return this.readingLogService.findAllByMonth(
+      req.user.id,
+      year,
+      month ? Number(month) : undefined,
+    );
   }
 
   @Get('stats')

@@ -494,7 +494,8 @@
     "controls": {
       "all_logs": "All Logs",
       "view_calendar": "Calendar",
-      "view_list": "List"
+      "view_list": "List",
+      "view_deck": "Deck"
     },
     "stats": {
       "monthly_title": "Reading in {month}",
@@ -536,6 +537,26 @@
       "empty_write": "No books recorded yet.",
       "empty_write_sub": "Try recording the books you read today.",
       "empty_read": "No books recorded."
+    },
+    "deck": {
+      "share_button": "Share Yearly Reading Deck",
+      "empty_sub": "Record the books you read today to complete your own beautiful card deck!",
+      "finished_message": "You have finished viewing all books read this year.",
+      "total_count_label": "Cumulative books this year",
+      "reset_button": "View from the beginning",
+      "copy_link": "Copy Share Link",
+      "swipe_hint": "Swipe left or right to see the next card",
+      "flipped_hint": "Flip Card",
+      "back_title": "Reading Record Card",
+      "empty_memo": "There is no one-line review left for this book.",
+      "share_title": "{name}'s {year} Reading Deck",
+      "share_subtitle": "A collection of {count} precious reading record cards completed this year.",
+      "create_my_deck": "Make My Own Reading Deck",
+      "loading_message": "Retrieving reading cards...",
+      "error_title": "User not found",
+      "error_desc": "The requested reading deck is invalid or set to private.",
+      "go_home": "Go to Home",
+      "footer_brand": "Bookjeok, a platform for book and knowledge sharing"
     }
   },
   "insights": {

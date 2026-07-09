@@ -1,7 +1,9 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { Label } from "@/shared/components/shadcn/label";
 import { Switch } from "@/shared/components/shadcn/switch";
 import { cn } from "@/shared/utils";
@@ -16,6 +18,7 @@ interface ReadingLogHeroProps {
 
 export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
   const t = useTranslations("reading_log.hero");
+  const tDeck = useTranslations("reading_log.deck");
   // 테마 및 배경 이미지 로직
   const theme = useSeasonalTheme(currentDate);
   const [isMounted, setIsMounted] = useState(false);
@@ -54,6 +57,21 @@ export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
     updateSettings(checked);
   };
 
+  const { user } = useAuthStore();
+
+  const handleYearlyDeckClick = () => {
+    if (!user) return;
+    const year = currentDate.getFullYear();
+    const shareUrl = `${window.location.origin}/share/deck/${user.handle}?year=${year}`;
+    
+    // 공유 링크 클립보드 복증 복사
+    navigator.clipboard.writeText(shareUrl);
+    toast.success("올해의 독서 덱 링크가 복사되었습니다! 새 탭에서 확인해보세요.");
+    
+    // 새 탭으로 미리보기 페이지 열기
+    window.open(shareUrl, "_blank");
+  };
+
   if (!isMounted) return null;
 
   return (
@@ -86,9 +104,9 @@ export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
         )}
       />
 
-      {/* Content */}
-      <div className="relative z-10 h-full flex flex-col justify-end p-6 md:p-10">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
+      {/* 히어로 본문 콘텐츠 영역 */}
+      <div className="w-full px-4 md:px-6 lg:px-8 xl:max-w-7xl xl:mx-auto relative z-10 h-full flex flex-col justify-end pb-6 md:pb-10 pt-6">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 w-full">
           {/* 타이포그래피 영역 */}
           <div className="space-y-4 max-w-2xl animate-in fade-in slide-in-from-bottom-6 duration-1000">
             <div className="flex items-center gap-3">
@@ -107,9 +125,9 @@ export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
             </p>
           </div>
 
-          {/* 미니멀 공개 여부 스위치 */}
-          <div className="flex items-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-100">
-            <div className="flex items-center gap-3 px-4 py-2 md:px-5 md:py-2.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-colors duration-300">
+          {/* 미니멀 공개 여부 스위치 & 자랑하기 버튼 (세로로 배치, 우측 정렬) */}
+          <div className="flex flex-col items-end gap-3 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-100 shrink-0">
+            <div className="flex items-center gap-3 px-4 py-2 md:px-5 md:py-2.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-colors duration-300 w-fit">
               <Label
                 htmlFor="public-mode"
                 className="cursor-pointer text-[10px] md:text-xs font-bold tracking-widest text-white/80 uppercase"
@@ -124,6 +142,15 @@ export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
                 className="data-[state=checked]:bg-sky-400 data-[state=unchecked]:bg-stone-500/50 border-transparent h-4 w-7 md:h-5 md:w-9 transition-colors duration-300"
               />
             </div>
+
+            {user && (
+              <button
+                onClick={handleYearlyDeckClick}
+                className="px-4 py-2 md:px-5 md:py-2.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/15 text-white font-bold text-[10px] md:text-xs tracking-widest uppercase hover:scale-105 active:scale-95 duration-300 shadow-md cursor-pointer transition-all w-fit"
+              >
+                {tDeck("share_button")}
+              </button>
+            )}
           </div>
         </div>
       </div>

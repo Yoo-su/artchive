@@ -55,9 +55,9 @@ export default async function Page({
     {
       queryKey: bookKeys.list({
         query: HOME_PUBLISHERS[0],
-        display: 10,
+        display: 18,
       }).queryKey,
-      queryFn: () => getPublisherBooksServer(HOME_PUBLISHERS[0], 10),
+      queryFn: () => getPublisherBooksServer(HOME_PUBLISHERS[0], 18),
     },
     {
       queryKey: readingLogKeys.loungePopular.queryKey,

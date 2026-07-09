@@ -494,7 +494,8 @@
     "controls": {
       "all_logs": "전체 기록",
       "view_calendar": "달력",
-      "view_list": "리스트"
+      "view_list": "리스트",
+      "view_deck": "카드 덱"
     },
     "stats": {
       "monthly_title": "{month}월의 독서",
@@ -536,6 +537,26 @@
       "empty_write": "아직 기록된 책이 없습니다.",
       "empty_write_sub": "오늘 읽은 책을 기록해 보세요.",
       "empty_read": "기록된 책이 없습니다."
+    },
+    "deck": {
+      "share_button": "올해의 독서 덱 자랑하기",
+      "empty_sub": "오늘 읽은 책을 기록해 나만의 근사한 카드 덱을 완성해 보세요!",
+      "finished_message": "올해 완독한 모든 도서 카드를 감상하셨습니다.",
+      "total_count_label": "올해 누적 독서량",
+      "reset_button": "처음부터 다시보기",
+      "copy_link": "공유 링크 복사",
+      "swipe_hint": "좌우로 스와이프하여 다음 카드 보기",
+      "flipped_hint": "카드 뒤집기",
+      "back_title": "독서 기록 카드",
+      "empty_memo": "이 책에 대해 남긴 한줄평이 없습니다.",
+      "share_title": "{name}님의 {year}년 독서 덱",
+      "share_subtitle": "올해 완독한 {count}권의 소중한 독서 기록 카드 컬렉션입니다.",
+      "create_my_deck": "나만의 독서 덱 만들기",
+      "loading_message": "독서 카드를 꺼내오고 있어요...",
+      "error_title": "사용자를 찾을 수 없습니다",
+      "error_desc": "요청하신 독서 덱 정보가 유효하지 않거나 비공개 상태일 수 있습니다.",
+      "go_home": "북적 홈으로 가기",
+      "footer_brand": "책과 지식의 선순환 플랫폼, 북적"
     }
   },
   "insights": {

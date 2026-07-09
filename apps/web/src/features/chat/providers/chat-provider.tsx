@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
@@ -10,7 +11,17 @@ import { useMyChatRoomsQuery } from "@/features/chat/queries";
 import { useChatStore } from "@/features/chat/stores/use-chat-store";
 import { useSocketContext } from "@/shared/providers/socket-provider";
 
+import { HIDE_CHAT_WIDGET_ROUTES } from "../constants/routes";
+
 export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
+  const pathname = usePathname();
+
+  const isWidgetHidden = (() => {
+    if (!pathname) return false;
+    const cleanPath = `/${pathname.split("/").slice(2).join("/")}`;
+    return HIDE_CHAT_WIDGET_ROUTES.some((route) => cleanPath.startsWith(route));
+  })();
+
   const user = useAuthStore((state) => state.user);
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -79,7 +90,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       {children}
-      {currentUser && (
+      {currentUser && !isWidgetHidden && (
         <>
           <ChatToggleButton />
           <ChatWidget />

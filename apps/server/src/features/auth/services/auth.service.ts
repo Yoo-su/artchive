@@ -83,13 +83,18 @@ export class AuthService {
   }
 
   /**
-   * 유저 ID와 닉네임을 기반으로 Access Token과 Refresh Token을 생성합니다.
+   * 유저 ID와 닉네임, 권한을 기반으로 Access Token과 Refresh Token을 생성합니다.
    * @param userId 유저 ID
    * @param userNickname 유저 닉네임
+   * @param role 유저 권한
    * @returns Access Token과 Refresh Token
    */
-  async getTokens(userId: number, userNickname: string) {
-    const payload: JwtPayload = { sub: userId, nickname: userNickname };
+  async getTokens(
+    userId: number,
+    userNickname: string,
+    role: 'USER' | 'ADMIN',
+  ) {
+    const payload: JwtPayload = { sub: userId, nickname: userNickname, role };
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: process.env.JWT_SECRET,
@@ -112,6 +117,7 @@ export class AuthService {
     const { accessToken, refreshToken } = await this.getTokens(
       user.id,
       user.nickname,
+      user.role,
     );
 
     // 마지막 활동 시간 업데이트
@@ -124,12 +130,13 @@ export class AuthService {
    * Refresh Token을 사용하여 새로운 토큰을 발급합니다.
    * @param userId 유저 ID
    * @param nickname 유저 닉네임
+   * @param role 유저 권한
    * @returns 새로운 Access Token과 Refresh Token
    */
-  async refresh(userId: number, nickname: string) {
+  async refresh(userId: number, nickname: string, role: 'USER' | 'ADMIN') {
     // 토큰 갱신 시 마지막 활동 시간도 업데이트
     await this.userService.updateLastActiveAt(userId);
-    return await this.getTokens(userId, nickname);
+    return await this.getTokens(userId, nickname, role);
   }
 
   /**

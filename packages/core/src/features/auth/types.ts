@@ -1,3 +1,5 @@
+export type UserRole = "USER" | "ADMIN";
+
 export interface User {
   /** 우리 서비스에서 사용하는 고유 ID */
   id: number;
@@ -28,6 +30,9 @@ export interface User {
 
   /** 독서 기록 공개 여부 */
   isReadingLogPublic: boolean;
+
+  /** 사용자 권한 (USER 또는 ADMIN) */
+  role: UserRole;
 }
 
 export interface EmailLoginParams {
