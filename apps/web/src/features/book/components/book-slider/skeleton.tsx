@@ -18,17 +18,17 @@ export const BookSliderSkeleton = () => {
         setCardWidth(180);
         setCardHeight(270);
       } else if (width > 768) {
-        setRadius(460);
-        setCardWidth(140);
-        setCardHeight(210);
+        setRadius(480);
+        setCardWidth(150);
+        setCardHeight(225);
       } else if (width > 480) {
-        setRadius(360);
+        setRadius(420);
+        setCardWidth(130);
+        setCardHeight(195);
+      } else {
+        setRadius(350);
         setCardWidth(110);
         setCardHeight(165);
-      } else {
-        setRadius(300);
-        setCardWidth(90);
-        setCardHeight(135);
       }
     };
 
@@ -44,7 +44,7 @@ export const BookSliderSkeleton = () => {
           perspective: 1200,
           perspectiveOrigin: "center 30%",
         }}
-        className="relative flex items-center justify-center w-full h-[180px] sm:h-[220px] md:h-[270px] lg:h-[330px] overflow-visible"
+        className="relative flex items-center justify-center w-full h-[220px] sm:h-[260px] md:h-[310px] lg:h-[360px] overflow-visible"
       >
         <div
           style={{

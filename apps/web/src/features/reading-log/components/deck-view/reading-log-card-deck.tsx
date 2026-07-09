@@ -11,7 +11,7 @@ import {
 import { BookOpen, RotateCw, Share2 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { cn } from "@/shared/utils";
@@ -34,6 +34,16 @@ export function ReadingLogCardDeck({
   const t = useTranslations("reading_log");
   const [activeIndex, setActiveIndex] = useState(0);
   const [flippedCardId, setFlippedCardId] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // 탑 카드의 드래그 인터랙션을 위한 Framer Motion 값
   const dragX = useMotionValue(0);
@@ -117,9 +127,9 @@ export function ReadingLogCardDeck({
       };
     }
 
-    const rotations = [0, -6, 6, -12, 12];
-    const xOffsets = [0, -28, 28, -55, 55];
-    const yOffsets = [0, 4, 4, 12, 12];
+    const rotations = isMobile ? [0, -4, 4, -8, 8] : [0, -6, 6, -12, 12];
+    const xOffsets = isMobile ? [0, -12, 12, -24, 24] : [0, -28, 28, -55, 55];
+    const yOffsets = isMobile ? [0, 3, 3, 8, 8] : [0, 4, 4, 12, 12];
     const scales = [1, 0.97, 0.97, 0.94, 0.94];
     const idx = Math.min(depth, 4);
 
@@ -134,24 +144,9 @@ export function ReadingLogCardDeck({
   };
 
   return (
-    <div className="w-full flex flex-col items-center justify-center py-6 min-h-[560px] relative overflow-visible">
-      {/* 공유 및 제어 바 영역 */}
-      {!isDeckFinished && (
-        <div className="absolute top-0 right-4 z-50 flex items-center gap-2">
-          {!isSharedPage && !readOnly && (
-            <button
-              onClick={copyShareLink}
-              className="flex items-center gap-2 px-4 py-2 bg-stone-900 text-white rounded-full text-xs font-semibold shadow-md hover:bg-stone-800 transition-colors hover:shadow-lg active:scale-95 cursor-pointer"
-            >
-              <Share2 className="w-3.5 h-3.5" />
-              {t("deck.copy_link")}
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* 카드 스택 뷰포트 — 3D perspective 왜곡 효과는 개별 카드 플립 래퍼에 부여 */}
-      <div className="relative w-full max-w-[340px] h-[480px] flex items-center justify-center mt-8">
+    <div className="w-full flex flex-col items-center justify-center py-6 min-h-[420px] sm:min-h-[560px] relative overflow-visible">
+      {/* 카드 스택 뷰포트 영역 — 3D perspective 왜곡 효과는 개별 카드 플립 래퍼에 부여 */}
+      <div className="relative w-full max-w-[250px] sm:max-w-[340px] h-[350px] sm:h-[480px] flex items-center justify-center mt-8">
         <AnimatePresence>
           {isDeckFinished ? (
             <motion.div
@@ -351,6 +346,19 @@ export function ReadingLogCardDeck({
         >
           <span>{t("deck.swipe_hint")}</span>
         </motion.p>
+      )}
+
+      {/* 조용한 공유 링크 복사 버튼 (카드 스택 밑 힌트 텍스트보다 아래에 배치) */}
+      {!isDeckFinished && !isSharedPage && !readOnly && (
+        <div className="mt-4 flex justify-center">
+          <button
+            onClick={copyShareLink}
+            className="flex items-center gap-1.5 text-[11px] font-semibold text-stone-400 hover:text-stone-700 transition-colors active:scale-95 duration-200 cursor-pointer"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            {t("deck.copy_link")}
+          </button>
+        </div>
       )}
     </div>
   );
