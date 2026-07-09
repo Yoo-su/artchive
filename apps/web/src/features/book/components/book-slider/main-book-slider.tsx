@@ -153,17 +153,17 @@ export const MainBookSlider = () => {
         setCardWidth(180);
         setCardHeight(270);
       } else if (width > 768) {
-        setRadius(460);
-        setCardWidth(140);
-        setCardHeight(210);
+        setRadius(480);
+        setCardWidth(150);
+        setCardHeight(225);
       } else if (width > 480) {
-        setRadius(360);
+        setRadius(420);
+        setCardWidth(130);
+        setCardHeight(195);
+      } else {
+        setRadius(350);
         setCardWidth(110);
         setCardHeight(165);
-      } else {
-        setRadius(300);
-        setCardWidth(90);
-        setCardHeight(135);
       }
     };
 
@@ -338,12 +338,12 @@ export const MainBookSlider = () => {
 
       {/* 출판사 필터 칩 목록 */}
       <div className="container mx-auto w-full px-4 md:px-0 mb-16 flex justify-center">
-        <div className="inline-flex items-center gap-1 p-1.5 bg-white/60 backdrop-blur-xl rounded-full shadow-[0_2px_20px_-5px_rgba(0,0,0,0.05)] border border-white/40 overflow-x-auto max-w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="inline-flex items-center gap-0.5 md:gap-1 p-1 md:p-1.5 bg-white/60 backdrop-blur-xl rounded-full shadow-[0_2px_20px_-5px_rgba(0,0,0,0.05)] border border-white/40 overflow-x-auto max-w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {HOME_PUBLISHERS.map((publisher) => (
             <button
               key={publisher}
               onClick={() => setActivePublisher(publisher)}
-              className={`relative px-5 md:px-7 py-2 md:py-2.5 rounded-full text-sm md:text-base transition-all duration-500 whitespace-nowrap ${
+              className={`relative px-3.5 md:px-7 py-1.5 md:py-2.5 rounded-full text-xs md:text-base transition-all duration-500 whitespace-nowrap ${
                 activePublisher === publisher
                   ? "text-stone-900 font-semibold shadow-sm"
                   : "text-stone-400 hover:text-stone-700 font-medium"
@@ -374,7 +374,7 @@ export const MainBookSlider = () => {
               perspective: 1200,
               perspectiveOrigin: "center 30%",
             }}
-            className="relative flex items-center justify-center w-full h-[180px] sm:h-[220px] md:h-[270px] lg:h-[330px] overflow-visible cursor-grab active:cursor-grabbing"
+            className="relative flex items-center justify-center w-full h-[220px] sm:h-[260px] md:h-[310px] lg:h-[360px] overflow-visible cursor-grab active:cursor-grabbing touch-pan-y"
             onPanStart={handlePanStart}
             onPan={handlePan}
             onPanEnd={handlePanEnd}
