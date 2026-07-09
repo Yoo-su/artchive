@@ -21,6 +21,7 @@ import { useReadingLogPrefetch } from "../../../hooks/use-reading-log-prefetch";
 import { useSeasonalTheme } from "../../../hooks/use-seasonal-theme";
 import { useReadingLogsQuery } from "../../../queries";
 import { DayDetailsDialog } from "../../common/day-details-dialog";
+import { ReadingLogCardDeck } from "../../deck-view/reading-log-card-deck";
 import { ReadingLogListView } from "../../list-view/reading-log-list-view";
 import { ReadingLogStats } from "../../stats-view/reading-log-stats";
 import { ReadingLogCalendarSkeleton } from "../reading-log-calendar-skeleton";
@@ -55,17 +56,44 @@ export function ReadingLogCalendar({
   // 인접한 월 데이터 prefetch - readOnly가 아닐 때만
   useReadingLogPrefetch(currentDate.getFullYear(), currentDate.getMonth() + 1, !readOnly);
 
-  // API 호출 (달력 모드일 때만, readOnly가 아닐 때만)
+  // API 호출 - 달력 및 리스트 모드일 때 (월별)
   const {
-    data: fetchedLogs = [],
-    isLoading: isQueryLoading,
-    isFetching,
+    data: fetchedMonthlyLogs = [],
+    isLoading: isMonthlyLoading,
+    isFetching: isMonthlyFetching,
   } = useReadingLogsQuery(currentDate.getFullYear(), currentDate.getMonth() + 1, {
-    enabled: viewMode === "calendar" && !readOnly,
+    enabled: (viewMode === "calendar" || viewMode === "list") && !readOnly,
   });
 
-  const logs = readOnly ? initialLogs : fetchedLogs;
-  const isLoading = readOnly ? false : isQueryLoading;
+  // API 호출 - 카드 덱 모드일 때 (연간)
+  const {
+    data: fetchedYearlyLogs = [],
+    isLoading: isYearlyLoading,
+    isFetching: isYearlyFetching,
+  } = useReadingLogsQuery(currentDate.getFullYear(), undefined, {
+    enabled: viewMode === "deck" && !readOnly,
+  });
+
+  // viewMode에 따른 데이터 분기
+  const logs = readOnly
+    ? viewMode === "deck"
+      ? initialLogs.filter((log) => new Date(log.date).getFullYear() === currentDate.getFullYear())
+      : initialLogs
+    : viewMode === "deck"
+      ? fetchedYearlyLogs
+      : fetchedMonthlyLogs;
+
+  const isLoading = readOnly
+    ? false
+    : viewMode === "deck"
+      ? isYearlyLoading
+      : isMonthlyLoading;
+
+  const isFetching = readOnly
+    ? false
+    : viewMode === "deck"
+      ? isYearlyFetching
+      : isMonthlyFetching;
 
   const handlePrevMonth = () => onDateChange(subMonths(currentDate, 1));
   const handleNextMonth = () => onDateChange(addMonths(currentDate, 1));
@@ -109,6 +137,8 @@ export function ReadingLogCalendar({
 
       {viewMode === "list" && !readOnly ? (
         <ReadingLogListView />
+      ) : viewMode === "deck" ? (
+        <ReadingLogCardDeck logs={logs} currentDate={currentDate} readOnly={readOnly} />
       ) : isLoading ? (
         <ReadingLogCalendarSkeleton />
       ) : (

@@ -109,8 +109,8 @@ export class AuthController {
     description: '유효하지 않은 Refresh Token입니다.',
   })
   async refresh(@CurrentUser() user: User) {
-    const { id: userId, nickname } = user;
-    const tokens = await this.authService.refresh(userId, nickname);
+    const { id: userId, nickname, role } = user;
+    const tokens = await this.authService.refresh(userId, nickname, role);
     return tokens;
   }
 

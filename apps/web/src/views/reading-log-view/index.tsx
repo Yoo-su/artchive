@@ -12,7 +12,7 @@ export function ReadingLogView() {
     <div className="relative min-h-screen pb-20">
       <ReadingLogHero currentDate={currentDate} />
 
-      <div className="container relative z-10">
+      <div className="w-full px-4 md:px-6 lg:px-8 xl:max-w-7xl xl:mx-auto relative z-10">
         <ReadingLogCalendar
           currentDate={currentDate}
           onDateChange={setCurrentDate}

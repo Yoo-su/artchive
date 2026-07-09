@@ -18,6 +18,6 @@ export class JwtRefreshStrategy extends PassportStrategy(
   }
 
   validate(payload: JwtPayload) {
-    return { id: payload.sub, nickname: payload.nickname };
+    return { id: payload.sub, nickname: payload.nickname, role: payload.role };
   }
 }

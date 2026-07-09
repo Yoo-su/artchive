@@ -25,7 +25,11 @@ async function bootstrap() {
   app.use(helmet());
   app.use(compression());
   app.enableCors({
-    origin: process.env.CLIENT_DOMAIN ?? 'http://localhost:3000',
+    origin: [
+      process.env.CLIENT_DOMAIN ?? 'http://localhost:3000',
+      'http://localhost:3000',
+      'http://localhost:3001',
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: [

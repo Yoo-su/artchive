@@ -467,7 +467,20 @@ export class ReadingLogService {
    * @param month 월 (1-12)
    * @returns 해당 월의 독서 기록 목록
    */
-  async findAllByMonth(userId: number, year: number, month: number) {
+  async findAllByMonth(userId: number, year: number, month?: number) {
+    if (!month) {
+      const start = `${year}-01-01`;
+      const end = `${year}-12-31`;
+
+      return await this.readingLogRepository
+        .createQueryBuilder('log')
+        .leftJoinAndSelect('log.book', 'book')
+        .where('log.userId = :userId', { userId })
+        .andWhere('log.date >= :start AND log.date <= :end', { start, end })
+        .orderBy('log.date', 'ASC')
+        .getMany();
+    }
+
     const { start, end } = this.getDateRangeOfMonth(year, month);
 
     return await this.readingLogRepository

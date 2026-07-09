@@ -11,11 +11,8 @@ import {
 
 import { privateAxios, publicAxios } from "@/shared/libs/axios";
 
-export type { CreateReadingLogParams, ReadingLog } from "@bookjeok/core";
-
-// 기존 훅들 (privateAxios 사용 - 인증 필요)
-export const useReadingLogsQuery = (year: number, month: number, options?: { enabled?: boolean }) =>
-  useBaseReadingLogsQuery(year, month, privateAxios, options);
+export const useReadingLogsQuery = (year: number, month?: number, options?: { enabled?: boolean }) =>
+  useBaseReadingLogsQuery(year, month!, privateAxios, options);
 
 export const useReadingLogStatsQuery = (year: number, month: number) =>
   useBaseReadingLogStatsQuery(year, month, privateAxios);

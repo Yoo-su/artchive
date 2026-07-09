@@ -12,6 +12,7 @@ WORKDIR /app
 # 모노레포 설정 파일 및 각 패키지의 package.json 복사
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json turbo.json .npmrc ./
 COPY apps/web/package.json ./apps/web/
+COPY apps/admin/package.json ./apps/admin/
 COPY packages/core/package.json ./packages/core/
 COPY packages/api-client/package.json ./packages/api-client/
 COPY packages/react-query/package.json ./packages/react-query/

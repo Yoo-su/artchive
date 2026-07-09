@@ -9,6 +9,7 @@ WORKDIR /app
 # 모노레포 설정 파일 및 각 패키지의 package.json 복사
 COPY pnpm-lock.yaml package.json pnpm-workspace.yaml tsconfig.base.json turbo.json .npmrc ./
 COPY apps/server/package.json ./apps/server/
+COPY apps/admin/package.json ./apps/admin/
 COPY packages/core/package.json ./packages/core/
 COPY packages/api-client/package.json ./packages/api-client/
 COPY packages/react-query/package.json ./packages/react-query/
@@ -34,6 +35,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json turbo.json .npmrc ./
 COPY packages ./packages
 COPY apps/server ./apps/server
+COPY apps/admin/package.json ./apps/admin/package.json
 
 # server 앱과 의존 패키지를 함께 빌드
 RUN pnpm build --filter=@bookjeok/server...
@@ -57,6 +59,7 @@ COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=builder /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --from=builder /app/.npmrc ./.npmrc
 COPY --from=builder /app/apps/server/package.json ./apps/server/package.json
+COPY --from=builder /app/apps/admin/package.json ./apps/admin/package.json
 
 # 공유 패키지의 package.json만 복사 (pnpm workspace 해석에 필요)
 # packages는 웹에서만 사용하므로 dist(빌드 결과물)는 복사하지 않음

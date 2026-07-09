@@ -362,7 +362,11 @@ export class UsedBookSaleService {
   /**
    * 판매글을 삭제합니다.
    */
-  async deleteUsedBookSale(saleId: number, userId: number): Promise<void> {
+  async deleteUsedBookSale(
+    saleId: number,
+    userId: number,
+    userRole?: string,
+  ): Promise<void> {
     const sale = await this.usedBookSaleRepository.findOne({
       where: { id: saleId },
       relations: ['user'],
@@ -372,7 +376,7 @@ export class UsedBookSaleService {
       throw new BusinessException('SALE_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
 
-    if (sale.user.id !== userId) {
+    if (sale.user.id !== userId && userRole !== 'ADMIN') {
       throw new BusinessException('SALE_FORBIDDEN', HttpStatus.FORBIDDEN);
     }
 

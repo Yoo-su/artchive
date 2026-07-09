@@ -227,7 +227,7 @@ export class UsedBookSaleController {
     @CurrentUser() user: User,
   ) {
     const userId = user.id;
-    await this.usedBookSaleService.deleteUsedBookSale(id, userId);
+    await this.usedBookSaleService.deleteUsedBookSale(id, userId, user.role);
     return;
   }
 }

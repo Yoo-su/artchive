@@ -287,7 +287,7 @@ export class ReviewController {
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: User,
   ): Promise<ReviewResponseDto> {
-    return await this.reviewService.remove(id, user.id);
+    return await this.reviewService.remove(id, user.id, user.role);
   }
 
   @Get(':id/reaction')

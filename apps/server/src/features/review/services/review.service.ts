@@ -694,7 +694,11 @@ export class ReviewService {
    * @param userId 요청한 유저 ID
    * @returns 삭제된 리뷰
    */
-  async remove(id: number, userId: number): Promise<ReviewResponseDto> {
+  async remove(
+    id: number,
+    userId: number,
+    userRole?: string,
+  ): Promise<ReviewResponseDto> {
     const review = await this.reviewsRepository.findOne({
       where: { id },
       relations: ['user', 'book', 'tagEntities'],
@@ -704,7 +708,7 @@ export class ReviewService {
       throw new BusinessException('REVIEW_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
 
-    if (review.userId !== userId) {
+    if (review.userId !== userId && userRole !== 'ADMIN') {
       throw new BusinessException('REVIEW_FORBIDDEN', HttpStatus.FORBIDDEN);
     }
 

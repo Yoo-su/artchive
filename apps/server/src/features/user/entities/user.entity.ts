@@ -58,6 +58,9 @@ export class User {
   @Column({ nullable: true })
   lastActiveAt: Date;
 
+  @Column({ type: 'varchar', default: 'USER' })
+  role: 'USER' | 'ADMIN';
+
   @OneToMany(() => UsedBookSale, (sale) => sale.user)
   usedBookSales: UsedBookSale[];
 

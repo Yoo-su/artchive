@@ -311,14 +311,9 @@ export class UserService implements OnModuleInit {
   }
 
   private async getPublicReadingLogs(userId: number) {
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-    const dateString = sixMonthsAgo.toISOString().split('T')[0];
-
     const logs = await this.dataSource.getRepository(ReadingLog).find({
       where: {
         user: { id: userId },
-        date: MoreThanOrEqual(dateString),
       },
       order: { date: 'DESC' },
     });
