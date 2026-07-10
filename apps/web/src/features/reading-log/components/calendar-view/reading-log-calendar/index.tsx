@@ -138,7 +138,7 @@ export function ReadingLogCalendar({
       {viewMode === "list" && !readOnly ? (
         <ReadingLogListView />
       ) : viewMode === "deck" ? (
-        <ReadingLogCardDeck logs={logs} currentDate={currentDate} readOnly={readOnly} />
+        <ReadingLogCardDeck logs={logs} currentDate={currentDate} readOnly={readOnly} isLoading={isLoading} />
       ) : isLoading ? (
         <ReadingLogCalendarSkeleton />
       ) : (

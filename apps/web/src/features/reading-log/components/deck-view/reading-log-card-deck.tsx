@@ -22,6 +22,7 @@ interface ReadingLogCardDeckProps {
   onShareClick?: () => void;
   isSharedPage?: boolean;
   readOnly?: boolean;
+  isLoading?: boolean;
 }
 
 export function ReadingLogCardDeck({
@@ -30,6 +31,7 @@ export function ReadingLogCardDeck({
   onShareClick,
   isSharedPage = false,
   readOnly = false,
+  isLoading = false,
 }: ReadingLogCardDeckProps) {
   const t = useTranslations("reading_log");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -96,6 +98,17 @@ export function ReadingLogCardDeck({
     navigator.clipboard.writeText(shareUrl);
     toast.success("링크가 복사되었습니다!");
   };
+
+  if (isLoading) {
+    return (
+      <div className="w-full flex flex-col items-center justify-center py-6 min-h-[420px] sm:min-h-[560px] relative overflow-visible">
+        {/* 카드 실루엣 크기와 동일하게 애니메이션 스켈레톤 설계 */}
+        <div className="relative w-full max-w-[250px] sm:max-w-[340px] h-[350px] sm:h-[480px] bg-stone-100 rounded-3xl border border-stone-200/50 flex flex-col items-center justify-center animate-pulse mt-8 shadow-md">
+          <div className="w-10 h-10 border-4 border-stone-300 border-t-stone-500 rounded-full animate-spin" />
+        </div>
+      </div>
+    );
+  }
 
   if (!logs || logs.length === 0) {
     return (
