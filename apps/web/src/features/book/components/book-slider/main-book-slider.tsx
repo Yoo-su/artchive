@@ -5,7 +5,7 @@ import { BookOpen } from "lucide-react";
 import { animate,motion, useMotionValue, useTransform } from "motion/react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo,useEffect, useMemo, useRef, useState } from "react";
 
 import { TextAnimate } from "@/shared/components/magicui/text-animate";
 import { Link } from "@/shared/config/i18n/routing";
@@ -15,7 +15,7 @@ import { useBookListQuery } from "../../queries";
 import { BookSliderSkeleton } from "./skeleton";
 
 // 3D 실린더 카드 컴포넌트
-const BookCard = ({
+const BookCard = memo(({
   book,
   index,
   rotationY,
@@ -126,7 +126,56 @@ const BookCard = ({
       </motion.div>
     </div>
   );
-};
+});
+
+BookCard.displayName = "BookCard";
+
+// 활성 도서 정보 텍스트 컴포넌트 (부모 전체의 불필요한 리렌더링 방지를 위해 격리)
+const ActiveBookInfo = memo(({
+  rotationY,
+  books,
+  angleStep,
+}: {
+  rotationY: any;
+  books: any[];
+  angleStep: number;
+}) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const N = books.length;
+
+  useEffect(() => {
+    if (N === 0) return;
+    const unsubscribe = rotationY.on("change", (latest: number) => {
+      const approxIndex = Math.round(-latest / angleStep);
+      const normIndex = ((approxIndex % N) + N) % N;
+      setActiveIndex(normIndex);
+    });
+    return () => unsubscribe();
+  }, [rotationY, angleStep, N]);
+
+  const activeBook = books[activeIndex];
+
+  return (
+    <div className="container mx-auto mt-16 flex flex-col items-center text-center h-[80px]">
+      <motion.div
+        key={activeIndex}
+        initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+        className="space-y-1.5 select-none pointer-events-none"
+      >
+        <h3 className="text-stone-900 font-bold text-xl md:text-3xl leading-tight px-4 max-w-2xl line-clamp-1">
+          {activeBook?.title}
+        </h3>
+        <p className="text-stone-500 text-sm md:text-base font-medium tracking-wide">
+          {activeBook?.author}
+        </p>
+      </motion.div>
+    </div>
+  );
+});
+
+ActiveBookInfo.displayName = "ActiveBookInfo";
 
 export const MainBookSlider = () => {
   const t = useTranslations("home.sections.main_books");
@@ -191,24 +240,62 @@ export const MainBookSlider = () => {
 
   // Framer Motion 상태 값
   const rotationY = useMotionValue(0);
-  const [activeIndex, setActiveIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
+  const viewportRef = useRef<HTMLDivElement | null>(null);
   const autoplayIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isSnappingRef = useRef(false);
   const dragDistanceRef = useRef(0);
 
-  // 실시간 회전값에 맞춰 활성 도서 인덱스 동기화
+  // 모바일 사선 스와이프 시 전체 세로 스크롤과 슬라이더 드래그의 충돌을 방지하는 이벤트 바인딩
   useEffect(() => {
-    if (N === 0) return;
-    const unsubscribe = rotationY.on("change", (latest) => {
-      const approxIndex = Math.round(-latest / angleStep);
-      const normIndex = ((approxIndex % N) + N) % N;
-      setActiveIndex(normIndex);
-    });
-    return () => unsubscribe();
-  }, [angleStep, N]);
+    const el = viewportRef.current;
+    if (!el) return;
+
+    let startX = 0;
+    let startY = 0;
+    let isHorizontalDrag = false;
+    let isFirstMove = false;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        isHorizontalDrag = false;
+        isFirstMove = true;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 0) return;
+
+      if (isFirstMove) {
+        const diffX = Math.abs(e.touches[0].clientX - startX);
+        const diffY = Math.abs(e.touches[0].clientY - startY);
+
+        // 수평 드래그 거리가 더 크고 최소 변위가 있으면 수평 드래그로 판정하여 세로 스크롤 방지
+        if (diffX > diffY && diffX > 4) {
+          isHorizontalDrag = true;
+        }
+        isFirstMove = false;
+      }
+
+      if (isHorizontalDrag) {
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    el.addEventListener("touchstart", handleTouchStart, { passive: true });
+    el.addEventListener("touchmove", handleTouchMove, { passive: false });
+
+    return () => {
+      el.removeEventListener("touchstart", handleTouchStart);
+      el.removeEventListener("touchmove", handleTouchMove);
+    };
+  }, []);
 
   // 자동 회전(롤링) 기능 구현
   const startAutoplay = () => {
@@ -253,7 +340,6 @@ export const MainBookSlider = () => {
   useEffect(() => {
     stopAutoplay();
     rotationY.set(0);
-    setActiveIndex(0);
     dragDistanceRef.current = 0;
     if (!isHovered && !isDragging) {
       startAutoplay();
@@ -318,8 +404,6 @@ export const MainBookSlider = () => {
     }
   };
 
-  const activeBook = displayBooks[activeIndex];
-
   return (
     <div className="w-full bg-stone-50/30 py-16 md:py-24 overflow-hidden select-none">
       <div className="container mx-auto w-full px-4 md:px-0 mb-12 flex flex-col items-center text-center">
@@ -370,6 +454,7 @@ export const MainBookSlider = () => {
       {!isLoading && books && books.length > 0 && (
         <div className="w-full relative flex flex-col items-center">
           <motion.div
+            ref={viewportRef}
             style={{
               perspective: 1200,
               perspectiveOrigin: "center 30%",
@@ -408,23 +493,8 @@ export const MainBookSlider = () => {
             <div className="absolute bottom-[-35px] left-1/2 -translate-x-1/2 w-[85%] h-[35px] bg-stone-900/10 rounded-full blur-2xl -z-10 pointer-events-none" />
           </motion.div>
 
-          {/* 활성 도서 정보 텍스트 (위아래 부드러운 페이드 전환) */}
-          <div className="container mx-auto mt-16 flex flex-col items-center text-center h-[80px]">
-            <motion.div
-              key={activeIndex}
-              initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              transition={{ duration: 0.35, ease: "easeOut" }}
-              className="space-y-1.5 select-none pointer-events-none"
-            >
-              <h3 className="text-stone-900 font-bold text-xl md:text-3xl leading-tight px-4 max-w-2xl line-clamp-1">
-                {activeBook?.title}
-              </h3>
-              <p className="text-stone-500 text-sm md:text-base font-medium tracking-wide">
-                {activeBook?.author}
-              </p>
-            </motion.div>
-          </div>
+          {/* 활성 도서 정보 텍스트 (격리된 리렌더링 서브 컴포넌트) */}
+          <ActiveBookInfo key={activePublisher} rotationY={rotationY} books={displayBooks} angleStep={angleStep} />
         </div>
       )}
     </div>
