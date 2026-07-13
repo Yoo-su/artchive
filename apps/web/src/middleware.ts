@@ -40,6 +40,25 @@ export default function middleware(request: NextRequest) {
     const defaultLocale = routing.defaultLocale;
     const url = request.nextUrl.clone();
     url.pathname = `/${defaultLocale}${pathname}`;
+
+    // SNS 공유 시 리다이렉션 지연 및 수집 실패를 예방하기 위해, 스크래퍼 봇은 내부 rewrite 처리(200 OK 즉시 서빙)
+    const isSnsBot = [
+      /facebookexternalhit/i,
+      /twitterbot/i,
+      /slackbot/i,
+      /discordbot/i,
+      /linespider/i,
+      /telegrambot/i,
+      /kakaotalk-scrap/i,
+      /daum/i,
+      /kakaotalk/i,
+      /whatsapp/i,
+    ].some((pattern) => pattern.test(userAgent));
+
+    if (isSnsBot) {
+      return NextResponse.rewrite(url);
+    }
+
     return NextResponse.redirect(url, 301);
   }
 
