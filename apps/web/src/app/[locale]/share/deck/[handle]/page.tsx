@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 
+import { createPageMetadata } from "@/shared/config/metadata";
 import { ShareDeckView } from "@/views/share-deck-view";
 
 type Props = {
@@ -18,20 +19,12 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const title = `${handle}님의 독서 카드 덱`;
   const description = `${year ? `${year}년` : "올해"} 완독한 소중한 책들의 카드 컬렉션을 둘러보세요.`;
 
-  return {
+  return createPageMetadata({
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-    },
-  };
+    locale,
+    path: `/share/deck/${handle}`,
+  });
 }
 
 export default async function Page({ params, searchParams }: Props) {

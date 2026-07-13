@@ -101,12 +101,18 @@ export const createPageMetadata = ({
   const images = imageUrl ? [imageUrl] : ["/logo-og-sketch.png"];
 
   const metadata: Metadata = {
+    metadataBase: new URL("https://bookjeok.com"),
     title,
     description,
     openGraph: {
       title: `${title} | 북적`,
       description,
       images,
+      siteName: "Bookjeok",
+      type: "website",
+      url: path
+        ? `https://bookjeok.com/${locale || "ko"}${path.startsWith("/") ? path : `/${path}`}`
+        : undefined,
     },
     twitter: {
       card: imageUrl ? "summary_large_image" : "summary",
