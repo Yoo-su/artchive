@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { createPageMetadata } from "../metadata";
 
 describe("createPageMetadata (페이지별 메타데이터 생성 헬퍼)", () => {
