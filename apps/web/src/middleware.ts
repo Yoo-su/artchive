@@ -28,7 +28,19 @@ export default function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // 3. 다국어 접두사(/ko, /en)가 없고 예외 파일이 아니면 301 영구 리다이렉션
+  const isSnsBot = [
+    /facebookexternalhit/i,
+    /twitterbot/i,
+    /slackbot/i,
+    /discordbot/i,
+    /linespider/i,
+    /telegrambot/i,
+    /kakaotalk-scrap/i,
+    /daum/i,
+    /kakaotalk/i,
+    /whatsapp/i,
+  ].some((pattern) => pattern.test(userAgent));
+
   const hasLocale = routing.locales.some(
     (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
   );
@@ -36,32 +48,32 @@ export default function middleware(request: NextRequest) {
   const EXCLUDE_PATHS = ["/robots.txt", "/sitemap.xml", "/favicon.ico", "/rss.xml"];
   const isExcluded = EXCLUDE_PATHS.includes(pathname);
 
-  if (!hasLocale && !isExcluded) {
+  // SNS 공유 시 리다이렉션 지연 및 수집 실패를 예방하기 위해, 스크래퍼 봇은 내부 rewrite 처리(200 OK 즉시 서빙)합니다.
+  if (isSnsBot && !hasLocale && !isExcluded) {
     const defaultLocale = routing.defaultLocale;
     const url = request.nextUrl.clone();
     url.pathname = `/${defaultLocale}${pathname}`;
 
-    // SNS 공유 시 리다이렉션 지연 및 수집 실패를 예방하기 위해, 스크래퍼 봇은 내부 rewrite 처리(200 OK 즉시 서빙)
-    const isSnsBot = [
-      /facebookexternalhit/i,
-      /twitterbot/i,
-      /slackbot/i,
-      /discordbot/i,
-      /linespider/i,
-      /telegrambot/i,
-      /kakaotalk-scrap/i,
-      /daum/i,
-      /kakaotalk/i,
-      /whatsapp/i,
-    ].some((pattern) => pattern.test(userAgent));
+    // Rewrite시 next-intl/server 동작을 위해 필요한 로케일 헤더를 강제 주입
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-next-intl-locale", defaultLocale);
 
-    if (isSnsBot) {
-      return NextResponse.rewrite(url);
-    }
+    return NextResponse.rewrite(url, {
+      request: {
+        headers: requestHeaders,
+      },
+    });
+  }
 
+  // 일반 사용자는 다국어 접두사(/ko, /en)가 없고 예외 파일이 아니면 301 영구 리다이렉션 (SEO 이점)
+  if (!isSnsBot && !hasLocale && !isExcluded) {
+    const defaultLocale = routing.defaultLocale;
+    const url = request.nextUrl.clone();
+    url.pathname = `/${defaultLocale}${pathname}`;
     return NextResponse.redirect(url, 301);
   }
 
+  // 이미 로케일이 있는 요청(봇 포함)이거나, 그 외의 경우에는 next-intl 미들웨어를 정상적으로 실행
   return intlMiddleware(request);
 }
 
