@@ -1,4 +1,4 @@
-import { BookInfo, DEFAULT_DISPLAY, DEFAULT_SORT, DEFAULT_START, GetBookDetailResponseData, GetBookListErrorResponse, GetBookListParams, GetBookListSuccessResponse } from "@bookjeok/core";
+import { BookInfo, DEFAULT_DISPLAY, DEFAULT_SORT, DEFAULT_START, GetBookDetailResponseData, GetBookListParams, GetBookListSuccessResponse } from "@bookjeok/core";
 import axios from "axios";
 import { cache } from "react";
 
