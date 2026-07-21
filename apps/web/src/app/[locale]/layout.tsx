@@ -1,5 +1,6 @@
 import "@/styles/globals.css";
 import "@/styles/swiper.css";
+import "@/shared/libs/axios";
 
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";

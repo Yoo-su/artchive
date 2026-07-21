@@ -10,33 +10,31 @@ import {
   useReviewsQuery as useBaseReviewsQuery,
 } from "@bookjeok/react-query";
 
-import { privateAxios, publicAxios } from "@/shared/libs/axios";
-
 export type {
   ReviewFeed,
   ReviewReactionType as ReviewReaction,
 } from "@bookjeok/core";
 
 export const useReviewsQuery = (params: GetReviewsParams, enabled: boolean = true) =>
-  useBaseReviewsQuery(params, publicAxios, enabled);
+  useBaseReviewsQuery(params, enabled);
 
 export const useReviewsInfiniteQuery = (params: GetReviewsParams, enabled: boolean = true) =>
-  useBaseReviewsInfiniteQuery(params, publicAxios, enabled);
+  useBaseReviewsInfiniteQuery(params, enabled);
 
 export const useReviewFeedsQuery = (enabled: boolean = true) =>
-  useBaseReviewFeedsQuery(publicAxios, enabled);
+  useBaseReviewFeedsQuery(enabled);
 
 export const usePopularReviewsQuery = (enabled: boolean = true) =>
-  useBasePopularReviewsQuery(publicAxios, enabled);
+  useBasePopularReviewsQuery(enabled);
 
 export const useReviewDetailQuery = (id: number, initialData?: Review) =>
-  useBaseReviewDetailQuery(id, publicAxios, initialData);
+  useBaseReviewDetailQuery(id, initialData);
 
 export const useReviewForEditQuery = (id: number) =>
-  useBaseReviewForEditQuery(id, privateAxios);
+  useBaseReviewForEditQuery(id);
 
 export const useMyReviewReactionQuery = (id: number, enabled: boolean = true) =>
-  useBaseMyReviewReactionQuery(id, privateAxios, enabled);
+  useBaseMyReviewReactionQuery(id, enabled);
 
 export const useRecommendedReviewsQuery = (id: number, enabled: boolean = true) =>
-  useBaseRecommendedReviewsQuery(id, publicAxios, enabled);
+  useBaseRecommendedReviewsQuery(id, enabled);

@@ -5,21 +5,20 @@ import { useCreateReviewMutation as useSharedCreateReviewMutation, useDeleteRevi
 import { toast } from "sonner";
 
 import { deleteImages } from "@/features/book-sale/actions/delete-action";
-import { privateAxios } from "@/shared/libs/axios";
 import { handleMutationError } from "@/shared/utils/error-handler";
 
 /**
  * 리뷰 리액션을 토글하는 뮤테이션 훅입니다.
  */
 export const useToggleReviewReactionMutation = (reviewId: number) => {
-  return useSharedToggleReviewReactionMutation(reviewId, privateAxios);
+  return useSharedToggleReviewReactionMutation(reviewId);
 };
 
 /**
  * 리뷰를 생성하는 뮤테이션 훅입니다.
  */
 export const useCreateReviewMutation = () => {
-  return useSharedCreateReviewMutation(privateAxios, {
+  return useSharedCreateReviewMutation({
     onSuccess: () => {
       toast.success("리뷰가 작성되었습니다.");
     },
@@ -30,7 +29,7 @@ export const useCreateReviewMutation = () => {
  * 리뷰를 수정하는 뮤테이션 훅입니다.
  */
 export const useUpdateReviewMutation = () => {
-  const sharedMutation = useSharedUpdateReviewMutation(privateAxios, {
+  const sharedMutation = useSharedUpdateReviewMutation({
     onSuccess: () => {
       toast.success("리뷰가 수정되었습니다!");
     },
@@ -73,7 +72,7 @@ export const useUpdateReviewMutation = () => {
  * 리뷰를 삭제하는 뮤테이션 훅입니다.
  */
 export const useDeleteReviewMutation = () => {
-  return useSharedDeleteReviewMutation(privateAxios, {
+  return useSharedDeleteReviewMutation({
     onSuccess: () => {
       toast.success("리뷰가 삭제되었습니다.");
     },

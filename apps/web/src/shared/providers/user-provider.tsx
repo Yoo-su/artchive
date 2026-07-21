@@ -6,7 +6,6 @@ import { ReactNode, useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { FullScreenLoader } from "@/shared/components/ui/full-screen-loader";
-import { privateAxios } from "@/shared/libs/axios";
 
 interface UesrProviderProps {
   children: ReactNode;
@@ -25,7 +24,7 @@ export default function UserProvider({ children }: UesrProviderProps) {
     const fetchUserProfile = async () => {
       if (accessToken) {
         try {
-          const user = await getUserProfile(privateAxios);
+          const user = await getUserProfile();
           setUser(user);
         } finally {
           setIsLoading(false);

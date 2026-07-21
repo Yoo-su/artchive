@@ -1,15 +1,13 @@
 import { findOrCreateRoom as sharedFindOrCreateRoom, getChatMessages as sharedGetChatMessages, getMyChatRooms as sharedGetMyChatRooms, leaveChatRoom as sharedLeaveChatRoom, markMessagesAsRead as sharedMarkMessagesAsRead } from "@bookjeok/api-client";
 import { ChatRoom, GetChatMessagesResponse } from "@bookjeok/core";
 
-import { privateAxios } from "@/shared/libs/axios";
-
 /**
  * 특정 판매글에 대한 채팅방을 찾거나 생성합니다.
  */
 export const findOrCreateRoom = async (
   usedBookSaleId: number,
 ): Promise<ChatRoom> => {
-  return sharedFindOrCreateRoom(privateAxios, usedBookSaleId);
+  return sharedFindOrCreateRoom(usedBookSaleId);
 };
 
 /**
@@ -17,7 +15,7 @@ export const findOrCreateRoom = async (
  * @returns 채팅방 목록
  */
 export const getMyChatRooms = async (): Promise<ChatRoom[]> => {
-  return sharedGetMyChatRooms(privateAxios);
+  return sharedGetMyChatRooms();
 };
 
 /**
@@ -33,7 +31,7 @@ export const getChatMessages = async (
   limit: number = 20,
   cursorId?: number,
 ): Promise<GetChatMessagesResponse> => {
-  return sharedGetChatMessages(privateAxios, roomId, page, limit, cursorId);
+  return sharedGetChatMessages(roomId, page, limit, cursorId);
 };
 
 /**
@@ -41,7 +39,7 @@ export const getChatMessages = async (
  * @param roomId 채팅방 ID
  */
 export const markMessagesAsRead = async (roomId: number) => {
-  return sharedMarkMessagesAsRead(privateAxios, roomId);
+  return sharedMarkMessagesAsRead(roomId);
 };
 
 /**
@@ -49,5 +47,5 @@ export const markMessagesAsRead = async (roomId: number) => {
  * @param roomId 나갈 채팅방의 ID
  */
 export const leaveChatRoom = async (roomId: number) => {
-  return sharedLeaveChatRoom(privateAxios, roomId);
+  return sharedLeaveChatRoom(roomId);
 };

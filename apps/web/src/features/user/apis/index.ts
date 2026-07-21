@@ -1,14 +1,12 @@
 import { addToWishlist as sharedAddToWishlist, checkNickname as sharedCheckNickname, checkWishlistStatus as sharedCheckWishlistStatus, getMyProfile as sharedGetMyProfile, getMyWishlist as sharedGetMyWishlist, getPublicUserProfile as sharedGetPublicUserProfile, getUserStats as sharedGetUserStats, removeFromWishlist as sharedRemoveFromWishlist, updateProfile as sharedUpdateProfile } from "@bookjeok/api-client";
 import { PublicUserProfile, UserStats, WishlistItem } from "@bookjeok/core";
 
-import { privateAxios, publicAxios } from "@/shared/libs/axios";
-
 /**
  * 사용자의 활동 통계(판매, 채팅, 리뷰 수 등)를 조회합니다.
  * @returns 사용자 통계 정보
  */
 export const getUserStats = async (): Promise<UserStats> => {
-  return sharedGetUserStats(privateAxios);
+  return sharedGetUserStats();
 };
 
 /**
@@ -19,7 +17,7 @@ export const getUserStats = async (): Promise<UserStats> => {
 export const getPublicProfile = async (
   handle: string,
 ): Promise<PublicUserProfile> => {
-  return sharedGetPublicUserProfile(publicAxios, handle);
+  return sharedGetPublicUserProfile(handle);
 };
 
 /**
@@ -27,7 +25,7 @@ export const getPublicProfile = async (
  * @returns 내 프로필 정보
  */
 export const getMyProfile = async () => {
-  return sharedGetMyProfile(privateAxios);
+  return sharedGetMyProfile();
 };
 
 export interface UpdateUserProfileParams {
@@ -41,7 +39,7 @@ export interface UpdateUserProfileParams {
  * @returns 수정된 사용자 정보
  */
 export const updateProfile = async (params: UpdateUserProfileParams) => {
-  return sharedUpdateProfile(privateAxios, params);
+  return sharedUpdateProfile(params);
 };
 
 /**
@@ -52,7 +50,7 @@ export const updateProfile = async (params: UpdateUserProfileParams) => {
 export const checkNickname = async (
   nickname: string,
  ): Promise<{ available: boolean }> => {
-  return sharedCheckNickname(privateAxios, nickname);
+  return sharedCheckNickname(nickname);
 };
 
 /**
@@ -65,7 +63,7 @@ export const addToWishlist = async (
   type: "BOOK" | "SALE",
   id: string | number,
 ) => {
-  return sharedAddToWishlist(privateAxios, type, id);
+  return sharedAddToWishlist(type, id);
 };
 
 /**
@@ -78,7 +76,7 @@ export const removeFromWishlist = async (
   type: "BOOK" | "SALE",
   id: string | number,
 ) => {
-  return sharedRemoveFromWishlist(privateAxios, type, id);
+  return sharedRemoveFromWishlist(type, id);
 };
 
 /**
@@ -86,7 +84,7 @@ export const removeFromWishlist = async (
  * @returns 위시리스트 목록
  */
 export const getWishlist = async () => {
-  return sharedGetMyWishlist(privateAxios);
+  return sharedGetMyWishlist();
 };
 
 /**
@@ -99,5 +97,5 @@ export const checkWishlistStatus = async (
   type: "BOOK" | "SALE",
   id: string | number,
 ) => {
-  return sharedCheckWishlistStatus(privateAxios, type, id);
+  return sharedCheckWishlistStatus(type, id);
 };

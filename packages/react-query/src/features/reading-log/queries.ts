@@ -20,7 +20,6 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { AxiosInstance } from "axios";
 
 /**
  * 월별 독서 기록 조회
@@ -28,12 +27,11 @@ import { AxiosInstance } from "axios";
 export const useReadingLogsQuery = (
   year: number,
   month: number,
-  client: AxiosInstance,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
     queryKey: readingLogKeys.list(year, month).queryKey,
-    queryFn: () => getReadingLogs(client, { year, month }),
+    queryFn: () => getReadingLogs({ year, month }),
     enabled: options?.enabled,
   });
 };
@@ -44,21 +42,20 @@ export const useReadingLogsQuery = (
 export const useReadingLogStatsQuery = (
   year: number,
   month: number,
-  client: AxiosInstance,
 ) => {
   return useQuery({
     queryKey: readingLogKeys.stats(year, month).queryKey,
-    queryFn: () => getReadingLogStats(client, { year, month }),
+    queryFn: () => getReadingLogStats({ year, month }),
   });
 };
 
 /**
  * 독서 기록 설정 조회
  */
-export const useReadingLogSettingsQuery = (client: AxiosInstance) => {
+export const useReadingLogSettingsQuery = () => {
   return useQuery({
     queryKey: readingLogKeys.settings.queryKey,
-    queryFn: () => getReadingLogSettings(client),
+    queryFn: () => getReadingLogSettings(),
   });
 };
 
@@ -67,14 +64,13 @@ export const useReadingLogSettingsQuery = (client: AxiosInstance) => {
  * 독서 기록 설정 수정 뮤테이션
  */
 export const useUpdateReadingLogSettingsMutation = (
-  client: AxiosInstance,
   options?: { onSuccess?: () => void; onError?: (error: unknown) => void },
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (isReadingLogPublic: boolean) =>
-      updateReadingLogSettings(client, isReadingLogPublic),
+      updateReadingLogSettings(isReadingLogPublic),
     onMutate: async (isReadingLogPublic) => {
       await queryClient.cancelQueries({
         queryKey: readingLogKeys.settings.queryKey,
@@ -130,11 +126,11 @@ export const useUpdateReadingLogSettingsMutation = (
 /**
  * 독서 기록 무한 스크롤 조회
  */
-export const useReadingLogsInfiniteQuery = (client: AxiosInstance) => {
+export const useReadingLogsInfiniteQuery = () => {
   return useInfiniteQuery({
     queryKey: readingLogKeys.infinite.queryKey,
     queryFn: ({ pageParam }) =>
-      getReadingLogsInfinite(client, pageParam as string | null),
+      getReadingLogsInfinite(pageParam as string | null),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
@@ -144,7 +140,6 @@ export const useReadingLogsInfiniteQuery = (client: AxiosInstance) => {
  * 독서 기록 생성 뮤테이션
  */
 export const useCreateReadingLogMutation = (
-  client: AxiosInstance,
   options?: {
     onSuccess?: (data: ReadingLog) => void;
     onError?: (error: unknown) => void;
@@ -161,7 +156,7 @@ export const useCreateReadingLogMutation = (
       idempotencyKey,
       ...payload
     }: CreateReadingLogParams & { idempotencyKey?: string }) =>
-      createReadingLog(client, payload as CreateReadingLogParams, {
+      createReadingLog(payload as CreateReadingLogParams, {
         idempotencyKey,
       }),
     onSuccess: (data) => {
@@ -190,7 +185,6 @@ export const useCreateReadingLogMutation = (
  * 독서 기록 수정 뮤테이션
  */
 export const useUpdateReadingLogMutation = (
-  client: AxiosInstance,
   options?: {
     onSuccess?: (data: ReadingLog) => void;
     onError?: (error: unknown) => void;
@@ -200,7 +194,7 @@ export const useUpdateReadingLogMutation = (
 
   return useMutation<ReadingLog, Error, UpdateReadingLogParams>({
     mutationFn: (params: UpdateReadingLogParams) =>
-      updateReadingLog(client, params),
+      updateReadingLog(params),
     onSuccess: (data) => {
       if (data.date) {
         const [yearStr, monthStr] = data.date.split('-');
@@ -228,14 +222,13 @@ export const useUpdateReadingLogMutation = (
  * 독서 기록 삭제 뮤테이션
  */
 export const useDeleteReadingLogMutation = (
-  client: AxiosInstance,
   options?: { onSuccess?: () => void; onError?: (error: unknown) => void },
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (params: { id: string; date: string }) =>
-      deleteReadingLog(client, params.id),
+      deleteReadingLog(params.id),
     onSuccess: (_, variables) => {
       if (variables.date) {
         const [yearStr, monthStr] = variables.date.split('-');
@@ -260,11 +253,11 @@ export const useDeleteReadingLogMutation = (
 /**
  * 라운지 피드 무한 스크롤 조회 (공개 - publicAxios 주입)
  */
-export const useLoungeFeedInfiniteQuery = (client: AxiosInstance) => {
+export const useLoungeFeedInfiniteQuery = () => {
   return useInfiniteQuery({
     queryKey: readingLogKeys.loungeFeed.queryKey,
     queryFn: ({ pageParam }) =>
-      getLoungeFeed(client, pageParam as string | null),
+      getLoungeFeed(pageParam as string | null),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     staleTime: 60 * 1000, // 1분 (공개 피드이므로 적절한 staleTime)
@@ -274,10 +267,10 @@ export const useLoungeFeedInfiniteQuery = (client: AxiosInstance) => {
 /**
  * 라운지 인기 도서 조회 (공개 - publicAxios 주입)
  */
-export const useLoungePopularQuery = (client: AxiosInstance) => {
+export const useLoungePopularQuery = () => {
   return useQuery({
     queryKey: readingLogKeys.loungePopular.queryKey,
-    queryFn: () => getLoungePopular(client),
+    queryFn: () => getLoungePopular(),
     staleTime: 5 * 60 * 1000, // 5분 (인기도서는 자주 변하지 않으므로)
   });
 };
@@ -285,10 +278,10 @@ export const useLoungePopularQuery = (client: AxiosInstance) => {
 /**
  * 라운지 열성 독서가 조회 (공개 - publicAxios 주입)
  */
-export const useLoungeActiveReadersQuery = (client: AxiosInstance) => {
+export const useLoungeActiveReadersQuery = () => {
   return useQuery({
     queryKey: readingLogKeys.loungeActiveReaders.queryKey,
-    queryFn: () => getLoungeActiveReaders(client),
+    queryFn: () => getLoungeActiveReaders(),
     staleTime: 5 * 60 * 1000, // 5분 (자주 변하지 않으므로)
   });
 };
@@ -298,14 +291,13 @@ export const useLoungeActiveReadersQuery = (client: AxiosInstance) => {
  * 상세 모달에서 사용
  */
 export const useLoungeBookReadersInfiniteQuery = (
-  client: AxiosInstance,
   isbn: string,
   enabled = true,
 ) => {
   return useInfiniteQuery({
     queryKey: readingLogKeys.loungeBookReaders(isbn).queryKey,
     queryFn: ({ pageParam }) =>
-      getLoungeBookReaders(client, isbn, pageParam as string | null),
+      getLoungeBookReaders(isbn, pageParam as string | null),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     enabled,

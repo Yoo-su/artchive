@@ -21,7 +21,6 @@ import {
 } from "@/shared/components/shadcn/form";
 import { Input } from "@/shared/components/shadcn/input";
 import { Link, useRouter } from "@/shared/config/i18n/routing";
-import { publicAxios } from "@/shared/libs/axios";
 
 export const SignupForm = () => {
   const t = useTranslations("auth.signup");
@@ -42,7 +41,7 @@ export const SignupForm = () => {
   const onSubmit = async (values: SignupSchemaType) => {
     try {
       setIsLoading(true);
-      await emailSignup(publicAxios, {
+      await emailSignup({
         email: values.email,
         password: values.password,
         nickname: values.nickname,

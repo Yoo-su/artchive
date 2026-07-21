@@ -1,4 +1,5 @@
 import "./globals.css";
+import "@/libs/api";
 
 import type { Metadata } from "next";
 import { Gowun_Dodum } from "next/font/google";

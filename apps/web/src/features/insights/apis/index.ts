@@ -1,14 +1,12 @@
 import { getInsights as sharedGetInsights, getLocationSales as sharedGetLocationSales } from "@bookjeok/api-client";
 import { InsightsResponse, LocationSales } from "@bookjeok/core";
 
-import { publicAxios } from "@/shared/libs/axios";
-
 /**
  * 서비스 인사이트 데이터를 조회합니다.
  * 로그인 없이 접근 가능합니다.
  */
 export const getInsights = async (): Promise<InsightsResponse> => {
-  return sharedGetInsights(publicAxios);
+  return sharedGetInsights();
 };
 
 /**
@@ -18,5 +16,5 @@ export const getLocationSales = async (
   city: string,
   district: string
 ): Promise<LocationSales[]> => {
-  return sharedGetLocationSales(publicAxios, city, district);
+  return sharedGetLocationSales(city, district);
 };

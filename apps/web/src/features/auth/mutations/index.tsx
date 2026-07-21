@@ -1,13 +1,11 @@
 import { useEmailLoginMutation as useBaseEmailLoginMutation, useEmailSignupMutation as useBaseEmailSignupMutation } from "@bookjeok/react-query";
 import { toast } from "sonner";
 
-import { internalAxios } from "@/shared/libs/axios";
-
 /**
  * 이메일 로그인 뮤테이션
  */
 export const useEmailLoginMutation = () =>
-  useBaseEmailLoginMutation(internalAxios, {
+  useBaseEmailLoginMutation({
     onSuccess: () => {
       toast.success("성공적으로 로그인되었습니다.");
     },
@@ -20,7 +18,7 @@ export const useEmailLoginMutation = () =>
  * 이메일 회원가입 뮤테이션
  */
 export const useEmailSignupMutation = () =>
-  useBaseEmailSignupMutation(internalAxios, {
+  useBaseEmailSignupMutation({
     onSuccess: () => {
       toast.success("회원가입이 완료되었습니다! 로그인해 주세요.");
     },

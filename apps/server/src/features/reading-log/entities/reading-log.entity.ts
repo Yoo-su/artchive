@@ -40,9 +40,9 @@ export class ReadingLog {
   @Column({ length: 100, nullable: true })
   memo: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 }

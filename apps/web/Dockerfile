@@ -29,6 +29,8 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
 
 # deps 단계에서 설치한 node_modules 가져오기

@@ -1,14 +1,14 @@
 import { API_PATHS, Comment, CreateCommentParams, GetCommentsParams, GetCommentsResponse, GetMyCommentsResponse, UpdateCommentParams } from "@bookjeok/core";
-import { AxiosInstance } from "axios";
+
+import { privateApiClient, publicApiClient } from "../../client";
 
 /**
  * 댓글 목록을 조회합니다.
  */
 export const getComments = async (
-  client: AxiosInstance,
   params: GetCommentsParams,
 ): Promise<GetCommentsResponse> => {
-  const { data } = await client.get<GetCommentsResponse>(
+  const { data } = await publicApiClient.get<GetCommentsResponse>(
     API_PATHS.comment.base,
     { params },
   );
@@ -19,12 +19,11 @@ export const getComments = async (
  * 댓글을 생성합니다.
  */
 export const createComment = async (
-  client: AxiosInstance,
   params: CreateCommentParams,
   options?: { idempotencyKey?: string },
 ): Promise<Comment> => {
   const config = options?.idempotencyKey ? { headers: { 'x-idempotency-key': options.idempotencyKey } } : undefined;
-  const { data } = await client.post<Comment>(API_PATHS.comment.base, params, config);
+  const { data } = await privateApiClient.post<Comment>(API_PATHS.comment.base, params, config);
   return data;
 };
 
@@ -32,11 +31,10 @@ export const createComment = async (
  * 댓글을 수정합니다.
  */
 export const updateComment = async (
-  client: AxiosInstance,
   id: number,
   params: UpdateCommentParams,
 ): Promise<Comment> => {
-  const { data } = await client.patch<Comment>(
+  const { data } = await privateApiClient.patch<Comment>(
     API_PATHS.comment.detail(id),
     params,
   );
@@ -47,20 +45,18 @@ export const updateComment = async (
  * 댓글을 삭제합니다.
  */
 export const deleteComment = async (
-  client: AxiosInstance,
   id: number,
 ): Promise<void> => {
-  await client.delete(API_PATHS.comment.detail(id));
+  await privateApiClient.delete(API_PATHS.comment.detail(id));
 };
 
 /**
  * 댓글 좋아요를 토글합니다.
  */
 export const toggleCommentLike = async (
-  client: AxiosInstance,
   id: number,
 ): Promise<Comment & { isLiked: boolean }> => {
-  const { data } = await client.post<Comment & { isLiked: boolean }>(
+  const { data } = await privateApiClient.post<Comment & { isLiked: boolean }>(
     API_PATHS.comment.like(id),
   );
   return data;
@@ -70,10 +66,9 @@ export const toggleCommentLike = async (
  * 내 좋아요 상태를 조회합니다.
  */
 export const getMyLikeStatus = async (
-  client: AxiosInstance,
   id: number,
 ): Promise<boolean> => {
-  const { data } = await client.get<{ isLiked: boolean }>(
+  const { data } = await privateApiClient.get<{ isLiked: boolean }>(
     API_PATHS.comment.like(id),
   );
   return data.isLiked;
@@ -83,12 +78,11 @@ export const getMyLikeStatus = async (
  * 내 댓글 목록을 조회합니다.
  */
 export const getMyComments = async (
-  client: AxiosInstance,
   page: number = 1,
   limit: number = 10,
   cursorId?: number,
 ): Promise<GetMyCommentsResponse> => {
-  const { data } = await client.get<GetMyCommentsResponse>(
+  const { data } = await privateApiClient.get<GetMyCommentsResponse>(
     API_PATHS.comment.my,
     { params: { page, limit, cursorId } },
   );

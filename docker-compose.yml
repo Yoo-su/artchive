@@ -14,7 +14,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -30,7 +30,7 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 8000
-      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:postgres@db:5432/bookjeok}
+      DATABASE_URL: postgresql://${DATABASE_USERNAME:-postgres}:${DATABASE_PASSWORD:-postgres}@db:5432/${DATABASE_NAME:-bookjeok}
       DATABASE_SSL: ${DATABASE_SSL:-false}
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
@@ -61,7 +61,7 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 3000
-      API_URL: ${API_URL:-http://server:8000}
+      API_URL: http://server:8000
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
       NEXT_PUBLIC_KAKAO_APP_KEY: ${NEXT_PUBLIC_KAKAO_APP_KEY}
       NEXT_PUBLIC_GOOGLE_ADSENSE_ID: ${NEXT_PUBLIC_GOOGLE_ADSENSE_ID}
@@ -86,7 +86,7 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 3001
-      API_URL: ${API_URL:-http://server:8000}
+      API_URL: http://server:8000
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
     depends_on:
       - server

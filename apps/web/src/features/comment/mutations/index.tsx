@@ -5,8 +5,6 @@ import { useCreateCommentMutation as useSharedCreateCommentMutation, useDeleteCo
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { privateAxios } from "@/shared/libs/axios";
-
 /**
  * 댓글 생성 뮤테이션 훅
  */
@@ -16,7 +14,7 @@ export const useCreateCommentMutation = (
 ) => {
   const t = useTranslations("comment.toast");
 
-  return useSharedCreateCommentMutation(targetType, targetId, privateAxios, {
+  return useSharedCreateCommentMutation(targetType, targetId, {
     onSuccess: () => {
       toast.success(t("create_success"));
     },
@@ -36,7 +34,7 @@ export const useUpdateCommentMutation = (
 ) => {
   const t = useTranslations("comment.toast");
 
-  return useSharedUpdateCommentMutation(targetType, targetId, page, privateAxios, {
+  return useSharedUpdateCommentMutation(targetType, targetId, page, {
     onSuccess: () => {
       toast.success(t("update_success"));
     },
@@ -56,7 +54,7 @@ export const useDeleteCommentMutation = (
 ) => {
   const t = useTranslations("comment.toast");
 
-  return useSharedDeleteCommentMutation(targetType, targetId, page, privateAxios, {
+  return useSharedDeleteCommentMutation(targetType, targetId, page, {
     onSuccess: () => {
       toast.success(t("delete_success"));
     },
@@ -76,7 +74,7 @@ export const useToggleCommentLikeMutation = (
 ) => {
   const t = useTranslations("comment.toast");
 
-  return useSharedToggleCommentLikeMutation(targetType, targetId, page, privateAxios, {
+  return useSharedToggleCommentLikeMutation(targetType, targetId, page, {
     onError: () => {
       toast.error(t("like_error"));
     },
@@ -89,7 +87,7 @@ export const useToggleCommentLikeMutation = (
 export const useDeleteMyCommentMutation = () => {
   const t = useTranslations("comment.toast");
 
-  return useSharedDeleteMyCommentMutation(privateAxios, {
+  return useSharedDeleteMyCommentMutation({
     onSuccess: () => {
       toast.success(t("delete_success"));
     },

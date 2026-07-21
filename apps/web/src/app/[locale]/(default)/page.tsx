@@ -13,7 +13,6 @@ import { getRecentBookSales } from "@/features/book-sale/apis";
 import { getLoungePopular } from "@/features/reading-log/apis";
 import { getReviews } from "@/features/review/apis";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
-import { publicAxios } from "@/shared/libs/axios";
 import { HomeView } from "@/views/home-view";
 
 export const revalidate = 3600;
@@ -46,7 +45,7 @@ export default async function Page({
     },
     {
       queryKey: bookKeys.popularBooks.queryKey,
-      queryFn: () => getPopularBooks(publicAxios),
+      queryFn: () => getPopularBooks(),
     },
     {
       queryKey: reviewKeys.list({ page: 1, limit: 5 }).queryKey,

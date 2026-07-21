@@ -43,19 +43,19 @@ export class User {
   @Column({ name: 'profileImageUrl', nullable: true })
   profileImageUrl: string;
 
-  @CreateDateColumn({ name: 'createdAt' })
+  @CreateDateColumn({ name: 'createdAt', type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updatedAt' })
+  @UpdateDateColumn({ name: 'updatedAt', type: 'timestamptz' })
   updatedAt: Date;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'timestamptz' })
   deletedAt: Date;
 
   @Column({ default: true })
   isReadingLogPublic: boolean;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'timestamptz' })
   lastActiveAt: Date;
 
   @Column({ type: 'varchar', default: 'USER' })

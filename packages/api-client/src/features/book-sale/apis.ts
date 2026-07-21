@@ -11,20 +11,20 @@ import {
   UpdateBookSaleParams,
   UsedBookSale,
 } from "@bookjeok/core";
-import { AxiosInstance } from "axios";
+
+import { privateApiClient, publicApiClient } from "../../client";
 
 /**
  * 중고책 판매글을 등록합니다.
  */
 export const createBookSale = async (
-  client: AxiosInstance,
   params: CreateBookSaleParams,
   options?: { idempotencyKey?: string },
 ): Promise<UsedBookSale> => {
   const config = options?.idempotencyKey
     ? { headers: { "x-idempotency-key": options.idempotencyKey } }
     : undefined;
-  const { data } = await client.post<UsedBookSale>(
+  const { data } = await privateApiClient.post<UsedBookSale>(
     API_PATHS.book.sale,
     params,
     config,
@@ -35,10 +35,8 @@ export const createBookSale = async (
 /**
  * 내가 등록한 중고책 판매글 목록을 조회합니다.
  */
-export const getMyBookSales = async (
-  client: AxiosInstance,
-): Promise<GetMyBookSalesResponse> => {
-  const { data } = await client.get<GetMyBookSalesResponse>(
+export const getMyBookSales = async (): Promise<GetMyBookSalesResponse> => {
+  const { data } = await privateApiClient.get<GetMyBookSalesResponse>(
     API_PATHS.book.mySales,
   );
   return data;
@@ -48,10 +46,9 @@ export const getMyBookSales = async (
  * 중고책 판매글의 상태를 변경합니다.
  */
 export const updateBookSaleStatus = async (
-  client: AxiosInstance,
   { saleId, status }: { saleId: number; status: SaleStatus },
 ): Promise<CommonBookSaleResponse> => {
-  const { data } = await client.patch<CommonBookSaleResponse>(
+  const { data } = await privateApiClient.patch<CommonBookSaleResponse>(
     API_PATHS.book.saleStatus(saleId),
     { status },
   );
@@ -62,10 +59,9 @@ export const updateBookSaleStatus = async (
  * 특정 판매글의 상세 정보를 조회합니다.
  */
 export const getBookSaleDetail = async (
-  client: AxiosInstance,
   saleId: string,
 ) => {
-  const { data } = await client.get<UsedBookSale>(
+  const { data } = await publicApiClient.get<UsedBookSale>(
     API_PATHS.book.saleDetail(saleId),
   );
   return data;
@@ -75,10 +71,9 @@ export const getBookSaleDetail = async (
  * 수정을 위한 판매글 조회
  */
 export const getSaleForEdit = async (
-  client: AxiosInstance,
   saleId: string | number,
 ): Promise<UsedBookSale> => {
-  const { data } = await client.get<UsedBookSale>(
+  const { data } = await privateApiClient.get<UsedBookSale>(
     API_PATHS.book.saleForEdit(saleId),
   );
   return data;
@@ -88,7 +83,6 @@ export const getSaleForEdit = async (
  * 관련 판매글 목록을 페이지네이션으로 조회합니다.
  */
 export const getRelatedSales = async (
-  client: AxiosInstance,
   { isbn, page, limit, city, district }: GetRelatedSalesParams,
 ): Promise<GetRelatedSalesResponse> => {
   const params = new URLSearchParams({
@@ -98,7 +92,7 @@ export const getRelatedSales = async (
   if (city) params.append("city", city);
   if (district) params.append("district", district);
 
-  const { data } = await client.get<GetRelatedSalesResponse>(
+  const { data } = await publicApiClient.get<GetRelatedSalesResponse>(
     API_PATHS.book.relatedSales(isbn),
     { params },
   );
@@ -109,10 +103,9 @@ export const getRelatedSales = async (
  * 중고책 판매글을 수정합니다.
  */
 export const updateBookSale = async (
-  client: AxiosInstance,
   { saleId, payload }: { saleId: number; payload: UpdateBookSaleParams },
 ) => {
-  const { data } = await client.patch<CommonBookSaleResponse>(
+  const { data } = await privateApiClient.patch<CommonBookSaleResponse>(
     API_PATHS.book.updateSale(saleId),
     payload,
   );
@@ -122,27 +115,23 @@ export const updateBookSale = async (
 /**
  * 중고책 판매글을 삭제합니다.
  */
-export const deleteBookSale = async (client: AxiosInstance, saleId: number) => {
-  await client.delete(API_PATHS.book.deleteSale(saleId));
+export const deleteBookSale = async (saleId: number) => {
+  await privateApiClient.delete(API_PATHS.book.deleteSale(saleId));
 };
 
 /**
  * 최근 등록된 중고책 판매글 목록을 조회합니다.
  */
-export const getRecentBookSales = async (
-  client: AxiosInstance,
-): Promise<UsedBookSale[]> => {
-  const { data } = await client.get<UsedBookSale[]>(API_PATHS.book.recentSales);
+export const getRecentBookSales = async (): Promise<UsedBookSale[]> => {
+  const { data } = await publicApiClient.get<UsedBookSale[]>(API_PATHS.book.recentSales);
   return data;
 };
 
 /**
  * 인기 판매글 목록을 조회합니다.
  */
-export const getPopularBookSales = async (
-  client: AxiosInstance,
-): Promise<UsedBookSale[]> => {
-  const { data } = await client.get<UsedBookSale[]>(
+export const getPopularBookSales = async (): Promise<UsedBookSale[]> => {
+  const { data } = await publicApiClient.get<UsedBookSale[]>(
     API_PATHS.book.popularSales,
   );
   return data;
@@ -152,7 +141,6 @@ export const getPopularBookSales = async (
  * 중고책 판매글을 검색합니다.
  */
 export const getBookSales = async (
-  client: AxiosInstance,
   params: SearchBookSalesParams,
 ): Promise<SearchBookSalesResponse> => {
   const queryParams = new URLSearchParams();
@@ -172,15 +160,14 @@ export const getBookSales = async (
     ? `${API_PATHS.book.sales}?${queryString}`
     : API_PATHS.book.sales;
 
-  const { data } = await client.get<SearchBookSalesResponse>(url);
+  const { data } = await publicApiClient.get<SearchBookSalesResponse>(url);
   return data;
 };
 /**
  * 중고책 판매글 상세페이지 조회수를 기록합니다.
  */
 export const recordSaleView = async (
-  client: AxiosInstance,
   saleId: number,
 ): Promise<void> => {
-  await client.post(API_PATHS.book.recordSaleView(saleId));
+  await publicApiClient.post(API_PATHS.book.recordSaleView(saleId));
 };

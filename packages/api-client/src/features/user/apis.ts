@@ -1,14 +1,14 @@
 import { API_PATHS, PublicUserProfile, UserStats, WishlistItem } from "@bookjeok/core";
-import { AxiosInstance } from "axios";
+
+import { privateApiClient, publicApiClient } from "../../client";
 
 /**
  * 특정 사용자의 공개 프로필을 조회합니다.
  */
 export const getPublicUserProfile = async (
-  client: AxiosInstance,
   handle: string,
 ): Promise<PublicUserProfile> => {
-  const { data } = await client.get<PublicUserProfile>(
+  const { data } = await publicApiClient.get<PublicUserProfile>(
     API_PATHS.user.publicProfile(handle),
   );
   return data;
@@ -17,10 +17,8 @@ export const getPublicUserProfile = async (
 /**
  * 내 찜 목록을 조회합니다.
  */
-export const getMyWishlist = async (
-  client: AxiosInstance,
-): Promise<WishlistItem[]> => {
-  const { data } = await client.get<WishlistItem[]>(API_PATHS.user.wishlist);
+export const getMyWishlist = async (): Promise<WishlistItem[]> => {
+  const { data } = await privateApiClient.get<WishlistItem[]>(API_PATHS.user.wishlist);
   return data;
 };
 
@@ -28,10 +26,9 @@ export const getMyWishlist = async (
  * 특정 대상(도서 또는 판매글)을 찜하거나 취소합니다.
  */
 export const toggleWishlist = async (
-  client: AxiosInstance,
   payload: { isbn?: string; saleId?: number },
 ): Promise<{ added: boolean }> => {
-  const { data } = await client.post<{ added: boolean }>(
+  const { data } = await privateApiClient.post<{ added: boolean }>(
     API_PATHS.user.wishlist,
     payload,
   );
@@ -42,11 +39,10 @@ export const toggleWishlist = async (
  * 특정 항목이 위시리스트에 있는지 확인합니다.
  */
 export const checkWishlistStatus = async (
-  client: AxiosInstance,
   type: "BOOK" | "SALE",
   id: string | number,
 ): Promise<boolean> => {
-  const { data } = await client.get<{ isWishlisted: boolean }>(
+  const { data } = await privateApiClient.get<{ isWishlisted: boolean }>(
     API_PATHS.user.wishlistCheck,
     {
       params: { type, id },
@@ -58,20 +54,18 @@ export const checkWishlistStatus = async (
 /**
  * 사용자의 활동 통계(판매, 채팅, 리뷰 수 등)를 조회합니다.
  */
-export const getUserStats = async (client: AxiosInstance): Promise<UserStats> => {
-  const { data } = await client.get<UserStats>(API_PATHS.user.stats);
+export const getUserStats = async (): Promise<UserStats> => {
+  const { data } = await privateApiClient.get<UserStats>(API_PATHS.user.stats);
   return data;
 };
 
 /**
  * 내 프로필 정보를 조회합니다.
  */
-export const getMyProfile = async (
-  client: AxiosInstance,
-): Promise<
+export const getMyProfile = async (): Promise<
   PublicUserProfile & { email: string; isReadingLogPublic: boolean }
 > => {
-  const { data } = await client.get(API_PATHS.user.profile);
+  const { data } = await privateApiClient.get(API_PATHS.user.profile);
   return data;
 };
 
@@ -79,10 +73,9 @@ export const getMyProfile = async (
  * 내 프로필 정보를 수정합니다.
  */
 export const updateProfile = async (
-  client: AxiosInstance,
   params: { nickname?: string; profileImageUrl?: string },
 ): Promise<PublicUserProfile & { email: string; isReadingLogPublic: boolean }> => {
-  const { data } = await client.patch<
+  const { data } = await privateApiClient.patch<
     PublicUserProfile & { email: string; isReadingLogPublic: boolean }
   >(API_PATHS.user.base, params);
   return data;
@@ -92,10 +85,9 @@ export const updateProfile = async (
  * 닉네임 사용 가능 여부를 확인합니다.
  */
 export const checkNickname = async (
-  client: AxiosInstance,
   nickname: string,
 ): Promise<{ available: boolean }> => {
-  const { data } = await client.get<{ available: boolean }>(
+  const { data } = await publicApiClient.get<{ available: boolean }>(
     API_PATHS.user.checkNickname,
     { params: { nickname } },
   );
@@ -106,11 +98,10 @@ export const checkNickname = async (
  * 위시리스트에 항목을 추가합니다.
  */
 export const addToWishlist = async (
-  client: AxiosInstance,
   type: "BOOK" | "SALE",
   id: string | number,
 ): Promise<WishlistItem> => {
-  const { data } = await client.post<WishlistItem>(API_PATHS.user.wishlist, {
+  const { data } = await privateApiClient.post<WishlistItem>(API_PATHS.user.wishlist, {
     type,
     id: String(id),
   });
@@ -121,11 +112,10 @@ export const addToWishlist = async (
  * 위시리스트에서 항목을 제거합니다.
  */
 export const removeFromWishlist = async (
-  client: AxiosInstance,
   type: "BOOK" | "SALE",
   id: string | number,
 ): Promise<void> => {
-  await client.delete(API_PATHS.user.wishlist, {
+  await privateApiClient.delete(API_PATHS.user.wishlist, {
     params: { type, id },
   });
 };
@@ -133,8 +123,6 @@ export const removeFromWishlist = async (
 /**
  * 회원 탈퇴를 처리합니다.
  */
-export const withdraw = async (
-  client: AxiosInstance,
-): Promise<void> => {
-  await client.delete("/user/me");
+export const withdraw = async (): Promise<void> => {
+  await privateApiClient.delete("/user/me");
 };

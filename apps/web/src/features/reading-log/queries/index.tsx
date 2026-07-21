@@ -9,30 +9,28 @@ import {
   useReadingLogStatsQuery as useBaseReadingLogStatsQuery,
 } from "@bookjeok/react-query";
 
-import { privateAxios, publicAxios } from "@/shared/libs/axios";
-
 export const useReadingLogsQuery = (year: number, month?: number, options?: { enabled?: boolean }) =>
-  useBaseReadingLogsQuery(year, month!, privateAxios, options);
+  useBaseReadingLogsQuery(year, month!, options);
 
 export const useReadingLogStatsQuery = (year: number, month: number) =>
-  useBaseReadingLogStatsQuery(year, month, privateAxios);
+  useBaseReadingLogStatsQuery(year, month);
 
 export const useReadingLogSettingsQuery = () =>
-  useBaseReadingLogSettingsQuery(privateAxios);
+  useBaseReadingLogSettingsQuery();
 
 export const useReadingLogsInfiniteQuery = () =>
-  useBaseReadingLogsInfiniteQuery(privateAxios);
+  useBaseReadingLogsInfiniteQuery();
 
-// ✅ 라운지 훅들 (publicAxios 사용 - 인증 불필요)
+// ✅ 라운지 훅들 (인증 불필요)
 export const useLoungeFeedInfiniteQuery = () =>
-  useBaseLoungeFeedInfiniteQuery(publicAxios);
+  useBaseLoungeFeedInfiniteQuery();
 
 export const useLoungePopularQuery = () =>
-  useBaseLoungePopularQuery(publicAxios);
+  useBaseLoungePopularQuery();
 
 export const useLoungeActiveReadersQuery = () =>
-  useBaseLoungeActiveReadersQuery(publicAxios);
+  useBaseLoungeActiveReadersQuery();
 
 export const useLoungeBookReadersInfiniteQuery = (isbn: string, enabled = true) =>
-  useBaseLoungeBookReadersInfiniteQuery(publicAxios, isbn, enabled);
+  useBaseLoungeBookReadersInfiniteQuery(isbn, enabled);
 

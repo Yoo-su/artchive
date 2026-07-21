@@ -1,22 +1,20 @@
 import { createBookSale as sharedCreateBookSale, deleteBookSale as sharedDeleteBookSale, getBookSaleDetail as sharedGetBookSaleDetail, getBookSales as sharedSearchBookSales, getMyBookSales as sharedGetMyBookSales, getPopularBookSales as sharedGetPopularBookSales, getRecentBookSales as sharedGetRecentBookSales, getRelatedSales as sharedGetRelatedSales, getSaleForEdit as sharedGetSaleForEdit, recordSaleView as sharedRecordSaleView, updateBookSale as sharedUpdateBookSale, updateBookSaleStatus as sharedUpdateBookSaleStatus } from "@bookjeok/api-client";
 import { CommonBookSaleResponse, CreateBookSaleParams, GetMyBookSalesResponse, GetRelatedSalesParams, GetRelatedSalesResponse, SaleStatus, SearchBookSalesParams, SearchBookSalesResponse, UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core";
 
-import { privateAxios, publicAxios } from "@/shared/libs/axios";
-
 /**
  * 중고책 판매글을 등록합니다.
  */
 export const createBookSale = async (
   payload: CreateBookSaleParams,
 ): Promise<CommonBookSaleResponse> => {
-  return sharedCreateBookSale(privateAxios, payload);
+  return sharedCreateBookSale(payload);
 };
 
 /**
  * 내가 등록한 중고책 판매글 목록을 조회합니다.
  */
 export const getMyBookSales = async (): Promise<GetMyBookSalesResponse> => {
-  return sharedGetMyBookSales(privateAxios);
+  return sharedGetMyBookSales();
 };
 
 /**
@@ -29,14 +27,14 @@ export const updateBookSaleStatus = async ({
   saleId: number;
   status: SaleStatus;
 }): Promise<CommonBookSaleResponse> => {
-  return sharedUpdateBookSaleStatus(privateAxios, { saleId, status });
+  return sharedUpdateBookSaleStatus({ saleId, status });
 };
 
 /**
  * 특정 판매글의 상세 정보를 조회합니다.
  */
 export const getBookSaleDetail = async (saleId: string) => {
-  return sharedGetBookSaleDetail(publicAxios, saleId);
+  return sharedGetBookSaleDetail(saleId);
 };
 
 /**
@@ -45,7 +43,7 @@ export const getBookSaleDetail = async (saleId: string) => {
 export const getSaleForEdit = async (
   saleId: string | number,
 ): Promise<UsedBookSale> => {
-  return sharedGetSaleForEdit(privateAxios, saleId);
+  return sharedGetSaleForEdit(saleId);
 };
 
 /**
@@ -54,7 +52,7 @@ export const getSaleForEdit = async (
 export const getRelatedSales = async (
   params: GetRelatedSalesParams,
 ): Promise<GetRelatedSalesResponse> => {
-  return sharedGetRelatedSales(publicAxios, params);
+  return sharedGetRelatedSales(params);
 };
 
 /**
@@ -67,28 +65,28 @@ export const updateBookSale = async ({
   saleId: number;
   payload: UpdateBookSaleParams;
 }) => {
-  return sharedUpdateBookSale(privateAxios, { saleId, payload });
+  return sharedUpdateBookSale({ saleId, payload });
 };
 
 /**
  * 중고책 판매글을 삭제합니다.
  */
 export const deleteBookSale = async (saleId: number) => {
-  return sharedDeleteBookSale(privateAxios, saleId);
+  return sharedDeleteBookSale(saleId);
 };
 
 /**
  * 최근 등록된 중고책 판매글 목록을 조회합니다.
  */
 export const getRecentBookSales = async (): Promise<UsedBookSale[]> => {
-  return sharedGetRecentBookSales(publicAxios);
+  return sharedGetRecentBookSales();
 };
 
 /**
  * 인기 판매글 목록을 조회합니다.
  */
 export const getPopularBookSales = async (): Promise<UsedBookSale[]> => {
-  return sharedGetPopularBookSales(publicAxios);
+  return sharedGetPopularBookSales();
 };
 
 /**
@@ -97,12 +95,12 @@ export const getPopularBookSales = async (): Promise<UsedBookSale[]> => {
 export const getBookSales = async (
   params: SearchBookSalesParams,
 ): Promise<SearchBookSalesResponse> => {
-  return sharedSearchBookSales(publicAxios, params);
+  return sharedSearchBookSales(params);
 };
 
 /**
  * 중고책 판매글 상세페이지 조회수를 기록합니다.
  */
 export const recordSaleView = async (saleId: number): Promise<void> => {
-  return sharedRecordSaleView(publicAxios, saleId);
+  return sharedRecordSaleView(saleId);
 };

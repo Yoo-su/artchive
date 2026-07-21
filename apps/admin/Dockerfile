@@ -25,6 +25,8 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
 
 COPY --from=deps /app/node_modules ./node_modules

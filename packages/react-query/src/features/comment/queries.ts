@@ -2,7 +2,6 @@
 import { getComments, getMyComments } from "@bookjeok/api-client";
 import { CACHE_TIME, commentKeys, CommentTargetType } from "@bookjeok/core";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { AxiosInstance } from "axios";
 
 /**
  * 댓글 목록 조회
@@ -10,7 +9,6 @@ import { AxiosInstance } from "axios";
 export const useCommentsQuery = (
   targetType: CommentTargetType,
   targetId: string,
-  client: AxiosInstance,
   page: number = 1,
   limit: number = 10,
   enabled: boolean = true,
@@ -18,7 +16,7 @@ export const useCommentsQuery = (
   return useQuery({
     queryKey: commentKeys.list(targetType, targetId, page).queryKey,
     queryFn: () =>
-      getComments(client, {
+      getComments({
         targetType,
         targetId,
         page,
@@ -31,11 +29,11 @@ export const useCommentsQuery = (
 /**
  * 내 댓글 목록 (무한 스크롤)
  */
-export const useMyCommentsInfiniteQuery = (client: AxiosInstance, limit: number = 10) => {
+export const useMyCommentsInfiniteQuery = (limit: number = 10) => {
   return useInfiniteQuery({
     queryKey: commentKeys.my.queryKey,
     queryFn: ({ pageParam }) =>
-      getMyComments(client, 1, limit, pageParam as number | undefined),
+      getMyComments(1, limit, pageParam as number | undefined),
     getNextPageParam: (lastPage) => {
       return lastPage.meta.nextCursor ?? undefined;
     },

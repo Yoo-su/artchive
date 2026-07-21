@@ -2,15 +2,14 @@
 import { checkWishlistStatus, getMyProfile,getMyWishlist, getPublicUserProfile, getUserStats, toggleWishlist } from "@bookjeok/api-client";
 import { userKeys } from "@bookjeok/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosInstance } from "axios";
 
 /**
  * 특정 사용자의 공개 프로필 조회
  */
-export const usePublicUserProfileQuery = (handle: string, client: AxiosInstance) => {
+export const usePublicUserProfileQuery = (handle: string) => {
   return useQuery({
     queryKey: userKeys.publicProfile(handle).queryKey,
-    queryFn: () => getPublicUserProfile(client, handle),
+    queryFn: () => getPublicUserProfile(handle),
     enabled: !!handle,
   });
 };
@@ -18,22 +17,22 @@ export const usePublicUserProfileQuery = (handle: string, client: AxiosInstance)
 /**
  * 내 찜 목록 조회
  */
-export const useMyWishlistQuery = (client: AxiosInstance) => {
+export const useMyWishlistQuery = () => {
   return useQuery({
     queryKey: userKeys.wishlist.queryKey,
-    queryFn: () => getMyWishlist(client),
+    queryFn: () => getMyWishlist(),
   });
 };
 
 /**
  * 찜 토글 뮤테이션
  */
-export const useToggleWishlistMutation = (client: AxiosInstance) => {
+export const useToggleWishlistMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (payload: { isbn?: string; saleId?: number }) =>
-      toggleWishlist(client, payload),
+      toggleWishlist(payload),
     onSuccess: (data, variables) => {
       // 찜 목록 무효화
       queryClient.invalidateQueries({ queryKey: userKeys.wishlist.queryKey });
@@ -51,12 +50,11 @@ export const useToggleWishlistMutation = (client: AxiosInstance) => {
 export const useWishlistStatusQuery = (
   type: "BOOK" | "SALE",
   id: string | number,
-  client: AxiosInstance,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
     queryKey: userKeys.wishlistCheck(type, id).queryKey,
-    queryFn: () => checkWishlistStatus(client, type, id),
+    queryFn: () => checkWishlistStatus(type, id),
     enabled: options?.enabled,
   });
 };
@@ -64,10 +62,10 @@ export const useWishlistStatusQuery = (
 /**
  * 내 활동 통계 조회 (내 데이터 - 짧은 staleTime)
  */
-export const useMyStatsQuery = (client: AxiosInstance) => {
+export const useMyStatsQuery = () => {
   return useQuery({
     queryKey: userKeys.stats.queryKey,
-    queryFn: () => getUserStats(client),
+    queryFn: () => getUserStats(),
     staleTime: 60 * 1000, // 1분
   });
 };
@@ -75,9 +73,9 @@ export const useMyStatsQuery = (client: AxiosInstance) => {
 /**
  * 내 프로필 조회
  */
-export const useMyProfileQuery = (client: AxiosInstance) => {
+export const useMyProfileQuery = () => {
   return useQuery({
     queryKey: userKeys.me.queryKey,
-    queryFn: () => getMyProfile(client),
+    queryFn: () => getMyProfile(),
   });
 };

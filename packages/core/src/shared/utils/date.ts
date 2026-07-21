@@ -9,13 +9,39 @@ export const getSimpleDate = (date: Date) => {
 };
 
 /**
+ * 타임존이 누락된 날짜 문자열도 항상 UTC로 정확히 해석할 수 있도록 안전하게 파싱합니다.
+ */
+export const parseSafeISO = (dateString: string): Date => {
+  if (!dateString) return new Date();
+
+  // 이미 타임존 오프셋(Z, +, -)이 포함되어 있다면 표준 Date 생성자 사용
+  if (
+    dateString.endsWith("Z") ||
+    dateString.includes("+") ||
+    /-\d{2}:\d{2}$/.test(dateString)
+  ) {
+    return new Date(dateString);
+  }
+
+  // 공백을 'T'로 규격화하고 끝에 'Z'(UTC)를 덧붙여서 강제로 UTC 해석 유도
+  const formatted = dateString.replace(" ", "T");
+  return new Date(`${formatted}Z`);
+};
+
+/**
  * 게시글 시간을 상대 시간 또는 날짜로 포맷하는 함수
  * @param dateString - ISO 8601 형식의 날짜 문자열
  */
 export const formatPostDate = (dateString: string): string => {
-  const date = new Date(dateString);
+  const date = parseSafeISO(dateString);
   const now = new Date();
-  const diffInDays = (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24);
+  
+  // 에포크 밀리초 차이 계산
+  const diffInMs = now.getTime() - date.getTime();
+  
+  // 서버-클라이언트 오차 등으로 인해 미래 시간으로 잡히는 경우 방어 (최소 0)
+  const safeDiffInMs = Math.max(0, diffInMs);
+  const diffInDays = safeDiffInMs / (1000 * 60 * 60 * 24);
 
   // 7일 이내의 글은 상대 시간으로 표시 (예: "3일 전")
   if (diffInDays < 7) {

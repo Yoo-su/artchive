@@ -21,7 +21,6 @@ import {
 import { Input } from "@/shared/components/shadcn/input";
 import { config } from "@/shared/config/env";
 import { Link, useRouter } from "@/shared/config/i18n/routing";
-import { publicAxios } from "@/shared/libs/axios";
 
 export const LoginForm = () => {
   const t = useTranslations("auth.login");
@@ -113,7 +112,7 @@ function EmailLoginForm() {
   const onSubmit = async (values: LoginSchemaType) => {
     try {
       setIsLoading(true);
-      const data = await emailLogin(publicAxios, values);
+      const data = await emailLogin(values);
       setAuth(data);
       toast.success(t("success"));
       router.push("/");

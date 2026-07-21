@@ -21,15 +21,13 @@ import {
   ReviewReactionType,
 } from "@bookjeok/core";
 
-import { privateAxios, publicAxios } from "@/shared/libs/axios";
-
 /**
  * 리뷰를 생성합니다.
  * @param data 리뷰 생성 데이터
  * @returns 생성된 리뷰 정보
  */
 export const createReview = async (formValues: ReviewFormValues) => {
-  return sharedCreateReview(privateAxios, formValues);
+  return sharedCreateReview(formValues);
 };
 
 /**
@@ -42,7 +40,7 @@ export const updateReview = async (
   id: number,
   formValues: ReviewFormValues,
 ) => {
-  return sharedUpdateReview(privateAxios, id, formValues);
+  return sharedUpdateReview(id, formValues);
 };
 
 /**
@@ -51,7 +49,7 @@ export const updateReview = async (
  * @returns 삭제된 리뷰 정보
  */
 export const deleteReview = async (id: number) => {
-  return sharedDeleteReview(privateAxios, id);
+  return sharedDeleteReview(id);
 };
 
 /**
@@ -60,7 +58,7 @@ export const deleteReview = async (id: number) => {
  * @returns 리뷰 목록
  */
 export const getReviews = async (params: GetReviewsParams) => {
-  return sharedGetReviews(publicAxios, params);
+  return sharedGetReviews(params);
 };
 
 /**
@@ -68,7 +66,7 @@ export const getReviews = async (params: GetReviewsParams) => {
  * @returns 리뷰 피드 목록
  */
 export const getReviewFeeds = async () => {
-  return sharedGetReviewFeeds(publicAxios);
+  return sharedGetReviewFeeds();
 };
 
 /**
@@ -76,7 +74,7 @@ export const getReviewFeeds = async () => {
  * @returns 인기 리뷰 목록
  */
 export const getPopularReviews = async () => {
-  return sharedGetPopularReviews(publicAxios);
+  return sharedGetPopularReviews();
 };
 
 /**
@@ -85,7 +83,7 @@ export const getPopularReviews = async () => {
  * @returns 리뷰 상세 정보
  */
 export const getReview = async (id: number) => {
-  return sharedGetReview(publicAxios, id);
+  return sharedGetReview(id);
 };
 
 /**
@@ -95,7 +93,7 @@ export const getReview = async (id: number) => {
  * @returns 리뷰 상세 정보
  */
 export const getReviewAuthenticated = async (id: number) => {
-  return sharedGetReview(privateAxios, id);
+  return sharedGetReview(id);
 };
 
 /**
@@ -105,7 +103,7 @@ export const getReviewAuthenticated = async (id: number) => {
  * @returns 리뷰 상세 정보 (본인 리뷰만)
  */
 export const getReviewForEdit = async (id: number) => {
-  return sharedGetReviewForEdit(privateAxios, id);
+  return sharedGetReviewForEdit(id);
 };
 
 /**
@@ -114,7 +112,7 @@ export const getReviewForEdit = async (id: number) => {
  * @returns 추천 리뷰 목록
  */
 export const getRecommendedReviews = async (id: number) => {
-  return sharedGetRecommendedReviews(publicAxios, id);
+  return sharedGetRecommendedReviews(id);
 };
 
 /**
@@ -123,7 +121,7 @@ export const getRecommendedReviews = async (id: number) => {
  * @returns 나의 리액션 타입 (없으면 null)
  */
 export const getMyReviewReaction = async (id: number) => {
-  return sharedGetMyReviewReaction(privateAxios, id);
+  return sharedGetMyReviewReaction(id);
 };
 
 /**
@@ -136,7 +134,7 @@ export const toggleReviewReaction = async (
   id: number,
   type: ReviewReactionType,
 ) => {
-  return sharedToggleReviewReaction(privateAxios, id, type);
+  return sharedToggleReviewReaction(id, type);
 };
 
 /**
@@ -144,5 +142,5 @@ export const toggleReviewReaction = async (
  * @param id 리뷰 ID
  */
 export const recordReviewView = async (id: number) => {
-  return sharedRecordReviewView(publicAxios, id);
+  return sharedRecordReviewView(id);
 };

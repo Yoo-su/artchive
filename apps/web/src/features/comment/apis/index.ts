@@ -1,8 +1,6 @@
 import { createComment as sharedCreateComment, deleteComment as sharedDeleteComment, getComments as sharedGetComments, getMyComments as sharedGetMyComments, getMyLikeStatus as sharedGetMyLikeStatus, toggleCommentLike as sharedToggleCommentLike, updateComment as sharedUpdateComment } from "@bookjeok/api-client";
 import { Comment, CreateCommentParams, GetCommentsParams, GetCommentsResponse, GetMyCommentsResponse, UpdateCommentParams } from "@bookjeok/core";
 
-import { privateAxios } from "@/shared/libs/axios";
-
 /**
  * 댓글 목록을 조회합니다.
  * 로그인 시 좋아요 상태(isLiked)도 함께 반환됩니다.
@@ -12,7 +10,7 @@ import { privateAxios } from "@/shared/libs/axios";
 export const getComments = async (
   params: GetCommentsParams,
 ): Promise<GetCommentsResponse> => {
-  return sharedGetComments(privateAxios, params);
+  return sharedGetComments(params);
 };
 
 /**
@@ -23,7 +21,7 @@ export const getComments = async (
 export const createComment = async (
   params: CreateCommentParams,
 ): Promise<Comment> => {
-  return sharedCreateComment(privateAxios, params);
+  return sharedCreateComment(params);
 };
 
 /**
@@ -36,7 +34,7 @@ export const updateComment = async (
   id: number,
   params: UpdateCommentParams,
 ): Promise<Comment> => {
-  return sharedUpdateComment(privateAxios, id, params);
+  return sharedUpdateComment(id, params);
 };
 
 /**
@@ -44,7 +42,7 @@ export const updateComment = async (
  * @param id 댓글 ID
  */
 export const deleteComment = async (id: number): Promise<void> => {
-  return sharedDeleteComment(privateAxios, id);
+  return sharedDeleteComment(id);
 };
 
 /**
@@ -55,7 +53,7 @@ export const deleteComment = async (id: number): Promise<void> => {
 export const toggleCommentLike = async (
   id: number,
 ): Promise<Comment & { isLiked: boolean }> => {
-  return sharedToggleCommentLike(privateAxios, id);
+  return sharedToggleCommentLike(id);
 };
 
 /**
@@ -64,7 +62,7 @@ export const toggleCommentLike = async (
  * @returns 좋아요 여부
  */
 export const getMyLikeStatus = async (id: number): Promise<boolean> => {
-  return sharedGetMyLikeStatus(privateAxios, id);
+  return sharedGetMyLikeStatus(id);
 };
 
 /**
@@ -78,5 +76,5 @@ export const getMyComments = async (
   limit: number = 10,
   cursorId?: number,
 ): Promise<GetMyCommentsResponse> => {
-  return sharedGetMyComments(privateAxios, page, limit, cursorId);
+  return sharedGetMyComments(page, limit, cursorId);
 };
