@@ -55,9 +55,9 @@ export class Comment {
   @OneToMany(() => CommentLike, (like) => like.comment)
   likes: CommentLike[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 }

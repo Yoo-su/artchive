@@ -11,61 +11,59 @@ import {
   useRecordSearchKeywordMutation as useBaseRecordSearchKeywordMutation,
 } from "@bookjeok/react-query";
 
-import { internalAxios, privateAxios, publicAxios } from "@/shared/libs/axios";
-
 /**
- * 책 목록 조회 (프록시 인스턴스 주입)
+ * 책 목록 조회
  */
 export const useBookListQuery = (params: GetBookListParams) =>
-  useBaseBookListQuery(params, internalAxios);
+  useBaseBookListQuery(params);
 
 /**
- * 책 상세 조회 (프록시 인스턴스 주입)
+ * 책 상세 조회
  */
 export const useBookDetailQuery = (isbn: string) =>
-  useBaseBookDetailQuery(isbn, internalAxios);
+  useBaseBookDetailQuery(isbn);
 
 /**
- * 책 검색 (무한 스크롤, 프록시 인스턴스 주입)
+ * 책 검색 (무한 스크롤)
  */
 export const useInfiniteBookSearch = (query: string) =>
-  useBaseInfiniteBookSearch(query, internalAxios);
+  useBaseInfiniteBookSearch(query);
 
 /**
- * 인기책 목록 (직접 API 통신 인스턴스 주입)
+ * 인기책 목록
  */
 export const usePopularBooksQuery = () =>
-  useBasePopularBooksQuery(publicAxios);
+  useBasePopularBooksQuery();
 
 /**
- * LLM 책 요약 조회 (공개 GET API용 publicAxios 주입)
+ * LLM 책 요약 조회
  */
 export const useBookSummaryQuery = (isbn: string) =>
-  useBaseBookSummaryQuery(isbn, publicAxios);
+  useBaseBookSummaryQuery(isbn);
 
 /**
- * LLM 책 요약 생성 Mutation (JWT 인증이 필요한 privateAxios 주입)
+ * LLM 책 요약 생성 Mutation
  */
 export const useGenerateBookSummaryMutation = (options?: {
   onSuccess?: (data: any) => void;
   onError?: (error: unknown) => void;
 }) =>
-  useBaseGenerateBookSummaryMutation(privateAxios, options);
+  useBaseGenerateBookSummaryMutation(options);
 
 /**
- * 인기 검색어 목록 (직접 API 통신 인스턴스 주입)
+ * 인기 검색어 목록
  */
 export const usePopularKeywordsQuery = (staleTime?: number) =>
-  useBasePopularKeywordsQuery(publicAxios, staleTime);
+  useBasePopularKeywordsQuery(staleTime);
 
 /**
- * 책 통계 조회 (직접 API 통신 인스턴스 주입)
+ * 책 통계 조회
  */
 export const useBookStatsQuery = (isbn: string) =>
-  useBaseBookStatsQuery(isbn, publicAxios);
+  useBaseBookStatsQuery(isbn);
 
 /**
- * 검색어를 기록하는 뮤테이션 훅 (직접 API 통신 인스턴스 주입)
+ * 검색어를 기록하는 뮤테이션 훅
  */
 export const useRecordSearchKeywordMutation = (options?: { onSuccess?: () => void; onError?: (error: unknown) => void }) =>
-  useBaseRecordSearchKeywordMutation(publicAxios, options);
+  useBaseRecordSearchKeywordMutation(options);

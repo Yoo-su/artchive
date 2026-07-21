@@ -2,8 +2,6 @@ import { getSavedBookSummary } from "@bookjeok/api-client";
 import { bookKeys } from "@bookjeok/core";
 import { QueryClient } from "@tanstack/react-query";
 
-import { internalAxios, publicAxios } from "@/shared/libs/axios";
-
 import { getBookList } from "../apis";
 
 /**
@@ -18,7 +16,7 @@ export const prefetchRelatedBooks = async (
 
   return queryClient.prefetchQuery({
     queryKey: bookKeys.list({ query, display: 20, sort: "sim" }).queryKey,
-    queryFn: () => getBookList(internalAxios, { query, display: 20, sort: "sim" }),
+    queryFn: () => getBookList({ query, display: 20, sort: "sim" }),
   });
 };
 
@@ -35,7 +33,7 @@ export const prefetchBookSummary = async (
     queryKey: ["bookSummary", isbn],
     queryFn: async () => {
       try {
-        const result = await getSavedBookSummary(publicAxios, isbn);
+        const result = await getSavedBookSummary(isbn);
         return result || null;
       } catch {
         return null;

@@ -36,6 +36,6 @@ export class Wishlist {
   @JoinColumn({ name: 'usedBookSaleId' })
   usedBookSale: UsedBookSale | null;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

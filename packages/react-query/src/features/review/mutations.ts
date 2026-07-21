@@ -2,18 +2,17 @@
 import { createReview, deleteReview, toggleReviewReaction, updateReview } from "@bookjeok/api-client";
 import { Review, ReviewFormValues, reviewKeys, reviewMutationKeys, ReviewReactionType } from "@bookjeok/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosInstance } from "axios";
 
 /**
  * 리뷰 리액션을 토글하는 뮤테이션 훅입니다.
  */
-export const useToggleReviewReactionMutation = (reviewId: number, client: AxiosInstance, options?: { onSuccess?: (data: Review) => void; onError?: (error: unknown) => void }) => {
+export const useToggleReviewReactionMutation = (reviewId: number, options?: { onSuccess?: (data: Review) => void; onError?: (error: unknown) => void }) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: reviewMutationKeys.toggleReaction(reviewId),
     mutationFn: (type: ReviewReactionType) =>
-      toggleReviewReaction(client, reviewId, type),
+      toggleReviewReaction(reviewId, type),
     onMutate: async (type) => {
       await queryClient.cancelQueries({
         queryKey: reviewKeys.detail(reviewId).queryKey,
@@ -91,11 +90,11 @@ export const useToggleReviewReactionMutation = (reviewId: number, client: AxiosI
 /**
  * 리뷰를 생성하는 뮤테이션 훅입니다.
  */
-export const useCreateReviewMutation = (client: AxiosInstance, options?: { onSuccess?: () => void }) => {
+export const useCreateReviewMutation = (options?: { onSuccess?: () => void }) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ idempotencyKey, ...data }: ReviewFormValues & { idempotencyKey?: string }) =>
-      createReview(client, data as ReviewFormValues, { idempotencyKey }),
+      createReview(data as ReviewFormValues, { idempotencyKey }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: reviewKeys.list._def,
@@ -111,12 +110,12 @@ export const useCreateReviewMutation = (client: AxiosInstance, options?: { onSuc
 /**
  * 리뷰를 수정하는 뮤테이션 훅입니다.
  */
-export const useUpdateReviewMutation = (client: AxiosInstance, options?: { onSuccess?: (data: Review) => void }) => {
+export const useUpdateReviewMutation = (options?: { onSuccess?: (data: Review) => void }) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: ReviewFormValues }) =>
-      updateReview(client, id, data),
+      updateReview(id, data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: reviewKeys.detail(data.id).queryKey,
@@ -142,11 +141,11 @@ export const useUpdateReviewMutation = (client: AxiosInstance, options?: { onSuc
 /**
  * 리뷰를 삭제하는 뮤테이션 훅입니다.
  */
-export const useDeleteReviewMutation = (client: AxiosInstance, options?: { onSuccess?: () => void }) => {
+export const useDeleteReviewMutation = (options?: { onSuccess?: () => void }) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => deleteReview(client, id),
+    mutationFn: (id: number) => deleteReview(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: reviewKeys.list._def,

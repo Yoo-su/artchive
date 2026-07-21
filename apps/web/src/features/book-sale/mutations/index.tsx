@@ -6,7 +6,6 @@ import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { PATHS } from "@/shared/constants/paths";
-import { privateAxios } from "@/shared/libs/axios";
 import { compressImages } from "@/shared/utils/compress-image";
 import { handleMutationError } from "@/shared/utils/error-handler";
 
@@ -28,7 +27,7 @@ export const useCreateBookSaleMutation = () => {
   const authUser = useAuthStore((state) => state.user);
   const accessToken = useAuthStore((state) => state.accessToken);
 
-  const sharedMutation = useSharedCreateBookSaleMutation(privateAxios, {
+  const sharedMutation = useSharedCreateBookSaleMutation({
     onSuccess: () => {
       toast.success("판매글이 성공적으로 등록되었습니다.");
       router.push(PATHS.MY_PAGE_SALES);
@@ -69,7 +68,7 @@ export const useCreateBookSaleMutation = () => {
  * 판매글 상태를 업데이트하는 뮤테이션 훅입니다.
  */
 export const useUpdateBookSaleStatusMutation = () => {
-  return useSharedUpdateBookSaleStatusMutation(privateAxios);
+  return useSharedUpdateBookSaleStatusMutation();
 };
 
 /**
@@ -88,7 +87,7 @@ export const useUpdateBookSaleMutation = () => {
   const authUser = useAuthStore((state) => state.user);
   const accessToken = useAuthStore((state) => state.accessToken);
 
-  const sharedMutation = useSharedUpdateBookSaleMutation(privateAxios, {
+  const sharedMutation = useSharedUpdateBookSaleMutation({
     onSuccess: (data: UsedBookSale) => {
       toast.success("판매글이 성공적으로 수정되었습니다.");
       queryClient.invalidateQueries({
@@ -120,9 +119,9 @@ export const useUpdateBookSaleMutation = () => {
 
       let newImageUrls: string[] = [];
       if (newImageFiles.length > 0) {
-        const compressedFiles = await compressImages(newImageFiles);
+        const compressFiles = await compressImages(newImageFiles);
         const formData = new FormData();
-        compressedFiles.forEach((file) => formData.append("images", file));
+        compressFiles.forEach((file) => formData.append("images", file));
         
         const uploadResult = await uploadImages(
           formData,
@@ -155,9 +154,9 @@ export const useUpdateBookSaleMutation = () => {
 
       let newImageUrls: string[] = [];
       if (newImageFiles.length > 0) {
-        const compressedFiles = await compressImages(newImageFiles);
+        const compressFiles = await compressImages(newImageFiles);
         const formData = new FormData();
-        compressedFiles.forEach((file) => formData.append("images", file));
+        compressFiles.forEach((file) => formData.append("images", file));
         
         const uploadResult = await uploadImages(
           formData,
@@ -186,7 +185,7 @@ export const useDeleteBookSaleMutation = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  const sharedMutation = useSharedDeleteBookSaleMutation(privateAxios, {
+  const sharedMutation = useSharedDeleteBookSaleMutation({
     onSuccess: () => {
       toast.success("판매글이 삭제되었습니다.");
       queryClient.invalidateQueries({ queryKey: bookSaleKeys._def });

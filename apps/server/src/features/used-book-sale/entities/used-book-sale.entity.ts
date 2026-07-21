@@ -7,6 +7,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 import { Book } from '@/features/book/entities/book.entity';
@@ -80,14 +81,10 @@ export class UsedBookSale {
   @JoinColumn({ name: 'isbn' }) // 외래 키 컬럼명을 'isbn'으로 명시
   book: Book;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @Column({
-    type: 'timestamptz',
-    precision: 6,
-    default: () => 'CURRENT_TIMESTAMP',
-  })
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
   // 하나의 판매글은 여러개의 채팅방을 가질 수 있습니다.

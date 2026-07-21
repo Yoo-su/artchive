@@ -7,20 +7,20 @@ import {
   ReviewFormValues,
   ReviewReactionType,
 } from "@bookjeok/core";
-import { AxiosInstance } from "axios";
+
+import { privateApiClient, publicApiClient } from "../../client";
 
 /**
  * 리뷰를 생성합니다.
  */
 export const createReview = async (
-  client: AxiosInstance,
   formValues: ReviewFormValues,
   options?: { idempotencyKey?: string },
 ) => {
   const config = options?.idempotencyKey
     ? { headers: { "x-idempotency-key": options.idempotencyKey } }
     : undefined;
-  const { data } = await client.post<Review>(
+  const { data } = await privateApiClient.post<Review>(
     API_PATHS.review.base,
     formValues,
     config,
@@ -32,11 +32,10 @@ export const createReview = async (
  * 리뷰를 수정합니다.
  */
 export const updateReview = async (
-  client: AxiosInstance,
   id: number,
   formValues: ReviewFormValues,
 ) => {
-  const { data } = await client.patch<Review>(
+  const { data } = await privateApiClient.patch<Review>(
     API_PATHS.review.detail(id),
     formValues,
   );
@@ -46,8 +45,8 @@ export const updateReview = async (
 /**
  * 리뷰를 삭제합니다.
  */
-export const deleteReview = async (client: AxiosInstance, id: number) => {
-  const { data } = await client.delete<Review>(API_PATHS.review.detail(id));
+export const deleteReview = async (id: number) => {
+  const { data } = await privateApiClient.delete<Review>(API_PATHS.review.detail(id));
   return data;
 };
 
@@ -55,7 +54,6 @@ export const deleteReview = async (client: AxiosInstance, id: number) => {
  * 리뷰 목록을 조회합니다.
  */
 export const getReviews = async (
-  client: AxiosInstance,
   {
     page = 1,
     limit = 10,
@@ -79,7 +77,7 @@ export const getReviews = async (
   if (excludeId) params.append("excludeId", excludeId.toString());
   if (cursorId) params.append("cursorId", cursorId.toString());
 
-  const { data } = await client.get<GetReviewsResponse>(
+  const { data } = await publicApiClient.get<GetReviewsResponse>(
     `${API_PATHS.review.base}?${params.toString()}`,
   );
   return data;
@@ -88,32 +86,32 @@ export const getReviews = async (
 /**
  * 리뷰 피드(카테고리별 최신 리뷰)를 조회합니다.
  */
-export const getReviewFeeds = async (client: AxiosInstance) => {
-  const { data } = await client.get<ReviewFeed[]>(API_PATHS.review.feeds);
+export const getReviewFeeds = async () => {
+  const { data } = await publicApiClient.get<ReviewFeed[]>(API_PATHS.review.feeds);
   return data;
 };
 
 /**
  * 인기 리뷰를 조회합니다.
  */
-export const getPopularReviews = async (client: AxiosInstance) => {
-  const { data } = await client.get<Review[]>(API_PATHS.review.popular);
+export const getPopularReviews = async () => {
+  const { data } = await publicApiClient.get<Review[]>(API_PATHS.review.popular);
   return data;
 };
 
 /**
  * 리뷰 상세 정보를 조회합니다.
  */
-export const getReview = async (client: AxiosInstance, id: number) => {
-  const { data } = await client.get<Review>(API_PATHS.review.detail(id));
+export const getReview = async (id: number) => {
+  const { data } = await publicApiClient.get<Review>(API_PATHS.review.detail(id));
   return data;
 };
 
 /**
  * 수정을 위한 리뷰 조회 (본인 리뷰만 조회 가능)
  */
-export const getReviewForEdit = async (client: AxiosInstance, id: number) => {
-  const { data } = await client.get<Review>(API_PATHS.review.edit(id));
+export const getReviewForEdit = async (id: number) => {
+  const { data } = await privateApiClient.get<Review>(API_PATHS.review.edit(id));
   return data;
 };
 
@@ -121,10 +119,9 @@ export const getReviewForEdit = async (client: AxiosInstance, id: number) => {
  * 추천 리뷰(복합 로직)를 조회합니다.
  */
 export const getRecommendedReviews = async (
-  client: AxiosInstance,
   id: number,
 ) => {
-  const { data } = await client.get<Review[]>(API_PATHS.review.recommend(id));
+  const { data } = await publicApiClient.get<Review[]>(API_PATHS.review.recommend(id));
   return data;
 };
 
@@ -132,10 +129,9 @@ export const getRecommendedReviews = async (
  * 나의 리액션 정보를 조회합니다.
  */
 export const getMyReviewReaction = async (
-  client: AxiosInstance,
   id: number,
 ) => {
-  const { data } = await client.get<ReviewReactionType | null>(
+  const { data } = await privateApiClient.get<ReviewReactionType | null>(
     API_PATHS.review.myReaction(id),
   );
   return data;
@@ -145,11 +141,10 @@ export const getMyReviewReaction = async (
  * 리뷰 리액션을 토글합니다.
  */
 export const toggleReviewReaction = async (
-  client: AxiosInstance,
   id: number,
   type: ReviewReactionType,
 ) => {
-  const { data } = await client.post<Review>(
+  const { data } = await privateApiClient.post<Review>(
     API_PATHS.review.toggleReaction(id),
     { type },
   );
@@ -159,8 +154,7 @@ export const toggleReviewReaction = async (
  * 리뷰 상세페이지 조회수를 기록합니다.
  */
 export const recordReviewView = async (
-  client: AxiosInstance,
   id: number,
 ): Promise<void> => {
-  await client.post(API_PATHS.review.recordView(id));
+  await publicApiClient.post(API_PATHS.review.recordView(id));
 };

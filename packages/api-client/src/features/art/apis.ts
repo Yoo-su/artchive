@@ -1,11 +1,11 @@
 import { API_PATHS, ArtItem, ArtListErrorResponse, ArtListSuccessResponse, DEFAULT_CITY_CODE, DEFAULT_PAGE, DEFAULT_PRFSTATE, DEFAULT_ROWS, GetArtDetailResponse, GetArtListParams, getSimpleDate } from "@bookjeok/core";
-import { AxiosInstance } from "axios";
+
+import { publicApiClient } from "../../client";
 
 /**
  * 공연/예술 목록을 조회합니다.
  */
 export const getArtList = async (
-  client: AxiosInstance,
   params: GetArtListParams,
 ): Promise<ArtListSuccessResponse | ArtListErrorResponse> => {
   const searchParams = new URLSearchParams();
@@ -30,7 +30,7 @@ export const getArtList = async (
   searchParams.set("signgucode", params.signgucode ?? DEFAULT_CITY_CODE);
 
   const url = `${API_PATHS.art.list}?${searchParams.toString()}`;
-  const { data } = await client.get(url);
+  const { data } = await publicApiClient.get(url);
 
   return data;
 };
@@ -39,7 +39,6 @@ export const getArtList = async (
  * 공연/예술 목록을 직접 조회합니다. (Expo 등 외부 연동용)
  */
 export const getExternalArtList = async (
-  client: AxiosInstance,
   params: GetArtListParams,
 ): Promise<ArtListSuccessResponse | ArtListErrorResponse> => {
   const searchParams = new URLSearchParams();
@@ -63,7 +62,7 @@ export const getExternalArtList = async (
   searchParams.set("signgucode", params.signgucode ?? DEFAULT_CITY_CODE);
 
   const url = `${API_PATHS.art.externalList}?${searchParams.toString()}`;
-  const { data } = await client.get(url);
+  const { data } = await publicApiClient.get(url);
 
   return data;
 };
@@ -73,10 +72,9 @@ export const getExternalArtList = async (
  * @param artId - 공연 ID (mt20id)
  */
 export const getArtDetail = async (
-  client: AxiosInstance,
   artId: string,
 ): Promise<GetArtDetailResponse> => {
-  const { data } = await client.get(API_PATHS.art.detail(artId));
+  const { data } = await publicApiClient.get(API_PATHS.art.detail(artId));
   return data;
 };
 
@@ -85,9 +83,8 @@ export const getArtDetail = async (
  * @param artId - 공연 ID (mt20id)
  */
 export const getExternalArtDetail = async (
-  client: AxiosInstance,
   artId: string,
 ): Promise<GetArtDetailResponse> => {
-  const { data } = await client.get(API_PATHS.art.externalDetail(artId));
+  const { data } = await publicApiClient.get(API_PATHS.art.externalDetail(artId));
   return data;
 };

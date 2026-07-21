@@ -2,7 +2,6 @@
  * 독서 기록(Reading Log) API 모듈
  *
  * 이 모듈은 독서 기록 관련 백엔드 API와의 통신을 담당합니다.
- * 모든 API 호출은 인증된 사용자(privateAxios)를 통해 수행됩니다.
  */
 
 import {
@@ -25,8 +24,6 @@ import {
   UpdateReadingLogParams,
 } from "@bookjeok/core";
 
-import { privateAxios, publicAxios } from "@/shared/libs/axios";
-
 /**
  * 월별 독서 기록을 조회합니다.
  *
@@ -35,7 +32,7 @@ import { privateAxios, publicAxios } from "@/shared/libs/axios";
  * @returns 해당 월의 독서 기록 배열
  */
 export const getReadingLogs = async (year: number, month: number) => {
-  return sharedGetReadingLogs(privateAxios, { year, month });
+  return sharedGetReadingLogs({ year, month });
 };
 
 /**
@@ -46,7 +43,7 @@ export const getReadingLogs = async (year: number, month: number) => {
  * @returns 월간/연간 독서 권수 통계
  */
 export const getReadingLogStats = async (year: number, month: number) => {
-  return sharedGetReadingLogStats(privateAxios, { year, month });
+  return sharedGetReadingLogStats({ year, month });
 };
 
 /**
@@ -63,7 +60,7 @@ export interface ReadingLogSettings {
  * @returns 현재 사용자의 독서 기록 설정
  */
 export const getReadingLogSettings = async () => {
-  return sharedGetReadingLogSettings(privateAxios);
+  return sharedGetReadingLogSettings();
 };
 
 /**
@@ -73,7 +70,7 @@ export const getReadingLogSettings = async () => {
  * @returns 수정된 독서 기록 설정
  */
 export const updateReadingLogSettings = async (isReadingLogPublic: boolean) => {
-  return sharedUpdateReadingLogSettings(privateAxios, isReadingLogPublic);
+  return sharedUpdateReadingLogSettings(isReadingLogPublic);
 };
 
 /**
@@ -91,9 +88,7 @@ export const getReadingLogsInfinite = async ({
   pageParam?: string | null;
   limit?: number;
 }) => {
-  // 패키지 쪽 infinite 함수는 파라미터 구조가 약간 다를 수 있으므로 확인 필요
-  // 여기서는 기존 로직대로 래핑
-  return sharedGetReadingLogsInfinite(privateAxios, pageParam ?? null);
+  return sharedGetReadingLogsInfinite(pageParam ?? null);
 };
 
 /**
@@ -103,7 +98,7 @@ export const getReadingLogsInfinite = async ({
  * @returns 생성된 독서 기록
  */
 export const createReadingLog = async (params: CreateReadingLogParams) => {
-  return sharedCreateReadingLog(privateAxios, params);
+  return sharedCreateReadingLog(params);
 };
 
 /**
@@ -114,7 +109,7 @@ export const createReadingLog = async (params: CreateReadingLogParams) => {
  * @returns 수정된 독서 기록
  */
 export const updateReadingLog = async (params: UpdateReadingLogParams) => {
-  return sharedUpdateReadingLog(privateAxios, params);
+  return sharedUpdateReadingLog(params);
 };
 
 /**
@@ -124,19 +119,19 @@ export const updateReadingLog = async (params: UpdateReadingLogParams) => {
  * @returns 삭제 결과
  */
 export const deleteReadingLog = async (id: string) => {
-  return sharedDeleteReadingLog(privateAxios, id);
+  return sharedDeleteReadingLog(id);
 };
 
 /**
  * 라운지 인기 도서를 조회합니다.
  */
 export const getLoungePopular = async () => {
-  return sharedGetLoungePopular(publicAxios);
+  return sharedGetLoungePopular();
 };
 
 /**
  * 라운지 열성 독서가를 조회합니다.
  */
 export const getLoungeActiveReaders = async () => {
-  return sharedGetLoungeActiveReaders(publicAxios);
+  return sharedGetLoungeActiveReaders();
 };

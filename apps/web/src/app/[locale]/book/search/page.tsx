@@ -4,7 +4,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPopularKeywords } from "@/features/book/apis";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
-import { publicAxios } from "@/shared/libs/axios";
 import BookSearchView from "@/views/book-search-view";
 
 export const revalidate = 3600;
@@ -41,7 +40,7 @@ export default async function Page({
   const queries = [
     {
       queryKey: bookKeys.popularKeywords.queryKey,
-      queryFn: () => getPopularKeywords(publicAxios),
+      queryFn: () => getPopularKeywords(),
     },
   ];
 

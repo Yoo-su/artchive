@@ -56,10 +56,10 @@ export class Review {
   @JoinColumn({ name: 'isbn' })
   book: Book;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
   @Column({ default: true })

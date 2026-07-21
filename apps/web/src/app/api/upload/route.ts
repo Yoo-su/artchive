@@ -20,8 +20,9 @@ export async function POST(request: Request): Promise<NextResponse> {
 
         // 토큰 유효성 검증 (외부 API 호출)
         try {
-          // NEXT_PUBLIC_API_URL을 사용해 사용자 프로필 조회 시도
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+          // 서버 통신용 API_URL을 우선 적용하고, 없을 경우 NEXT_PUBLIC_API_URL로 폴백
+          const apiUrl =
+            process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "";
           const response = await fetch(`${apiUrl}/user/profile`, {
             headers: {
               Authorization: `Bearer ${token}`,

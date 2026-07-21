@@ -1,3 +1,4 @@
+import { privateApiClient, publicApiClient } from "@bookjeok/api-client";
 import axios, {
   AxiosError,
   AxiosResponse,
@@ -14,38 +15,31 @@ const baseURL = typeof window === "undefined"
   ? (process.env.API_URL || config.NEXT_PUBLIC_API_URL)
   : config.NEXT_PUBLIC_API_URL;
 
-export const publicAxios = axios.create({
-  baseURL,
-});
+// @bookjeok/api-client의 전역 인스턴스들에 baseURL 반영
+publicApiClient.defaults.baseURL = baseURL;
+privateApiClient.defaults.baseURL = baseURL;
 
 const commonRequestInterceptor = (
   config: InternalAxiosRequestConfig,
 ): InternalAxiosRequestConfig => {
-  // 클라이언트 사이드에서만 동작하도록 (Next.js SSR 환경 고려)
-  if (typeof window !== "undefined") {
-    // 필요한 경우 공통 헤더 등을 추가할 수 있습니다.
+  // 특정 API(공연/예술, 도서, 업로드)는 Next.js API Route를 사용하도록 설정
+  if (
+    config.url?.includes("/art-list") ||
+    config.url?.includes("/art-detail") ||
+    config.url?.includes("/book-list") ||
+    config.url?.includes("/book-detail") ||
+    config.url?.includes("/upload")
+  ) {
+    config.baseURL = "/api";
   }
   return config;
 };
 
-publicAxios.interceptors.request.use(commonRequestInterceptor);
+publicApiClient.interceptors.request.use(commonRequestInterceptor);
 
-export const privateAxios = axios.create({
-  baseURL,
-});
-
-privateAxios.interceptors.request.use(
+privateApiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-    // 특정 API(공연/예술, 도서, 업로드)는 Next.js API Route를 사용하도록 설정
-    if (
-      config.url?.includes("/art-list") ||
-      config.url?.includes("/art-detail") ||
-      config.url?.includes("/book-list") ||
-      config.url?.includes("/book-detail") ||
-      config.url?.includes("/upload")
-    ) {
-      config.baseURL = "/api";
-    }
+    config = commonRequestInterceptor(config);
 
     const accessToken = useAuthStore.getState().accessToken;
     if (accessToken) {
@@ -81,6 +75,12 @@ const processQueue = (
 };
 
 const commonResponseInterceptor = (response: AxiosResponse): AxiosResponse => {
+  console.log(`[Axios Debug SUCCESS] URL: ${response.config.url}`, {
+    hasData: !!response.data,
+    dataType: typeof response.data,
+    keys: response.data ? Object.keys(response.data) : [],
+    raw: response.data
+  });
   // 서버 응답이 { success, data } 형태인 경우 투명하게 data 필드만 반환합니다.
   if (
     response.data &&
@@ -89,11 +89,12 @@ const commonResponseInterceptor = (response: AxiosResponse): AxiosResponse => {
     response.data.data !== undefined
   ) {
     response.data = response.data.data;
+    console.log(`[Axios Debug UNWRAPPED] URL: ${response.config.url} ->`, response.data);
   }
   return response;
 };
 
-privateAxios.interceptors.response.use(
+privateApiClient.interceptors.response.use(
   commonResponseInterceptor,
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & {
@@ -119,7 +120,7 @@ privateAxios.interceptors.response.use(
         })
           .then((token) => {
             originalRequest.headers.Authorization = `Bearer ${token}`;
-            return privateAxios(originalRequest);
+            return privateApiClient(originalRequest);
           })
           .catch((err) => Promise.reject(err));
       }
@@ -138,7 +139,7 @@ privateAxios.interceptors.response.use(
       }
 
       try {
-        const { data } = await publicAxios.post(
+        const { data } = await publicApiClient.post(
           `/auth/refresh`,
           {},
           {
@@ -149,7 +150,7 @@ privateAxios.interceptors.response.use(
         );
 
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
-          data;
+          data as any;
 
         if (!newAccessToken) {
           throw new Error("Failed to retrieve new access token");
@@ -162,7 +163,7 @@ privateAxios.interceptors.response.use(
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         processQueue(null, newAccessToken);
-        return privateAxios(originalRequest);
+        return privateApiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError as AxiosError, null);
         useAuthStore.getState().clearAuth();
@@ -184,7 +185,7 @@ export const internalAxios = axios.create({
   baseURL: "/api",
 });
 
-publicAxios.interceptors.response.use(commonResponseInterceptor);
+publicApiClient.interceptors.response.use(commonResponseInterceptor);
 internalAxios.interceptors.response.use(commonResponseInterceptor);
 
 const redirectToLogin = () => {
@@ -195,3 +196,6 @@ const redirectToLogin = () => {
     window.location.href = `/${currentLocale}/login`;
   }
 };
+
+// 💡 기존 래퍼들과의 코드 호환성 유지를 위해 publicAxios/privateAxios 명칭으로 re-export
+export { privateApiClient as privateAxios, publicApiClient as publicAxios };

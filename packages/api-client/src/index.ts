@@ -5,6 +5,8 @@
  * 이제 루트 엔트리 포인트를 통해 모든 기능을 제공합니다.
  */
 
+export * from "./client";
+
 // Features
 export * from "./features/art";
 export * from "./features/auth";

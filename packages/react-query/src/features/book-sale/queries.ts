@@ -15,19 +15,17 @@ import {
   UseInfiniteRelatedSalesQueryProps,
 } from "@bookjeok/core";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { AxiosInstance } from "axios";
 
 /**
  * 판매글 검색 (무한 스크롤)
  */
 export const useInfiniteBookSalesQuery = (
   params: SearchBookSalesParams,
-  client: AxiosInstance,
 ) => {
   return useInfiniteQuery({
     queryKey: bookSaleKeys.marketSales(params).queryKey,
     queryFn: ({ pageParam }) =>
-      getBookSales(client, {
+      getBookSales({
         ...params,
         cursor: pageParam as string | undefined,
       }),
@@ -39,10 +37,10 @@ export const useInfiniteBookSalesQuery = (
 /**
  * 내 판매글 목록 (내 데이터 - 짧은 staleTime)
  */
-export const useMyBookSalesQuery = (client: AxiosInstance) => {
+export const useMyBookSalesQuery = () => {
   return useQuery({
     queryKey: bookSaleKeys.mySales.queryKey,
-    queryFn: () => getMyBookSales(client),
+    queryFn: () => getMyBookSales(),
     staleTime: CACHE_TIME.THIRTY_SECONDS,
   });
 };
@@ -52,11 +50,10 @@ export const useMyBookSalesQuery = (client: AxiosInstance) => {
  */
 export const useBookSaleDetailQuery = (
   saleId: string,
-  client: AxiosInstance,
 ) => {
   return useQuery({
     queryKey: bookSaleKeys.saleDetail(saleId).queryKey,
-    queryFn: () => getBookSaleDetail(client, saleId),
+    queryFn: () => getBookSaleDetail(saleId),
     enabled: !!saleId,
   });
 };
@@ -66,11 +63,10 @@ export const useBookSaleDetailQuery = (
  */
 export const useBookSaleForEditQuery = (
   saleId: string,
-  client: AxiosInstance,
 ) => {
   return useQuery({
     queryKey: bookSaleKeys.saleForEdit(saleId).queryKey,
-    queryFn: () => getSaleForEdit(client, saleId),
+    queryFn: () => getSaleForEdit(saleId),
     enabled: !!saleId,
     retry: false,
   });
@@ -85,13 +81,12 @@ export const useInfiniteRelatedSalesQuery = ({
   district,
   limit = 10,
   enabled = true,
-  client,
-}: UseInfiniteRelatedSalesQueryProps & { client: AxiosInstance }) => {
+}: UseInfiniteRelatedSalesQueryProps) => {
   return useInfiniteQuery({
     queryKey: bookSaleKeys.relatedSales({ isbn, city, district, limit })
       .queryKey,
     queryFn: ({ pageParam = 1 }) =>
-      getRelatedSales(client, {
+      getRelatedSales({
         isbn,
         page: pageParam as number,
         limit,
@@ -113,16 +108,14 @@ export const useRelatedSalesQuery = ({
   isbn,
   limit = 4,
   enabled = true,
-  client,
 }: {
   isbn: string;
   limit?: number;
   enabled?: boolean;
-  client: AxiosInstance;
 }) => {
   return useQuery({
     queryKey: bookSaleKeys.relatedSales({ isbn, limit }).queryKey,
-    queryFn: () => getRelatedSales(client, { isbn, page: 1, limit }),
+    queryFn: () => getRelatedSales({ isbn, page: 1, limit }),
     enabled: !!isbn && enabled,
   });
 };
@@ -130,19 +123,19 @@ export const useRelatedSalesQuery = ({
 /**
  * 최근 판매글 목록
  */
-export const useRecentBookSalesQuery = (client: AxiosInstance) => {
+export const useRecentBookSalesQuery = () => {
   return useQuery({
     queryKey: bookSaleKeys.recentSales.queryKey,
-    queryFn: () => getRecentBookSales(client),
+    queryFn: () => getRecentBookSales(),
   });
 };
 
 /**
  * 인기 판매글 목록
  */
-export const usePopularBookSalesQuery = (client: AxiosInstance) => {
+export const usePopularBookSalesQuery = () => {
   return useQuery({
     queryKey: bookSaleKeys.popularSales.queryKey,
-    queryFn: () => getPopularBookSales(client),
+    queryFn: () => getPopularBookSales(),
   });
 };

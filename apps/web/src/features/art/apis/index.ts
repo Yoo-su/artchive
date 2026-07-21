@@ -1,8 +1,6 @@
 import { getArtDetail as sharedGetArtDetail, getArtList as sharedGetArtList } from "@bookjeok/api-client";
 import { ArtListErrorResponse, ArtListSuccessResponse, GetArtDetailResponse, GetArtListParams } from "@bookjeok/core";
 
-import { internalAxios } from "@/shared/libs/axios";
-
 /**
  * 공연/예술 목록을 조회합니다.
  * @param params 조회 파라미터 (페이지, 장르, 날짜 등)
@@ -11,7 +9,7 @@ import { internalAxios } from "@/shared/libs/axios";
 export const getArtList = async (
   params: GetArtListParams,
 ): Promise<ArtListSuccessResponse | ArtListErrorResponse> => {
-  return sharedGetArtList(internalAxios, params);
+  return sharedGetArtList(params);
 };
 
 /**
@@ -21,5 +19,5 @@ export const getArtList = async (
 export const getArtDetail = async (
   artId: string,
 ): Promise<GetArtDetailResponse> => {
-  return sharedGetArtDetail(internalAxios, artId);
+  return sharedGetArtDetail(artId);
 };
