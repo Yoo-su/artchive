@@ -1,6 +1,6 @@
 import { API_PATHS, BaseBookInfo, BookStats, DEFAULT_DISPLAY, DEFAULT_SORT, DEFAULT_START, GetBookDetailSuccessResponse, GetBookListParams, GetBookListSuccessResponse } from "@bookjeok/core";
 
-import { publicApiClient } from "../../client";
+import { privateApiClient, publicApiClient } from "../../client";
 
 /**
  * 책 검색결과를 조회합니다.
@@ -111,7 +111,7 @@ export const getBookSummary = async (
   isbn?: string,
   publisher?: string,
 ) => {
-  const { data } = await publicApiClient.post(API_PATHS.llm.summary, {
+  const { data } = await privateApiClient.post(API_PATHS.llm.summary, {
     title,
     author,
     description,
