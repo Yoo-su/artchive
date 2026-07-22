@@ -15,6 +15,7 @@ export const useBookListQuery = (
       const result = await getBookList(params);
       return result.items || [];
     },
+    staleTime: 1000 * 60 * 5, // 5분 캐시 유지 (하이드레이션 직후 불필요한 재요청 방지)
   });
 };
 
@@ -28,6 +29,7 @@ export const useBookDetailQuery = (isbn: string) => {
       const response = await getBookDetail(isbn);
       return response.items?.[0] || null;
     },
+    staleTime: 1000 * 60 * 5, // 5분 캐시 유지 (하이드레이션 직후 불필요한 재요청 방지)
   });
 };
 

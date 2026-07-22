@@ -2,7 +2,14 @@ import { BookInfo, DEFAULT_DISPLAY, DEFAULT_SORT, DEFAULT_START, GetBookDetailRe
 import axios from "axios";
 import { cache } from "react";
 
-import { config } from "@/shared/config/env";
+// 서버 인메모리 캐시 (10분 유효)
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+const CACHE_TTL_MS = 10 * 60 * 1000;
+const bookDetailCache = new Map<string, CacheEntry<GetBookDetailResponseData>>();
+const bookListCache = new Map<string, CacheEntry<GetBookListSuccessResponse>>();
 
 /**
  * 서버 컴포넌트 전용: 네이버 책 검색 API를 직접 호출합니다.
@@ -16,6 +23,12 @@ export const getBookListServer = async (
   const displayParam = (params.display ?? DEFAULT_DISPLAY).toString();
   const startParam = (params.start ?? DEFAULT_START).toString();
   const sortParam = params.sort ?? DEFAULT_SORT;
+  const cacheKey = `${params.query}:${displayParam}:${startParam}:${sortParam}`;
+
+  const cached = bookListCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return cached.data;
+  }
 
   try {
     const response = await axios.get(
@@ -34,7 +47,9 @@ export const getBookListServer = async (
       },
     );
 
-    return response.data as GetBookListSuccessResponse;
+    const data = response.data as GetBookListSuccessResponse;
+    bookListCache.set(cacheKey, { data, timestamp: Date.now() });
+    return data;
   } catch (error) {
     console.error("서버에서 책 목록 조회 실패:", error);
     throw new Error(
@@ -59,9 +74,14 @@ export const getPublisherBooksServer = async (
 
 /**
  * 서버 전용: 책 상세정보를 조회합니다.
- * React Cache를 사용하여 중복 요청을 방지합니다.
+ * React Cache 및 인메모리 캐시를 사용하여 중복 요청을 방지합니다.
  */
 export const fetchBookDetail = cache(async (isbn: string) => {
+  const cached = bookDetailCache.get(isbn);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return cached.data;
+  }
+
   try {
     const response = await axios.get<GetBookDetailResponseData>(
       `https://openapi.naver.com/v1/search/book_adv.json?d_isbn=${isbn}`,
@@ -73,7 +93,9 @@ export const fetchBookDetail = cache(async (isbn: string) => {
       },
     );
 
-    return response.data;
+    const data = response.data;
+    bookDetailCache.set(isbn, { data, timestamp: Date.now() });
+    return data;
   } catch (error) {
     console.error("책 상세정보 조회 실패:", error);
     throw new Error(
