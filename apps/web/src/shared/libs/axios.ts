@@ -22,15 +22,17 @@ privateApiClient.defaults.baseURL = baseURL;
 const commonRequestInterceptor = (
   config: InternalAxiosRequestConfig,
 ): InternalAxiosRequestConfig => {
-  // 특정 API(공연/예술, 도서, 업로드)는 Next.js API Route를 사용하도록 설정
-  if (
-    config.url?.includes("/art-list") ||
-    config.url?.includes("/art-detail") ||
-    config.url?.includes("/book-list") ||
-    config.url?.includes("/book-detail") ||
-    config.url?.includes("/upload")
-  ) {
-    config.baseURL = "/api";
+  // 클라이언트 브라우저 환경에서만 특정 API(공연/예술, 도서, 업로드)를 Next.js API Route로 전달
+  if (typeof window !== "undefined") {
+    if (
+      config.url?.includes("/art-list") ||
+      config.url?.includes("/art-detail") ||
+      config.url?.includes("/book-list") ||
+      config.url?.includes("/book-detail") ||
+      config.url?.includes("/upload")
+    ) {
+      config.baseURL = "/api";
+    }
   }
   return config;
 };
