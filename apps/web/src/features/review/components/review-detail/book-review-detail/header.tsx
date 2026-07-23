@@ -93,7 +93,7 @@ export function ReviewDetailHeader({ review, book }: ReviewDetailHeaderProps) {
 
             <div className="flex-1 min-w-0 py-1">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-bold tracking-widest text-[#B22222] uppercase bg-[#B22222]/5 px-2 py-0.5 rounded-sm">
+                <span className="text-[10px] font-bold tracking-widest text-white uppercase bg-[#3C3F45] px-2 py-0.5 rounded-sm">
                   {t("reviewed_book")}
                 </span>
                 {review.rating > 0 && (
@@ -113,12 +113,14 @@ export function ReviewDetailHeader({ review, book }: ReviewDetailHeaderProps) {
               </p>
             </div>
 
-            <Badge
-              variant="outline"
-              className="hidden sm:inline-flex mt-1 text-stone-400 font-normal border-stone-200"
-            >
-              {book.pubdate?.slice(0, 4)}
-            </Badge>
+            {book.pubdate && (
+              <Badge
+                variant="outline"
+                className="hidden sm:inline-flex mt-1 text-stone-400 font-normal border-stone-200"
+              >
+                {book.pubdate.slice(0, 4)}
+              </Badge>
+            )}
           </div>
         )}
 
