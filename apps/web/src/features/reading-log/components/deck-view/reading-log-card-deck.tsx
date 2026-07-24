@@ -37,7 +37,7 @@ export function ReadingLogCardDeck({
   const t = useTranslations("reading_log");
   const { user } = useAuthStore();
   const [activeIndex, setActiveIndex] = useState(0);
-  const [flippedCardId, setFlippedCardId] = useState<number | null>(null);
+  const [flippedCardId, setFlippedCardId] = useState<string | number | null>(null);
 
   // 드래그 상태 제어
   const dragX = useMotionValue(0);
@@ -50,7 +50,7 @@ export function ReadingLogCardDeck({
     dragX.set(0);
   }, [logs, dragX]);
 
-  const handleCardClick = (id: number) => {
+  const handleCardClick = (id: string | number) => {
     // 덱의 가장 상단 카드만 뒤집기 가능
     if (activeIndex !== 0) return;
     setFlippedCardId((prev) => (prev === id ? null : id));
@@ -219,7 +219,7 @@ export function ReadingLogCardDeck({
                   {/* 카드 하단 풋터 안내 */}
                   <div className="relative z-10 flex items-center justify-between border-t border-white/10 pt-3 text-[10px] sm:text-xs text-stone-400">
                     <span className="font-light truncate max-w-[150px]">
-                      {log.oneLiner || t("deck.click_to_flip")}
+                      {log.memo || t("deck.click_to_flip")}
                     </span>
                     <span className="flex items-center gap-1 text-amber-400/90 shrink-0 font-medium">
                       <RotateCw className="w-3 h-3" />
@@ -240,24 +240,13 @@ export function ReadingLogCardDeck({
                     <span className="text-xs font-serif font-bold text-stone-800">
                       {t("deck.review_title")}
                     </span>
-                    <div className="flex text-amber-400 text-xs">
-                      {"★".repeat(log.rating || 5)}
-                      <span className="text-stone-300">
-                        {"★".repeat(5 - (log.rating || 5))}
-                      </span>
-                    </div>
                   </div>
 
                   {/* 뒷면 본문 감상평 */}
                   <div className="flex-1 overflow-y-auto py-3 space-y-2">
-                    {log.oneLiner && (
-                      <p className="text-xs font-serif italic text-stone-800 bg-amber-500/10 border-l-2 border-amber-500 p-2.5 rounded-r-lg leading-relaxed">
-                        &quot;{log.oneLiner}&quot;
-                      </p>
-                    )}
-                    {log.review ? (
+                    {log.memo ? (
                       <p className="text-xs text-stone-600 leading-relaxed font-light whitespace-pre-line">
-                        {log.review}
+                        {log.memo}
                       </p>
                     ) : (
                       <p className="text-xs text-stone-400 leading-relaxed italic font-light">
