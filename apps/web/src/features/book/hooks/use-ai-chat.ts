@@ -22,10 +22,15 @@ export const useAiChat = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // sessionStorage 동기화 초기값 로딩
+  // 유저 ID별로 sessionStorage 키를 격리하여 계정 전환 시 대화 기록 혼선 100% 방지
+  const userStorageKey = user
+    ? `${CHAT_STORAGE_KEY}_user_${user.id}`
+    : `${CHAT_STORAGE_KEY}_guest`;
+
+  // initial state
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     if (typeof window !== "undefined") {
-      const saved = sessionStorage.getItem(CHAT_STORAGE_KEY);
+      const saved = sessionStorage.getItem(userStorageKey);
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
@@ -40,12 +45,31 @@ export const useAiChat = () => {
     return [INITIAL_WELCOME_MESSAGE];
   });
 
-  // sessionStorage 저장 동기화
+  // 로그인 상태 및 사용자 변경 시 해당 계정의 대화 히스토리 동기화
   useEffect(() => {
     if (typeof window !== "undefined") {
-      sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+      const saved = sessionStorage.getItem(userStorageKey);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setMessages(parsed);
+            return;
+          }
+        } catch (e) {
+          console.error("Failed to parse saved chat history:", e);
+        }
+      }
+      setMessages([INITIAL_WELCOME_MESSAGE]);
     }
-  }, [messages]);
+  }, [userStorageKey]);
+
+  // 대화 변경 시 sessionStorage 동기화
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(userStorageKey, JSON.stringify(messages));
+    }
+  }, [messages, userStorageKey]);
 
   // 메시지 하단 스크롤
   const scrollToBottom = useCallback(() => {
@@ -61,9 +85,9 @@ export const useAiChat = () => {
     setMessages([INITIAL_WELCOME_MESSAGE]);
     setInput("");
     if (typeof window !== "undefined") {
-      sessionStorage.removeItem(CHAT_STORAGE_KEY);
+      sessionStorage.removeItem(userStorageKey);
     }
-  }, []);
+  }, [userStorageKey]);
 
   // 메시지 전송
   const handleSendMessage = useCallback(

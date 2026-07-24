@@ -35,14 +35,14 @@ export const AiChatWindow = () => {
         <div className="flex items-center gap-2 min-w-0">
           <span
             className={`w-2 h-2 rounded-full shrink-0 ${
-              isLoggedIn ? "bg-emerald-500 animate-pulse" : "bg-amber-500"
+              isLoggedIn ? "bg-emerald-500 animate-pulse" : "bg-stone-400"
             }`}
           />
           <h2 className="text-xs sm:text-sm font-semibold text-stone-800 truncate">
             대화형 AI 도서 큐레이션
           </h2>
           {!isLoggedIn && (
-            <span className="text-[10px] sm:text-[11px] font-medium text-amber-600 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-full shrink-0">
+            <span className="text-[10px] sm:text-[11px] font-medium text-stone-700 bg-stone-100 border border-stone-200 px-2 py-0.5 rounded-full shrink-0">
               회원 전용
             </span>
           )}
@@ -71,11 +71,11 @@ export const AiChatWindow = () => {
               msg.role === "user" ? "items-end" : "items-start"
             }`}
           >
-            {/* 메시지 버블 (마크다운 파싱) */}
+            {/* 메시지 버블 (다크 그레이 #353E43 적용) */}
             <div
               className={`px-4 sm:px-5 py-3 sm:py-3.5 max-w-[90%] sm:max-w-[85%] text-xs sm:text-sm leading-relaxed ${
                 msg.role === "user"
-                  ? "bg-stone-900 text-white rounded-2xl rounded-tr-xs font-light shadow-xs whitespace-pre-line"
+                  ? "bg-[#353E43] text-white rounded-2xl rounded-tr-xs font-light shadow-xs whitespace-pre-line"
                   : "bg-stone-50/90 border border-stone-200/80 text-stone-800 rounded-2xl rounded-tl-xs shadow-xs"
               }`}
             >
@@ -150,12 +150,12 @@ export const AiChatWindow = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* 3. 비로그인 유저 안내 배너 */}
+      {/* 3. 비로그인 유저 안내 배너 (다크 그레이 #353E43 & 화이트 테마) */}
       {!isLoggedIn && (
-        <div className="mx-4 sm:mx-6 my-2 p-3.5 sm:p-4 bg-stone-900 text-white rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
+        <div className="mx-4 sm:mx-6 my-2 p-3.5 sm:p-4 bg-[#353E43] text-white rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-              <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/15 flex items-center justify-center shrink-0">
+              <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
             </div>
             <div>
               <h4 className="text-xs font-semibold text-white">
@@ -168,7 +168,7 @@ export const AiChatWindow = () => {
           </div>
           <Link
             href="/auth/login"
-            className="px-3.5 py-1.5 sm:px-4 sm:py-2 bg-amber-400 hover:bg-amber-300 text-stone-900 text-xs font-semibold rounded-xl transition-all shrink-0 flex items-center gap-1.5"
+            className="px-3.5 py-1.5 sm:px-4 sm:py-2 bg-white hover:bg-stone-100 text-[#353E43] text-xs font-semibold rounded-xl transition-all shrink-0 flex items-center gap-1.5 shadow-xs"
           >
             <LogIn className="w-3.5 h-3.5" />
             <span>로그인하러 가기</span>
@@ -217,7 +217,7 @@ export const AiChatWindow = () => {
           <button
             type="submit"
             disabled={!isLoggedIn || !input.trim() || loading}
-            className="absolute right-2 sm:right-2.5 w-8 h-8 sm:w-9 sm:h-9 bg-stone-900 hover:bg-stone-800 text-white rounded-full flex items-center justify-center disabled:opacity-40 disabled:hover:bg-stone-900 transition-all cursor-pointer"
+            className="absolute right-2 sm:right-2.5 w-8 h-8 sm:w-9 sm:h-9 bg-[#353E43] hover:bg-[#2c3337] text-white rounded-full flex items-center justify-center disabled:opacity-40 disabled:hover:bg-[#353E43] transition-all cursor-pointer"
             aria-label="메시지 전송"
           >
             <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
