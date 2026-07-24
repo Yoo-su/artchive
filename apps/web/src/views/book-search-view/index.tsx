@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useInView } from "react-intersection-observer";
 
 import { AiChatWindow } from "@/features/book/components/book-search/ai-chat-window";
@@ -16,7 +16,23 @@ import { StickyBookSearchBar } from "@/features/book/components/book-search/stic
 import { ScrollTopButton } from "@/shared/components/ui/scroll-top-button";
 
 export default function BookSearchView() {
-  const [searchMode, setSearchMode] = useState<SearchMode>("KEYWORD");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // URL 쿼리파라미터(?mode=ai)를 우선 참조하여 뒤로가기/페이지 이동 시에도 활성화 탭 보존
+  const modeParam = searchParams.get("mode");
+  const searchMode: SearchMode = modeParam === "ai" ? "AI" : "KEYWORD";
+
+  const handleModeChange = (newMode: SearchMode) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (newMode === "AI") {
+      params.set("mode", "ai");
+    } else {
+      params.delete("mode");
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   const { ref, inView, entry } = useInView({
     initialInView: true,
@@ -35,11 +51,14 @@ export default function BookSearchView() {
         <StickyBookSearchBar isVisible={isStickyVisible} />
       )}
 
-      {/* Hero 영역 (기존 UI 유지) */}
+      {/* Hero 영역 */}
       <SearchHero />
 
       {/* 탭 메뉴: [ 키워드 검색 | AI 추천 검색 ] */}
-      <SearchModeTabs activeMode={searchMode} onModeChange={setSearchMode} />
+      <SearchModeTabs
+        activeMode={searchMode}
+        onModeChange={handleModeChange}
+      />
 
       {/* 모드별 뷰 스위칭 */}
       {searchMode === "KEYWORD" ? (
