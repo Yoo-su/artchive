@@ -20,6 +20,14 @@ export interface ConversationalRagResult {
   searchQueryRequested?: string;
 }
 
+// 수정: 두 번의 LLM 호출(1차 대화 판단, 2차 추천 생성)이 서로 다른 인격으로
+// 말하는 문제가 있었음 — 1차에만 systemInstruction으로 페르소나를 부여하고
+// 2차엔 없어서, 사용자가 "다정한 큐레이터"와 대화하다 갑자기 "건조한 리랭커"로
+// 화자가 바뀌는 느낌을 받았음. 이제 하나의 상수로 관리해서 두 호출 모두에 적용.
+const CURATOR_PERSONA = `당신은 독서 플랫폼 '북적'의 지적이고 다정한 전문 도서 큐레이터 AI입니다.
+사용자와의 대화 맥락을 완벽히 이해하며, 자연스러운 대화를 이끌어갑니다.
+이모지나 캐릭터 가벼운 말투는 절대 사용하지 말고, 단정하고 정갈한 어조를 유지하세요.`;
+
 @Injectable()
 export class RagService {
   private genAI: GoogleGenerativeAI;
@@ -58,16 +66,12 @@ export class RagService {
 
   /**
    * ChatMessageDto 배열을 Gemini API 호환 history 포맷으로 안전하게 변환
-   * - 클라이언트의 최초 웰컴 메시지(assistant) 제거
-   * - 첫 번째 항목이 반드시 'user'가 되도록 보장
-   * - 연속된 동일 역할 메시지 병합하여 400 Bad Request 방지
    */
   private buildGeminiHistory(
     messages: ChatMessageDto[],
   ): { role: 'user' | 'model'; parts: { text: string }[] }[] {
     const past = messages.slice(0, -1);
 
-    // 첫 번째 'user' 발화 위치 탐색 (클라이언트 환영 메시지 필터링)
     let startIdx = 0;
     while (startIdx < past.length && past[startIdx].role !== ChatRole.USER) {
       startIdx++;
@@ -95,7 +99,7 @@ export class RagService {
   }
 
   /**
-   * 멀티턴 대화 및 도구 호출 여부 1차 판단 (Natural Conversational Agent)
+   * 멀티턴 대화 및 도구 호출 여부 1차 판단 (Conversational Agent - 1차 LLM 호출)
    */
   async processConversationalTurn(
     messages: ChatMessageDto[],
@@ -117,8 +121,7 @@ export class RagService {
 
     const history = this.buildGeminiHistory(messages);
 
-    const systemInstruction = `당신은 독서 플랫폼 '북적'의 지적이고 다정한 전문 도서 큐레이터 AI입니다.
-사용자와의 대화 맥락을 완벽히 이해하며, 자연스러운 대화를 이끌어갑니다.
+    const systemInstruction = `${CURATOR_PERSONA}
 
 [핵심 행동 지침]
 1. 자연스러운 대화와 공감:
@@ -127,10 +130,7 @@ export class RagService {
 
 2. 도서 DB 검색 도구(search_books) 호출 조건:
    - 사용자가 구체적인 독서 목적, 기분, 장르, 분위기, 상충 조건("아까 그 책 말고 시집으로"), 또는 도서 추천 요청의 의도를 명확히 표현했을 때만 'search_books' 도구를 호출하세요.
-   - 'search_books' 도구를 호출할 때는 도서 DB 벡터 검색에 최적화된 명확하고 풍부한 한국어 쿼리 문장(searchQuery)을 파라미터로 넘기세요.
-
-3. 톤앤매너:
-   - 이모지나 캐릭터 가벼운 말투는 절대 사용하지 말고, 단정하고 정갈한 어조를 유지하세요.`;
+   - 'search_books' 도구를 호출할 때는 도서 DB 벡터 검색에 최적화된 명확하고 풍부한 한국어 쿼리 문장(searchQuery)을 파라미터로 넘기세요.`;
 
     try {
       const model = this.genAI.getGenerativeModel({
@@ -143,7 +143,6 @@ export class RagService {
       const result = await chat.sendMessage(lastMessage.content);
       const call = result.response.functionCalls()?.[0];
 
-      // 1. AI가 대화만으로 응답하기로 판단한 경우 (search_books 호출 안 함)
       if (!call || call.name !== 'search_books') {
         const textResponse = result.response.text();
         return {
@@ -154,7 +153,6 @@ export class RagService {
         };
       }
 
-      // 2. AI가 도서 DB 검색 도구를 호출하기로 결정한 경우
       const args = call.args as { searchQuery?: string };
       const searchQueryRequested = args.searchQuery || lastMessage.content;
 
@@ -174,82 +172,15 @@ export class RagService {
   }
 
   /**
-   * pgvector 후보 도서들에 대해 사용자의 요구사항(독자층, 장르, 깊이)과 1:1 교차 검증 및 Reranking 수행
+   * pgvector 검색 결과 후보 도서들에 대해
+   * (1) 사용자의 대화 맥락/독자층/장르에 부합하는 도서를 1:1 리랭킹하고,
+   * (2) 최종 추천 총평 서두 메시지와 개별 도서별 RAG 사유(reason)를 단 1회의 LLM 호출로 고속 생성
    */
-  async filterAndRerankBooks(
+  async filterAndSynthesizeRecommendation(
     messages: ChatMessageDto[],
     candidateBooks: BookSearchResultDto[],
-  ): Promise<BookSearchResultDto[]> {
-    if (candidateBooks.length === 0) return [];
-
-    const conversationHistory = messages
-      .slice(-4)
-      .map((m) => `${m.role === ChatRole.USER ? '사용자' : 'AI'}: ${m.content}`)
-      .join('\n');
-
-    const booksSummary = candidateBooks
-      .map(
-        (b) =>
-          `- ISBN: ${b.isbn} | 제목: <${b.title}> | 저자: ${b.author} | 출판사: ${b.publisher} | 줄거리: ${b.description.slice(0, 200)}`,
-      )
-      .join('\n');
-
-    const prompt = `당신은 도서 검색 결과의 연관성과 품질을 검증하는 전문 AI 리랭커(Reranker)입니다.
-사용자의 대화 맥락/요구사항과 DB에서 검색된 도서 후보 목록을 비교하여, 사용자의 의도와 맞지 않는 부적절한 도서를 엄격히 제외(Filter Out)하세요.
-
-[사용자 대화 맥락]
-${conversationHistory}
-
-[후보 도서 목록]
-${booksSummary}
-
-[검증 원칙]
-1. 사용자가 요구한 타겟 독자층(성인 vs 아동), 장르(소설 vs 에세이 등), 독서 분위기, 주제적 깊이와 부합하는 도서만 선별하세요.
-2. 사용자의 요구사항과 명백히 모순되거나 타겟층/장르가 불일치하는 도서는 모두 제외하세요.
-3. 부합하는 도서가 없다면 validIsbns를 빈 배열([])로 반환하세요.
-
-[응답 규격]
-JSON 형식으로만 응답하세요.`;
-
-    try {
-      const model = this.genAI.getGenerativeModel({
-        model: this.modelName,
-        generationConfig: {
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: SchemaType.OBJECT,
-            properties: {
-              validIsbns: {
-                type: SchemaType.ARRAY,
-                items: { type: SchemaType.STRING },
-              },
-            },
-            required: ['validIsbns'],
-          },
-          temperature: 0.1,
-        },
-      });
-
-      const result = await model.generateContent(prompt);
-      const text = result.response.text();
-      const parsed = JSON.parse(text) as { validIsbns: string[] };
-
-      const validIsbnSet = new Set(parsed.validIsbns || []);
-      return candidateBooks.filter((b) => validIsbnSet.has(b.isbn));
-    } catch (error) {
-      console.error('Reranking Error:', error);
-      return candidateBooks.slice(0, 5);
-    }
-  }
-
-  /**
-   * 검증된 도서 목록에 대한 최종 RAG 큐레이션 서두 메시지 및 개별 추천 사유(reason) 합성
-   */
-  async synthesizeFinalRecommendation(
-    messages: ChatMessageDto[],
-    books: BookSearchResultDto[],
   ): Promise<{ message: string; books: BookSearchResultDto[] }> {
-    if (books.length === 0) {
+    if (candidateBooks.length === 0) {
       return {
         message:
           '말씀하신 분위기나 상황에 부합하는 적합한 도서를 데이터베이스에서 발굴하지 못했습니다. 원하시는 장르나 키워드를 다르게 말씀해 주시면 다시 찾아드릴게요.',
@@ -262,27 +193,31 @@ JSON 형식으로만 응답하세요.`;
       .map((m) => `${m.role === ChatRole.USER ? '사용자' : 'AI'}: ${m.content}`)
       .join('\n');
 
-    const candidateBooks = books.slice(0, 6);
+    // 수정: 유사도(%)를 프롬프트에 포함해서, LLM이 "억지로 이유를 붙이기"보다
+    // 실제로 관련성이 낮은 후보를 더 적극적으로 걸러낼 수 있는 근거를 제공
     const bookSummaries = candidateBooks
       .map(
         (b) =>
-          `- ISBN: ${b.isbn} | 제목: <${b.title}> | 저자: ${b.author} | 줄거리: ${b.description.slice(0, 150)}...`,
+          `- ISBN: ${b.isbn} | 제목: <${b.title}> | 저자: ${b.author} | 출판사: ${b.publisher} | 벡터 유사도: ${(b.similarity * 100).toFixed(0)}% | 줄거리: ${b.description.slice(0, 180)}`,
       )
       .join('\n');
 
-    const prompt = `당신은 전문 도서 큐레이터입니다.
-사용자의 대화 맥락과 검증을 통과한 도서 목록을 비교분석(RAG)하여, 전체 추천 취지 메시지(message)와 각 도서별 개별 추천 이유(reason)를 작성하세요.
+    // 수정: systemInstruction으로 CURATOR_PERSONA를 부여해서 1차 대화와 톤을 일치시킴
+    const systemInstruction = `${CURATOR_PERSONA}
 
-[대화 기록]
+당신은 지금 아래 사용자의 대화 맥락과 DB에서 검색된 후보 도서 목록을 검증하여,
+조건에 진짜로 적합한 도서만 엄선하고 추천 메시지와 개별 추천 이유를 작성하는 역할입니다.`;
+
+    const prompt = `[대화 기록]
 ${conversationHistory}
 
-[검증된 도서 목록]
+[후보 도서 목록 - 벡터 유사도가 낮을수록 사용자 의도와 무관할 가능성이 높음]
 ${bookSummaries}
 
-[작성 지침]
-1. message: 사용자의 요청과 기분에 공감하며 전체적인 추천 취지를 밝히는 정갈한 2~3문장 서두 문구.
-2. reasons: 각 도서의 ISBN별로 왜 이 책이 사용자의 대화 맥락과 요청에 적합한지 1~2문장의 개별 추천 이유(reason) 작성.
-3. 이모지나 가벼운 톤은 사용하지 말고, 단정하고 정갈한 어조를 유지하세요.
+[작성 및 검증 지침]
+1. 검증 및 필터링: 사용자의 대상 독자층(성인 vs 아동), 장르(소설 vs 에세이 등), 독서 분위기/깊이와 맞지 않는 도서는 반드시 제외하세요. 벡터 유사도가 낮은 책일수록 더 엄격하게 검증하고, 실제로 맥락에 안 맞으면 과감히 제외하세요. 억지로 모든 후보에 이유를 붙이지 마세요.
+2. message: 사용자의 요청과 기분에 공감하며 전체적인 추천 취지를 밝히는 정갈한 2~3문장 서두 문구. (부합 도서가 0권이면 부합하는 도서가 없다고 안내)
+3. reasons: 검증을 통과한 각 도서의 ISBN별로 왜 이 책이 사용자의 대화 맥락에 적합한지 1~2문장의 구체적인 추천 이유 작성.
 
 [응답 규격]
 JSON 형식으로만 응답하세요.`;
@@ -290,6 +225,7 @@ JSON 형식으로만 응답하세요.`;
     try {
       const model = this.genAI.getGenerativeModel({
         model: this.modelName,
+        systemInstruction,
         generationConfig: {
           responseMimeType: 'application/json',
           responseSchema: {
@@ -310,7 +246,7 @@ JSON 형식으로만 응답하세요.`;
             },
             required: ['message', 'reasons'],
           },
-          temperature: 0.4,
+          temperature: 0.3,
         },
       });
 
@@ -328,25 +264,36 @@ JSON 형식으로만 응답하세요.`;
         });
       }
 
-      const enrichedBooks = candidateBooks.map((b) => ({
-        ...b,
-        reason:
-          reasonMap.get(b.isbn) ||
-          `${b.title} 은(는) 요청하신 독서 감성과 서사를 잘 반영하고 있는 추천 도서입니다.`,
-      }));
+      // 검증된 도서들만 이유와 함께 선별
+      const validBooks = candidateBooks
+        .filter((b) => reasonMap.has(b.isbn))
+        .map((b) => ({
+          ...b,
+          reason: reasonMap.get(b.isbn)!,
+        }))
+        .slice(0, 6);
+
+      if (validBooks.length === 0) {
+        return {
+          message:
+            parsed.message ||
+            '말씀하신 조건에 진정으로 부합하는 적합한 도서를 데이터베이스에서 발굴하지 못했습니다. 다른 장르나 키워드로 말씀해 주시면 다시 찾아드릴게요.',
+          books: [],
+        };
+      }
 
       return {
         message:
           parsed.message ||
           '요청하신 질문 맥락에 맞춰 엄선한 추천 도서들입니다.',
-        books: enrichedBooks,
+        books: validBooks,
       };
     } catch (error) {
-      console.error('Final Recommendation Synthesis Error:', error);
+      console.error('Unified Synthesis Error:', error);
       return {
         message:
           '요청하신 분위기와 주제에 잘 어울리는 도서 목록입니다. 각 책의 추천 사유를 확인해 보세요.',
-        books: candidateBooks.map((b) => ({
+        books: candidateBooks.slice(0, 5).map((b) => ({
           ...b,
           reason: `${b.author} 저자의 대표작으로, 요청하신 독서 감성과 긴밀히 연결됩니다.`,
         })),

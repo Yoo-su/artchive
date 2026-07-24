@@ -2,14 +2,22 @@
 
 import { publicApiClient } from "@bookjeok/api-client";
 import { motion } from "framer-motion";
-import { Loader2, RotateCcw, Send } from "lucide-react";
+import { Loader2, RotateCcw, Send, Sparkles } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
+import remarkGfm from "remark-gfm";
+import { FreeMode } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 import { BookCard } from "@/features/book/components/common/book-card";
 import { AiSearchBookItem } from "@/features/book/queries/use-ai-search-query";
 import { Input } from "@/shared/components/shadcn/input";
 import { API_PATHS } from "@/shared/constants/apis";
+
+const ReactMarkdown = dynamic(() => import("react-markdown"), {
+  ssr: false,
+});
 
 export interface ChatMessage {
   id: string;
@@ -34,7 +42,7 @@ export const AiChatWindow = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // sessionStorage를 통해 대화 히스토리 유지
+  // sessionStorage를 통해 대화 히스토리 및 세션 유지
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     if (typeof window !== "undefined") {
       const saved = sessionStorage.getItem(CHAT_STORAGE_KEY);
@@ -76,9 +84,10 @@ export const AiChatWindow = () => {
     scrollToBottom();
   }, [messages, loading]);
 
-  // 대화 내용 초기화 핸들러
+  // 대화 내용 및 세션 완전 초기화 핸들러
   const handleClearChat = () => {
     setMessages([INITIAL_WELCOME]);
+    setInput("");
     if (typeof window !== "undefined") {
       sessionStorage.removeItem(CHAT_STORAGE_KEY);
     }
@@ -101,7 +110,7 @@ export const AiChatWindow = () => {
     setLoading(true);
 
     try {
-      // 백엔드로 전체 대화 히스토리 전송
+      // 백엔드로 전체 대화 히스토리 전송 (세션 맥락 연속성 보장)
       const payload = {
         messages: updatedMessages.map((m) => ({
           role: m.role,
@@ -138,7 +147,7 @@ export const AiChatWindow = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-white rounded-3xl border border-stone-200/80 shadow-xl shadow-stone-200/30 overflow-hidden flex flex-col h-[750px]">
+    <div className="w-full max-w-4xl mx-auto bg-white rounded-3xl border border-stone-200/80 shadow-xl shadow-stone-200/30 overflow-hidden flex flex-col h-[760px]">
       {/* 1. 대화 헤더 */}
       <div className="px-6 py-4 bg-stone-50/90 border-b border-stone-200/60 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -151,15 +160,15 @@ export const AiChatWindow = () => {
           <button
             type="button"
             onClick={handleClearChat}
-            className="flex items-center gap-1 text-xs text-stone-400 hover:text-stone-700 transition-colors cursor-pointer"
-            title="대화 내용 초기화"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-stone-600 bg-white border border-stone-200 rounded-full hover:border-stone-400 hover:text-stone-900 transition-all cursor-pointer shadow-2xs"
+            title="대화 내역 및 맥락 초기화"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>대화 초기화</span>
           </button>
           <span className="text-xs text-stone-300">|</span>
           <span className="text-xs text-stone-400">
-            실시간 문맥 대화 & RAG 맞춤 추천
+            실시간 문맥 대화 & Swiper 추천
           </span>
         </div>
       </div>
@@ -176,61 +185,122 @@ export const AiChatWindow = () => {
               msg.role === "user" ? "items-end" : "items-start"
             }`}
           >
-            {/* 메시지 버블 (AI RAG 총평 및 안내) */}
+            {/* 메시지 버블 (마크다운 파싱 렌더링) */}
             <div
-              className={`px-5 py-3.5 max-w-[85%] text-sm leading-relaxed whitespace-pre-line ${
+              className={`px-5 py-3.5 max-w-[85%] text-sm leading-relaxed ${
                 msg.role === "user"
-                  ? "bg-stone-900 text-white rounded-2xl rounded-tr-xs font-light shadow-xs"
+                  ? "bg-stone-900 text-white rounded-2xl rounded-tr-xs font-light shadow-xs whitespace-pre-line"
                   : "bg-stone-50/90 border border-stone-200/80 text-stone-800 rounded-2xl rounded-tl-xs shadow-xs"
               }`}
             >
-              {msg.content}
+              {msg.role === "user" ? (
+                msg.content
+              ) : (
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    strong: ({ node, ...props }) => (
+                      <strong
+                        {...props}
+                        className="font-semibold text-stone-900"
+                      />
+                    ),
+                    em: ({ node, ...props }) => (
+                      <em {...props} className="italic text-stone-800" />
+                    ),
+                    a: ({ node, ...props }) => (
+                      <a
+                        {...props}
+                        className="underline font-medium text-emerald-600 hover:text-emerald-700"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      />
+                    ),
+                    ul: ({ node, ...props }) => (
+                      <ul
+                        {...props}
+                        className="list-disc pl-5 space-y-1.5 my-2"
+                      />
+                    ),
+                    ol: ({ node, ...props }) => (
+                      <ol
+                        {...props}
+                        className="list-decimal pl-5 space-y-1.5 my-2"
+                      />
+                    ),
+                    p: ({ node, ...props }) => (
+                      <p {...props} className="mb-2 last:mb-0 leading-relaxed" />
+                    ),
+                    code: ({ node, ...props }) => (
+                      <code
+                        {...props}
+                        className="bg-stone-200/70 text-stone-900 px-1.5 py-0.5 rounded text-xs font-mono"
+                      />
+                    ),
+                  }}
+                >
+                  {msg.content}
+                </ReactMarkdown>
+              )}
             </div>
 
-            {/* AI 추천 도서 카드 및 RAG 개별 추천 사유 (추천 결과가 포함된 경우) */}
+            {/* AI 추천 도서 Swiper 슬라이더 (추천 결과가 포함된 경우) */}
             {msg.books && msg.books.length > 0 && (
-              <div className="mt-4 w-full bg-stone-50/50 border border-stone-200/60 rounded-2xl p-5 space-y-4">
-                <div className="flex items-center justify-between border-b border-stone-200/50 pb-2">
-                  <span className="text-xs font-semibold tracking-wider text-stone-500 uppercase">
-                    AI 맞춤 추천 도서 ({msg.books.length}권)
-                  </span>
+              <div className="mt-4 w-full bg-stone-50/50 border border-stone-200/60 rounded-2xl p-5 space-y-3">
+                <div className="flex items-center justify-between border-b border-stone-200/50 pb-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <span className="text-xs font-semibold tracking-wider text-stone-700 uppercase">
+                      AI 엄선 추천 도서 ({msg.books.length}권)
+                    </span>
+                  </div>
                   <span className="text-[11px] text-stone-400">
-                    pgvector 의미 검색 + RAG 큐레이션
+                    좌우 스와이프로 확인하세요
                   </span>
                 </div>
 
-                <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {/* Swiper 캐러셀 카루셀 */}
+                <Swiper
+                  modules={[FreeMode]}
+                  freeMode={true}
+                  slidesPerView={1.3}
+                  spaceBetween={14}
+                  breakpoints={{
+                    640: { slidesPerView: 2.2, spaceBetween: 14 },
+                    1024: { slidesPerView: 2.5, spaceBetween: 16 },
+                  }}
+                  className="w-full !py-1"
+                >
                   {msg.books.map((book) => (
-                    <div
-                      key={book.isbn}
-                      className="bg-white border border-stone-200/80 rounded-xl p-3.5 flex flex-col justify-between space-y-3 shadow-xs hover:border-stone-300 transition-all"
-                    >
-                      <BookCard
-                        book={{
-                          isbn: book.isbn,
-                          title: book.title,
-                          author: book.author,
-                          publisher: book.publisher,
-                          description: book.description,
-                          image: book.image,
-                          discount: "",
-                          link: "",
-                          pubdate: "",
-                        }}
-                      />
+                    <SwiperSlide key={book.isbn} className="!h-auto">
+                      <div className="h-full bg-white border border-stone-200/80 rounded-2xl p-4 flex flex-col justify-between space-y-3 shadow-2xs hover:border-stone-300 transition-all">
+                        <BookCard
+                          book={{
+                            isbn: book.isbn,
+                            title: book.title,
+                            author: book.author,
+                            publisher: book.publisher,
+                            description: book.description,
+                            image: book.image,
+                            discount: "",
+                            link: "",
+                            pubdate: "",
+                          }}
+                        />
 
-                      {/* RAG 개별 도서 추천 사유 */}
-                      {book.reason && (
-                        <div className="p-2.5 bg-stone-50 rounded-lg text-xs text-stone-600 leading-snug border border-stone-100">
-                          <span className="font-medium text-stone-800 block mb-1">
-                            추천 까닭
-                          </span>
-                          {book.reason}
-                        </div>
-                      )}
-                    </div>
+                        {/* RAG 개별 추천 사유 */}
+                        {book.reason && (
+                          <div className="p-3 bg-stone-50 rounded-xl text-xs text-stone-600 leading-relaxed border border-stone-100/80">
+                            <span className="font-medium text-stone-800 block mb-1">
+                              추천 까닭
+                            </span>
+                            {book.reason}
+                          </div>
+                        )}
+                      </div>
+                    </SwiperSlide>
                   ))}
-                </div>
+                </Swiper>
               </div>
             )}
           </motion.div>
