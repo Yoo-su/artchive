@@ -10,12 +10,7 @@ import { VectorSearchService } from './services/vector-search.service';
 @Module({
   imports: [ConfigModule],
   controllers: [SearchController],
-  providers: [
-    EmbeddingService,
-    VectorSearchService,
-    RagService,
-    SearchService,
-  ],
+  providers: [EmbeddingService, VectorSearchService, RagService, SearchService],
   exports: [SearchService],
 })
 export class SearchModule {}

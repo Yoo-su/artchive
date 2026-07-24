@@ -4,6 +4,16 @@ import { DataSource } from 'typeorm';
 
 import { BookSearchResultDto } from '../dtos/ai-search.dto';
 
+interface MatchBooksRow {
+  isbn: string;
+  title: string;
+  author: string;
+  publisher: string;
+  description: string;
+  image: string;
+  similarity: number | string;
+}
+
 @Injectable()
 export class VectorSearchService {
   constructor(
@@ -23,21 +33,29 @@ export class VectorSearchService {
     try {
       const vectorString = JSON.stringify(normalizedVector);
 
-      const rows = await this.dataSource.query(
+      const rawRows = await this.dataSource.query(
         `SELECT isbn, title, author, publisher, description, image, similarity
          FROM match_books($1::vector, $2)`,
         [vectorString, matchCount],
       );
 
-      return rows.map((row: any) => ({
-        isbn: row.isbn,
-        title: row.title,
-        author: row.author,
-        publisher: row.publisher,
-        description: row.description,
-        image: row.image,
-        similarity: parseFloat(row.similarity ?? '0'),
-      }));
+      const results: BookSearchResultDto[] = rawRows.map((item) => {
+        const row = item as MatchBooksRow;
+        return {
+          isbn: row.isbn,
+          title: row.title,
+          author: row.author,
+          publisher: row.publisher,
+          description: row.description,
+          image: row.image,
+          similarity:
+            typeof row.similarity === 'number'
+              ? row.similarity
+              : parseFloat(row.similarity ?? '0'),
+        };
+      });
+
+      return results;
     } catch (error) {
       console.error('Vector Search RPC Failed:', error);
       throw new InternalServerErrorException(

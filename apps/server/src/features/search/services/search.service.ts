@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
 import { AiSearchRequestDto, AiSearchResponseDto } from '../dtos/ai-search.dto';
-
 import { EmbeddingService } from './embedding.service';
 import { RagService } from './rag.service';
 import { VectorSearchService } from './vector-search.service';

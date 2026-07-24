@@ -59,7 +59,9 @@ export class EmbeddingService {
       const rawVector: number[] = data.embedding?.values;
 
       if (!rawVector || !Array.isArray(rawVector)) {
-        throw new Error('Gemini API가 유효한 임베딩 벡터를 반환하지 않았습니다.');
+        throw new Error(
+          'Gemini API가 유효한 임베딩 벡터를 반환하지 않았습니다.',
+        );
       }
 
       if (rawVector.length !== 768) {
