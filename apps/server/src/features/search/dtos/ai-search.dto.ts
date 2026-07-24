@@ -1,15 +1,45 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+
+export enum ChatRole {
+  USER = 'user',
+  ASSISTANT = 'assistant',
+}
+
+export class ChatMessageDto {
+  @ApiProperty({
+    description: '발화자 역할',
+    enum: ChatRole,
+    example: ChatRole.USER,
+  })
+  @IsEnum(ChatRole)
+  role: ChatRole;
+
+  @ApiProperty({
+    description: '메시지 텍스트 내용',
+    example: '퇴근길에 읽기 좋은 가벼운 에세이 추천해줘',
+  })
+  @IsString()
+  @IsNotEmpty()
+  content: string;
+}
 
 export class AiSearchRequestDto {
   @ApiProperty({
-    description: '사용자의 자연어 검색 질문',
-    example: '잔잔한 위로가 되는 소설 추천해줘',
+    description: '이전 대화 내역을 포함한 전체 대화 메시지 배열',
+    type: [ChatMessageDto],
   })
-  @IsNotEmpty()
-  @IsString()
-  @MaxLength(200)
-  query: string;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ChatMessageDto)
+  messages: ChatMessageDto[];
 }
 
 export class BookSearchResultDto {
@@ -37,13 +67,16 @@ export class BookSearchResultDto {
 
 export class AiSearchResponseDto {
   @ApiProperty({
-    description: '검색된 후보 도서 목록',
+    description: 'AI의 답변 메시지 (꼬리 질문 또는 추천 설명 문구)',
+    example:
+      '오늘 하루도 수고 많으셨어요. 퇴근길 마음을 따뜻하게 가다듬어 줄 에세이 3권을 골라봤습니다.',
+  })
+  message: string;
+
+  @ApiProperty({
+    description:
+      '추천된 도서 목록 (추천 단계가 아닌 추가 질문 단계일 경우 빈 배열)',
     type: [BookSearchResultDto],
   })
   books: BookSearchResultDto[];
-
-  @ApiProperty({
-    description: 'RAG 기반 AI 추천 코멘트 문구',
-  })
-  explanation: string;
 }

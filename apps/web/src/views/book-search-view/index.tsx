@@ -1,11 +1,9 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useInView } from "react-intersection-observer";
 
-import { AiSearchResultList } from "@/features/book/components/book-search/ai-search-result-list";
+import { AiChatWindow } from "@/features/book/components/book-search/ai-chat-window";
 import { BookSearchInput } from "@/features/book/components/book-search/book-search-input";
 import { BookSearchResultList } from "@/features/book/components/book-search/book-search-result-list";
 import { PopularKeywords } from "@/features/book/components/book-search/popular-keywords";
@@ -18,10 +16,6 @@ import { StickyBookSearchBar } from "@/features/book/components/book-search/stic
 import { ScrollTopButton } from "@/shared/components/ui/scroll-top-button";
 
 export default function BookSearchView() {
-  const t = useTranslations("book.search");
-  const searchParams = useSearchParams();
-  const query = searchParams.get("q") || "";
-
   const [searchMode, setSearchMode] = useState<SearchMode>("KEYWORD");
 
   const { ref, inView, entry } = useInView({
@@ -36,39 +30,32 @@ export default function BookSearchView() {
 
   return (
     <div className="w-full min-h-screen py-4">
-      {/* 스크롤 시 나타나는 Sticky 검색바 */}
-      <StickyBookSearchBar isVisible={isStickyVisible} />
+      {/* 스크롤 시 나타나는 Sticky 검색바 (키워드 검색 모드 전용) */}
+      {searchMode === "KEYWORD" && (
+        <StickyBookSearchBar isVisible={isStickyVisible} />
+      )}
 
       {/* Hero 영역 (기존 UI 유지) */}
       <SearchHero />
 
       {/* 탭 메뉴: [ 키워드 검색 | AI 추천 검색 ] */}
-      <SearchModeTabs
-        activeMode={searchMode}
-        onModeChange={setSearchMode}
-      />
+      <SearchModeTabs activeMode={searchMode} onModeChange={setSearchMode} />
 
-      {/* 검색 input */}
-      <div ref={ref}>
-        <BookSearchInput
-          placeholder={
-            searchMode === "AI" ? t("ai_placeholder") : t("placeholder")
-          }
-        />
-      </div>
-
-      {/* 인기 검색어 (키워드 검색 모드일 때만 노출) */}
-      {searchMode === "KEYWORD" && (
-        <div className="flex justify-center mb-8">
-          <PopularKeywords />
-        </div>
-      )}
-
-      {/* 하단 검색 결과 컨텐츠 스위칭 */}
+      {/* 모드별 뷰 스위칭 */}
       {searchMode === "KEYWORD" ? (
-        <BookSearchResultList />
+        <>
+          <div ref={ref}>
+            <BookSearchInput />
+          </div>
+
+          <div className="flex justify-center mb-8">
+            <PopularKeywords />
+          </div>
+
+          <BookSearchResultList />
+        </>
       ) : (
-        <AiSearchResultList query={query} />
+        <AiChatWindow />
       )}
 
       {/* 맨 위로 이동 플로팅 버튼 */}
