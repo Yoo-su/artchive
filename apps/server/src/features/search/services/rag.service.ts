@@ -57,6 +57,44 @@ export class RagService {
   }
 
   /**
+   * ChatMessageDto 배열을 Gemini API 호환 history 포맷으로 안전하게 변환
+   * - 클라이언트의 최초 웰컴 메시지(assistant) 제거
+   * - 첫 번째 항목이 반드시 'user'가 되도록 보장
+   * - 연속된 동일 역할 메시지 병합하여 400 Bad Request 방지
+   */
+  private buildGeminiHistory(
+    messages: ChatMessageDto[],
+  ): { role: 'user' | 'model'; parts: { text: string }[] }[] {
+    const past = messages.slice(0, -1);
+
+    // 첫 번째 'user' 발화 위치 탐색 (클라이언트 환영 메시지 필터링)
+    let startIdx = 0;
+    while (startIdx < past.length && past[startIdx].role !== ChatRole.USER) {
+      startIdx++;
+    }
+
+    const validPast = past.slice(startIdx);
+    const history: { role: 'user' | 'model'; parts: { text: string }[] }[] = [];
+
+    for (const m of validPast) {
+      const geminiRole = m.role === ChatRole.USER ? 'user' : 'model';
+      if (
+        history.length > 0 &&
+        history[history.length - 1].role === geminiRole
+      ) {
+        history[history.length - 1].parts[0].text += `\n${m.content}`;
+      } else {
+        history.push({
+          role: geminiRole,
+          parts: [{ text: m.content }],
+        });
+      }
+    }
+
+    return history;
+  }
+
+  /**
    * 멀티턴 대화 및 도구 호출 여부 1차 판단 (Natural Conversational Agent)
    */
   async processConversationalTurn(
@@ -77,11 +115,7 @@ export class RagService {
       };
     }
 
-    // 이전 대화 히스토리를 Gemini 대화 포맷으로 변환
-    const history = messages.slice(0, -1).map((m) => ({
-      role: m.role === ChatRole.USER ? 'user' : 'model',
-      parts: [{ text: m.content }],
-    }));
+    const history = this.buildGeminiHistory(messages);
 
     const systemInstruction = `당신은 독서 플랫폼 '북적'의 지적이고 다정한 전문 도서 큐레이터 AI입니다.
 사용자와의 대화 맥락을 완벽히 이해하며, 자연스러운 대화를 이끌어갑니다.
@@ -115,7 +149,7 @@ export class RagService {
         return {
           message:
             textResponse.trim() ||
-            '어떤 분위기나 장르의 책을 찾으시는지 조금만 더 구체적으로 말씀해 주시겠어요?',
+            '요청하신 독서 취향이나 찾으시는 분위기를 조금만 더 말씀해 주시겠어요?',
           books: [],
         };
       }
@@ -133,7 +167,7 @@ export class RagService {
       console.error('Conversational Turn Processing Error:', error);
       return {
         message:
-          '어떤 분위기나 장르의 책을 찾으시는지 조금만 더 이야기해 주시겠어요?',
+          '대화를 처리하는 도중 일시적인 오류가 발생했습니다. 다시 한번 말씀해 주시겠어요?',
         books: [],
       };
     }
