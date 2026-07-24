@@ -11,6 +11,7 @@ export interface AiSearchBookItem {
   description: string;
   image: string;
   similarity: number;
+  reason?: string;
 }
 
 export interface AiSearchResponse {

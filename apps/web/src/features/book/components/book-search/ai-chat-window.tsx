@@ -105,7 +105,7 @@ export const AiChatWindow = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-white rounded-3xl border border-stone-200/80 shadow-xl shadow-stone-200/30 overflow-hidden flex flex-col h-[700px]">
+    <div className="w-full max-w-4xl mx-auto bg-white rounded-3xl border border-stone-200/80 shadow-xl shadow-stone-200/30 overflow-hidden flex flex-col h-[750px]">
       {/* 1. 대화 헤더 */}
       <div className="px-6 py-4 bg-stone-50/90 border-b border-stone-200/60 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -115,7 +115,7 @@ export const AiChatWindow = () => {
           </h2>
         </div>
         <span className="text-xs text-stone-400">
-          실시간 문맥 대화 & 맞춤 추천
+          실시간 문맥 대화 & RAG 맞춤 추천
         </span>
       </div>
 
@@ -131,7 +131,7 @@ export const AiChatWindow = () => {
               msg.role === "user" ? "items-end" : "items-start"
             }`}
           >
-            {/* 메시지 버블 */}
+            {/* 메시지 버블 (AI RAG 총평 및 안내) */}
             <div
               className={`px-5 py-3.5 max-w-[85%] text-sm leading-relaxed whitespace-pre-line ${
                 msg.role === "user"
@@ -142,29 +142,48 @@ export const AiChatWindow = () => {
               {msg.content}
             </div>
 
-            {/* AI 추천 도서 그리드 (추천 결과가 포함된 경우) */}
+            {/* AI 추천 도서 카드 및 RAG 개별 추천 사유 (추천 결과가 포함된 경우) */}
             {msg.books && msg.books.length > 0 && (
-              <div className="mt-4 w-full bg-stone-50/50 border border-stone-200/60 rounded-2xl p-5 space-y-3">
-                <div className="text-xs font-semibold tracking-wider text-stone-400 uppercase">
-                  맞춤 추천 도서 ({msg.books.length}권)
+              <div className="mt-4 w-full bg-stone-50/50 border border-stone-200/60 rounded-2xl p-5 space-y-4">
+                <div className="flex items-center justify-between border-b border-stone-200/50 pb-2">
+                  <span className="text-xs font-semibold tracking-wider text-stone-500 uppercase">
+                    AI 맞춤 추천 도서 ({msg.books.length}권)
+                  </span>
+                  <span className="text-[11px] text-stone-400">
+                    pgvector 의미 검색 + RAG 큐레이션
+                  </span>
                 </div>
 
-                <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
+                <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                   {msg.books.map((book) => (
-                    <BookCard
+                    <div
                       key={book.isbn}
-                      book={{
-                        isbn: book.isbn,
-                        title: book.title,
-                        author: book.author,
-                        publisher: book.publisher,
-                        description: book.description,
-                        image: book.image,
-                        discount: "",
-                        link: "",
-                        pubdate: "",
-                      }}
-                    />
+                      className="bg-white border border-stone-200/80 rounded-xl p-3.5 flex flex-col justify-between space-y-3 shadow-xs hover:border-stone-300 transition-all"
+                    >
+                      <BookCard
+                        book={{
+                          isbn: book.isbn,
+                          title: book.title,
+                          author: book.author,
+                          publisher: book.publisher,
+                          description: book.description,
+                          image: book.image,
+                          discount: "",
+                          link: "",
+                          pubdate: "",
+                        }}
+                      />
+
+                      {/* RAG 개별 도서 추천 사유 */}
+                      {book.reason && (
+                        <div className="p-2.5 bg-stone-50 rounded-lg text-xs text-stone-600 leading-snug border border-stone-100">
+                          <span className="font-medium text-stone-800 block mb-1">
+                            추천 까닭
+                          </span>
+                          {book.reason}
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>
@@ -180,7 +199,7 @@ export const AiChatWindow = () => {
             className="flex items-center gap-3 text-stone-400 text-xs py-2"
           >
             <Loader2 className="w-4 h-4 animate-spin text-stone-500" />
-            <span>대화를 이해하고 꼭 맞는 도서를 찾는 중입니다...</span>
+            <span>대화를 분석하고 DB에서 맞춤 서사를 탐색 중입니다...</span>
           </motion.div>
         )}
 
@@ -195,7 +214,7 @@ export const AiChatWindow = () => {
               key={`chip-${idx}`}
               type="button"
               onClick={() => handleSendMessage(chip)}
-              className="px-3.5 py-1.5 text-xs font-medium text-stone-600 bg-white border border-stone-200 rounded-full hover:border-stone-400 hover:text-stone-900 transition-colors shadow-2xs"
+              className="px-3.5 py-1.5 text-xs font-medium text-stone-600 bg-white border border-stone-200 rounded-full hover:border-stone-400 hover:text-stone-900 transition-colors shadow-2xs cursor-pointer"
             >
               {chip}
             </button>
