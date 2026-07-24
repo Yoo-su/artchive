@@ -37,6 +37,9 @@ export const API_PATHS = {
     record: "/search-keywords",
     popular: "/search-keywords/popular",
   },
+  search: {
+    ai: "/search/ai",
+  },
   art: {
     list: "/art-list",
     detail: (artId: string) => `/art-detail/${artId}`,

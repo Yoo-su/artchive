@@ -21,6 +21,7 @@ import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
 import { ReadingLogModule } from '@/features/reading-log/reading-log.module';
 import { Review } from '@/features/review/entities/review.entity';
 import { ReviewModule } from '@/features/review/review.module';
+import { SearchModule } from '@/features/search/search.module';
 import { SearchKeywordModule } from '@/features/search-keyword/search-keyword.module';
 import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { UsedBookSaleModule } from '@/features/used-book-sale/used-book-sale.module';
@@ -87,6 +88,7 @@ import { SmartCacheModule } from '@/shared/cache/smart-cache.module';
     InsightsModule,
     ReadingLogModule,
     SearchKeywordModule,
+    SearchModule,
     NotificationModule,
     HealthModule,
     ActivityModule,
