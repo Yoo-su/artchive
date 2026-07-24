@@ -77,12 +77,6 @@ const processQueue = (
 };
 
 const commonResponseInterceptor = (response: AxiosResponse): AxiosResponse => {
-  console.log(`[Axios Debug SUCCESS] URL: ${response.config.url}`, {
-    hasData: !!response.data,
-    dataType: typeof response.data,
-    keys: response.data ? Object.keys(response.data) : [],
-    raw: response.data
-  });
   // 서버 응답이 { success, data } 형태인 경우 투명하게 data 필드만 반환합니다.
   if (
     response.data &&
@@ -91,7 +85,6 @@ const commonResponseInterceptor = (response: AxiosResponse): AxiosResponse => {
     response.data.data !== undefined
   ) {
     response.data = response.data.data;
-    console.log(`[Axios Debug UNWRAPPED] URL: ${response.config.url} ->`, response.data);
   }
   return response;
 };
