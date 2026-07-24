@@ -83,11 +83,12 @@ export const updateProfile = async (
 
 /**
  * 닉네임 사용 가능 여부를 확인합니다.
+ * (privateApiClient를 사용하여 회원인 경우 내 닉네임 유효성 검사 지원)
  */
 export const checkNickname = async (
   nickname: string,
 ): Promise<{ available: boolean }> => {
-  const { data } = await publicApiClient.get<{ available: boolean }>(
+  const { data } = await privateApiClient.get<{ available: boolean }>(
     API_PATHS.user.checkNickname,
     { params: { nickname } },
   );

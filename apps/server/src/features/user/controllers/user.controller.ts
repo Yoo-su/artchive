@@ -19,6 +19,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { OptionalJwtAuthGuard } from '@/features/auth/guards/optional-jwt-auth.guard';
 import { ActivityType } from '@/shared/activity/activity-type.enum';
 import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 
@@ -72,11 +73,11 @@ export class UserController {
   }
 
   @Get('check-nickname')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({
     summary: '닉네임 중복 검사',
     description:
-      '닉네임이 사용 가능한지 확인합니다. 본인의 현재 닉네임은 사용 가능으로 처리됩니다.',
+      '닉네임이 사용 가능한지 확인합니다. 로그인 상태인 경우 본인의 현재 닉네임은 사용 가능으로 처리됩니다.',
   })
   @ApiQuery({ name: 'nickname', description: '확인할 닉네임' })
   @ApiResponse({
@@ -90,12 +91,12 @@ export class UserController {
     },
   })
   async checkNickname(
-    @CurrentUser() user: User,
+    @CurrentUser() user: User | undefined,
     @Query('nickname') nickname: string,
   ) {
     const available = await this.userService.checkNicknameAvailability(
       nickname,
-      user.id,
+      user?.id,
     );
     return { available };
   }
