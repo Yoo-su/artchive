@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
@@ -63,6 +63,13 @@ export class BookSearchResultDto {
 
   @ApiProperty({ description: '벡터 코사인 유사도 (0~1)' })
   similarity: number;
+
+  @ApiPropertyOptional({
+    description: 'RAG가 생성한 이 개별 도서의 추천 이유 문구',
+    example:
+      '퇴근길의 번잡함을 씻어내주는 조용하고 따뜻한 어조의 일상 에세이입니다.',
+  })
+  reason?: string;
 }
 
 export class AiSearchResponseDto {

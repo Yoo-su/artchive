@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 
-import { BookSearchResultDto } from '../dtos/ai-search.dto';
+import { BookSearchResultDto } from '@/features/search/dtos/ai-search.dto';
 
 interface MatchBooksRow {
   isbn: string;
