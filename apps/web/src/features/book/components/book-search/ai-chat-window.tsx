@@ -2,7 +2,7 @@
 
 import { publicApiClient } from "@bookjeok/api-client";
 import { motion } from "framer-motion";
-import { Loader2, Send } from "lucide-react";
+import { Loader2, RotateCcw, Send } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
@@ -18,6 +18,15 @@ export interface ChatMessage {
   books?: AiSearchBookItem[];
 }
 
+const CHAT_STORAGE_KEY = "bookjeok_ai_chat_history";
+
+const INITIAL_WELCOME: ChatMessage = {
+  id: "initial-welcome",
+  role: "assistant",
+  content:
+    "안녕하세요! 어떤 책을 찾고 계신가요? 마음속 고민이나 읽고 싶은 분위기, 선호하는 장르를 편안하게 말씀해 주시면 꼭 맞는 책을 찾아드릴게요.",
+};
+
 export const AiChatWindow = () => {
   const t = useTranslations("book.search");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -25,14 +34,23 @@ export const AiChatWindow = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "initial-welcome",
-      role: "assistant",
-      content:
-        "안녕하세요! 어떤 책을 찾고 계신가요? 마음속 고민이나 읽고 싶은 분위기, 선호하는 장르를 편안하게 말씀해 주시면 꼭 맞는 책을 찾아드릴게요.",
-    },
-  ]);
+  // sessionStorage를 통해 대화 히스토리 유지
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem(CHAT_STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+        } catch (e) {
+          console.error("Failed to parse saved chat history:", e);
+        }
+      }
+    }
+    return [INITIAL_WELCOME];
+  });
 
   // 추천 질의 칩 목록
   const suggestionChips = [
@@ -42,6 +60,13 @@ export const AiChatWindow = () => {
     "퇴근길 가볍게 읽기 좋은 책",
   ];
 
+  // 대화 기록 sessionStorage 저장 동기화
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+    }
+  }, [messages]);
+
   // 메시지 추가 시 하단 스크롤 자동 이동
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -50,6 +75,14 @@ export const AiChatWindow = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, loading]);
+
+  // 대화 내용 초기화 핸들러
+  const handleClearChat = () => {
+    setMessages([INITIAL_WELCOME]);
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem(CHAT_STORAGE_KEY);
+    }
+  };
 
   // 메시지 전송 핸들러
   const handleSendMessage = async (textToSend?: string) => {
@@ -114,9 +147,21 @@ export const AiChatWindow = () => {
             대화형 AI 도서 큐레이션
           </h2>
         </div>
-        <span className="text-xs text-stone-400">
-          실시간 문맥 대화 & RAG 맞춤 추천
-        </span>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleClearChat}
+            className="flex items-center gap-1 text-xs text-stone-400 hover:text-stone-700 transition-colors cursor-pointer"
+            title="대화 내용 초기화"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>대화 초기화</span>
+          </button>
+          <span className="text-xs text-stone-300">|</span>
+          <span className="text-xs text-stone-400">
+            실시간 문맥 대화 & RAG 맞춤 추천
+          </span>
+        </div>
       </div>
 
       {/* 2. 대화 메시지 타임라인 영역 */}
