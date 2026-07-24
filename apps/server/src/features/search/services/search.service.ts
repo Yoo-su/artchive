@@ -16,49 +16,60 @@ export class SearchService {
   ) {}
 
   /**
-   * AI 추천 검색 (Semantic Search + RAG)
+   * 멀티턴 AI 추천 대화 검색 (Multi-turn RAG Chat)
    */
   async searchAi(dto: AiSearchRequestDto): Promise<AiSearchResponseDto> {
-    const trimmedQuery = dto.query.trim();
+    const { messages } = dto;
 
-    // [안전장치 1] 모호하거나 너무 짧은 입력 검증
-    if (trimmedQuery.length < 2) {
+    if (!messages || messages.length === 0) {
       return {
+        message: '안녕하세요! 어떤 책을 찾고 계신가요? 편안하게 말씀해 주세요.',
         books: [],
-        explanation:
-          '검색어가 너무 짧습니다. 추천받고 싶은 책의 주제나 분위기를 조금 더 구체적으로 입력해 주세요.',
       };
     }
 
-    // 1. 질문을 768차원 L2 정규화 벡터로 생성 (gemini-embedding-001, RETRIEVAL_QUERY)
-    const queryVector =
-      await this.embeddingService.generateQueryEmbedding(trimmedQuery);
+    // 1. 대화 의도 분석 및 쿼리 재구성 (Query Rewriting)
+    const intentResult = await this.ragService.analyzeIntentAndQuery(messages);
 
-    // 2. Supabase pgvector match_books RPC를 호출해 유사도 상위 10권 검색
+    // 1-A. 정보가 부족하여 추가 질문이 필요한 경우
+    if (!intentResult.needSearch || !intentResult.searchQuery) {
+      return {
+        message:
+          intentResult.followUpMessage ||
+          '어떤 분위기나 감성의 책을 찾으시는지 조금만 더 이야기해 주시겠어요?',
+        books: [],
+      };
+    }
+
+    // 2. 필요 시 768차원 질문 벡터 생성 및 pgvector match_books 검색
+    const queryVector = await this.embeddingService.generateQueryEmbedding(
+      intentResult.searchQuery,
+    );
+
     const books = await this.vectorSearchService.searchSimilarBooks(
       queryVector,
       10,
     );
 
-    // [안전장치 2] 유사도 최저 임계값 검증 (유사도 0.35 미만 시 연관 도서 미반환)
+    // 2-A. 유사도가 기준치 미달인 경우
     const topSimilarity = books[0]?.similarity ?? 0;
     if (books.length === 0 || topSimilarity < this.SIMILARITY_THRESHOLD) {
       return {
+        message:
+          '말씀하신 상황과 딱 어울리는 도서를 찾지 못했습니다. 원하시는 분위기나 관심 장르를 다르게 말씀해 주시겠어요?',
         books: [],
-        explanation:
-          '입력하신 내용과 연관성이 높은 도서를 찾지 못했습니다. 원하시는 독서 분위기나 주제 키워드를 조금 더 구체적으로 작성해 보세요.',
       };
     }
 
-    // 3. Gemini Flash를 활용해 사용자 질문 + 검색 도서를 바탕으로 RAG 추천 코멘트 생성
-    const explanation = await this.ragService.generateExplanation(
-      trimmedQuery,
+    // 3. 검색된 책 + 대화 히스토리 기반 최종 AI 추천 답변 생성
+    const message = await this.ragService.generateChatRecommendationMessage(
+      messages,
       books,
     );
 
     return {
+      message,
       books,
-      explanation,
     };
   }
 }
