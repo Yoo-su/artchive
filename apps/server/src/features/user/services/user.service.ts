@@ -207,33 +207,35 @@ export class UserService implements OnModuleInit {
    * @returns 공개 프로필 정보
    */
   async getPublicProfileByHandle(handle: string) {
-    // 1. 사용자 기본 정보 조회 (핸들 우선, 없으면 ID로 시도 - 마이그레이션 과도기용)
+    const decodedHandle = decodeURIComponent(handle);
+    const selectFields: (keyof User)[] = [
+      'id',
+      'nickname',
+      'handle',
+      'profileImageUrl',
+      'createdAt',
+      'deletedAt',
+      'isReadingLogPublic',
+    ];
+
+    // 1. 사용자 기본 정보 조회 (핸들 -> 닉네임 -> ID 순서로 시도)
     let user = await this.userRepository.findOne({
-      where: { handle },
-      select: [
-        'id',
-        'nickname',
-        'handle',
-        'profileImageUrl',
-        'createdAt',
-        'deletedAt',
-        'isReadingLogPublic',
-      ],
+      where: { handle: decodedHandle },
+      select: selectFields,
     });
 
-    // Fallback: 숫자로만 된 문자열이면 ID로 조회 시도
-    if (!user && !isNaN(Number(handle))) {
+    if (!user) {
       user = await this.userRepository.findOne({
-        where: { id: Number(handle) },
-        select: [
-          'id',
-          'nickname',
-          'handle',
-          'profileImageUrl',
-          'createdAt',
-          'deletedAt',
-          'isReadingLogPublic',
-        ],
+        where: { nickname: decodedHandle },
+        select: selectFields,
+      });
+    }
+
+    // Fallback: 숫자로만 된 문자열이면 ID로 조회 시도
+    if (!user && !isNaN(Number(decodedHandle))) {
+      user = await this.userRepository.findOne({
+        where: { id: Number(decodedHandle) },
+        select: selectFields,
       });
     }
 
@@ -315,6 +317,7 @@ export class UserService implements OnModuleInit {
       where: {
         user: { id: userId },
       },
+      relations: ['book'],
       order: { date: 'DESC' },
     });
     return logs;
