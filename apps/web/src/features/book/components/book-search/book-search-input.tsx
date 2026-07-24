@@ -10,6 +10,8 @@ import { useBookSearchParams } from "../../hooks/use-book-search-params";
 interface BookSearchInputProps {
   /** 쿼리 파라미터 이름 (기본값: "q") */
   paramName?: string;
+  /** 맞춤 플레이스홀더 (기본값: t("placeholder")) */
+  placeholder?: string;
 }
 
 /**
@@ -17,7 +19,10 @@ interface BookSearchInputProps {
  * - URL search params 기반으로 검색어 관리
  * - 엔터키 또는 검색 버튼 클릭 시 검색 실행
  */
-export const BookSearchInput = ({ paramName = "q" }: BookSearchInputProps) => {
+export const BookSearchInput = ({
+  paramName = "q",
+  placeholder,
+}: BookSearchInputProps) => {
   const t = useTranslations("book.search");
   
   const {
@@ -43,7 +48,7 @@ export const BookSearchInput = ({ paramName = "q" }: BookSearchInputProps) => {
           value={inputValue}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          placeholder={t("placeholder")}
+          placeholder={placeholder || t("placeholder")}
           className="w-full pl-14 pr-16 h-16 text-lg font-light tracking-wide bg-white border border-zinc-200 rounded-full shadow-xl shadow-zinc-200/40 focus:border-zinc-300 focus:ring-4 focus:ring-zinc-100 transition-all duration-300 placeholder:text-zinc-400"
         />
 
