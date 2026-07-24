@@ -307,8 +307,8 @@
       "popular_top": "Top {count} Keywords",
       "popular_label": "Popular",
       "metadata": {
-        "title": "Book Search",
-        "description": "Find your desired books on Bookjeok."
+        "title": "Book Search & AI Book Curation",
+        "description": "Discover your next read with keyword search and conversational AI book curation. Describe your mood or reading preferences to get personalized book recommendations."
       }
     },
     "detail": {
