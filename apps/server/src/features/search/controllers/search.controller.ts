@@ -2,8 +2,11 @@ import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 
-import { AiSearchRequestDto, AiSearchResponseDto } from '../dtos/ai-search.dto';
-import { SearchService } from '../services/search.service';
+import {
+  AiSearchRequestDto,
+  AiSearchResponseDto,
+} from '@/features/search/dtos/ai-search.dto';
+import { SearchService } from '@/features/search/services/search.service';
 
 @ApiTags('도서 AI 검색 (AI Search)')
 @Controller('search')

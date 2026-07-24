@@ -6,7 +6,7 @@ import {
   BookSearchResultDto,
   ChatMessageDto,
   ChatRole,
-} from '../dtos/ai-search.dto';
+} from '@/features/search/dtos/ai-search.dto';
 
 export interface IntentAnalysisResult {
   needSearch: boolean;

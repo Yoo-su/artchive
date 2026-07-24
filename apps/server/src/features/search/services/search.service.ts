@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 
-import { AiSearchRequestDto, AiSearchResponseDto } from '../dtos/ai-search.dto';
-import { EmbeddingService } from './embedding.service';
-import { RagService } from './rag.service';
-import { VectorSearchService } from './vector-search.service';
+import {
+  AiSearchRequestDto,
+  AiSearchResponseDto,
+} from '@/features/search/dtos/ai-search.dto';
+import { EmbeddingService } from '@/features/search/services/embedding.service';
+import { RagService } from '@/features/search/services/rag.service';
+import { VectorSearchService } from '@/features/search/services/vector-search.service';
 
 @Injectable()
 export class SearchService {
