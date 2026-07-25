@@ -24,8 +24,6 @@ export const HomeView = () => {
       {/* <HomeHero /> */}
       <MainBookSlider />
 
-      {/* <TasteFinderWidget /> */}
-
       <PopularBookSlider />
 
       <LoungeHomeWidget />

@@ -18,12 +18,13 @@ export interface ConversationalRagResult {
   message: string;
   books: BookSearchResultDto[];
   searchQueryRequested?: string;
+  usageMetadata?: {
+    promptTokenCount?: number;
+    candidatesTokenCount?: number;
+    totalTokenCount?: number;
+  };
 }
 
-// 수정: 두 번의 LLM 호출(1차 대화 판단, 2차 추천 생성)이 서로 다른 인격으로
-// 말하는 문제가 있었음 — 1차에만 systemInstruction으로 페르소나를 부여하고
-// 2차엔 없어서, 사용자가 "다정한 큐레이터"와 대화하다 갑자기 "건조한 리랭커"로
-// 화자가 바뀌는 느낌을 받았음. 이제 하나의 상수로 관리해서 두 호출 모두에 적용.
 const CURATOR_PERSONA = `당신은 독서 플랫폼 '북적'의 지적이고 다정한 전문 도서 큐레이터 AI입니다.
 사용자와의 대화 맥락을 완벽히 이해하며, 자연스러운 대화를 이끌어갑니다.
 이모지나 캐릭터 가벼운 말투는 절대 사용하지 말고, 단정하고 정갈한 어조를 유지하세요.`;
@@ -150,6 +151,7 @@ export class RagService {
             textResponse.trim() ||
             '요청하신 독서 취향이나 찾으시는 분위기를 조금만 더 말씀해 주시겠어요?',
           books: [],
+          usageMetadata: result.response.usageMetadata,
         };
       }
 
@@ -160,6 +162,7 @@ export class RagService {
         message: '',
         books: [],
         searchQueryRequested,
+        usageMetadata: result.response.usageMetadata,
       };
     } catch (error) {
       console.error('Conversational Turn Processing Error:', error);
@@ -179,7 +182,15 @@ export class RagService {
   async filterAndSynthesizeRecommendation(
     messages: ChatMessageDto[],
     candidateBooks: BookSearchResultDto[],
-  ): Promise<{ message: string; books: BookSearchResultDto[] }> {
+  ): Promise<{
+    message: string;
+    books: BookSearchResultDto[];
+    usageMetadata?: {
+      promptTokenCount?: number;
+      candidatesTokenCount?: number;
+      totalTokenCount?: number;
+    };
+  }> {
     if (candidateBooks.length === 0) {
       return {
         message:
@@ -193,8 +204,6 @@ export class RagService {
       .map((m) => `${m.role === ChatRole.USER ? '사용자' : 'AI'}: ${m.content}`)
       .join('\n');
 
-    // 수정: 유사도(%)를 프롬프트에 포함해서, LLM이 "억지로 이유를 붙이기"보다
-    // 실제로 관련성이 낮은 후보를 더 적극적으로 걸러낼 수 있는 근거를 제공
     const bookSummaries = candidateBooks
       .map(
         (b) =>
@@ -202,7 +211,6 @@ export class RagService {
       )
       .join('\n');
 
-    // 수정: systemInstruction으로 CURATOR_PERSONA를 부여해서 1차 대화와 톤을 일치시킴
     const systemInstruction = `${CURATOR_PERSONA}
 
 당신은 지금 아래 사용자의 대화 맥락과 DB에서 검색된 후보 도서 목록을 검증하여,
@@ -264,7 +272,6 @@ JSON 형식으로만 응답하세요.`;
         });
       }
 
-      // 검증된 도서들만 이유와 함께 선별
       const validBooks = candidateBooks
         .filter((b) => reasonMap.has(b.isbn))
         .map((b) => ({
@@ -279,6 +286,7 @@ JSON 형식으로만 응답하세요.`;
             parsed.message ||
             '말씀하신 조건에 진정으로 부합하는 적합한 도서를 데이터베이스에서 발굴하지 못했습니다. 다른 장르나 키워드로 말씀해 주시면 다시 찾아드릴게요.',
           books: [],
+          usageMetadata: result.response.usageMetadata,
         };
       }
 
@@ -287,6 +295,7 @@ JSON 형식으로만 응답하세요.`;
           parsed.message ||
           '요청하신 질문 맥락에 맞춰 엄선한 추천 도서들입니다.',
         books: validBooks,
+        usageMetadata: result.response.usageMetadata,
       };
     } catch (error) {
       console.error('Unified Synthesis Error:', error);

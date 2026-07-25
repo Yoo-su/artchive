@@ -4,7 +4,11 @@ import {
   Schema,
   SchemaType,
 } from '@google/generative-ai';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -12,35 +16,15 @@ import { Repository } from 'typeorm';
 import { BookService } from '@/features/book/services/book.service';
 
 import { MODEL_NAME } from '../constants/llm-model';
-import { NEOGULIP_CURATION_SYS_PROMPT } from '../constants/neogulip-curation-prompt';
 import { BookSummaryResponseDto } from '../dtos/book-summary-response.dto';
-import { TalkRequestDto } from '../dtos/talk-request.dto';
-import { TalkResponseDto } from '../dtos/talk-response.dto';
 import { AiBookSummary } from '../entities/ai-book-summary.entity';
 import { AiRequestLog } from '../entities/ai-request-log.entity';
 import { extractJson } from '../utils/extract-json';
 import { getPromptText } from '../utils/get-prompt-text';
 
-interface CurationResult {
-  message: string;
-  recommendedBooks: {
-    title: string;
-    author: string;
-    description: string;
-  }[];
-}
-
-interface CurationResultWithMeta {
-  curation: CurationResult;
-  usageMetadata?: {
-    promptTokenCount?: number;
-    candidatesTokenCount?: number;
-    totalTokenCount?: number;
-  };
-}
-
 @Injectable()
 export class LlmService {
+  private readonly logger = new Logger(LlmService.name);
   private genAI: GoogleGenerativeAI;
   private model: GenerativeModel;
 
@@ -157,8 +141,8 @@ export class LlmService {
       }
 
       // AI 로그 저장 (성공)
-      this.aiRequestLogRepository
-        .save({
+      try {
+        await this.aiRequestLogRepository.save({
           userId: parsedUserId,
           feature: 'BOOK_SUMMARY',
           model: MODEL_NAME,
@@ -166,13 +150,19 @@ export class LlmService {
           completionTokens: usageMetadata?.candidatesTokenCount ?? null,
           totalTokens: usageMetadata?.totalTokenCount ?? null,
           latencyMs,
-          requestPayload: { title, author, description, isbn, publisher },
+          requestPayload: {
+            title,
+            author,
+            description: description ?? null,
+            isbn: isbn ?? null,
+            publisher: publisher ?? null,
+          },
           responsePayload: parsedSummary as unknown as Record<string, unknown>,
           status: 'SUCCESS',
-        })
-        .catch((e) =>
-          console.error('Failed to save AI log for BOOK_SUMMARY:', e),
-        );
+        });
+      } catch (logErr) {
+        this.logger.error('Failed to save AI log for BOOK_SUMMARY:', logErr);
+      }
 
       // 2. 생성에 성공하고 isbn이 존재하는 경우 DB에 캐싱 저장
       if (isbn && parsedSummary.summary) {
@@ -196,154 +186,33 @@ export class LlmService {
       return parsedSummary;
     } catch (error) {
       const latencyMs = Date.now() - startTime;
-      this.aiRequestLogRepository
-        .save({
+      try {
+        await this.aiRequestLogRepository.save({
           userId: parsedUserId,
           feature: 'BOOK_SUMMARY',
           model: MODEL_NAME,
           latencyMs,
-          requestPayload: { title, author, description, isbn, publisher },
+          requestPayload: {
+            title,
+            author,
+            description: description ?? null,
+            isbn: isbn ?? null,
+            publisher: publisher ?? null,
+          },
           status: 'ERROR',
           errorMessage: error instanceof Error ? error.message : String(error),
-        })
-        .catch((e) =>
-          console.error('Failed to save AI error log for BOOK_SUMMARY:', e),
+        });
+      } catch (logErr) {
+        this.logger.error(
+          'Failed to save AI error log for BOOK_SUMMARY:',
+          logErr,
         );
+      }
 
       console.error('Gemini API 호출에 실패했습니다:', error);
       throw new InternalServerErrorException(
         '죄송해요, 책 내용을 읽어오다가 나뭇잎을 놓쳤어요구리! 🍃',
       );
-    }
-  }
-
-  /**
-   * 유저의 입력에 대해 적응형 대화(Adaptive Flow)를 수행하고, 추천이 필요하면 책 검색까지 수행합니다.
-   */
-  async processTalk(
-    dto: TalkRequestDto,
-    userId?: string | number,
-  ): Promise<TalkResponseDto> {
-    const { message, history } = dto;
-    const startTime = Date.now();
-    const parsedUserId =
-      userId !== undefined && userId !== null && !isNaN(Number(userId))
-        ? Number(userId)
-        : null;
-
-    try {
-      const { curation, usageMetadata } =
-        await this.curateRecommendationsWithMeta(message, history);
-
-      const latencyMs = Date.now() - startTime;
-      const recommendedBooks = curation.recommendedBooks || [];
-
-      // AI 로그 저장 (성공)
-      this.aiRequestLogRepository
-        .save({
-          userId: parsedUserId,
-          feature: 'TALK',
-          model: MODEL_NAME,
-          promptTokens: usageMetadata?.promptTokenCount ?? null,
-          completionTokens: usageMetadata?.candidatesTokenCount ?? null,
-          totalTokens: usageMetadata?.totalTokenCount ?? null,
-          latencyMs,
-          requestPayload: { message, history: history ?? null },
-          responsePayload: {
-            message: curation.message,
-            recommendedBooks,
-            isFinal: recommendedBooks.length > 0,
-          },
-          status: 'SUCCESS',
-        })
-        .catch((e) => console.error('Failed to save AI log for TALK:', e));
-
-      return {
-        message: curation.message,
-        isFinal: recommendedBooks.length > 0,
-        recommendedBooks: recommendedBooks.map((b) => ({
-          title: b.title,
-          author: b.author,
-          description: b.description,
-        })),
-      };
-    } catch (error: any) {
-      const latencyMs = Date.now() - startTime;
-      this.aiRequestLogRepository
-        .save({
-          userId: parsedUserId,
-          feature: 'TALK',
-          model: MODEL_NAME,
-          latencyMs,
-          requestPayload: { message, history: history ?? null },
-          status: 'ERROR',
-          errorMessage: error instanceof Error ? error.message : String(error),
-        })
-        .catch((e) =>
-          console.error('Failed to save AI error log for TALK:', e),
-        );
-
-      console.error('LlmService ProcessTalk Error:', error);
-
-      const isServiceUnavailable =
-        error?.status === 503 ||
-        error?.status === 429 ||
-        error?.message?.includes('503') ||
-        error?.message?.includes('429');
-
-      if (isServiceUnavailable) {
-        return {
-          message:
-            '지금 숲속 도서관에 손님이 너무 많아서 책을 찾을 수가 없어요구리! 🚧\n잠시 뒤에 다시 물어봐주시겠어요? (Gemini 서버 혼잡)',
-          isFinal: true,
-        };
-      }
-
-      throw new InternalServerErrorException(
-        '죄송해요, 생각이 엉켜서 넘어졌어요구리! 😵‍💫',
-      );
-    }
-  }
-
-  // --- 헬퍼 메서드 ---
-
-  async curateRecommendations(
-    message: string,
-    history?: string,
-  ): Promise<CurationResult> {
-    const res = await this.curateRecommendationsWithMeta(message, history);
-    return res.curation;
-  }
-
-  async curateRecommendationsWithMeta(
-    message: string,
-    history?: string,
-  ): Promise<CurationResultWithMeta> {
-    const prompt = NEOGULIP_CURATION_SYS_PROMPT.replace(
-      '${message}',
-      message,
-    ).replace('${history}', history || '');
-
-    const result = await this.model.generateContent(prompt);
-    const response = result.response;
-    const text = response.text();
-
-    try {
-      const curation = extractJson<CurationResult>(text);
-      return {
-        curation,
-        usageMetadata: response.usageMetadata,
-      };
-    } catch {
-      console.warn('LLM Response Parsing Failed:', text);
-      return {
-        curation: {
-          message:
-            '잠시 나뭇잎이 엉켜버렸어요. 다시 한 번 말씀해 주시겠어요? 🍂',
-          recommendedBooks: [],
-        },
-        usageMetadata: response.usageMetadata,
-      };
     }
   }
 }

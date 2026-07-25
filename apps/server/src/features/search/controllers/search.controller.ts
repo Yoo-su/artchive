@@ -4,6 +4,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -47,7 +48,8 @@ export class SearchController {
   })
   async searchAi(
     @Body() dto: AiSearchRequestDto,
+    @Req() req: { user?: { id: number } },
   ): Promise<AiSearchResponseDto> {
-    return await this.searchService.searchAi(dto);
+    return await this.searchService.searchAi(dto, req.user?.id);
   }
 }

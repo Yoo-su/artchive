@@ -45,7 +45,6 @@ export const API_PATHS = {
     detail: (artId: string) => `/art-detail/${artId}`,
   },
   llm: {
-    talk: "/llm/talk",
     summary: "/llm/book-summary",
   },
   chat: {

@@ -36,7 +36,6 @@ export enum ActivityType {
 
   // AI (LLM)
   LLM_BOOK_SUMMARY = 'LLM_BOOK_SUMMARY',
-  LLM_TALK = 'LLM_TALK',
 
   // 사용자
   PROFILE_UPDATE = 'PROFILE_UPDATE',

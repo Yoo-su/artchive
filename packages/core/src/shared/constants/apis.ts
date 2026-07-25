@@ -48,7 +48,6 @@ export const API_PATHS = {
     externalDetail: (artId: string) => `/art/external/detail/${artId}`,
   },
   llm: {
-    talk: "/llm/talk",
     summary: "/llm/book-summary",
     getSummary: (isbn: string) => `/llm/book-summary/${isbn}`,
   },
