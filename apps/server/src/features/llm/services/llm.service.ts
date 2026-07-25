@@ -17,7 +17,7 @@ import { BookSummaryResponseDto } from '../dtos/book-summary-response.dto';
 import { TalkRequestDto } from '../dtos/talk-request.dto';
 import { TalkResponseDto } from '../dtos/talk-response.dto';
 import { AiBookSummary } from '../entities/ai-book-summary.entity';
-import { LlmTalkLog } from '../entities/llm-talk-log.entity';
+import { AiRequestLog } from '../entities/ai-request-log.entity';
 import { extractJson } from '../utils/extract-json';
 import { getPromptText } from '../utils/get-prompt-text';
 
@@ -30,6 +30,15 @@ interface CurationResult {
   }[];
 }
 
+interface CurationResultWithMeta {
+  curation: CurationResult;
+  usageMetadata?: {
+    promptTokenCount?: number;
+    candidatesTokenCount?: number;
+    totalTokenCount?: number;
+  };
+}
+
 @Injectable()
 export class LlmService {
   private genAI: GoogleGenerativeAI;
@@ -40,8 +49,8 @@ export class LlmService {
    */
   constructor(
     private readonly configService: ConfigService,
-    @InjectRepository(LlmTalkLog)
-    private readonly logRepository: Repository<LlmTalkLog>,
+    @InjectRepository(AiRequestLog)
+    private readonly aiRequestLogRepository: Repository<AiRequestLog>,
     @InjectRepository(AiBookSummary)
     private readonly aiBookSummaryRepository: Repository<AiBookSummary>,
     private readonly bookService: BookService,
@@ -63,12 +72,6 @@ export class LlmService {
 
   /**
    * 책 제목과 저자를 기반으로 AI 요약 및 후기를 생성하거나 기존 결과를 반환합니다.
-   * @param title - 책 제목
-   * @param author - 저자
-   * @param description - 책 설명
-   * @param isbn - 도서 ISBN (저장 및 조회용)
-   * @param publisher - 출판사 (선택)
-   * @returns 생성되거나 조회된 요약 텍스트
    */
   async generateBookSummary(
     title: string,
@@ -76,6 +79,7 @@ export class LlmService {
     description?: string,
     isbn?: string,
     publisher?: string,
+    userId?: string | number,
   ): Promise<BookSummaryResponseDto> {
     // 1. 이미 저장된 요약이 있는지 확인
     if (isbn) {
@@ -89,6 +93,12 @@ export class LlmService {
         };
       }
     }
+
+    const startTime = Date.now();
+    const parsedUserId =
+      userId !== undefined && userId !== null && !isNaN(Number(userId))
+        ? Number(userId)
+        : null;
 
     try {
       const prompt = getPromptText(title, author, description, publisher);
@@ -127,11 +137,12 @@ export class LlmService {
           temperature: 0.2,
         },
       });
+      const latencyMs = Date.now() - startTime;
       const response = result.response;
       const text = response.text();
+      const usageMetadata = response.usageMetadata;
 
       let parsedSummary: BookSummaryResponseDto;
-      // JSON 파싱 시도 (통합 헬퍼 사용)
       try {
         parsedSummary = extractJson<BookSummaryResponseDto>(text);
       } catch (e) {
@@ -139,17 +150,33 @@ export class LlmService {
         parsedSummary = { summary: text };
       }
 
-      // keywords 해시태그 '#' 제거하여 통일
       if (parsedSummary.keywords) {
         parsedSummary.keywords = parsedSummary.keywords.map((k) =>
           k.startsWith('#') ? k.substring(1) : k,
         );
       }
 
+      // AI 로그 저장 (성공)
+      this.aiRequestLogRepository
+        .save({
+          userId: parsedUserId,
+          feature: 'BOOK_SUMMARY',
+          model: MODEL_NAME,
+          promptTokens: usageMetadata?.promptTokenCount ?? null,
+          completionTokens: usageMetadata?.candidatesTokenCount ?? null,
+          totalTokens: usageMetadata?.totalTokenCount ?? null,
+          latencyMs,
+          requestPayload: { title, author, description, isbn, publisher },
+          responsePayload: parsedSummary as unknown as Record<string, unknown>,
+          status: 'SUCCESS',
+        })
+        .catch((e) =>
+          console.error('Failed to save AI log for BOOK_SUMMARY:', e),
+        );
+
       // 2. 생성에 성공하고 isbn이 존재하는 경우 DB에 캐싱 저장
       if (isbn && parsedSummary.summary) {
         try {
-          // DB에 책 기본 정보 생성/조회 보장
           await this.bookService.resolveBook(isbn);
 
           const summaryEntity = this.aiBookSummaryRepository.create({
@@ -168,45 +195,71 @@ export class LlmService {
 
       return parsedSummary;
     } catch (error) {
+      const latencyMs = Date.now() - startTime;
+      this.aiRequestLogRepository
+        .save({
+          userId: parsedUserId,
+          feature: 'BOOK_SUMMARY',
+          model: MODEL_NAME,
+          latencyMs,
+          requestPayload: { title, author, description, isbn, publisher },
+          status: 'ERROR',
+          errorMessage: error instanceof Error ? error.message : String(error),
+        })
+        .catch((e) =>
+          console.error('Failed to save AI error log for BOOK_SUMMARY:', e),
+        );
+
       console.error('Gemini API 호출에 실패했습니다:', error);
       throw new InternalServerErrorException(
         '죄송해요, 책 내용을 읽어오다가 나뭇잎을 놓쳤어요구리! 🍃',
       );
     }
   }
+
   /**
    * 유저의 입력에 대해 적응형 대화(Adaptive Flow)를 수행하고, 추천이 필요하면 책 검색까지 수행합니다.
    */
   async processTalk(
     dto: TalkRequestDto,
-    userId?: string,
+    userId?: string | number,
   ): Promise<TalkResponseDto> {
     const { message, history } = dto;
     const startTime = Date.now();
+    const parsedUserId =
+      userId !== undefined && userId !== null && !isNaN(Number(userId))
+        ? Number(userId)
+        : null;
 
     try {
-      // 1. [순수 지식 큐레이션]: 검색 과정 없이 바로 LLM이 추천
-      // 히스토리와 사용자 메시지를 기반으로 너굴잎이 직접 판단
-      const curationResult = await this.curateRecommendations(message, history);
+      const { curation, usageMetadata } =
+        await this.curateRecommendationsWithMeta(message, history);
 
-      const duration = Date.now() - startTime;
-      const recommendedBooks = curationResult.recommendedBooks || [];
+      const latencyMs = Date.now() - startTime;
+      const recommendedBooks = curation.recommendedBooks || [];
 
-      // 로그 저장
-      this.logRepository
+      // AI 로그 저장 (성공)
+      this.aiRequestLogRepository
         .save({
-          userMessage: message,
-          aiMessage: curationResult.message,
-          recommendedBooks: recommendedBooks,
+          userId: parsedUserId,
+          feature: 'TALK',
           model: MODEL_NAME,
-          latency: duration,
-          userId: userId ?? 'anonymous',
+          promptTokens: usageMetadata?.promptTokenCount ?? null,
+          completionTokens: usageMetadata?.candidatesTokenCount ?? null,
+          totalTokens: usageMetadata?.totalTokenCount ?? null,
+          latencyMs,
+          requestPayload: { message, history: history ?? null },
+          responsePayload: {
+            message: curation.message,
+            recommendedBooks,
+            isFinal: recommendedBooks.length > 0,
+          },
+          status: 'SUCCESS',
         })
-        .catch((e) => console.error(e));
+        .catch((e) => console.error('Failed to save AI log for TALK:', e));
 
-      // 결과 반환
       return {
-        message: curationResult.message,
+        message: curation.message,
         isFinal: recommendedBooks.length > 0,
         recommendedBooks: recommendedBooks.map((b) => ({
           title: b.title,
@@ -214,7 +267,22 @@ export class LlmService {
           description: b.description,
         })),
       };
-    } catch (error) {
+    } catch (error: any) {
+      const latencyMs = Date.now() - startTime;
+      this.aiRequestLogRepository
+        .save({
+          userId: parsedUserId,
+          feature: 'TALK',
+          model: MODEL_NAME,
+          latencyMs,
+          requestPayload: { message, history: history ?? null },
+          status: 'ERROR',
+          errorMessage: error instanceof Error ? error.message : String(error),
+        })
+        .catch((e) =>
+          console.error('Failed to save AI error log for TALK:', e),
+        );
+
       console.error('LlmService ProcessTalk Error:', error);
 
       const isServiceUnavailable =
@@ -243,22 +311,38 @@ export class LlmService {
     message: string,
     history?: string,
   ): Promise<CurationResult> {
+    const res = await this.curateRecommendationsWithMeta(message, history);
+    return res.curation;
+  }
+
+  async curateRecommendationsWithMeta(
+    message: string,
+    history?: string,
+  ): Promise<CurationResultWithMeta> {
     const prompt = NEOGULIP_CURATION_SYS_PROMPT.replace(
       '${message}',
       message,
     ).replace('${history}', history || '');
 
     const result = await this.model.generateContent(prompt);
-    const text = result.response.text();
+    const response = result.response;
+    const text = response.text();
 
     try {
-      return extractJson<CurationResult>(text);
+      const curation = extractJson<CurationResult>(text);
+      return {
+        curation,
+        usageMetadata: response.usageMetadata,
+      };
     } catch {
       console.warn('LLM Response Parsing Failed:', text);
-      // Fallback for parsing error
       return {
-        message: '잠시 나뭇잎이 엉켜버렸어요. 다시 한 번 말씀해 주시겠어요? 🍂',
-        recommendedBooks: [],
+        curation: {
+          message:
+            '잠시 나뭇잎이 엉켜버렸어요. 다시 한 번 말씀해 주시겠어요? 🍂',
+          recommendedBooks: [],
+        },
+        usageMetadata: response.usageMetadata,
       };
     }
   }

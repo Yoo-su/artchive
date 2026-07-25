@@ -5,12 +5,13 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { BookService } from '@/features/book/services/book.service';
 
 import { AiBookSummary } from '../entities/ai-book-summary.entity';
-import { LlmTalkLog } from '../entities/llm-talk-log.entity';
+import { AiRequestLog } from '../entities/ai-request-log.entity';
 import { LlmService } from './llm.service';
 
 describe('LlmService', () => {
   let service: LlmService;
   let aiBookSummaryRepository: any;
+  let aiRequestLogRepository: any;
   let bookService: any;
 
   beforeEach(async () => {
@@ -24,9 +25,9 @@ describe('LlmService', () => {
           },
         },
         {
-          provide: getRepositoryToken(LlmTalkLog),
+          provide: getRepositoryToken(AiRequestLog),
           useValue: {
-            save: jest.fn(),
+            save: jest.fn().mockResolvedValue({}),
           },
         },
         {
@@ -49,6 +50,7 @@ describe('LlmService', () => {
     }).compile();
 
     service = module.get<LlmService>(LlmService);
+    aiRequestLogRepository = module.get(getRepositoryToken(AiRequestLog));
     aiBookSummaryRepository = module.get(getRepositoryToken(AiBookSummary));
     bookService = module.get(BookService);
   });
@@ -100,7 +102,7 @@ describe('LlmService', () => {
       });
     });
 
-    it('should generate via API and save to DB if not cached', async () => {
+    it('should generate via API and save to DB and save log if not cached', async () => {
       aiBookSummaryRepository.findOneBy.mockResolvedValue(null);
 
       const mockModel = {
@@ -113,6 +115,11 @@ describe('LlmService', () => {
                 targetAudience: 'audience',
                 keywords: ['#tag'],
               }),
+            usageMetadata: {
+              promptTokenCount: 100,
+              candidatesTokenCount: 50,
+              totalTokenCount: 150,
+            },
           },
         }),
       };
@@ -123,6 +130,8 @@ describe('LlmService', () => {
         'Author',
         'Desc',
         '1234567890',
+        'Publisher',
+        1,
       );
 
       expect(bookService.resolveBook).toHaveBeenCalledWith('1234567890');
@@ -134,12 +143,64 @@ describe('LlmService', () => {
         keywords: ['tag'],
       });
       expect(aiBookSummaryRepository.save).toHaveBeenCalled();
+      expect(aiRequestLogRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 1,
+          feature: 'BOOK_SUMMARY',
+          promptTokens: 100,
+          completionTokens: 50,
+          totalTokens: 150,
+          status: 'SUCCESS',
+        }),
+      );
       expect(result).toEqual({
         summary: 'generated summary',
         keyPoints: ['point 1'],
         targetAudience: 'audience',
         keywords: ['tag'],
       });
+    });
+  });
+
+  describe('processTalk', () => {
+    it('should process recommendation and save log', async () => {
+      const mockModel = {
+        generateContent: jest.fn().mockResolvedValue({
+          response: {
+            text: () =>
+              JSON.stringify({
+                message: '추천해 드릴게요!',
+                recommendedBooks: [
+                  { title: '책1', author: '저자1', description: '설명1' },
+                ],
+              }),
+            usageMetadata: {
+              promptTokenCount: 200,
+              candidatesTokenCount: 80,
+              totalTokenCount: 280,
+            },
+          },
+        }),
+      };
+      (service as any).model = mockModel;
+
+      const result = await service.processTalk(
+        { message: '재미있는 소설 추천해줘' },
+        '42',
+      );
+
+      expect(result.isFinal).toBe(true);
+      expect(result.recommendedBooks).toHaveLength(1);
+      expect(aiRequestLogRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 42,
+          feature: 'TALK',
+          promptTokens: 200,
+          completionTokens: 80,
+          totalTokens: 280,
+          status: 'SUCCESS',
+        }),
+      );
     });
   });
 });
