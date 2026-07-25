@@ -48,17 +48,17 @@
     }
   },
   "meta": {
-    "default_title": "Bookjeok - Reading Log, Reviews & Used Book Trading",
+    "default_title": "Bookjeok - AI Book Recommendations, Reading Log, Reviews & Used Book Trading",
     "template_title": "%s | Bookjeok",
-    "description": "Share book reviews, trade used books, and manage your reading log.",
-    "keywords": "Bookjeok, Book Reviews, Used Books, Reading Log, Book Recommendations, Book Club",
+    "description": "AI recommends books based on your taste and summarizes key insights. Manage reading logs, write reviews, and trade used books — all in one place.",
+    "keywords": "Bookjeok, AI Book Recommendations, AI Book Summary, Book Curation, Book Reviews, Used Books, Used Book Trading, Reading Log, Reading Calendar, Reading Lounge, Book Club, Book Search",
     "og": {
-      "title": "Bookjeok - Reading Log, Reviews & Used Book Trading",
-      "description": "Book reviews, used book trading, and reading logs. Get started on Bookjeok."
+      "title": "Bookjeok - AI Book Recommendations, Reading Log, Reviews & Used Book Trading",
+      "description": "AI-powered book recommendations and summaries, reading logs, reviews, and used book trading. Get started on Bookjeok."
     },
     "twitter": {
-      "title": "Bookjeok - Reading Log, Reviews & Used Book Trading",
-      "description": "Book reviews and used book trading in one place. Get started on Bookjeok."
+      "title": "Bookjeok - AI Book Recommendations, Reading Log, Reviews & Used Book Trading",
+      "description": "Tell us your taste, and AI finds the right book for you. Reading logs, reviews, and used book trading in one place."
     }
   },
   "notification": {
