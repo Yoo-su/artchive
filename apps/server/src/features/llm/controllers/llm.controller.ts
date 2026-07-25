@@ -60,6 +60,7 @@ export class LlmController {
   @ApiResponse({ status: 201, description: '생성된 요약 정보를 반환합니다.' })
   async getBookSummary(
     @Body(new ValidationPipe()) bookSummaryDto: BookSummaryDto,
+    @Req() req: { user?: { id: number | string } },
   ): Promise<BookSummaryResponseDto> {
     const { title, author, description, isbn, publisher } = bookSummaryDto;
     const summary = await this.llmService.generateBookSummary(
@@ -68,6 +69,7 @@ export class LlmController {
       description,
       isbn,
       publisher,
+      req.user?.id,
     );
     return summary;
   }

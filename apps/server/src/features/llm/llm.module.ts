@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BookModule } from '../book/book.module';
 import { LlmController } from './controllers/llm.controller';
 import { AiBookSummary } from './entities/ai-book-summary.entity';
-import { LlmTalkLog } from './entities/llm-talk-log.entity';
+import { AiRequestLog } from './entities/ai-request-log.entity';
 import { LlmCleanupListener } from './listeners/llm-cleanup.listener';
 import { LlmService } from './services/llm.service';
 
@@ -13,7 +13,7 @@ import { LlmService } from './services/llm.service';
   imports: [
     ConfigModule,
     BookModule,
-    TypeOrmModule.forFeature([LlmTalkLog, AiBookSummary]),
+    TypeOrmModule.forFeature([AiRequestLog, AiBookSummary]),
   ],
   controllers: [LlmController],
   providers: [LlmService, LlmCleanupListener],
