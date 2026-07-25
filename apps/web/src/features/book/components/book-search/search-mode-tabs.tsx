@@ -17,8 +17,8 @@ export const SearchModeTabs = ({
   const t = useTranslations("book.search");
 
   return (
-    <div className="flex justify-center mb-6">
-      <div className="inline-flex p-1.5 bg-stone-100/80 rounded-full border border-stone-200/60 shadow-inner">
+    <div className="flex justify-start mb-6">
+      <div className="inline-flex p-1 bg-stone-100/90 rounded-xl border border-stone-200/80">
         <button
           type="button"
           onClick={() => onModeChange("KEYWORD")}
