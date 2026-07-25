@@ -11,14 +11,11 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { OptionalJwtAuthGuard } from '@/features/auth/guards/optional-jwt-auth.guard';
 import { ActivityType } from '@/shared/activity/activity-type.enum';
 import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 
 import { BookSummaryDto } from '../dtos/book-summary.dto';
 import { BookSummaryResponseDto } from '../dtos/book-summary-response.dto';
-import { TalkRequestDto } from '../dtos/talk-request.dto';
-import { TalkResponseDto } from '../dtos/talk-response.dto';
 import { LlmService } from '../services/llm.service';
 
 @ApiTags('AI 요약 (LLM)')
@@ -72,24 +69,5 @@ export class LlmController {
       req.user?.id,
     );
     return summary;
-  }
-
-  @Post('talk')
-  @UseGuards(OptionalJwtAuthGuard)
-  @TrackActivity(ActivityType.LLM_TALK)
-  @ApiOperation({
-    summary: 'AI 사서와 대화 (추천)',
-    description:
-      '유저의 입력에 따라 AI가 추가 질문을 하거나(isFinal=false), 최종 책 추천을 합니다(isFinal=true).',
-  })
-  @ApiResponse({
-    status: 201,
-    description: '대화 응답(질문 또는 추천)을 반환합니다.',
-  })
-  talk(
-    @Body() dto: TalkRequestDto,
-    @Req() req: { user?: { id: string } },
-  ): Promise<TalkResponseDto> {
-    return this.llmService.processTalk(dto, req.user?.id);
   }
 }

@@ -161,46 +161,4 @@ describe('LlmService', () => {
       });
     });
   });
-
-  describe('processTalk', () => {
-    it('should process recommendation and save log', async () => {
-      const mockModel = {
-        generateContent: jest.fn().mockResolvedValue({
-          response: {
-            text: () =>
-              JSON.stringify({
-                message: '추천해 드릴게요!',
-                recommendedBooks: [
-                  { title: '책1', author: '저자1', description: '설명1' },
-                ],
-              }),
-            usageMetadata: {
-              promptTokenCount: 200,
-              candidatesTokenCount: 80,
-              totalTokenCount: 280,
-            },
-          },
-        }),
-      };
-      (service as any).model = mockModel;
-
-      const result = await service.processTalk(
-        { message: '재미있는 소설 추천해줘' },
-        '42',
-      );
-
-      expect(result.isFinal).toBe(true);
-      expect(result.recommendedBooks).toHaveLength(1);
-      expect(aiRequestLogRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining({
-          userId: 42,
-          feature: 'TALK',
-          promptTokens: 200,
-          completionTokens: 80,
-          totalTokens: 280,
-          status: 'SUCCESS',
-        }),
-      );
-    });
-  });
 });
