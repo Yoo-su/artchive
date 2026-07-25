@@ -77,8 +77,8 @@ export default function BookSearchView() {
         <AiChatWindow />
       )}
 
-      {/* 맨 위로 이동 플로팅 버튼 */}
-      <ScrollTopButton />
+      {/* 맨 위로 이동 플로팅 버튼 (키워드 검색 모드 전용) */}
+      {searchMode === "KEYWORD" && <ScrollTopButton />}
     </div>
   );
 }

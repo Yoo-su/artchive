@@ -17,7 +17,7 @@ export const useAiChat = () => {
   const user = useAuthStore((state) => state.user);
   const isLoggedIn = !!user;
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -71,9 +71,14 @@ export const useAiChat = () => {
     }
   }, [messages, userStorageKey]);
 
-  // 메시지 하단 스크롤
+  // 대화창 내부만 스크롤 (브라우저 전체 창 튐 방지)
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -155,7 +160,7 @@ export const useAiChat = () => {
     input,
     setInput,
     loading,
-    messagesEndRef,
+    chatContainerRef,
     handleSendMessage,
     handleClearChat,
   };
