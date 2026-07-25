@@ -17,12 +17,12 @@ export const SearchModeTabs = ({
   const t = useTranslations("book.search");
 
   return (
-    <div className="flex justify-start mb-6">
-      <div className="inline-flex p-1 bg-stone-100/90 rounded-xl border border-stone-200/80">
+    <div className="max-w-2xl mx-auto w-full mb-6">
+      <div className="p-1 bg-stone-100/90 rounded-2xl border border-stone-200/80 grid grid-cols-2 gap-1 shadow-2xs">
         <button
           type="button"
           onClick={() => onModeChange("KEYWORD")}
-          className={`relative px-5 py-2 text-sm font-medium transition-colors duration-200 rounded-full select-none cursor-pointer ${
+          className={`relative py-2.5 text-xs sm:text-sm font-medium transition-colors duration-200 rounded-xl select-none cursor-pointer text-center ${
             activeMode === "KEYWORD"
               ? "text-stone-900 font-semibold"
               : "text-stone-500 hover:text-stone-800"
@@ -31,7 +31,7 @@ export const SearchModeTabs = ({
           {activeMode === "KEYWORD" && (
             <motion.div
               layoutId="activeSearchTab"
-              className="absolute inset-0 bg-white rounded-full shadow-sm"
+              className="absolute inset-0 bg-white rounded-xl shadow-xs"
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
             />
           )}
@@ -41,7 +41,7 @@ export const SearchModeTabs = ({
         <button
           type="button"
           onClick={() => onModeChange("AI")}
-          className={`relative px-5 py-2 text-sm font-medium transition-colors duration-200 rounded-full select-none cursor-pointer ${
+          className={`relative py-2.5 text-xs sm:text-sm font-medium transition-colors duration-200 rounded-xl select-none cursor-pointer text-center ${
             activeMode === "AI"
               ? "text-stone-900 font-semibold"
               : "text-stone-500 hover:text-stone-800"
@@ -50,7 +50,7 @@ export const SearchModeTabs = ({
           {activeMode === "AI" && (
             <motion.div
               layoutId="activeSearchTab"
-              className="absolute inset-0 bg-white rounded-full shadow-sm"
+              className="absolute inset-0 bg-white rounded-xl shadow-xs"
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
             />
           )}
