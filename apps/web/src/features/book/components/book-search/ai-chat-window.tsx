@@ -6,8 +6,9 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import remarkGfm from "remark-gfm";
 
-import { LightRays } from "@/shared/components/magicui/light-rays";
+import { Particles } from "@/shared/components/magicui/particles";
 import { Input } from "@/shared/components/shadcn/input";
+import { gowun_batang } from "@/styles/fonts";
 
 import { AI_CHAT_SUGGESTION_CHIPS, ChatMessage } from "../../constants/ai-chat";
 import { useAiChat } from "../../hooks/use-ai-chat";
@@ -31,18 +32,20 @@ export const AiChatWindow = () => {
 
   return (
     <div className="relative w-full bg-white rounded-2xl border border-stone-200/80 shadow-xs flex flex-col h-[680px] overflow-hidden">
-      {/* 배경 Light Rays 효과 */}
-      <LightRays className="z-0 pointer-events-none" />
+      {/* 배경 Particles 효과 */}
+      <Particles
+        className="z-0 pointer-events-none"
+        quantity={35}
+        color="#71717a"
+        ease={60}
+      />
 
       {/* 1. 헤더 */}
-      <div className="relative z-10 px-5 py-3.5 bg-stone-50/70 border-b border-stone-200/60 flex items-center justify-between gap-2">
+      <div className="relative z-10 px-5 py-3.5 bg-stone-50/80 backdrop-blur-md border-b border-stone-200/60 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span
-            className={`w-2 h-2 rounded-full shrink-0 ${
-              isLoggedIn ? "bg-emerald-500" : "bg-stone-300"
-            }`}
-          />
-          <h2 className="text-xs sm:text-sm font-medium text-stone-800">
+          <h2
+            className={`text-base sm:text-lg font-bold text-stone-800 tracking-tight ${gowun_batang.className}`}
+          >
             대화형 AI 도서 추천
           </h2>
           {!isLoggedIn && (
@@ -68,8 +71,14 @@ export const AiChatWindow = () => {
         className="relative z-10 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4"
       >
         {messages.map((msg: ChatMessage) => (
-          <div
+          <motion.div
             key={msg.id}
+            initial={{ opacity: 0, y: 10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{
+              duration: 0.25,
+              ease: [0.16, 1, 0.3, 1],
+            }}
             className={`flex flex-col ${
               msg.role === "user" ? "items-end" : "items-start"
             }`}
@@ -77,8 +86,8 @@ export const AiChatWindow = () => {
             <div
               className={`px-4 py-3 max-w-[85%] text-xs sm:text-sm leading-relaxed ${
                 msg.role === "user"
-                  ? "bg-stone-800 text-white rounded-2xl rounded-tr-xs whitespace-pre-line shadow-xs"
-                  : "bg-white/90 backdrop-blur-xs border border-stone-200/90 text-stone-800 rounded-2xl rounded-tl-xs shadow-2xs"
+                  ? "bg-stone-900/85 backdrop-blur-md border border-stone-700/60 text-white rounded-2xl rounded-tr-xs whitespace-pre-line shadow-md shadow-stone-900/10"
+                  : "bg-white/75 backdrop-blur-md border border-white/80 text-stone-850 rounded-2xl rounded-tl-xs shadow-md shadow-stone-900/5 ring-1 ring-stone-900/5"
               }`}
             >
               {msg.role === "user" ? (
@@ -127,7 +136,7 @@ export const AiChatWindow = () => {
             </div>
 
             {msg.books && <AiBookRecommendSlider books={msg.books} />}
-          </div>
+          </motion.div>
         ))}
 
         {loading && (

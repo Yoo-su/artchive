@@ -7,7 +7,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import { AiSearchBookItem } from "@/features/book/queries/use-ai-search-query";
 import { Highlighter } from "@/shared/components/magicui/highlighter";
-import { ShineBorder } from "@/shared/components/magicui/shine-border";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
@@ -21,13 +20,7 @@ export const AiBookRecommendSlider = ({
   if (!books || books.length === 0) return null;
 
   return (
-    <ShineBorder
-      borderRadius={16}
-      borderWidth={1}
-      duration={10}
-      color={["#52525b", "#a1a1aa", "#3f3f46"]}
-      className="mt-3 w-full bg-stone-50/60 border border-stone-200/60 p-4 space-y-3"
-    >
+    <div className="mt-3 w-full bg-white/70 backdrop-blur-md border border-white/80 rounded-2xl p-4 space-y-3 shadow-sm shadow-stone-900/5 ring-1 ring-stone-900/5">
       <div className="flex items-center justify-between border-b border-stone-200/50 pb-3 mb-1">
         <h2 className="text-xs sm:text-sm font-semibold tracking-wide text-stone-800 flex items-center">
           <Highlighter action="underline" color="#FF9800" className="pb-0.5">
@@ -55,7 +48,7 @@ export const AiBookRecommendSlider = ({
       >
         {books.map((book) => (
           <SwiperSlide key={book.isbn} className="!h-auto">
-            <div className="h-full bg-white border border-stone-200/80 rounded-2xl p-3.5 flex flex-row gap-3.5 shadow-2xs hover:border-stone-300 transition-all">
+            <div className="h-full bg-white/85 backdrop-blur-xs border border-stone-200/80 rounded-2xl p-3.5 flex flex-row gap-3.5 shadow-2xs hover:border-stone-300 transition-all">
               {/* 책 표지 (줄어든 크기, 좌측) */}
               <Link
                 href={PATHS.BOOK_DETAIL(book.isbn)}
@@ -89,7 +82,7 @@ export const AiBookRecommendSlider = ({
                 </div>
 
                 {book.reason && (
-                  <div className="p-2.5 bg-stone-50/80 rounded-xl text-[11px] sm:text-xs text-stone-600 leading-relaxed border border-stone-100 flex-1 flex flex-col justify-center">
+                  <div className="p-2.5 bg-stone-50/70 backdrop-blur-xs rounded-xl text-[11px] sm:text-xs text-stone-600 leading-relaxed border border-stone-200/50 flex-1 flex flex-col justify-center">
                     <span className="font-semibold text-stone-800 block mb-0.5 text-[11px]">
                       추천 까닭
                     </span>
@@ -103,7 +96,7 @@ export const AiBookRecommendSlider = ({
           </SwiperSlide>
         ))}
       </Swiper>
-    </ShineBorder>
+    </div>
   );
 };
 
