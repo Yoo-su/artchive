@@ -2,10 +2,11 @@
 
 import { ReactNode, useEffect } from "react";
 
-import { useRouter } from "@/shared/config/i18n/routing";
+import { usePathname,useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { useAuthStore } from "../../../stores/use-auth-store";
+import { saveReturnUrl } from "../../../utils/return-url";
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -16,14 +17,16 @@ interface AuthGuardProps {
  */
 export const AuthGuard = ({ children }: AuthGuardProps) => {
   const router = useRouter();
+  const pathname = usePathname();
   const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     if (!user) {
+      saveReturnUrl(pathname);
       router.replace(PATHS.LOGIN);
       return;
     }
-  }, [router, user]);
+  }, [router, pathname, user]);
 
   if (!user) {
     return null;

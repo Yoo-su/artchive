@@ -6,6 +6,7 @@ import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { useAuthStore } from "../../../stores/use-auth-store";
+import { consumeReturnUrl } from "../../../utils/return-url";
 
 interface GuestGuardProps {
   children: ReactNode;
@@ -16,7 +17,8 @@ export const GuestGuard = ({ children }: GuestGuardProps) => {
 
   useEffect(() => {
     if (user) {
-      router.push(PATHS.HOME);
+      const returnUrl = consumeReturnUrl();
+      router.push(returnUrl || PATHS.HOME);
       return;
     }
   }, [user, router]);

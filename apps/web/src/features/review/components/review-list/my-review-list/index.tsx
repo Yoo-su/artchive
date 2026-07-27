@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { saveReturnUrl } from "@/features/auth/utils/return-url";
 import { useDeleteReviewMutation } from "@/features/review/mutations";
 import {
   AlertDialog,
@@ -15,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/shared/components/shadcn/alert-dialog";
-import { useRouter } from "@/shared/config/i18n/routing";
+import { usePathname, useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { ReviewGridList } from "../review-grid-list";
@@ -24,6 +25,7 @@ export const MyReviewList = () => {
   const t = useTranslations("my_reviews");
   const user = useAuthStore((state) => state.user);
   const router = useRouter();
+  const pathname = usePathname();
   const { mutateAsync: deleteReviewMutation } = useDeleteReviewMutation();
 
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
@@ -31,9 +33,10 @@ export const MyReviewList = () => {
 
   useEffect(() => {
     if (!user) {
+      saveReturnUrl(pathname);
       router.push(PATHS.LOGIN);
     }
-  }, [user, router]);
+  }, [user, router, pathname]);
 
   const handleDeleteReview = (id: number) => {
     setDeleteTargetId(id);
