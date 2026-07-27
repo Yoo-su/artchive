@@ -163,7 +163,8 @@ export const fetchBookDetail = cache(async (isbn: string) => {
     // 백엔드 Postgres DB 도서 저장 및 조회수 동기화 (비동기 실행)
     const serverUrl =
       process.env.INTERNAL_SERVER_URL ||
-      process.env.NEXT_PUBLIC_SERVER_URL ||
+      process.env.API_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
       "http://localhost:8000";
     axios.post(`${serverUrl}/book/${isbn}/view`).catch((err) => {
       console.warn("백엔드 DB 도서 동기화 실패 (무시됨):", err?.message);
