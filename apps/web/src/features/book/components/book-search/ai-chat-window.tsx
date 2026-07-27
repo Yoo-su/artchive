@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import remarkGfm from "remark-gfm";
 
+import { LightRays } from "@/shared/components/magicui/light-rays";
 import { Input } from "@/shared/components/shadcn/input";
 
 import { AI_CHAT_SUGGESTION_CHIPS, ChatMessage } from "../../constants/ai-chat";
@@ -29,9 +30,12 @@ export const AiChatWindow = () => {
   } = useAiChat();
 
   return (
-    <div className="w-full bg-white rounded-2xl border border-stone-200/80 shadow-xs flex flex-col h-[680px]">
+    <div className="relative w-full bg-white rounded-2xl border border-stone-200/80 shadow-xs flex flex-col h-[680px] overflow-hidden">
+      {/* 배경 Light Rays 효과 */}
+      <LightRays className="z-0 pointer-events-none" />
+
       {/* 1. 헤더 */}
-      <div className="px-5 py-3.5 bg-stone-50/70 border-b border-stone-200/60 flex items-center justify-between gap-2">
+      <div className="relative z-10 px-5 py-3.5 bg-stone-50/70 border-b border-stone-200/60 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span
             className={`w-2 h-2 rounded-full shrink-0 ${
@@ -61,7 +65,7 @@ export const AiChatWindow = () => {
       {/* 2. 대화 타임라인 (내부 독립 스크롤 & overscroll-contain) */}
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4"
+        className="relative z-10 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4"
       >
         {messages.map((msg: ChatMessage) => (
           <div
@@ -73,8 +77,8 @@ export const AiChatWindow = () => {
             <div
               className={`px-4 py-3 max-w-[85%] text-xs sm:text-sm leading-relaxed ${
                 msg.role === "user"
-                  ? "bg-stone-800 text-white rounded-2xl rounded-tr-xs whitespace-pre-line"
-                  : "bg-stone-50 border border-stone-200 text-stone-800 rounded-2xl rounded-tl-xs"
+                  ? "bg-stone-800 text-white rounded-2xl rounded-tr-xs whitespace-pre-line shadow-xs"
+                  : "bg-white/90 backdrop-blur-xs border border-stone-200/90 text-stone-800 rounded-2xl rounded-tl-xs shadow-2xs"
               }`}
             >
               {msg.role === "user" ? (
@@ -129,14 +133,14 @@ export const AiChatWindow = () => {
         {loading && (
           <div className="flex items-center gap-2 text-stone-400 text-xs py-2">
             <Loader2 className="w-3.5 h-3.5 animate-spin text-stone-500" />
-            <span>도서 추천을 분석 중입니다...</span>
+            <span>AI가 답변을 준비하고 있습니다...</span>
           </div>
         )}
       </div>
 
       {/* 3. 비로그인 안내 */}
       {!isLoggedIn && (
-        <div className="mx-4 sm:mx-6 my-2 p-3 bg-stone-100 border border-stone-200 rounded-xl flex items-center justify-between gap-3 text-xs">
+        <div className="relative z-10 mx-4 sm:mx-6 my-2 p-3 bg-stone-100 border border-stone-200 rounded-xl flex items-center justify-between gap-3 text-xs">
           <span className="text-stone-600">
             AI 도서 추천은 로그인 후 이용하실 수 있습니다.
           </span>
@@ -151,7 +155,7 @@ export const AiChatWindow = () => {
 
       {/* 4. 대화 추천 칩 */}
       {isLoggedIn && messages.length <= 2 && (
-        <div className="px-4 sm:px-6 py-2 flex flex-wrap gap-1.5 bg-stone-50/50 border-t border-stone-100">
+        <div className="relative z-10 px-4 sm:px-6 py-2 flex flex-wrap gap-1.5 bg-stone-50/50 border-t border-stone-100">
           {AI_CHAT_SUGGESTION_CHIPS.map((chip, idx) => (
             <button
               key={`chip-${idx}`}
@@ -166,7 +170,7 @@ export const AiChatWindow = () => {
       )}
 
       {/* 5. 입력 폼 */}
-      <div className="p-3.5 sm:p-4 bg-white border-t border-stone-200">
+      <div className="relative z-10 p-3.5 sm:p-4 bg-white border-t border-stone-200">
         <form
           onSubmit={(e) => {
             e.preventDefault();

@@ -6,6 +6,8 @@ import { FreeMode } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { AiSearchBookItem } from "@/features/book/queries/use-ai-search-query";
+import { Highlighter } from "@/shared/components/magicui/highlighter";
+import { ShineBorder } from "@/shared/components/magicui/shine-border";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
@@ -19,11 +21,22 @@ export const AiBookRecommendSlider = ({
   if (!books || books.length === 0) return null;
 
   return (
-    <div className="mt-3 w-full bg-stone-50/60 border border-stone-200/60 rounded-2xl p-4 space-y-3">
-      <div className="flex items-center justify-between border-b border-stone-200/50 pb-2">
-        <span className="text-xs font-semibold tracking-wider text-stone-700 uppercase">
-          AI 엄선 추천 도서 ({books.length}권)
-        </span>
+    <ShineBorder
+      borderRadius={16}
+      borderWidth={1}
+      duration={10}
+      color={["#52525b", "#a1a1aa", "#3f3f46"]}
+      className="mt-3 w-full bg-stone-50/60 border border-stone-200/60 p-4 space-y-3"
+    >
+      <div className="flex items-center justify-between border-b border-stone-200/50 pb-3 mb-1">
+        <h2 className="text-xs sm:text-sm font-semibold tracking-wide text-stone-800 flex items-center">
+          <Highlighter action="underline" color="#FF9800" className="pb-0.5">
+            AI 엄선 추천 도서
+          </Highlighter>
+          <span className="text-xs font-normal text-stone-500 ml-1.5">
+            ({books.length}권)
+          </span>
+        </h2>
         <span className="text-[11px] text-stone-400">
           좌우 스와이프로 확인하세요
         </span>
@@ -90,7 +103,7 @@ export const AiBookRecommendSlider = ({
           </SwiperSlide>
         ))}
       </Swiper>
-    </div>
+    </ShineBorder>
   );
 };
 
