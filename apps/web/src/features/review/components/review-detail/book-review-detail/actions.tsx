@@ -5,9 +5,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { saveReturnUrl } from "@/features/auth/utils/return-url";
 import { useToggleReviewReactionMutation } from "@/features/review/mutations";
 import { useMyReviewReactionQuery } from "@/features/review/queries";
-import { useRouter } from "@/shared/config/i18n/routing";
+import { usePathname, useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";
 
@@ -24,6 +25,7 @@ export function ReviewDetailActions({
   reactionCounts,
 }: ReviewDetailActionsProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const userState = useAuthStore((state) => state.user);
   const [mounted, setMounted] = useState(false);
 
@@ -43,6 +45,7 @@ export function ReviewDetailActions({
 
   const handleReactionClick = (type: ReviewReactionType) => {
     if (!user) {
+      saveReturnUrl(pathname);
       router.push(PATHS.LOGIN);
       return;
     }

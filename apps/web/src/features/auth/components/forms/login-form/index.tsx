@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { emailLogin } from "@/features/auth/apis";
 import { createLoginSchema, LoginSchemaType } from "@/features/auth/schema"; // Using centralized schema
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { consumeReturnUrl } from "@/features/auth/utils/return-url";
 import { Logo } from "@/layouts/common/logo";
 import { Button } from "@/shared/components/shadcn/button";
 import {
@@ -115,7 +116,8 @@ function EmailLoginForm() {
       const data = await emailLogin(values);
       setAuth(data);
       toast.success(t("success"));
-      router.push("/");
+      const returnUrl = consumeReturnUrl();
+      router.push(returnUrl || "/");
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         const message = error.response.data?.message;

@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { saveReturnUrl } from "@/features/auth/utils/return-url";
 import { NotificationPopover } from "@/features/notification/components/notification-popover";
 import {
   DropdownMenu,
@@ -242,7 +243,7 @@ export const DefaultHeader = () => {
                 <UserPopover />
               </>
             ) : (
-              <Link href={PATHS.LOGIN}>
+              <Link href={PATHS.LOGIN} onClick={() => saveReturnUrl(pathname)}>
                 <span className="text-sm font-medium text-stone-400 hover:text-stone-900 transition-colors tracking-wide uppercase">
                   {t("nav.menu_login")}
                 </span>

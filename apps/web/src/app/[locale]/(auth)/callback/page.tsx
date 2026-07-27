@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { consumeReturnUrl } from "@/features/auth/utils/return-url";
 import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
@@ -23,7 +24,8 @@ export default function Page() {
         const user: User = JSON.parse(userString);
         setTokens({ accessToken, refreshToken });
         setUser(user);
-        router.replace(PATHS.HOME);
+        const returnUrl = consumeReturnUrl();
+        router.replace(returnUrl || PATHS.HOME);
       } catch (error) {
         console.error("Failed to parse user data:", error);
         router.replace(PATHS.LOGIN);
