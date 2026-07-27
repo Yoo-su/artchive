@@ -21,15 +21,15 @@ import { TrackActivity } from '@/shared/activity/decorators/track-activity.decor
 
 import { BookViewCountInterceptor } from '../interceptors/book-view-count.interceptor';
 import { BookResolvePipe } from '../pipes/book-resolve.pipe';
+import { AladinBookSearchService } from '../services/aladin-book-search.service';
 import { BookService } from '../services/book.service';
-import { NaverBookSearchService } from '../services/naver-book-search.service';
 
 @ApiTags('책 (Book)')
 @Controller('book')
 export class BookController {
   constructor(
     private readonly bookService: BookService,
-    private readonly naverBookSearchService: NaverBookSearchService,
+    private readonly aladinBookSearchService: AladinBookSearchService,
   ) {}
 
   @Get('popular')
@@ -76,7 +76,7 @@ export class BookController {
   @Get('external/list')
   @ApiOperation({
     summary: '외부 공공 API: 책 검색',
-    description: '네이버 책 검색결과를 정제 없이 그대로 반환합니다.',
+    description: '알라딘 책 검색 결과를 정제 없이 그대로 반환합니다.',
   })
   @ApiQuery({ name: 'query', description: '검색어' })
   @ApiQuery({
@@ -102,7 +102,7 @@ export class BookController {
     @Query('start') start?: number,
     @Query('sort') sort?: string,
   ): Promise<Record<string, unknown>> {
-    return await this.naverBookSearchService.searchRaw(
+    return await this.aladinBookSearchService.searchRaw(
       query,
       display,
       start,
@@ -114,7 +114,7 @@ export class BookController {
   @ApiOperation({
     summary: '외부 공공 API: 책 상세조회',
     description:
-      '네이버 상세검색(book_adv) 결과를 정제 없이 그대로 반환합니다.',
+      '알라딘 상세조회(ItemLookUp) 결과를 정제 없이 그대로 반환합니다.',
   })
   @ApiQuery({ name: 'isbn', description: '책 ISBN' })
   @ApiResponse({
@@ -124,7 +124,7 @@ export class BookController {
   async getExternalBookDetail(
     @Query('isbn') isbn: string,
   ): Promise<Record<string, unknown>> {
-    return await this.naverBookSearchService.searchDetailRaw(isbn);
+    return await this.aladinBookSearchService.searchDetailRaw(isbn);
   }
 
   @Get(':isbn/stats')

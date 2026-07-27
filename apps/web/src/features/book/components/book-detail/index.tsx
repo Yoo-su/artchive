@@ -1,5 +1,4 @@
 "use client";
-
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -108,14 +107,16 @@ export const BookDetail = ({ isbn }: BookDetailProps) => {
         </div>
       </div>
 
-      <Separator className="my-8" />
-
-      {book?.author && (
-        <RelatedBooksSection
-          title={t("book.detail.related_books_title", { author: book.author })}
-          query={book.author}
-          currentIsbn={isbn}
-        />
+      {book.publisher && (
+        <>
+          <Separator className="my-8" />
+          <RelatedBooksSection
+            title={t("book.detail.related_publisher_books_title", { publisher: book.publisher })}
+            query={book.publisher}
+            queryType="Publisher"
+            currentIsbn={isbn}
+          />
+        </>
       )}
 
       <Separator className="my-8" />

@@ -9,8 +9,8 @@ import { BookController } from './controllers/book.controller';
 import { Book } from './entities/book.entity';
 import { BookViewCountInterceptor } from './interceptors/book-view-count.interceptor';
 import { BookResolvePipe } from './pipes/book-resolve.pipe';
+import { AladinBookSearchService } from './services/aladin-book-search.service';
 import { BookService } from './services/book.service';
-import { NaverBookSearchService } from './services/naver-book-search.service';
 
 @Global()
 @Module({
@@ -23,13 +23,13 @@ import { NaverBookSearchService } from './services/naver-book-search.service';
   controllers: [BookController],
   providers: [
     BookService,
-    NaverBookSearchService,
+    AladinBookSearchService,
     BookViewCountInterceptor,
     BookResolvePipe,
   ],
   exports: [
     BookService,
-    NaverBookSearchService,
+    AladinBookSearchService,
     TypeOrmModule,
     BookResolvePipe,
   ], // 다른 모듈에서 Book 엔티티와 서비스 사용 가능

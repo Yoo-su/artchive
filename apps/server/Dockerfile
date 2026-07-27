@@ -63,9 +63,9 @@ COPY --from=builder /app/.npmrc ./.npmrc
 COPY --from=builder /app/apps/server/package.json ./apps/server/package.json
 COPY --from=builder /app/apps/admin/package.json ./apps/admin/package.json
 
-# 공유 패키지의 package.json만 복사 (pnpm workspace 해석에 필요)
-# packages는 웹에서만 사용하므로 dist(빌드 결과물)는 복사하지 않음
+# 공유 패키지의 package.json 및 빌드 산출물(dist) 복사 (서버 의존성인 core 패키지 포함)
 COPY --from=builder /app/packages/core/package.json ./packages/core/package.json
+COPY --from=builder /app/packages/core/dist ./packages/core/dist
 COPY --from=builder /app/packages/api-client/package.json ./packages/api-client/package.json
 COPY --from=builder /app/packages/react-query/package.json ./packages/react-query/package.json
 

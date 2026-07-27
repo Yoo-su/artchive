@@ -1,8 +1,8 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { AladinBookSearchService } from '../services/aladin-book-search.service';
 import { BookService } from '../services/book.service';
-import { NaverBookSearchService } from '../services/naver-book-search.service';
 import { BookController } from './book.controller';
 
 describe('BookController', () => {
@@ -26,7 +26,7 @@ describe('BookController', () => {
           },
         },
         {
-          provide: NaverBookSearchService,
+          provide: AladinBookSearchService,
           useValue: {
             searchRaw: jest.fn(),
             searchDetailRaw: jest.fn(),

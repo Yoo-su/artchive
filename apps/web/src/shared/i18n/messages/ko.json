@@ -347,6 +347,7 @@
         "keywords_label": "키워드"
       },
       "related_books_title": "''{author}'' 저자의 다른 책",
+      "related_publisher_books_title": "''{publisher}'' 출판사의 다른 책",
       "related_reviews": {
         "title": "이 책의 독자 리뷰",
         "more": "더보기 ({count}개)",
