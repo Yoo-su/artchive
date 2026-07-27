@@ -24,6 +24,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@bookjeok/core": "workspace:*",
     "@google/generative-ai": "^0.24.1",
     "@nestjs/axios": "^4.0.1",
     "@nestjs/cache-manager": "^3.0.1",

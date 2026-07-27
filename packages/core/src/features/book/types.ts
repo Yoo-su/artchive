@@ -1,16 +1,61 @@
 import { ApiResponse } from "../../shared/types/api";
 
 export type BookSortParam = "sim" | "date";
+export type AladinQueryType = "Keyword" | "Title" | "Author" | "Publisher";
 
 export interface GetBookListParams {
   query: string;
   display?: number;
   start?: number;
   sort?: BookSortParam;
+  queryType?: AladinQueryType;
 }
 
 /**
- * 책 정보의 공통 필드 (네이버 API, 백엔드 DB 모두에서 사용)
+ * 알라딘 Open API 도서 항목 원본 구조
+ */
+export interface AladinBookItem {
+  title: string;
+  link: string;
+  author: string;
+  pubDate: string;
+  description: string;
+  isbn: string;
+  isbn13: string;
+  itemId: number;
+  priceSales?: number;
+  priceStandard?: number;
+  mallType?: string;
+  stockStatus?: string;
+  mileage?: number;
+  cover: string;
+  categoryId?: number;
+  categoryName?: string;
+  publisher: string;
+  customerReviewRank?: number;
+  bestDuration?: string;
+  bestRank?: number;
+}
+
+/**
+ * 알라딘 Open API 검색/조회 응답 원본 구조
+ */
+export interface AladinSearchResponse {
+  title: string;
+  link: string;
+  logo?: string;
+  pubDate: string;
+  totalResults: number;
+  startIndex: number;
+  itemsPerPage: number;
+  query?: string;
+  searchCategoryId?: number;
+  searchCategoryName?: string;
+  item: AladinBookItem[];
+}
+
+/**
+ * 책 정보의 공통 필드 (백엔드 DB 및 UI 컴포넌트 모두에서 사용)
  * - 슬라이더, 카드 등 UI 컴포넌트에서 필요한 최소 필드
  */
 export interface BaseBookInfo {
@@ -23,7 +68,7 @@ export interface BaseBookInfo {
 }
 
 /**
- * 네이버 책 API 응답 형태
+ * 서비스 표준 도서 정보 형태 (알라딘 API 데이터 매핑)
  */
 export interface BookInfo extends BaseBookInfo {
   link: string;
@@ -70,3 +115,4 @@ export interface BookStats {
   readingUserCount: number;
   wishlistUserCount: number;
 }
+

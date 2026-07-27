@@ -6,7 +6,7 @@ import { ReadingLogService } from '@/features/reading-log/services/reading-log.s
 import { WishlistService } from '@/features/wishlist/services/wishlist.service';
 
 import { Book } from '../entities/book.entity';
-import { NaverBookSearchService } from './naver-book-search.service';
+import { AladinBookSearchService } from './aladin-book-search.service';
 
 @Injectable()
 export class BookService {
@@ -15,7 +15,7 @@ export class BookService {
     private readonly bookRepository: Repository<Book>,
     private readonly readingLogService: ReadingLogService,
     private readonly wishlistService: WishlistService,
-    private readonly naverBookSearchService: NaverBookSearchService,
+    private readonly aladinBookSearchService: AladinBookSearchService,
   ) {}
 
   // 동일 ISBN에 대해 동시에 진행 중인 resolveBook 작업을 관리하는 Map (Request Collapsing)
@@ -25,7 +25,7 @@ export class BookService {
    * 책 정보를 조회하거나 생성합니다.
    * - Read-heavy 워크로드 최적화를 위해 조회를 우선 시도합니다.
    * - 동시성 이슈(Race Condition) 해결을 위해 `INSERT ... ON CONFLICT DO NOTHING` 패턴을 사용합니다.
-   * - DB에 없을 경우 네이버 API를 통해 백엔드에서 자체적으로 정보를 확보합니다.
+   * - DB에 없을 경우 알라딘 API를 통해 백엔드에서 자체적으로 정보를 확보합니다.
    */
   async resolveBook(isbn: string): Promise<Book> {
     // 1. 빠른 조회 (Happy Path) - 이미 존재하면 즉시 반환
@@ -43,18 +43,24 @@ export class BookService {
     // 3. 동시 요청 관리를 위해 Promise를 Map에 저장
     const resolveTask = (async () => {
       try {
-        // 외부 API(네이버)에서 책 정보 조회
-        const books = await this.naverBookSearchService.search(isbn, 1);
-        if (!books || books.length === 0) {
+        // 외부 API(알라딘)에서 책 정보 상세 조회 (ItemLookUp -> ItemSearch fallback)
+        let bookData = await this.aladinBookSearchService.searchDetail(isbn);
+        if (!bookData) {
+          const books = await this.aladinBookSearchService.search(isbn, 1);
+          if (books && books.length > 0) {
+            bookData = books[0];
+          }
+        }
+
+        if (!bookData) {
           throw new NotFoundException(
             '해당 도서를 외부 API에서 찾을 수 없습니다.',
           );
         }
-        const bookData = books[0];
 
         // 안전한 데이터 생성 (Concurrency Safe)
         const newBook = this.bookRepository.create({
-          isbn: bookData.isbn,
+          isbn: bookData.isbn || isbn,
           title: bookData.title,
           author: bookData.author,
           publisher: bookData.publisher,

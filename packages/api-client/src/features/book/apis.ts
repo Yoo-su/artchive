@@ -18,6 +18,7 @@ export const getBookList = async (
       display: displayParam,
       start: startParam,
       sort: sortParam,
+      queryType: params.queryType,
     },
   });
 
@@ -25,7 +26,7 @@ export const getBookList = async (
 };
 
 /**
- * 네이버 책 검색결과를 직접 조회합니다. (Expo 등 외부 연동용)
+ * 알라딘 책 검색결과를 직접 조회합니다. (Expo 등 외부 연동용)
  */
 export const getExternalBookList = async (
   params: GetBookListParams,
@@ -40,6 +41,7 @@ export const getExternalBookList = async (
       display: displayParam,
       start: startParam,
       sort: sortParam,
+      queryType: params.queryType,
     },
   });
 

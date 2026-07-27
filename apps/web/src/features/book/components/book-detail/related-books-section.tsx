@@ -1,5 +1,6 @@
 "use client";
 
+import { AladinQueryType } from "@bookjeok/core";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -12,12 +13,14 @@ interface RelatedBooksSectionProps {
   title: string;
   query: string;
   currentIsbn: string;
+  queryType?: AladinQueryType;
 }
 
 export const RelatedBooksSection = ({
   title,
   query,
   currentIsbn,
+  queryType = "Keyword",
 }: RelatedBooksSectionProps) => {
   const t = useTranslations("book.detail");
   const seed = currentIsbn
@@ -28,6 +31,7 @@ export const RelatedBooksSection = ({
     query,
     display: 20,
     sort: "sim",
+    queryType,
   });
 
   const filteredBooks =

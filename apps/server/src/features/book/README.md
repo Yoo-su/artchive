@@ -103,7 +103,7 @@ sequenceDiagram
     Svc->>Svc: 5. resolveBook(isbn) 호출 (BookResolvePipe가 사전에 처리할 수도 있음)
     Svc->>DB: 6. ISBN으로 Book 조회
     alt 책 정보가 DB에 없는 경우
-        Svc->>Svc: 7. Naver API 검색 및 새로운 Book 레코드 생성
+        Svc->>Svc: 7. Aladin API 검색 및 새로운 Book 레코드 생성
     end
     DB-->>Svc: Book 엔티티 반환
 

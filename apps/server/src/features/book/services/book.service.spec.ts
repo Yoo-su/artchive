@@ -5,15 +5,16 @@ import { ReadingLogService } from '@/features/reading-log/services/reading-log.s
 import { WishlistService } from '@/features/wishlist/services/wishlist.service';
 
 import { Book } from '../entities/book.entity';
+import { AladinBookSearchService } from './aladin-book-search.service';
 import { BookService } from './book.service';
-import { NaverBookSearchService } from './naver-book-search.service';
 
 describe('BookService', () => {
   let service: BookService;
   let module: TestingModule;
 
-  const mockNaverBookSearchService = {
+  const mockAladinBookSearchService = {
     search: jest.fn(),
+    searchDetail: jest.fn(),
   };
 
   const mockReadingLogService = {
@@ -60,8 +61,8 @@ describe('BookService', () => {
           useValue: mockWishlistService,
         },
         {
-          provide: NaverBookSearchService,
-          useValue: mockNaverBookSearchService,
+          provide: AladinBookSearchService,
+          useValue: mockAladinBookSearchService,
         },
       ],
     }).compile();
@@ -88,7 +89,7 @@ describe('BookService', () => {
       const newBook = { isbn: '456', title: 'New' };
 
       const repo = module.get(getRepositoryToken(Book));
-      mockNaverBookSearchService.search.mockResolvedValue([newBook]);
+      mockAladinBookSearchService.searchDetail.mockResolvedValue(newBook);
 
       // Mock query builder for insert
       const mockInsertBuilder = {
@@ -109,7 +110,9 @@ describe('BookService', () => {
       expect(result).toEqual(newBook);
       expect(repo.findOneBy).toHaveBeenCalledTimes(1);
       expect(repo.create).toHaveBeenCalled();
-      expect(mockNaverBookSearchService.search).toHaveBeenCalledWith(isbn, 1);
+      expect(mockAladinBookSearchService.searchDetail).toHaveBeenCalledWith(
+        isbn,
+      );
       expect(mockInsertBuilder.insert).toHaveBeenCalled();
       expect(mockInsertBuilder.orIgnore).toHaveBeenCalled();
       expect(mockInsertBuilder.execute).toHaveBeenCalled();
@@ -120,7 +123,7 @@ describe('BookService', () => {
       const existingBook = { isbn: '789', title: 'Concurrent' };
 
       const repo = module.get(getRepositoryToken(Book));
-      mockNaverBookSearchService.search.mockResolvedValue([existingBook]);
+      mockAladinBookSearchService.searchDetail.mockResolvedValue(existingBook);
 
       // Mock query builder for insert
       const mockInsertBuilder = {

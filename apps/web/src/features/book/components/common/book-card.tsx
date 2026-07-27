@@ -1,4 +1,4 @@
-import { BookInfo } from "@bookjeok/core";
+import { BookInfo, formatAladinCoverImage } from "@bookjeok/core";
 import Image from "next/image";
 
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
@@ -16,7 +16,7 @@ export const BookCard = ({ book }: BookCardProps) => {
       {/* 표지 이미지 */}
       <div className="relative w-full aspect-3/4 overflow-hidden rounded-sm bg-stone-100 shadow-md transition-all duration-300 ease-out group-hover:-translate-y-1 group-hover:shadow-lg">
         <Image
-          src={book.image.replace("?type=m1", "")}
+          src={formatAladinCoverImage(book.image)}
           alt={book.title}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
