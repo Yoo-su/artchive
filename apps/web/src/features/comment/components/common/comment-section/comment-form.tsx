@@ -33,6 +33,7 @@ interface CommentFormProps {
 export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
   const [content, setContent] = useState("");
   const user = useAuthStore((state) => state.user);
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
@@ -73,7 +74,6 @@ export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
   }
 
   const isAuthenticated = !!user;
-  const pathname = usePathname();
 
   if (!isAuthenticated) {
     return (
