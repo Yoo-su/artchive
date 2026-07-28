@@ -19,7 +19,6 @@ import { MODEL_NAME } from '../constants/llm-model';
 import { BookSummaryResponseDto } from '../dtos/book-summary-response.dto';
 import { AiBookSummary } from '../entities/ai-book-summary.entity';
 import { AiRequestLog } from '../entities/ai-request-log.entity';
-import { extractJson } from '../utils/extract-json';
 import { getPromptText } from '../utils/get-prompt-text';
 
 @Injectable()
@@ -128,9 +127,9 @@ export class LlmService {
 
       let parsedSummary: BookSummaryResponseDto;
       try {
-        parsedSummary = extractJson<BookSummaryResponseDto>(text);
+        parsedSummary = JSON.parse(text) as BookSummaryResponseDto;
       } catch (e) {
-        console.warn('JSON 파싱 실패, 원본 텍스트 반환', e);
+        this.logger.warn('JSON 파싱 실패, 원본 텍스트 반환', e);
         parsedSummary = { summary: text };
       }
 

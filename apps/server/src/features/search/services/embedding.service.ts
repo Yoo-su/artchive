@@ -1,9 +1,19 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+interface CacheEntry {
+  vector: number[];
+  expiresAt: number;
+}
+
 @Injectable()
 export class EmbeddingService {
   private readonly apiKey: string;
+
+  /** 쿼리 임베딩 캐시 (TTL 5분, 최대 500개) */
+  private readonly queryCache = new Map<string, CacheEntry>();
+  private readonly CACHE_TTL_MS = 5 * 60 * 1000;
+  private readonly CACHE_MAX_SIZE = 500;
 
   constructor(private readonly configService: ConfigService) {
     this.apiKey = this.configService.get<string>('GEMINI_API_KEY') ?? '';
@@ -22,6 +32,7 @@ export class EmbeddingService {
 
   /**
    * 검색어(Query) 텍스트를 gemini-embedding-001 (RETRIEVAL_QUERY, 768차원)으로 임베딩 후 정규화하여 반환
+   * 동일 쿼리는 5분간 캐싱하여 API 비용/레이턴시 절감
    */
   async generateQueryEmbedding(query: string): Promise<number[]> {
     if (!this.apiKey) {
@@ -30,12 +41,20 @@ export class EmbeddingService {
       );
     }
 
+    // 캐시 히트 확인
+    const cached = this.queryCache.get(query);
+    if (cached && cached.expiresAt > Date.now()) {
+      return cached.vector;
+    }
+
     try {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=${this.apiKey}`;
+      const endpoint =
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent';
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-goog-api-key': this.apiKey,
         },
         body: JSON.stringify({
           model: 'models/gemini-embedding-001',
@@ -71,7 +90,21 @@ export class EmbeddingService {
       }
 
       // 필수: 768차원 정규화 수행
-      return this.normalize(rawVector);
+      const normalized = this.normalize(rawVector);
+
+      // 캐시에 저장 (용량 초과 시 가장 오래된 항목 제거)
+      if (this.queryCache.size >= this.CACHE_MAX_SIZE) {
+        const oldestKey = this.queryCache.keys().next().value;
+        if (oldestKey !== undefined) {
+          this.queryCache.delete(oldestKey);
+        }
+      }
+      this.queryCache.set(query, {
+        vector: normalized,
+        expiresAt: Date.now() + this.CACHE_TTL_MS,
+      });
+
+      return normalized;
     } catch (error) {
       console.error('Embedding Generation Failed:', error);
       throw new InternalServerErrorException(

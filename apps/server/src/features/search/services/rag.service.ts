@@ -4,7 +4,7 @@ import {
   SchemaType,
   Tool,
 } from '@google/generative-ai';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { MODEL_NAME } from '@/features/llm/constants/llm-model';
@@ -31,6 +31,7 @@ const CURATOR_PERSONA = `당신은 독서 플랫폼 '북적'의 지적이고 다
 
 @Injectable()
 export class RagService {
+  private readonly logger = new Logger(RagService.name);
   private genAI: GoogleGenerativeAI;
   private readonly modelName: string;
 
@@ -120,7 +121,13 @@ export class RagService {
       };
     }
 
-    const history = this.buildGeminiHistory(messages);
+    // 토큰 비용 폭발 방지: 최근 20메시지(~10턴)만 히스토리로 전달
+    const MAX_HISTORY_MESSAGES = 20;
+    const trimmedMessages =
+      messages.length > MAX_HISTORY_MESSAGES
+        ? messages.slice(-MAX_HISTORY_MESSAGES)
+        : messages;
+    const history = this.buildGeminiHistory(trimmedMessages);
 
     const systemInstruction = `${CURATOR_PERSONA}
 
@@ -165,7 +172,7 @@ export class RagService {
         usageMetadata: result.response.usageMetadata,
       };
     } catch (error) {
-      console.error('Conversational Turn Processing Error:', error);
+      this.logger.error('Conversational Turn Processing Error:', error);
       return {
         message:
           '대화를 처리하는 도중 일시적인 오류가 발생했습니다. 다시 한번 말씀해 주시겠어요?',
@@ -298,7 +305,7 @@ JSON 형식으로만 응답하세요.`;
         usageMetadata: result.response.usageMetadata,
       };
     } catch (error) {
-      console.error('Unified Synthesis Error:', error);
+      this.logger.error('Unified Synthesis Error:', error);
       return {
         message:
           '요청하신 분위기와 주제에 잘 어울리는 도서 목록입니다. 각 책의 추천 사유를 확인해 보세요.',
