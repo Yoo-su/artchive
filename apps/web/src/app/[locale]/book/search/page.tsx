@@ -24,6 +24,7 @@ export async function generateMetadata({
     description: t("description"),
     locale,
     path: "/book/search",
+    noIndex: true,
   });
 }
 

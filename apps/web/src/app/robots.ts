@@ -37,6 +37,8 @@ export default function robots(): MetadataRoute.Robots {
           "/*/login",
           "/*/signup",
           "/*/callback",
+          "/*/book/search",
+          "/book/search",
         ],
       },
     ],
