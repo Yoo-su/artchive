@@ -16,7 +16,8 @@ import { VectorSearchService } from '@/features/search/services/vector-search.se
 export class SearchService {
   private readonly logger = new Logger(SearchService.name);
   private readonly SIMILARITY_THRESHOLD = 0.35; // 최소 유사도 기준값
-  private readonly CANDIDATE_POOL_SIZE = 25; // pgvector에서 뽑아올 후보 풀 크기 (LLM이 그중에서 선별)
+  private readonly CANDIDATE_POOL_SIZE = 15; // pgvector에서 뽑아올 후보 풀 크기 (25 → 15로 축소)
+  private readonly MAX_CANDIDATES_FOR_LLM = 10; // LLM에 전달할 최대 후보 수
 
   constructor(
     @InjectRepository(AiRequestLog)
@@ -27,7 +28,11 @@ export class SearchService {
   ) {}
 
   /**
-   * Conversational Agent RAG Pipeline (속도 고속 최적화 버전)
+   * Conversational Agent RAG Pipeline (Speculative Embedding 적용)
+   *
+   * 1차 LLM 호출과 임베딩을 병렬로 실행하여 레이턴시를 절감합니다.
+   * LLM이 검색 불필요로 판단하면 투기적 임베딩은 버려지고 (비용 무시할 수준),
+   * LLM이 원문과 동일한 쿼리를 반환하면 투기적 임베딩 결과를 그대로 사용합니다.
    */
   async searchAi(
     dto: AiSearchRequestDto,
@@ -48,9 +53,13 @@ export class SearchService {
     }
 
     try {
-      // 1. Gemini Conversational Turn 처리 (1차 LLM 호출: 대화 판단 & search_books 도구 호출)
-      const turnResult =
-        await this.ragService.processConversationalTurn(messages);
+      const lastUserMessage = messages[messages.length - 1]?.content ?? '';
+
+      // 1. Speculative Embedding: 1차 LLM 호출과 동시에 사용자 원문으로 임베딩 시작
+      const [turnResult, speculativeVector] = await Promise.all([
+        this.ragService.processConversationalTurn(messages),
+        this.embeddingService.generateQueryEmbedding(lastUserMessage),
+      ]);
 
       if (turnResult.usageMetadata) {
         totalPromptTokens += turnResult.usageMetadata.promptTokenCount ?? 0;
@@ -81,10 +90,13 @@ export class SearchService {
         };
       }
 
-      // 2. AI가 search_books 도구를 호출한 경우: 768차원 질문 벡터 생성 및 pgvector 검색
-      const queryVector = await this.embeddingService.generateQueryEmbedding(
-        turnResult.searchQueryRequested,
-      );
+      // 2. LLM이 정제된 searchQuery를 생성했으면 재임베딩, 아니면 투기적 결과 사용
+      const queryVector =
+        turnResult.searchQueryRequested !== lastUserMessage
+          ? await this.embeddingService.generateQueryEmbedding(
+              turnResult.searchQueryRequested,
+            )
+          : speculativeVector;
 
       const rawBooks = await this.vectorSearchService.searchSimilarBooks(
         queryVector,
@@ -119,11 +131,11 @@ export class SearchService {
         };
       }
 
-      // 3. 통합 RAG Reranking & Synthesis (2차 LLM 호출)
+      // 3. 통합 RAG Reranking & Synthesis (2차 LLM 호출) — 상위 MAX_CANDIDATES_FOR_LLM개만 전달
       const finalResult =
         await this.ragService.filterAndSynthesizeRecommendation(
           messages,
-          filteredBooks,
+          filteredBooks.slice(0, this.MAX_CANDIDATES_FOR_LLM),
         );
 
       if (finalResult.usageMetadata) {
