@@ -62,7 +62,7 @@ export const getBookDetail = async (
 };
 
 /**
- * 네이버 책 상세정보를 직접 조회합니다. (Expo 등 외부 연동용)
+ * 알라딘 책 상세정보를 직접 조회합니다. (Expo 등 외부 연동용)
  */
 export const getExternalBookDetail = async (
   isbn: string,

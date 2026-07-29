@@ -1,4 +1,8 @@
-import { cleanHtmlText, formatAladinCoverImage } from '@bookjeok/core';
+import {
+  cleanHtmlText,
+  extractAladinDetailedDescription,
+  formatAladinCoverImage,
+} from '@bookjeok/core';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -12,6 +16,8 @@ export interface AladinBookItem {
   author: string;
   pubDate: string;
   description: string;
+  fullDescription?: string;
+  fullDescription2?: string;
   isbn: string;
   isbn13: string;
   itemId: number;
@@ -81,6 +87,7 @@ export class AladinBookSearchService {
               Output: 'js',
               Version: '20131101',
               Cover: 'Big',
+              OptResult: 'fulldescription',
             },
           },
         ),
@@ -90,9 +97,9 @@ export class AladinBookSearchService {
 
       return items.map((item) => ({
         title: cleanHtmlText(item.title),
-        author: item.author,
+        author: cleanHtmlText(item.author),
         publisher: cleanHtmlText(item.publisher),
-        description: cleanHtmlText(item.description),
+        description: extractAladinDetailedDescription(item),
         image: formatAladinCoverImage(item.cover),
         isbn: item.isbn13 || item.isbn,
         discount: String(item.priceSales || item.priceStandard || ''),
@@ -124,6 +131,7 @@ export class AladinBookSearchService {
               Output: 'js',
               Version: '20131101',
               Cover: 'Big',
+              OptResult: 'fulldescription',
             },
           },
         ),
@@ -135,9 +143,9 @@ export class AladinBookSearchService {
       const item = items[0];
       return {
         title: cleanHtmlText(item.title),
-        author: item.author,
+        author: cleanHtmlText(item.author),
         publisher: cleanHtmlText(item.publisher),
-        description: cleanHtmlText(item.description),
+        description: extractAladinDetailedDescription(item),
         image: formatAladinCoverImage(item.cover),
         isbn: item.isbn13 || item.isbn,
         discount: String(item.priceSales || item.priceStandard || ''),
@@ -179,6 +187,7 @@ export class AladinBookSearchService {
               Output: 'js',
               Version: '20131101',
               Cover: 'Big',
+              OptResult: 'fulldescription',
             },
           },
         ),
@@ -220,6 +229,7 @@ export class AladinBookSearchService {
               Output: 'js',
               Version: '20131101',
               Cover: 'Big',
+              OptResult: 'fulldescription',
             },
           },
         ),

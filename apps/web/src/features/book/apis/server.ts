@@ -5,6 +5,7 @@ import {
   DEFAULT_DISPLAY,
   DEFAULT_SORT,
   DEFAULT_START,
+  extractAladinDetailedDescription,
   formatAladinCoverImage,
   GetBookDetailResponseData,
   GetBookListParams,
@@ -12,6 +13,8 @@ import {
 } from "@bookjeok/core";
 import axios from "axios";
 import { cache } from "react";
+
+import { publicAxios } from "@/shared/libs/axios";
 
 // 서버 인메모리 캐시 (10분 유효)
 interface CacheEntry<T> {
@@ -61,6 +64,7 @@ export const getBookListServer = async (
           Output: "js",
           Version: "20131101",
           Cover: "Big",
+          OptResult: "fulldescription",
         },
       },
     );
@@ -68,9 +72,9 @@ export const getBookListServer = async (
     const aladinData = response.data;
     const items: BookInfo[] = (aladinData.item || []).map((item) => ({
       title: cleanHtmlText(item.title),
-      author: item.author,
+      author: cleanHtmlText(item.author),
       publisher: cleanHtmlText(item.publisher),
-      description: cleanHtmlText(item.description),
+      description: extractAladinDetailedDescription(item),
       image: formatAladinCoverImage(item.cover),
       isbn: item.isbn13 || item.isbn,
       link: item.link,
@@ -133,6 +137,7 @@ export const fetchBookDetail = cache(async (isbn: string) => {
           Output: "js",
           Version: "20131101",
           Cover: "Big",
+          OptResult: "fulldescription",
         },
       },
     );
@@ -140,9 +145,9 @@ export const fetchBookDetail = cache(async (isbn: string) => {
     const aladinData = response.data;
     const items: BookInfo[] = (aladinData.item || []).map((item) => ({
       title: cleanHtmlText(item.title),
-      author: item.author,
+      author: cleanHtmlText(item.author),
       publisher: cleanHtmlText(item.publisher),
-      description: cleanHtmlText(item.description),
+      description: extractAladinDetailedDescription(item),
       image: formatAladinCoverImage(item.cover),
       isbn: item.isbn13 || item.isbn,
       link: item.link,
@@ -160,15 +165,12 @@ export const fetchBookDetail = cache(async (isbn: string) => {
 
     bookDetailCache.set(isbn, { data, timestamp: Date.now() });
 
-    // 백엔드 Postgres DB 도서 저장 및 조회수 동기화 (비동기 실행)
-    const serverUrl =
-      process.env.INTERNAL_SERVER_URL ||
-      process.env.API_URL ||
-      process.env.NEXT_PUBLIC_API_URL ||
-      "http://localhost:8000";
-    axios.post(`${serverUrl}/book/${isbn}/view`).catch((err) => {
-      console.warn("백엔드 DB 도서 동기화 실패 (무시됨):", err?.message);
-    });
+    // 백엔드 Postgres DB 도서 저장 및 조회수 동기화 (비동기 실행 - 실패 시 조용히 무시)
+    publicAxios
+      .post(`/book/${isbn}/view`, {}, { timeout: 4000 })
+      .catch(() => {
+        // 신규 도서(404) 또는 네트워크 타임아웃 시 조용히 무시 (클라이언트 훅 useBookView에서 처리됨)
+      });
 
     return data;
   } catch (error) {
