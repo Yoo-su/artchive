@@ -1,4 +1,10 @@
-import { AladinSearchResponse, BookInfo, cleanHtmlText, formatAladinCoverImage } from "@bookjeok/core";
+import {
+  AladinSearchResponse,
+  BookInfo,
+  cleanHtmlText,
+  extractAladinDetailedDescription,
+  formatAladinCoverImage,
+} from "@bookjeok/core";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -31,6 +37,7 @@ export async function GET(request: NextRequest) {
           Output: "js",
           Version: "20131101",
           Cover: "Big",
+          OptResult: "fulldescription",
         },
       },
     );
@@ -38,9 +45,9 @@ export async function GET(request: NextRequest) {
     const aladinData = response.data;
     const items: BookInfo[] = (aladinData?.item || []).map((item) => ({
       title: cleanHtmlText(item.title),
-      author: item.author,
+      author: cleanHtmlText(item.author),
       publisher: cleanHtmlText(item.publisher),
-      description: cleanHtmlText(item.description),
+      description: extractAladinDetailedDescription(item),
       image: formatAladinCoverImage(item.cover),
       isbn: item.isbn13 || item.isbn,
       link: item.link,

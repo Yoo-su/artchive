@@ -20,6 +20,8 @@ export interface AladinBookItem {
   author: string;
   pubDate: string;
   description: string;
+  fullDescription?: string;
+  fullDescription2?: string;
   isbn: string;
   isbn13: string;
   itemId: number;

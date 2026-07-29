@@ -34,7 +34,7 @@ export const useBookDetailQuery = (isbn: string) => {
 };
 
 /**
- * 네이버 책 목록 직접 조회 (Expo 등)
+ * 알라딘 책 목록 직접 조회 (Expo 등)
  */
 export const useExternalBookListQuery = (
   params: GetBookListParams,
@@ -49,7 +49,7 @@ export const useExternalBookListQuery = (
 };
 
 /**
- * 네이버 책 상세 직접 조회 (Expo 등)
+ * 알라딘 책 상세 직접 조회 (Expo 등)
  */
 export const useExternalBookDetailQuery = (isbn: string) => {
   return useQuery({

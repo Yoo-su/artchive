@@ -27,7 +27,8 @@ export function cleanHtmlText(text?: string | null): string {
   let cleaned = text;
 
   // HTML 태그 제거 및 줄바꿈 처리
-  cleaned = cleaned.replace(/<br\s*\/?>/gi, " ");
+  cleaned = cleaned.replace(/<br\s*\/?>/gi, "\n");
+  cleaned = cleaned.replace(/<\/p>/gi, "\n");
   cleaned = cleaned.replace(/<[^>]*>/g, "");
 
   // 주요 HTML Entities 디코딩
@@ -41,4 +42,18 @@ export function cleanHtmlText(text?: string | null): string {
     .replace(/&nbsp;/gi, " ");
 
   return cleaned.trim();
+}
+
+/**
+ * 알라딘 Open API 항목에서 상세 설명(fullDescription2 / fullDescription / description2 등)을 안전하게 추출 및 정제합니다.
+ * @param item 알라딘 API 도서 항목
+ * @returns 정제된 상세 설명 문자열
+ */
+export function extractAladinDetailedDescription(item: {
+  description?: string;
+  fullDescription?: string;
+  fullDescription2?: string;
+}): string {
+  const desc = item.fullDescription2 || item.fullDescription || item.description || "";
+  return cleanHtmlText(desc);
 }
