@@ -313,6 +313,8 @@
     },
     "detail": {
       "domestic_book": "Domestic Book",
+      "aladin_buy_link": "Buy on Aladin",
+      "aladin_source_credit": "Book DB provided by Aladin Internet Bookstore (www.aladin.co.kr)",
       "metadata": {
         "title": "Book Detail",
         "description": "View book details.",

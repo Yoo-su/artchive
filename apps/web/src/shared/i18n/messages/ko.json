@@ -313,6 +313,8 @@
     },
     "detail": {
       "domestic_book": "국내도서",
+      "aladin_buy_link": "알라딘에서 구매하기",
+      "aladin_source_credit": "도서 DB 제공 : 알라딘 인터넷서점(www.aladin.co.kr)",
       "metadata": {
         "title": "도서 상세",
         "description": "도서 상세 정보를 확인하세요.",
