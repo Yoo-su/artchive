@@ -1,11 +1,11 @@
 "use client";
 
-import { HOME_PUBLISHERS } from "@bookjeok/core";
+import { BookInfo, HOME_PUBLISHERS } from "@bookjeok/core";
 import { BookOpen } from "lucide-react";
-import { animate,motion, useMotionValue, useTransform } from "motion/react";
+import { animate, motion, MotionValue, PanInfo, useMotionValue, useTransform } from "motion/react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { memo,useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 
 import { TextAnimate } from "@/shared/components/magicui/text-animate";
 import { Link } from "@/shared/config/i18n/routing";
@@ -23,9 +23,9 @@ const BookCard = memo(({
   radius,
   onCardClick,
 }: {
-  book: any;
+  book: BookInfo;
   index: number;
-  rotationY: any;
+  rotationY: MotionValue<number>;
   angleStep: number;
   radius: number;
   onCardClick: (e: React.MouseEvent) => void;
@@ -73,8 +73,11 @@ const BookCard = memo(({
         transform: `rotateY(${cardAngle}deg) translateZ(${radius}px)`,
       }}
     >
-      {/* 2. 중간 레이어: 동적 크기, 투명도, z-index 정렬 담당 (블러 없음) */}
+      {/* 2. 중간 레이어: 동적 크기, 투명도, z-index 정렬 및 고정 호버 영역 감지 담당 */}
       <motion.div
+        initial="rest"
+        whileHover="hover"
+        animate="rest"
         style={{
           width: "100%",
           height: "100%",
@@ -85,9 +88,12 @@ const BookCard = memo(({
         }}
         className="w-full h-full"
       >
-        {/* 3. 내부 레이어: 마우스 호버 애니메이션 담당 */}
+        {/* 3. 내부 레이어: 마우스 호버 애니메이션 담당 (부모 고정 레이어를 통해 사선/이동 시 호버 이탈 방지) */}
         <motion.div
-          whileHover={{ scale: 1.06, y: -12 }}
+          variants={{
+            rest: { scale: 1, y: 0 },
+            hover: { scale: 1.06, y: -12 },
+          }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
           className="w-full h-full rounded-2xl"
         >
@@ -136,8 +142,8 @@ const ActiveBookInfo = memo(({
   books,
   angleStep,
 }: {
-  rotationY: any;
-  books: any[];
+  rotationY: MotionValue<number>;
+  books: BookInfo[];
   angleStep: number;
 }) => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -222,7 +228,7 @@ export const MainBookSlider = () => {
   }, []);
 
   // 실린더에 최소 15개 이상 카드를 확보하도록 데이터 복제
-  const displayBooks = useMemo(() => {
+  const displayBooks = useMemo<BookInfo[]>(() => {
     if (!books || books.length === 0) return [];
 
     const minCount = 15;
@@ -352,7 +358,7 @@ export const MainBookSlider = () => {
     stopAutoplay();
   };
 
-  const handlePan = (event: any, info: any) => {
+  const handlePan = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     dragDistanceRef.current += Math.abs(info.delta.x);
     const screenWidth = typeof window !== "undefined" ? window.innerWidth : 1200;
     // 모바일 기기는 터치 드래그 반응성을 높이기 위해 더 높은 민감도 적용
@@ -360,7 +366,7 @@ export const MainBookSlider = () => {
     rotationY.set(rotationY.get() + info.delta.x * sensitivity);
   };
 
-  const handlePanEnd = (event: any, info: any) => {
+  const handlePanEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     setIsDragging(false);
 
     const velocity = info.velocity.x;

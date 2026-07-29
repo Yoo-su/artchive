@@ -41,6 +41,13 @@ export function cleanHtmlText(text?: string | null): string {
     .replace(/&apos;/gi, "'")
     .replace(/&nbsp;/gi, " ");
 
+  // 3개 이상의 연속 줄바꿈(\n\n\n+)을 최대 2개(\n\n)로 제한 및 라인별 여백 정제
+  cleaned = cleaned
+    .split("\n")
+    .map((line) => line.trimEnd())
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n");
+
   return cleaned.trim();
 }
 
