@@ -76,12 +76,7 @@ export function LoungeHomeWidget() {
         spaceBetween={20}
         className="pb-4 pt-4 -mt-4 px-4! overflow-visible!"
       >
-        {data.items.slice(0, 6).map((item, index) => {
-          const book = item.book;
-          const image = book?.image;
-          const title = book?.title || "제목 정보 없음";
-
-          return (
+          {data.items.slice(0, 6).map((item, index) => (
             <SwiperSlide
               key={item.isbn}
               className="w-40! sm:w-44! select-none group"
@@ -94,17 +89,17 @@ export function LoungeHomeWidget() {
                 <Link href={PATHS.LOUNGE}>
                   {/* 도서 표지 */}
                   <div className="relative aspect-2/3 w-full overflow-hidden bg-stone-50 mb-3.5 shadow-sm transition-shadow duration-300 group-hover:shadow-lg">
-                    {image ? (
+                    {item.book.image ? (
                       <Image
-                        src={image}
-                        alt={title}
+                        src={item.book.image}
+                        alt={item.book.title}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center p-3">
                         <span className="text-xs text-stone-400 text-center font-medium">
-                          {title}
+                          {item.book.title}
                         </span>
                       </div>
                     )}
@@ -117,7 +112,7 @@ export function LoungeHomeWidget() {
 
                   {/* 도서 정보 */}
                   <h3 className="text-sm font-semibold text-stone-900 line-clamp-2 leading-snug mb-1.5 group-hover:text-stone-600 transition-colors">
-                    {title}
+                    {item.book.title}
                   </h3>
 
                   {/* Avatar Circles */}
@@ -136,9 +131,8 @@ export function LoungeHomeWidget() {
                 </Link>
               </motion.div>
             </SwiperSlide>
-          );
-        })}
-      </Swiper>
+          ))}
+        </Swiper>
     </section>
   );
 }

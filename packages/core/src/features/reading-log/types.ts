@@ -45,7 +45,7 @@ export interface LoungeReader {
 /** 라운지 피드의 개별 카드 (책 단위 그룹) */
 export interface LoungeBookCard {
   isbn: string;
-  book: BookInfo | null;
+  book: BookInfo;
   latestDate: string; // 이 책의 가장 최근 독서 날짜
   readers: LoungeReader[]; // 최근 독자 목록 (최대 5명)
   totalReaderCount: number; // 전체 독자 수
@@ -60,7 +60,7 @@ export interface LoungeFeedResponse {
 /** 라운지 인기 도서 카드 */
 export interface LoungePopularBook {
   isbn: string;
-  book: BookInfo | null;
+  book: BookInfo;
   readerCount: number;
   recentReaders: Pick<LoungeReader, "nickname" | "handle" | "profileImageUrl">[];
 }
