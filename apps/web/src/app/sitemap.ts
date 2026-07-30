@@ -1,12 +1,15 @@
+import "@/shared/libs/axios";
+
 import { MetadataRoute } from "next";
 
 import { getBookSales } from "@/features/book-sale/apis";
 import { getReviews } from "@/features/review/apis";
+
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Preview 환경(test.bookjeok.com 등)에서는 sitemap 비활성화
-  if (process.env.VERCEL_ENV !== "production") {
+  if (process.env.VERCEL_ENV === "preview") {
     return [];
   }
 
@@ -47,7 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 2. 동적 라우트: 리뷰
   try {
     const { reviews } = await getReviews({ page: 1, limit: 50 });
-    reviews.forEach((review) => {
+    reviews?.forEach((review) => {
       if (review.book?.isbn) {
         bookIsbns.add(review.book.isbn);
       }
@@ -71,7 +74,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 3. 동적 라우트: 판매글
   try {
     const { sales } = await getBookSales({ page: 1, limit: 50 });
-    sales.forEach((sale) => {
+    sales?.forEach((sale) => {
       if (sale.book?.isbn) {
         bookIsbns.add(sale.book.isbn);
       }

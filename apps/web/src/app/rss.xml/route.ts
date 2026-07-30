@@ -1,3 +1,5 @@
+import "@/shared/libs/axios";
+
 import { Review, UsedBookSale } from "@bookjeok/core";
 
 import { getRecentBookSales } from "@/features/book-sale/apis";
