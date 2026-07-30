@@ -12,6 +12,10 @@ interface LoungePopularBannerCardProps {
 
 export function LoungePopularBannerCard({ item, index = 0 }: LoungePopularBannerCardProps) {
   const t = useTranslations("lounge.popular");
+  const book = item.book;
+  const image = book?.image;
+  const title = book?.title || "제목 정보 없음";
+  const author = book?.author || "";
 
   return (
     <motion.div
@@ -22,17 +26,17 @@ export function LoungePopularBannerCard({ item, index = 0 }: LoungePopularBanner
     >
       {/* 도서 표지 */}
       <div className="relative aspect-2/3 w-full rounded-xl overflow-hidden bg-stone-100 mb-3.5 shadow-sm transition-shadow duration-300 group-hover:shadow-lg">
-        {item.book.image ? (
+        {image ? (
           <Image
-            src={item.book.image}
-            alt={item.book.title}
+            src={image}
+            alt={title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center p-3">
             <span className="text-xs text-stone-400 text-center font-medium">
-              {item.book.title}
+              {title}
             </span>
           </div>
         )}
@@ -45,10 +49,10 @@ export function LoungePopularBannerCard({ item, index = 0 }: LoungePopularBanner
 
       {/* 도서 정보 */}
       <h3 className="text-sm font-semibold text-stone-900 line-clamp-2 leading-snug mb-1.5 group-hover:text-stone-600 transition-colors">
-        {item.book.title}
+        {title}
       </h3>
       <p className="text-xs text-stone-400 font-light mb-3 line-clamp-1">
-        {item.book.author}
+        {author}
       </p>
 
       {/* Avatar Circles */}

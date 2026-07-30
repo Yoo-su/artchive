@@ -17,6 +17,11 @@ export function LoungeFeedCard({ item, onCardClick }: LoungeFeedCardProps) {
   const t = useTranslations("lounge.feed");
   const locale = useLocale();
 
+  const book = item.book;
+  const image = book?.image;
+  const title = book?.title || "제목 정보 없음";
+  const author = book?.author || "";
+
   return (
     <div
       onClick={() => onCardClick(item)}
@@ -29,17 +34,17 @@ export function LoungeFeedCard({ item, onCardClick }: LoungeFeedCardProps) {
     >
       {/* 도서 표지 */}
       <div className="relative shrink-0 w-20 sm:w-24 aspect-2/3 rounded-xl overflow-hidden bg-stone-50">
-        {item.book.image ? (
+        {image ? (
           <Image
-            src={item.book.image}
-            alt={item.book.title}
+            src={image}
+            alt={title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center p-2">
             <span className="text-[10px] text-stone-300 font-medium text-center">
-              {item.book.title}
+              {title}
             </span>
           </div>
         )}
@@ -50,7 +55,7 @@ export function LoungeFeedCard({ item, onCardClick }: LoungeFeedCardProps) {
         {/* 제목 + 날짜 */}
         <div className="flex items-start justify-between gap-3 mb-1">
           <h3 className="text-base sm:text-lg font-semibold text-stone-900 leading-snug line-clamp-1">
-            {item.book.title}
+            {title}
           </h3>
           <span className="text-[11px] text-stone-400 font-light shrink-0 mt-0.5">
             {formatRelativeTime(item.latestDate, locale)}
@@ -58,9 +63,13 @@ export function LoungeFeedCard({ item, onCardClick }: LoungeFeedCardProps) {
         </div>
 
         {/* 저자 */}
-        <p className="text-sm text-stone-400 font-light mb-4 line-clamp-1">
-          {item.book.author}
-        </p>
+        {author ? (
+          <p className="text-sm text-stone-400 font-light mb-4 line-clamp-1">
+            {author}
+          </p>
+        ) : (
+          <div className="mb-4" />
+        )}
 
         {/* Avatar Circles + 독자 수 */}
         <div className="flex items-center gap-2 mt-auto">

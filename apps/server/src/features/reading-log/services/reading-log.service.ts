@@ -145,7 +145,14 @@ export class ReadingLogService {
 
       return {
         isbn: group.isbn,
-        book: group.book,
+        book: group.book || {
+          isbn: group.isbn,
+          title: '제목 정보 없음',
+          author: '',
+          publisher: '',
+          image: null,
+          description: '',
+        },
         latestDate: group.latestDate,
         readers: allReaders.slice(0, LOUNGE_MAX_READERS),
         totalReaderCount: allReaders.length,
@@ -253,7 +260,14 @@ export class ReadingLogService {
       const entry = bookMap.get(pb.isbn);
       return {
         isbn: entry.isbn,
-        book: entry.book,
+        book: entry.book || {
+          isbn: entry.isbn,
+          title: '제목 정보 없음',
+          author: '',
+          publisher: '',
+          image: null,
+          description: '',
+        },
         readerCount: entry.readerCount,
         recentReaders: entry.recentReaders,
       };
