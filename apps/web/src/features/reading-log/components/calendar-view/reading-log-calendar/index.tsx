@@ -142,48 +142,50 @@ export function ReadingLogCalendar({
       ) : isLoading ? (
         <ReadingLogCalendarSkeleton />
       ) : (
-        <div
-          className={cn(
-            "bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl shadow-stone-200/50 border border-white/60 overflow-hidden ring-1 transition-all duration-500",
-            theme.ring, // ring-color
-          )}
-        >
-          {/* 요일 헤더 - 그라데이션 배경 (Dynamic Theme) */}
+        <div className="p-1 pb-4">
           <div
             className={cn(
-              "grid grid-cols-7 border-b border-stone-100/50 transition-all duration-500 bg-linear-to-r",
-              theme.gradient,
+              "bg-white/95 backdrop-blur-xl rounded-3xl shadow-xl shadow-stone-300/40 border border-stone-200/80 overflow-hidden ring-1 transition-all duration-500",
+              theme.ring, // ring-color
             )}
           >
-            {weekDayKeys.map((dayKey, i) => (
-              <div
-                key={dayKey}
-                className={cn(
-                  "py-4 text-center text-sm font-semibold tracking-wide transition-colors duration-500",
-                  i === 0
-                    ? theme.primary // 일요일 (Primary Color)
-                    : i === 6
-                      ? theme.activeText // 토요일 (Active/Dark Color)
-                      : theme.accent, // 평일 (Accent/Gray Color)
-                )}
-              >
-                {t(`weekdays.${dayKey}`)}
-              </div>
-            ))}
-          </div>
+            {/* 요일 헤더 - 그라데이션 배경 (Dynamic Theme) */}
+            <div
+              className={cn(
+                "grid grid-cols-7 border-b border-stone-100/50 transition-all duration-500 bg-linear-to-r",
+                theme.gradient,
+              )}
+            >
+              {weekDayKeys.map((dayKey, i) => (
+                <div
+                  key={dayKey}
+                  className={cn(
+                    "py-4 text-center text-sm font-semibold tracking-wide transition-colors duration-500",
+                    i === 0
+                      ? theme.primary // 일요일 (Primary Color)
+                      : i === 6
+                        ? theme.activeText // 토요일 (Active/Dark Color)
+                        : theme.accent, // 평일 (Accent/Gray Color)
+                  )}
+                >
+                  {t(`weekdays.${dayKey}`)}
+                </div>
+              ))}
+            </div>
 
-          {/* 캘린더 그리드 */}
-          <div className="grid grid-cols-7 auto-rows-[100px] sm:auto-rows-[160px] divide-x divide-y divide-gray-100">
-            {calendarDays.map((day) => (
-              <ReadingLogDayCell
-                key={day.toISOString()}
-                date={day}
-                logs={getLogsForDate(day)}
-                isCurrentMonth={isSameMonth(day, monthStart)}
-                onClick={() => handleDayClick(day)}
-                theme={theme}
-              />
-            ))}
+            {/* 캘린더 그리드 */}
+            <div className="grid grid-cols-7 auto-rows-[100px] sm:auto-rows-[160px] divide-x divide-y divide-gray-100">
+              {calendarDays.map((day) => (
+                <ReadingLogDayCell
+                  key={day.toISOString()}
+                  date={day}
+                  logs={getLogsForDate(day)}
+                  isCurrentMonth={isSameMonth(day, monthStart)}
+                  onClick={() => handleDayClick(day)}
+                  theme={theme}
+                />
+              ))}
+            </div>
           </div>
         </div>
       )}
