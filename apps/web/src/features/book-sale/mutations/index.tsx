@@ -1,5 +1,16 @@
-import { bookSaleKeys, CreateBookSaleParams, UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core";
-import { useCreateBookSaleMutation as useSharedCreateBookSaleMutation, useDeleteBookSaleMutation as useSharedDeleteBookSaleMutation, useUpdateBookSaleMutation as useSharedUpdateBookSaleMutation, useUpdateBookSaleStatusMutation as useSharedUpdateBookSaleStatusMutation } from "@bookjeok/react-query";
+import { privateApiClient } from "@bookjeok/api-client";
+import {
+  bookSaleKeys,
+  CreateBookSaleParams,
+  UpdateBookSaleParams,
+  UsedBookSale,
+} from "@bookjeok/core";
+import {
+  useCreateBookSaleMutation as useSharedCreateBookSaleMutation,
+  useDeleteBookSaleMutation as useSharedDeleteBookSaleMutation,
+  useUpdateBookSaleMutation as useSharedUpdateBookSaleMutation,
+  useUpdateBookSaleStatusMutation as useSharedUpdateBookSaleStatusMutation,
+} from "@bookjeok/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -20,12 +31,26 @@ interface CreateSaleVariables {
 }
 
 /**
+ * 이미지 업로드 전 만료된 AccessToken을 미리 Refresh하는 헬퍼 함수
+ */
+const ensureFreshAuthToken = async () => {
+  // privateApiClient 인터셉터를 통해 토큰 만료 시 자동 Refresh 유도
+  await privateApiClient.get("/user/profile");
+  const authState = useAuthStore.getState();
+  if (!authState.user || !authState.accessToken) {
+    throw new Error("로그인이 필요한 서비스입니다.");
+  }
+  return {
+    user: authState.user,
+    accessToken: authState.accessToken,
+  };
+};
+
+/**
  * 중고책 판매글을 생성하는 뮤테이션 훅입니다.
  */
 export const useCreateBookSaleMutation = () => {
   const router = useRouter();
-  const authUser = useAuthStore((state) => state.user);
-  const accessToken = useAuthStore((state) => state.accessToken);
 
   const sharedMutation = useSharedCreateBookSaleMutation({
     onSuccess: () => {
@@ -39,27 +64,43 @@ export const useCreateBookSaleMutation = () => {
 
   return {
     ...sharedMutation,
-    mutate: async ({ imageFiles, payload, idempotencyKey }: CreateSaleVariables) => {
-      if (!authUser) throw new Error("인증 정보가 없습니다.");
+    mutate: async ({
+      imageFiles,
+      payload,
+      idempotencyKey,
+    }: CreateSaleVariables) => {
+      const { user, accessToken } = await ensureFreshAuthToken();
+
       const imageUrls = await uploadSaleImages(
         imageFiles,
-        { provider: authUser.provider, id: authUser.id },
-        accessToken!,
+        { provider: user.provider, id: user.id },
+        accessToken,
       );
 
       const finalPayload = { ...payload, imageUrls };
-      return sharedMutation.mutate({ ...finalPayload, idempotencyKey } as CreateBookSaleParams & { idempotencyKey?: string });
+      return sharedMutation.mutate({
+        ...finalPayload,
+        idempotencyKey,
+      } as CreateBookSaleParams & { idempotencyKey?: string });
     },
-    mutateAsync: async ({ imageFiles, payload, idempotencyKey }: CreateSaleVariables) => {
-      if (!authUser) throw new Error("인증 정보가 없습니다.");
+    mutateAsync: async ({
+      imageFiles,
+      payload,
+      idempotencyKey,
+    }: CreateSaleVariables) => {
+      const { user, accessToken } = await ensureFreshAuthToken();
+
       const imageUrls = await uploadSaleImages(
         imageFiles,
-        { provider: authUser.provider, id: authUser.id },
-        accessToken!,
+        { provider: user.provider, id: user.id },
+        accessToken,
       );
 
       const finalPayload = { ...payload, imageUrls };
-      return sharedMutation.mutateAsync({ ...finalPayload, idempotencyKey } as CreateBookSaleParams & { idempotencyKey?: string });
+      return sharedMutation.mutateAsync({
+        ...finalPayload,
+        idempotencyKey,
+      } as CreateBookSaleParams & { idempotencyKey?: string });
     },
   };
 };
@@ -84,8 +125,6 @@ interface UpdateSaleVariables {
 export const useUpdateBookSaleMutation = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const authUser = useAuthStore((state) => state.user);
-  const accessToken = useAuthStore((state) => state.accessToken);
 
   const sharedMutation = useSharedUpdateBookSaleMutation({
     onSuccess: (data: UsedBookSale) => {
@@ -111,8 +150,8 @@ export const useUpdateBookSaleMutation = () => {
       newImageFiles = [],
       deletedImageUrls = [],
     }: UpdateSaleVariables) => {
-      if (!authUser || !accessToken) throw new Error("인증 정보가 없습니다.");
-      
+      const { user, accessToken } = await ensureFreshAuthToken();
+
       if (deletedImageUrls.length > 0) {
         await deleteImages(deletedImageUrls);
       }
@@ -122,11 +161,11 @@ export const useUpdateBookSaleMutation = () => {
         const compressFiles = await compressImages(newImageFiles);
         const formData = new FormData();
         compressFiles.forEach((file) => formData.append("images", file));
-        
+
         const uploadResult = await uploadImages(
           formData,
-          authUser.provider,
-          authUser.id,
+          user.provider,
+          user.id,
           accessToken,
         );
         if (!uploadResult.success || !uploadResult.blobs) {
@@ -146,7 +185,7 @@ export const useUpdateBookSaleMutation = () => {
       newImageFiles = [],
       deletedImageUrls = [],
     }: UpdateSaleVariables) => {
-      if (!authUser || !accessToken) throw new Error("인증 정보가 없습니다.");
+      const { user, accessToken } = await ensureFreshAuthToken();
 
       if (deletedImageUrls.length > 0) {
         await deleteImages(deletedImageUrls);
@@ -157,11 +196,11 @@ export const useUpdateBookSaleMutation = () => {
         const compressFiles = await compressImages(newImageFiles);
         const formData = new FormData();
         compressFiles.forEach((file) => formData.append("images", file));
-        
+
         const uploadResult = await uploadImages(
           formData,
-          authUser.provider,
-          authUser.id,
+          user.provider,
+          user.id,
           accessToken,
         );
         if (!uploadResult.success || !uploadResult.blobs) {
@@ -197,24 +236,42 @@ export const useDeleteBookSaleMutation = () => {
 
   return {
     ...sharedMutation,
-    mutate: async ({ saleId, imageUrls }: { saleId: number; imageUrls: string[] }) => {
+    mutate: async ({
+      saleId,
+      imageUrls,
+    }: {
+      saleId: number;
+      imageUrls: string[];
+    }) => {
       if (imageUrls.length > 0) {
         await deleteImages(imageUrls);
       }
       return sharedMutation.mutate(saleId, {
         onSuccess: () => {
-          if (typeof window !== "undefined" && window.location.pathname.includes(`/book/sales/${saleId}`)) {
+          if (
+            typeof window !== "undefined" &&
+            window.location.pathname.includes(`/book/sales/${saleId}`)
+          ) {
             router.push(PATHS.MY_PAGE_SALES);
           }
-        }
+        },
       });
     },
-    mutateAsync: async ({ saleId, imageUrls }: { saleId: number; imageUrls: string[] }) => {
+    mutateAsync: async ({
+      saleId,
+      imageUrls,
+    }: {
+      saleId: number;
+      imageUrls: string[];
+    }) => {
       if (imageUrls.length > 0) {
         await deleteImages(imageUrls);
       }
       return sharedMutation.mutateAsync(saleId).then((res: void) => {
-        if (typeof window !== "undefined" && window.location.pathname.includes(`/book/sales/${saleId}`)) {
+        if (
+          typeof window !== "undefined" &&
+          window.location.pathname.includes(`/book/sales/${saleId}`)
+        ) {
           router.push(PATHS.MY_PAGE_SALES);
         }
         return res;
