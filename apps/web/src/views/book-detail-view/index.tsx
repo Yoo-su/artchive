@@ -1,4 +1,7 @@
+"use client";
+
 import { CommentTargetType } from "@bookjeok/core";
+import { useEffect, useState } from "react";
 
 import { BookDetail } from "@/features/book/components/book-detail";
 import { RelatedSales } from "@/features/book-sale/components/sale-detail/related-sales";
@@ -7,14 +10,28 @@ import { RelatedReviews } from "@/features/review/components/review-detail/relat
 import { Bubble } from "@/shared/components/canvasui/bubble";
 
 export const BookDetailView = ({ isbn }: { isbn: string }) => {
-  return (
-    <Bubble className="w-full">
-      <div className="flex flex-col w-full py-8">
-        <BookDetail isbn={isbn} />
-        <RelatedSales isbn={isbn} />
-        <CommentSection targetType={CommentTargetType.BOOK} targetId={isbn} />
-        <RelatedReviews isbn={isbn} />
-      </div>
-    </Bubble>
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(pointer: fine)");
+    setIsDesktop(media.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    media.addEventListener("change", handler);
+    return () => media.removeEventListener("change", handler);
+  }, []);
+
+  const content = (
+    <div className="flex flex-col w-full py-8">
+      <BookDetail isbn={isbn} />
+      <RelatedSales isbn={isbn} />
+      <CommentSection targetType={CommentTargetType.BOOK} targetId={isbn} />
+      <RelatedReviews isbn={isbn} />
+    </div>
   );
+
+  if (!isDesktop) {
+    return <div className="w-full">{content}</div>;
+  }
+
+  return <Bubble className="w-full">{content}</Bubble>;
 };
