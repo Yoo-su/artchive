@@ -31,8 +31,8 @@ import {
  * @param month - 조회할 월 (1-12)
  * @returns 해당 월의 독서 기록 배열
  */
-export const getReadingLogs = async (year: number, month: number) => {
-  return sharedGetReadingLogs({ year, month });
+export const getReadingLogs = async (params?: { year?: number; month?: number; limit?: number }) => {
+  return sharedGetReadingLogs(params);
 };
 
 /**

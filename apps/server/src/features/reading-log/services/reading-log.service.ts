@@ -461,17 +461,19 @@ export class ReadingLogService {
   }
 
   /**
-   * 특정 월의 독서 기록을 조회합니다.
+   * 독서 기록 목록을 조회합니다.
    * @param userId 유저 ID
-   * @param year 연도
-   * @param month 월 (1-12)
-   * @returns 해당 월의 독서 기록 목록
+   * @param params year, month, limit 옵션
    */
-  async findAllByMonth(userId: number, year: number, month?: number) {
-    if (!month) {
-      const start = `${year}-01-01`;
-      const end = `${year}-12-31`;
+  async findAll(
+    userId: number,
+    params: { year?: number; month?: number; limit?: number },
+  ) {
+    const { year, month, limit } = params;
 
+    // 1. 연도 및 월 지정 시 월별 기록 조회
+    if (year && month) {
+      const { start, end } = this.getDateRangeOfMonth(year, month);
       return await this.readingLogRepository
         .createQueryBuilder('log')
         .leftJoinAndSelect('log.book', 'book')
@@ -481,14 +483,27 @@ export class ReadingLogService {
         .getMany();
     }
 
-    const { start, end } = this.getDateRangeOfMonth(year, month);
+    // 2. 연도만 지정 시 연간 기록 조회
+    if (year) {
+      const start = `${year}-01-01`;
+      const end = `${year}-12-31`;
+      return await this.readingLogRepository
+        .createQueryBuilder('log')
+        .leftJoinAndSelect('log.book', 'book')
+        .where('log.userId = :userId', { userId })
+        .andWhere('log.date >= :start AND log.date <= :end', { start, end })
+        .orderBy('log.date', 'ASC')
+        .getMany();
+    }
 
+    // 3. 연/월 미지정 시 최근 기록 조회 (기본 50개)
     return await this.readingLogRepository
       .createQueryBuilder('log')
       .leftJoinAndSelect('log.book', 'book')
       .where('log.userId = :userId', { userId })
-      .andWhere('log.date >= :start AND log.date <= :end', { start, end })
-      .orderBy('log.date', 'ASC')
+      .orderBy('log.date', 'DESC')
+      .addOrderBy('log.createdAt', 'DESC')
+      .take(limit || 50)
       .getMany();
   }
 

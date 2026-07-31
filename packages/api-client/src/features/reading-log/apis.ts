@@ -6,7 +6,7 @@ import { privateApiClient, publicApiClient } from "../../client";
  * 독서 기록 목록을 조회합니다.
  */
 export const getReadingLogs = async (
-  params: { year?: number; month?: number },
+  params?: { year?: number; month?: number; limit?: number },
 ): Promise<ReadingLog[]> => {
   const { data } = await privateApiClient.get<ReadingLog[]>(API_PATHS.readingLog.base, {
     params,

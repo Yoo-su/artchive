@@ -44,7 +44,7 @@ export default async function Page({ params, searchParams }: Props) {
   const { year } = await searchParams;
   setRequestLocale(locale);
 
-  const displayYear = year ? parseInt(year) : new Date().getFullYear();
+  const displayYear = year ? parseInt(year) : undefined;
 
   return (
     <ShareDeckView

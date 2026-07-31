@@ -28,8 +28,8 @@ export const useReadingLogPrefetch = (year: number, month: number, enabled = tru
       const targetMonth = date.getMonth() + 1;
 
       queryClient.prefetchQuery({
-        queryKey: readingLogKeys.list(targetYear, targetMonth).queryKey,
-        queryFn: () => getReadingLogs(targetYear, targetMonth),
+        queryKey: readingLogKeys.list({ year: targetYear, month: targetMonth }).queryKey,
+        queryFn: () => getReadingLogs({ year: targetYear, month: targetMonth }),
         staleTime: CACHE_TIME.FIVE_MINUTES,
       });
 

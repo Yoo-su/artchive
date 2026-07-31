@@ -13,7 +13,7 @@ import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 interface ShareDeckViewProps {
   handle: string;
-  year: number;
+  year?: number;
 }
 
 export function ShareDeckView({ handle, year }: ShareDeckViewProps) {
@@ -58,12 +58,13 @@ export function ShareDeckView({ handle, year }: ShareDeckViewProps) {
     );
   }
 
-  // 선택된 연도에 해당하는 독서 기록만 필터링
-  const yearlyLogs = profile.readingLogs
-    ? profile.readingLogs.filter((log) => {
-        const logYear = new Date(log.date).getFullYear();
-        return logYear === year;
-      })
+  // 연도가 지정되었으면 해당 연도의 독서 기록만 필터링, 없으면 전체 최신 기록 50개
+  const displayLogs = profile.readingLogs
+    ? (year
+        ? profile.readingLogs.filter((log) => new Date(log.date).getFullYear() === year)
+        : profile.readingLogs)
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 50)
     : [];
 
   return (
@@ -90,18 +91,20 @@ export function ShareDeckView({ handle, year }: ShareDeckViewProps) {
           )}
         </div>
         <h1 className="text-xl font-bold font-serif tracking-tight flex items-center gap-1.5 justify-center break-keep">
-          {t("deck.share_title", { name: profile.nickname, year })}
+          {year
+            ? t("deck.share_title", { name: profile.nickname, year })
+            : t("deck.share_title_all", { name: profile.nickname })}
         </h1>
         <p className="text-xs text-stone-400 mt-1 max-w-xs font-light break-keep">
-          {t("deck.share_subtitle", { count: yearlyLogs.length })}
+          {t("deck.share_subtitle", { count: displayLogs.length })}
         </p>
       </header>
 
       {/* 메인 독서 카드 덱 뷰 영역 */}
       <main className="flex-1 w-full max-w-md mx-auto flex items-center justify-center relative z-10">
         <ReadingLogCardDeck
-          logs={yearlyLogs}
-          currentDate={new Date(year, 0, 1)}
+          logs={displayLogs}
+          currentDate={year ? new Date(year, 0, 1) : new Date()}
           isSharedPage={true}
         />
       </main>

@@ -59,30 +59,42 @@ export class ReadingLogController {
 
   @Get()
   @ApiOperation({
-    summary: '월별 독서 기록 조회',
-    description: '특정 연도와 월의 독서 기록 목록을 조회합니다.',
+    summary: '독서 기록 조회',
+    description: '연도/월별 기록 또는 최근 독서 기록 목록을 조회합니다.',
   })
   @ApiResponse({
     status: 200,
-    description: '해당 월의 독서 기록 목록을 반환합니다.',
+    description: '독서 기록 목록을 반환합니다.',
   })
-  @ApiQuery({ name: 'year', description: '조회할 연도 (YYYY)', example: 2023 })
+  @ApiQuery({
+    name: 'year',
+    required: false,
+    description: '조회할 연도 (YYYY)',
+    example: 2026,
+  })
   @ApiQuery({
     name: 'month',
     required: false,
     description: '조회할 월 (1-12, 선택)',
-    example: 10,
+    example: 7,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: '최근 기록 조회 시 개수 제한 (기본 50)',
+    example: 50,
   })
   findAll(
     @Request() req,
-    @Query('year') year: number,
+    @Query('year') year?: number,
     @Query('month') month?: number,
+    @Query('limit') limit?: number,
   ) {
-    return this.readingLogService.findAllByMonth(
-      req.user.id,
-      year,
-      month ? Number(month) : undefined,
-    );
+    return this.readingLogService.findAll(req.user.id, {
+      year: year ? Number(year) : undefined,
+      month: month ? Number(month) : undefined,
+      limit: limit ? Number(limit) : undefined,
+    });
   }
 
   @Get('stats')
