@@ -2,15 +2,24 @@
 
 import { useTranslations } from "next-intl";
 
+import { useConfirm } from "@/features/confirm";
 import { useWithdrawMutation } from "@/features/user/mutations";
 import { Button } from "@/shared/components/shadcn/button";
 
 export const WithdrawalModal = () => {
   const t = useTranslations("my_page.danger_zone");
+  const confirm = useConfirm();
   const { mutate: withdraw, isPending } = useWithdrawMutation();
 
-  const handleWithdraw = () => {
-    if (window.confirm(t("confirm"))) {
+  const handleWithdraw = async () => {
+    const isConfirmed = await confirm({
+      title: t("withdraw_button"),
+      description: t("confirm"),
+      confirmText: t("withdraw_button"),
+      variant: "destructive",
+    });
+
+    if (isConfirmed) {
       withdraw();
     }
   };

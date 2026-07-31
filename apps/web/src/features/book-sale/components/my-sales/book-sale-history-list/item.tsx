@@ -3,6 +3,7 @@ import { Edit, MoreVertical, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 
+import { useConfirm } from "@/features/confirm";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
 import {
@@ -48,10 +49,19 @@ export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
     updateSaleStatus({ saleId: sale.id, status: newStatus });
   };
 
-  const handleDelete = (event: React.MouseEvent) => {
+  const confirm = useConfirm();
+
+  const handleDelete = async (event: React.MouseEvent) => {
     event.stopPropagation();
     event.preventDefault();
-    if (window.confirm(tActions("delete_desc"))) {
+    const isConfirmed = await confirm({
+      title: tActions("delete"),
+      description: tActions("delete_desc"),
+      confirmText: tActions("delete"),
+      variant: "destructive",
+    });
+
+    if (isConfirmed) {
       deleteSale({ saleId: sale.id, imageUrls: sale.imageUrls });
     }
   };

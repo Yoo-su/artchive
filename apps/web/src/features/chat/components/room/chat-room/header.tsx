@@ -6,11 +6,8 @@ import Image from "next/image";
 import { useCallback } from "react";
 import { toast } from "sonner";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/shared/components/shadcn/avatar";
+import { useConfirm } from "@/features/confirm";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/shadcn/avatar";
 import { Button } from "@/shared/components/shadcn/button";
 import { useSocketContext } from "@/shared/providers/socket-provider";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
@@ -40,14 +37,21 @@ export const ChatRoomHeader = ({
   const { socket } = useSocketContext();
   const queryClient = useQueryClient();
 
-  const handleLeaveRoom = useCallback(() => {
-    if (
-      !socket ||
-      !activeChatRoomId ||
-      !window.confirm("정말로 이 채팅방을 나가시겠습니까?")
-    ) {
+  const confirm = useConfirm();
+
+  const handleLeaveRoom = useCallback(async () => {
+    if (!socket || !activeChatRoomId) {
       return;
     }
+
+    const isConfirmed = await confirm({
+      title: "채팅방 나가기",
+      description: "정말로 이 채팅방을 나가시겠습니까?",
+      confirmText: "나가기",
+      variant: "destructive",
+    });
+
+    if (!isConfirmed) return;
 
     socket.emit(
       "leaveRoom",
@@ -63,7 +67,7 @@ export const ChatRoomHeader = ({
         }
       },
     );
-  }, [socket, activeChatRoomId, queryClient, closeChatRoom]);
+  }, [socket, activeChatRoomId, confirm, queryClient, closeChatRoom]);
 
   return (
     <div className="flex items-center justify-between p-4 border-b shrink-0">

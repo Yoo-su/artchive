@@ -8,19 +8,9 @@ import { toast } from "sonner";
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { findOrCreateRoom } from "@/features/chat/apis";
 import { useChatStore } from "@/features/chat/stores/use-chat-store";
+import { useConfirm } from "@/features/confirm";
 import { WishlistButton } from "@/features/user/components/wishlist/wishlist-button";
 import { CoolMode } from "@/shared/components/magicui/cool-mode";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/shared/components/shadcn/alert-dialog";
 import { Button } from "@/shared/components/shadcn/button";
 import { UserAvatarMenu } from "@/shared/components/ui/user-avatar-menu";
 import { Link } from "@/shared/config/i18n/routing";
@@ -49,6 +39,21 @@ export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
   const queryClient = useQueryClient();
   const { mutate: deleteSale, isPending: isDeleting } =
     useDeleteBookSaleMutation();
+  const confirm = useConfirm();
+
+  const handleDeleteSale = async () => {
+    const isConfirmed = await confirm({
+      title: t("actions.delete_title"),
+      description: t("actions.delete_desc"),
+      confirmText: t("actions.delete"),
+      cancelText: t("actions.cancel"),
+      variant: "destructive",
+    });
+
+    if (isConfirmed) {
+      deleteSale({ saleId: sale.id, imageUrls: sale.imageUrls });
+    }
+  };
 
   const handleStartChat = async () => {
     setIsCreatingChat(true);
@@ -99,32 +104,15 @@ export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
               {t("actions.edit")}
             </Link>
           </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="sm" disabled={isDeleting}>
-                <Trash2 className="w-4 h-4 mr-2" />
-                {isDeleting ? t("actions.deleting") : t("actions.delete")}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>{t("actions.delete_title")}</AlertDialogTitle>
-                <AlertDialogDescription className="whitespace-pre-wrap">
-                  {t("actions.delete_desc")}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>{t("actions.cancel")}</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() =>
-                    deleteSale({ saleId: sale.id, imageUrls: sale.imageUrls })
-                  }
-                >
-                  {t("actions.delete")}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <Button
+            variant="destructive"
+            size="sm"
+            disabled={isDeleting}
+            onClick={handleDeleteSale}
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            {isDeleting ? t("actions.deleting") : t("actions.delete")}
+          </Button>
         </div>
       ) : (
         <div className="flex flex-col gap-2 w-full sm:w-auto">

@@ -6,17 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/shared/components/shadcn/alert-dialog";
+import { useConfirm } from "@/features/confirm";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   DropdownMenu,
@@ -75,6 +65,21 @@ export const CommentItem = ({
     useUpdateCommentMutation(targetType, targetId, page);
   const { mutate: deleteComment, isPending: isDeletePending } =
     useDeleteCommentMutation(targetType, targetId, page);
+  const confirm = useConfirm();
+
+  const handleDeleteComment = async () => {
+    const isConfirmed = await confirm({
+      title: t("delete_confirm.title"),
+      description: t("delete_confirm.desc"),
+      confirmText: t("delete"),
+      cancelText: t("cancel"),
+      variant: "destructive",
+    });
+
+    if (isConfirmed) {
+      deleteComment(comment.id);
+    }
+  };
 
   const timeAgo = formatRelativeTime(comment.createdAt, locale);
 
@@ -139,57 +144,39 @@ export const CommentItem = ({
 
         {/* 드롭다운 메뉴 */}
         {isOwner && !isEditing && (
-          <AlertDialog>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full hover:bg-stone-100 text-stone-400"
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="min-w-[100px]">
-                <DropdownMenuItem
-                  onClick={() => setIsEditing(true)}
-                  disabled={isDeletePending}
-                  className="text-xs"
-                >
-                  <Pencil className="h-3 w-3 mr-1.5" />
-                  {t("edit")}
-                </DropdownMenuItem>
-                <AlertDialogTrigger asChild>
-                  <DropdownMenuItem
-                    disabled={isDeletePending}
-                    onSelect={(e) => e.preventDefault()}
-                    className="text-xs text-destructive focus:text-destructive"
-                  >
-                    {isDeletePending ? (
-                      <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-3 w-3 mr-1.5" />
-                    )}
-                    {t("delete")}
-                  </DropdownMenuItem>
-                </AlertDialogTrigger>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>{t("delete_confirm.title")}</AlertDialogTitle>
-                <AlertDialogDescription>
-                  {t("delete_confirm.desc")}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
-                <AlertDialogAction onClick={() => deleteComment(comment.id)}>
-                  {t("delete")}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full hover:bg-stone-100 text-stone-400"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[100px]">
+              <DropdownMenuItem
+                onClick={() => setIsEditing(true)}
+                disabled={isDeletePending}
+                className="text-xs"
+              >
+                <Pencil className="h-3 w-3 mr-1.5" />
+                {t("edit")}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={handleDeleteComment}
+                disabled={isDeletePending}
+                className="text-xs text-destructive focus:text-destructive"
+              >
+                {isDeletePending ? (
+                  <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
+                ) : (
+                  <Trash2 className="h-3 w-3 mr-1.5" />
+                )}
+                {t("delete")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </div>
 

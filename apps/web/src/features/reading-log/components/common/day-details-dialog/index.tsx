@@ -13,6 +13,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { BookSearchModal } from "@/features/book/components/common/book-search-modal";
+import { useConfirm } from "@/features/confirm";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,
@@ -117,8 +118,17 @@ export function DayDetailsDialog({
     );
   };
 
-  const handleRemoveLog = (log: ReadingLog) => {
-    if (confirm("정말 삭제하시겠습니까?")) {
+  const confirm = useConfirm();
+
+  const handleRemoveLog = async (log: ReadingLog) => {
+    const isConfirmed = await confirm({
+      title: "독서 기록 삭제",
+      description: "정말 이 독서 기록을 삭제하시겠습니까?",
+      confirmText: "삭제",
+      variant: "destructive",
+    });
+
+    if (isConfirmed) {
       deleteMutation.mutate({ id: log.id, date: log.date });
     }
   };
