@@ -14,6 +14,7 @@ import {
 } from "next-intl/server";
 
 import { ChatProvider } from "@/features/chat/providers/chat-provider";
+import { ConfirmHost } from "@/features/confirm";
 import { NotificationProvider } from "@/features/notification/providers/notification-provider";
 import GoogleAnalytics from "@/shared/components/analytics/google-analytics";
 import MicrosoftClarity from "@/shared/components/analytics/microsoft-clarity";
@@ -96,6 +97,7 @@ export default async function Layout({
             <GoogleAnalytics />
             <MicrosoftClarity />
           </QueryProvider>
+          <ConfirmHost />
           <Toaster position="bottom-center" />
           <script
             type="application/ld+json"

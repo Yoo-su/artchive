@@ -14,17 +14,7 @@ import { useCallback } from "react";
 
 import { useDeleteMyCommentMutation } from "@/features/comment/mutations";
 import { useMyCommentsInfiniteQuery } from "@/features/comment/queries";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/shared/components/shadcn/alert-dialog";
+import { useConfirm } from "@/features/confirm";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
@@ -60,11 +50,30 @@ export const MyCommentList = () => {
   const { mutate: deleteComment, isPending: isDeleting } =
     useDeleteMyCommentMutation();
 
+  const confirm = useConfirm();
+
   const handleDelete = useCallback(
     (commentId: number) => {
       deleteComment(commentId);
     },
     [deleteComment],
+  );
+
+  const handleDeleteClick = useCallback(
+    async (commentId: number) => {
+      const isConfirmed = await confirm({
+        title: t("delete_modal.title"),
+        description: t("delete_modal.desc"),
+        confirmText: t("delete_modal.confirm"),
+        cancelText: t("delete_modal.cancel"),
+        variant: "destructive",
+      });
+
+      if (isConfirmed) {
+        handleDelete(commentId);
+      }
+    },
+    [confirm, handleDelete, t],
   );
 
   if (isLoading) {
@@ -164,38 +173,15 @@ export const MyCommentList = () => {
                     </div>
 
                     {/* 삭제 버튼 */}
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-stone-400 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
-                          disabled={isDeleting}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            {t("delete_modal.title")}
-                          </AlertDialogTitle>
-                          <AlertDialogDescription className="whitespace-pre-line">
-                            {t("delete_modal.desc")}
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>
-                            {t("delete_modal.cancel")}
-                          </AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDelete(comment.id)}
-                          >
-                            {t("delete_modal.confirm")}
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-stone-400 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
+                      disabled={isDeleting}
+                      onClick={() => handleDeleteClick(comment.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               </CardContent>

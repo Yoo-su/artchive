@@ -561,6 +561,7 @@
       "back_title": "Reading Record Card",
       "empty_memo": "There is no one-line review left for this book.",
       "share_title": "{name}'s {year} Reading Deck",
+      "share_title_all": "{name}'s Reading Deck",
       "share_subtitle": "A collection of {count} precious reading record cards completed this year.",
       "create_my_deck": "Make My Own Reading Deck",
       "loading_message": "Retrieving reading cards...",

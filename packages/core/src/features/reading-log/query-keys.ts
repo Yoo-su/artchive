@@ -1,8 +1,8 @@
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 
 export const readingLogKeys = createQueryKeys("readingLog", {
-  list: (year: number, month: number) => ({
-    queryKey: [year, month],
+  list: (params?: { year?: number; month?: number; limit?: number }) => ({
+    queryKey: [params],
   }),
   stats: (year: number, month: number) => ({
     queryKey: [year, month],

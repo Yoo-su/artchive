@@ -4,10 +4,12 @@ import { AuthGuard } from "@/features/auth/components/guards/auth-guard";
 import { createPageMetadata } from "@/shared/config/metadata";
 import { ReviewEditView } from "@/views/review-edit-view";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ locale: string }>;
+  params: Promise<{ locale: string; id: string }>;
 }) {
   const { locale } = await params;
   const t = await getTranslations({

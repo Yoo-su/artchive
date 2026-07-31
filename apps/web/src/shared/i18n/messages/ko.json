@@ -561,6 +561,7 @@
       "back_title": "독서 기록 카드",
       "empty_memo": "이 책에 대해 남긴 한줄평이 없습니다.",
       "share_title": "{name}님의 {year}년 독서 덱",
+      "share_title_all": "{name}님의 독서 덱",
       "share_subtitle": "올해 완독한 {count}권의 소중한 독서 기록 카드 컬렉션입니다.",
       "create_my_deck": "나만의 독서 덱 만들기",
       "loading_message": "독서 카드를 꺼내오고 있어요...",

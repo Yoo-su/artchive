@@ -9,8 +9,10 @@ import {
   useReadingLogStatsQuery as useBaseReadingLogStatsQuery,
 } from "@bookjeok/react-query";
 
-export const useReadingLogsQuery = (year: number, month?: number, options?: { enabled?: boolean }) =>
-  useBaseReadingLogsQuery(year, month!, options);
+export const useReadingLogsQuery = (
+  params?: { year?: number; month?: number; limit?: number },
+  options?: { enabled?: boolean },
+) => useBaseReadingLogsQuery(params, options);
 
 export const useReadingLogStatsQuery = (year: number, month: number) =>
   useBaseReadingLogStatsQuery(year, month);

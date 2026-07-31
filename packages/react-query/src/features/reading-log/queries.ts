@@ -22,16 +22,15 @@ import {
 } from "@tanstack/react-query";
 
 /**
- * 월별 독서 기록 조회
+ * 독서 기록 목록 조회 (월별/연별/최근 기록 통합)
  */
 export const useReadingLogsQuery = (
-  year: number,
-  month: number,
+  params?: { year?: number; month?: number; limit?: number },
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: readingLogKeys.list(year, month).queryKey,
-    queryFn: () => getReadingLogs({ year, month }),
+    queryKey: readingLogKeys.list(params).queryKey,
+    queryFn: () => getReadingLogs(params),
     enabled: options?.enabled,
   });
 };
@@ -166,7 +165,7 @@ export const useCreateReadingLogMutation = (
         const month = parseInt(monthStr, 10);
 
         queryClient.setQueryData<ReadingLog[]>(
-          readingLogKeys.list(year, month).queryKey,
+          readingLogKeys.list({ year, month }).queryKey,
           (old) => {
             if (!old) return [data];
             return [...old, data].sort((a, b) => a.date.localeCompare(b.date));
@@ -202,7 +201,7 @@ export const useUpdateReadingLogMutation = (
         const month = parseInt(monthStr, 10);
 
         queryClient.setQueryData<ReadingLog[]>(
-          readingLogKeys.list(year, month).queryKey,
+          readingLogKeys.list({ year, month }).queryKey,
           (old) => {
             if (!old) return [data];
             return old
@@ -236,7 +235,7 @@ export const useDeleteReadingLogMutation = (
         const month = parseInt(monthStr, 10);
 
         queryClient.setQueryData<ReadingLog[]>(
-          readingLogKeys.list(year, month).queryKey,
+          readingLogKeys.list({ year, month }).queryKey,
           (old) => {
             if (!old) return old;
             return old.filter((log) => log.id !== variables.id);
