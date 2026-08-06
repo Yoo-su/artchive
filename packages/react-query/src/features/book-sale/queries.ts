@@ -1,5 +1,6 @@
 "use client";
 import {
+  getAvailableRegions,
   getBookSaleDetail,
   getBookSales,
   getMyBookSales,
@@ -137,5 +138,16 @@ export const usePopularBookSalesQuery = () => {
   return useQuery({
     queryKey: bookSaleKeys.popularSales.queryKey,
     queryFn: () => getPopularBookSales(),
+  });
+};
+
+/**
+ * 현재 활성화된 중고책 판매글 지역(시/도 -> 시/군/구[]) 목록 조회 (5분 staleTime)
+ */
+export const useBookSaleRegionsQuery = () => {
+  return useQuery({
+    queryKey: bookSaleKeys.availableRegions.queryKey,
+    queryFn: () => getAvailableRegions(),
+    staleTime: CACHE_TIME.FIVE_MINUTES,
   });
 };

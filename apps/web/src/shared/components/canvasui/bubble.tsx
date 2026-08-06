@@ -286,7 +286,7 @@ export function createBubble(
         contentDirty = true;
         wake();
       } catch {
-        // ignore draw element image errors
+        // ignore drawElementImage errors
       }
     };
   }
@@ -623,6 +623,12 @@ export function createBubble(
 
   return {
     setOptions(next) {
+      if (
+        !Object.entries(next).some(
+          ([key, value]) => config[key as keyof BubbleOptions] !== value,
+        )
+      )
+        return;
       Object.assign(config, next);
       start();
     },
@@ -751,5 +757,6 @@ export function Bubble({
     </div>
   );
 }
+
 
 export default Bubble;

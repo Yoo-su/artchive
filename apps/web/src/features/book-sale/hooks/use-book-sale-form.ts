@@ -1,12 +1,14 @@
 import { BookInfo, CreateBookSaleParams } from "@bookjeok/core";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { useImageUpload } from "@/shared/hooks/use-image-upload";
 import { useSafeSubmit } from "@/shared/hooks/use-safe-submit";
 
+import { UploadStep } from "../components/common/upload-progress-modal";
 import {
   createSellFormSchema,
   SellFormValues,
@@ -19,7 +21,11 @@ export const useBookSaleForm = () => {
   const { mutateAsync, isPending, isSuccess } = useCreateBookSaleMutation();
   const { executeSafeSubmit } = useSafeSubmit();
 
-  const isSubmitDisabled = isPending || isSuccess;
+  const [uploadStep, setUploadStep] = useState<UploadStep>("idle");
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const isSubmitDisabled = isPending || isSuccess || isModalOpen;
 
   const form = useForm<SellFormValues>({
     resolver: zodResolver(createSellFormSchema(t)),
@@ -68,8 +74,29 @@ export const useBookSaleForm = () => {
       isbn: data.book.isbn,
     };
 
+    setIsModalOpen(true);
+    setUploadStep("compressing");
+    setUploadProgress(10);
+
     executeSafeSubmit(async (idempotencyKey) => {
-      await mutateAsync({ imageFiles, payload, idempotencyKey });
+      try {
+        await mutateAsync({
+          imageFiles,
+          payload,
+          idempotencyKey,
+          onProgressState: (step, percent) => {
+            setUploadStep(step);
+            setUploadProgress(percent);
+          },
+        });
+        setUploadStep("success");
+        setUploadProgress(100);
+      } catch (error) {
+        setIsModalOpen(false);
+        setUploadStep("idle");
+        setUploadProgress(0);
+        throw error;
+      }
     });
   };
 
@@ -81,6 +108,9 @@ export const useBookSaleForm = () => {
     setSelectedBook: handleBookSelect,
     handleImagesAdd,
     handleImageRemove: handleNewImageRemove,
+    uploadStep,
+    uploadProgress,
+    isModalOpen,
     onSubmit: form.handleSubmit(onSubmit, () => {
       toast.error(t("submit_error"));
     }),

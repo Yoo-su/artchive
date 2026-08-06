@@ -168,3 +168,8 @@ export interface FilterFormInputs {
   priceRange: [number, number];
   sort: SortOption;
 }
+
+/**
+ * 현재 활성화된 중고책 판매글 지역 목록 응답 타입 (시/도 -> 시/군/구[])
+ */
+export type GetAvailableRegionsResponse = Record<string, string[]>;

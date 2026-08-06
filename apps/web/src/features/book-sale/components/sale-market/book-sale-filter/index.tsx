@@ -11,6 +11,7 @@ import {
   SearchBookSalesParams,
   SortOption,
 } from "@bookjeok/core";
+import { useBookSaleRegionsQuery } from "@bookjeok/react-query";
 import { RefreshCw, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
@@ -27,7 +28,6 @@ import {
   SelectValue,
 } from "@/shared/components/shadcn/select";
 import { Slider } from "@/shared/components/shadcn/slider";
-import { KOREA_DISTRICTS } from "@/shared/constants/korea-districts";
 import { cn } from "@/shared/utils/cn";
 
 interface BookSaleFilterProps {
@@ -42,6 +42,7 @@ export const BookSaleFilter = ({
   onReset,
 }: BookSaleFilterProps) => {
   const t = useTranslations("market.filter");
+  const { data: availableRegions } = useBookSaleRegionsQuery();
 
   // initialParams에서 직접 초기값 계산 (useEffect 대신)
   const getDefaultValues = (): FilterFormInputs => ({
@@ -120,11 +121,12 @@ export const BookSaleFilter = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={FILTER_ALL}>{t("all_cities")}</SelectItem>
-                {Object.keys(KOREA_DISTRICTS).map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c}
-                  </SelectItem>
-                ))}
+                {availableRegions &&
+                  Object.keys(availableRegions).map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           )}
@@ -139,7 +141,8 @@ export const BookSaleFilter = ({
               disabled={
                 !city ||
                 city === FILTER_ALL ||
-                KOREA_DISTRICTS[city]?.length === 0
+                !availableRegions?.[city] ||
+                availableRegions[city].length === 0
               }
             >
               <SelectTrigger className="w-full h-12 bg-white border-stone-200 rounded-sm focus:ring-stone-200 disabled:bg-stone-50 disabled:opacity-50">
@@ -149,7 +152,7 @@ export const BookSaleFilter = ({
                 <SelectItem value={FILTER_ALL}>{t("all_districts")}</SelectItem>
                 {city &&
                   city !== FILTER_ALL &&
-                  KOREA_DISTRICTS[city].map((d) => (
+                  availableRegions?.[city]?.map((d) => (
                     <SelectItem key={d} value={d}>
                       {d}
                     </SelectItem>
