@@ -18,7 +18,7 @@ export const DefaultLayout = ({
       <DefaultHeader />
       {/* main 영역이 남은 공간을 모두 차지하도록 grow 속성 추가 */}
       <main
-        className={`mx-auto w-full grow p-4 sm:p-6 ${fullWidth ? "" : "max-w-5xl"}`}
+        className={`mx-auto w-full grow p-4 sm:p-6 overflow-visible ${fullWidth ? "" : "max-w-5xl"}`}
       >
         {children}
       </main>

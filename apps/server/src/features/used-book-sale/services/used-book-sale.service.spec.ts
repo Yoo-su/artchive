@@ -61,6 +61,7 @@ describe('UsedBookSaleService', () => {
           useValue: {
             get: jest.fn(),
             set: jest.fn(),
+            del: jest.fn(),
           },
         },
       ],

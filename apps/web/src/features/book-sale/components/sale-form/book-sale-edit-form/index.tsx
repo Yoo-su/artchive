@@ -4,19 +4,6 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
-// 카카오맵 SDK가 무거우므로 지연 로딩
-const MapLocationSelector = dynamic(
-  () =>
-    import("@/shared/components/map/map-location-selector").then(
-      (mod) => mod.MapLocationSelector,
-    ),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full h-[300px] rounded-lg animate-pulse bg-muted/30" />
-    ),
-  },
-);
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Card,
@@ -36,9 +23,24 @@ import {
 import { Input } from "@/shared/components/shadcn/input";
 import { Textarea } from "@/shared/components/shadcn/textarea";
 import { ImageUploader } from "@/shared/components/ui/image-uploader";
-import { LocationSelector } from "@/shared/components/ui/location-selector";
 
 import { useBookSaleEditForm } from "../../../hooks/use-book-sale-edit-form";
+import { UploadProgressModal } from "../../common/upload-progress-modal";
+import { RegionDisplayCard } from "../region-display-card";
+
+// 카카오맵 SDK가 무거우므로 지연 로딩
+const MapLocationSelector = dynamic(
+  () =>
+    import("@/shared/components/map/map-location-selector").then(
+      (mod) => mod.MapLocationSelector,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[300px] rounded-lg animate-pulse bg-muted/30" />
+    ),
+  },
+);
 
 interface BookSaleEditFormProps {
   sale: UsedBookSale;
@@ -54,13 +56,16 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
     handleImagesAdd,
     handleExistingImageRemove,
     handleNewImageRemove,
+    uploadStep,
+    uploadProgress,
+    isModalOpen,
     onSubmit,
   } = useBookSaleEditForm({ sale });
 
   const totalImages = existingImages.length + newImagePreviews.length;
 
   return (
-    <Card className="w-full">
+    <Card className="w-full border-none shadow-none sm:border sm:border-stone-200/90 dark:sm:border-stone-800 sm:shadow-[0_2px_12px_rgba(0,0,0,0.04)] dark:sm:shadow-[0_2px_12px_rgba(0,0,0,0.25)]">
       <CardHeader>
         <CardTitle className="text-2xl">{t("title_edit")}</CardTitle>
         <CardDescription>{t("desc_edit")}</CardDescription>
@@ -100,7 +105,12 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("fields.title")}</FormLabel>
+                      <div className="flex items-center justify-between">
+                        <FormLabel>{t("fields.title")}</FormLabel>
+                        <span className="text-xs text-muted-foreground">
+                          {field.value?.length || 0} / 50자
+                        </span>
+                      </div>
                       <FormControl>
                         <Input
                           placeholder={t("fields.title_placeholder")}
@@ -121,11 +131,17 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
                     <FormItem>
                       <FormLabel>{t("fields.price")}</FormLabel>
                       <FormControl>
-                        <Input
-                          type="number"
-                          placeholder={t("fields.price_placeholder")}
-                          {...field}
-                        />
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-semibold">
+                            ₩
+                          </span>
+                          <Input
+                            type="number"
+                            placeholder={t("fields.price_placeholder")}
+                            className="pl-8"
+                            {...field}
+                          />
+                        </div>
                       </FormControl>
                       <div className="mt-1 min-h-5">
                         <FormMessage />
@@ -153,54 +169,35 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
                       form.setValue("latitude", lat);
                       form.setValue("longitude", lng);
 
-                      // 장소명이 있는 경우 (검색 선택)
-                      if (addressInfo?.placeName) {
-                        form.setValue("placeName", addressInfo.placeName);
-                      }
-                      // 장소명이 없는 경우 (지도 클릭 등) -> 기존 장소명 초기화
-                      else {
-                        form.setValue("placeName", "");
+                      if (addressInfo) {
+                        if (addressInfo.city) {
+                          form.setValue("city", addressInfo.city, {
+                            shouldValidate: true,
+                          });
+                        }
+                        if (addressInfo.district) {
+                          form.setValue("district", addressInfo.district, {
+                            shouldValidate: true,
+                          });
+                        }
+                        if (addressInfo.placeName) {
+                          form.setValue("placeName", addressInfo.placeName);
+                        } else {
+                          form.setValue("placeName", "");
+                        }
                       }
                     }}
                   />
 
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="md:col-span-2 space-y-2">
-                      <LocationSelector
-                        className="bg-background"
-                        city={form.watch("city")}
-                        district={form.watch("district")}
-                        onCityChange={(value) => {
-                          form.setValue("city", value, {
-                            shouldValidate: true,
-                          });
-                          form.setValue("district", "", {
-                            shouldValidate: true,
-                          });
-                        }}
-                        onDistrictChange={(value) => {
-                          form.setValue("district", value, {
-                            shouldValidate: true,
-                          });
-                        }}
-                      />
-                      <div className="flex gap-4">
-                        <div className="flex-1 min-h-5">
-                          {form.formState.errors.city && (
-                            <p className="text-sm font-medium text-destructive">
-                              {form.formState.errors.city.message}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex-1 min-h-5">
-                          {form.formState.errors.district && (
-                            <p className="text-sm font-medium text-destructive">
-                              {form.formState.errors.district.message}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+                <RegionDisplayCard
+                  city={form.watch("city")}
+                  district={form.watch("district")}
+                  placeName={form.watch("placeName")}
+                  error={
+                    form.formState.errors.city?.message ||
+                    form.formState.errors.district?.message
+                  }
+                />
 
                     <FormField
                       control={form.control}
@@ -221,7 +218,6 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
                         </FormItem>
                       )}
                     />
-                  </div>
                 </div>
               </div>
 
@@ -253,7 +249,41 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
                 name="content"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("fields.content")}</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>{t("fields.content")}</FormLabel>
+                      <span className="text-xs text-muted-foreground">
+                        {field.value?.length || 0} / 1000자
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {[
+                        "#책 상태 최상",
+                        "#직거래 선호",
+                        "#택배 거래 가능",
+                        "#밑줄/필기 없음",
+                        "#네고 불가",
+                      ].map((tag) => (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => {
+                            const currentContent = form.getValues("content") || "";
+                            if (!currentContent.includes(tag)) {
+                              form.setValue(
+                                "content",
+                                currentContent ? `${currentContent}\n${tag}` : tag,
+                                { shouldValidate: true },
+                              );
+                            }
+                          }}
+                          className="text-xs px-2.5 py-1 rounded-md border border-stone-200 dark:border-stone-800 bg-stone-100/70 dark:bg-stone-800/50 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
+                        >
+                          + {tag}
+                        </button>
+                      ))}
+                    </div>
+
                     <FormControl>
                       <Textarea
                         placeholder={t("fields.content_placeholder")}
@@ -282,6 +312,12 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
             </Button>
           </form>
         </Form>
+        <UploadProgressModal
+          open={isModalOpen}
+          step={uploadStep}
+          progress={uploadProgress}
+          isEdit={true}
+        />
       </CardContent>
     </Card>
   );

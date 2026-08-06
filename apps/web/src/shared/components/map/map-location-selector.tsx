@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Map, MapMarker, useKakaoLoader } from "react-kakao-maps-sdk";
 
 import { Button } from "@/shared/components/shadcn/button";
@@ -40,11 +40,46 @@ export const MapLocationSelector = ({
     kakao.maps.services.PlacesSearchResultItem[]
   >([]);
   const [keyword, setKeyword] = useState("");
+  const [focusedIndex, setFocusedIndex] = useState<number>(-1);
   const [selectedPlaceInfo, setSelectedPlaceInfo] = useState<{
     placeName: string;
     address: string;
   } | null>(null);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
+
+  const resultsListRef = useRef<HTMLDivElement>(null);
+
+  // 선택된 검색 결과 항목 처리
+  const selectPlace = (place: kakao.maps.services.PlacesSearchResultItem) => {
+    const lat = Number(place.y);
+    const lng = Number(place.x);
+    setPosition({ lat, lng });
+
+    const rawCity = place.road_address_name
+      ? place.road_address_name.split(" ")[0]
+      : place.address_name.split(" ")[0];
+    const rawDistrict = place.road_address_name
+      ? place.road_address_name.split(" ")[1]
+      : place.address_name.split(" ")[1];
+
+    const city = rawCity ? rawCity.trim() : "";
+    const district = rawDistrict ? rawDistrict.trim() : "";
+
+    onLocationSelect(lat, lng, {
+      city,
+      district,
+      placeName: place.place_name,
+    });
+
+    setSelectedPlaceInfo({
+      placeName: place.place_name,
+      address: place.road_address_name || place.address_name,
+    });
+    setIsSelectionMode(true);
+    setKeyword(place.place_name);
+    setSearchResults([]);
+    setFocusedIndex(-1);
+  };
 
   // 현재 위치 가져오기
   const handleCurrentLocation = () => {
@@ -54,8 +89,8 @@ export const MapLocationSelector = ({
           const { latitude, longitude } = pos.coords;
           setPosition({ lat: latitude, lng: longitude });
 
-          onLocationSelect(latitude, longitude); // 좌표 전달
-          updateAddress(latitude, longitude); // 주소 상세 정보 업데이트
+          onLocationSelect(latitude, longitude);
+          updateAddress(latitude, longitude);
         },
         (err) => {
           console.error(err);
@@ -79,27 +114,27 @@ export const MapLocationSelector = ({
         const roadAddr = addr.road_address;
         const jibunAddr = addr.address;
 
-        const city = roadAddr
+        const rawCity = roadAddr
           ? roadAddr.region_1depth_name
           : jibunAddr.region_1depth_name;
-        const district = roadAddr
+        const rawDistrict = roadAddr
           ? roadAddr.region_2depth_name
           : jibunAddr.region_2depth_name;
 
-        // 초기 로딩 시에는 부모에게 전달하지 않음
+        const city = rawCity ? rawCity.trim() : "";
+        const district = rawDistrict ? rawDistrict.trim() : "";
+
         if (shouldNotifyParent) {
           onLocationSelect(lat, lng, {
             city,
             district,
-            placeName: "", // 좌표 이동 시 장소명 초기화
+            placeName: "",
           });
         }
 
         setSelectedPlaceInfo({
           placeName: "",
-          address: addr.road_address
-            ? addr.road_address.address_name
-            : addr.address.address_name,
+          address: roadAddr?.address_name || jibunAddr.address_name,
         });
       }
     });
@@ -108,6 +143,7 @@ export const MapLocationSelector = ({
   const handleSearch = (value: string) => {
     if (!value.trim() || isSelectionMode) {
       setSearchResults([]);
+      setFocusedIndex(-1);
       return;
     }
 
@@ -115,11 +151,46 @@ export const MapLocationSelector = ({
     ps.keywordSearch(value, (data, status) => {
       if (status === kakao.maps.services.Status.OK) {
         setSearchResults(data);
+        setFocusedIndex(-1);
       } else {
         setSearchResults([]);
+        setFocusedIndex(-1);
       }
     });
   };
+
+  // 키보드 방향키 및 엔터 조작 핸들러
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (searchResults.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setFocusedIndex((prev) => (prev < searchResults.length - 1 ? prev + 1 : 0));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setFocusedIndex((prev) => (prev > 0 ? prev - 1 : searchResults.length - 1));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (focusedIndex >= 0 && focusedIndex < searchResults.length) {
+        selectPlace(searchResults[focusedIndex]);
+      }
+    } else if (e.key === "Escape") {
+      setSearchResults([]);
+      setFocusedIndex(-1);
+    }
+  };
+
+  // focusedIndex 변경 시 자동 스크롤
+  useEffect(() => {
+    if (focusedIndex >= 0 && resultsListRef.current) {
+      const activeEl = resultsListRef.current.children[
+        focusedIndex
+      ] as HTMLElement;
+      if (activeEl) {
+        activeEl.scrollIntoView({ block: "nearest" });
+      }
+    }
+  }, [focusedIndex]);
 
   // 검색 디바운스 처리
   useEffect(() => {
@@ -132,7 +203,6 @@ export const MapLocationSelector = ({
 
   useEffect(() => {
     if (isMapLoaded && defaultLat && defaultLng) {
-      // 초기 로딩 시 마커 및 주소 정보 업데이트 (부모 알림 제외)
       updateAddress(defaultLat, defaultLng, false);
     }
   }, [isMapLoaded, defaultLat, defaultLng]);
@@ -159,50 +229,29 @@ export const MapLocationSelector = ({
             setKeyword(e.target.value);
             setIsSelectionMode(false);
           }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-            }
-          }}
-          placeholder="장소 검색 (예: 강남역)"
+          onKeyDown={handleKeyDown}
+          placeholder="장소 검색 (예: 강남역) - 방향키/엔터로 선택 가능"
           className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
         />
         {searchResults.length > 0 && (
-          <div className="absolute top-full left-0 z-20 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-[200px] overflow-y-auto">
-            {searchResults.map((place) => (
+          <div
+            ref={resultsListRef}
+            className="absolute top-full left-0 z-20 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-[200px] overflow-y-auto"
+          >
+            {searchResults.map((place, index) => (
               <div
                 key={place.id}
-                className="px-3 py-2 cursor-pointer hover:bg-gray-100 text-sm"
-                onClick={() => {
-                  const lat = Number(place.y);
-                  const lng = Number(place.x);
-                  setPosition({ lat, lng });
-
-                  // 검색 결과 선택 시에는 명확한 장소명이 있음
-                  const city = place.road_address_name
-                    ? place.road_address_name.split(" ")[0]
-                    : place.address_name.split(" ")[0];
-                  const district = place.road_address_name
-                    ? place.road_address_name.split(" ")[1]
-                    : place.address_name.split(" ")[1];
-
-                  onLocationSelect(lat, lng, {
-                    city,
-                    district,
-                    placeName: place.place_name,
-                  });
-
-                  setSelectedPlaceInfo({
-                    placeName: place.place_name,
-                    address: place.road_address_name || place.address_name,
-                  });
-                  setIsSelectionMode(true);
-                  setKeyword(place.place_name);
-                  setSearchResults([]); // 선택 후 결과 목록 숨기기
-                }}
+                tabIndex={-1}
+                className={`px-3 py-2 cursor-pointer text-sm transition-colors ${
+                  index === focusedIndex
+                    ? "bg-accent text-accent-foreground font-semibold"
+                    : "hover:bg-muted/50"
+                }`}
+                onClick={() => selectPlace(place)}
+                onMouseEnter={() => setFocusedIndex(index)}
               >
                 <div className="font-medium">{place.place_name}</div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-muted-foreground">
                   {place.road_address_name || place.address_name}
                 </div>
               </div>
@@ -230,7 +279,6 @@ export const MapLocationSelector = ({
               const lng = mouseEvent.latLng.getLng();
               setPosition({ lat, lng });
 
-              // 지도 클릭 시 역지오코딩 수행
               const geocoder = new kakao.maps.services.Geocoder();
               geocoder.coord2Address(lng, lat, (result, status) => {
                 if (status === kakao.maps.services.Status.OK) {
@@ -238,15 +286,18 @@ export const MapLocationSelector = ({
                   const roadAddr = addr.road_address;
                   const jibunAddr = addr.address;
 
-                  const city = roadAddr
+                  const rawCity = roadAddr
                     ? roadAddr.region_1depth_name
                     : jibunAddr.region_1depth_name;
-                  const district = roadAddr
+                  const rawDistrict = roadAddr
                     ? roadAddr.region_2depth_name
                     : jibunAddr.region_2depth_name;
 
+                  const city = rawCity ? rawCity.trim() : "";
+                  const district = rawDistrict ? rawDistrict.trim() : "";
+
                   setSelectedPlaceInfo({
-                    placeName: "", // 클릭 시에는 장소명 없음
+                    placeName: "",
                     address: roadAddr?.address_name || jibunAddr.address_name,
                   });
 
@@ -256,13 +307,12 @@ export const MapLocationSelector = ({
                     placeName: "",
                   });
                 } else {
-                  // 주소 정보를 찾을 수 없는 경우 (바다 등)
                   onLocationSelect(lat, lng, undefined);
                   setSelectedPlaceInfo(null);
                 }
               });
 
-              setKeyword(""); // 지도 클릭 시 키워드 초기화
+              setKeyword("");
               setIsSelectionMode(false);
             }}
             onCreate={() => setIsMapLoaded(true)}
@@ -282,9 +332,6 @@ export const MapLocationSelector = ({
           <div>{selectedPlaceInfo?.address || "주소를 불러오는 중..."}</div>
           <div className="text-[10px] opacity-70">
             위도: {position.lat.toFixed(6)}, 경도: {position.lng.toFixed(6)}
-          </div>
-          <div className="mt-1 font-medium text-primary">
-            ※ 정확한 거래 위치가 설정되었습니다.
           </div>
         </div>
       )}

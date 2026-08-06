@@ -26,4 +26,5 @@ export const bookSaleKeys = createQueryKeys("bookSale", {
     queryKey: ["edit", saleId],
   }),
   recentSales: null,
+  availableRegions: null,
 });

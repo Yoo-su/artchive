@@ -2,6 +2,7 @@ import {
   API_PATHS,
   CommonBookSaleResponse,
   CreateBookSaleParams,
+  GetAvailableRegionsResponse,
   GetMyBookSalesResponse,
   GetRelatedSalesParams,
   GetRelatedSalesResponse,
@@ -170,4 +171,14 @@ export const recordSaleView = async (
   saleId: number,
 ): Promise<void> => {
   await publicApiClient.post(API_PATHS.book.recordSaleView(saleId));
+};
+
+/**
+ * 현재 활성화된 중고책 판매글 지역(시/도, 시/군/구) 목록을 조회합니다.
+ */
+export const getAvailableRegions = async (): Promise<GetAvailableRegionsResponse> => {
+  const { data } = await publicApiClient.get<GetAvailableRegionsResponse>(
+    API_PATHS.book.regions,
+  );
+  return data;
 };

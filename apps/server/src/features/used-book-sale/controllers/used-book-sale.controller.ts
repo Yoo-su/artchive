@@ -71,6 +71,20 @@ export class UsedBookSaleController {
     return await this.usedBookSaleService.searchSales(query);
   }
 
+  @Get('sales/regions')
+  @ApiOperation({
+    summary: '현재 활성화된 중고책 판매 지역(시/도, 시/군/구) 목록 조회',
+    description:
+      '현재 판매 중인 중고책 게시글이 존재하는 시/도 및 시/군/구 목록을 조회합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '지역 계층 데이터 (시/도 -> 시/군/구 배열)',
+  })
+  async getAvailableRegions() {
+    return await this.usedBookSaleService.getAvailableRegions();
+  }
+
   @Patch('sales/:id/status')
   @UseGuards(AuthGuard('jwt'))
   @TrackActivity(ActivityType.SALE_STATUS_CHANGE, (req) => ({

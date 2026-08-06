@@ -28,13 +28,16 @@ interface CreateSaleVariables {
   imageFiles: File[];
   payload: Omit<CreateBookSaleParams, "imageUrls">;
   idempotencyKey?: string;
+  onProgressState?: (
+    step: "compressing" | "uploading" | "submitting",
+    percent: number,
+  ) => void;
 }
 
 /**
  * 이미지 업로드 전 만료된 AccessToken을 미리 Refresh하는 헬퍼 함수
  */
 const ensureFreshAuthToken = async () => {
-  // privateApiClient 인터셉터를 통해 토큰 만료 시 자동 Refresh 유도
   await privateApiClient.get("/user/profile");
   const authState = useAuthStore.getState();
   if (!authState.user || !authState.accessToken) {
@@ -51,10 +54,12 @@ const ensureFreshAuthToken = async () => {
  */
 export const useCreateBookSaleMutation = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const sharedMutation = useSharedCreateBookSaleMutation({
     onSuccess: () => {
       toast.success("판매글이 성공적으로 등록되었습니다.");
+      queryClient.invalidateQueries({ queryKey: bookSaleKeys.availableRegions.queryKey });
       router.push(PATHS.MY_PAGE_SALES);
     },
     onError: (error: Error) => {
@@ -62,41 +67,43 @@ export const useCreateBookSaleMutation = () => {
     },
   });
 
+  const processCreate = async ({
+    imageFiles,
+    payload,
+    idempotencyKey,
+    onProgressState,
+  }: CreateSaleVariables) => {
+    onProgressState?.("compressing", 10);
+    const { user, accessToken } = await ensureFreshAuthToken();
+
+    onProgressState?.("uploading", 25);
+    const imageUrls = await uploadSaleImages(
+      imageFiles,
+      { provider: user.provider, id: user.id },
+      accessToken,
+      {
+        onCompressProgress: () => onProgressState?.("compressing", 20),
+        onProgress: (percent) =>
+          onProgressState?.("uploading", Math.min(85, 25 + Math.round(percent * 0.6))),
+      },
+    );
+
+    onProgressState?.("submitting", 90);
+    const finalPayload = { ...payload, imageUrls };
+    return { finalPayload, idempotencyKey };
+  };
+
   return {
     ...sharedMutation,
-    mutate: async ({
-      imageFiles,
-      payload,
-      idempotencyKey,
-    }: CreateSaleVariables) => {
-      const { user, accessToken } = await ensureFreshAuthToken();
-
-      const imageUrls = await uploadSaleImages(
-        imageFiles,
-        { provider: user.provider, id: user.id },
-        accessToken,
-      );
-
-      const finalPayload = { ...payload, imageUrls };
+    mutate: async (variables: CreateSaleVariables) => {
+      const { finalPayload, idempotencyKey } = await processCreate(variables);
       return sharedMutation.mutate({
         ...finalPayload,
         idempotencyKey,
       } as CreateBookSaleParams & { idempotencyKey?: string });
     },
-    mutateAsync: async ({
-      imageFiles,
-      payload,
-      idempotencyKey,
-    }: CreateSaleVariables) => {
-      const { user, accessToken } = await ensureFreshAuthToken();
-
-      const imageUrls = await uploadSaleImages(
-        imageFiles,
-        { provider: user.provider, id: user.id },
-        accessToken,
-      );
-
-      const finalPayload = { ...payload, imageUrls };
+    mutateAsync: async (variables: CreateSaleVariables) => {
+      const { finalPayload, idempotencyKey } = await processCreate(variables);
       return sharedMutation.mutateAsync({
         ...finalPayload,
         idempotencyKey,
@@ -120,6 +127,10 @@ interface UpdateSaleVariables {
   payload: UpdateBookSaleParams;
   newImageFiles?: File[];
   deletedImageUrls?: string[];
+  onProgressState?: (
+    step: "compressing" | "uploading" | "submitting",
+    percent: number,
+  ) => void;
 }
 
 export const useUpdateBookSaleMutation = () => {
@@ -142,77 +153,50 @@ export const useUpdateBookSaleMutation = () => {
     },
   });
 
+  const processUpdate = async ({
+    saleId,
+    payload,
+    newImageFiles = [],
+    deletedImageUrls = [],
+    onProgressState,
+  }: UpdateSaleVariables) => {
+    onProgressState?.("compressing", 15);
+    const { user, accessToken } = await ensureFreshAuthToken();
+
+    if (deletedImageUrls.length > 0) {
+      await deleteImages(deletedImageUrls);
+    }
+
+    let newImageUrls: string[] = [];
+    if (newImageFiles.length > 0) {
+      onProgressState?.("uploading", 30);
+      newImageUrls = await uploadSaleImages(
+        newImageFiles,
+        { provider: user.provider, id: user.id },
+        accessToken,
+        {
+          onProgress: (p) =>
+            onProgressState?.("uploading", Math.min(85, 30 + Math.round(p * 0.55))),
+        },
+      );
+    }
+
+    onProgressState?.("submitting", 90);
+    const finalImageUrls = [...(payload.imageUrls || []), ...newImageUrls];
+    const finalPayload = { ...payload, imageUrls: finalImageUrls };
+
+    return { saleId, payload: finalPayload };
+  };
+
   return {
     ...sharedMutation,
-    mutate: async ({
-      saleId,
-      payload,
-      newImageFiles = [],
-      deletedImageUrls = [],
-    }: UpdateSaleVariables) => {
-      const { user, accessToken } = await ensureFreshAuthToken();
-
-      if (deletedImageUrls.length > 0) {
-        await deleteImages(deletedImageUrls);
-      }
-
-      let newImageUrls: string[] = [];
-      if (newImageFiles.length > 0) {
-        const compressFiles = await compressImages(newImageFiles);
-        const formData = new FormData();
-        compressFiles.forEach((file) => formData.append("images", file));
-
-        const uploadResult = await uploadImages(
-          formData,
-          user.provider,
-          user.id,
-          accessToken,
-        );
-        if (!uploadResult.success || !uploadResult.blobs) {
-          throw new Error("새 이미지 업로드에 실패했습니다.");
-        }
-        newImageUrls = uploadResult.blobs.map((blob) => blob.url);
-      }
-
-      const finalImageUrls = [...(payload.imageUrls || []), ...newImageUrls];
-      const finalPayload = { ...payload, imageUrls: finalImageUrls };
-
-      return sharedMutation.mutate({ saleId, payload: finalPayload });
+    mutate: async (variables: UpdateSaleVariables) => {
+      const params = await processUpdate(variables);
+      return sharedMutation.mutate(params);
     },
-    mutateAsync: async ({
-      saleId,
-      payload,
-      newImageFiles = [],
-      deletedImageUrls = [],
-    }: UpdateSaleVariables) => {
-      const { user, accessToken } = await ensureFreshAuthToken();
-
-      if (deletedImageUrls.length > 0) {
-        await deleteImages(deletedImageUrls);
-      }
-
-      let newImageUrls: string[] = [];
-      if (newImageFiles.length > 0) {
-        const compressFiles = await compressImages(newImageFiles);
-        const formData = new FormData();
-        compressFiles.forEach((file) => formData.append("images", file));
-
-        const uploadResult = await uploadImages(
-          formData,
-          user.provider,
-          user.id,
-          accessToken,
-        );
-        if (!uploadResult.success || !uploadResult.blobs) {
-          throw new Error("새 이미지 업로드에 실패했습니다.");
-        }
-        newImageUrls = uploadResult.blobs.map((blob) => blob.url);
-      }
-
-      const finalImageUrls = [...(payload.imageUrls || []), ...newImageUrls];
-      const finalPayload = { ...payload, imageUrls: finalImageUrls };
-
-      return sharedMutation.mutateAsync({ saleId, payload: finalPayload });
+    mutateAsync: async (variables: UpdateSaleVariables) => {
+      const params = await processUpdate(variables);
+      return sharedMutation.mutateAsync(params);
     },
   };
 };

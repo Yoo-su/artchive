@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { KOREA_DISTRICTS } from "@/shared/constants/korea-districts";
-
 export const createSellFormSchema = (t: (key: string) => string) =>
   z
     .object({
@@ -35,13 +33,7 @@ export const createSellFormSchema = (t: (key: string) => string) =>
         .refine((val) => val !== null, t("book_required")),
     })
     .refine(
-      (data) => {
-        const districtsForCity = KOREA_DISTRICTS[data.city];
-        if (districtsForCity && districtsForCity.length > 0) {
-          return !!data.district;
-        }
-        return true;
-      },
+      (data) => Boolean(data.city && data.district),
       {
         message: t("district_required"),
         path: ["district"],

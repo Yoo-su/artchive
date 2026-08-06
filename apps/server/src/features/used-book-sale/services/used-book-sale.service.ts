@@ -24,8 +24,9 @@ import {
 
 @Injectable()
 export class UsedBookSaleService {
-  // 인기 판매글 캐시 키 및 TTL (10분)
+  // 인기 판매글 및 지역 목록 캐시 키/TTL
   private static readonly POPULAR_SALES_CACHE_KEY = 'popular_sales';
+  private static readonly REGIONS_CACHE_KEY = 'available_book_sale_regions';
   private static readonly CACHE_TTL = 600000;
 
   constructor(
@@ -57,7 +58,9 @@ export class UsedBookSaleService {
       book: { isbn } as any, // Shallow reference
     });
 
-    return await this.usedBookSaleRepository.save(newSale);
+    const savedSale = await this.usedBookSaleRepository.save(newSale);
+    await this.cacheManager.del(UsedBookSaleService.REGIONS_CACHE_KEY);
+    return savedSale;
   }
 
   /**
@@ -393,5 +396,43 @@ export class UsedBookSaleService {
       take: 10,
       relations: ['user', 'book'],
     });
+  }
+
+  /**
+   * 현재 판매 중인 중고책 게시글이 존재하는 지역(시/도 -> 시/군/구[]) 목록을 조회합니다.
+   * 결과는 10분간 캐싱됩니다.
+   */
+  async getAvailableRegions(): Promise<Record<string, string[]>> {
+    const cached = await this.cacheManager.get<Record<string, string[]>>(
+      UsedBookSaleService.REGIONS_CACHE_KEY,
+    );
+    if (cached) return cached;
+
+    const rawResults = await this.usedBookSaleRepository
+      .createQueryBuilder('sale')
+      .select('sale.city', 'city')
+      .addSelect('sale.district', 'district')
+      .where('sale.status = :status', { status: SaleStatus.FOR_SALE })
+      .groupBy('sale.city')
+      .addGroupBy('sale.district')
+      .getRawMany<{ city: string; district: string }>();
+
+    const result: Record<string, string[]> = {};
+    for (const row of rawResults) {
+      if (!row.city) continue;
+      if (!result[row.city]) {
+        result[row.city] = [];
+      }
+      if (row.district && !result[row.city].includes(row.district)) {
+        result[row.city].push(row.district);
+      }
+    }
+
+    await this.cacheManager.set(
+      UsedBookSaleService.REGIONS_CACHE_KEY,
+      result,
+      UsedBookSaleService.CACHE_TTL,
+    );
+    return result;
   }
 }

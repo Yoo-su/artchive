@@ -59,7 +59,7 @@ export class CreateBookSaleDto {
   content: string;
 
   @IsArray()
-  @IsUrl({}, { each: true })
+  @IsUrl({ require_tld: false }, { each: true })
   @ApiProperty({
     description: '상품 이미지 URL 목록',
     example: ['https://example.com/image1.jpg'],

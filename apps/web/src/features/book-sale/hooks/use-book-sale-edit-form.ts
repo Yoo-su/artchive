@@ -1,12 +1,13 @@
 import { UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { useImageUpload } from "@/shared/hooks/use-image-upload";
 
+import { UploadStep } from "../components/common/upload-progress-modal";
 import {
   createEditFormSchema,
   EditFormValues,
@@ -19,9 +20,13 @@ interface UseBookSaleEditFormProps {
 
 export const useBookSaleEditForm = ({ sale }: UseBookSaleEditFormProps) => {
   const t = useTranslations("market.validation");
-  const { mutate, isPending, isSuccess } = useUpdateBookSaleMutation();
+  const { mutateAsync, isPending, isSuccess } = useUpdateBookSaleMutation();
 
-  const isSubmitDisabled = isPending || isSuccess;
+  const [uploadStep, setUploadStep] = useState<UploadStep>("idle");
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const isSubmitDisabled = isPending || isSuccess || isModalOpen;
 
   const [deletedImages, setDeletedImages] = useState<string[]>([]);
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
@@ -62,9 +67,7 @@ export const useBookSaleEditForm = ({ sale }: UseBookSaleEditFormProps) => {
     mode: "onBlur",
   });
 
-
-
-  const onSubmit = (data: EditFormValues) => {
+  const onSubmit = async (data: EditFormValues) => {
     if (existingImages.length + newImageFiles.length === 0) {
       form.setError("images", { message: t("images_min") });
       return;
@@ -82,12 +85,28 @@ export const useBookSaleEditForm = ({ sale }: UseBookSaleEditFormProps) => {
       imageUrls: existingImages,
     };
 
-    mutate({
-      saleId: sale.id,
-      payload,
-      newImageFiles,
-      deletedImageUrls: deletedImages,
-    });
+    setIsModalOpen(true);
+    setUploadStep("compressing");
+    setUploadProgress(10);
+
+    try {
+      await mutateAsync({
+        saleId: sale.id,
+        payload,
+        newImageFiles,
+        deletedImageUrls: deletedImages,
+        onProgressState: (step, percent) => {
+          setUploadStep(step);
+          setUploadProgress(percent);
+        },
+      });
+      setUploadStep("success");
+      setUploadProgress(100);
+    } catch (error) {
+      setIsModalOpen(false);
+      setUploadStep("idle");
+      setUploadProgress(0);
+    }
   };
 
   return {
@@ -98,6 +117,9 @@ export const useBookSaleEditForm = ({ sale }: UseBookSaleEditFormProps) => {
     handleImagesAdd,
     handleExistingImageRemove,
     handleNewImageRemove,
+    uploadStep,
+    uploadProgress,
+    isModalOpen,
     onSubmit: form.handleSubmit(onSubmit, () => {
       toast.error(t("submit_error"));
     }),
