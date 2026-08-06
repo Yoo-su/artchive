@@ -19,7 +19,8 @@
     "start:web": "turbo start --filter=@bookjeok/web --filter=@bookjeok/server",
     "lint": "turbo lint",
     "lint:fix": "turbo lint -- --fix",
-    "test": "turbo test"
+    "test": "turbo test",
+    "storybook": "pnpm --filter=@bookjeok/web storybook"
   },
   "devDependencies": {
     "turbo": "2.7.4",

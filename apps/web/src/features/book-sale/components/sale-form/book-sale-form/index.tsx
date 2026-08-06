@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { BookSearchModal } from "@/features/book/components/common/book-search-modal";
+import { StatefulButton } from "@/shared/components/aceternityui/stateful-button";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Card,
@@ -145,7 +146,7 @@ export const BookSaleForm = () => {
                 )}
               />
 
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:gap-6 sm:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="title"
@@ -163,9 +164,7 @@ export const BookSaleForm = () => {
                           {...field}
                         />
                       </FormControl>
-                      <div className="mt-1 min-h-5">
-                        <FormMessage />
-                      </div>
+                      <FormMessage className="mt-1" />
                     </FormItem>
                   )}
                 />
@@ -189,9 +188,7 @@ export const BookSaleForm = () => {
                           />
                         </div>
                       </FormControl>
-                      <div className="mt-1 min-h-5">
-                        <FormMessage />
-                      </div>
+                      <FormMessage className="mt-1" />
                     </FormItem>
                   )}
                 />
@@ -343,16 +340,20 @@ export const BookSaleForm = () => {
               />
             </fieldset>
 
-            <Button
+            <StatefulButton
               type="submit"
-              className="w-full mt-10!"
+              status={
+                uploadStep === "success"
+                  ? "success"
+                  : uploadStep === "idle"
+                    ? "idle"
+                    : "loading"
+              }
+              className="w-full mt-10"
               disabled={isSubmitDisabled}
             >
-              {isSubmitDisabled && (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              )}
               {t("submit")}
-            </Button>
+            </StatefulButton>
           </form>
         </Form>
         <UploadProgressModal

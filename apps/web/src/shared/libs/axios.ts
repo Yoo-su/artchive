@@ -11,9 +11,10 @@ import { config } from "@/shared/config/env";
 // 런타임 환경(서버/브라우저) 및 구동 방식(컨테이너/생로컬)에 따라 베이스 API 주소 동적 결정
 // - SSR/ISR (서버): 내부망 주소(API_URL) 우선 적용 ➔ 미지정 시 로컬 주소(NEXT_PUBLIC_API_URL)로 폴백
 // - CSR (브라우저): 항상 브라우저용 포트 매핑 주소(NEXT_PUBLIC_API_URL) 사용
-const baseURL = typeof window === "undefined"
-  ? (process.env.API_URL || config.NEXT_PUBLIC_API_URL)
-  : config.NEXT_PUBLIC_API_URL;
+const baseURL =
+  (typeof window === "undefined"
+    ? process.env.API_URL || config.NEXT_PUBLIC_API_URL
+    : config.NEXT_PUBLIC_API_URL) || "http://localhost:8000";
 
 // @bookjeok/api-client의 전역 인스턴스들에 baseURL 반영
 publicApiClient.defaults.baseURL = baseURL;
@@ -22,16 +23,19 @@ privateApiClient.defaults.baseURL = baseURL;
 const commonRequestInterceptor = (
   config: InternalAxiosRequestConfig,
 ): InternalAxiosRequestConfig => {
-  // 클라이언트 브라우저 환경에서만 특정 API(공연/예술, 도서, 업로드)를 Next.js API Route로 전달
-  if (typeof window !== "undefined") {
-    if (
-      config.url?.includes("/art-list") ||
-      config.url?.includes("/art-detail") ||
-      config.url?.includes("/book-list") ||
-      config.url?.includes("/book-detail") ||
-      config.url?.includes("/upload")
-    ) {
+  // Next.js 내부 API Route (공연/예술, 도서, 업로드) 처리
+  if (
+    config.url?.includes("/art-list") ||
+    config.url?.includes("/art-detail") ||
+    config.url?.includes("/book-list") ||
+    config.url?.includes("/book-detail") ||
+    config.url?.includes("/upload")
+  ) {
+    if (typeof window !== "undefined") {
       config.baseURL = "/api";
+    } else {
+      const origin = process.env.CLIENT_DOMAIN || "http://localhost:3000";
+      config.baseURL = `${origin}/api`;
     }
   }
   return config;

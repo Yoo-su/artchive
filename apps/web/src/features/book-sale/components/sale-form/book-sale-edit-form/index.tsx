@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
+import { StatefulButton } from "@/shared/components/aceternityui/stateful-button";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Card,
@@ -99,7 +100,7 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
         <Form {...form}>
           <form onSubmit={onSubmit} className="space-y-6">
             <fieldset disabled={isSubmitDisabled} className="space-y-6">
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:gap-6 sm:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="title"
@@ -117,9 +118,7 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
                           {...field}
                         />
                       </FormControl>
-                      <div className="mt-1 min-h-5">
-                        <FormMessage />
-                      </div>
+                      <FormMessage className="mt-1" />
                     </FormItem>
                   )}
                 />
@@ -143,9 +142,7 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
                           />
                         </div>
                       </FormControl>
-                      <div className="mt-1 min-h-5">
-                        <FormMessage />
-                      </div>
+                      <FormMessage className="mt-1" />
                     </FormItem>
                   )}
                 />
@@ -300,16 +297,20 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
               />
             </fieldset>
 
-            <Button
+            <StatefulButton
               type="submit"
-              className="w-full mt-10!"
+              status={
+                uploadStep === "success"
+                  ? "success"
+                  : uploadStep === "idle"
+                    ? "idle"
+                    : "loading"
+              }
+              className="w-full mt-10"
               disabled={isSubmitDisabled}
             >
-              {isSubmitDisabled && (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              )}
               {t("submit_edit")}
-            </Button>
+            </StatefulButton>
           </form>
         </Form>
         <UploadProgressModal

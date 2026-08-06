@@ -1,15 +1,11 @@
 "use client";
 
-import { CheckCircle2, Loader2 } from "lucide-react";
 import { useEffect } from "react";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/shared/components/shadcn/dialog";
+  LoadingState,
+  MultiStepLoader,
+} from "@/shared/components/aceternityui/multi-step-loader";
 
 export type UploadStep =
   | "idle"
@@ -46,93 +42,45 @@ export const UploadProgressModal = ({
     };
   }, [open, step]);
 
-  const stepsList = [
+  const loadingStates: LoadingState[] = [
     {
-      key: "compressing",
-      label: "이미지 용량 최적화 (압축)",
+      text: "1단계: 이미지 용량 최적화 (압축 중)",
     },
     {
-      key: "uploading",
-      label: `이미지 스토리지 업로드 (${progress}%)`,
+      text: `2단계: 이미지 스토리지 업로드 중 (${Math.min(100, Math.max(0, progress))}%)`,
     },
     {
-      key: "submitting",
-      label: isEdit ? "게시글 수정 완료 처리" : "게시글 생성 및 저장",
+      text: isEdit
+        ? "3단계: 게시글 수정 완료 처리 중"
+        : "3단계: 게시글 생성 및 DB 저장 중",
+    },
+    {
+      text: "4단계: 완결! 잠시 후 이동합니다.",
     },
   ];
 
-  const getStepStatus = (itemKey: string) => {
-    const order = ["compressing", "uploading", "submitting", "success"];
-    const currentIndex = order.indexOf(step);
-    const itemIndex = order.indexOf(itemKey);
-
-    if (currentIndex > itemIndex || step === "success") return "completed";
-    if (currentIndex === itemIndex) return "active";
-    return "pending";
+  const getStepIndex = (currentStep: UploadStep) => {
+    switch (currentStep) {
+      case "compressing":
+        return 0;
+      case "uploading":
+        return 1;
+      case "submitting":
+        return 2;
+      case "success":
+        return 3;
+      default:
+        return 0;
+    }
   };
 
+  const stepIndex = getStepIndex(step);
+
   return (
-    <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md border-primary/20 shadow-2xl [&>button]:hidden">
-        <DialogHeader className="text-center sm:text-center space-y-2">
-          <DialogTitle className="text-xl font-bold">
-            {isEdit ? "판매글 수정 진행 중" : "판매글 등록 진행 중"}
-          </DialogTitle>
-          <DialogDescription>
-            {step === "success"
-              ? "처리가 완료되었습니다! 페이지를 이동합니다."
-              : "안전하게 게시글을 처리 중입니다. 창을 닫지 마세요."}
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-6 py-4">
-          {/* 전체 프로그레스 바 */}
-          <div className="space-y-2">
-            <div className="flex justify-between text-xs font-semibold text-muted-foreground">
-              <span>진행률</span>
-              <span>{Math.min(100, Math.max(0, progress))}%</span>
-            </div>
-            <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary transition-all duration-300 ease-out"
-                style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
-              />
-            </div>
-          </div>
-
-          {/* 단계별 가이드 리스트 */}
-          <div className="space-y-3 bg-muted/30 p-4 rounded-xl border">
-            {stepsList.map((item) => {
-              const status = getStepStatus(item.key);
-              return (
-                <div
-                  key={item.key}
-                  className="flex items-center gap-3 text-sm transition-colors"
-                >
-                  {status === "completed" ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
-                  ) : status === "active" ? (
-                    <Loader2 className="w-5 h-5 text-primary animate-spin shrink-0" />
-                  ) : (
-                    <div className="w-5 h-5 rounded-full border-2 border-muted-foreground/30 shrink-0" />
-                  )}
-                  <span
-                    className={
-                      status === "completed"
-                        ? "text-foreground font-medium line-through opacity-80"
-                        : status === "active"
-                          ? "text-primary font-semibold"
-                          : "text-muted-foreground"
-                    }
-                  >
-                    {item.label}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+    <MultiStepLoader
+      loading={open && step !== "idle"}
+      value={stepIndex}
+      loadingStates={loadingStates}
+    />
   );
 };
