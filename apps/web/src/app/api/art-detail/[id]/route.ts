@@ -14,7 +14,9 @@ export async function GET(
       throw new Error("공연 ID가 필요합니다.");
     }
 
-    const apiUrl = `http://www.kopis.or.kr/openApi/restful/pblprfr/${id}?service=${config.CULTURE_SERVICE_KEY}`;
+    const serviceKey =
+      process.env.CULTURE_SERVICE_KEY || config.CULTURE_SERVICE_KEY;
+    const apiUrl = `http://www.kopis.or.kr/openApi/restful/pblprfr/${id}?service=${serviceKey}`;
 
     const response = await fetch(apiUrl, {
       method: "GET",

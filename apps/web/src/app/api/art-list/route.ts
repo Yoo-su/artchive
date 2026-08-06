@@ -18,7 +18,9 @@ export async function GET(request: NextRequest) {
     const signgucode = searchParams.get("signgucode") as CityCode;
 
     // 외부 API 호출
-    const apiUrl = `http://www.kopis.or.kr/openApi/restful/pblprfr?service=${config.CULTURE_SERVICE_KEY}&stdate=${startDate}&eddate=${endDate}&cpage=${cpage}&rows=${rows}&prfstate=${prfstate}&signgucode=${signgucode}&shcate=${genreCode}`;
+    const serviceKey =
+      process.env.CULTURE_SERVICE_KEY || config.CULTURE_SERVICE_KEY;
+    const apiUrl = `http://www.kopis.or.kr/openApi/restful/pblprfr?service=${serviceKey}&stdate=${startDate}&eddate=${endDate}&cpage=${cpage}&rows=${rows}&prfstate=${prfstate}&signgucode=${signgucode}&shcate=${genreCode}`;
 
     const response = await fetch(apiUrl, {
       method: "GET",
