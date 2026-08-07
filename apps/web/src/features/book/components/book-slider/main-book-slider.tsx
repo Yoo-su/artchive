@@ -59,10 +59,14 @@ const BookCard = memo(({
     [0.7, 0.55, 0.3, 0, 0.3, 0.55, 0.7]
   );
 
+  // 3D 회전 시 뒤편(후면)에 위치한 카드의 포인터 이벤트 차단
+  const pointerEvents = useTransform(relativeAngle, (a: number) =>
+    Math.abs(a) > 85 ? "none" : "auto"
+  );
+
   return (
-    // 1. 외곽 레이어: 정적 3D 실린더 배치 담당.
-    // Framer Motion이 CSS transform 순서를 덮어쓰는 현상을 방지하기 위해 분리.
-    <div
+    // 1. 외곽 레이어: 정적 3D 실린더 배치 및 3D 후면 숨김 처리
+    <motion.div
       style={{
         position: "absolute",
         left: 0,
@@ -71,7 +75,11 @@ const BookCard = memo(({
         height: "100%",
         transformStyle: "preserve-3d",
         transform: `rotateY(${cardAngle}deg) translateZ(${radius}px)`,
+        backfaceVisibility: "hidden",
+        WebkitBackfaceVisibility: "hidden",
+        pointerEvents,
       }}
+      className="cursor-pointer"
     >
       {/* 2. 중간 레이어: 동적 크기, 투명도, z-index 정렬 및 고정 호버 영역 감지 담당 */}
       <motion.div
@@ -86,25 +94,25 @@ const BookCard = memo(({
           opacity,
           zIndex,
         }}
-        className="w-full h-full"
+        className="w-full h-full cursor-pointer"
       >
-        {/* 3. 내부 레이어: 마우스 호버 애니메이션 담당 (부모 고정 레이어를 통해 사선/이동 시 호버 이탈 방지) */}
+        {/* 3. 내부 레이어: 마우스 호버 애니메이션 담당 */}
         <motion.div
           variants={{
             rest: { scale: 1, y: 0 },
             hover: { scale: 1.06, y: -12 },
           }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="w-full h-full rounded-2xl"
+          className="w-full h-full rounded-2xl cursor-pointer"
         >
           <Link
             href={PATHS.BOOK_DETAIL(book.isbn)}
             passHref
             onClick={onCardClick}
             onDragStart={(e) => e.preventDefault()} // 드래그 제스처 방해 방지를 위해 브라우저 기본 링크 드래그 차단
-            className="block w-full h-full group pointer-events-auto"
+            className="block w-full h-full group pointer-events-auto cursor-pointer"
           >
-            <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-[0_12px_24px_-8px_rgba(0,0,0,0.35)] group-hover:shadow-[0_28px_40px_-10px_rgba(0,0,0,0.45)] transition-shadow duration-700 ease-out border border-stone-200/40">
+            <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-[0_12px_24px_-8px_rgba(0,0,0,0.35)] group-hover:shadow-[0_28px_40px_-10px_rgba(0,0,0,0.45)] transition-shadow duration-700 ease-out border border-stone-200/40 cursor-pointer">
               <Image
                 src={book.image || "/images/placeholder-book.svg"}
                 alt={book.title}
@@ -113,7 +121,7 @@ const BookCard = memo(({
                 unoptimized={true}
                 draggable={false} // 마우스 먹통 방지를 위해 브라우저 기본 이미지 드래그 차단
                 sizes="(max-width: 768px) 130px, 230px"
-                className="object-cover transition-transform duration-1000 group-hover:scale-102"
+                className="object-cover transition-transform duration-1000 group-hover:scale-102 cursor-pointer"
               />
               {/* 입체적인 조명 효과를 위한 베벨 링 */}
               <div className="absolute inset-0 ring-1 ring-inset ring-white/20 rounded-2xl pointer-events-none" />
@@ -130,7 +138,7 @@ const BookCard = memo(({
           </Link>
         </motion.div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 });
 
