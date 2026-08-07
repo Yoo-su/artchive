@@ -83,9 +83,9 @@ export const BookDetail = ({ isbn }: BookDetailProps) => {
   if (isError || !book) return <BookDetailError />;
 
   return (
-    <section className="w-full">
-      <div className="grid items-start md:grid-cols-3 gap-8 lg:gap-12">
-        <div className="w-full md:col-span-1">
+    <section className="w-full overflow-visible">
+      <div className="grid items-start md:grid-cols-3 gap-8 lg:gap-12 overflow-visible">
+        <div className="w-full md:col-span-1 overflow-visible">
           <BookCover src={book.image} alt={book.title} />
         </div>
 

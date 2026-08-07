@@ -659,6 +659,7 @@ export interface BubbleProps extends BubbleOptions {
   children: ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  contentStyle?: React.CSSProperties;
 }
 
 const emptySubscribe = () => () => {};
@@ -667,6 +668,7 @@ export function Bubble({
   children,
   className,
   style,
+  contentStyle,
   ...options
 }: BubbleProps) {
   const sourceRef = useRef<HTMLCanvasElement>(null);
@@ -724,6 +726,7 @@ export function Bubble({
               width: "100%",
               height: "100%",
               overflow: "auto",
+              ...contentStyle,
             }}
           >
             {children}
@@ -738,6 +741,7 @@ export function Bubble({
             width: "100%",
             height: "100%",
             overflow: "auto",
+            ...contentStyle,
           }}
         >
           {children}
