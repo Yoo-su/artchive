@@ -2,7 +2,6 @@
 
 import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo } from "react";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
@@ -16,11 +15,6 @@ import { RecentSalesSliderSkeleton } from "./skeleton";
 export const RecentSalesSlider = () => {
   const t = useTranslations("home.sections.recent_sales");
   const { data: sales, isLoading, isError } = useRecentBookSalesQuery();
-
-  // 슬라이드 개수가 5개 이상일 때만 무한 Loop 및 Autoplay 활성화
-  const isLoopable = useMemo(() => {
-    return Boolean(sales && sales.length >= 5);
-  }, [sales]);
 
   const SliderHeader = () => (
     <div className="mb-14 flex flex-col border-b border-stone-200 pb-5 sm:pb-6 relative z-10 text-right">
@@ -45,7 +39,7 @@ export const RecentSalesSlider = () => {
 
   if (isLoading) {
     return (
-      <section className="w-full py-16  overflow-hidden">
+      <section className="w-full py-16 overflow-hidden">
         <div className="w-full mx-auto px-4">
           <SliderHeader />
         </div>
@@ -67,12 +61,10 @@ export const RecentSalesSlider = () => {
         modules={[Autoplay]}
         slidesPerView={"auto"}
         spaceBetween={24}
-        loop={isLoopable}
-        loopAdditionalSlides={isLoopable ? 5 : 0}
-        centeredSlides={isLoopable}
+        loop={false}
         speed={800}
         autoplay={
-          isLoopable
+          sales.length > 4
             ? {
                 delay: 3000,
                 disableOnInteraction: false,
@@ -96,3 +88,4 @@ export const RecentSalesSlider = () => {
     </section>
   );
 };
+

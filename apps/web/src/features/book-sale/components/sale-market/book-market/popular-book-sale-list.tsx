@@ -26,12 +26,12 @@ export function PopularBookSaleList() {
         <Swiper
           modules={[FreeMode]}
           freeMode={true}
-          spaceBetween={20}
-          slidesPerView={1.2}
+          spaceBetween={12}
+          slidesPerView={1.75}
           breakpoints={{
-            480: { slidesPerView: 2.1 },
-            768: { slidesPerView: 3.1 },
-            1024: { slidesPerView: 4.1 },
+            480: { slidesPerView: 2.3, spaceBetween: 16 },
+            768: { slidesPerView: 3.2, spaceBetween: 20 },
+            1024: { slidesPerView: 4.2, spaceBetween: 20 },
           }}
           className="w-full px-1! py-2! md:py-4!"
         >
@@ -63,12 +63,12 @@ export function PopularBookSaleList() {
       <Swiper
         modules={[FreeMode]}
         freeMode={true}
-        spaceBetween={20}
-        slidesPerView={1.2}
+        spaceBetween={12}
+        slidesPerView={1.75}
         breakpoints={{
-          480: { slidesPerView: 2.1 },
-          768: { slidesPerView: 3.1 },
-          1024: { slidesPerView: 4.1 },
+          480: { slidesPerView: 2.3, spaceBetween: 16 },
+          768: { slidesPerView: 3.2, spaceBetween: 20 },
+          1024: { slidesPerView: 4.2, spaceBetween: 20 },
         }}
         className="w-full px-1! py-2! md:py-4!"
       >
@@ -89,3 +89,4 @@ export function PopularBookSaleList() {
     </section>
   );
 }
+
