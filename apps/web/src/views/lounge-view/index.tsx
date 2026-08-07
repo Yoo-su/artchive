@@ -1,7 +1,6 @@
 "use client";
 
 import type { LoungeBookCard } from "@bookjeok/core";
-import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { LoungeActiveReaders } from "@/features/reading-log/components/lounge-feed/lounge-active-readers";
@@ -9,10 +8,9 @@ import { LoungeBookDetailModal } from "@/features/reading-log/components/lounge-
 import { LoungeFeedList } from "@/features/reading-log/components/lounge-feed/lounge-feed-list";
 import { LoungePopularBanner } from "@/features/reading-log/components/lounge-feed/lounge-popular-banner";
 import { AdBanner } from "@/shared/components/ads/ad-banner";
+import { CrowdCanvas } from "@/shared/components/skiperui/canvas-crowd";
 
 export function LoungeView() {
-  const t = useTranslations("lounge");
-
   const [modalData, setModalData] = useState<{
     isbn: string;
     book?: LoungeBookCard["book"];
@@ -36,18 +34,18 @@ export function LoungeView() {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="w-full mx-auto px-4 py-12 md:py-20">
-        {/* 히어로 섹션: 기존 서비스 헤더 스타일과 통일 */}
-        <div className="mb-10 md:mb-12 border-b border-stone-200 pb-6">
-          <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-stone-900 font-medium tracking-tight leading-tight">
-            {t("hero.title")}
-          </h1>
-          <p className="mt-4 text-base sm:text-lg text-stone-500 font-light max-w-xl leading-relaxed whitespace-pre-line">
-            {t("hero.subtitle")}
-          </p>
-        </div>
+    <div className="min-h-screen relative">
+      {/* Skiper UI CrowdCanvas 히어로 영역 */}
+      <div className="relative w-full h-[60vh] min-h-[400px] mb-8">
+        <CrowdCanvas
+          src="/images/peeps/all-peeps.png"
+          rows={15}
+          cols={7}
+          className="absolute bottom-0 h-full w-full"
+        />
+      </div>
 
+      <div className="w-full mx-auto px-4">
         {/* 광고 배너 */}
         <AdBanner
           dataAdSlot="6040704861"
