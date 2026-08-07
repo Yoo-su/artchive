@@ -21,7 +21,7 @@ export const BookDetailView = ({ isbn }: { isbn: string }) => {
   }, []);
 
   const content = (
-    <div className="flex flex-col w-full py-8">
+    <div className="flex flex-col w-full py-8 overflow-visible max-w-5xl mx-auto px-4 sm:px-6">
       <BookDetail isbn={isbn} />
       <RelatedSales isbn={isbn} />
       <CommentSection targetType={CommentTargetType.BOOK} targetId={isbn} />
@@ -30,8 +30,14 @@ export const BookDetailView = ({ isbn }: { isbn: string }) => {
   );
 
   if (!isDesktop) {
-    return <div className="w-full">{content}</div>;
+    return <div className="w-full overflow-visible">{content}</div>;
   }
 
-  return <Bubble className="w-full">{content}</Bubble>;
+  return (
+    <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] overflow-visible">
+      <Bubble className="w-full overflow-visible" contentStyle={{ overflow: "visible" }}>
+        {content}
+      </Bubble>
+    </div>
+  );
 };

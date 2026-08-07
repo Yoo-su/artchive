@@ -17,18 +17,9 @@ export const RecentSalesSlider = () => {
   const t = useTranslations("home.sections.recent_sales");
   const { data: sales, isLoading, isError } = useRecentBookSalesQuery();
 
-  // 슬라이드가 화면을 충분히 채울 수 있도록 아이템 복제
-  // 최소 8개 이상의 슬라이드가 있어야 loop가 자연스럽게 작동
-  const displaySales = useMemo(() => {
-    if (!sales || sales.length === 0) return [];
-    if (sales.length >= 15) return sales;
-
-    // 아이템이 15개 미만이면 복제해서 최소 15개로 만듦 (Loop 안정성 확보)
-    const multiplier = Math.ceil(15 / sales.length);
-    return Array(multiplier)
-      .fill(sales)
-      .flat()
-      .slice(0, Math.max(15, sales.length * 2));
+  // 슬라이드 개수가 5개 이상일 때만 무한 Loop 및 Autoplay 활성화
+  const isLoopable = useMemo(() => {
+    return Boolean(sales && sales.length >= 5);
   }, [sales]);
 
   const SliderHeader = () => (
@@ -76,22 +67,26 @@ export const RecentSalesSlider = () => {
         modules={[Autoplay]}
         slidesPerView={"auto"}
         spaceBetween={24}
-        loop={true}
-        loopAdditionalSlides={5} // 데이터 복제 + 적절한 버퍼로 완벽한 Loop 구현
-        centeredSlides={true}
+        loop={isLoopable}
+        loopAdditionalSlides={isLoopable ? 5 : 0}
+        centeredSlides={isLoopable}
         speed={800}
-        autoplay={{
-          delay: 3000,
-          disableOnInteraction: false,
-          pauseOnMouseEnter: true,
-        }}
+        autoplay={
+          isLoopable
+            ? {
+                delay: 3000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              }
+            : false
+        }
         observer={true}
         observeParents={true}
         className="px-4! overflow-visible! [clip-path:inset(-100px_-10px)]"
       >
-        {displaySales.map((sale, index) => (
+        {sales.map((sale, index) => (
           <SwiperSlide
-            key={`${sale.id}-${index}`}
+            key={sale.id}
             className="w-[200px]! py-4 select-none"
           >
             <RecentSaleCard sale={sale} priority={index < 4} />
