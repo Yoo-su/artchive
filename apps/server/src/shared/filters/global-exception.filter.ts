@@ -44,12 +44,20 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    const errorResponse = this.buildErrorResponse(exception, request);
     const status = this.getHttpStatus(exception);
 
     // 에러 로깅 (5xx 에러는 error 레벨, 4xx는 warn 레벨)
     this.logError(exception, request, status);
 
+    // 이미 스트리밍으로 응답 헤더가 전송된 경우 중복 헤더 설정 방지
+    if (response.headersSent) {
+      if (!response.writableEnded) {
+        response.end();
+      }
+      return;
+    }
+
+    const errorResponse = this.buildErrorResponse(exception, request);
     response.status(status).json(errorResponse);
   }
 

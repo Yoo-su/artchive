@@ -208,9 +208,25 @@ export class LlmService {
         );
       }
 
-      console.error('Gemini API 호출에 실패했습니다:', error);
+      this.logger.error('Gemini API 호출에 실패했습니다:', error);
+
+      // 도서 설명글이 있는 경우 간단한 요약 대체 생성 시도 (Graceful Fallback)
+      if (description && description.trim().length > 30) {
+        const fallbackSummary: BookSummaryResponseDto = {
+          summary: `${author} 저자의 도서입니다. ${description.slice(0, 200)}...`,
+          keyPoints: [
+            `${author} 작가의 대표 저작`,
+            '도서 소개글 기반 자동 생성',
+            '상세 본문 및 서평 참고 권장',
+          ],
+          targetAudience: '해당 분야 및 저자의 작품에 관심이 있는 독자',
+          keywords: [title, author, publisher || '도서'].filter(Boolean),
+        };
+        return fallbackSummary;
+      }
+
       throw new InternalServerErrorException(
-        '죄송해요, 책 내용을 읽어오다가 나뭇잎을 놓쳤어요구리! 🍃',
+        '도서 요약 및 분석을 생성하는 중 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
       );
     }
   }

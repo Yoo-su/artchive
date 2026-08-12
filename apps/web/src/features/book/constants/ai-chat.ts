@@ -1,10 +1,20 @@
-import { AiSearchBookItem } from "@/features/book/queries/use-ai-search-query";
+export interface AiSearchBookItem {
+  isbn: string;
+  title: string;
+  author: string;
+  publisher: string;
+  description: string;
+  image: string;
+  similarity: number;
+  reason?: string;
+}
 
 export interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
   books?: AiSearchBookItem[];
+  isStreaming?: boolean;
 }
 
 export const CHAT_STORAGE_KEY = "bookjeok_ai_chat_history";

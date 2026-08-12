@@ -5,10 +5,11 @@ import Image from "next/image";
 import { FreeMode } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { AiSearchBookItem } from "@/features/book/queries/use-ai-search-query";
 import { Highlighter } from "@/shared/components/magicui/highlighter";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
+
+import { AiSearchBookItem } from "../../constants/ai-chat";
 
 interface AiBookRecommendSliderProps {
   books: AiSearchBookItem[];

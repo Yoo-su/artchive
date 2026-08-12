@@ -97,4 +97,8 @@ export const API_PATHS = {
     base: "/insights",
     locationSales: "/insights/location-sales",
   },
+  search: {
+    ai: "/search/ai",
+    aiStream: "/search/ai/stream",
+  },
 };
