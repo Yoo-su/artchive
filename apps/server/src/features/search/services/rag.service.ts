@@ -1,6 +1,7 @@
 import {
   FunctionDeclaration,
   GoogleGenerativeAI,
+  Schema,
   SchemaType,
   Tool,
 } from '@google/generative-ai';
@@ -108,24 +109,136 @@ export class RagService {
 
     for (const m of validPast) {
       const geminiRole = m.role === ChatRole.USER ? 'user' : 'model';
+      const cleanText = m.content?.trim();
+      if (!cleanText) continue;
+
       if (
         history.length > 0 &&
         history[history.length - 1].role === geminiRole
       ) {
-        history[history.length - 1].parts[0].text += `\n${m.content}`;
+        history[history.length - 1].parts[0].text += `\n${cleanText}`;
       } else {
         history.push({
           role: geminiRole,
-          parts: [{ text: m.content }],
+          parts: [{ text: cleanText }],
         });
       }
+    }
+
+    while (history.length > 0 && history[history.length - 1].role !== 'model') {
+      history.pop();
     }
 
     return history;
   }
 
   /**
-   * 멀티턴 대화 및 도구 호출 여부 1차 판단 (Conversational Agent - 1차 호출)
+   * 1차 턴 실시간 스트리밍 의도 분류 제너레이터
+   * - 일반 대화: 실시간 토큰(chunk) 즉시 yield (TTFB ~200ms)
+   * - 도서 검색: function_call 감지 즉시 텍스트 스트리밍 중단 후 도구 인자 yield
+   */
+  async *processConversationalTurnStream(
+    messages: ChatMessageDto[],
+  ): AsyncGenerator<{
+    type: 'chunk' | 'function_call' | 'done';
+    chunk?: string;
+    searchQueryRequested?: string;
+    targetCount?: number;
+    preferredPublishers?: string[];
+    excludedKeywords?: string[];
+    usageMetadata?: {
+      promptTokenCount?: number;
+      candidatesTokenCount?: number;
+      totalTokenCount?: number;
+    };
+  }> {
+    if (!messages || messages.length === 0) {
+      yield {
+        type: 'chunk',
+        chunk: '안녕하세요! 어떤 책을 찾고 계신가요? 편안하게 말씀해 주세요.',
+      };
+      yield { type: 'done' };
+      return;
+    }
+
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage.role !== ChatRole.USER) {
+      yield {
+        type: 'chunk',
+        chunk: '원하시는 도서 분위기나 장르를 말씀해 주시면 찾아드릴게요.',
+      };
+      yield { type: 'done' };
+      return;
+    }
+
+    const MAX_HISTORY_MESSAGES = 16;
+    const trimmedMessages =
+      messages.length > MAX_HISTORY_MESSAGES
+        ? messages.slice(-MAX_HISTORY_MESSAGES)
+        : messages;
+    const history = this.buildGeminiHistory(trimmedMessages);
+
+    try {
+      const model = this.genAI.getGenerativeModel({
+        model: this.modelName,
+        systemInstruction: getConversationalSystemInstruction(),
+        tools: [this.getSearchBooksTool()],
+      });
+
+      const chat = model.startChat({ history });
+      const streamResult = await chat.sendMessageStream(lastMessage.content);
+
+      for await (const chunk of streamResult.stream) {
+        const call = chunk.functionCalls()?.[0];
+        if (call && call.name === 'search_books') {
+          const args = call.args as {
+            searchQuery?: string;
+            targetCount?: number;
+            preferredPublishers?: string[];
+            excludedKeywords?: string[];
+          };
+          yield {
+            type: 'function_call',
+            searchQueryRequested: args.searchQuery || lastMessage.content,
+            targetCount:
+              typeof args.targetCount === 'number' && args.targetCount > 0
+                ? Math.max(1, Math.min(args.targetCount, 10))
+                : 5,
+            preferredPublishers: Array.isArray(args.preferredPublishers)
+              ? args.preferredPublishers.filter(Boolean)
+              : [],
+            excludedKeywords: Array.isArray(args.excludedKeywords)
+              ? args.excludedKeywords.filter(Boolean)
+              : [],
+          };
+          return;
+        }
+
+        try {
+          const text = chunk.text();
+          if (text) {
+            yield { type: 'chunk', chunk: text };
+          }
+        } catch {
+          // Function calling 응답 청크는 text가 없을 수 있음
+        }
+      }
+
+      const response = await streamResult.response;
+      yield { type: 'done', usageMetadata: response.usageMetadata };
+    } catch (error) {
+      this.logger.error('Conversational Turn Streaming Error:', error);
+      yield {
+        type: 'chunk',
+        chunk:
+          '대화를 처리하는 도중 일시적인 오류가 발생했습니다. 잠시 후 다시 말씀해 주시겠어요?',
+      };
+      yield { type: 'done' };
+    }
+  }
+
+  /**
+   * 동기 1차 턴 판단 메서드
    */
   async processConversationalTurn(
     messages: ChatMessageDto[],
@@ -145,7 +258,7 @@ export class RagService {
       };
     }
 
-    const MAX_HISTORY_MESSAGES = 20;
+    const MAX_HISTORY_MESSAGES = 16;
     const trimmedMessages =
       messages.length > MAX_HISTORY_MESSAGES
         ? messages.slice(-MAX_HISTORY_MESSAGES)
@@ -212,14 +325,14 @@ export class RagService {
   }
 
   /**
-   * pgvector 검색 결과에 대해 실시간 토큰 단위로 스트리밍 큐레이션을 작성하는 제너레이터
+   * 2차 RAG: DB 검색된 도서들에 대해 맞춤 추천 사유(reason) 및 총평(message)을 구조화하여 생성
    */
-  async *filterAndSynthesizeRecommendationStream(
+  async filterAndSynthesizeRecommendation(
     messages: ChatMessageDto[],
     candidateBooks: BookSearchResultDto[],
-  ): AsyncGenerator<{
-    type: 'chunk' | 'done';
-    chunk?: string;
+  ): Promise<{
+    message: string;
+    books: BookSearchResultDto[];
     usageMetadata?: {
       promptTokenCount?: number;
       candidatesTokenCount?: number;
@@ -227,43 +340,84 @@ export class RagService {
     };
   }> {
     if (candidateBooks.length === 0) {
-      yield {
-        type: 'chunk',
-        chunk:
+      return {
+        message:
           '말씀하신 조건과 어울리는 도서를 데이터베이스에서 찾지 못했습니다. 원하시는 장르나 키워드를 다르게 말씀해 주시면 다시 찾아드릴게요.',
+        books: [],
       };
-      yield { type: 'done' };
-      return;
     }
 
     const prompt = buildRAGSynthesisPrompt(messages, candidateBooks);
+
+    const schema: Schema = {
+      type: SchemaType.OBJECT,
+      properties: {
+        message: {
+          type: SchemaType.STRING,
+          description:
+            '사용자에게 건네는 따뜻하고 정갈한 도서 추천 총평 및 인사말 (1~2문장)',
+        },
+        recommendations: {
+          type: SchemaType.ARRAY,
+          items: {
+            type: SchemaType.OBJECT,
+            properties: {
+              isbn: { type: SchemaType.STRING },
+              reason: {
+                type: SchemaType.STRING,
+                description:
+                  '사용자의 요청 맥락과 연결하여 이 책을 추천하는 구체적이고 설득력 있는 추천 까닭 (1~2문장)',
+              },
+            },
+            required: ['isbn', 'reason'],
+          },
+        },
+      },
+      required: ['message', 'recommendations'],
+    };
 
     try {
       const model = this.genAI.getGenerativeModel({
         model: this.modelName,
         systemInstruction: getRAGSynthesisSystemInstruction(),
         generationConfig: {
+          responseMimeType: 'application/json',
+          responseSchema: schema,
           temperature: 0.3,
         },
       });
 
-      const result = await model.generateContentStream(prompt);
-      for await (const chunk of result.stream) {
-        const text = chunk.text();
-        if (text) {
-          yield { type: 'chunk', chunk: text };
+      const result = await model.generateContent(prompt);
+      const parsed = JSON.parse(result.response.text());
+
+      const reasonMap = new Map<string, string>();
+      if (Array.isArray(parsed.recommendations)) {
+        for (const item of parsed.recommendations) {
+          if (item.isbn && item.reason) {
+            reasonMap.set(item.isbn, item.reason);
+          }
         }
       }
-      const response = await result.response;
-      yield { type: 'done', usageMetadata: response.usageMetadata };
-    } catch (error) {
-      this.logger.error('Streaming Synthesis Error:', error);
-      yield {
-        type: 'chunk',
-        chunk:
-          '\n\n요청하신 분위기와 주제에 잘 어울리는 도서 목록을 엄선했습니다. 상단의 도서 카드를 통해 자세한 정보를 확인해 보세요.',
+
+      const validBooks = candidateBooks.map((b) => ({
+        ...b,
+        reason: reasonMap.get(b.isbn) || b.description.slice(0, 100),
+      }));
+
+      return {
+        message:
+          parsed.message ||
+          '요청하신 독서 취향과 맥락에 맞춰 엄선한 추천 도서들입니다. 각 도서의 추천 까닭을 확인해 보세요.',
+        books: validBooks,
+        usageMetadata: result.response.usageMetadata,
       };
-      yield { type: 'done' };
+    } catch (error) {
+      this.logger.error('Unified Synthesis Error:', error);
+      return {
+        message:
+          '요청하신 독서 취향과 맥락에 맞춰 엄선한 추천 도서들입니다. 상단 도서 카드를 통해 자세한 정보를 확인해 보세요.',
+        books: candidateBooks,
+      };
     }
   }
 
