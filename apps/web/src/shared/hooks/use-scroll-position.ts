@@ -11,22 +11,16 @@ export const useScrollPosition = (throttleMs: number = 100) => {
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
-    let ticking = false;
-    let lastScrollY = 0;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let rafId: number | null = null;
 
     const handleScroll = () => {
-      lastScrollY = window.scrollY;
-
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          setScrollY(lastScrollY);
-          ticking = false;
-        });
-
-        // throttle 적용
-        ticking = true;
-        setTimeout(() => {
-          ticking = false;
+      if (timeoutId === null) {
+        timeoutId = setTimeout(() => {
+          timeoutId = null;
+          rafId = window.requestAnimationFrame(() => {
+            setScrollY(window.scrollY);
+          });
         }, throttleMs);
       }
     };
@@ -37,6 +31,8 @@ export const useScrollPosition = (throttleMs: number = 100) => {
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
+      if (timeoutId !== null) clearTimeout(timeoutId);
+      if (rafId !== null) window.cancelAnimationFrame(rafId);
       window.removeEventListener("scroll", handleScroll);
     };
   }, [throttleMs]);

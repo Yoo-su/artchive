@@ -57,7 +57,7 @@ export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
     updateSettings(checked);
   };
 
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
 
   const handleYearlyDeckClick = () => {
     if (!user) return;

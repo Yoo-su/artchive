@@ -2,6 +2,7 @@
 
 import { formatAladinCoverImage } from "@bookjeok/core";
 import Image from "next/image";
+import { memo } from "react";
 import { FreeMode } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
@@ -15,10 +16,9 @@ interface AiBookRecommendSliderProps {
   books: AiSearchBookItem[];
 }
 
-export const AiBookRecommendSlider = ({
-  books,
-}: AiBookRecommendSliderProps) => {
-  if (!books || books.length === 0) return null;
+export const AiBookRecommendSlider = memo(
+  function AiBookRecommendSlider({ books }: AiBookRecommendSliderProps) {
+    if (!books || books.length === 0) return null;
 
   return (
     <div className="mt-3 w-full bg-white/70 backdrop-blur-md border border-white/80 rounded-2xl p-4 space-y-3 shadow-sm shadow-stone-900/5 ring-1 ring-stone-900/5">
@@ -99,5 +99,5 @@ export const AiBookRecommendSlider = ({
       </Swiper>
     </div>
   );
-};
+});
 

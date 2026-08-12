@@ -31,7 +31,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const { socket, isConnected } = useSocketContext();
   const { registerChatEventListeners, unregisterChatEventListeners } =
     useChatEvents();
-  const { hasJoinedRooms, setHasJoinedRooms } = useChatStore();
+  const hasJoinedRooms = useChatStore((state) => state.hasJoinedRooms);
+  const setHasJoinedRooms = useChatStore((state) => state.setHasJoinedRooms);
   const { data: rooms, isSuccess: isRoomsLoaded } = useMyChatRoomsQuery({
     enabled: !!user,
   });
