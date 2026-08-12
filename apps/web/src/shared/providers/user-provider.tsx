@@ -11,7 +11,8 @@ interface UesrProviderProps {
   children: ReactNode;
 }
 export default function UserProvider({ children }: UesrProviderProps) {
-  const { setUser, accessToken } = useAuthStore();
+  const setUser = useAuthStore((state) => state.setUser);
+  const accessToken = useAuthStore((state) => state.accessToken);
   const [isHydrated, setIsHydrated] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const pathname = usePathname();

@@ -3,6 +3,7 @@
 import { LoungeBookCard } from "@bookjeok/core";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
+import { memo } from "react";
 
 import { AvatarCircles } from "@/shared/components/magicui/avatar-circles";
 import { cn } from "@/shared/utils/cn";
@@ -13,7 +14,10 @@ interface LoungeFeedCardProps {
   onCardClick: (item: LoungeBookCard) => void;
 }
 
-export function LoungeFeedCard({ item, onCardClick }: LoungeFeedCardProps) {
+export const LoungeFeedCard = memo(function LoungeFeedCard({
+  item,
+  onCardClick,
+}: LoungeFeedCardProps) {
   const t = useTranslations("lounge.feed");
   const locale = useLocale();
 
@@ -85,4 +89,4 @@ export function LoungeFeedCard({ item, onCardClick }: LoungeFeedCardProps) {
       </div>
     </div>
   );
-}
+});
