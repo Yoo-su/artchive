@@ -19,15 +19,24 @@ export default function Page() {
     const refreshToken = searchParams.get("refreshToken");
     const userString = searchParams.get("user");
 
-    if (accessToken && refreshToken && userString) {
+    if (accessToken && refreshToken) {
       try {
-        const user: User = JSON.parse(userString);
         setTokens({ accessToken, refreshToken });
-        setUser(user);
+        if (userString) {
+          try {
+            const user: User = JSON.parse(userString);
+            setUser(user);
+          } catch (e) {
+            console.warn(
+              "Could not parse user from query, UserProvider will fetch profile:",
+              e,
+            );
+          }
+        }
         const returnUrl = consumeReturnUrl();
         router.replace(returnUrl || PATHS.HOME);
       } catch (error) {
-        console.error("Failed to parse user data:", error);
+        console.error("Failed to process auth callback:", error);
         router.replace(PATHS.LOGIN);
       }
     } else {

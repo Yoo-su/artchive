@@ -51,10 +51,19 @@ export class AuthController {
       user: userInfo,
     } = await this.authService.socialLogin(user);
 
+    const safeUser = {
+      id: userInfo.id,
+      nickname: userInfo.nickname,
+      handle: userInfo.handle,
+      profileImageUrl: userInfo.profileImageUrl,
+      role: userInfo.role,
+      isReadingLogPublic: userInfo.isReadingLogPublic,
+    };
+
     const url = new URL(`${this.configService.get('CLIENT_DOMAIN')}/callback`);
     url.searchParams.set('accessToken', accessToken);
     url.searchParams.set('refreshToken', refreshToken);
-    url.searchParams.set('user', JSON.stringify(userInfo));
+    url.searchParams.set('user', JSON.stringify(safeUser));
     return res.redirect(url.toString());
   }
 
@@ -87,10 +96,19 @@ export class AuthController {
       user: userInfo,
     } = await this.authService.socialLogin(user);
 
+    const safeUser = {
+      id: userInfo.id,
+      nickname: userInfo.nickname,
+      handle: userInfo.handle,
+      profileImageUrl: userInfo.profileImageUrl,
+      role: userInfo.role,
+      isReadingLogPublic: userInfo.isReadingLogPublic,
+    };
+
     const url = new URL(`${this.configService.get('CLIENT_DOMAIN')}/callback`);
     url.searchParams.set('accessToken', accessToken);
     url.searchParams.set('refreshToken', refreshToken);
-    url.searchParams.set('user', JSON.stringify(userInfo));
+    url.searchParams.set('user', JSON.stringify(safeUser));
     return res.redirect(url.toString());
   }
 
