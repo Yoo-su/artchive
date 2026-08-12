@@ -1,5 +1,7 @@
 import { API_PATHS } from "@bookjeok/core";
 
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+
 import { AiSearchBookItem } from "../constants/ai-chat";
 
 export interface StreamAiChatOptions {
@@ -14,26 +16,77 @@ export interface StreamAiChatOptions {
 
 /**
  * AI 대화 및 추천 SSE 엔드포인트와 통신하여 실시간 스트림 이벤트를 파싱하는 네트워크 어댑터
+ * 401 만료 시 refreshToken으로 자동 토큰 갱신 후 1회 자동 재시도 (Silent Refresh) 지원
  */
-export async function streamAiChat({
-  messages,
-  accessToken,
-  onSearching,
-  onBooks,
-  onChunk,
-  onDone,
-  onError,
-}: StreamAiChatOptions): Promise<void> {
+export async function streamAiChat(
+  options: StreamAiChatOptions,
+  isRetry = false,
+): Promise<void> {
+  const {
+    messages,
+    accessToken = useAuthStore.getState().accessToken,
+    onSearching,
+    onBooks,
+    onChunk,
+    onDone,
+    onError,
+  } = options;
+
   const apiBaseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-  const response = await fetch(`${apiBaseURL}${API_PATHS.search.aiStream}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify({ messages }),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${apiBaseURL}${API_PATHS.search.aiStream}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ messages }),
+    });
+  } catch (netErr: any) {
+    throw new Error(`Network Error: ${netErr?.message || netErr}`);
+  }
+
+  // 401 Unauthorized 발생 시 Silent Refresh & Retry 수행
+  if (response.status === 401 && !isRetry) {
+    const refreshToken = useAuthStore.getState().refreshToken;
+    if (refreshToken) {
+      try {
+        const refreshRes = await fetch(`${apiBaseURL}/auth/refresh`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${refreshToken}`,
+          },
+        });
+
+        if (refreshRes.ok) {
+          const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+            await refreshRes.json();
+
+          if (newAccessToken) {
+            useAuthStore.getState().setTokens({
+              accessToken: newAccessToken,
+              refreshToken: newRefreshToken || refreshToken,
+            });
+
+            // 갱신된 AccessToken으로 1회 재시도
+            return await streamAiChat(
+              { ...options, accessToken: newAccessToken },
+              true,
+            );
+          }
+        }
+      } catch (refreshErr) {
+        console.error("Failed to refresh token during AI Stream:", refreshErr);
+      }
+    }
+
+    // Refresh Token도 만료되었거나 없으면 로그아웃 처리 후 예외 발생
+    useAuthStore.getState().clearAuth();
+    throw new Error("UNAUTHORIZED");
+  }
 
   if (!response.ok) {
     if (response.status === 401) {
