@@ -96,14 +96,12 @@ export const AiChatWindow = () => {
                   msg.content
                 ) : (
                   <div className="relative">
-                    {/* 스트리밍 준비 중 및 도서 선정 후 큐레이션 작성 대기 상태 */}
+                    {/* 스트리밍 단계별 동적 상태 메시지 */}
                     {msg.isStreaming && !msg.content && (
                       <div className="flex items-center gap-2 py-0.5 text-stone-500 text-xs">
                         <Spinner className="size-3.5 text-stone-500" />
                         <span className="text-stone-600 font-medium">
-                          {msg.books && msg.books.length > 0
-                            ? "선정된 도서에 대한 맞춤 큐레이션을 작성하고 있습니다..."
-                            : "AI가 답변을 생각하고 있습니다..."}
+                          {msg.statusMessage || "AI가 답변을 준비하고 있습니다..."}
                         </span>
                       </div>
                     )}

@@ -36,19 +36,29 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     enabled: !!user,
   });
 
-  // Effect 1: 이벤트 리스너 생명주기 관리
+  // Effect 1: 이벤트 리스너 생명주기 관리 및 재연결 리스너
   useEffect(() => {
-    if (user && isConnected) {
+    if (user && isConnected && socket) {
       registerChatEventListeners();
+
+      const handleReconnect = () => {
+        setHasJoinedRooms(false);
+      };
+
+      socket.on("connect", handleReconnect);
+
       return () => {
+        socket.off("connect", handleReconnect);
         unregisterChatEventListeners();
       };
     }
   }, [
     user,
     isConnected,
+    socket,
     registerChatEventListeners,
     unregisterChatEventListeners,
+    setHasJoinedRooms,
   ]);
 
   // Effect 2: 채팅방 입장 처리

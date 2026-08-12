@@ -213,6 +213,7 @@ export const useAiChat = () => {
         role: "assistant",
         content: "",
         isStreaming: true,
+        statusMessage: "대화 내용을 분석하고 있습니다...",
       };
 
       // 버퍼 상태 초기화
@@ -238,10 +239,26 @@ export const useAiChat = () => {
         await streamAiChat({
           messages: payloadMessages,
           accessToken,
+          onSearching: (statusMsg) => {
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === aiMessageId
+                  ? { ...msg, statusMessage: statusMsg }
+                  : msg,
+              ),
+            );
+          },
           onBooks: (books) => {
             setMessages((prev) =>
               prev.map((msg) =>
-                msg.id === aiMessageId ? { ...msg, books } : msg,
+                msg.id === aiMessageId
+                  ? {
+                      ...msg,
+                      books,
+                      statusMessage:
+                        "추천 도서를 선정하여 소개글을 작성하고 있습니다...",
+                    }
+                  : msg,
               ),
             );
           },

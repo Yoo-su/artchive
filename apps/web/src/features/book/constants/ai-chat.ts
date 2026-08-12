@@ -15,6 +15,7 @@ export interface ChatMessage {
   content: string;
   books?: AiSearchBookItem[];
   isStreaming?: boolean;
+  statusMessage?: string;
 }
 
 export const CHAT_STORAGE_KEY = "bookjeok_ai_chat_history";
