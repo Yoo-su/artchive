@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { ReadingLogService } from '@/features/reading-log/services/reading-log.service';
 import { WishlistService } from '@/features/wishlist/services/wishlist.service';
@@ -200,5 +200,13 @@ export class BookService {
    */
   async findBookByIsbn(isbn: string): Promise<Book | null> {
     return await this.bookRepository.findOneBy({ isbn });
+  }
+
+  /**
+   * ISBN 목록으로 도서들을 일괄 조회합니다. (N+1 쿼리 최적화)
+   */
+  async findBooksByIsbns(isbns: string[]): Promise<Book[]> {
+    if (isbns.length === 0) return [];
+    return await this.bookRepository.findBy({ isbn: In(isbns) });
   }
 }

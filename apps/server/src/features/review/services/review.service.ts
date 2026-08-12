@@ -330,6 +330,17 @@ export class ReviewService {
   }
 
   /**
+   * 리뷰 ID 목록으로 여러 리뷰를 일괄 조회합니다. (N+1 쿼리 최적화용)
+   */
+  async findReviewsByIds(ids: number[]): Promise<Review[]> {
+    if (ids.length === 0) return [];
+    return await this.reviewsRepository.find({
+      where: { id: In(ids) },
+      relations: ['book'],
+    });
+  }
+
+  /**
    * 수정을 위한 리뷰 조회 (소유권 검증 포함)
    * 본인의 리뷰만 조회 가능하며, 타인의 리뷰 접근 시 403 FORBIDDEN을 반환합니다.
    * @param id 리뷰 ID
@@ -587,6 +598,10 @@ export class ReviewService {
       const review = await manager.findOne(Review, { where: { id } });
       if (!review) {
         throw new BusinessException('REVIEW_NOT_FOUND', HttpStatus.NOT_FOUND);
+      }
+
+      if (!review.isPublic && review.userId !== userId) {
+        throw new BusinessException('REVIEW_FORBIDDEN', HttpStatus.FORBIDDEN);
       }
 
       const existingReaction = await manager.findOne(ReviewReaction, {
