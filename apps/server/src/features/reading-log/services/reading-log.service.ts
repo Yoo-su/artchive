@@ -359,49 +359,90 @@ export class ReadingLogService {
 
     const totalCount = Number(totalCountResult?.count || 0);
 
-    // 사용자별 최신 기록만 조회 (서브쿼리로 각 사용자의 최신 date 가져오기)
-    const query = this.readingLogRepository
+    // 1단계: 사용자별 최신 독서 날짜 조회 (공개 사용자만, 재독 중복 제거)
+    const userGroupsQuery = this.readingLogRepository
+      .createQueryBuilder('rl')
+      .select('rl.userId', 'userId')
+      .addSelect('MAX(rl.date)', 'latestDate')
+      .innerJoin('rl.user', 'u')
+      .where('rl.isbn = :isbn', { isbn })
+      .andWhere('u.isReadingLogPublic = :isPublic', { isPublic: true })
+      .andWhere('u.deletedAt IS NULL')
+      .groupBy('rl.userId')
+      .orderBy('"latestDate"', 'DESC')
+      .addOrderBy('rl.userId', 'DESC');
+
+    if (cursor) {
+      const [cursorDate, cursorUserIdStr] = cursor.split('|');
+      const cursorUserId = Number(cursorUserIdStr);
+      if (cursorDate && !isNaN(cursorUserId)) {
+        userGroupsQuery.having(
+          '(MAX(rl.date) < :cursorDate OR (MAX(rl.date) = :cursorDate AND rl.userId < :cursorUserId))',
+          { cursorDate, cursorUserId },
+        );
+      }
+    }
+
+    userGroupsQuery.limit(PAGE_SIZE + 1);
+
+    const userGroups: {
+      userId: number;
+      latestDate: string | Date;
+    }[] = await userGroupsQuery.getRawMany();
+
+    const hasNextPage = userGroups.length > PAGE_SIZE;
+    if (hasNextPage) userGroups.pop();
+
+    if (userGroups.length === 0) {
+      return { book, items: [], nextCursor: null, totalCount };
+    }
+
+    const userIds = userGroups.map((ug) => ug.userId);
+
+    // 2단계: 최신 독서 기록의 상세 정보(메모, 유저 프로필 등) 일괄 조회
+    const logs = await this.readingLogRepository
       .createQueryBuilder('rl')
       .innerJoin('rl.user', 'u')
       .addSelect(['u.id', 'u.nickname', 'u.handle', 'u.profileImageUrl'])
       .where('rl.isbn = :isbn', { isbn })
-      .andWhere('u.isReadingLogPublic = :isPublic', { isPublic: true })
-      .andWhere('u.deletedAt IS NULL')
+      .andWhere('rl.userId IN (:...userIds)', { userIds })
       .orderBy('rl.date', 'DESC')
-      .addOrderBy('rl.createdAt', 'DESC');
+      .addOrderBy('rl.createdAt', 'DESC')
+      .getMany();
 
-    if (cursor) {
-      query.andWhere('rl.userId < :cursor', { cursor: Number(cursor) });
-    }
-
-    const logs = await query.take(PAGE_SIZE * 3).getMany(); // 여유 있게 가져와서 중복 제거
-
-    // 사용자별 최신 기록만 유지 (재독 중복 제거)
-    const seenUsers = new Set<number>();
-    const items: any[] = [];
-
+    const userLatestLogMap = new Map<number, ReadingLog>();
     for (const log of logs) {
-      if (seenUsers.has(log.userId)) continue;
-      seenUsers.add(log.userId);
-
-      items.push({
-        userId: log.userId,
-        nickname: (log as any).user?.nickname || '',
-        handle: (log as any).user?.handle || '',
-        profileImageUrl: (log as any).user?.profileImageUrl || null,
-        date: log.date,
-        memo: log.memo || null,
-      });
-
-      if (items.length >= PAGE_SIZE + 1) break;
+      if (!userLatestLogMap.has(log.userId)) {
+        userLatestLogMap.set(log.userId, log);
+      }
     }
 
-    const hasNextPage = items.length > PAGE_SIZE;
-    if (hasNextPage) items.pop();
+    const items = userGroups.map((ug) => {
+      const log = userLatestLogMap.get(ug.userId);
+      const formattedDate =
+        ug.latestDate instanceof Date
+          ? ug.latestDate.toISOString().split('T')[0]
+          : String(ug.latestDate).split('T')[0];
 
-    const nextCursor = hasNextPage
-      ? String(items[items.length - 1].userId)
-      : null;
+      return {
+        userId: ug.userId,
+        nickname: (log as any)?.user?.nickname || '',
+        handle: (log as any)?.user?.handle || '',
+        profileImageUrl: (log as any)?.user?.profileImageUrl || null,
+        date: formattedDate,
+        memo: log?.memo || null,
+      };
+    });
+
+    let nextCursor: string | null = null;
+    if (hasNextPage) {
+      const lastGroup = userGroups[userGroups.length - 1];
+      const lastDateStr =
+        lastGroup.latestDate instanceof Date
+          ? lastGroup.latestDate.toISOString().split('T')[0]
+          : String(lastGroup.latestDate).split('T')[0];
+      nextCursor = `${lastDateStr}|${lastGroup.userId}`;
+    }
 
     return { book, items, nextCursor, totalCount };
   }

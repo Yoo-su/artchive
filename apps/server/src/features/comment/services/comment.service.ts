@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 import { BookService } from '@/features/book/services/book.service';
 import { ReviewService } from '@/features/review/services/review.service';
@@ -27,6 +27,7 @@ export class CommentService {
     private readonly reviewService: ReviewService,
     private readonly bookService: BookService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly dataSource: DataSource,
   ) {}
 
   /**
@@ -127,41 +128,56 @@ export class CommentService {
 
     const [comments, total] = await qb.getManyAndCount();
 
-    // 대상 정보 조회를 위한 데이터 구성
-    const commentsWithTargetInfo = await Promise.all(
-      comments.map(async (comment) => {
-        let targetTitle: string | null = null;
-        let targetSubtitle: string | null = null;
+    // 대상 정보 일괄 조회를 위한 ID 집계 (N+1 쿼리 최적화)
+    const reviewIds = comments
+      .filter((c) => c.targetType === CommentTargetType.REVIEW)
+      .map((c) => parseInt(c.targetId, 10))
+      .filter((id) => !isNaN(id));
 
-        if (comment.targetType === CommentTargetType.REVIEW) {
-          // 리뷰의 경우: 예외를 뱉지 않는 안전 조회 전용 메서드 사용
-          const review = await this.reviewService.findReviewById(
-            parseInt(comment.targetId, 10),
-          );
-          if (review) {
-            targetTitle = review.title;
-            targetSubtitle = review.book?.title ?? null;
-          }
-        } else if (comment.targetType === CommentTargetType.BOOK) {
-          // 도서의 경우: ISBN으로 도서 서비스 단건 조회
-          const book = await this.bookService.findBookByIsbn(comment.targetId);
-          if (book) {
-            targetTitle = book.title;
-          }
+    const isbns = comments
+      .filter((c) => c.targetType === CommentTargetType.BOOK)
+      .map((c) => c.targetId);
+
+    const [reviews, books] = await Promise.all([
+      reviewIds.length > 0
+        ? this.reviewService.findReviewsByIds(reviewIds)
+        : Promise.resolve([]),
+      isbns.length > 0
+        ? this.bookService.findBooksByIsbns(isbns)
+        : Promise.resolve([]),
+    ]);
+
+    const reviewMap = new Map(reviews.map((r) => [r.id, r]));
+    const bookMap = new Map(books.map((b) => [b.isbn, b]));
+
+    const commentsWithTargetInfo = comments.map((comment) => {
+      let targetTitle: string | null = null;
+      let targetSubtitle: string | null = null;
+
+      if (comment.targetType === CommentTargetType.REVIEW) {
+        const review = reviewMap.get(parseInt(comment.targetId, 10));
+        if (review) {
+          targetTitle = review.title;
+          targetSubtitle = review.book?.title ?? null;
         }
+      } else if (comment.targetType === CommentTargetType.BOOK) {
+        const book = bookMap.get(comment.targetId);
+        if (book) {
+          targetTitle = book.title;
+        }
+      }
 
-        return {
-          id: comment.id,
-          content: comment.content,
-          targetType: comment.targetType,
-          targetId: comment.targetId,
-          targetTitle,
-          targetSubtitle,
-          likeCount: comment.likeCount,
-          createdAt: comment.createdAt,
-        };
-      }),
-    );
+      return {
+        id: comment.id,
+        content: comment.content,
+        targetType: comment.targetType,
+        targetId: comment.targetId,
+        targetTitle,
+        targetSubtitle,
+        likeCount: comment.likeCount,
+        createdAt: comment.createdAt,
+      };
+    });
 
     // 다음 커서 계산
     let nextCursor: number | null = null;
@@ -258,24 +274,35 @@ export class CommentService {
   async toggleLike(commentId: number, userId: number) {
     await this.findCommentOrThrow(commentId);
 
-    const existingLike = await this.commentLikeRepository.findOne({
-      where: { commentId, userId },
+    let isLiked = false;
+
+    await this.dataSource.transaction(async (manager) => {
+      const existingLike = await manager.findOne(CommentLike, {
+        where: { commentId, userId },
+      });
+
+      if (existingLike) {
+        // 좋아요 취소
+        await manager.delete(CommentLike, existingLike.id);
+        await manager.decrement(Comment, { id: commentId }, 'likeCount', 1);
+        isLiked = false;
+      } else {
+        // 좋아요 추가
+        try {
+          const like = manager.create(CommentLike, { commentId, userId });
+          await manager.save(CommentLike, like);
+          await manager.increment(Comment, { id: commentId }, 'likeCount', 1);
+          isLiked = true;
+        } catch (err: any) {
+          // 동시 요청 시 23505 (Unique violation) 방어: 이미 좋아요가 등록된 상태
+          if (err?.code === '23505' || err?.driverError?.code === '23505') {
+            isLiked = true;
+          } else {
+            throw err;
+          }
+        }
+      }
     });
-
-    let isLiked: boolean;
-
-    if (existingLike) {
-      // 좋아요 취소
-      await this.commentLikeRepository.delete(existingLike.id);
-      await this.commentRepository.decrement({ id: commentId }, 'likeCount', 1);
-      isLiked = false;
-    } else {
-      // 좋아요 추가
-      const like = this.commentLikeRepository.create({ commentId, userId });
-      await this.commentLikeRepository.save(like);
-      await this.commentRepository.increment({ id: commentId }, 'likeCount', 1);
-      isLiked = true;
-    }
 
     // 업데이트된 댓글 반환
     const updatedComment = await this.commentRepository.findOne({
