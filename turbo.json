@@ -1,14 +1,31 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": [
+    "NODE_ENV",
+    "PORT",
+    "API_URL",
+    "CLIENT_DOMAIN",
+    "DATABASE_URL",
+    "DATABASE_USERNAME",
+    "DATABASE_PASSWORD",
+    "DATABASE_NAME",
+    "DATABASE_SSL",
+    "JWT_SECRET",
+    "JWT_REFRESH_SECRET",
     "NAVER_CLIENT_ID",
     "NAVER_CLIENT_SECRET",
-    "ALADIN_TTB_KEY",
+    "NAVER_CALLBACK_URL",
+    "KAKAO_CLIENT_ID",
+    "KAKAO_CLIENT_SECRET",
+    "KAKAO_CALLBACK_URL",
     "CULTURE_SERVICE_KEY",
+    "ALADIN_TTB_KEY",
+    "GEMINI_API_KEY",
+    "GEMINI_MODEL_NAME",
+    "BLOB_READ_WRITE_TOKEN",
     "NEXT_PUBLIC_API_URL",
     "NEXT_PUBLIC_KAKAO_APP_KEY",
-    "NEXT_PUBLIC_GOOGLE_ADSENSE_ID",
-    "NODE_ENV"
+    "NEXT_PUBLIC_GOOGLE_ADSENSE_ID"
   ],
   "tasks": {
     "build": {

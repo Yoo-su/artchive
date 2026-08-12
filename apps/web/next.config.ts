@@ -12,7 +12,12 @@ const withAnalyzer = withBundleAnalyzer({
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
-  output: "standalone",
+  output:
+    process.env.OUTPUT_STANDALONE === "true" ||
+    process.env.DOCKER === "true" ||
+    process.platform !== "win32"
+      ? "standalone"
+      : undefined,
   images: {
     remotePatterns: [
       {
