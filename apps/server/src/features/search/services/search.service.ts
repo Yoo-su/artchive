@@ -32,7 +32,7 @@ export class SearchService {
   ) {}
 
   /**
-   * Conversational Agent RAG Pipeline (Speculative Embedding 동기 처리)
+   * Conversational Agent RAG Pipeline (동기 처리)
    */
   async searchAi(
     dto: AiSearchRequestDto,
@@ -114,7 +114,6 @@ export class SearchService {
       );
       const targetCount = turnResult.targetCount || 5;
 
-      // 만약 사용자가 특정 출판사를 명시했는데 DB 검색 결과에 해당 출판사가 전혀 없다면, 원치 않는 출판사 도서를 강제 추천하지 않고 Parametric Fallback으로 전환
       const hasPublisherConstraint =
         turnResult.preferredPublishers &&
         turnResult.preferredPublishers.length > 0;
@@ -159,28 +158,27 @@ export class SearchService {
         };
       }
 
-      // 3. 2차 LLM 스트리밍 큐레이션 코멘트 동기 생성 (전달된 curatedBooks와 1:1 완벽 일치)
-      let synthesisText = '';
-      for await (const chunkEvent of this.ragService.filterAndSynthesizeRecommendationStream(
-        messages,
-        curatedBooks,
-      )) {
-        if (chunkEvent.type === 'chunk' && chunkEvent.chunk) {
-          synthesisText += chunkEvent.chunk;
-        } else if (chunkEvent.type === 'done' && chunkEvent.usageMetadata) {
-          totalPromptTokens += chunkEvent.usageMetadata.promptTokenCount ?? 0;
-          totalCompletionTokens +=
-            chunkEvent.usageMetadata.candidatesTokenCount ?? 0;
-          totalTokens += chunkEvent.usageMetadata.totalTokenCount ?? 0;
-        }
+      // 3. 2차 LLM: 도서별 맞춤 추천 사유(reason) 및 총평(message) 생성
+      const synthesisResult =
+        await this.ragService.filterAndSynthesizeRecommendation(
+          messages,
+          curatedBooks,
+        );
+
+      if (synthesisResult.usageMetadata) {
+        totalPromptTokens +=
+          synthesisResult.usageMetadata.promptTokenCount ?? 0;
+        totalCompletionTokens +=
+          synthesisResult.usageMetadata.candidatesTokenCount ?? 0;
+        totalTokens += synthesisResult.usageMetadata.totalTokenCount ?? 0;
       }
 
       await this.logSuccess({
         userId,
         startTime,
         messages,
-        responseMessage: synthesisText,
-        books: curatedBooks,
+        responseMessage: synthesisResult.message,
+        books: synthesisResult.books,
         tokens: {
           prompt: totalPromptTokens,
           completion: totalCompletionTokens,
@@ -189,8 +187,8 @@ export class SearchService {
       });
 
       return {
-        message: synthesisText,
-        books: curatedBooks,
+        message: synthesisResult.message,
+        books: synthesisResult.books,
       };
     } catch (error) {
       await this.logError(userId, startTime, messages, error);
@@ -224,27 +222,36 @@ export class SearchService {
     }
 
     try {
-      const lastUserMessage = messages[messages.length - 1]?.content ?? '';
+      let searchQueryRequested: string | null = null;
+      let targetCount = 5;
+      let preferredPublishers: string[] = [];
+      let excludedKeywords: string[] = [];
 
-      // Speculative Embedding: 사용자 원문 임베딩 병렬 시작
-      const speculativeEmbeddingPromise =
-        this.embeddingService.generateQueryEmbedding(lastUserMessage);
+      // 1. 1차 턴 스트리밍 (일반 대화 시 즉시 실시간 토큰 전송, 검색 필요 시 function_call 반환)
+      for await (const event of this.ragService.processConversationalTurnStream(
+        messages,
+      )) {
+        if (!sse.isConnected) break;
 
-      // 1. 1차 턴 의도 분류 (내부 라우팅 - 클라이언트로 불필요한 토큰 유출 방지)
-      const turnResult =
-        await this.ragService.processConversationalTurn(messages);
-
-      if (turnResult.usageMetadata) {
-        totalPromptTokens += turnResult.usageMetadata.promptTokenCount ?? 0;
-        totalCompletionTokens +=
-          turnResult.usageMetadata.candidatesTokenCount ?? 0;
-        totalTokens += turnResult.usageMetadata.totalTokenCount ?? 0;
+        if (event.type === 'chunk' && event.chunk) {
+          fullTextAccumulator += event.chunk;
+          sse.sendTextChunk(event.chunk);
+        } else if (event.type === 'function_call') {
+          searchQueryRequested = event.searchQueryRequested || null;
+          targetCount = event.targetCount || 5;
+          preferredPublishers = event.preferredPublishers || [];
+          excludedKeywords = event.excludedKeywords || [];
+          break;
+        } else if (event.type === 'done' && event.usageMetadata) {
+          totalPromptTokens += event.usageMetadata.promptTokenCount ?? 0;
+          totalCompletionTokens +=
+            event.usageMetadata.candidatesTokenCount ?? 0;
+          totalTokens += event.usageMetadata.totalTokenCount ?? 0;
+        }
       }
 
       // 1-A. 단순 대화 또는 꼬리 질문인 경우 (search_books 미호출)
-      if (!turnResult.searchQueryRequested) {
-        fullTextAccumulator = turnResult.message;
-        sse.sendTextChunk(turnResult.message);
+      if (!searchQueryRequested) {
         sse.complete();
 
         await this.logSuccess({
@@ -267,13 +274,10 @@ export class SearchService {
         '도서 데이터베이스에서 맞춤 도서를 탐색하고 있습니다...',
       );
 
-      const speculativeVector = await speculativeEmbeddingPromise;
       const queryVector =
-        turnResult.searchQueryRequested !== lastUserMessage
-          ? await this.embeddingService.generateQueryEmbedding(
-              turnResult.searchQueryRequested,
-            )
-          : speculativeVector;
+        await this.embeddingService.generateQueryEmbedding(
+          searchQueryRequested,
+        );
 
       const rawBooks = await this.vectorSearchService.searchSimilarBooks(
         queryVector,
@@ -287,20 +291,14 @@ export class SearchService {
       // 2-B. 제외 키워드 필터링, 출판사 정렬, 시리즈/상하권 중복 제거
       const deduplicated = deduplicateBooks(
         filteredBooks,
-        turnResult.preferredPublishers,
-        turnResult.excludedKeywords,
+        preferredPublishers,
+        excludedKeywords,
       );
-      const targetCount = turnResult.targetCount || 5;
 
-      // 만약 사용자가 특정 출판사를 명시했는데 DB 검색 결과에 해당 출판사가 전혀 없다면, 원치 않는 출판사 도서를 강제 추천하지 않고 Parametric Fallback으로 전환
-      const hasPublisherConstraint =
-        turnResult.preferredPublishers &&
-        turnResult.preferredPublishers.length > 0;
+      const hasPublisherConstraint = preferredPublishers.length > 0;
       const matchingPublisherBooks = hasPublisherConstraint
         ? deduplicated.filter((b) =>
-            turnResult.preferredPublishers?.some((pub) =>
-              b.publisher?.includes(pub),
-            ),
+            preferredPublishers.some((pub) => b.publisher?.includes(pub)),
           )
         : deduplicated;
 
@@ -312,7 +310,7 @@ export class SearchService {
       if (curatedBooks.length === 0) {
         for await (const chunkEvent of this.ragService.generateParametricRecommendationStream(
           messages,
-          turnResult.searchQueryRequested,
+          searchQueryRequested,
           targetCount,
         )) {
           if (!sse.isConnected) break;
@@ -344,26 +342,27 @@ export class SearchService {
         return;
       }
 
-      // 3. 엄선된 도서 카드 목록 선발송 (실제 LLM이 큐레이션할 도서들과 100% 1:1 일치)
-      sse.sendBooks(curatedBooks);
+      // 3. 2차 RAG: 도서별 맞춤 추천 사유(reason) 및 정갈한 총평 메시지(message) 생성
+      const synthesisResult =
+        await this.ragService.filterAndSynthesizeRecommendation(
+          messages,
+          curatedBooks,
+        );
 
-      // 4. 2차 LLM 실시간 스트리밍 큐레이션 작성 (오직 curatedBooks만을 대상으로 작성)
-      for await (const chunkEvent of this.ragService.filterAndSynthesizeRecommendationStream(
-        messages,
-        curatedBooks,
-      )) {
-        if (!sse.isConnected) break;
-        if (chunkEvent.type === 'chunk' && chunkEvent.chunk) {
-          fullTextAccumulator += chunkEvent.chunk;
-          sse.sendTextChunk(chunkEvent.chunk);
-        } else if (chunkEvent.type === 'done' && chunkEvent.usageMetadata) {
-          totalPromptTokens += chunkEvent.usageMetadata.promptTokenCount ?? 0;
-          totalCompletionTokens +=
-            chunkEvent.usageMetadata.candidatesTokenCount ?? 0;
-          totalTokens += chunkEvent.usageMetadata.totalTokenCount ?? 0;
-        }
+      if (synthesisResult.usageMetadata) {
+        totalPromptTokens +=
+          synthesisResult.usageMetadata.promptTokenCount ?? 0;
+        totalCompletionTokens +=
+          synthesisResult.usageMetadata.candidatesTokenCount ?? 0;
+        totalTokens += synthesisResult.usageMetadata.totalTokenCount ?? 0;
       }
 
+      // 4. 추천 사유가 포함된 도서 카드 목록 선발송 (슬라이더에 '추천 까닭' 완벽 표기)
+      sse.sendBooks(synthesisResult.books);
+
+      // 5. 정갈한 총평 메시지 전송
+      fullTextAccumulator = synthesisResult.message;
+      sse.sendTextChunk(synthesisResult.message);
       sse.complete();
 
       await this.logSuccess({
@@ -371,7 +370,7 @@ export class SearchService {
         startTime,
         messages,
         responseMessage: fullTextAccumulator,
-        books: curatedBooks,
+        books: synthesisResult.books,
         tokens: {
           prompt: totalPromptTokens,
           completion: totalCompletionTokens,
