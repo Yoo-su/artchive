@@ -94,14 +94,24 @@ export class AuthService {
     userNickname: string,
     role: 'USER' | 'ADMIN',
   ) {
+    const jwtSecret = this.configService.get<string>('JWT_SECRET');
+    const jwtRefreshSecret =
+      this.configService.get<string>('JWT_REFRESH_SECRET');
+
+    if (!jwtSecret || !jwtRefreshSecret) {
+      throw new Error(
+        'JWT_SECRET or JWT_REFRESH_SECRET is not configured properly',
+      );
+    }
+
     const payload: JwtPayload = { sub: userId, nickname: userNickname, role };
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
-        secret: process.env.JWT_SECRET,
+        secret: jwtSecret,
         expiresIn: TOKEN_EXPIRY.ACCESS_TOKEN,
       }),
       this.jwtService.signAsync(payload, {
-        secret: process.env.JWT_REFRESH_SECRET,
+        secret: jwtRefreshSecret,
         expiresIn: TOKEN_EXPIRY.REFRESH_TOKEN,
       }),
     ]);
