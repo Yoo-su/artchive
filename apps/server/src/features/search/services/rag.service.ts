@@ -14,6 +14,14 @@ import {
   ChatRole,
 } from '@/features/search/dtos/ai-search.dto';
 
+import {
+  buildParametricPrompt,
+  buildRAGSynthesisPrompt,
+  getConversationalSystemInstruction,
+  getParametricSystemInstruction,
+  getRAGSynthesisSystemInstruction,
+} from '../prompts/curator-prompts';
+
 export interface ConversationalRagResult {
   message: string;
   books: BookSearchResultDto[];
@@ -24,10 +32,6 @@ export interface ConversationalRagResult {
     totalTokenCount?: number;
   };
 }
-
-const CURATOR_PERSONA = `당신은 독서 플랫폼 '북적'의 지적이고 다정한 전문 도서 큐레이터 AI입니다.
-사용자와의 대화 맥락을 완벽히 이해하며, 자연스러운 대화를 이끌어갑니다.
-이모지나 캐릭터 가벼운 말투는 절대 사용하지 말고, 단정하고 정갈한 어조를 유지하세요.`;
 
 @Injectable()
 export class RagService {
@@ -101,7 +105,7 @@ export class RagService {
   }
 
   /**
-   * 멀티턴 대화 및 도구 호출 여부 1차 판단 (Conversational Agent - 1차 LLM 호출)
+   * 멀티턴 대화 및 도구 호출 여부 1차 판단 (Conversational Agent - 1차 동기 호출)
    */
   async processConversationalTurn(
     messages: ChatMessageDto[],
@@ -121,7 +125,6 @@ export class RagService {
       };
     }
 
-    // 토큰 비용 폭발 방지: 최근 20메시지(~10턴)만 히스토리로 전달
     const MAX_HISTORY_MESSAGES = 20;
     const trimmedMessages =
       messages.length > MAX_HISTORY_MESSAGES
@@ -129,21 +132,10 @@ export class RagService {
         : messages;
     const history = this.buildGeminiHistory(trimmedMessages);
 
-    const systemInstruction = `${CURATOR_PERSONA}
-
-[핵심 행동 지침]
-1. 자연스러운 대화와 공감:
-   - 사용자가 인사, 한탄, 단순 감정 표현("에효", "심심하다", "졸려"), 또는 목적이 모호한 말을 했을 때는 절대로 서둘러 도서 DB를 검색하지 마세요.
-   - 사용자의 말에 다정하게 응답하고, 어떤 기분이나 장르, 독서 분위기를 원하는지 자연스러운 꼬리 질문으로 대화를 이어가세요.
-
-2. 도서 DB 검색 도구(search_books) 호출 조건:
-   - 사용자가 구체적인 독서 목적, 기분, 장르, 분위기, 상충 조건("아까 그 책 말고 시집으로"), 또는 도서 추천 요청의 의도를 명확히 표현했을 때만 'search_books' 도구를 호출하세요.
-   - 'search_books' 도구를 호출할 때는 도서 DB 벡터 검색에 최적화된 명확하고 풍부한 한국어 쿼리 문장(searchQuery)을 파라미터로 넘기세요.`;
-
     try {
       const model = this.genAI.getGenerativeModel({
         model: this.modelName,
-        systemInstruction,
+        systemInstruction: getConversationalSystemInstruction(),
         tools: [this.getSearchBooksTool()],
       });
 
@@ -172,19 +164,118 @@ export class RagService {
         usageMetadata: result.response.usageMetadata,
       };
     } catch (error) {
-      this.logger.error('Conversational Turn Processing Error:', error);
+      this.logger.error('Conversational Turn Error:', error);
       return {
         message:
-          '대화를 처리하는 도중 일시적인 오류가 발생했습니다. 다시 한번 말씀해 주시겠어요?',
+          '대화를 처리하는 도중 일시적인 오류가 발생했습니다. 잠시 후 다시 말씀해 주시겠어요?',
         books: [],
       };
     }
   }
 
   /**
-   * pgvector 검색 결과 후보 도서들에 대해
-   * (1) 사용자의 대화 맥락/독자층/장르에 부합하는 도서를 1:1 리랭킹하고,
-   * (2) 최종 추천 총평 서두 메시지와 개별 도서별 RAG 사유(reason)를 단 1회의 LLM 호출로 고속 생성
+   * 1차 대화 턴(의도 분석 및 일반 대화)을 실시간 토큰 스트리밍으로 처리하는 제너레이터
+   */
+  async *processConversationalTurnStream(
+    messages: ChatMessageDto[],
+  ): AsyncGenerator<{
+    type: 'chunk' | 'function_call' | 'done';
+    chunk?: string;
+    searchQueryRequested?: string;
+    usageMetadata?: {
+      promptTokenCount?: number;
+      candidatesTokenCount?: number;
+      totalTokenCount?: number;
+    };
+  }> {
+    if (!messages || messages.length === 0) {
+      yield {
+        type: 'chunk',
+        chunk: '안녕하세요! 어떤 책을 찾고 계신가요? 편안하게 말씀해 주세요.',
+      };
+      yield { type: 'done' };
+      return;
+    }
+
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage.role !== ChatRole.USER) {
+      yield {
+        type: 'chunk',
+        chunk: '원하시는 도서 분위기나 장르를 말씀해 주시면 찾아드릴게요.',
+      };
+      yield { type: 'done' };
+      return;
+    }
+
+    const MAX_HISTORY_MESSAGES = 20;
+    const trimmedMessages =
+      messages.length > MAX_HISTORY_MESSAGES
+        ? messages.slice(-MAX_HISTORY_MESSAGES)
+        : messages;
+    const history = this.buildGeminiHistory(trimmedMessages);
+
+    try {
+      const model = this.genAI.getGenerativeModel({
+        model: this.modelName,
+        systemInstruction: getConversationalSystemInstruction(),
+        tools: [this.getSearchBooksTool()],
+      });
+
+      const chat = model.startChat({ history });
+      const streamResult = await chat.sendMessageStream(lastMessage.content);
+
+      let foundFunctionCall: { searchQuery?: string } | null = null;
+      let streamedAnyText = false;
+
+      for await (const chunk of streamResult.stream) {
+        const call = chunk.functionCalls()?.[0];
+        if (call && call.name === 'search_books') {
+          foundFunctionCall = (call.args as { searchQuery?: string }) || {};
+          break;
+        }
+
+        try {
+          const text = chunk.text();
+          if (text) {
+            streamedAnyText = true;
+            yield { type: 'chunk', chunk: text };
+          }
+        } catch {
+          // Function call 청크일 경우 text()는 비어있음
+        }
+      }
+
+      if (foundFunctionCall) {
+        yield {
+          type: 'function_call',
+          searchQueryRequested:
+            foundFunctionCall.searchQuery || lastMessage.content,
+        };
+        return;
+      }
+
+      const response = await streamResult.response;
+      if (!streamedAnyText) {
+        const textResponse = response.text();
+        if (textResponse) {
+          yield { type: 'chunk', chunk: textResponse };
+        }
+      }
+
+      yield { type: 'done', usageMetadata: response.usageMetadata };
+    } catch (error) {
+      this.logger.error('Conversational Turn Streaming Error:', error);
+      yield {
+        type: 'chunk',
+        chunk:
+          '대화를 처리하는 도중 일시적인 오류가 발생했습니다. 다시 한번 말씀해 주시겠어요?',
+      };
+      yield { type: 'done' };
+    }
+  }
+
+  /**
+   * pgvector 검색 결과 후보 도서들에 대해 동기 리랭킹 및 큐레이션 생성
    */
   async filterAndSynthesizeRecommendation(
     messages: ChatMessageDto[],
@@ -218,11 +309,6 @@ export class RagService {
       )
       .join('\n');
 
-    const systemInstruction = `${CURATOR_PERSONA}
-
-당신은 지금 아래 사용자의 대화 맥락과 DB에서 검색된 후보 도서 목록을 검증하여,
-조건에 진짜로 적합한 도서만 엄선하고 추천 메시지와 개별 추천 이유를 작성하는 역할입니다.`;
-
     const prompt = `[대화 기록]
 ${conversationHistory}
 
@@ -240,7 +326,7 @@ JSON 형식으로만 응답하세요.`;
     try {
       const model = this.genAI.getGenerativeModel({
         model: this.modelName,
-        systemInstruction,
+        systemInstruction: getRAGSynthesisSystemInstruction(),
         generationConfig: {
           responseMimeType: 'application/json',
           responseSchema: {
@@ -313,6 +399,152 @@ JSON 형식으로만 응답하세요.`;
           ...b,
           reason: `${b.author} 저자의 대표작으로, 요청하신 독서 감성과 긴밀히 연결됩니다.`,
         })),
+      };
+    }
+  }
+
+  /**
+   * pgvector 검색 결과에 대해 실시간 토큰 단위로 스트리밍 큐레이션을 작성하는 제너레이터
+   */
+  async *filterAndSynthesizeRecommendationStream(
+    messages: ChatMessageDto[],
+    candidateBooks: BookSearchResultDto[],
+  ): AsyncGenerator<{
+    type: 'chunk' | 'done';
+    chunk?: string;
+    usageMetadata?: {
+      promptTokenCount?: number;
+      candidatesTokenCount?: number;
+      totalTokenCount?: number;
+    };
+  }> {
+    if (candidateBooks.length === 0) {
+      yield {
+        type: 'chunk',
+        chunk:
+          '말씀하신 조건과 어울리는 도서를 데이터베이스에서 찾지 못했습니다. 원하시는 장르나 키워드를 다르게 말씀해 주시면 다시 찾아드릴게요.',
+      };
+      yield { type: 'done' };
+      return;
+    }
+
+    const prompt = buildRAGSynthesisPrompt(messages, candidateBooks);
+
+    try {
+      const model = this.genAI.getGenerativeModel({
+        model: this.modelName,
+        systemInstruction: getRAGSynthesisSystemInstruction(),
+        generationConfig: {
+          temperature: 0.35,
+        },
+      });
+
+      const result = await model.generateContentStream(prompt);
+      for await (const chunk of result.stream) {
+        const text = chunk.text();
+        if (text) {
+          yield { type: 'chunk', chunk: text };
+        }
+      }
+      const response = await result.response;
+      yield { type: 'done', usageMetadata: response.usageMetadata };
+    } catch (error) {
+      this.logger.error('Streaming Synthesis Error:', error);
+      yield {
+        type: 'chunk',
+        chunk:
+          '\n\n요청하신 분위기와 주제에 잘 어울리는 도서 목록을 엄선했습니다. 상단의 도서 카드를 통해 자세한 정보를 확인해 보세요.',
+      };
+      yield { type: 'done' };
+    }
+  }
+
+  /**
+   * DB 검색 결과가 없거나 RPC 실패 시, 모델 자체 지식으로 실시간 큐레이션을 스트리밍 작성하는 제너레이터
+   */
+  async *generateParametricRecommendationStream(
+    messages: ChatMessageDto[],
+    searchQuery?: string,
+  ): AsyncGenerator<{
+    type: 'chunk' | 'done';
+    chunk?: string;
+    usageMetadata?: {
+      promptTokenCount?: number;
+      candidatesTokenCount?: number;
+      totalTokenCount?: number;
+    };
+  }> {
+    const prompt = buildParametricPrompt(messages, searchQuery);
+
+    try {
+      const model = this.genAI.getGenerativeModel({
+        model: this.modelName,
+        systemInstruction: getParametricSystemInstruction(),
+        generationConfig: {
+          temperature: 0.5,
+        },
+      });
+
+      const result = await model.generateContentStream(prompt);
+      for await (const chunk of result.stream) {
+        const text = chunk.text();
+        if (text) {
+          yield { type: 'chunk', chunk: text };
+        }
+      }
+      const response = await result.response;
+      yield { type: 'done', usageMetadata: response.usageMetadata };
+    } catch (error) {
+      this.logger.error('Parametric Recommendation Streaming Error:', error);
+      yield {
+        type: 'chunk',
+        chunk:
+          '말씀하신 상황과 어울리는 도서를 추천해 드리고자 했으나 일시적인 오류가 발생했습니다. 잠시 후 다시 말씀해 주시겠어요?',
+      };
+      yield { type: 'done' };
+    }
+  }
+
+  /**
+   * DB 검색 결과가 없을 때 모델 자체 지식으로 도서 추천 텍스트를 단일 생성
+   */
+  async generateParametricRecommendation(
+    messages: ChatMessageDto[],
+    searchQuery?: string,
+  ): Promise<{
+    message: string;
+    books: BookSearchResultDto[];
+    usageMetadata?: {
+      promptTokenCount?: number;
+      candidatesTokenCount?: number;
+      totalTokenCount?: number;
+    };
+  }> {
+    const prompt = buildParametricPrompt(messages, searchQuery);
+
+    try {
+      const model = this.genAI.getGenerativeModel({
+        model: this.modelName,
+        systemInstruction: getParametricSystemInstruction(),
+        generationConfig: {
+          temperature: 0.5,
+        },
+      });
+
+      const result = await model.generateContent(prompt);
+      return {
+        message:
+          result.response.text() ||
+          '요청하신 조건에 어울리는 추천 도서를 준비하지 못했습니다.',
+        books: [],
+        usageMetadata: result.response.usageMetadata,
+      };
+    } catch (error) {
+      this.logger.error('Parametric Recommendation Error:', error);
+      return {
+        message:
+          '도서 추천을 생성하는 도중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
+        books: [],
       };
     }
   }

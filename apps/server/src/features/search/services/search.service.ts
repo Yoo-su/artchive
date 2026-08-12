@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Response } from 'express';
 import { Repository } from 'typeorm';
 
 import { MODEL_NAME } from '@/features/llm/constants/llm-model';
@@ -7,16 +8,19 @@ import { AiRequestLog } from '@/features/llm/entities/ai-request-log.entity';
 import {
   AiSearchRequestDto,
   AiSearchResponseDto,
+  ChatMessageDto,
 } from '@/features/search/dtos/ai-search.dto';
 import { EmbeddingService } from '@/features/search/services/embedding.service';
 import { RagService } from '@/features/search/services/rag.service';
 import { VectorSearchService } from '@/features/search/services/vector-search.service';
 
+import { SseStreamWriter } from '../utils/sse-stream-writer';
+
 @Injectable()
 export class SearchService {
   private readonly logger = new Logger(SearchService.name);
   private readonly SIMILARITY_THRESHOLD = 0.35; // 최소 유사도 기준값
-  private readonly CANDIDATE_POOL_SIZE = 15; // pgvector에서 뽑아올 후보 풀 크기 (25 → 15로 축소)
+  private readonly CANDIDATE_POOL_SIZE = 15; // pgvector에서 뽑아올 후보 풀 크기
   private readonly MAX_CANDIDATES_FOR_LLM = 10; // LLM에 전달할 최대 후보 수
 
   constructor(
@@ -28,11 +32,7 @@ export class SearchService {
   ) {}
 
   /**
-   * Conversational Agent RAG Pipeline (Speculative Embedding 적용)
-   *
-   * 1차 LLM 호출과 임베딩을 병렬로 실행하여 레이턴시를 절감합니다.
-   * LLM이 검색 불필요로 판단하면 투기적 임베딩은 버려지고 (비용 무시할 수준),
-   * LLM이 원문과 동일한 쿼리를 반환하면 투기적 임베딩 결과를 그대로 사용합니다.
+   * Conversational Agent RAG Pipeline (Speculative Embedding 동기 처리)
    */
   async searchAi(
     dto: AiSearchRequestDto,
@@ -68,20 +68,19 @@ export class SearchService {
         totalTokens += turnResult.usageMetadata.totalTokenCount ?? 0;
       }
 
-      // 1-A. AI가 대화/질문만 진행하기로 한 경우 (search_books 도구를 호출하지 않음)
+      // 1-A. 일반 대화/안내인 경우 (search_books 미호출)
       if (!turnResult.searchQueryRequested) {
-        const latencyMs = Date.now() - startTime;
-        await this.saveAiLog({
-          userId: userId ?? null,
-          feature: 'TALK',
-          model: MODEL_NAME,
-          promptTokens: totalPromptTokens || null,
-          completionTokens: totalCompletionTokens || null,
-          totalTokens: totalTokens || null,
-          latencyMs,
-          requestPayload: { messages },
-          responsePayload: { message: turnResult.message, books: [] },
-          status: 'SUCCESS',
+        await this.logSuccess({
+          userId,
+          startTime,
+          messages,
+          responseMessage: turnResult.message,
+          books: [],
+          tokens: {
+            prompt: totalPromptTokens,
+            completion: totalCompletionTokens,
+            total: totalTokens,
+          },
         });
 
         return {
@@ -90,7 +89,7 @@ export class SearchService {
         };
       }
 
-      // 2. LLM이 정제된 searchQuery를 생성했으면 재임베딩, 아니면 투기적 결과 사용
+      // 2. 도서 검색 실행 (LLM 정제 쿼리 vs 원문 투기적 벡터)
       const queryVector =
         turnResult.searchQueryRequested !== lastUserMessage
           ? await this.embeddingService.generateQueryEmbedding(
@@ -107,35 +106,40 @@ export class SearchService {
         (b) => b.similarity >= this.SIMILARITY_THRESHOLD,
       );
 
+      // 2-A. DB 검색 결과가 없을 때: 모델 자체 지식으로 도서 추천 큐레이션 생성
       if (filteredBooks.length === 0) {
-        const latencyMs = Date.now() - startTime;
-        const noResultMessage =
-          '말씀하신 상황과 어울리는 도서를 데이터베이스에서 찾지 못했습니다. 원하시는 분위기나 관심 장르를 다르게 말씀해 주시겠어요?';
+        const parametricResult =
+          await this.ragService.generateParametricRecommendation(
+            messages,
+            turnResult.searchQueryRequested,
+          );
 
-        await this.saveAiLog({
-          userId: userId ?? null,
-          feature: 'TALK',
-          model: MODEL_NAME,
-          promptTokens: totalPromptTokens || null,
-          completionTokens: totalCompletionTokens || null,
-          totalTokens: totalTokens || null,
-          latencyMs,
-          requestPayload: { messages },
-          responsePayload: { message: noResultMessage, books: [] },
-          status: 'SUCCESS',
+        await this.logSuccess({
+          userId,
+          startTime,
+          messages,
+          responseMessage: parametricResult.message,
+          books: [],
+          tokens: {
+            prompt: parametricResult.usageMetadata?.promptTokenCount ?? 0,
+            completion:
+              parametricResult.usageMetadata?.candidatesTokenCount ?? 0,
+            total: parametricResult.usageMetadata?.totalTokenCount ?? 0,
+          },
         });
 
         return {
-          message: noResultMessage,
+          message: parametricResult.message,
           books: [],
         };
       }
 
-      // 3. 통합 RAG Reranking & Synthesis (2차 LLM 호출) — 상위 MAX_CANDIDATES_FOR_LLM개만 전달
+      // 3. 통합 RAG Reranking & Synthesis (2차 LLM 호출)
+      const candidateList = filteredBooks.slice(0, this.MAX_CANDIDATES_FOR_LLM);
       const finalResult =
         await this.ragService.filterAndSynthesizeRecommendation(
           messages,
-          filteredBooks.slice(0, this.MAX_CANDIDATES_FOR_LLM),
+          candidateList,
         );
 
       if (finalResult.usageMetadata) {
@@ -145,21 +149,17 @@ export class SearchService {
         totalTokens += finalResult.usageMetadata.totalTokenCount ?? 0;
       }
 
-      const latencyMs = Date.now() - startTime;
-      await this.saveAiLog({
-        userId: userId ?? null,
-        feature: 'TALK',
-        model: MODEL_NAME,
-        promptTokens: totalPromptTokens || null,
-        completionTokens: totalCompletionTokens || null,
-        totalTokens: totalTokens || null,
-        latencyMs,
-        requestPayload: { messages },
-        responsePayload: {
-          message: finalResult.message,
-          books: finalResult.books,
+      await this.logSuccess({
+        userId,
+        startTime,
+        messages,
+        responseMessage: finalResult.message,
+        books: finalResult.books,
+        tokens: {
+          prompt: totalPromptTokens,
+          completion: totalCompletionTokens,
+          total: totalTokens,
         },
-        status: 'SUCCESS',
       });
 
       return {
@@ -167,26 +167,243 @@ export class SearchService {
         books: finalResult.books,
       };
     } catch (error) {
-      const latencyMs = Date.now() - startTime;
-      await this.saveAiLog({
-        userId: userId ?? null,
-        feature: 'TALK',
-        model: MODEL_NAME,
-        latencyMs,
-        requestPayload: { messages },
-        status: 'ERROR',
-        errorMessage: error instanceof Error ? error.message : String(error),
-      });
-
+      await this.logError(userId, startTime, messages, error);
       throw error;
     }
   }
 
-  private async saveAiLog(data: Partial<AiRequestLog>) {
+  /**
+   * Conversational Agent RAG Pipeline - 실시간 SSE 스트리밍
+   */
+  async searchAiStream(
+    dto: AiSearchRequestDto,
+    res: Response,
+    userId?: number,
+  ): Promise<void> {
+    const startTime = Date.now();
+    const { messages } = dto;
+    const sse = new SseStreamWriter(res);
+
+    let totalPromptTokens = 0;
+    let totalCompletionTokens = 0;
+    let totalTokens = 0;
+    let fullTextAccumulator = '';
+
+    if (!messages || messages.length === 0) {
+      sse.sendTextChunk(
+        '안녕하세요! 어떤 책을 찾고 계신가요? 편안하게 말씀해 주세요.',
+      );
+      sse.complete();
+      return;
+    }
+
     try {
-      await this.aiRequestLogRepository.save(data);
-    } catch (e) {
-      this.logger.error('Failed to save AI request log in SearchService:', e);
+      const lastUserMessage = messages[messages.length - 1]?.content ?? '';
+
+      // Speculative Embedding: 사용자 원문 임베딩 병렬 시작
+      const speculativeEmbeddingPromise =
+        this.embeddingService.generateQueryEmbedding(lastUserMessage);
+
+      let searchQueryRequested: string | null = null;
+
+      // 1. 1차 LLM 스트림 실행 (일반 대화 시 실시간 토큰 전송, 검색 의도 감지 시 function_call 반환)
+      for await (const event of this.ragService.processConversationalTurnStream(
+        messages,
+      )) {
+        if (event.type === 'chunk' && event.chunk) {
+          fullTextAccumulator += event.chunk;
+          sse.sendTextChunk(event.chunk);
+        } else if (
+          event.type === 'function_call' &&
+          event.searchQueryRequested
+        ) {
+          searchQueryRequested = event.searchQueryRequested;
+        } else if (event.type === 'done' && event.usageMetadata) {
+          totalPromptTokens += event.usageMetadata.promptTokenCount ?? 0;
+          totalCompletionTokens +=
+            event.usageMetadata.candidatesTokenCount ?? 0;
+          totalTokens += event.usageMetadata.totalTokenCount ?? 0;
+        }
+      }
+
+      // 1-A. 단순 대화 또는 꼬리 질문인 경우 (search_books 미호출)
+      if (!searchQueryRequested) {
+        sse.complete();
+
+        await this.logSuccess({
+          userId,
+          startTime,
+          messages,
+          responseMessage: fullTextAccumulator,
+          books: [],
+          tokens: {
+            prompt: totalPromptTokens,
+            completion: totalCompletionTokens,
+            total: totalTokens,
+          },
+        });
+        return;
+      }
+
+      // 2. 도서 검색 진행 알림 전송
+      sse.sendSearching(
+        '도서 데이터베이스에서 맞춤 도서를 탐색하고 있습니다...',
+      );
+
+      const speculativeVector = await speculativeEmbeddingPromise;
+      const queryVector =
+        searchQueryRequested !== lastUserMessage
+          ? await this.embeddingService.generateQueryEmbedding(
+              searchQueryRequested,
+            )
+          : speculativeVector;
+
+      const rawBooks = await this.vectorSearchService.searchSimilarBooks(
+        queryVector,
+        this.CANDIDATE_POOL_SIZE,
+      );
+
+      const filteredBooks = rawBooks.filter(
+        (b) => b.similarity >= this.SIMILARITY_THRESHOLD,
+      );
+
+      // 2-A. DB 검색 결과가 없을 때: 모델 자체 지식으로 도서 추천 큐레이션 스트리밍
+      if (filteredBooks.length === 0) {
+        for await (const chunkEvent of this.ragService.generateParametricRecommendationStream(
+          messages,
+          searchQueryRequested,
+        )) {
+          if (chunkEvent.type === 'chunk' && chunkEvent.chunk) {
+            fullTextAccumulator += chunkEvent.chunk;
+            sse.sendTextChunk(chunkEvent.chunk);
+          } else if (chunkEvent.type === 'done' && chunkEvent.usageMetadata) {
+            totalPromptTokens += chunkEvent.usageMetadata.promptTokenCount ?? 0;
+            totalCompletionTokens +=
+              chunkEvent.usageMetadata.candidatesTokenCount ?? 0;
+            totalTokens += chunkEvent.usageMetadata.totalTokenCount ?? 0;
+          }
+        }
+
+        sse.complete();
+
+        await this.logSuccess({
+          userId,
+          startTime,
+          messages,
+          responseMessage: fullTextAccumulator,
+          books: [],
+          tokens: {
+            prompt: totalPromptTokens,
+            completion: totalCompletionTokens,
+            total: totalTokens,
+          },
+        });
+        return;
+      }
+
+      const candidateList = filteredBooks.slice(0, this.MAX_CANDIDATES_FOR_LLM);
+
+      // 도서 목록 먼저 즉시 전송 (UI에서 도서 카드가 먼저 렌더링됨)
+      sse.sendBooks(candidateList);
+
+      // 3. 2차 LLM 실시간 스트리밍 큐레이션 작성
+      for await (const chunkEvent of this.ragService.filterAndSynthesizeRecommendationStream(
+        messages,
+        candidateList,
+      )) {
+        if (chunkEvent.type === 'chunk' && chunkEvent.chunk) {
+          fullTextAccumulator += chunkEvent.chunk;
+          sse.sendTextChunk(chunkEvent.chunk);
+        } else if (chunkEvent.type === 'done' && chunkEvent.usageMetadata) {
+          totalPromptTokens += chunkEvent.usageMetadata.promptTokenCount ?? 0;
+          totalCompletionTokens +=
+            chunkEvent.usageMetadata.candidatesTokenCount ?? 0;
+          totalTokens += chunkEvent.usageMetadata.totalTokenCount ?? 0;
+        }
+      }
+
+      sse.complete();
+
+      await this.logSuccess({
+        userId,
+        startTime,
+        messages,
+        responseMessage: fullTextAccumulator,
+        books: candidateList,
+        tokens: {
+          prompt: totalPromptTokens,
+          completion: totalCompletionTokens,
+          total: totalTokens,
+        },
+      });
+    } catch (error) {
+      this.logger.error('searchAiStream Error:', error);
+      sse.sendError(
+        '대화를 처리하는 도중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
+      );
+      await this.logError(userId, startTime, messages, error);
+    }
+  }
+
+  /**
+   * AI 성공 감사 로그 기록 헬퍼
+   */
+  private async logSuccess(params: {
+    userId?: number;
+    startTime: number;
+    messages: ChatMessageDto[];
+    responseMessage: string;
+    books: unknown[];
+    tokens: { prompt: number; completion: number; total: number };
+  }): Promise<void> {
+    const latencyMs = Date.now() - params.startTime;
+    await this.saveAiLog({
+      userId: params.userId ?? null,
+      feature: 'TALK',
+      model: MODEL_NAME,
+      promptTokens: params.tokens.prompt || null,
+      completionTokens: params.tokens.completion || null,
+      totalTokens: params.tokens.total || null,
+      latencyMs,
+      requestPayload: { messages: params.messages },
+      responsePayload: {
+        message: params.responseMessage,
+        books: params.books,
+      },
+      status: 'SUCCESS',
+    });
+  }
+
+  /**
+   * AI 오류 감사 로그 기록 헬퍼
+   */
+  private async logError(
+    userId: number | undefined,
+    startTime: number,
+    messages: ChatMessageDto[],
+    error: unknown,
+  ): Promise<void> {
+    const latencyMs = Date.now() - startTime;
+    await this.saveAiLog({
+      userId: userId ?? null,
+      feature: 'TALK',
+      model: MODEL_NAME,
+      latencyMs,
+      requestPayload: { messages },
+      status: 'ERROR',
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
+  }
+
+  /**
+   * 비동기 AI 로그 DB 저장
+   */
+  private async saveAiLog(logData: Partial<AiRequestLog>): Promise<void> {
+    try {
+      const log = this.aiRequestLogRepository.create(logData);
+      await this.aiRequestLogRepository.save(log);
+    } catch (err) {
+      this.logger.error('Failed to save AI log:', err);
     }
   }
 }

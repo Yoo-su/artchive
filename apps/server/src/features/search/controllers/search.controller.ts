@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -15,6 +16,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import { Response } from 'express';
 
 import {
   AiSearchRequestDto,
@@ -51,5 +53,22 @@ export class SearchController {
     @Req() req: { user?: { id: number } },
   ): Promise<AiSearchResponseDto> {
     return await this.searchService.searchAi(dto, req.user?.id);
+  }
+
+  @Post('ai/stream')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiOperation({
+    summary: 'AI 추천 도서 실시간 스트리밍 검색 (SSE)',
+    description:
+      '회원 전용 기능입니다. Server-Sent Events(SSE)를 통해 1차 의도분류, 후보 도서 카드, 2차 추천 사유 스트리밍을 실시간으로 전송합니다.',
+  })
+  async searchAiStream(
+    @Body() dto: AiSearchRequestDto,
+    @Req() req: { user?: { id: number } },
+    @Res() res: Response,
+  ): Promise<void> {
+    await this.searchService.searchAiStream(dto, res, req.user?.id);
   }
 }

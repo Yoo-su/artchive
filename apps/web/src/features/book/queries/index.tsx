@@ -68,5 +68,3 @@ export const useBookStatsQuery = (isbn: string) =>
 export const useRecordSearchKeywordMutation = (options?: { onSuccess?: () => void; onError?: (error: unknown) => void }) =>
   useBaseRecordSearchKeywordMutation(options);
 
-export * from "./use-ai-search-query";
-

@@ -1,13 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Loader2, RotateCcw, Send } from "lucide-react";
+import { RotateCcw, Send, Sparkles } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import remarkGfm from "remark-gfm";
 
 import { Particles } from "@/shared/components/magicui/particles";
 import { Input } from "@/shared/components/shadcn/input";
+import { Spinner } from "@/shared/components/shadcn/spinner";
 import { gowun_batang } from "@/styles/fonts";
 
 import { AI_CHAT_SUGGESTION_CHIPS, ChatMessage } from "../../constants/ai-chat";
@@ -83,68 +84,93 @@ export const AiChatWindow = () => {
               msg.role === "user" ? "items-end" : "items-start"
             }`}
           >
-            <div
-              className={`px-4 py-3 max-w-[85%] text-xs sm:text-sm leading-relaxed ${
-                msg.role === "user"
-                  ? "bg-stone-900/85 backdrop-blur-md border border-stone-700/60 text-white rounded-2xl rounded-tr-xs whitespace-pre-line shadow-md shadow-stone-900/10"
-                  : "bg-white/75 backdrop-blur-md border border-white/80 text-stone-850 rounded-2xl rounded-tl-xs shadow-md shadow-stone-900/5 ring-1 ring-stone-900/5"
-              }`}
-            >
-              {msg.role === "user" ? (
-                msg.content
-              ) : (
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  components={{
-                    strong: ({ node, ...props }) => (
-                      <strong
-                        {...props}
-                        className="font-semibold text-stone-900"
-                      />
-                    ),
-                    em: ({ node, ...props }) => (
-                      <em {...props} className="italic text-stone-800" />
-                    ),
-                    a: ({ node, ...props }) => (
-                      <a
-                        {...props}
-                        className="underline font-medium text-emerald-600 hover:text-emerald-700"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      />
-                    ),
-                    ul: ({ node, ...props }) => (
-                      <ul
-                        {...props}
-                        className="list-disc pl-5 space-y-1 my-1.5"
-                      />
-                    ),
-                    ol: ({ node, ...props }) => (
-                      <ol
-                        {...props}
-                        className="list-decimal pl-5 space-y-1 my-1.5"
-                      />
-                    ),
-                    p: ({ node, ...props }) => (
-                      <p {...props} className="mb-1.5 last:mb-0 leading-relaxed" />
-                    ),
-                  }}
-                >
-                  {msg.content}
-                </ReactMarkdown>
+            {(msg.content || msg.isStreaming) && (
+              <div
+                className={`text-xs sm:text-sm leading-relaxed transition-all ${
+                  msg.role === "user"
+                    ? "bg-stone-900/90 backdrop-blur-md border border-stone-800 text-white rounded-2xl rounded-tr-xs whitespace-pre-line shadow-sm shadow-stone-900/10 px-4 py-3 max-w-[85%] sm:max-w-[75%]"
+                    : "bg-white/90 backdrop-blur-md border border-stone-200/80 text-stone-850 rounded-2xl rounded-tl-xs shadow-xs px-4 py-3.5 sm:px-5 sm:py-4 max-w-[92%] sm:max-w-[88%] min-w-[140px] w-fit"
+                }`}
+              >
+                {msg.role === "user" ? (
+                  msg.content
+                ) : (
+                  <div className="relative">
+                    {/* 스트리밍 준비 중 및 도서 선정 후 큐레이션 작성 대기 상태 */}
+                    {msg.isStreaming && !msg.content && (
+                      <div className="flex items-center gap-2 py-0.5 text-stone-500 text-xs">
+                        <Spinner className="size-3.5 text-stone-500" />
+                        <span className="text-stone-600 font-medium">
+                          {msg.books && msg.books.length > 0
+                            ? "선정된 도서에 대한 맞춤 큐레이션을 작성하고 있습니다..."
+                            : "AI가 답변을 생각하고 있습니다..."}
+                        </span>
+                      </div>
+                    )}
+
+                  {msg.content ? (
+                    <div className="prose prose-stone max-w-none text-xs sm:text-sm text-stone-850">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          p: ({ node, ...props }) => (
+                            <p
+                              {...props}
+                              className="mb-2 last:mb-0 leading-relaxed text-stone-800"
+                            />
+                          ),
+                          strong: ({ node, ...props }) => (
+                            <strong
+                              {...props}
+                              className="font-semibold text-stone-950"
+                            />
+                          ),
+                          em: ({ node, ...props }) => (
+                            <em {...props} className="italic text-stone-800" />
+                          ),
+                          a: ({ node, ...props }) => (
+                            <a
+                              {...props}
+                              className="underline font-medium text-emerald-600 hover:text-emerald-700"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            />
+                          ),
+                          ul: ({ node, ...props }) => (
+                            <ul
+                              {...props}
+                              className="list-disc pl-5 space-y-1 my-2"
+                            />
+                          ),
+                          ol: ({ node, ...props }) => (
+                            <ol
+                              {...props}
+                              className="list-decimal pl-5 space-y-1 my-2"
+                            />
+                          ),
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
+                    </div>
+                  ) : null}
+                </div>
               )}
             </div>
+          )}
 
-            {msg.books && <AiBookRecommendSlider books={msg.books} />}
+            {msg.books && msg.books.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="w-full"
+              >
+                <AiBookRecommendSlider books={msg.books} />
+              </motion.div>
+            )}
           </motion.div>
         ))}
-
-        {loading && (
-          <div className="flex items-center gap-2 text-stone-400 text-xs py-2">
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-stone-500" />
-            <span>AI가 답변을 준비하고 있습니다...</span>
-          </div>
-        )}
       </div>
 
       {/* 3. 비로그인 안내 */}
