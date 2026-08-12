@@ -163,7 +163,7 @@ export class ChatService {
       await queryRunner.commitTransaction();
 
       // 트랜잭션 성공 후 소켓 작업
-      await this.chatGateway.joinRoom([buyerId, sellerId], savedRoom.id);
+      this.chatGateway.joinRoom([buyerId, sellerId], savedRoom.id);
 
       const createdRoom = await this.chatRoomRepository.findOne({
         where: { id: savedRoom.id },

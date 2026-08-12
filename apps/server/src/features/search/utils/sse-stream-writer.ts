@@ -23,14 +23,29 @@ export class SseStreamWriter {
       this.res.setHeader('X-Accel-Buffering', 'no');
       this.res.flushHeaders?.();
     }
+
+    this.res.on('close', () => {
+      this.isClosed = true;
+    });
+  }
+
+  /**
+   * 클라이언트와 SSE 연결이 여전히 유효한지 확인
+   */
+  get isConnected(): boolean {
+    return !this.isClosed && !this.res.writableEnded && !this.res.destroyed;
   }
 
   /**
    * SSE 데이터 패킷 전송
    */
   sendEvent(event: SseEvent): void {
-    if (this.isClosed) return;
-    this.res.write(`data: ${JSON.stringify(event)}\n\n`);
+    if (!this.isConnected) return;
+    try {
+      this.res.write(`data: ${JSON.stringify(event)}\n\n`);
+    } catch {
+      this.isClosed = true;
+    }
   }
 
   /**
@@ -68,7 +83,11 @@ export class SseStreamWriter {
   complete(): void {
     if (this.isClosed) return;
     this.sendEvent({ type: 'done' });
-    this.res.end();
+    try {
+      this.res.end();
+    } catch {
+      // 이미 닫힌 경우 무시
+    }
     this.isClosed = true;
   }
 }

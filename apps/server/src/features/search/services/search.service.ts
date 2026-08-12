@@ -14,14 +14,14 @@ import { EmbeddingService } from '@/features/search/services/embedding.service';
 import { RagService } from '@/features/search/services/rag.service';
 import { VectorSearchService } from '@/features/search/services/vector-search.service';
 
+import { deduplicateBooks } from '../utils/book-deduplicator.util';
 import { SseStreamWriter } from '../utils/sse-stream-writer';
 
 @Injectable()
 export class SearchService {
   private readonly logger = new Logger(SearchService.name);
   private readonly SIMILARITY_THRESHOLD = 0.35; // 최소 유사도 기준값
-  private readonly CANDIDATE_POOL_SIZE = 15; // pgvector에서 뽑아올 후보 풀 크기
-  private readonly MAX_CANDIDATES_FOR_LLM = 10; // LLM에 전달할 최대 후보 수
+  private readonly CANDIDATE_POOL_SIZE = 30; // pgvector에서 검색할 원시 후보 풀 크기
 
   constructor(
     @InjectRepository(AiRequestLog)
@@ -106,12 +106,37 @@ export class SearchService {
         (b) => b.similarity >= this.SIMILARITY_THRESHOLD,
       );
 
-      // 2-A. DB 검색 결과가 없을 때: 모델 자체 지식으로 도서 추천 큐레이션 생성
-      if (filteredBooks.length === 0) {
+      // 2-B. 제외 키워드 필터링, 출판사 정렬, 시리즈/상하권 중복 제거
+      const deduplicated = deduplicateBooks(
+        filteredBooks,
+        turnResult.preferredPublishers,
+        turnResult.excludedKeywords,
+      );
+      const targetCount = turnResult.targetCount || 5;
+
+      // 만약 사용자가 특정 출판사를 명시했는데 DB 검색 결과에 해당 출판사가 전혀 없다면, 원치 않는 출판사 도서를 강제 추천하지 않고 Parametric Fallback으로 전환
+      const hasPublisherConstraint =
+        turnResult.preferredPublishers &&
+        turnResult.preferredPublishers.length > 0;
+      const matchingPublisherBooks = hasPublisherConstraint
+        ? deduplicated.filter((b) =>
+            turnResult.preferredPublishers?.some((pub) =>
+              b.publisher?.includes(pub),
+            ),
+          )
+        : deduplicated;
+
+      const curatedBooks = (
+        hasPublisherConstraint ? matchingPublisherBooks : deduplicated
+      ).slice(0, targetCount);
+
+      // 2-C. DB 검색 결과가 없거나 특정 제약조건에 부합하는 도서가 없을 때: 모델 자체 지식으로 도서 추천
+      if (curatedBooks.length === 0) {
         const parametricResult =
           await this.ragService.generateParametricRecommendation(
             messages,
             turnResult.searchQueryRequested,
+            targetCount,
           );
 
         await this.logSuccess({
@@ -134,27 +159,28 @@ export class SearchService {
         };
       }
 
-      // 3. 통합 RAG Reranking & Synthesis (2차 LLM 호출)
-      const candidateList = filteredBooks.slice(0, this.MAX_CANDIDATES_FOR_LLM);
-      const finalResult =
-        await this.ragService.filterAndSynthesizeRecommendation(
-          messages,
-          candidateList,
-        );
-
-      if (finalResult.usageMetadata) {
-        totalPromptTokens += finalResult.usageMetadata.promptTokenCount ?? 0;
-        totalCompletionTokens +=
-          finalResult.usageMetadata.candidatesTokenCount ?? 0;
-        totalTokens += finalResult.usageMetadata.totalTokenCount ?? 0;
+      // 3. 2차 LLM 스트리밍 큐레이션 코멘트 동기 생성 (전달된 curatedBooks와 1:1 완벽 일치)
+      let synthesisText = '';
+      for await (const chunkEvent of this.ragService.filterAndSynthesizeRecommendationStream(
+        messages,
+        curatedBooks,
+      )) {
+        if (chunkEvent.type === 'chunk' && chunkEvent.chunk) {
+          synthesisText += chunkEvent.chunk;
+        } else if (chunkEvent.type === 'done' && chunkEvent.usageMetadata) {
+          totalPromptTokens += chunkEvent.usageMetadata.promptTokenCount ?? 0;
+          totalCompletionTokens +=
+            chunkEvent.usageMetadata.candidatesTokenCount ?? 0;
+          totalTokens += chunkEvent.usageMetadata.totalTokenCount ?? 0;
+        }
       }
 
       await this.logSuccess({
         userId,
         startTime,
         messages,
-        responseMessage: finalResult.message,
-        books: finalResult.books,
+        responseMessage: synthesisText,
+        books: curatedBooks,
         tokens: {
           prompt: totalPromptTokens,
           completion: totalCompletionTokens,
@@ -163,8 +189,8 @@ export class SearchService {
       });
 
       return {
-        message: finalResult.message,
-        books: finalResult.books,
+        message: synthesisText,
+        books: curatedBooks,
       };
     } catch (error) {
       await this.logError(userId, startTime, messages, error);
@@ -204,30 +230,21 @@ export class SearchService {
       const speculativeEmbeddingPromise =
         this.embeddingService.generateQueryEmbedding(lastUserMessage);
 
-      let searchQueryRequested: string | null = null;
+      // 1. 1차 턴 의도 분류 (내부 라우팅 - 클라이언트로 불필요한 토큰 유출 방지)
+      const turnResult =
+        await this.ragService.processConversationalTurn(messages);
 
-      // 1. 1차 LLM 스트림 실행 (일반 대화 시 실시간 토큰 전송, 검색 의도 감지 시 function_call 반환)
-      for await (const event of this.ragService.processConversationalTurnStream(
-        messages,
-      )) {
-        if (event.type === 'chunk' && event.chunk) {
-          fullTextAccumulator += event.chunk;
-          sse.sendTextChunk(event.chunk);
-        } else if (
-          event.type === 'function_call' &&
-          event.searchQueryRequested
-        ) {
-          searchQueryRequested = event.searchQueryRequested;
-        } else if (event.type === 'done' && event.usageMetadata) {
-          totalPromptTokens += event.usageMetadata.promptTokenCount ?? 0;
-          totalCompletionTokens +=
-            event.usageMetadata.candidatesTokenCount ?? 0;
-          totalTokens += event.usageMetadata.totalTokenCount ?? 0;
-        }
+      if (turnResult.usageMetadata) {
+        totalPromptTokens += turnResult.usageMetadata.promptTokenCount ?? 0;
+        totalCompletionTokens +=
+          turnResult.usageMetadata.candidatesTokenCount ?? 0;
+        totalTokens += turnResult.usageMetadata.totalTokenCount ?? 0;
       }
 
       // 1-A. 단순 대화 또는 꼬리 질문인 경우 (search_books 미호출)
-      if (!searchQueryRequested) {
+      if (!turnResult.searchQueryRequested) {
+        fullTextAccumulator = turnResult.message;
+        sse.sendTextChunk(turnResult.message);
         sse.complete();
 
         await this.logSuccess({
@@ -245,16 +262,16 @@ export class SearchService {
         return;
       }
 
-      // 2. 도서 검색 진행 알림 전송
+      // 2. 도서 검색 진행 알림 전송 (1차 턴에서 도서 검색이 확정된 경우만 발송)
       sse.sendSearching(
         '도서 데이터베이스에서 맞춤 도서를 탐색하고 있습니다...',
       );
 
       const speculativeVector = await speculativeEmbeddingPromise;
       const queryVector =
-        searchQueryRequested !== lastUserMessage
+        turnResult.searchQueryRequested !== lastUserMessage
           ? await this.embeddingService.generateQueryEmbedding(
-              searchQueryRequested,
+              turnResult.searchQueryRequested,
             )
           : speculativeVector;
 
@@ -267,12 +284,38 @@ export class SearchService {
         (b) => b.similarity >= this.SIMILARITY_THRESHOLD,
       );
 
-      // 2-A. DB 검색 결과가 없을 때: 모델 자체 지식으로 도서 추천 큐레이션 스트리밍
-      if (filteredBooks.length === 0) {
+      // 2-B. 제외 키워드 필터링, 출판사 정렬, 시리즈/상하권 중복 제거
+      const deduplicated = deduplicateBooks(
+        filteredBooks,
+        turnResult.preferredPublishers,
+        turnResult.excludedKeywords,
+      );
+      const targetCount = turnResult.targetCount || 5;
+
+      // 만약 사용자가 특정 출판사를 명시했는데 DB 검색 결과에 해당 출판사가 전혀 없다면, 원치 않는 출판사 도서를 강제 추천하지 않고 Parametric Fallback으로 전환
+      const hasPublisherConstraint =
+        turnResult.preferredPublishers &&
+        turnResult.preferredPublishers.length > 0;
+      const matchingPublisherBooks = hasPublisherConstraint
+        ? deduplicated.filter((b) =>
+            turnResult.preferredPublishers?.some((pub) =>
+              b.publisher?.includes(pub),
+            ),
+          )
+        : deduplicated;
+
+      const curatedBooks = (
+        hasPublisherConstraint ? matchingPublisherBooks : deduplicated
+      ).slice(0, targetCount);
+
+      // 2-C. DB 검색 결과가 없거나 특정 조건의 도서가 없을 때: 모델 자체 지식으로 도서 추천 큐레이션 스트리밍
+      if (curatedBooks.length === 0) {
         for await (const chunkEvent of this.ragService.generateParametricRecommendationStream(
           messages,
-          searchQueryRequested,
+          turnResult.searchQueryRequested,
+          targetCount,
         )) {
+          if (!sse.isConnected) break;
           if (chunkEvent.type === 'chunk' && chunkEvent.chunk) {
             fullTextAccumulator += chunkEvent.chunk;
             sse.sendTextChunk(chunkEvent.chunk);
@@ -301,16 +344,15 @@ export class SearchService {
         return;
       }
 
-      const candidateList = filteredBooks.slice(0, this.MAX_CANDIDATES_FOR_LLM);
+      // 3. 엄선된 도서 카드 목록 선발송 (실제 LLM이 큐레이션할 도서들과 100% 1:1 일치)
+      sse.sendBooks(curatedBooks);
 
-      // 도서 목록 먼저 즉시 전송 (UI에서 도서 카드가 먼저 렌더링됨)
-      sse.sendBooks(candidateList);
-
-      // 3. 2차 LLM 실시간 스트리밍 큐레이션 작성
+      // 4. 2차 LLM 실시간 스트리밍 큐레이션 작성 (오직 curatedBooks만을 대상으로 작성)
       for await (const chunkEvent of this.ragService.filterAndSynthesizeRecommendationStream(
         messages,
-        candidateList,
+        curatedBooks,
       )) {
+        if (!sse.isConnected) break;
         if (chunkEvent.type === 'chunk' && chunkEvent.chunk) {
           fullTextAccumulator += chunkEvent.chunk;
           sse.sendTextChunk(chunkEvent.chunk);
@@ -329,7 +371,7 @@ export class SearchService {
         startTime,
         messages,
         responseMessage: fullTextAccumulator,
-        books: candidateList,
+        books: curatedBooks,
         tokens: {
           prompt: totalPromptTokens,
           completion: totalCompletionTokens,

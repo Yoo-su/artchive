@@ -33,7 +33,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  private connectedUsers: Map<number, Socket> = new Map();
   private readonly logger = new Logger(ChatGateway.name);
 
   constructor(
@@ -64,7 +63,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       client.data.user = user;
 
-      this.connectedUsers.set(user.id, client);
+      // 멀티탭/멀티디바이스 환경 지원을 위해 유저 전용 룸에 소켓을 조인시킵니다.
+      await client.join(`user:${user.id}`);
       this.logger.log(`Client connected: ${client.id}, User ID: ${user.id}`);
 
       client.emit('connected', {
@@ -79,7 +79,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: Socket) {
     if (client.data.user) {
-      this.connectedUsers.delete(client.data.user.id);
       this.logger.log(
         `Client disconnected: ${client.id}, User ID: ${client.data.user.id}`,
       );
@@ -89,25 +88,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   /**
-   * 특정 유저들을 특정 소켓 룸에 참여시킵니다.
+   * 특정 유저들의 모든 활성 소켓을 특정 채팅방 소켓 룸에 참여시킵니다.
    * ChatService에서 채팅방이 생성될 때 호출됩니다.
    * @param userIds - 룸에 참여시킬 유저 ID 배열
    * @param roomId - 참여할 룸 ID
    */
-  async joinRoom(userIds: number[], roomId: number) {
+  joinRoom(userIds: number[], roomId: number): void {
     const roomIdStr = String(roomId);
-    const joinPromises = userIds.map(async (userId) => {
-      const userSocket = this.connectedUsers.get(userId);
-      if (userSocket) {
-        await userSocket.join(roomIdStr);
-        this.logger.log(
-          `User ${userId} (Client ${userSocket.id}) joined room ${roomIdStr}`,
-        );
-      } else {
-        this.logger.warn(`User ${userId} is not connected.`);
-      }
-    });
-    await Promise.all(joinPromises);
+    for (const userId of userIds) {
+      this.server?.in(`user:${userId}`)?.socketsJoin(roomIdStr);
+      this.logger.log(`All sockets of User ${userId} joined room ${roomIdStr}`);
+    }
   }
 
   /**
@@ -122,22 +113,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   /**
-   * 특정 유저에게 새로운 채팅방이 생성되었음을 알립니다.
+   * 특정 유저의 모든 활성 기기/탭에 새로운 채팅방이 생성되었음을 알립니다.
    * @param userId - 알림을 받을 유저의 ID
    * @param room - 생성된 채팅방의 정보
    */
   notifyNewRoom(userId: number, room: ChatRoom) {
-    const userSocket = this.connectedUsers.get(userId);
-    if (userSocket) {
-      userSocket.emit('newChatRoom', room);
-      this.logger.log(
-        `Notified user ${userId} (Client ${userSocket.id}) of new room ${room.id}`,
-      );
-    } else {
-      this.logger.warn(
-        `User ${userId} is not connected. Cannot notify about new room.`,
-      );
-    }
+    this.server.to(`user:${userId}`).emit('newChatRoom', room);
+    this.logger.log(`Notified user ${userId} of new room ${room.id}`);
   }
 
   @SubscribeMessage('sendMessage')
@@ -151,12 +133,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       const message = await this.chatService.saveMessage(content, roomId, user);
       this.server.to(String(roomId)).emit('newMessage', message);
-      return { status: 'ok', message }; // ACK 대신 반환값으로 처리
+      return { status: 'ok', message };
     } catch (error) {
       this.logger.error(
         `Failed to save message for user ${user.id} in room ${roomId}: ${error.message}`,
       );
-      throw new WsException(error.message); // WsException으로 에러 전달
+      throw new WsException(error.message);
     }
   }
 

@@ -1,6 +1,10 @@
 import { SelectQueryBuilder } from 'typeorm';
 
-import { BookSaleSortBy, QueryBookSaleDto } from '../dtos/query-book-sale.dto';
+import {
+  BookSaleSortBy,
+  QueryBookSaleDto,
+  SortOrder,
+} from '../dtos/query-book-sale.dto';
 import { SaleStatus, UsedBookSale } from '../entities/used-book-sale.entity';
 
 export const applyCommonFilters = (
@@ -117,7 +121,8 @@ export const applyCursorFilter = (
 
   // CREATED_AT의 경우 ID 기반 비교 사용 (ID가 생성 시간 순서와 일치)
   if (sortBy === BookSaleSortBy.CREATED_AT) {
-    queryBuilder.andWhere('sale.id < :cursorId', { cursorId: id });
+    const operator = sortOrder === SortOrder.ASC ? '>' : '<';
+    queryBuilder.andWhere(`sale.id ${operator} :cursorId`, { cursorId: id });
     return;
   }
 
