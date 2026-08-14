@@ -37,6 +37,8 @@ export function Particles({
   const circles = useRef<any[]>([]);
   const mouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const canvasSize = useRef<{ w: number; h: number }>({ w: 0, h: 0 });
+  const rafIdRef = useRef<number | null>(null);
+  const isInViewRef = useRef<boolean>(true);
   const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
 
   useEffect(() => {
@@ -44,12 +46,37 @@ export function Particles({
       context.current = canvasRef.current.getContext("2d");
     }
     initCanvas();
-    const animationFrameId = requestAnimationFrame(animate);
     window.addEventListener("resize", initCanvas);
+
+    let observer: IntersectionObserver | null = null;
+    if (canvasContainerRef.current && typeof IntersectionObserver !== "undefined") {
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          isInViewRef.current = entry.isIntersecting;
+          if (entry.isIntersecting) {
+            if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+            rafIdRef.current = requestAnimationFrame(animate);
+          } else {
+            if (rafIdRef.current) {
+              cancelAnimationFrame(rafIdRef.current);
+              rafIdRef.current = null;
+            }
+          }
+        },
+        { threshold: 0 }
+      );
+      observer.observe(canvasContainerRef.current);
+    } else {
+      rafIdRef.current = requestAnimationFrame(animate);
+    }
 
     return () => {
       window.removeEventListener("resize", initCanvas);
-      cancelAnimationFrame(animationFrameId);
+      observer?.disconnect();
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
     };
   }, [color]);
 
@@ -219,7 +246,9 @@ export function Particles({
         }
       });
     }
-    requestAnimationFrame(animate);
+    if (isInViewRef.current) {
+      rafIdRef.current = requestAnimationFrame(animate);
+    }
   };
 
   return (

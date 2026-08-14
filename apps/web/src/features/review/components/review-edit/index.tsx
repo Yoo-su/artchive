@@ -2,6 +2,7 @@
 
 import { ReviewFormValues } from "@bookjeok/core";
 import { AxiosError } from "axios";
+import { AlertTriangle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -57,7 +58,12 @@ export const ReviewEdit = ({ id }: ReviewEditProps) => {
 
   // 에러 또는 데이터 없음
   if (error || !review) {
-    return <ReviewEditSkeleton />;
+    return (
+      <div className="container mx-auto py-20 text-center text-red-500">
+        <AlertTriangle className="mx-auto h-12 w-12" />
+        <p className="mt-4 font-semibold">리뷰 정보를 불러올 수 없습니다.</p>
+      </div>
+    );
   }
 
   // 리뷰 데이터를 폼 초기값으로 변환

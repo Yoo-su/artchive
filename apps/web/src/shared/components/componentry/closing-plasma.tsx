@@ -406,6 +406,7 @@ export function ClosingPlasma({
     gl.uniform3f(uLightC, lightC[0], lightC[1], lightC[2]);
 
     let rafId = 0;
+    let isInView = true;
     const start = performance.now();
 
     const render = (now: number) => {
@@ -424,15 +425,37 @@ export function ClosingPlasma({
       gl.uniform1f(uVignette, settings.vignette);
       gl.uniform1f(uOpacity, settings.opacity);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      rafId = requestAnimationFrame(render);
+
+      if (isInView) {
+        rafId = requestAnimationFrame(render);
+      }
     };
 
-    rafId = requestAnimationFrame(render);
+    let intersectionObserver: IntersectionObserver | null = null;
+    if (typeof IntersectionObserver !== "undefined") {
+      intersectionObserver = new IntersectionObserver(
+        ([entry]) => {
+          isInView = entry.isIntersecting;
+          if (isInView) {
+            cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(render);
+          } else {
+            cancelAnimationFrame(rafId);
+            rafId = 0;
+          }
+        },
+        { threshold: 0 }
+      );
+      intersectionObserver.observe(container);
+    } else {
+      rafId = requestAnimationFrame(render);
+    }
 
     return () => {
       container.removeEventListener("pointermove", handlePointerMove);
       container.removeEventListener("pointerleave", handlePointerLeave);
       cancelAnimationFrame(rafId);
+      intersectionObserver?.disconnect();
       resizeObserver.disconnect();
       gl.deleteBuffer(buffer);
       gl.deleteProgram(program);

@@ -1,5 +1,6 @@
 import { reviewKeys } from "@bookjeok/core";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Suspense } from "react";
 
 import { getPopularReviews, getReviewFeeds } from "@/features/review/apis";
 import { BreadcrumbJsonLd } from "@/shared/components/breadcrumb-json-ld";
@@ -47,7 +48,9 @@ export default async function Page({
   return (
     <ServerQueryBoundary queries={queries}>
       <BreadcrumbJsonLd items={breadcrumbs} />
-      <ReviewHomeView />
+      <Suspense fallback={null}>
+        <ReviewHomeView />
+      </Suspense>
     </ServerQueryBoundary>
   );
 }

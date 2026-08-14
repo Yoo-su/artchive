@@ -98,7 +98,7 @@ export const DefaultFooter = () => {
                   </li>
                   <li>
                     <Link
-                      href="/book/reviews"
+                      href={PATHS.REVIEWS}
                       className="hover:text-stone-800 transition-colors"
                     >
                       {tNav("menu_reviews")}

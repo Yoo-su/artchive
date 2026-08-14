@@ -2,14 +2,14 @@
 
 import { User } from "@bookjeok/core";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { consumeReturnUrl } from "@/features/auth/utils/return-url";
 import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
-export default function Page() {
+function CallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setTokens, setUser } = useAuthStore();
@@ -45,4 +45,12 @@ export default function Page() {
   }, [router, searchParams, setTokens, setUser]);
 
   return null;
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <CallbackContent />
+    </Suspense>
+  );
 }

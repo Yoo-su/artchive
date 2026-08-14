@@ -265,19 +265,47 @@ export const CrowdCanvas = ({
       initCrowd();
     };
 
+    let isMounted = true;
+    let observer: IntersectionObserver | null = null;
+
     const init = () => {
+      if (!isMounted) return;
       createPeeps();
       resize();
-      gsap.ticker.add(render);
+
+      if (typeof IntersectionObserver !== "undefined" && canvas) {
+        observer = new IntersectionObserver(
+          ([entry]) => {
+            if (!isMounted) return;
+            if (entry.isIntersecting) {
+              gsap.ticker.add(render);
+            } else {
+              gsap.ticker.remove(render);
+            }
+          },
+          { threshold: 0 }
+        );
+        observer.observe(canvas);
+      } else {
+        gsap.ticker.add(render);
+      }
     };
 
     img.onload = init;
     img.src = config.src;
+    if (img.complete && img.naturalWidth > 0) {
+      init();
+    }
 
-    const handleResize = () => resize();
+    const handleResize = () => {
+      if (isMounted) resize();
+    };
     window.addEventListener("resize", handleResize);
 
     return () => {
+      isMounted = false;
+      img.onload = null;
+      observer?.disconnect();
       window.removeEventListener("resize", handleResize);
       gsap.ticker.remove(render);
       crowd.forEach((peep) => {
