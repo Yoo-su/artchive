@@ -1,5 +1,6 @@
 import { bookKeys } from "@bookjeok/core";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Suspense } from "react";
 
 import { getPopularKeywords } from "@/features/book/apis";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
@@ -45,7 +46,9 @@ export default async function Page({
 
   return (
     <ServerQueryBoundary queries={queries}>
-      <BookSearchView />
+      <Suspense fallback={null}>
+        <BookSearchView />
+      </Suspense>
     </ServerQueryBoundary>
   );
 }

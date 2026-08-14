@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 import { ReviewHomeHero } from "@/features/review/components/review-home-hero";
 import { PopularReviewList } from "@/features/review/components/review-list/popular-review-list";
@@ -19,6 +19,10 @@ export const ReviewHomeView = () => {
   const searchQuery = searchParams.get("search") || "";
 
   const [searchInput, setSearchInput] = useState(searchQuery);
+
+  useEffect(() => {
+    setSearchInput(searchQuery);
+  }, [searchQuery]);
 
   const isFiltered = !!(categoryParam || searchQuery);
 

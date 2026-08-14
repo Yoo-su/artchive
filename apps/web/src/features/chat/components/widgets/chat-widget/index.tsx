@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 import { Card } from "@/shared/components/shadcn/card";
 import { useBodyScrollLock } from "@/shared/hooks/use-body-scroll-lock";
@@ -11,8 +12,18 @@ import { ChatRoom } from "../../room/chat-room";
 
 export const ChatWidget = () => {
   const { isChatOpen, activeChatRoomId } = useChatStore();
+  const [isMobile, setIsMobile] = useState(false);
 
-  useBodyScrollLock(isChatOpen);
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useBodyScrollLock(isChatOpen && isMobile);
 
   return (
     <AnimatePresence>

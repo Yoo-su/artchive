@@ -2,7 +2,7 @@
 
 import { History } from "lucide-react";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   Sheet,
@@ -17,12 +17,17 @@ import { PATHS } from "@/shared/constants/paths";
 import { useRecentBookStore } from "../../stores/use-recent-book-store";
 
 export const RecentBooksDrawer = () => {
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const recentBooks = useRecentBookStore((state) => state.recentBooks);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const shouldShow = pathname === PATHS.HOME;
 
-  if (recentBooks.length === 0 || !shouldShow) {
+  if (!mounted || recentBooks.length === 0 || !shouldShow) {
     return null;
   }
 

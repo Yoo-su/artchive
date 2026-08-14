@@ -1,6 +1,3 @@
-"use client";
-
-import { motion } from "framer-motion";
 import Image from "next/image";
 
 import { Link } from "@/shared/config/i18n/routing";
@@ -13,21 +10,13 @@ interface LogoProps {
 export const Logo = ({ size = "md" }: LogoProps) => {
   const isSmall = size === "sm";
 
-  // 사이즈별 SVG 높이 지정 (비율 유지)
-  const svgClass = isSmall ? "h-7 sm:h-8" : "h-10 sm:h-12";
-
   return (
     <Link
       href={PATHS.HOME}
-      passHref
       className="inline-block"
       aria-label="북적 홈으로 이동"
     >
-      <motion.div
-        className="group relative flex items-center cursor-pointer select-none"
-        initial="initial"
-        whileHover="hover"
-      >
+      <div className="group relative flex items-center cursor-pointer select-none">
         <Image
           src="/logo-square-sketch.svg"
           alt=""
@@ -117,7 +106,7 @@ export const Logo = ({ size = "md" }: LogoProps) => {
             }}
           /> */}
         </div>
-      </motion.div>
+      </div>
     </Link>
   );
 };

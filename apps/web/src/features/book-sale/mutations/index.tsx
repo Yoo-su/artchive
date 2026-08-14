@@ -12,10 +12,10 @@ import {
   useUpdateBookSaleStatusMutation as useSharedUpdateBookSaleStatusMutation,
 } from "@bookjeok/react-query";
 import { useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { compressImages } from "@/shared/utils/compress-image";
 import { handleMutationError } from "@/shared/utils/error-handler";

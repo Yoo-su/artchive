@@ -3,12 +3,13 @@
 import { motion } from "framer-motion";
 import { RotateCcw, Send, Sparkles } from "lucide-react";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import remarkGfm from "remark-gfm";
 
 import { Particles } from "@/shared/components/magicui/particles";
 import { Input } from "@/shared/components/shadcn/input";
 import { Spinner } from "@/shared/components/shadcn/spinner";
+import { Link } from "@/shared/config/i18n/routing";
+import { PATHS } from "@/shared/constants/paths";
 import { gowun_batang } from "@/styles/fonts";
 
 import { AI_CHAT_SUGGESTION_CHIPS, ChatMessage } from "../../constants/ai-chat";
@@ -178,7 +179,7 @@ export const AiChatWindow = () => {
             AI 도서 추천은 로그인 후 이용하실 수 있습니다.
           </span>
           <Link
-            href="/auth/login"
+            href={PATHS.LOGIN}
             className="px-3 py-1.5 bg-stone-800 text-white font-medium rounded-lg hover:bg-stone-900 transition-colors shrink-0"
           >
             로그인하기
