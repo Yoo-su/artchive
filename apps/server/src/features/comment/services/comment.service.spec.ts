@@ -59,6 +59,15 @@ describe('CommentService', () => {
         .fn()
         .mockImplementation(
           (cb: (manager: Record<string, unknown>) => Promise<unknown>) => {
+            const mockQb = {
+              insert: jest.fn().mockReturnThis(),
+              into: jest.fn().mockReturnThis(),
+              values: jest.fn().mockReturnThis(),
+              orIgnore: jest.fn().mockReturnThis(),
+              execute: jest
+                .fn()
+                .mockResolvedValue({ identifiers: [{ id: 1 }] }),
+            };
             const mockManager = {
               findOne: jest.fn(),
               create: jest
@@ -70,6 +79,7 @@ describe('CommentService', () => {
               delete: jest.fn().mockResolvedValue({}),
               increment: jest.fn().mockResolvedValue({}),
               decrement: jest.fn().mockResolvedValue({}),
+              createQueryBuilder: jest.fn().mockReturnValue(mockQb),
             };
             return cb(mockManager);
           },
@@ -168,6 +178,49 @@ describe('CommentService', () => {
       expect(result.data[0].targetTitle).toBe('죄와 벌 서평');
       expect(result.data[0].targetSubtitle).toBe('죄와 벌');
       expect(result.data[1].targetTitle).toBe('어린 왕자');
+    });
+  });
+
+  describe('toggleLike', () => {
+    it('좋아요가 없을 때 orIgnore()를 통해 새로 좋아요를 추가하고 likeCount를 증가시켜야 합니다', async () => {
+      const comment = { id: 1, userId: 2, likeCount: 0 } as Comment;
+      (commentRepository.findOne as jest.Mock)
+        .mockResolvedValueOnce(comment) // findCommentOrThrow
+        .mockResolvedValueOnce({ ...comment, likeCount: 1 }); // updatedComment
+
+      const result = await service.toggleLike(1, 1);
+      expect(result.isLiked).toBe(true);
+      expect(eventEmitter.emit).toHaveBeenCalledWith(
+        'comment.liked',
+        expect.objectContaining({ isLiked: true }),
+      );
+    });
+
+    it('이미 좋아요가 있을 때 좋아요를 삭제하고 likeCount를 감소시켜야 합니다', async () => {
+      const comment = { id: 1, userId: 2, likeCount: 1 } as Comment;
+      const existingLike = { id: 99, commentId: 1, userId: 1 };
+
+      (commentRepository.findOne as jest.Mock)
+        .mockResolvedValueOnce(comment) // findCommentOrThrow
+        .mockResolvedValueOnce({ ...comment, likeCount: 0 }); // updatedComment
+
+      (dataSource.transaction as jest.Mock).mockImplementation(
+        async (cb: (manager: Record<string, unknown>) => Promise<unknown>) => {
+          const mockManager = {
+            findOne: jest.fn().mockResolvedValue(existingLike),
+            delete: jest.fn().mockResolvedValue({ affected: 1 }),
+            decrement: jest.fn().mockResolvedValue({}),
+          };
+          return await cb(mockManager);
+        },
+      );
+
+      const result = await service.toggleLike(1, 1);
+      expect(result.isLiked).toBe(false);
+      expect(eventEmitter.emit).toHaveBeenCalledWith(
+        'comment.liked',
+        expect.objectContaining({ isLiked: false }),
+      );
     });
   });
 });
