@@ -4,7 +4,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { getDataSourceToken, TypeOrmModule } from '@nestjs/typeorm';
+import { ClsPluginTransactional } from '@nestjs-cls/transactional';
+import { TransactionalAdapterTypeOrm } from '@nestjs-cls/transactional-adapter-typeorm';
+import { ClsModule } from 'nestjs-cls';
 
 import { ArtModule } from '@/features/art/art.module';
 import { AuthModule } from '@/features/auth/auth.module';
@@ -51,6 +54,20 @@ import { SmartCacheModule } from '@/shared/cache/smart-cache.module';
     CacheModule.register({
       isGlobal: true,
       ttl: 0,
+    }),
+
+    // CLS 기반 선언적 트랜잭션 관리
+    ClsModule.forRoot({
+      global: true,
+      middleware: { mount: true },
+      plugins: [
+        new ClsPluginTransactional({
+          imports: [TypeOrmModule],
+          adapter: new TransactionalAdapterTypeOrm({
+            dataSourceToken: getDataSourceToken(),
+          }),
+        }),
+      ],
     }),
 
     // TypeORM 비동기 연결 설정

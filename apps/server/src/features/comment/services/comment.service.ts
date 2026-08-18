@@ -1,7 +1,9 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { Transactional, TransactionHost } from '@nestjs-cls/transactional';
+import { TransactionalAdapterTypeOrm } from '@nestjs-cls/transactional-adapter-typeorm';
+import { Repository } from 'typeorm';
 
 import { BookService } from '@/features/book/services/book.service';
 import { ReviewService } from '@/features/review/services/review.service';
@@ -27,7 +29,7 @@ export class CommentService {
     private readonly reviewService: ReviewService,
     private readonly bookService: BookService,
     private readonly eventEmitter: EventEmitter2,
-    private readonly dataSource: DataSource,
+    private readonly txHost: TransactionHost<TransactionalAdapterTypeOrm>,
   ) {}
 
   /**
@@ -271,43 +273,40 @@ export class CommentService {
    * 좋아요를 토글합니다.
    * 이미 좋아요한 경우 취소, 아닌 경우 추가합니다.
    */
+  @Transactional()
   async toggleLike(commentId: number, userId: number) {
     await this.findCommentOrThrow(commentId);
 
     let isLiked = false;
+    const manager = this.txHost.tx;
 
-    await this.dataSource.transaction(async (manager) => {
-      const existingLike = await manager.findOne(CommentLike, {
-        where: { commentId, userId },
-      });
-
-      if (existingLike) {
-        // 좋아요 취소: 실제로 삭제된 경우에만 likeCount 감소 (중복 감소 방지)
-        const deleteResult = await manager.delete(CommentLike, existingLike.id);
-        if (deleteResult.affected && deleteResult.affected > 0) {
-          await manager.decrement(Comment, { id: commentId }, 'likeCount', 1);
-        }
-        isLiked = false;
-      } else {
-        // 좋아요 추가: orIgnore()로 중복 충돌 시 SQL 에러 없이 무시 (ON CONFLICT DO NOTHING)
-        const insertResult = await manager
-          .createQueryBuilder()
-          .insert()
-          .into(CommentLike)
-          .values({ commentId, userId })
-          .orIgnore()
-          .execute();
-
-        // 실제로 새로운 레코드가 삽입된 경우에만 카운트 증가
-        if (
-          insertResult.identifiers?.length > 0 &&
-          insertResult.identifiers[0]
-        ) {
-          await manager.increment(Comment, { id: commentId }, 'likeCount', 1);
-        }
-        isLiked = true;
-      }
+    const existingLike = await manager.findOne(CommentLike, {
+      where: { commentId, userId },
     });
+
+    if (existingLike) {
+      // 좋아요 취소: 실제로 삭제된 경우에만 likeCount 감소 (중복 감소 방지)
+      const deleteResult = await manager.delete(CommentLike, existingLike.id);
+      if (deleteResult.affected && deleteResult.affected > 0) {
+        await manager.decrement(Comment, { id: commentId }, 'likeCount', 1);
+      }
+      isLiked = false;
+    } else {
+      // 좋아요 추가: orIgnore()로 중복 충돌 시 SQL 에러 없이 무시 (ON CONFLICT DO NOTHING)
+      const insertResult = await manager
+        .createQueryBuilder()
+        .insert()
+        .into(CommentLike)
+        .values({ commentId, userId })
+        .orIgnore()
+        .execute();
+
+      // 실제로 새로운 레코드가 삽입된 경우에만 카운트 증가
+      if (insertResult.identifiers?.length > 0 && insertResult.identifiers[0]) {
+        await manager.increment(Comment, { id: commentId }, 'likeCount', 1);
+      }
+      isLiked = true;
+    }
 
     // 업데이트된 댓글 반환
     const updatedComment = await this.commentRepository.findOne({

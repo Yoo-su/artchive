@@ -1,7 +1,9 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Brackets, DataSource, EntityManager, In, Repository } from 'typeorm';
+import { Transactional, TransactionHost } from '@nestjs-cls/transactional';
+import { TransactionalAdapterTypeOrm } from '@nestjs-cls/transactional-adapter-typeorm';
+import { Brackets, EntityManager, In, Repository } from 'typeorm';
 
 import { Book } from '@/features/book/entities/book.entity';
 import { BookService } from '@/features/book/services/book.service';
@@ -36,7 +38,7 @@ export class ReviewService {
     @InjectRepository(Tag)
     private tagsRepository: Repository<Tag>,
     private reviewImageHelper: ReviewImageHelper,
-    private dataSource: DataSource,
+    private readonly txHost: TransactionHost<TransactionalAdapterTypeOrm>,
     private readonly bookService: BookService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
@@ -47,33 +49,33 @@ export class ReviewService {
    * @param userId 작성자 ID
    * @returns 생성된 리뷰
    */
+  @Transactional()
   async create(
     createReviewDto: CreateReviewDto,
     userId: number,
   ): Promise<ReviewResponseDto> {
     const { isbn, tags, ...reviewData } = createReviewDto;
+    const manager = this.txHost.tx;
 
-    return this.dataSource.transaction(async (manager: EntityManager) => {
-      // 태그 처리
-      let tagEntities: Tag[] = [];
-      if (tags && tags.length > 0) {
-        tagEntities = await this.getOrCreateTags(manager, tags);
-      }
+    // 태그 처리
+    let tagEntities: Tag[] = [];
+    if (tags && tags.length > 0) {
+      tagEntities = await this.getOrCreateTags(manager, tags);
+    }
 
-      const review = manager.create(Review, {
-        ...reviewData,
-        isbn,
-        userId,
-        tagEntities,
-      });
-      const savedReview = await manager.save(Review, review);
-
-      // DTO로 변환하여 반환
-      return {
-        ...savedReview,
-        tags: tags || [],
-      } as ReviewResponseDto;
+    const review = manager.create(Review, {
+      ...reviewData,
+      isbn,
+      userId,
+      tagEntities,
     });
+    const savedReview = await manager.save(Review, review);
+
+    // DTO로 변환하여 반환
+    return {
+      ...savedReview,
+      tags: tags || [],
+    } as ReviewResponseDto;
   }
 
   private async getOrCreateTags(
@@ -592,62 +594,60 @@ export class ReviewService {
    * @param userId 유저 ID
    * @param type 리액션 타입
    */
+  @Transactional()
   async toggleReaction(id: number, userId: number, type: ReviewReactionType) {
     let isAdded = true;
-    await this.dataSource.transaction(async (manager) => {
-      const review = await manager.findOne(Review, { where: { id } });
-      if (!review) {
-        throw new BusinessException('REVIEW_NOT_FOUND', HttpStatus.NOT_FOUND);
-      }
+    const manager = this.txHost.tx;
 
-      if (!review.isPublic && review.userId !== userId) {
-        throw new BusinessException('REVIEW_FORBIDDEN', HttpStatus.FORBIDDEN);
-      }
+    const review = await manager.findOne(Review, { where: { id } });
+    if (!review) {
+      throw new BusinessException('REVIEW_NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
 
-      const existingReaction = await manager.findOne(ReviewReaction, {
-        where: { reviewId: id, userId },
-      });
+    if (!review.isPublic && review.userId !== userId) {
+      throw new BusinessException('REVIEW_FORBIDDEN', HttpStatus.FORBIDDEN);
+    }
 
-      if (existingReaction) {
-        if (existingReaction.type === type) {
-          // 리액션 삭제 (같은 타입 클릭 시): 실제로 삭제된 경우에만 reactionCount 감소
-          const deleteResult = await manager.delete(
-            ReviewReaction,
-            existingReaction.id,
-          );
-          if (deleteResult.affected && deleteResult.affected > 0) {
-            await manager.decrement(Review, { id }, 'reactionCount', 1);
-          }
-          isAdded = false;
-        } else {
-          // 리액션 변경
-          existingReaction.type = type;
-          await manager.save(ReviewReaction, existingReaction);
-          // 카운트 변경 없음
-        }
-      } else {
-        // 새 리액션 추가: orIgnore()로 동시 요청 시 유니크 충돌(23505) 방어
-        const insertResult = await manager
-          .createQueryBuilder()
-          .insert()
-          .into(ReviewReaction)
-          .values({
-            reviewId: id,
-            userId,
-            type,
-          })
-          .orIgnore()
-          .execute();
-
-        if (
-          insertResult.identifiers?.length > 0 &&
-          insertResult.identifiers[0]
-        ) {
-          await manager.increment(Review, { id }, 'reactionCount', 1);
-        }
-        isAdded = true;
-      }
+    const existingReaction = await manager.findOne(ReviewReaction, {
+      where: { reviewId: id, userId },
     });
+
+    if (existingReaction) {
+      if (existingReaction.type === type) {
+        // 리액션 삭제 (같은 타입 클릭 시): 실제로 삭제된 경우에만 reactionCount 감소
+        const deleteResult = await manager.delete(
+          ReviewReaction,
+          existingReaction.id,
+        );
+        if (deleteResult.affected && deleteResult.affected > 0) {
+          await manager.decrement(Review, { id }, 'reactionCount', 1);
+        }
+        isAdded = false;
+      } else {
+        // 리액션 변경
+        existingReaction.type = type;
+        await manager.save(ReviewReaction, existingReaction);
+        // 카운트 변경 없음
+      }
+    } else {
+      // 새 리액션 추가: orIgnore()로 동시 요청 시 유니크 충돌(23505) 방어
+      const insertResult = await manager
+        .createQueryBuilder()
+        .insert()
+        .into(ReviewReaction)
+        .values({
+          reviewId: id,
+          userId,
+          type,
+        })
+        .orIgnore()
+        .execute();
+
+      if (insertResult.identifiers?.length > 0 && insertResult.identifiers[0]) {
+        await manager.increment(Review, { id }, 'reactionCount', 1);
+      }
+      isAdded = true;
+    }
 
     const result = await this.findOne(id);
 
@@ -669,11 +669,14 @@ export class ReviewService {
    * @param userId 요청한 유저 ID
    * @returns 수정된 리뷰
    */
+  @Transactional()
   async update(
     id: number,
     updateReviewDto: UpdateReviewDto,
     userId: number,
   ): Promise<ReviewResponseDto> {
+    const manager = this.txHost.tx;
+
     const review = await this.reviewsRepository.findOne({
       where: { id },
       relations: ['user', 'book', 'tagEntities'],
@@ -695,10 +698,10 @@ export class ReviewService {
       );
     }
 
-    // 태그 업데이트 처리
+    // 태그 업데이트 및 리뷰 수정을 단일 트랜잭션으로 원자적 처리
     if (updateReviewDto.tags) {
       review.tagEntities = await this.getOrCreateTags(
-        this.dataSource.manager,
+        manager,
         updateReviewDto.tags,
       );
     }
@@ -708,7 +711,7 @@ export class ReviewService {
       tags: undefined, // tags 속성은 엔티티에 없으므로 제외 (DTO에서만 사용)
     });
 
-    const savedReview = await this.reviewsRepository.save(review);
+    const savedReview = await manager.save(Review, review);
 
     if (removedImages.length > 0) {
       await this.reviewImageHelper.deleteImages(removedImages);

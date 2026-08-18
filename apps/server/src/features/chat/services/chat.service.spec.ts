@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { TransactionHost } from '@nestjs-cls/transactional';
+import { EntityManager, Repository } from 'typeorm';
 
 import {
   SaleStatus,
@@ -17,9 +18,26 @@ import { ReadReceipt } from '../entities/read-receipt.entity';
 import { ChatGateway } from '../gateways/chat.gateway';
 import { ChatService } from './chat.service';
 
+jest.mock('@nestjs-cls/transactional', () => {
+  const actual = jest.requireActual<Record<string, unknown>>(
+    '@nestjs-cls/transactional',
+  );
+  return {
+    ...actual,
+    Transactional:
+      () =>
+      (
+        _target: unknown,
+        _propertyKey: string,
+        descriptor: PropertyDescriptor,
+      ) =>
+        descriptor,
+  };
+});
+
 describe('ChatService', () => {
   let service: ChatService;
-  let mockDataSource: Partial<DataSource>;
+  let mockTxHost: { tx: Partial<EntityManager> };
   let mockManager: Partial<EntityManager>;
 
   // Repositories
@@ -39,15 +57,8 @@ describe('ChatService', () => {
       findOne: jest.fn(),
     };
 
-    mockDataSource = {
-      createQueryRunner: jest.fn().mockReturnValue({
-        connect: jest.fn(),
-        startTransaction: jest.fn(),
-        commitTransaction: jest.fn(),
-        rollbackTransaction: jest.fn(),
-        release: jest.fn(),
-        manager: mockManager,
-      }),
+    mockTxHost = {
+      tx: mockManager,
     };
 
     chatRoomRepo = {
@@ -99,7 +110,7 @@ describe('ChatService', () => {
         },
         { provide: getRepositoryToken(ReadReceipt), useValue: {} },
         { provide: ChatGateway, useValue: chatGateway },
-        { provide: DataSource, useValue: mockDataSource },
+        { provide: TransactionHost, useValue: mockTxHost },
       ],
     }).compile();
 
@@ -137,15 +148,15 @@ describe('ChatService', () => {
     });
 
     it('기존 채팅방이 있으면 반환해야 합니다', async () => {
+      const existingRoom = { id: 1, participants: [{ isActive: true }] };
       const sale = { id: 1, user: { id: 2 } };
-      const existingRoom = { id: 10, participants: [] };
 
       (usedBookSaleService.findSaleById as jest.Mock).mockResolvedValue(sale);
 
       const queryBuilder = chatRoomRepo.createQueryBuilder!();
       (queryBuilder.getOne as jest.Mock).mockResolvedValue(existingRoom);
 
-      // 방을 다시 로드하는 로직 대응
+      // reloadedRoom 모의
       (chatRoomRepo.findOne as jest.Mock).mockResolvedValue(existingRoom);
 
       const result = await service.getChatRoom(1, 1);
@@ -176,7 +187,6 @@ describe('ChatService', () => {
       await service.getChatRoom(1, buyerId);
 
       // 검증
-      expect(mockDataSource.createQueryRunner).toHaveBeenCalled();
       expect(mockManager.save).toHaveBeenCalled(); // 방 저장, 참여자 저장
       expect(chatGateway.joinRoom).toHaveBeenCalledWith([buyerId, 2], 99); // 소켓 조인 확인
       expect(chatGateway.notifyNewRoom).toHaveBeenCalled();
@@ -210,7 +220,7 @@ describe('ChatService', () => {
 
       expect(results).toHaveLength(5);
       results.forEach((res) => expect(res).toEqual(newRoom));
-      expect(mockDataSource.createQueryRunner).toHaveBeenCalledTimes(1);
+      expect(mockManager.save).toHaveBeenCalledTimes(2); // room 1회, participants 1회
     });
   });
 
@@ -223,7 +233,7 @@ describe('ChatService', () => {
       ).rejects.toThrow(BusinessException);
     });
 
-    it('메시지를 저장하고 채팅방 시간을 업데이트해야 합니다', async () => {
+    it('메시지를 저장하고 채팅방 시간을 업데이트해야 합니다 (원자적 트랜잭션)', async () => {
       const user = { id: 1 } as User;
       const room = { id: 1, updatedAt: new Date() };
 
@@ -234,15 +244,14 @@ describe('ChatService', () => {
       ]);
       (chatRoomRepo.findOneBy as jest.Mock).mockResolvedValue(room);
       (chatMessageRepo.create as jest.Mock).mockReturnValue({ content: 'hi' });
-      (chatMessageRepo.save as jest.Mock).mockResolvedValue({
+      (mockManager.save as jest.Mock).mockResolvedValue({
         id: 100,
         content: 'hi',
       });
 
       await service.saveMessage('hi', 1, user);
 
-      expect(chatRoomRepo.save).toHaveBeenCalled(); // 시간 업데이트 확인
-      expect(chatMessageRepo.save).toHaveBeenCalled(); // 메시지 저장 확인
+      expect(mockManager.save).toHaveBeenCalledTimes(2); // 방 시간 갱신 + 메시지 저장
     });
 
     it('상대방이 탈퇴한 경우 메시지를 전송할 수 없습니다', async () => {

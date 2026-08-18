@@ -1,6 +1,8 @@
 import { forwardRef, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { Transactional, TransactionHost } from '@nestjs-cls/transactional';
+import { TransactionalAdapterTypeOrm } from '@nestjs-cls/transactional-adapter-typeorm';
+import { Repository } from 'typeorm';
 
 import {
   SaleStatus,
@@ -30,7 +32,7 @@ export class ChatService {
     private readonly readReceiptRepository: Repository<ReadReceipt>,
     @Inject(forwardRef(() => ChatGateway))
     private readonly chatGateway: ChatGateway,
-    private readonly dataSource: DataSource,
+    private readonly txHost: TransactionHost<TransactionalAdapterTypeOrm>,
   ) {}
 
   // 동일 saleId:buyerId에 대해 동시에 진행 중인 채팅방 조회/생성 작업을 관리하는 Map (Request Collapsing)
@@ -47,19 +49,20 @@ export class ChatService {
     const taskKey = `${saleId}:${buyerId}`;
     const existingTask = this.roomCreationTasks.get(taskKey);
     if (existingTask) {
-      return existingTask;
+      return await existingTask;
     }
 
-    const task = this.resolveChatRoom(saleId, buyerId);
-    this.roomCreationTasks.set(taskKey, task);
-
-    try {
-      return await task;
-    } finally {
+    const task = this.resolveChatRoom(saleId, buyerId).finally(() => {
       this.roomCreationTasks.delete(taskKey);
-    }
+    });
+
+    this.roomCreationTasks.set(taskKey, task);
+    return await task;
   }
 
+  /**
+   * 채팅방 조회 및 신규 생성 실제 비즈니스 로직
+   */
   private async resolveChatRoom(
     saleId: number,
     buyerId: number,
@@ -74,18 +77,28 @@ export class ChatService {
         HttpStatus.BAD_REQUEST,
       );
     }
+
     const sellerId = sale.user.id;
-    if (buyerId === sellerId) {
+    if (sellerId === buyerId) {
       throw new BusinessException('CHAT_SELF_CHAT', HttpStatus.FORBIDDEN);
     }
 
+    // 1. 기존 방 조회 (탈퇴자 제외하고 활성 참가자 확인)
     const existingRoom = await this.chatRoomRepository
       .createQueryBuilder('room')
-      .innerJoin('room.participants', 'p1', 'p1.userId = :buyerId', { buyerId })
-      .innerJoin('room.participants', 'p2', 'p2.userId = :sellerId', {
-        sellerId,
-      })
-      .where('room.usedBookSale.id = :saleId', { saleId })
+      .innerJoin(
+        'room.participants',
+        'p1',
+        'p1.userId = :buyerId AND p1.user.deletedAt IS NULL',
+        { buyerId },
+      )
+      .innerJoin(
+        'room.participants',
+        'p2',
+        'p2.userId = :sellerId AND p2.user.deletedAt IS NULL',
+        { sellerId },
+      )
+      .where('room.usedBookSaleId = :saleId', { saleId })
       .leftJoinAndSelect('room.participants', 'allParticipants')
       .leftJoinAndSelect('allParticipants.user', 'user')
       .getOne();
@@ -96,45 +109,14 @@ export class ChatService {
       );
 
       if (participantsToUpdate.length > 0) {
-        const queryRunner = this.dataSource.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
+        const systemMessages = await this.reactivateParticipants(
+          existingRoom,
+          participantsToUpdate,
+        );
 
-        try {
-          // 1. 참여자 상태 업데이트
-          participantsToUpdate.forEach((p) => (p.isActive = true));
-          await queryRunner.manager.save(ChatParticipant, participantsToUpdate);
-
-          // 2. 채팅방 업데이트 시간 갱신
-          existingRoom.updatedAt = new Date();
-          await queryRunner.manager.save(ChatRoom, existingRoom);
-
-          // 3. 시스템 메시지 생성
-          const systemMessages: ChatMessage[] = [];
-          for (const participant of participantsToUpdate) {
-            const systemMessage = this.chatMessageRepository.create({
-              chatRoom: { id: existingRoom.id },
-              content: `${participant.user.nickname}님이 다시 참여했습니다.`,
-              sender: null,
-            });
-            const savedMessage = await queryRunner.manager.save(
-              ChatMessage,
-              systemMessage,
-            );
-            systemMessages.push(savedMessage);
-          }
-
-          await queryRunner.commitTransaction();
-
-          // 트랜잭션 성공 후 소켓 이벤트 전송
-          for (const msg of systemMessages) {
-            this.chatGateway.emitUserRejoined(existingRoom.id, msg);
-          }
-        } catch (err) {
-          await queryRunner.rollbackTransaction();
-          throw err;
-        } finally {
-          await queryRunner.release();
+        // 트랜잭션 성공 후 소켓 이벤트 전송
+        for (const msg of systemMessages) {
+          this.chatGateway.emitUserRejoined(existingRoom.id, msg);
         }
       }
 
@@ -159,61 +141,81 @@ export class ChatService {
       return reloadedRoom;
     }
 
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+    // 2. 새 방 생성 (원자적 트랜잭션)
+    const savedRoom = await this.createNewChatRoom(sale, buyerId, sellerId);
 
-    try {
-      // 2. 새 방 생성
-      const newRoom = this.chatRoomRepository.create({ usedBookSale: sale });
-      const savedRoom = await queryRunner.manager.save(ChatRoom, newRoom);
+    // 트랜잭션 성공 후 소켓 작업
+    this.chatGateway.joinRoom([buyerId, sellerId], savedRoom.id);
 
-      const buyerParticipant = this.chatParticipantRepository.create({
-        chatRoom: savedRoom,
-        user: { id: buyerId } as User,
-        isActive: true,
+    const createdRoom = await this.chatRoomRepository.findOne({
+      where: { id: savedRoom.id },
+      relations: [
+        'participants',
+        'participants.user',
+        'usedBookSale',
+        'usedBookSale.book',
+      ],
+    });
+
+    if (!createdRoom)
+      throw new BusinessException(
+        'CHAT_FAILED_RETRIEVE',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+
+    this.chatGateway.notifyNewRoom(sellerId, createdRoom);
+
+    return createdRoom;
+  }
+
+  @Transactional()
+  private async reactivateParticipants(
+    existingRoom: ChatRoom,
+    participantsToUpdate: ChatParticipant[],
+  ): Promise<ChatMessage[]> {
+    const manager = this.txHost.tx;
+    participantsToUpdate.forEach((p) => (p.isActive = true));
+    await manager.save(ChatParticipant, participantsToUpdate);
+
+    existingRoom.updatedAt = new Date();
+    await manager.save(ChatRoom, existingRoom);
+
+    const systemMessages: ChatMessage[] = [];
+    for (const participant of participantsToUpdate) {
+      const systemMessage = this.chatMessageRepository.create({
+        chatRoom: { id: existingRoom.id },
+        content: `${participant.user.nickname}님이 다시 참여했습니다.`,
+        sender: null,
       });
-      const sellerParticipant = this.chatParticipantRepository.create({
-        chatRoom: savedRoom,
-        user: { id: sellerId } as User,
-        isActive: true,
-      });
-
-      await queryRunner.manager.save(ChatParticipant, [
-        buyerParticipant,
-        sellerParticipant,
-      ]);
-
-      await queryRunner.commitTransaction();
-
-      // 트랜잭션 성공 후 소켓 작업
-      this.chatGateway.joinRoom([buyerId, sellerId], savedRoom.id);
-
-      const createdRoom = await this.chatRoomRepository.findOne({
-        where: { id: savedRoom.id },
-        relations: [
-          'participants',
-          'participants.user',
-          'usedBookSale',
-          'usedBookSale.book',
-        ],
-      });
-
-      if (!createdRoom)
-        throw new BusinessException(
-          'CHAT_FAILED_RETRIEVE',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-
-      this.chatGateway.notifyNewRoom(sellerId, createdRoom);
-
-      return createdRoom;
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw err;
-    } finally {
-      await queryRunner.release();
+      const savedMessage = await manager.save(ChatMessage, systemMessage);
+      systemMessages.push(savedMessage);
     }
+    return systemMessages;
+  }
+
+  @Transactional()
+  private async createNewChatRoom(
+    sale: UsedBookSale,
+    buyerId: number,
+    sellerId: number,
+  ): Promise<ChatRoom> {
+    const manager = this.txHost.tx;
+    const newRoom = this.chatRoomRepository.create({ usedBookSale: sale });
+    const room = await manager.save(ChatRoom, newRoom);
+
+    const buyerParticipant = this.chatParticipantRepository.create({
+      chatRoom: room,
+      user: { id: buyerId } as User,
+      isActive: true,
+    });
+    const sellerParticipant = this.chatParticipantRepository.create({
+      chatRoom: room,
+      user: { id: sellerId } as User,
+      isActive: true,
+    });
+
+    await manager.save(ChatParticipant, [buyerParticipant, sellerParticipant]);
+    return room;
   }
 
   /**
@@ -407,16 +409,16 @@ export class ChatService {
     if (!chatRoom)
       throw new BusinessException('CHAT_ROOM_NOT_FOUND', HttpStatus.NOT_FOUND);
 
-    // 메시지가 추가되면 해당 채팅방의 updatedAt을 갱신하여 목록 정렬에 사용
+    const manager = this.txHost.tx;
     chatRoom.updatedAt = new Date();
-    await this.chatRoomRepository.save(chatRoom);
+    await manager.save(ChatRoom, chatRoom);
 
     const message = this.chatMessageRepository.create({
       content,
       chatRoom,
       sender,
     });
-    return await this.chatMessageRepository.save(message);
+    return await manager.save(ChatMessage, message);
   }
 
   /**
@@ -459,45 +461,30 @@ export class ChatService {
    * @param roomId - 나갈 채팅방 ID
    * @param userId - 나가는 사용자 ID
    */
+  @Transactional()
   async leaveRoom(roomId: number, userId: number) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+    const manager = this.txHost.tx;
 
-    try {
-      // 1. 내 참여 정보 조회 (Lock을 걸 수도 있음)
-      const participant = await queryRunner.manager.findOne(ChatParticipant, {
-        where: { chatRoom: { id: roomId }, user: { id: userId } },
-        relations: ['user'],
-      });
+    // 1. 내 참여 정보 조회
+    const participant = await manager.findOne(ChatParticipant, {
+      where: { chatRoom: { id: roomId }, user: { id: userId } },
+      relations: ['user'],
+    });
 
-      if (!participant || !participant.isActive) {
-        throw new BusinessException('CHAT_ALREADY_LEFT', HttpStatus.NOT_FOUND);
-      }
-
-      // 2. 내 참여 상태를 false로 변경
-      participant.isActive = false;
-      await queryRunner.manager.save(ChatParticipant, participant);
-
-      // 3. 시스템 메시지 생성 ("OOO님이 나갔습니다.")
-      const systemMessage = this.chatMessageRepository.create({
-        chatRoom: { id: roomId },
-        content: `${participant.user.nickname}님이 나갔습니다.`,
-        sender: null,
-      });
-      const savedMessage = await queryRunner.manager.save(
-        ChatMessage,
-        systemMessage,
-      );
-
-      await queryRunner.commitTransaction();
-
-      return savedMessage;
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw err;
-    } finally {
-      await queryRunner.release();
+    if (!participant || !participant.isActive) {
+      throw new BusinessException('CHAT_ALREADY_LEFT', HttpStatus.NOT_FOUND);
     }
+
+    // 2. 내 참여 상태를 false로 변경
+    participant.isActive = false;
+    await manager.save(ChatParticipant, participant);
+
+    // 3. 시스템 메시지 생성 ("OOO님이 나갔습니다.")
+    const systemMessage = this.chatMessageRepository.create({
+      chatRoom: { id: roomId },
+      content: `${participant.user.nickname}님이 나갔습니다.`,
+      sender: null,
+    });
+    return await manager.save(ChatMessage, systemMessage);
   }
 }
