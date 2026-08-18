@@ -46,13 +46,6 @@ export function LoungeView() {
       </div>
 
       <div className="w-full mx-auto px-4">
-        {/* 광고 배너 */}
-        <AdBanner
-          dataAdSlot="6040704861"
-          dataAdFormat="horizontal"
-          className="w-full mb-12 md:mb-16"
-        />
-
         {/* 콘텐츠 영역 */}
         <div className="space-y-20 md:space-y-28">
           {/* 열성 독서가 명예의 전당 */}
@@ -60,6 +53,13 @@ export function LoungeView() {
 
           {/* 인기 도서 배너 */}
           <LoungePopularBanner onCardClick={handleOpenModal} />
+
+          {/* 광고 배너 */}
+          <AdBanner
+            dataAdSlot="6040704861"
+            dataAdFormat="horizontal"
+            className="w-full"
+          />
 
           {/* 최신 활동 피드 */}
           <LoungeFeedList onCardClick={handleOpenModal} />
