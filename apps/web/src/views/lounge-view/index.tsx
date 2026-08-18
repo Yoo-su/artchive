@@ -36,7 +36,7 @@ export function LoungeView() {
   return (
     <div className="min-h-screen relative">
       {/* Skiper UI CrowdCanvas 히어로 영역 */}
-      <div className="relative w-full h-[60vh] min-h-[400px] mb-8">
+      <div className="relative w-full h-[60vh] min-h-[400px] mb-12 md:mb-16">
         <CrowdCanvas
           src="/images/peeps/all-peeps.png"
           rows={15}
@@ -47,19 +47,21 @@ export function LoungeView() {
 
       <div className="w-full mx-auto px-4">
         {/* 콘텐츠 영역 */}
-        <div className="space-y-20 md:space-y-28">
+        <div className="space-y-16 md:space-y-24">
           {/* 열성 독서가 명예의 전당 */}
           <LoungeActiveReaders />
 
           {/* 인기 도서 배너 */}
           <LoungePopularBanner onCardClick={handleOpenModal} />
 
-          {/* 광고 배너 */}
-          <AdBanner
-            dataAdSlot="6040704861"
-            dataAdFormat="horizontal"
-            className="w-full"
-          />
+          {/* 광고 배너 (섹션 분기 영역) */}
+          <div className="py-2">
+            <AdBanner
+              dataAdSlot="6040704861"
+              dataAdFormat="horizontal"
+              className="w-full"
+            />
+          </div>
 
           {/* 최신 활동 피드 */}
           <LoungeFeedList onCardClick={handleOpenModal} />
