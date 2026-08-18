@@ -20,6 +20,7 @@ import { Logo } from "../common/logo";
 interface NavItem {
   href: string;
   label: string;
+  index: string;
   requiresAuth?: boolean;
 }
 
@@ -47,7 +48,7 @@ export const MobileNavSheet = () => {
 
   const isActive = (path: string) => pathname?.startsWith(path);
 
-  // 네비게이션 섹션 정의
+  // 네비게이션 섹션 정의 (에디토리얼 챕터 인덱스 포함)
   const navSections: NavSection[] = [
     {
       title: tSheet("book"),
@@ -55,15 +56,18 @@ export const MobileNavSheet = () => {
         {
           href: PATHS.BOOK_SEARCH,
           label: t("book_search"),
-        },
-        {
-          href: PATHS.LOUNGE,
-          label: t("lounge"),
+          index: "01",
         },
         {
           href: PATHS.READING_LOG,
           label: t("reading_log"),
+          index: "02",
           requiresAuth: true,
+        },
+        {
+          href: PATHS.LOUNGE,
+          label: t("lounge"),
+          index: "03",
         },
       ],
     },
@@ -73,15 +77,18 @@ export const MobileNavSheet = () => {
         {
           href: PATHS.BOOK_MARKET,
           label: t("market_home"),
+          index: "04.1",
         },
         {
           href: PATHS.BOOK_SALES_REGISTER,
           label: t("write_sales"),
+          index: "04.2",
           requiresAuth: true,
         },
         {
           href: PATHS.MY_PAGE_SALES,
           label: t("my_sales"),
+          index: "04.3",
           requiresAuth: true,
         },
       ],
@@ -92,15 +99,18 @@ export const MobileNavSheet = () => {
         {
           href: PATHS.REVIEWS,
           label: t("review_feed"),
+          index: "05.1",
         },
         {
           href: PATHS.REVIEW_WRITE,
           label: t("write_review"),
+          index: "05.2",
           requiresAuth: true,
         },
         {
           href: PATHS.MY_REVIEWS,
           label: t("my_reviews"),
+          index: "05.3",
           requiresAuth: true,
         },
       ],
@@ -111,6 +121,7 @@ export const MobileNavSheet = () => {
         {
           href: PATHS.INSIGHTS,
           label: t("insights"),
+          index: "06",
         },
       ],
     },
@@ -132,7 +143,7 @@ export const MobileNavSheet = () => {
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="w-[300px] p-0 border-r border-stone-100 bg-white"
+        className="w-[300px] p-0 border-r border-stone-100 bg-white font-[family-name:var(--font-gowun-batang)]"
       >
         <SheetHeader className="flex flex-row items-center justify-between space-y-0 border-b border-stone-50 px-6 py-5">
           <SheetTitle className="flex items-center text-left" asChild>
@@ -143,7 +154,7 @@ export const MobileNavSheet = () => {
           <LanguageSwitcher className="mr-8" />
         </SheetHeader>
 
-        <nav className="flex flex-col gap-8 p-6 overflow-y-auto h-[calc(100vh-80px)]">
+        <nav className="flex flex-col gap-6 p-6 overflow-y-auto h-[calc(100vh-80px)]">
           {navSections.map((section) => {
             // 인증이 필요한 아이템만 있는 섹션은 로그인 시에만 표시
             const visibleItems = section.items.filter(
@@ -153,26 +164,39 @@ export const MobileNavSheet = () => {
             if (visibleItems.length === 0) return null;
 
             return (
-              <div key={section.title} className="space-y-3">
-                <h3 className="text-[11px] font-bold uppercase tracking-widest text-stone-400">
+              <div key={section.title} className="space-y-2">
+                <h3 className="text-[11px] font-bold uppercase tracking-widest text-stone-400 font-mono">
                   {section.title}
                 </h3>
                 <div className="flex flex-col gap-1">
-                  {visibleItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={handleLinkClick}
-                      className={cn(
-                        "block py-2.5 px-4 text-base transition-all duration-200 rounded-lg",
-                        isActive(item.href)
-                          ? "bg-stone-100 font-bold text-stone-900"
-                          : "text-stone-500 font-medium hover:bg-stone-50 hover:text-stone-900",
-                      )}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
+                  {visibleItems.map((item) => {
+                    const active = isActive(item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={handleLinkClick}
+                        className={cn(
+                          "flex items-center justify-between py-2 px-3 text-sm transition-all duration-200 rounded-md",
+                          active
+                            ? "bg-stone-100/80 font-bold text-stone-900 border-l-2 border-stone-900 pl-2.5"
+                            : "text-stone-600 font-medium hover:bg-stone-50 hover:text-stone-900",
+                        )}
+                      >
+                        <span>{item.label}</span>
+                        <span
+                          className={cn(
+                            "font-mono text-[10.5px] tabular-nums tracking-wider select-none",
+                            active
+                              ? "text-stone-900 font-semibold"
+                              : "text-stone-400",
+                          )}
+                        >
+                          {item.index}
+                        </span>
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             );

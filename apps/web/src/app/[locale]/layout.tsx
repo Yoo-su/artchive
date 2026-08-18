@@ -33,6 +33,7 @@ import {
   gowun_batang,
   nanum_gothic,
   pretendard,
+  song_myung,
 } from "@/styles/fonts";
 
 // 메타데이터 생성
@@ -75,7 +76,7 @@ export default async function Layout({
   return (
     <html
       lang={locale}
-      className={`${pretendard.variable} ${nanum_gothic.variable} ${bitcount.variable} ${gowun_batang.variable} ${do_hyeon.variable} ${diphylleia.variable}`}
+      className={`${pretendard.variable} ${nanum_gothic.variable} ${bitcount.variable} ${gowun_batang.variable} ${song_myung.variable} ${do_hyeon.variable} ${diphylleia.variable}`}
     >
       <body style={{ fontFamily: "var(--font-pretendard)" }}>
         <NextIntlClientProvider messages={messages}>
