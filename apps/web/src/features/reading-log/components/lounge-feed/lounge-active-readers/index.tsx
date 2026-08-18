@@ -31,7 +31,7 @@ export function LoungeActiveReaders() {
   const hasExpandable = expandableItems.length > 0;
 
   return (
-    <section className="mb-14">
+    <section>
       {/* 섹션 헤더 */}
       <div className="mb-6 border-b border-stone-200 pb-5">
         <h2 className="font-serif text-3xl sm:text-4xl text-stone-900 font-medium tracking-tight">
