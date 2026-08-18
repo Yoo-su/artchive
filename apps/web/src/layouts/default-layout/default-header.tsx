@@ -69,20 +69,28 @@ export const DefaultHeader = () => {
 
   const getLinkClass = (path: string) =>
     cn(
-      "relative text-sm font-medium transition-colors duration-200 tracking-wide uppercase",
-      isActive(path) ? "text-stone-900" : "text-stone-400 hover:text-stone-600",
+      "group relative inline-flex items-center gap-1.5 py-1 text-sm font-medium transition-colors duration-200",
+      isActive(path) ? "text-stone-900" : "text-stone-500 hover:text-stone-900",
+    );
+
+  const getIndexNumClass = (path: string) =>
+    cn(
+      "font-mono text-[10px] tabular-nums tracking-wider select-none transition-colors duration-200",
+      isActive(path)
+        ? "text-stone-900 font-semibold"
+        : "text-stone-400/90 group-hover:text-stone-700",
     );
 
   const dropdownContentClass =
-    "w-40 p-0 rounded-none border border-stone-200 bg-white shadow-sm";
+    "w-44 p-1.5 rounded-lg border border-stone-200/90 bg-white/95 backdrop-blur-md shadow-lg shadow-stone-900/5 font-[family-name:var(--font-gowun-batang)]";
   const dropdownItemClass =
-    "rounded-none px-4 py-3 cursor-pointer hover:bg-stone-50 focus:bg-stone-50 outline-none";
+    "group/item rounded-md px-3 py-2 cursor-pointer hover:bg-stone-100/70 focus:bg-stone-100/70 outline-none transition-colors";
   const dropdownLinkClass =
-    "flex items-center text-xs font-medium text-stone-600 hover:text-stone-900";
+    "flex items-center justify-between w-full text-xs font-medium text-stone-700 group-hover/item:text-stone-900";
 
   return (
     <header className="sticky top-0 left-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-stone-100">
-      <div className="flex items-center justify-between max-w-5xl w-full px-4 py-4 mx-auto">
+      <div className="flex items-center justify-between max-w-5xl w-full px-4 py-3.5 mx-auto">
         {/* 좌측: 모바일 메뉴 + 로고 */}
         <div className="flex items-center gap-4">
           {/* 모바일 햄버거 메뉴 */}
@@ -91,49 +99,56 @@ export const DefaultHeader = () => {
           <Logo />
         </div>
 
-        {/* 중앙: 데스크탑 텍스트 네비게이션 */}
+        {/* 중앙: 데스크탑 에디토리얼 챕터 인덱스 네비게이션 */}
         <nav
-          className="hidden md:flex items-center gap-8"
+          className="hidden md:flex items-center gap-7 font-[family-name:var(--font-gowun-batang)]"
           aria-label={t("nav.main_menu")}
         >
-          {/* 1. 도서 검색 */}
+          {/* 01. 도서 검색 */}
           <Link
             href={PATHS.BOOK_SEARCH}
             className={getLinkClass(PATHS.BOOK_SEARCH)}
           >
-            {t("nav.menu_search")}
+            <span className={getIndexNumClass(PATHS.BOOK_SEARCH)}>01</span>
+            <span className="tracking-tight">{t("nav.menu_search")}</span>
             {isActive(PATHS.BOOK_SEARCH) && <HandDrawnUnderline />}
           </Link>
 
-          {/* 2. 독서 기록 (로그인 전용) */}
+          {/* 02. 독서 기록 (로그인 전용) */}
           {currentUser && (
             <Link
               href={PATHS.READING_LOG}
               className={getLinkClass(PATHS.READING_LOG)}
             >
-              {t("nav.menu_log")}
+              <span className={getIndexNumClass(PATHS.READING_LOG)}>02</span>
+              <span className="tracking-tight">{t("nav.menu_log")}</span>
               {isActive(PATHS.READING_LOG) && <HandDrawnUnderline />}
             </Link>
           )}
 
-          {/* 2.5 라운지 (공개) */}
+          {/* 03. 라운지 (공개) */}
           <Link href={PATHS.LOUNGE} className={getLinkClass(PATHS.LOUNGE)}>
-            {t("nav.menu_lounge")}
+            <span className={getIndexNumClass(PATHS.LOUNGE)}>03</span>
+            <span className="tracking-tight">{t("nav.menu_lounge")}</span>
             {isActive(PATHS.LOUNGE) && <HandDrawnUnderline />}
           </Link>
 
-          {/* 3. 중고마켓 그룹 */}
+          {/* 04. 중고마켓 그룹 */}
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <button
                 className={cn(
-                  "relative text-sm font-medium transition-colors duration-200 tracking-wide outline-none cursor-pointer uppercase",
+                  "group relative inline-flex items-center gap-1.5 py-1 text-sm font-medium transition-colors duration-200 outline-none cursor-pointer",
                   isActive(PATHS.BOOK_MARKET)
                     ? "text-stone-900"
-                    : "text-stone-400 hover:text-stone-600",
+                    : "text-stone-500 hover:text-stone-900",
                 )}
               >
-                {t("nav.menu_market")}
+                <span className={getIndexNumClass(PATHS.BOOK_MARKET)}>04</span>
+                <span className="tracking-tight">{t("nav.menu_market")}</span>
+                <span className="text-[9px] text-stone-400 group-hover:text-stone-700 transition-colors ml-0.5">
+                  ▾
+                </span>
                 {isActive(PATHS.BOOK_MARKET) && <HandDrawnUnderline />}
               </button>
             </DropdownMenuTrigger>
@@ -145,6 +160,9 @@ export const DefaultHeader = () => {
                 <DropdownMenuItem asChild className={dropdownItemClass}>
                   <Link href={PATHS.BOOK_MARKET} className={dropdownLinkClass}>
                     <span>{t("nav.market_home")}</span>
+                    <span className="font-mono text-[9.5px] tabular-nums text-stone-400 group-hover/item:text-stone-600">
+                      04.1
+                    </span>
                   </Link>
                 </DropdownMenuItem>
                 {currentUser && (
@@ -155,6 +173,9 @@ export const DefaultHeader = () => {
                         className={dropdownLinkClass}
                       >
                         <span>{t("nav.write_sales")}</span>
+                        <span className="font-mono text-[9.5px] tabular-nums text-stone-400 group-hover/item:text-stone-600">
+                          04.2
+                        </span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className={dropdownItemClass}>
@@ -163,6 +184,9 @@ export const DefaultHeader = () => {
                         className={dropdownLinkClass}
                       >
                         <span>{t("nav.my_sales")}</span>
+                        <span className="font-mono text-[9.5px] tabular-nums text-stone-400 group-hover/item:text-stone-600">
+                          04.3
+                        </span>
                       </Link>
                     </DropdownMenuItem>
                   </>
@@ -171,18 +195,22 @@ export const DefaultHeader = () => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* 4. 리뷰 그룹 */}
+          {/* 05. 리뷰 그룹 */}
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <button
                 className={cn(
-                  "relative text-sm font-medium transition-colors duration-200 tracking-wide outline-none cursor-pointer uppercase",
+                  "group relative inline-flex items-center gap-1.5 py-1 text-sm font-medium transition-colors duration-200 outline-none cursor-pointer",
                   isActive(PATHS.REVIEWS)
                     ? "text-stone-900"
-                    : "text-stone-400 hover:text-stone-600",
+                    : "text-stone-500 hover:text-stone-900",
                 )}
               >
-                {t("nav.menu_reviews")}
+                <span className={getIndexNumClass(PATHS.REVIEWS)}>05</span>
+                <span className="tracking-tight">{t("nav.menu_reviews")}</span>
+                <span className="text-[9px] text-stone-400 group-hover:text-stone-700 transition-colors ml-0.5">
+                  ▾
+                </span>
                 {isActive(PATHS.REVIEWS) && <HandDrawnUnderline />}
               </button>
             </DropdownMenuTrigger>
@@ -194,6 +222,9 @@ export const DefaultHeader = () => {
                 <DropdownMenuItem asChild className={dropdownItemClass}>
                   <Link href={PATHS.REVIEWS} className={dropdownLinkClass}>
                     <span>{t("nav.review_feed")}</span>
+                    <span className="font-mono text-[9.5px] tabular-nums text-stone-400 group-hover/item:text-stone-600">
+                      05.1
+                    </span>
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
@@ -205,12 +236,18 @@ export const DefaultHeader = () => {
                       className={dropdownLinkClass}
                     >
                       <span>{t("nav.write_review")}</span>
+                      <span className="font-mono text-[9.5px] tabular-nums text-stone-400 group-hover/item:text-stone-600">
+                        05.2
+                      </span>
                     </Link>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem asChild className={dropdownItemClass}>
                     <Link href={PATHS.MY_REVIEWS} className={dropdownLinkClass}>
                       <span>{t("nav.my_reviews")}</span>
+                      <span className="font-mono text-[9.5px] tabular-nums text-stone-400 group-hover/item:text-stone-600">
+                        05.3
+                      </span>
                     </Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
@@ -218,38 +255,39 @@ export const DefaultHeader = () => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* 5. 인사이트 */}
+          {/* 06. 인사이트 */}
           <Link href={PATHS.INSIGHTS} className={getLinkClass(PATHS.INSIGHTS)}>
-            {t("nav.menu_insights")}
+            <span className={getIndexNumClass(PATHS.INSIGHTS)}>06</span>
+            <span className="tracking-tight">{t("nav.menu_insights")}</span>
             {isActive(PATHS.INSIGHTS) && <HandDrawnUnderline />}
           </Link>
         </nav>
 
-          {/* 우측: 사용자 메뉴 */}
-          <div className="flex items-center gap-3">
-            <LanguageSwitcher className="hidden md:flex" />
-            {!mounted ? (
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-stone-100/80 animate-pulse border border-stone-200/40 flex items-center justify-center">
-                  <div className="w-5 h-5 rounded-full bg-stone-200/50" />
-                </div>
-                <div className="w-10 h-10 rounded-full bg-stone-200/60 animate-pulse border border-stone-200/40" />
+        {/* 우측: 사용자 메뉴 */}
+        <div className="flex items-center gap-3">
+          <LanguageSwitcher className="hidden md:flex" />
+          {!mounted ? (
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-stone-100/80 animate-pulse border border-stone-200/40 flex items-center justify-center">
+                <div className="w-5 h-5 rounded-full bg-stone-200/50" />
               </div>
-            ) : currentUser ? (
-              <>
-                <div className="mr-1">
-                  <NotificationPopover />
-                </div>
-                <UserPopover />
-              </>
-            ) : (
-              <Link href={PATHS.LOGIN} onClick={() => saveReturnUrl(pathname)}>
-                <span className="text-sm font-medium text-stone-400 hover:text-stone-900 transition-colors tracking-wide uppercase">
-                  {t("nav.menu_login")}
-                </span>
-              </Link>
-            )}
-          </div>
+              <div className="w-10 h-10 rounded-full bg-stone-200/60 animate-pulse border border-stone-200/40" />
+            </div>
+          ) : currentUser ? (
+            <>
+              <div className="mr-1">
+                <NotificationPopover />
+              </div>
+              <UserPopover />
+            </>
+          ) : (
+            <Link href={PATHS.LOGIN} onClick={() => saveReturnUrl(pathname)}>
+              <span className="text-sm font-medium font-[family-name:var(--font-gowun-batang)] text-stone-500 hover:text-stone-900 transition-colors tracking-wide">
+                {t("nav.menu_login")}
+              </span>
+            </Link>
+          )}
+        </div>
       </div>
     </header>
   );
