@@ -1,8 +1,8 @@
 import Image from "next/image";
 
+import { BookjeokTextLogo, LogoVariant } from "@/shared/components/icons/bookjeok-text-logo";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
-import { BookjeokTextLogo, LogoVariant } from "@/shared/components/icons/bookjeok-text-logo";
 
 interface LogoProps {
   size?: "sm" | "md";
