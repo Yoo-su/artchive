@@ -33,13 +33,37 @@ export class ChatService {
     private readonly dataSource: DataSource,
   ) {}
 
+  // 동일 saleId:buyerId에 대해 동시에 진행 중인 채팅방 조회/생성 작업을 관리하는 Map (Request Collapsing)
+  private roomCreationTasks = new Map<string, Promise<ChatRoom>>();
+
   /**
    * 판매글 ID와 구매자 ID로 채팅방을 찾거나 생성하여 반환합니다.
+   * - Request Collapsing을 통해 동일 판매글/구매자 동시 요청 시 중복 방 생성을 방지합니다.
    * @param saleId 판매글 ID
    * @param buyerId 구매자 ID
    * @returns 채팅방 엔티티
    */
   async getChatRoom(saleId: number, buyerId: number): Promise<ChatRoom> {
+    const taskKey = `${saleId}:${buyerId}`;
+    const existingTask = this.roomCreationTasks.get(taskKey);
+    if (existingTask) {
+      return existingTask;
+    }
+
+    const task = this.resolveChatRoom(saleId, buyerId);
+    this.roomCreationTasks.set(taskKey, task);
+
+    try {
+      return await task;
+    } finally {
+      this.roomCreationTasks.delete(taskKey);
+    }
+  }
+
+  private async resolveChatRoom(
+    saleId: number,
+    buyerId: number,
+  ): Promise<ChatRoom> {
     const sale = await this.usedBookSaleService.findSaleById(saleId);
     if (!sale) {
       throw new BusinessException('SALE_NOT_FOUND', HttpStatus.NOT_FOUND);

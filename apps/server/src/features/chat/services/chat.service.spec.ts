@@ -181,6 +181,37 @@ describe('ChatService', () => {
       expect(chatGateway.joinRoom).toHaveBeenCalledWith([buyerId, 2], 99); // 소켓 조인 확인
       expect(chatGateway.notifyNewRoom).toHaveBeenCalled();
     });
+
+    it('동시에 여러 요청이 들어와도 Request Collapsing에 의해 방 조회가 1회만 실행되어야 합니다', async () => {
+      const sale = { id: 1, user: { id: 2 } };
+      const buyerId = 1;
+
+      (usedBookSaleService.findSaleById as jest.Mock).mockResolvedValue(sale);
+
+      const queryBuilder = chatRoomRepo.createQueryBuilder!();
+      (queryBuilder.getOne as jest.Mock).mockResolvedValue(null);
+
+      const newRoom = { id: 99 };
+      (chatRoomRepo.create as jest.Mock).mockReturnValue(newRoom);
+      (mockManager.save as jest.Mock).mockImplementation((entity, data) => {
+        if (entity === ChatRoom) return { ...data, id: 99 } as ChatRoom;
+        return data as ChatParticipant;
+      });
+      (chatRoomRepo.findOne as jest.Mock).mockResolvedValue({ ...newRoom });
+
+      // 5개의 동시 요청 실행
+      const results = await Promise.all([
+        service.getChatRoom(1, buyerId),
+        service.getChatRoom(1, buyerId),
+        service.getChatRoom(1, buyerId),
+        service.getChatRoom(1, buyerId),
+        service.getChatRoom(1, buyerId),
+      ]);
+
+      expect(results).toHaveLength(5);
+      results.forEach((res) => expect(res).toEqual(newRoom));
+      expect(mockDataSource.createQueryRunner).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('saveMessage', () => {

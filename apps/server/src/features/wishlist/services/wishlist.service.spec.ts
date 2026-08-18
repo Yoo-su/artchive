@@ -19,9 +19,18 @@ describe('WishlistService', () => {
   let wishlistRepo: any;
 
   beforeEach(async () => {
+    const mockQb = {
+      insert: jest.fn().mockReturnThis(),
+      into: jest.fn().mockReturnThis(),
+      values: jest.fn().mockReturnThis(),
+      orIgnore: jest.fn().mockReturnThis(),
+      execute: jest.fn().mockResolvedValue({ identifiers: [{ id: 1 }] }),
+    };
+
     mockManager = {
       findOne: jest.fn(),
       save: jest.fn(),
+      createQueryBuilder: jest.fn().mockReturnValue(mockQb),
     };
 
     mockDataSource = {
@@ -66,6 +75,21 @@ describe('WishlistService', () => {
       const result = await service.addToWishlist(1, 'BOOK', '1234567890');
       expect(result).toEqual(existing);
       expect(mockManager.save).not.toHaveBeenCalled();
+    });
+
+    it('새 항목 찜 시 orIgnore()를 통해 안전하게 생성하고 조회된 항목을 반환해야 합니다', async () => {
+      const book = { isbn: '1234567890' };
+      const savedWishlist = { id: 1, user: { id: 1 }, book };
+
+      (mockManager.findOne as jest.Mock)
+        .mockResolvedValueOnce(null) // existing check
+        .mockResolvedValueOnce(book); // book search check
+
+      (wishlistRepo.findOne as jest.Mock).mockResolvedValue(savedWishlist);
+
+      const result = await service.addToWishlist(1, 'BOOK', '1234567890');
+      expect(result).toEqual(savedWishlist);
+      expect(mockManager.createQueryBuilder).toHaveBeenCalled();
     });
 
     it('찜하려는 책이 존재하지 않으면 예외를 던져야 합니다', async () => {

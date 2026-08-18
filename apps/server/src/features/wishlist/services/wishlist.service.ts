@@ -51,20 +51,19 @@ export class WishlistService {
         return existing;
       }
 
-      const wishlist = new Wishlist();
-      wishlist.user = { id: userId } as User;
+      let book: Book | null = null;
+      let sale: UsedBookSale | null = null;
 
       if (type === 'BOOK') {
-        const book = await queryRunner.manager.findOne(Book, {
+        book = await queryRunner.manager.findOne(Book, {
           where: { isbn: id as string },
         });
 
         if (!book) {
           throw new BusinessException('BOOK_NOT_FOUND', HttpStatus.NOT_FOUND);
         }
-        wishlist.book = book;
       } else {
-        const sale = await queryRunner.manager.findOne(UsedBookSale, {
+        sale = await queryRunner.manager.findOne(UsedBookSale, {
           where: { id: id as number },
         });
         if (!sale) {
@@ -76,11 +75,35 @@ export class WishlistService {
             HttpStatus.BAD_REQUEST,
           );
         }
-        wishlist.usedBookSale = sale;
       }
 
-      const savedWishlist = await queryRunner.manager.save(wishlist);
+      // orIgnore()를 통해 동시 요청 시 23505 유니크 충돌 방어 및 멱등성 보장
+      await queryRunner.manager
+        .createQueryBuilder()
+        .insert()
+        .into(Wishlist)
+        .values({
+          user: { id: userId } as User,
+          book: book ? ({ isbn: book.isbn } as Book) : null,
+          usedBookSale: sale ? ({ id: sale.id } as UsedBookSale) : null,
+          isbn: book ? book.isbn : null,
+        })
+        .orIgnore()
+        .execute();
+
       await queryRunner.commitTransaction();
+
+      // 저장된 or 이미 등록된 찜 항목 조회하여 반환
+      const savedWishlist = await this.wishlistRepository.findOne({
+        where: {
+          user: { id: userId },
+          ...(type === 'BOOK'
+            ? { book: { isbn: id as string } }
+            : { usedBookSale: { id: id as number } }),
+        },
+        relations: ['book', 'usedBookSale'],
+      });
+
       return savedWishlist;
     } catch (err) {
       await queryRunner.rollbackTransaction();

@@ -610,9 +610,14 @@ export class ReviewService {
 
       if (existingReaction) {
         if (existingReaction.type === type) {
-          // 리액션 삭제 (같은 타입 클릭 시)
-          await manager.remove(ReviewReaction, existingReaction);
-          await manager.decrement(Review, { id }, 'reactionCount', 1);
+          // 리액션 삭제 (같은 타입 클릭 시): 실제로 삭제된 경우에만 reactionCount 감소
+          const deleteResult = await manager.delete(
+            ReviewReaction,
+            existingReaction.id,
+          );
+          if (deleteResult.affected && deleteResult.affected > 0) {
+            await manager.decrement(Review, { id }, 'reactionCount', 1);
+          }
           isAdded = false;
         } else {
           // 리액션 변경
@@ -621,14 +626,26 @@ export class ReviewService {
           // 카운트 변경 없음
         }
       } else {
-        // 새 리액션 추가
-        const newReaction = manager.create(ReviewReaction, {
-          reviewId: id,
-          userId,
-          type,
-        });
-        await manager.save(ReviewReaction, newReaction);
-        await manager.increment(Review, { id }, 'reactionCount', 1);
+        // 새 리액션 추가: orIgnore()로 동시 요청 시 유니크 충돌(23505) 방어
+        const insertResult = await manager
+          .createQueryBuilder()
+          .insert()
+          .into(ReviewReaction)
+          .values({
+            reviewId: id,
+            userId,
+            type,
+          })
+          .orIgnore()
+          .execute();
+
+        if (
+          insertResult.identifiers?.length > 0 &&
+          insertResult.identifiers[0]
+        ) {
+          await manager.increment(Review, { id }, 'reactionCount', 1);
+        }
+        isAdded = true;
       }
     });
 

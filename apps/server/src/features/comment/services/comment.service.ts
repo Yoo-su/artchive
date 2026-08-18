@@ -282,25 +282,30 @@ export class CommentService {
       });
 
       if (existingLike) {
-        // 좋아요 취소
-        await manager.delete(CommentLike, existingLike.id);
-        await manager.decrement(Comment, { id: commentId }, 'likeCount', 1);
+        // 좋아요 취소: 실제로 삭제된 경우에만 likeCount 감소 (중복 감소 방지)
+        const deleteResult = await manager.delete(CommentLike, existingLike.id);
+        if (deleteResult.affected && deleteResult.affected > 0) {
+          await manager.decrement(Comment, { id: commentId }, 'likeCount', 1);
+        }
         isLiked = false;
       } else {
-        // 좋아요 추가
-        try {
-          const like = manager.create(CommentLike, { commentId, userId });
-          await manager.save(CommentLike, like);
+        // 좋아요 추가: orIgnore()로 중복 충돌 시 SQL 에러 없이 무시 (ON CONFLICT DO NOTHING)
+        const insertResult = await manager
+          .createQueryBuilder()
+          .insert()
+          .into(CommentLike)
+          .values({ commentId, userId })
+          .orIgnore()
+          .execute();
+
+        // 실제로 새로운 레코드가 삽입된 경우에만 카운트 증가
+        if (
+          insertResult.identifiers?.length > 0 &&
+          insertResult.identifiers[0]
+        ) {
           await manager.increment(Comment, { id: commentId }, 'likeCount', 1);
-          isLiked = true;
-        } catch (err: any) {
-          // 동시 요청 시 23505 (Unique violation) 방어: 이미 좋아요가 등록된 상태
-          if (err?.code === '23505' || err?.driverError?.code === '23505') {
-            isLiked = true;
-          } else {
-            throw err;
-          }
         }
+        isLiked = true;
       }
     });
 
