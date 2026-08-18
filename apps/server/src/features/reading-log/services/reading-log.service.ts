@@ -608,18 +608,26 @@ export class ReadingLogService {
       .leftJoinAndSelect('log.book', 'book')
       .where('log.userId = :userId', { userId })
       .orderBy('log.date', 'DESC')
-      .addOrderBy('log.createdAt', 'DESC')
+      .addOrderBy('log.id', 'DESC')
       .take(limit + 1);
 
     if (cursorId) {
-      const cursorLog = await this.readingLogRepository.findOne({
-        where: { id: cursorId },
-      });
-      if (cursorLog) {
+      if (cursorId.includes('|')) {
+        const [cursorDate, cursorIdStr] = cursorId.split('|');
         query.andWhere(
-          '(log.date < :date OR (log.date = :date AND log.createdAt < :createdAt))',
-          { date: cursorLog.date, createdAt: cursorLog.createdAt },
+          '(log.date < :cursorDate OR (log.date = :cursorDate AND log.id < :cursorIdStr))',
+          { cursorDate, cursorIdStr },
         );
+      } else {
+        const cursorLog = await this.readingLogRepository.findOne({
+          where: { id: cursorId },
+        });
+        if (cursorLog) {
+          query.andWhere(
+            '(log.date < :date OR (log.date = :date AND log.id < :cursorLogId))',
+            { date: cursorLog.date, cursorLogId: cursorLog.id },
+          );
+        }
       }
     }
 
@@ -629,9 +637,16 @@ export class ReadingLogService {
       items.pop(); // 확인용 +1 제거
     }
 
+    let nextCursor: string | null = null;
+    if (hasNextPage && items.length > 0) {
+      const lastItem = items[items.length - 1];
+      const formattedDate = String(lastItem.date).split('T')[0];
+      nextCursor = `${formattedDate}|${lastItem.id}`;
+    }
+
     return {
       items,
-      nextCursor: hasNextPage ? items[items.length - 1].id : null,
+      nextCursor,
     };
   }
 

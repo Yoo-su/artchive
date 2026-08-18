@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { TransactionHost } from '@nestjs-cls/transactional';
+import { EntityManager, Repository } from 'typeorm';
 
 import { Book } from '@/features/book/entities/book.entity';
 import {
@@ -12,9 +13,26 @@ import { BusinessException } from '@/shared/exceptions/business.exception';
 
 import { WishlistService } from './wishlist.service';
 
+jest.mock('@nestjs-cls/transactional', () => {
+  const actual = jest.requireActual<Record<string, unknown>>(
+    '@nestjs-cls/transactional',
+  );
+  return {
+    ...actual,
+    Transactional:
+      () =>
+      (
+        _target: unknown,
+        _propertyKey: string,
+        descriptor: PropertyDescriptor,
+      ) =>
+        descriptor,
+  };
+});
+
 describe('WishlistService', () => {
   let service: WishlistService;
-  let mockDataSource: Partial<DataSource>;
+  let mockTxHost: { tx: Partial<EntityManager> };
   let mockManager: Partial<EntityManager>;
   let wishlistRepo: any;
 
@@ -33,15 +51,8 @@ describe('WishlistService', () => {
       createQueryBuilder: jest.fn().mockReturnValue(mockQb),
     };
 
-    mockDataSource = {
-      createQueryRunner: jest.fn().mockReturnValue({
-        connect: jest.fn(),
-        startTransaction: jest.fn(),
-        commitTransaction: jest.fn(),
-        rollbackTransaction: jest.fn(),
-        release: jest.fn(),
-        manager: mockManager,
-      }),
+    mockTxHost = {
+      tx: mockManager,
     };
 
     wishlistRepo = {
@@ -60,7 +71,7 @@ describe('WishlistService', () => {
       providers: [
         WishlistService,
         { provide: getRepositoryToken(Wishlist), useValue: wishlistRepo },
-        { provide: DataSource, useValue: mockDataSource },
+        { provide: TransactionHost, useValue: mockTxHost },
       ],
     }).compile();
 
@@ -83,9 +94,8 @@ describe('WishlistService', () => {
 
       (mockManager.findOne as jest.Mock)
         .mockResolvedValueOnce(null) // existing check
-        .mockResolvedValueOnce(book); // book search check
-
-      (wishlistRepo.findOne as jest.Mock).mockResolvedValue(savedWishlist);
+        .mockResolvedValueOnce(book) // book search check
+        .mockResolvedValueOnce(savedWishlist); // saved wishlist fetch
 
       const result = await service.addToWishlist(1, 'BOOK', '1234567890');
       expect(result).toEqual(savedWishlist);

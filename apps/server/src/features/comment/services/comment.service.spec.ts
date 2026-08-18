@@ -1,7 +1,8 @@
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { TransactionHost } from '@nestjs-cls/transactional';
+import { Repository } from 'typeorm';
 
 import { BookService } from '@/features/book/services/book.service';
 import { ReviewService } from '@/features/review/services/review.service';
@@ -10,6 +11,23 @@ import { Comment, CommentTargetType } from '../entities/comment.entity';
 import { CommentLike } from '../entities/comment-like.entity';
 import { CommentService } from './comment.service';
 
+jest.mock('@nestjs-cls/transactional', () => {
+  const actual = jest.requireActual<Record<string, unknown>>(
+    '@nestjs-cls/transactional',
+  );
+  return {
+    ...actual,
+    Transactional:
+      () =>
+      (
+        _target: unknown,
+        _propertyKey: string,
+        descriptor: PropertyDescriptor,
+      ) =>
+        descriptor,
+  };
+});
+
 describe('CommentService', () => {
   let service: CommentService;
   let commentRepository: jest.Mocked<Partial<Repository<Comment>>>;
@@ -17,7 +35,8 @@ describe('CommentService', () => {
   let reviewService: jest.Mocked<Partial<ReviewService>>;
   let bookService: jest.Mocked<Partial<BookService>>;
   let eventEmitter: jest.Mocked<Partial<EventEmitter2>>;
-  let dataSource: jest.Mocked<Partial<DataSource>>;
+  let mockManager: any;
+  let mockTxHost: { tx: any };
 
   beforeEach(async () => {
     commentRepository = {
@@ -54,36 +73,30 @@ describe('CommentService', () => {
       emit: jest.fn(),
     };
 
-    dataSource = {
-      transaction: jest
+    const mockQb = {
+      insert: jest.fn().mockReturnThis(),
+      into: jest.fn().mockReturnThis(),
+      values: jest.fn().mockReturnThis(),
+      orIgnore: jest.fn().mockReturnThis(),
+      execute: jest.fn().mockResolvedValue({ identifiers: [{ id: 1 }] }),
+    };
+
+    mockManager = {
+      findOne: jest.fn(),
+      create: jest
         .fn()
         .mockImplementation(
-          (cb: (manager: Record<string, unknown>) => Promise<unknown>) => {
-            const mockQb = {
-              insert: jest.fn().mockReturnThis(),
-              into: jest.fn().mockReturnThis(),
-              values: jest.fn().mockReturnThis(),
-              orIgnore: jest.fn().mockReturnThis(),
-              execute: jest
-                .fn()
-                .mockResolvedValue({ identifiers: [{ id: 1 }] }),
-            };
-            const mockManager = {
-              findOne: jest.fn(),
-              create: jest
-                .fn()
-                .mockImplementation(
-                  (_entity: unknown, data: Record<string, unknown>) => data,
-                ),
-              save: jest.fn().mockResolvedValue({}),
-              delete: jest.fn().mockResolvedValue({}),
-              increment: jest.fn().mockResolvedValue({}),
-              decrement: jest.fn().mockResolvedValue({}),
-              createQueryBuilder: jest.fn().mockReturnValue(mockQb),
-            };
-            return cb(mockManager);
-          },
+          (_entity: unknown, data: Record<string, unknown>) => data,
         ),
+      save: jest.fn().mockResolvedValue({}),
+      delete: jest.fn().mockResolvedValue({ affected: 1 }),
+      increment: jest.fn().mockResolvedValue({}),
+      decrement: jest.fn().mockResolvedValue({}),
+      createQueryBuilder: jest.fn().mockReturnValue(mockQb),
+    };
+
+    mockTxHost = {
+      tx: mockManager,
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -110,8 +123,8 @@ describe('CommentService', () => {
           useValue: eventEmitter,
         },
         {
-          provide: DataSource,
-          useValue: dataSource,
+          provide: TransactionHost,
+          useValue: mockTxHost,
         },
       ],
     }).compile();
@@ -204,19 +217,17 @@ describe('CommentService', () => {
         .mockResolvedValueOnce(comment) // findCommentOrThrow
         .mockResolvedValueOnce({ ...comment, likeCount: 0 }); // updatedComment
 
-      (dataSource.transaction as jest.Mock).mockImplementation(
-        async (cb: (manager: Record<string, unknown>) => Promise<unknown>) => {
-          const mockManager = {
-            findOne: jest.fn().mockResolvedValue(existingLike),
-            delete: jest.fn().mockResolvedValue({ affected: 1 }),
-            decrement: jest.fn().mockResolvedValue({}),
-          };
-          return await cb(mockManager);
-        },
-      );
+      (mockManager.findOne as jest.Mock).mockResolvedValue(existingLike);
+      (mockManager.delete as jest.Mock).mockResolvedValue({ affected: 1 });
 
       const result = await service.toggleLike(1, 1);
       expect(result.isLiked).toBe(false);
+      expect(mockManager.decrement).toHaveBeenCalledWith(
+        Comment,
+        { id: 1 },
+        'likeCount',
+        1,
+      );
       expect(eventEmitter.emit).toHaveBeenCalledWith(
         'comment.liked',
         expect.objectContaining({ isLiked: false }),

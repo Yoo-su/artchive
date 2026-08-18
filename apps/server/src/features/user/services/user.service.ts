@@ -1,6 +1,8 @@
 import { HttpStatus, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Transactional, TransactionHost } from '@nestjs-cls/transactional';
+import { TransactionalAdapterTypeOrm } from '@nestjs-cls/transactional-adapter-typeorm';
 import { DataSource, MoreThanOrEqual, Repository } from 'typeorm';
 
 import { SocialLoginDto } from '@/features/auth/dtos/social-login.dto';
@@ -27,6 +29,7 @@ export class UserService implements OnModuleInit {
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
     private readonly dataSource: DataSource,
+    private readonly txHost: TransactionHost<TransactionalAdapterTypeOrm>,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -379,43 +382,32 @@ export class UserService implements OnModuleInit {
    * 회원 탈퇴를 처리합니다. 유저 정보를 익명화하고 관련 데이터를 정리합니다.
    * @param userId 유저 ID
    */
+  @Transactional()
   async withdraw(userId: number): Promise<void> {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+    const manager = this.txHost.tx;
+    const user = await manager.findOne(User, {
+      where: { id: userId },
+    });
 
-    try {
-      const user = await queryRunner.manager.findOne(User, {
-        where: { id: userId },
-      });
-
-      if (!user) {
-        throw new BusinessException('USER_NOT_FOUND', HttpStatus.NOT_FOUND);
-      }
-
-      // 1. 사용자 정보 익명화
-      const timestamp = new Date().getTime();
-      user.nickname = '(알수없음)';
-      user.profileImageUrl = '';
-      user.providerId = `deleted_${user.id}_${timestamp}`;
-      user.email = `deleted_${user.id}_${timestamp}`;
-      user.deletedAt = new Date();
-
-      await queryRunner.manager.save(user);
-
-      // 2. 도메인 클린업 이벤트 동기식 발행 (EntityManager 주입)
-      await this.eventEmitter.emitAsync('user.withdrawn', {
-        userId,
-        entityManager: queryRunner.manager,
-      });
-
-      await queryRunner.commitTransaction();
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw err;
-    } finally {
-      await queryRunner.release();
+    if (!user) {
+      throw new BusinessException('USER_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
+
+    // 1. 사용자 정보 익명화
+    const timestamp = new Date().getTime();
+    user.nickname = '(알수없음)';
+    user.profileImageUrl = '';
+    user.providerId = `deleted_${user.id}_${timestamp}`;
+    user.email = `deleted_${user.id}_${timestamp}`;
+    user.deletedAt = new Date();
+
+    await manager.save(user);
+
+    // 2. 도메인 클린업 이벤트 동기식 발행 (EntityManager 주입)
+    await this.eventEmitter.emitAsync('user.withdrawn', {
+      userId,
+      entityManager: manager,
+    });
   }
 
   /**
