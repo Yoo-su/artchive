@@ -1,9 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { Link } from "@/shared/config/i18n/routing";
@@ -13,13 +14,14 @@ import { usePopularBooksQuery } from "../../queries";
 
 /**
  * 지금 인기많은 책 컴포넌트
- * - 1위: #2C2C2C 다크 스포트라이트 카드 (도서 표지, 제목, 저자, 줄거리 인용구)
+ * - 1위: #2C2C2C 다크 스포트라이트 카드 (2~7위 호버 시 부드러운 크로스페이드 프리뷰 지원)
  * - 2위 & 3위: 정갈한 직각 듀오 벤토 카드
  * - 4~7위: 에디토리얼 인덱스 랭킹 리스트
  */
 export const PopularBookSlider = () => {
   const t = useTranslations("home.sections.popular_books");
   const { data: books, isLoading, isError } = usePopularBooksQuery();
+  const [hoveredBook, setHoveredBook] = useState<NonNullable<typeof books>[number] | null>(null);
 
   if (isLoading) {
     return <PopularBookSliderSkeleton />;
@@ -32,6 +34,11 @@ export const PopularBookSlider = () => {
   const topBook = books[0];
   const secondaryBooks = books.slice(1, 3);
   const chartBooks = books.slice(3, 7);
+
+  // 현재 스포트라이트에 표시될 도서 (호버 중인 도서 우선, 없으면 1위 도서)
+  const activeBook = hoveredBook || topBook;
+  const activeIndex = books.findIndex((b) => b.isbn === activeBook.isbn);
+  const activeRank = String(activeIndex >= 0 ? activeIndex + 1 : 1).padStart(2, "0");
 
   return (
     <section className="w-full py-16 bg-white">
@@ -55,73 +62,91 @@ export const PopularBookSlider = () => {
 
         {/* 벤토 그리드 레이아웃 */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-          {/* 1위: #2C2C2C Dark Spotlight Card (5 cols) */}
-          {topBook && (
+          {/* 1위 & 인터랙티브 스포트라이트 카드 (5 cols) */}
+          {activeBook && (
             <motion.div
               whileHover={{ y: -4 }}
               transition={{ type: "spring", stiffness: 350, damping: 25 }}
-              className="lg:col-span-5"
+              className="lg:col-span-5 flex"
             >
               <Link
-                href={PATHS.BOOK_DETAIL(topBook.isbn)}
-                className="h-full p-7 sm:p-8 bg-[#2C2C2C] text-white flex flex-col justify-between group border border-neutral-800 shadow-xs hover:shadow-[0_16px_36px_-8px_rgba(0,0,0,0.35)] transition-shadow duration-300"
+                href={PATHS.BOOK_DETAIL(activeBook.isbn)}
+                className="w-full p-7 sm:p-8 bg-[#2C2C2C] text-white flex flex-col justify-between group border border-neutral-800 shadow-xs hover:shadow-[0_16px_36px_-8px_rgba(0,0,0,0.35)] transition-shadow duration-300 relative overflow-hidden"
               >
-                <div>
-                  {/* 상단 랭킹 번호 및 출판사 */}
-                  <div className="flex items-center justify-between border-b border-neutral-700/80 pb-4 mb-6">
-                    <span className="font-sans text-3xl font-black text-white leading-none">
-                      01
-                    </span>
-                    {topBook.publisher && (
-                      <span className="text-xs font-sans text-neutral-400 truncate max-w-[150px]">
-                        {topBook.publisher}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeBook.isbn}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.22, ease: "easeOut" }}
+                    className="flex flex-col justify-between h-full"
+                  >
+                    <div>
+                      {/* 상단 랭킹 번호 및 출판사 */}
+                      <div className="flex items-center justify-between border-b border-neutral-700/80 pb-4 mb-6">
+                        <div className="flex items-center gap-2.5">
+                          <span className="font-sans text-3xl font-black text-white leading-none">
+                            {activeRank}
+                          </span>
+                          {hoveredBook && (
+                            <span className="text-[11px] font-sans px-2 py-0.5 bg-neutral-700/60 text-neutral-300 tracking-tight">
+                              미리보기
+                            </span>
+                          )}
+                        </div>
+                        {activeBook.publisher && (
+                          <span className="text-xs font-sans text-neutral-400 truncate max-w-[150px]">
+                            {activeBook.publisher}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* 본문 콘텐츠 */}
+                      <div className="flex gap-5 sm:gap-6 items-start">
+                        {/* 표지 이미지 (직각) */}
+                        <div className="w-32 sm:w-36 shrink-0 aspect-2/3 overflow-hidden bg-neutral-800 border border-neutral-700 shadow-md relative">
+                          <Image
+                            src={activeBook.image || "/placeholder.jpg"}
+                            alt={activeBook.title}
+                            fill
+                            sizes="(max-width: 640px) 128px, 144px"
+                            priority
+                            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                          />
+                        </div>
+
+                        {/* 텍스트 영역 */}
+                        <div className="space-y-2 min-w-0">
+                          {activeBook.author && (
+                            <span className="text-xs text-neutral-400 font-sans block truncate">
+                              {activeBook.author}
+                            </span>
+                          )}
+                          <h3 className="font-serif text-xl sm:text-2xl font-bold leading-snug text-neutral-100 group-hover:text-neutral-200 transition-colors line-clamp-2">
+                            {activeBook.title}
+                          </h3>
+                          {activeBook.description && (
+                            <p className="text-xs text-neutral-400 font-light leading-relaxed line-clamp-4 mt-2 font-serif">
+                              {activeBook.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 하단 상세 보기 바 */}
+                    <div className="mt-8 pt-4 border-t border-neutral-700/80 flex items-center justify-between text-xs text-neutral-400">
+                      <span className="text-neutral-400 font-light truncate">
+                        {activeBook.author ? `${activeBook.author} 지음` : ""}
                       </span>
-                    )}
-                  </div>
-
-                  {/* 본문 콘텐츠 */}
-                  <div className="flex gap-5 sm:gap-6 items-start">
-                    {/* 표지 이미지 (직각) */}
-                    <div className="w-32 sm:w-36 shrink-0 aspect-2/3 overflow-hidden bg-neutral-800 border border-neutral-700 shadow-md relative">
-                      <Image
-                        src={topBook.image || "/placeholder.jpg"}
-                        alt={topBook.title}
-                        fill
-                        sizes="(max-width: 640px) 128px, 144px"
-                        priority
-                        className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-                      />
+                      <span className="inline-flex items-center gap-1.5 text-neutral-300 group-hover:text-white font-medium shrink-0 ml-2">
+                        도서 상세 보기{" "}
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-300 ease-out" />
+                      </span>
                     </div>
-
-                    {/* 텍스트 영역 */}
-                    <div className="space-y-2 min-w-0">
-                      {topBook.author && (
-                        <span className="text-xs text-neutral-400 font-sans block truncate">
-                          {topBook.author}
-                        </span>
-                      )}
-                      <h3 className="font-serif text-xl sm:text-2xl font-bold leading-snug text-neutral-100 group-hover:text-neutral-200 transition-colors line-clamp-2">
-                        {topBook.title}
-                      </h3>
-                      {topBook.description && (
-                        <p className="text-xs text-neutral-400 font-light leading-relaxed line-clamp-4 mt-2 font-serif">
-                          {topBook.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* 하단 상세 보기 바 */}
-                <div className="mt-8 pt-4 border-t border-neutral-700/80 flex items-center justify-between text-xs text-neutral-400">
-                  <span className="text-neutral-400 font-light truncate">
-                    {topBook.author ? `${topBook.author} 지음` : ""}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 text-neutral-300 group-hover:text-white font-medium shrink-0 ml-2">
-                    도서 상세 보기{" "}
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-300 ease-out" />
-                  </span>
-                </div>
+                  </motion.div>
+                </AnimatePresence>
               </Link>
             </motion.div>
           )}
@@ -130,16 +155,23 @@ export const PopularBookSlider = () => {
           <div className="lg:col-span-3 flex flex-col gap-4">
             {secondaryBooks.map((book, idx) => {
               const rank = idx === 0 ? "02" : "03";
+              const isSelected = activeBook.isbn === book.isbn;
               return (
                 <motion.div
                   key={book.isbn}
                   whileHover={{ y: -3 }}
                   transition={{ type: "spring", stiffness: 350, damping: 25 }}
                   className="flex-1 flex"
+                  onMouseEnter={() => setHoveredBook(book)}
+                  onMouseLeave={() => setHoveredBook(null)}
                 >
                   <Link
                     href={PATHS.BOOK_DETAIL(book.isbn)}
-                    className="flex-1 p-5 bg-[#fafafa] border border-neutral-200 shadow-xs hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.08)] transition-shadow duration-300 flex gap-4 items-center group w-full"
+                    className={`flex-1 p-5 border transition-all duration-200 flex gap-4 items-center group w-full ${
+                      isSelected
+                        ? "bg-white border-neutral-400 shadow-md"
+                        : "bg-[#fafafa] border-neutral-200 shadow-xs hover:border-neutral-300"
+                    }`}
                   >
                     <div className="relative w-20 sm:w-22 aspect-2/3 shrink-0 overflow-hidden bg-neutral-100 border border-neutral-300">
                       <Image
@@ -187,22 +219,39 @@ export const PopularBookSlider = () => {
               <div className="divide-y divide-neutral-200">
                 {chartBooks.map((book, idx) => {
                   const rankNumber = String(idx + 4).padStart(2, "0");
+                  const isSelected = activeBook.isbn === book.isbn;
                   return (
                     <motion.div
                       key={book.isbn}
                       whileHover={{ x: 4 }}
                       transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      onMouseEnter={() => setHoveredBook(book)}
+                      onMouseLeave={() => setHoveredBook(null)}
                     >
                       <Link
                         href={PATHS.BOOK_DETAIL(book.isbn)}
-                        className="py-3 flex items-center justify-between gap-3 group px-1 transition-colors"
+                        className={`py-3 flex items-center justify-between gap-3 group px-2 transition-all ${
+                          isSelected ? "bg-white text-neutral-950 font-medium" : ""
+                        }`}
                       >
                         <div className="flex items-center gap-3.5 min-w-0">
-                          <span className="font-sans font-bold text-lg text-neutral-400 group-hover:text-neutral-950 transition-colors w-5 shrink-0">
+                          <span
+                            className={`font-sans text-lg w-5 shrink-0 transition-colors ${
+                              isSelected
+                                ? "font-black text-neutral-950"
+                                : "font-bold text-neutral-400 group-hover:text-neutral-900"
+                            }`}
+                          >
                             {rankNumber}
                           </span>
                           <div className="min-w-0">
-                            <p className="font-serif text-sm font-medium text-neutral-800 group-hover:text-neutral-950 transition-colors truncate">
+                            <p
+                              className={`font-serif text-sm truncate transition-colors ${
+                                isSelected
+                                  ? "text-neutral-950 font-semibold"
+                                  : "text-neutral-800 group-hover:text-neutral-950"
+                              }`}
+                            >
                               {book.title}
                             </p>
                             <p className="text-[11px] text-neutral-400 truncate">
@@ -211,7 +260,13 @@ export const PopularBookSlider = () => {
                             </p>
                           </div>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-neutral-300 group-hover:text-neutral-700 group-hover:translate-x-1 transition-all duration-200 shrink-0" />
+                        <ChevronRight
+                          className={`w-4 h-4 transition-all duration-200 shrink-0 ${
+                            isSelected
+                              ? "text-neutral-800 translate-x-1"
+                              : "text-neutral-300 group-hover:text-neutral-700 group-hover:translate-x-1"
+                          }`}
+                        />
                       </Link>
                     </motion.div>
                   );
