@@ -136,8 +136,8 @@ export const DefaultHeader = () => {
           {/* 04. 중고마켓 그룹 */}
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <Link
-                href={PATHS.BOOK_MARKET}
+              <button
+                type="button"
                 className={cn(
                   "group relative inline-flex items-center gap-1.5 py-1 text-sm font-medium transition-colors duration-200 outline-none cursor-pointer",
                   isActive(PATHS.BOOK_MARKET)
@@ -151,7 +151,7 @@ export const DefaultHeader = () => {
                   ▾
                 </span>
                 {isActive(PATHS.BOOK_MARKET) && <HandDrawnUnderline />}
-              </Link>
+              </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="center"
@@ -199,8 +199,8 @@ export const DefaultHeader = () => {
           {/* 05. 리뷰 그룹 */}
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <Link
-                href={PATHS.REVIEWS}
+              <button
+                type="button"
                 className={cn(
                   "group relative inline-flex items-center gap-1.5 py-1 text-sm font-medium transition-colors duration-200 outline-none cursor-pointer",
                   isActive(PATHS.REVIEWS)
@@ -214,7 +214,7 @@ export const DefaultHeader = () => {
                   ▾
                 </span>
                 {isActive(PATHS.REVIEWS) && <HandDrawnUnderline />}
-              </Link>
+              </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="center"
