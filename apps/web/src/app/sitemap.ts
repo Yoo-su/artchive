@@ -33,13 +33,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   staticPaths.forEach(({ path, changeFrequency, priority }) => {
     sitemapEntries.push({
       url: `${baseUrl}/${defaultLocale}${path}`,
-      lastModified: new Date(),
       changeFrequency,
       priority,
       alternates: {
         languages: {
           ko: `${baseUrl}/ko${path}`,
           en: `${baseUrl}/en${path}`,
+          "x-default": `${baseUrl}/ko${path}`,
         },
       },
     });
@@ -56,13 +56,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
       sitemapEntries.push({
         url: `${baseUrl}/${defaultLocale}/book/reviews/${review.id}`,
-        lastModified: new Date(review.updatedAt),
+        ...(review.updatedAt && { lastModified: new Date(review.updatedAt) }),
         changeFrequency: "weekly",
         priority: 0.7,
         alternates: {
           languages: {
             ko: `${baseUrl}/ko/book/reviews/${review.id}`,
             en: `${baseUrl}/en/book/reviews/${review.id}`,
+            "x-default": `${baseUrl}/ko/book/reviews/${review.id}`,
           },
         },
       });
@@ -80,13 +81,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
       sitemapEntries.push({
         url: `${baseUrl}/${defaultLocale}/book/sales/${sale.id}`,
-        lastModified: sale.updatedAt ? new Date(sale.updatedAt) : new Date(),
+        ...(sale.updatedAt && { lastModified: new Date(sale.updatedAt) }),
         changeFrequency: "daily",
         priority: 0.7,
         alternates: {
           languages: {
             ko: `${baseUrl}/ko/book/sales/${sale.id}`,
             en: `${baseUrl}/en/book/sales/${sale.id}`,
+            "x-default": `${baseUrl}/ko/book/sales/${sale.id}`,
           },
         },
       });
@@ -99,13 +101,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   bookIsbns.forEach((isbn) => {
     sitemapEntries.push({
       url: `${baseUrl}/${defaultLocale}/book/${isbn}/detail`,
-      lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.6,
       alternates: {
         languages: {
           ko: `${baseUrl}/ko/book/${isbn}/detail`,
           en: `${baseUrl}/en/book/${isbn}/detail`,
+          "x-default": `${baseUrl}/ko/book/${isbn}/detail`,
         },
       },
     });
