@@ -34,7 +34,7 @@ const commonRequestInterceptor = (
     if (typeof window !== "undefined") {
       config.baseURL = "/api";
     } else {
-      const origin = process.env.CLIENT_DOMAIN || "http://localhost:3000";
+      const origin = process.env.CLIENT_DOMAIN || "https://bookjeok.com";
       config.baseURL = `${origin}/api`;
     }
   }

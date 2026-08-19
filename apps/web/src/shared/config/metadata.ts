@@ -59,7 +59,7 @@ export const generateGlobalMetadata = (
       images: ["/logo-og-sketch.png"],
     },
     robots:
-      process.env.VERCEL_ENV !== "production"
+      process.env.VERCEL_ENV === "preview"
         ? { index: false, follow: false }
         : {
             index: true,
@@ -99,6 +99,9 @@ export const createPageMetadata = ({
   noIndex = false,
 }: CreatePageMetadataProps): Metadata => {
   const images = imageUrl ? [imageUrl] : ["/logo-og-sketch.png"];
+  const currentLocale = locale || "ko";
+  const cleanPath = path ? (path.startsWith("/") ? path : `/${path}`) : "";
+  const fullPath = `/${currentLocale}${cleanPath}`;
 
   const metadata: Metadata = {
     metadataBase: new URL("https://bookjeok.com"),
@@ -110,9 +113,7 @@ export const createPageMetadata = ({
       images,
       siteName: "Bookjeok",
       type: "website",
-      url: path
-        ? `https://bookjeok.com/${locale || "ko"}${path.startsWith("/") ? path : `/${path}`}`
-        : undefined,
+      url: path !== undefined ? `https://bookjeok.com${fullPath}` : undefined,
     },
     twitter: {
       card: imageUrl ? "summary_large_image" : "summary",
@@ -128,12 +129,9 @@ export const createPageMetadata = ({
     }),
   };
 
-  if (path) {
-    const cleanPath = path.startsWith("/") ? path : `/${path}`;
-    const currentLocale = locale || "ko";
-
+  if (path !== undefined) {
     metadata.alternates = {
-      canonical: `/${currentLocale}${cleanPath}`,
+      canonical: fullPath,
       languages: {
         ko: `/ko${cleanPath}`,
         en: `/en${cleanPath}`,

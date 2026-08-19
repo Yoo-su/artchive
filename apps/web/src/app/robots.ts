@@ -1,8 +1,8 @@
 import { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-  // Preview 환경(test.bookjeok.com 등)에서는 모든 크롤러 차단
-  if (process.env.VERCEL_ENV !== "production") {
+  // Preview 환경(test.bookjeok.com 등)에서만 크롤러 차단
+  if (process.env.VERCEL_ENV === "preview") {
     return {
       rules: [{ userAgent: "*", disallow: ["/"] }],
     };

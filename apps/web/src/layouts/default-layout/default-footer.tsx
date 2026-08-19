@@ -90,6 +90,14 @@ export const DefaultFooter = () => {
                   </li>
                   <li>
                     <Link
+                      href={PATHS.LOUNGE}
+                      className="hover:text-stone-800 transition-colors"
+                    >
+                      {tNav("menu_lounge")}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
                       href={PATHS.BOOK_MARKET}
                       className="hover:text-stone-800 transition-colors"
                     >
@@ -102,6 +110,14 @@ export const DefaultFooter = () => {
                       className="hover:text-stone-800 transition-colors"
                     >
                       {tNav("menu_reviews")}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href={PATHS.INSIGHTS}
+                      className="hover:text-stone-800 transition-colors"
+                    >
+                      {tNav("menu_insights")}
                     </Link>
                   </li>
                 </ul>
