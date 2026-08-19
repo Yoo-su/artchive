@@ -25,12 +25,6 @@ export const generateGlobalMetadata = (
     description: t("meta.description"),
     keywords: t("meta.keywords").split(","),
     alternates: {
-      canonical: "./",
-      languages: {
-        ko: "/ko",
-        en: "/en",
-        "x-default": "/ko",
-      },
       types: {
         "application/rss+xml": [
           { url: "/rss.xml", title: "북적 RSS 피드" },
