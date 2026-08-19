@@ -37,6 +37,8 @@ export interface ConversationalRagResult {
   };
 }
 
+const FALLBACK_MODEL_NAME = 'gemini-2.5-flash-lite';
+
 @Injectable()
 export class RagService {
   private readonly logger = new Logger(RagService.name);
@@ -136,12 +138,14 @@ export class RagService {
    * 1차 턴 실시간 스트리밍 의도 분류 제너레이터
    * - 일반 대화: 실시간 토큰(chunk) 즉시 yield (TTFB ~200ms)
    * - 도서 검색: function_call 감지 즉시 텍스트 스트리밍 중단 후 도구 인자 yield
+   * - 에러 발생 시: 텍스트에 에러 문구를 섞지 않고 'error' 타입 이벤트로 명확히 분리
    */
   async *processConversationalTurnStream(
     messages: ChatMessageDto[],
   ): AsyncGenerator<{
-    type: 'chunk' | 'function_call' | 'done';
+    type: 'chunk' | 'function_call' | 'done' | 'error';
     chunk?: string;
+    errorMessage?: string;
     searchQueryRequested?: string;
     targetCount?: number;
     preferredPublishers?: string[];
@@ -178,63 +182,77 @@ export class RagService {
         : messages;
     const history = this.buildGeminiHistory(trimmedMessages);
 
-    try {
-      const model = this.genAI.getGenerativeModel({
-        model: this.modelName,
-        systemInstruction: getConversationalSystemInstruction(),
-        tools: [this.getSearchBooksTool()],
-      });
-
-      const chat = model.startChat({ history });
-      const streamResult = await chat.sendMessageStream(lastMessage.content);
-
-      for await (const chunk of streamResult.stream) {
-        const call = chunk.functionCalls()?.[0];
-        if (call && call.name === 'search_books') {
-          const args = call.args as {
-            searchQuery?: string;
-            targetCount?: number;
-            preferredPublishers?: string[];
-            excludedKeywords?: string[];
-          };
-          yield {
-            type: 'function_call',
-            searchQueryRequested: args.searchQuery || lastMessage.content,
-            targetCount:
-              typeof args.targetCount === 'number' && args.targetCount > 0
-                ? Math.max(1, Math.min(args.targetCount, 10))
-                : 5,
-            preferredPublishers: Array.isArray(args.preferredPublishers)
-              ? args.preferredPublishers.filter(Boolean)
-              : [],
-            excludedKeywords: Array.isArray(args.excludedKeywords)
-              ? args.excludedKeywords.filter(Boolean)
-              : [],
-          };
-          return;
-        }
-
-        try {
-          const text = chunk.text();
-          if (text) {
-            yield { type: 'chunk', chunk: text };
-          }
-        } catch {
-          // Function calling 응답 청크는 text가 없을 수 있음
-        }
-      }
-
-      const response = await streamResult.response;
-      yield { type: 'done', usageMetadata: response.usageMetadata };
-    } catch (error) {
-      this.logger.error('Conversational Turn Streaming Error:', error);
-      yield {
-        type: 'chunk',
-        chunk:
-          '대화를 처리하는 도중 일시적인 오류가 발생했습니다. 잠시 후 다시 말씀해 주시겠어요?',
-      };
-      yield { type: 'done' };
+    const modelsToTry = [this.modelName];
+    if (this.modelName !== FALLBACK_MODEL_NAME) {
+      modelsToTry.push(FALLBACK_MODEL_NAME);
     }
+
+    let lastError: unknown = null;
+
+    for (const currentModelName of modelsToTry) {
+      try {
+        const model = this.genAI.getGenerativeModel({
+          model: currentModelName,
+          systemInstruction: getConversationalSystemInstruction(),
+          tools: [this.getSearchBooksTool()],
+        });
+
+        const chat = model.startChat({ history });
+        const streamResult = await chat.sendMessageStream(lastMessage.content);
+
+        for await (const chunk of streamResult.stream) {
+          const call = chunk.functionCalls()?.[0];
+          if (call && call.name === 'search_books') {
+            const args = call.args as {
+              searchQuery?: string;
+              targetCount?: number;
+              preferredPublishers?: string[];
+              excludedKeywords?: string[];
+            };
+            yield {
+              type: 'function_call',
+              searchQueryRequested: args.searchQuery || lastMessage.content,
+              targetCount:
+                typeof args.targetCount === 'number' && args.targetCount > 0
+                  ? Math.max(1, Math.min(args.targetCount, 10))
+                  : 5,
+              preferredPublishers: Array.isArray(args.preferredPublishers)
+                ? args.preferredPublishers.filter(Boolean)
+                : [],
+              excludedKeywords: Array.isArray(args.excludedKeywords)
+                ? args.excludedKeywords.filter(Boolean)
+                : [],
+            };
+            return;
+          }
+
+          try {
+            const text = chunk.text();
+            if (text) {
+              yield { type: 'chunk', chunk: text };
+            }
+          } catch {
+            // Function calling 응답 청크는 text가 없을 수 있음
+          }
+        }
+
+        const response = await streamResult.response;
+        yield { type: 'done', usageMetadata: response.usageMetadata };
+        return;
+      } catch (error) {
+        lastError = error;
+        this.logger.warn(
+          `Conversational Turn Streaming failed on model ${currentModelName}: ${error}`,
+        );
+      }
+    }
+
+    this.logger.error('Conversational Turn Streaming Fatal Error:', lastError);
+    yield {
+      type: 'error',
+      errorMessage:
+        '대화를 처리하는 도중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
+    };
   }
 
   /**
@@ -265,63 +283,77 @@ export class RagService {
         : messages;
     const history = this.buildGeminiHistory(trimmedMessages);
 
-    try {
-      const model = this.genAI.getGenerativeModel({
-        model: this.modelName,
-        systemInstruction: getConversationalSystemInstruction(),
-        tools: [this.getSearchBooksTool()],
-      });
+    const modelsToTry = [this.modelName];
+    if (this.modelName !== FALLBACK_MODEL_NAME) {
+      modelsToTry.push(FALLBACK_MODEL_NAME);
+    }
 
-      const chat = model.startChat({ history });
-      const result = await chat.sendMessage(lastMessage.content);
-      const call = result.response.functionCalls()?.[0];
+    let lastError: unknown = null;
 
-      if (!call || call.name !== 'search_books') {
-        const textResponse = result.response.text();
+    for (const currentModelName of modelsToTry) {
+      try {
+        const model = this.genAI.getGenerativeModel({
+          model: currentModelName,
+          systemInstruction: getConversationalSystemInstruction(),
+          tools: [this.getSearchBooksTool()],
+        });
+
+        const chat = model.startChat({ history });
+        const result = await chat.sendMessage(lastMessage.content);
+        const call = result.response.functionCalls()?.[0];
+
+        if (!call || call.name !== 'search_books') {
+          const textResponse = result.response.text();
+          return {
+            message:
+              textResponse.trim() ||
+              '요청하신 독서 취향이나 찾으시는 분위기를 조금만 더 말씀해 주시겠어요?',
+            books: [],
+            usageMetadata: result.response.usageMetadata,
+          };
+        }
+
+        const args = call.args as {
+          searchQuery?: string;
+          targetCount?: number;
+          preferredPublishers?: string[];
+          excludedKeywords?: string[];
+        };
+        const searchQueryRequested = args.searchQuery || lastMessage.content;
+        const targetCount =
+          typeof args.targetCount === 'number' && args.targetCount > 0
+            ? Math.max(1, Math.min(args.targetCount, 10))
+            : 5;
+        const preferredPublishers = Array.isArray(args.preferredPublishers)
+          ? args.preferredPublishers.filter(Boolean)
+          : [];
+        const excludedKeywords = Array.isArray(args.excludedKeywords)
+          ? args.excludedKeywords.filter(Boolean)
+          : [];
+
         return {
-          message:
-            textResponse.trim() ||
-            '요청하신 독서 취향이나 찾으시는 분위기를 조금만 더 말씀해 주시겠어요?',
+          message: '',
           books: [],
+          searchQueryRequested,
+          targetCount,
+          preferredPublishers,
+          excludedKeywords,
           usageMetadata: result.response.usageMetadata,
         };
+      } catch (error) {
+        lastError = error;
+        this.logger.warn(
+          `Conversational Turn failed on model ${currentModelName}: ${error}`,
+        );
       }
-
-      const args = call.args as {
-        searchQuery?: string;
-        targetCount?: number;
-        preferredPublishers?: string[];
-        excludedKeywords?: string[];
-      };
-      const searchQueryRequested = args.searchQuery || lastMessage.content;
-      const targetCount =
-        typeof args.targetCount === 'number' && args.targetCount > 0
-          ? Math.max(1, Math.min(args.targetCount, 10))
-          : 5;
-      const preferredPublishers = Array.isArray(args.preferredPublishers)
-        ? args.preferredPublishers.filter(Boolean)
-        : [];
-      const excludedKeywords = Array.isArray(args.excludedKeywords)
-        ? args.excludedKeywords.filter(Boolean)
-        : [];
-
-      return {
-        message: '',
-        books: [],
-        searchQueryRequested,
-        targetCount,
-        preferredPublishers,
-        excludedKeywords,
-        usageMetadata: result.response.usageMetadata,
-      };
-    } catch (error) {
-      this.logger.error('Conversational Turn Error:', error);
-      return {
-        message:
-          '대화를 처리하는 도중 일시적인 오류가 발생했습니다. 잠시 후 다시 말씀해 주시겠어요?',
-        books: [],
-      };
     }
+
+    this.logger.error('Conversational Turn Fatal Error:', lastError);
+    return {
+      message:
+        '대화를 처리하는 도중 일시적인 오류가 발생했습니다. 잠시 후 다시 말씀해 주시겠어요?',
+      books: [],
+    };
   }
 
   /**
@@ -376,49 +408,62 @@ export class RagService {
       required: ['message', 'recommendations'],
     };
 
-    try {
-      const model = this.genAI.getGenerativeModel({
-        model: this.modelName,
-        systemInstruction: getRAGSynthesisSystemInstruction(),
-        generationConfig: {
-          responseMimeType: 'application/json',
-          responseSchema: schema,
-          temperature: 0.3,
-        },
-      });
+    const modelsToTry = [this.modelName];
+    if (this.modelName !== FALLBACK_MODEL_NAME) {
+      modelsToTry.push(FALLBACK_MODEL_NAME);
+    }
 
-      const result = await model.generateContent(prompt);
-      const parsed = JSON.parse(result.response.text());
+    for (const currentModelName of modelsToTry) {
+      try {
+        const model = this.genAI.getGenerativeModel({
+          model: currentModelName,
+          systemInstruction: getRAGSynthesisSystemInstruction(),
+          generationConfig: {
+            responseMimeType: 'application/json',
+            responseSchema: schema,
+            temperature: 0.3,
+          },
+        });
 
-      const reasonMap = new Map<string, string>();
-      if (Array.isArray(parsed.recommendations)) {
-        for (const item of parsed.recommendations) {
-          if (item.isbn && item.reason) {
-            reasonMap.set(item.isbn, item.reason);
+        const result = await model.generateContent(prompt);
+        const parsed = JSON.parse(result.response.text());
+
+        const reasonMap = new Map<string, string>();
+        if (Array.isArray(parsed.recommendations)) {
+          for (const item of parsed.recommendations) {
+            if (item.isbn && item.reason) {
+              reasonMap.set(item.isbn, item.reason);
+            }
           }
         }
+
+        const validBooks = candidateBooks.map((b) => ({
+          ...b,
+          reason: reasonMap.get(b.isbn) || b.description.slice(0, 100),
+        }));
+
+        return {
+          message:
+            parsed.message ||
+            '요청하신 독서 취향과 맥락에 맞춰 엄선한 추천 도서들입니다. 각 도서의 추천 까닭을 확인해 보세요.',
+          books: validBooks,
+          usageMetadata: result.response.usageMetadata,
+        };
+      } catch (error) {
+        this.logger.warn(
+          `RAG Synthesis failed on model ${currentModelName}: ${error}`,
+        );
       }
-
-      const validBooks = candidateBooks.map((b) => ({
-        ...b,
-        reason: reasonMap.get(b.isbn) || b.description.slice(0, 100),
-      }));
-
-      return {
-        message:
-          parsed.message ||
-          '요청하신 독서 취향과 맥락에 맞춰 엄선한 추천 도서들입니다. 각 도서의 추천 까닭을 확인해 보세요.',
-        books: validBooks,
-        usageMetadata: result.response.usageMetadata,
-      };
-    } catch (error) {
-      this.logger.error('Unified Synthesis Error:', error);
-      return {
-        message:
-          '요청하신 독서 취향과 맥락에 맞춰 엄선한 추천 도서들입니다. 상단 도서 카드를 통해 자세한 정보를 확인해 보세요.',
-        books: candidateBooks,
-      };
     }
+
+    this.logger.error(
+      'RAG Synthesis all models failed, using fallback descriptions',
+    );
+    return {
+      message:
+        '요청하신 독서 취향과 맥락에 맞춰 엄선한 추천 도서들입니다. 상단 도서 카드를 통해 자세한 정보를 확인해 보세요.',
+      books: candidateBooks,
+    };
   }
 
   /**
@@ -439,33 +484,44 @@ export class RagService {
   }> {
     const prompt = buildParametricPrompt(messages, searchQuery, targetCount);
 
-    try {
-      const model = this.genAI.getGenerativeModel({
-        model: this.modelName,
-        systemInstruction: getParametricSystemInstruction(),
-        generationConfig: {
-          temperature: 0.4,
-        },
-      });
-
-      const result = await model.generateContentStream(prompt);
-      for await (const chunk of result.stream) {
-        const text = chunk.text();
-        if (text) {
-          yield { type: 'chunk', chunk: text };
-        }
-      }
-      const response = await result.response;
-      yield { type: 'done', usageMetadata: response.usageMetadata };
-    } catch (error) {
-      this.logger.error('Parametric Recommendation Streaming Error:', error);
-      yield {
-        type: 'chunk',
-        chunk:
-          '말씀하신 상황과 어울리는 도서를 추천해 드리고자 했으나 일시적인 오류가 발생했습니다. 잠시 후 다시 말씀해 주시겠어요?',
-      };
-      yield { type: 'done' };
+    const modelsToTry = [this.modelName];
+    if (this.modelName !== FALLBACK_MODEL_NAME) {
+      modelsToTry.push(FALLBACK_MODEL_NAME);
     }
+
+    for (const currentModelName of modelsToTry) {
+      try {
+        const model = this.genAI.getGenerativeModel({
+          model: currentModelName,
+          systemInstruction: getParametricSystemInstruction(),
+          generationConfig: {
+            temperature: 0.4,
+          },
+        });
+
+        const result = await model.generateContentStream(prompt);
+        for await (const chunk of result.stream) {
+          const text = chunk.text();
+          if (text) {
+            yield { type: 'chunk', chunk: text };
+          }
+        }
+        const response = await result.response;
+        yield { type: 'done', usageMetadata: response.usageMetadata };
+        return;
+      } catch (error) {
+        this.logger.warn(
+          `Parametric Recommendation Streaming failed on model ${currentModelName}: ${error}`,
+        );
+      }
+    }
+
+    yield {
+      type: 'chunk',
+      chunk:
+        '말씀하신 상황과 어울리는 도서를 추천해 드리고자 했으나 일시적인 오류가 발생했습니다. 잠시 후 다시 말씀해 주시겠어요?',
+    };
+    yield { type: 'done' };
   }
 
   /**
@@ -486,30 +542,40 @@ export class RagService {
   }> {
     const prompt = buildParametricPrompt(messages, searchQuery, targetCount);
 
-    try {
-      const model = this.genAI.getGenerativeModel({
-        model: this.modelName,
-        systemInstruction: getParametricSystemInstruction(),
-        generationConfig: {
-          temperature: 0.4,
-        },
-      });
-
-      const result = await model.generateContent(prompt);
-      return {
-        message:
-          result.response.text() ||
-          '요청하신 조건에 어울리는 추천 도서를 준비하지 못했습니다.',
-        books: [],
-        usageMetadata: result.response.usageMetadata,
-      };
-    } catch (error) {
-      this.logger.error('Parametric Recommendation Error:', error);
-      return {
-        message:
-          '도서 추천을 생성하는 도중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
-        books: [],
-      };
+    const modelsToTry = [this.modelName];
+    if (this.modelName !== FALLBACK_MODEL_NAME) {
+      modelsToTry.push(FALLBACK_MODEL_NAME);
     }
+
+    for (const currentModelName of modelsToTry) {
+      try {
+        const model = this.genAI.getGenerativeModel({
+          model: currentModelName,
+          systemInstruction: getParametricSystemInstruction(),
+          generationConfig: {
+            temperature: 0.4,
+          },
+        });
+
+        const result = await model.generateContent(prompt);
+        return {
+          message:
+            result.response.text() ||
+            '요청하신 조건에 어울리는 추천 도서를 준비하지 못했습니다.',
+          books: [],
+          usageMetadata: result.response.usageMetadata,
+        };
+      } catch (error) {
+        this.logger.warn(
+          `Parametric Recommendation failed on model ${currentModelName}: ${error}`,
+        );
+      }
+    }
+
+    return {
+      message:
+        '도서 추천을 생성하는 도중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
+      books: [],
+    };
   }
 }
