@@ -23,8 +23,8 @@ export const getJsonLd = (t: (key: string) => string, locale: string = "ko") => 
         logo: {
           "@type": "ImageObject",
           url: "https://bookjeok.com/logo-square-sketch.png",
-          width: "766",
-          height: "766",
+          width: "512",
+          height: "512",
           encodingFormat: "image/png",
         },
       },
