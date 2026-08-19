@@ -15,10 +15,13 @@ export const generateGlobalMetadata = (
     },
     icons: {
       icon: [
+        { url: "/favicon.ico", sizes: "any" },
         { url: "/logo-square-sketch.svg", type: "image/svg+xml" },
+        { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
         { url: "/logo-square-sketch.png", type: "image/png", sizes: "512x512" },
       ],
       apple: [
+        { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
         { url: "/logo-square-sketch.png", sizes: "512x512", type: "image/png" },
       ],
     },
