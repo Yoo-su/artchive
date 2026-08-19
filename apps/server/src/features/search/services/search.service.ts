@@ -53,13 +53,9 @@ export class SearchService {
     }
 
     try {
-      const lastUserMessage = messages[messages.length - 1]?.content ?? '';
-
-      // 1. Speculative Embedding: 1차 LLM 호출과 동시에 사용자 원문으로 임베딩 시작
-      const [turnResult, speculativeVector] = await Promise.all([
-        this.ragService.processConversationalTurn(messages),
-        this.embeddingService.generateQueryEmbedding(lastUserMessage),
-      ]);
+      // 1. 1차 의도 분류 및 도서 검색 여부 판단
+      const turnResult =
+        await this.ragService.processConversationalTurn(messages);
 
       if (turnResult.usageMetadata) {
         totalPromptTokens += turnResult.usageMetadata.promptTokenCount ?? 0;
@@ -68,7 +64,7 @@ export class SearchService {
         totalTokens += turnResult.usageMetadata.totalTokenCount ?? 0;
       }
 
-      // 1-A. 일반 대화/안내인 경우 (search_books 미호출)
+      // 1-A. 일반 대화/안내인 경우 (search_books 미호출 시 임베딩 API 호출 없이 즉시 반환)
       if (!turnResult.searchQueryRequested) {
         await this.logSuccess({
           userId,
@@ -89,13 +85,10 @@ export class SearchService {
         };
       }
 
-      // 2. 도서 검색 실행 (LLM 정제 쿼리 vs 원문 투기적 벡터)
-      const queryVector =
-        turnResult.searchQueryRequested !== lastUserMessage
-          ? await this.embeddingService.generateQueryEmbedding(
-              turnResult.searchQueryRequested,
-            )
-          : speculativeVector;
+      // 2. 도서 검색 실행 (LLM이 대화 맥락을 파악해 정제한 검색어로 임베딩 생성)
+      const queryVector = await this.embeddingService.generateQueryEmbedding(
+        turnResult.searchQueryRequested,
+      );
 
       const rawBooks = await this.vectorSearchService.searchSimilarBooks(
         queryVector,
@@ -242,6 +235,12 @@ export class SearchService {
           preferredPublishers = event.preferredPublishers || [];
           excludedKeywords = event.excludedKeywords || [];
           break;
+        } else if (event.type === 'error') {
+          sse.sendError(
+            event.errorMessage ||
+              '대화를 처리하는 도중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
+          );
+          return;
         } else if (event.type === 'done' && event.usageMetadata) {
           totalPromptTokens += event.usageMetadata.promptTokenCount ?? 0;
           totalCompletionTokens +=

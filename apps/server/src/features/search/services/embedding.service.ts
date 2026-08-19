@@ -64,6 +64,7 @@ export class EmbeddingService {
           taskType: 'RETRIEVAL_QUERY',
           outputDimensionality: 768,
         }),
+        signal: AbortSignal.timeout(8000),
       });
 
       if (!response.ok) {

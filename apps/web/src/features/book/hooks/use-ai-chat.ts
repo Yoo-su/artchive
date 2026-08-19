@@ -67,11 +67,19 @@ export const useAiChat = () => {
         // ~60fps 주기로 프레임마다 자연스러운 속도로 글자 증가
         if (elapsed >= 16) {
           lastTick = now;
-          let step = 1;
-          if (diff > 60) step = Math.ceil(diff / 6);
-          else if (diff > 25) step = Math.ceil(diff / 10);
-          else if (diff > 10) step = 2;
-          else step = 1;
+          let step = 2;
+          if (isStreamDoneRef.current) {
+            // 스트림이 이미 완료된 경우 잔여 버퍼를 신속하게 출력 (최대 1~2프레임 내 완료)
+            step = Math.max(8, Math.ceil(diff / 2));
+          } else if (diff > 50) {
+            step = Math.ceil(diff / 4);
+          } else if (diff > 20) {
+            step = Math.ceil(diff / 5);
+          } else if (diff > 8) {
+            step = 3;
+          } else {
+            step = 2;
+          }
 
           const nextLength = Math.min(currentLength + step, target.length);
           streamDisplayedLengthRef.current = nextLength;
@@ -271,20 +279,62 @@ export const useAiChat = () => {
             startSmoothDrain();
           },
           onError: (errMsg) => {
-            isStreamDoneRef.current = true;
-            streamTargetTextRef.current = errMsg;
-            startSmoothDrain();
+            if (rafIdRef.current) {
+              cancelAnimationFrame(rafIdRef.current);
+              rafIdRef.current = null;
+            }
+            streamTargetTextRef.current = "";
+            streamDisplayedLengthRef.current = 0;
+            isStreamDoneRef.current = false;
+            activeAiMessageIdRef.current = null;
+
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === aiMessageId
+                  ? {
+                      ...msg,
+                      isStreaming: false,
+                      content:
+                        errMsg ||
+                        "대화를 처리하는 도중 일시적인 오류가 발생했습니다. 잠시 후 다시 말씀해 주시겠어요?",
+                      statusMessage: undefined,
+                    }
+                  : msg,
+              ),
+            );
+            setLoading(false);
           },
         });
       } catch (error: any) {
         console.error("AI Chat Request Failed:", error);
-        isStreamDoneRef.current = true;
+        if (rafIdRef.current) {
+          cancelAnimationFrame(rafIdRef.current);
+          rafIdRef.current = null;
+        }
+        streamTargetTextRef.current = "";
+        streamDisplayedLengthRef.current = 0;
+        isStreamDoneRef.current = false;
+        activeAiMessageIdRef.current = null;
+
         const isUnauthorized =
           error?.message === "UNAUTHORIZED" || error?.response?.status === 401;
-        streamTargetTextRef.current = isUnauthorized
+        const errorContent = isUnauthorized
           ? "AI 도서 추천 기능은 로그인 후 이용하실 수 있는 회원 전용 서비스입니다."
           : "죄송합니다, 대화를 처리하는 중 일시적인 오류가 발생했습니다. 다시 말씀해 주시겠어요?";
-        startSmoothDrain();
+
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === aiMessageId
+              ? {
+                  ...msg,
+                  isStreaming: false,
+                  content: errorContent,
+                  statusMessage: undefined,
+                }
+              : msg,
+          ),
+        );
+        setLoading(false);
       }
     },
     [input, isLoggedIn, loading, messages, startSmoothDrain],
