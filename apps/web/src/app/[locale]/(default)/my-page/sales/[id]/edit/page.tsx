@@ -16,6 +16,7 @@ export async function generateMetadata({
   return createPageMetadata({
     title: t("title_edit"),
     description: md("description"),
+    noIndex: true,
   });
 }
 

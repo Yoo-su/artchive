@@ -45,4 +45,17 @@ describe("createPageMetadata (페이지별 메타데이터 생성 헬퍼)", () =
     expect(meta.openGraph?.images).toEqual(["https://example.com/custom.png"]);
     expect(meta.openGraph?.url).toBe("https://bookjeok.com/en/test-path");
   });
+
+  it("noIndex 옵션이 true일 경우 robots 설정에 index: false가 적용되어야 한다", () => {
+    const meta = createPageMetadata({
+      title: "비공개 페이지",
+      description: "비공개 설명",
+      noIndex: true,
+    });
+
+    expect(meta.robots).toEqual({
+      index: false,
+      follow: true,
+    });
+  });
 });

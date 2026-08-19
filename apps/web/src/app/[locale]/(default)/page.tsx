@@ -13,6 +13,7 @@ import { getRecentBookSales } from "@/features/book-sale/apis";
 import { getLoungePopular } from "@/features/reading-log/apis";
 import { getReviews } from "@/features/review/apis";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
+import { createPageMetadata } from "@/shared/config/metadata";
 import { HomeView } from "@/views/home-view";
 
 export const revalidate = 3600;
@@ -25,9 +26,12 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "meta" });
 
-  return {
+  return createPageMetadata({
+    title: t("default_title"),
     description: t("description"),
-  };
+    locale,
+    path: "",
+  });
 }
 
 export default async function Page({
