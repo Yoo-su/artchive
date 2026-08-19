@@ -226,15 +226,16 @@ export class SearchService {
       )) {
         if (!sse.isConnected) break;
 
-        if (event.type === 'chunk' && event.chunk) {
-          fullTextAccumulator += event.chunk;
-          sse.sendTextChunk(event.chunk);
-        } else if (event.type === 'function_call') {
+        if (event.type === 'function_call') {
           searchQueryRequested = event.searchQueryRequested || null;
           targetCount = event.targetCount || 5;
           preferredPublishers = event.preferredPublishers || [];
           excludedKeywords = event.excludedKeywords || [];
+          fullTextAccumulator = '';
           break;
+        } else if (event.type === 'chunk' && event.chunk) {
+          fullTextAccumulator += event.chunk;
+          sse.sendTextChunk(event.chunk);
         } else if (event.type === 'error') {
           sse.sendError(
             event.errorMessage ||

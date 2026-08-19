@@ -248,10 +248,16 @@ export const useAiChat = () => {
           messages: payloadMessages,
           accessToken,
           onSearching: (statusMsg) => {
+            if (rafIdRef.current) {
+              cancelAnimationFrame(rafIdRef.current);
+              rafIdRef.current = null;
+            }
+            streamTargetTextRef.current = "";
+            streamDisplayedLengthRef.current = 0;
             setMessages((prev) =>
               prev.map((msg) =>
                 msg.id === aiMessageId
-                  ? { ...msg, statusMessage: statusMsg }
+                  ? { ...msg, content: "", statusMessage: statusMsg }
                   : msg,
               ),
             );
