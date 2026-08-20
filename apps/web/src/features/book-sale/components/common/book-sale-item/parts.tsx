@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { ReactNode } from "react";
 
-import { BorderBeam } from "@/shared/components/magicui/border-beam";
 import {
   Avatar,
   AvatarFallback,
@@ -16,38 +15,47 @@ import { getProfileImageUrl } from "@/shared/utils/profile-image";
 import { SaleStatusBadge } from "../sale-status-badge";
 import { useBookSaleContext } from "./context";
 
-// 이미지 영역 - 전체 배경으로 사용
+// 이미지 영역 - 깔끔한 상단 직각 썸네일
 export const ImageArea = ({ className }: { className?: string }) => {
   const { sale, rank, priority } = useBookSaleContext();
+
+  const originalPrice = Number(sale.book?.discount);
+  const isDiscounted = originalPrice > 0 && sale.price < originalPrice;
+  const discountRate = isDiscounted
+    ? Math.round(((originalPrice - sale.price) / originalPrice) * 100)
+    : 0;
 
   return (
     <div
       className={cn(
-        "relative aspect-3/4 w-full overflow-hidden bg-stone-100",
+        "relative aspect-4/3 w-full overflow-hidden bg-neutral-100 border-b border-neutral-100",
         className,
       )}
     >
       <Image
-        src={sale.imageUrls[0] || "/images/placeholder-image.svg"}
+        src={sale.imageUrls[0] || sale.book?.image || "/images/placeholder-image.svg"}
         alt={sale.title}
         title={sale.title}
         fill
         priority={priority}
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
       />
 
-      {/* 하단 그라디언트 오버레이 */}
-      <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
-
-      {/* 호버 오버레이 */}
-      <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
-
-      {/* 순위 배지 - 좌상단 */}
+      {/* 좌상단 랭킹 배지 (있을 경우) */}
       {rank && (
-        <div className="absolute top-2 left-2">
-          <span className="text-xl font-bold text-white/90 drop-shadow-md">
+        <div className="absolute top-2 left-2 z-10">
+          <span className="px-2 py-0.5 bg-[#2C2C2C] text-white text-xs font-sans font-bold shadow-xs">
             {rank}
+          </span>
+        </div>
+      )}
+
+      {/* 좌하단 할인율 뱃지 (있을 경우) */}
+      {isDiscounted && discountRate > 0 && !rank && (
+        <div className="absolute bottom-2 left-2 z-10">
+          <span className="px-1.5 py-0.5 bg-[#2C2C2C] text-white text-[10px] font-sans font-bold shadow-xs">
+            -{discountRate}%
           </span>
         </div>
       )}
@@ -55,13 +63,13 @@ export const ImageArea = ({ className }: { className?: string }) => {
       {/* 상태 배지 - 우상단 */}
       <SaleStatusBadge
         status={sale.status}
-        className="absolute right-2 top-2 shadow-none border-none bg-black/50 text-white text-[10px]"
+        className="absolute right-2 top-2 z-10 shadow-xs text-[10px]"
       />
     </div>
   );
 };
 
-// 콘텐츠 영역 - 이미지 위 하단 오버레이로 표시
+// 콘텐츠 영역 - 하단 화이트 카드 영역
 export const Content = ({
   children,
   className,
@@ -70,7 +78,12 @@ export const Content = ({
   className?: string;
 }) => {
   return (
-    <div className={cn("absolute bottom-0 left-0 right-0 p-3 z-10", className)}>
+    <div
+      className={cn(
+        "p-3.5 sm:p-4 flex flex-col justify-between flex-1 bg-white space-y-2",
+        className,
+      )}
+    >
       {children}
     </div>
   );
@@ -80,56 +93,57 @@ export const Content = ({
 export const Title = ({ className }: { className?: string }) => {
   const { sale } = useBookSaleContext();
   return (
-    <h3
-      className={cn(
-        "line-clamp-1 text-sm font-semibold text-white leading-tight mb-0.5 drop-shadow-sm",
-        className,
+    <div>
+      <h3
+        className={cn(
+          "line-clamp-1 text-sm font-medium text-neutral-900 group-hover:text-neutral-600 transition-colors leading-snug",
+          className,
+        )}
+      >
+        {sale.title}
+      </h3>
+      {sale.book?.title && (
+        <p className="text-[11px] text-neutral-400 font-light truncate mt-0.5">
+          {sale.book.title}
+          {sale.book.author ? ` · ${sale.book.author}` : ""}
+        </p>
       )}
-    >
-      {sale.title}
-    </h3>
+    </div>
   );
 };
 
-// 가격
+// 가격 - 선명한 타이포그래피
 export const Price = ({ className }: { className?: string }) => {
   const t = useTranslations("common");
-  const tMarket = useTranslations("market.detail");
   const { sale } = useBookSaleContext();
 
-  const originalPrice = Number(sale.book.discount);
+  const originalPrice = Number(sale.book?.discount);
   const isDiscounted = originalPrice > 0 && sale.price < originalPrice;
-  const discountRate = isDiscounted
-    ? Math.round(((originalPrice - sale.price) / originalPrice) * 100)
-    : 0;
 
   return (
-    <div
-      className={cn(
-        "mb-1 flex flex-wrap items-center gap-x-2 gap-y-1",
-        className,
-      )}
-    >
-      <p className="text-[15px] font-black text-white drop-shadow-md line-clamp-1 break-all tracking-tighter">
+    <div className={cn("flex items-baseline gap-1.5", className)}>
+      <p className="text-base sm:text-lg font-bold text-neutral-900 tracking-tight leading-none">
         {sale.price.toLocaleString()}
-        <span className="text-xs font-bold ml-px">{t("won")}</span>
+        <span className="text-xs font-medium ml-0.5">{t("won")}</span>
       </p>
       {isDiscounted && (
-        <span className="text-[10px] sm:text-[11px] font-black text-stone-900 bg-white/95 px-1.5 py-0.5 rounded-sm shadow-sm tracking-tight leading-none">
-          -{discountRate}%
+        <span className="text-xs text-neutral-400 line-through font-light">
+          {originalPrice.toLocaleString()}
+          {t("won")}
         </span>
       )}
     </div>
   );
 };
 
-// 위치 정보
+// 위치 정보 (단독 컴포넌트 호출 시)
 export const Location = ({ className }: { className?: string }) => {
   const { sale } = useBookSaleContext();
+  if (!sale.city && !sale.district) return null;
   return (
     <div
       className={cn(
-        "flex items-center gap-1 text-[10px] text-white/70 mb-1",
+        "flex items-center gap-1 text-[11px] text-neutral-400 font-light",
         className,
       )}
     >
@@ -140,41 +154,42 @@ export const Location = ({ className }: { className?: string }) => {
   );
 };
 
-// 메타 정보
+// 메타 정보 - 판매자 아바타 & 지역 / 조회수
 export const Meta = ({ className }: { className?: string }) => {
   const { sale } = useBookSaleContext();
   return (
     <div
       className={cn(
-        "flex items-center justify-between pt-1.5 border-t border-white/20",
+        "flex items-center justify-between pt-2.5 border-t border-neutral-100 text-xs",
         className,
       )}
     >
-      <div className="flex items-center gap-1.5">
-        <Avatar className="h-4 w-4" data-nosnippet>
-          <AvatarImage src={getProfileImageUrl(sale.user.profileImageUrl)} />
-          <AvatarFallback className="text-[8px] bg-white/20 text-white">
-            {sale.user.nickname.slice(0, 1)}
+      <div className="flex items-center gap-1.5 min-w-0">
+        <Avatar className="h-4 w-4 shrink-0" data-nosnippet>
+          <AvatarImage src={getProfileImageUrl(sale.user?.profileImageUrl)} />
+          <AvatarFallback className="text-[8px] bg-neutral-200 text-neutral-700">
+            {sale.user?.nickname?.slice(0, 1) || "U"}
           </AvatarFallback>
         </Avatar>
-        <span className="text-[10px] text-white/70 truncate max-w-[80px]">
-          {sale.user.nickname}
+        <span className="text-[11px] text-neutral-600 truncate max-w-[85px]">
+          {sale.user?.nickname || "판매자"}
         </span>
       </div>
-      <span className="text-[10px] text-white/50">
-        {sale.viewCount?.toLocaleString() || 0} views
+      <span className="text-[10px] text-neutral-400 truncate max-w-[100px]">
+        {sale.city} {sale.district}
       </span>
     </div>
   );
 };
 
-// 효과 (BorderBeam)
+// 효과 - BorderBeam 제거 (안전한 빈 컴포넌트 유지)
 export const Effect = ({
-  duration = 8,
-  delay = 0,
+  duration: _duration,
+  delay: _delay,
 }: {
   duration?: number;
   delay?: number;
 }) => {
-  return <BorderBeam duration={duration} delay={delay} />;
+  return null;
 };
+

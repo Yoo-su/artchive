@@ -4,8 +4,16 @@ import { UsedBookSale } from "@bookjeok/core";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/shared/components/shadcn/avatar";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
+import { getProfileImageUrl } from "@/shared/utils/profile-image";
+
+import { SaleStatusBadge } from "../../common/sale-status-badge";
 
 interface RecentSaleCardProps {
   sale: UsedBookSale;
@@ -13,70 +21,101 @@ interface RecentSaleCardProps {
 }
 
 /**
- * 메인페이지 최신 중고책 슬라이더에서 사용되는 카드 컴포넌트
- * 배경 이미지 위에 판매 정보를 오버레이 표시
+ * 메인페이지 최신 중고책 슬라이더(모바일 뷰)에서 사용되는 카드 컴포넌트
  */
 export const RecentSaleCard = ({
   sale,
   priority = false,
 }: RecentSaleCardProps) => {
   const tCommon = useTranslations("common");
-  // 판매글 이미지 우선, 없으면 책 이미지 사용
-  const displayImage = sale.imageUrls[0] || sale.book?.image;
+  const displayImage = sale.imageUrls[0] || sale.book?.image || "/images/placeholder-image.svg";
+
+  const originalPrice = Number(sale.book?.discount);
+  const isDiscounted = originalPrice > 0 && sale.price < originalPrice;
+  const discountRate = isDiscounted
+    ? Math.round(((originalPrice - sale.price) / originalPrice) * 100)
+    : 0;
 
   return (
     <Link
       href={PATHS.BOOK_SALES_DETAIL(String(sale.id))}
-      className="group block w-full"
+      className="group block w-full h-full"
       passHref
     >
-      <div className="relative w-[200px] h-[280px] overflow-hidden transition-all duration-500 ease-out hover:shadow-lg hover:-translate-y-0.5">
-        {/* 배경 이미지 */}
-        <Image
-          src={displayImage || "/images/placeholder-book.svg"}
-          alt={sale.title}
-          fill
-          sizes="200px"
-          priority={priority}
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-        />
+      <div className="w-[200px] h-full bg-white border border-neutral-200 overflow-hidden flex flex-col justify-between transition-all duration-300 group-hover:border-neutral-400 group-hover:shadow-md">
+        {/* 상단 이미지 영역 */}
+        <div className="relative aspect-4/3 w-full bg-neutral-100 overflow-hidden border-b border-neutral-100">
+          <Image
+            src={displayImage}
+            alt={sale.title}
+            fill
+            sizes="200px"
+            priority={priority}
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+          />
 
-        {/* 그라데이션 오버레이 */}
-        <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/30 to-transparent" />
-
-        {/* 가격 */}
-        <div className="absolute top-3 right-3">
-          <span className="text-[11px] font-medium text-white/90">
-            {sale.price.toLocaleString()}
-            {tCommon("won")}
-          </span>
-        </div>
-
-        {/* 하단 정보 영역 */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-          {/* 판매글 제목 */}
-          <h3 className="text-sm font-semibold leading-snug line-clamp-2 drop-shadow-sm mb-1.5">
-            {sale.title}
-          </h3>
-
-          {/* 책 제목 */}
-          <p className="text-[11px] text-white/60 truncate font-light mb-1">
-            {sale.book?.title}
-          </p>
-
-          {/* 저자 */}
-          {sale.book?.author && (
-            <p className="text-[10px] text-white/40 truncate font-light mb-2">
-              {sale.book.author}
-            </p>
+          {/* 할인율 뱃지 */}
+          {isDiscounted && discountRate > 0 && (
+            <div className="absolute bottom-2 left-2 z-10">
+              <span className="px-1.5 py-0.5 bg-[#2C2C2C] text-white text-[10px] font-sans font-bold shadow-xs">
+                -{discountRate}%
+              </span>
+            </div>
           )}
 
-          {/* 위치 정보 */}
-          <p className="text-[10px] text-white/50 truncate font-light">
-            {sale.city} {sale.district}
-          </p>
+          {/* 판매 상태 뱃지 */}
+          <SaleStatusBadge
+            status={sale.status}
+            className="absolute right-2 top-2 z-10 shadow-xs text-[10px]"
+          />
+        </div>
+
+        {/* 하단 텍스트 및 정보 영역 */}
+        <div className="p-3.5 flex flex-col justify-between flex-1 space-y-2">
+          <div>
+            <h3 className="text-xs font-medium text-neutral-900 leading-snug line-clamp-1 group-hover:text-neutral-600 transition-colors">
+              {sale.title}
+            </h3>
+            {sale.book?.title && (
+              <p className="text-[10px] text-neutral-400 font-light truncate mt-0.5">
+                {sale.book.title}
+              </p>
+            )}
+          </div>
+
+          {/* 가격 */}
+          <div className="flex items-baseline gap-1">
+            <span className="text-base font-bold text-neutral-900 tracking-tight">
+              {sale.price.toLocaleString()}
+              <span className="text-xs font-medium ml-0.5">{tCommon("won")}</span>
+            </span>
+            {isDiscounted && (
+              <span className="text-[10px] text-neutral-400 line-through font-light">
+                {originalPrice.toLocaleString()}원
+              </span>
+            )}
+          </div>
+
+          {/* 판매자 및 지역 푸터 */}
+          <div className="flex items-center justify-between pt-2 border-t border-neutral-100 text-xs">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Avatar className="h-3.5 w-3.5 shrink-0" data-nosnippet>
+                <AvatarImage src={getProfileImageUrl(sale.user?.profileImageUrl)} />
+                <AvatarFallback className="text-[7px] bg-neutral-200 text-neutral-700">
+                  {sale.user?.nickname?.slice(0, 1) || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-[10px] text-neutral-600 truncate max-w-[70px]">
+                {sale.user?.nickname || "판매자"}
+              </span>
+            </div>
+            <span className="text-[9px] text-neutral-400 truncate max-w-[80px]">
+              {sale.city} {sale.district}
+            </span>
+          </div>
         </div>
       </div>
     </Link>
   );
 };
+

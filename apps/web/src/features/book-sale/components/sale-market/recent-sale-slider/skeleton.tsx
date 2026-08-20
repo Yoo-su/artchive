@@ -4,22 +4,36 @@ import { Skeleton } from "@/shared/components/shadcn/skeleton";
 export const RecentSalesSliderSkeleton = () => {
   return (
     <div className="w-full overflow-hidden px-4">
-      <div className="flex gap-6 justify-center animate-pulse">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div
-            key={i}
-            className="shrink-0 w-[200px] h-[280px] bg-stone-200 overflow-hidden relative"
-          >
-            {/* 하단 텍스트 영역 */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
-              <Skeleton className="h-4 w-4/5 bg-stone-300/50" />
-              <Skeleton className="h-3 w-3/5 bg-stone-300/30" />
-              <Skeleton className="h-2.5 w-2/5 bg-stone-300/20" />
-              <Skeleton className="h-2.5 w-1/2 bg-stone-300/20 mt-1" />
+      {/* PC 뷰 스켈레톤 */}
+      <div className="hidden md:block w-full h-[460px] lg:h-[520px] bg-[#1a1a1a] border border-neutral-800 animate-pulse relative overflow-hidden">
+        <div className="absolute top-6 left-6 space-y-2">
+          <Skeleton className="h-6 w-44 bg-neutral-800" />
+          <Skeleton className="h-4 w-72 bg-neutral-800/60" />
+        </div>
+      </div>
+
+      {/* 모바일 뷰 스켈레톤 */}
+      <div className="block md:hidden">
+        <div className="flex gap-4 overflow-hidden py-2 animate-pulse">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div
+              key={i}
+              className="shrink-0 w-[200px] bg-white border border-neutral-200 overflow-hidden"
+            >
+              <div className="aspect-4/3 w-full bg-neutral-100" />
+              <div className="p-3.5 space-y-2">
+                <Skeleton className="h-3.5 w-4/5 bg-neutral-200" />
+                <Skeleton className="h-4 w-1/2 bg-neutral-200" />
+                <div className="flex justify-between pt-2 border-t border-neutral-100">
+                  <Skeleton className="h-3 w-16 bg-neutral-100" />
+                  <Skeleton className="h-3 w-12 bg-neutral-100" />
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
 };
+
