@@ -417,4 +417,13 @@ export class UserService implements OnModuleInit {
   async updateLastActiveAt(userId: number): Promise<void> {
     await this.userRepository.update(userId, { lastActiveAt: new Date() });
   }
+
+  /**
+   * 토큰 버전을 1 증가시켜 기존 발급된 모든 Refresh Token을 무효화합니다.
+   * @param userId 유저 ID
+   */
+  async incrementTokenVersion(userId: number): Promise<void> {
+    await this.userRepository.increment({ id: userId }, 'tokenVersion', 1);
+  }
 }
+

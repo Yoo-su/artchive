@@ -1,11 +1,16 @@
+import * as crypto from 'node:crypto';
+
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   ConflictException,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { Cache } from 'cache-manager';
 
 import { User } from '@/features/user/entities/user.entity';
 import { UserService } from '@/features/user/services/user.service';
@@ -20,6 +25,7 @@ export class AuthService {
     private configService: ConfigService,
     private userService: UserService,
     private jwtService: JwtService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
   /**
@@ -83,16 +89,18 @@ export class AuthService {
   }
 
   /**
-   * 유저 ID와 닉네임, 권한을 기반으로 Access Token과 Refresh Token을 생성합니다.
+   * 유저 ID와 닉네임, 권한, 토큰 버전을 기반으로 Access Token과 Refresh Token을 생성합니다.
    * @param userId 유저 ID
    * @param userNickname 유저 닉네임
    * @param role 유저 권한
+   * @param tokenVersion 토큰 버전 (무효화용)
    * @returns Access Token과 Refresh Token
    */
   async getTokens(
     userId: number,
     userNickname: string,
     role: 'USER' | 'ADMIN',
+    tokenVersion: number = 0,
   ) {
     const jwtSecret = this.configService.get<string>('JWT_SECRET');
     const jwtRefreshSecret =
@@ -104,13 +112,24 @@ export class AuthService {
       );
     }
 
-    const payload: JwtPayload = { sub: userId, nickname: userNickname, role };
+    const accessPayload: JwtPayload = {
+      sub: userId,
+      nickname: userNickname,
+      role,
+    };
+    const refreshPayload: JwtPayload = {
+      sub: userId,
+      nickname: userNickname,
+      role,
+      tokenVersion,
+    };
+
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(payload, {
+      this.jwtService.signAsync(accessPayload, {
         secret: jwtSecret,
         expiresIn: TOKEN_EXPIRY.ACCESS_TOKEN,
       }),
-      this.jwtService.signAsync(payload, {
+      this.jwtService.signAsync(refreshPayload, {
         secret: jwtRefreshSecret,
         expiresIn: TOKEN_EXPIRY.REFRESH_TOKEN,
       }),
@@ -128,6 +147,7 @@ export class AuthService {
       user.id,
       user.nickname,
       user.role,
+      user.tokenVersion ?? 0,
     );
 
     // 마지막 활동 시간 업데이트
@@ -137,17 +157,87 @@ export class AuthService {
   }
 
   /**
+   * 소셜 로그인 완료 후 URL에 JWT를 노출하지 않기 위해 1회용 인증 티켓(Code)을 생성합니다.
+   * @param user 인증된 유저 엔티티
+   * @returns 60초간 유효한 1회용 티켓 문자열
+   */
+  async createAuthTicket(user: User): Promise<string> {
+    const { accessToken, refreshToken, user: loggedInUser } =
+      await this.socialLogin(user);
+
+    const safeUser = {
+      id: loggedInUser.id,
+      nickname: loggedInUser.nickname,
+      handle: loggedInUser.handle,
+      profileImageUrl: loggedInUser.profileImageUrl,
+      role: loggedInUser.role,
+      isReadingLogPublic: loggedInUser.isReadingLogPublic,
+    };
+
+    const ticket = crypto.randomUUID();
+    const payload = {
+      accessToken,
+      refreshToken,
+      user: safeUser,
+    };
+
+    // 60초 TTL로 임시 저장
+    await this.cacheManager.set(`auth_ticket:${ticket}`, payload, 60000);
+    return ticket;
+  }
+
+  /**
+   * 1회용 인증 티켓을 검증하고 즉시 소모(삭제)하여 토큰 정보를 교환합니다.
+   * @param ticket 1회용 인증 티켓
+   */
+  async exchangeTicket(ticket: string) {
+    if (!ticket) {
+      throw new UnauthorizedException('INVALID_OR_EXPIRED_TICKET');
+    }
+
+    const cacheKey = `auth_ticket:${ticket}`;
+    const payload = await this.cacheManager.get<{
+      accessToken: string;
+      refreshToken: string;
+      user: Record<string, unknown>;
+    }>(cacheKey);
+
+    if (!payload) {
+      throw new UnauthorizedException('INVALID_OR_EXPIRED_TICKET');
+    }
+
+    // 1회용 소모 (재사용 방지를 위해 즉시 삭제)
+    await this.cacheManager.del(cacheKey);
+    return payload;
+  }
+
+  /**
    * Refresh Token을 사용하여 새로운 토큰을 발급합니다.
    * @param userId 유저 ID
    * @param nickname 유저 닉네임
    * @param role 유저 권한
+   * @param tokenVersion 현재 유저의 토큰 버전
    * @returns 새로운 Access Token과 Refresh Token
    */
-  async refresh(userId: number, nickname: string, role: 'USER' | 'ADMIN') {
+  async refresh(
+    userId: number,
+    nickname: string,
+    role: 'USER' | 'ADMIN',
+    tokenVersion: number = 0,
+  ) {
     // 토큰 갱신 시 마지막 활동 시간도 업데이트
     await this.userService.updateLastActiveAt(userId);
-    return await this.getTokens(userId, nickname, role);
+    return await this.getTokens(userId, nickname, role, tokenVersion);
   }
+
+  /**
+   * 사용자의 토큰 버전을 증가시켜 기존 발급된 모든 Refresh Token을 즉시 무효화(로그아웃)합니다.
+   * @param userId 유저 ID
+   */
+  async logout(userId: number): Promise<void> {
+    await this.userService.incrementTokenVersion(userId);
+  }
+
 
   /**
    * 이메일 회원가입을 처리합니다.

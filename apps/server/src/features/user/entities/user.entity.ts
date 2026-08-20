@@ -61,6 +61,10 @@ export class User {
   @Column({ type: 'varchar', default: 'USER' })
   role: 'USER' | 'ADMIN';
 
+  @Column({ default: 0 })
+  tokenVersion: number;
+
+
   @OneToMany(() => UsedBookSale, (sale) => sale.user)
   usedBookSales: UsedBookSale[];
 
