@@ -69,7 +69,7 @@ function drawRoundedRect(
  * 2D 좌표 (col, row)에 대해 무작위성과 고른 분산을 보장하고,
  * 가로/세로 인접 셀 간 동일 이미지 중복을 수학적으로 방지하는 결정론적 인덱스 계산기
  */
-function getCellIndex(col: number, row: number, total: number): number {
+export function getCellIndex(col: number, row: number, total: number): number {
   if (total <= 1) return 0;
   if (total === 2) {
     const c = ((col % 2) + 2) % 2;
