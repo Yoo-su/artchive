@@ -121,10 +121,15 @@ export const deleteBookSale = async (saleId: number) => {
 };
 
 /**
- * 최근 등록된 중고책 판매글 목록을 조회합니다.
+ * 최근 등록된 중고책 판매글 목록을 조회합니다. (기본 25개)
  */
-export const getRecentBookSales = async (): Promise<UsedBookSale[]> => {
-  const { data } = await publicApiClient.get<UsedBookSale[]>(API_PATHS.book.recentSales);
+export const getRecentBookSales = async (
+  limit: number = 25,
+): Promise<UsedBookSale[]> => {
+  const { data } = await publicApiClient.get<UsedBookSale[]>(
+    API_PATHS.book.recentSales,
+    { params: { limit: String(limit) } },
+  );
   return data;
 };
 

@@ -124,10 +124,10 @@ export const useRelatedSalesQuery = ({
 /**
  * 최근 판매글 목록
  */
-export const useRecentBookSalesQuery = () => {
+export const useRecentBookSalesQuery = (limit: number = 25) => {
   return useQuery({
-    queryKey: bookSaleKeys.recentSales.queryKey,
-    queryFn: () => getRecentBookSales(),
+    queryKey: [...bookSaleKeys.recentSales.queryKey, limit],
+    queryFn: () => getRecentBookSales(limit),
   });
 };
 

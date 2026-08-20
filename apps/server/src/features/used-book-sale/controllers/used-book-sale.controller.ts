@@ -120,8 +120,10 @@ export class UsedBookSaleController {
     description: '최근 등록된 판매글 목록을 조회합니다.',
   })
   @ApiResponse({ status: 200, description: '최근 판매글 목록을 반환합니다.' })
-  async getRecentSales() {
-    return await this.usedBookSaleService.findRecentSales();
+  async getRecentSales(@Query('limit') limit?: number) {
+    return await this.usedBookSaleService.findRecentSales(
+      limit ? Number(limit) : 25,
+    );
   }
 
   @Get('sales/popular')
