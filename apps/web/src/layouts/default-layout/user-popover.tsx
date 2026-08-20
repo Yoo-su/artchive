@@ -1,5 +1,6 @@
 "use client";
 
+import { logout } from "@bookjeok/api-client";
 import { User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -35,11 +36,19 @@ export default function UserPopover() {
     setIsOpen(false);
   }, [pathname]);
 
-  const handleLogout = () => {
-    clearAuth();
-    router.push(PATHS.HOME);
-    toast.success(tAuth("logout_success"));
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (e) {
+      // 서버 로그아웃 실패 시에도 클라이언트 상태는 안전하게 정리
+      console.warn("Server logout notification failed:", e);
+    } finally {
+      clearAuth();
+      router.push(PATHS.HOME);
+      toast.success(tAuth("logout_success"));
+    }
   };
+
 
   if (!user) return null;
 

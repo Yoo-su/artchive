@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Response } from 'express';
 
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
@@ -38,32 +39,19 @@ export class AuthController {
   @UseGuards(AuthGuard('naver'))
   @ApiOperation({
     summary: '네이버 로그인 콜백',
-    description: '네이버 로그인 후 콜백을 처리합니다.',
+    description: '네이버 로그인 후 1회용 인증 티켓을 발급하여 클라이언트로 리다이렉트합니다.',
   })
   @ApiResponse({
     status: 302,
     description: '로그인 성공 후 클라이언트로 리다이렉트됩니다.',
   })
   async naverLoginCallback(@CurrentUser() user: User, @Res() res: Response) {
-    const {
-      accessToken,
-      refreshToken,
-      user: userInfo,
-    } = await this.authService.socialLogin(user);
+    const ticket = await this.authService.createAuthTicket(user);
 
-    const safeUser = {
-      id: userInfo.id,
-      nickname: userInfo.nickname,
-      handle: userInfo.handle,
-      profileImageUrl: userInfo.profileImageUrl,
-      role: userInfo.role,
-      isReadingLogPublic: userInfo.isReadingLogPublic,
-    };
-
-    const url = new URL(`${this.configService.get('CLIENT_DOMAIN')}/callback`);
-    url.searchParams.set('accessToken', accessToken);
-    url.searchParams.set('refreshToken', refreshToken);
-    url.searchParams.set('user', JSON.stringify(safeUser));
+    const clientDomain =
+      this.configService.get<string>('CLIENT_DOMAIN') ?? 'http://localhost:3000';
+    const url = new URL(`${clientDomain}/callback`);
+    url.searchParams.set('ticket', ticket);
     return res.redirect(url.toString());
   }
 
@@ -83,36 +71,42 @@ export class AuthController {
   @UseGuards(AuthGuard('kakao'))
   @ApiOperation({
     summary: '카카오 로그인 콜백',
-    description: '카카오 로그인 후 콜백을 처리합니다.',
+    description: '카카오 로그인 후 1회용 인증 티켓을 발급하여 클라이언트로 리다이렉트합니다.',
   })
   @ApiResponse({
     status: 302,
     description: '로그인 성공 후 클라이언트로 리다이렉트됩니다.',
   })
   async kakaoLoginCallback(@CurrentUser() user: User, @Res() res: Response) {
-    const {
-      accessToken,
-      refreshToken,
-      user: userInfo,
-    } = await this.authService.socialLogin(user);
+    const ticket = await this.authService.createAuthTicket(user);
 
-    const safeUser = {
-      id: userInfo.id,
-      nickname: userInfo.nickname,
-      handle: userInfo.handle,
-      profileImageUrl: userInfo.profileImageUrl,
-      role: userInfo.role,
-      isReadingLogPublic: userInfo.isReadingLogPublic,
-    };
-
-    const url = new URL(`${this.configService.get('CLIENT_DOMAIN')}/callback`);
-    url.searchParams.set('accessToken', accessToken);
-    url.searchParams.set('refreshToken', refreshToken);
-    url.searchParams.set('user', JSON.stringify(safeUser));
+    const clientDomain =
+      this.configService.get<string>('CLIENT_DOMAIN') ?? 'http://localhost:3000';
+    const url = new URL(`${clientDomain}/callback`);
+    url.searchParams.set('ticket', ticket);
     return res.redirect(url.toString());
   }
 
+  @Post('exchange')
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @ApiOperation({
+    summary: '1회용 인증 티켓 교환',
+    description: '소셜 로그인 후 발급된 1회용 인증 티켓을 Access/Refresh Token으로 교환합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '토큰 및 사용자 정보를 반환합니다.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않거나 만료된 티켓입니다.',
+  })
+  async exchangeTicket(@Body('ticket') ticket: string) {
+    return await this.authService.exchangeTicket(ticket);
+  }
+
   @Post('refresh')
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @UseGuards(AuthGuard('jwt-refresh'))
   @ApiOperation({
     summary: '토큰 갱신',
@@ -127,12 +121,33 @@ export class AuthController {
     description: '유효하지 않은 Refresh Token입니다.',
   })
   async refresh(@CurrentUser() user: User) {
-    const { id: userId, nickname, role } = user;
-    const tokens = await this.authService.refresh(userId, nickname, role);
+    const { id: userId, nickname, role, tokenVersion } = user;
+    const tokens = await this.authService.refresh(
+      userId,
+      nickname,
+      role,
+      tokenVersion ?? 0,
+    );
     return tokens;
   }
 
+  @Post('logout')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({
+    summary: '로그아웃',
+    description: '사용자의 토큰 버전을 증가시켜 기존 Refresh Token을 즉시 무효화합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '로그아웃 성공',
+  })
+  async logout(@CurrentUser() user: User) {
+    await this.authService.logout(user.id);
+    return { success: true };
+  }
+
   @Post('signup')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @TrackActivity(ActivityType.REGISTER)
   @ApiOperation({
     summary: '이메일 회원가입',
@@ -143,6 +158,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @TrackActivity(ActivityType.LOGIN)
   @ApiOperation({
     summary: '이메일 로그인',
@@ -152,3 +168,4 @@ export class AuthController {
     return await this.authService.login(loginDto);
   }
 }
+

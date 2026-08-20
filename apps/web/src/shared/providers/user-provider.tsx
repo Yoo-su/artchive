@@ -5,17 +5,22 @@ import { usePathname } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { saveReturnUrl } from "@/features/auth/utils/return-url";
 import { FullScreenLoader } from "@/shared/components/ui/full-screen-loader";
+import { useRouter } from "@/shared/config/i18n/routing";
+import { PATHS } from "@/shared/constants/paths";
 
-interface UesrProviderProps {
+interface UserProviderProps {
   children: ReactNode;
 }
-export default function UserProvider({ children }: UesrProviderProps) {
+
+export default function UserProvider({ children }: UserProviderProps) {
   const setUser = useAuthStore((state) => state.setUser);
   const accessToken = useAuthStore((state) => state.accessToken);
   const [isHydrated, setIsHydrated] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     setIsHydrated(true);
@@ -52,8 +57,19 @@ export default function UserProvider({ children }: UesrProviderProps) {
     );
   };
 
-  const shouldBlock = isPrivateRoute(pathname) && (isLoading || !isHydrated);
+  useEffect(() => {
+    if (isHydrated && !isLoading && !accessToken && isPrivateRoute(pathname)) {
+      if (pathname) {
+        saveReturnUrl(pathname);
+      }
+      router.replace(PATHS.LOGIN);
+    }
+  }, [isHydrated, isLoading, accessToken, pathname, router]);
+
+  const shouldBlock =
+    isPrivateRoute(pathname) && (isLoading || !isHydrated || !accessToken);
 
   if (shouldBlock) return <FullScreenLoader />;
   return <>{children}</>;
 }
+

@@ -27,6 +27,16 @@ export class JwtRefreshStrategy extends PassportStrategy(
     if (!user || user.deletedAt) {
       throw new UnauthorizedException('User not found or deactivated.');
     }
+
+    // 발급 시점의 tokenVersion과 현재 DB의 tokenVersion이 다르면(로그아웃 또는 무효화된 토큰) 거부
+    if (
+      payload.tokenVersion !== undefined &&
+      user.tokenVersion !== payload.tokenVersion
+    ) {
+      throw new UnauthorizedException('Token has been revoked or logged out.');
+    }
+
     return user;
   }
+
 }
