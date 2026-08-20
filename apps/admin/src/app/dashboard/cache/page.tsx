@@ -1,8 +1,10 @@
 "use client";
 
+import { getErrorMessage } from "@bookjeok/api-client";
 import axios from "axios";
-import { AlertTriangle,CheckCircle, Loader2, RefreshCw, Send } from "lucide-react";
+import { AlertTriangle, CheckCircle, Loader2, RefreshCw, Send } from "lucide-react";
 import { useState } from "react";
+
 
 import { AdminLayout } from "../../../layouts/admin-layout";
 
@@ -64,12 +66,13 @@ export default function CacheControlPage() {
       setStatus({
         path,
         success: false,
-        msg: err.response?.data?.message || "캐시 갱신 중 에러가 발생했습니다.",
+        msg: getErrorMessage(err, "캐시 갱신 중 에러가 발생했습니다."),
       });
     } finally {
       setLoadingPath(null);
     }
   };
+
 
   const handleCustomSubmit = (e: React.FormEvent) => {
     e.preventDefault();

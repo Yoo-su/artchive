@@ -22,6 +22,8 @@ import {
 import { Input } from "@/shared/components/shadcn/input";
 import { config } from "@/shared/config/env";
 import { Link, useRouter } from "@/shared/config/i18n/routing";
+import { getErrorMessage } from "@/shared/utils/error-handler";
+
 
 export const LoginForm = () => {
   const t = useTranslations("auth.login");
@@ -120,7 +122,7 @@ function EmailLoginForm() {
       router.push(returnUrl || "/");
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 401) {
-        const message = error.response.data?.message;
+        const message = getErrorMessage(error, "");
         if (message === "SOCIAL_LOGIN_USER") {
           form.setError("root", {
             message: t("error.social_login_user"),
