@@ -44,8 +44,8 @@ export default async function Page({
 
   const queries = [
     {
-      queryKey: bookSaleKeys.recentSales.queryKey,
-      queryFn: getRecentBookSales,
+      queryKey: bookSaleKeys.recentSales(25).queryKey,
+      queryFn: () => getRecentBookSales(25),
     },
     {
       queryKey: bookKeys.popularBooks.queryKey,

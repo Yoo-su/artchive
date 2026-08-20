@@ -25,6 +25,8 @@ export const bookSaleKeys = createQueryKeys("bookSale", {
   saleForEdit: (saleId: string | number) => ({
     queryKey: ["edit", saleId],
   }),
-  recentSales: null,
+  recentSales: (limit: number = 25) => ({
+    queryKey: [limit],
+  }),
   availableRegions: null,
 });
