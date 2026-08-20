@@ -1,156 +1,64 @@
-# 📚 bookjeok Frontend
+# 📚 @bookjeok/web (Frontend)
 
-**Next.js 15 & React 19** 기반의 모던 웹 애플리케이션 프론트엔드입니다.
-문화 예술 정보 탐색, 중고 서적 거래, 실시간 채팅, AI 도서 추천 등 다양한 기능을 사용자 친화적인 UI/UX로 제공합니다.
+**Next.js 15 (App Router) & React 19** 기반의 북적 사용자 웹 서비스입니다.
+문화 예술 정보 탐색, 중고 서적 거래, 실시간 채팅, RAG 기반 AI 도서 추천 등 다양한 기능을 고성능 반응형 UI/UX로 제공합니다.
 
 ---
 
 ## 🚀 주요 기능 (Key Features)
 
-- **🎨 현대적인 UI/UX**: Tailwind CSS v4와 Radix UI, Framer Motion을 활용한 미려한 디자인과 애니메이션.
-- **⚡ 성능 최적화**: TanStack Query의 Optimistic Updates, ISR, Server-side Prefetching을 통한 빠른 응답성.
-- **🤖 AI 통합**: Google Gemini 기반의 도서 요약 및 취향 탐색기(Taste Finder).
-- **🔒 보안**: HttpOnly Cookie 기반의 JWT 인증 시스템으로 XSS 방지.
-- **💬 실시간 소통**: Socket.IO 기반의 실시간 채팅 및 알림 시스템.
-- **🌍 다국어 지원 & SEO**: `next-intl`을 활용한 한국어/영어 완벽 지원, 페이지별 dynamic canonical 및 hreflang alternates 자동 매핑, Next.js 15 alternates 표준 Sitemap 최적화.
+- **🎨 모던 UI/UX & 애니메이션**: Tailwind CSS v4, Radix UI, Framer Motion을 결합한 반응형 인터랙티브 인터페이스.
+- **⚡ 데이터 페칭 & 캐싱**: TanStack Query v5 기반 Optimistic Updates, 무한 스크롤, Server-side Prefetching.
+- **🤖 대화형 AI 도서 탐색 (SSE)**: EventSource / Fetch 스트림 기반의 실시간 AI 도서 추천 챗봇.
+- **🔒 크로스 도메인 보안 인증**:
+  - 소셜 로그인 시 1회용 인증 티켓(Ticket Exchange) 방식으로 안전한 JWT 수신
+  - Axios 인터셉터 기반 Silent Access Token Refresh
+  - 인증 만료 시 안전한 로그인 리다이렉트 및 라우트 보호 가드(`UserProvider`)
+- **💬 실시간 소통**: Socket.IO 기반 실시간 1:1 중고거래 채팅 및 타이핑 인디케이터.
+- **🌍 다국어 지원 & SEO**: `next-intl` (한국어/영어), dynamic canonical, hreflang alternates 및 표준 Sitemap.
 
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)
 
-### Core
-
-- **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Library**: [React 19](https://react.dev/)
-
-### State Management
-
-- **Server**: [TanStack Query v5](https://tanstack.com/query/latest) (Infinite Scroll, Optimistic UI)
-- **Client**: [Zustand](https://github.com/pmndrs/zustand) (Global UI State)
-
-### Styling & UI
-
-- **CSS**: [Tailwind CSS v4](https://tailwindcss.com/)
-- **Components**: [Radix UI](https://www.radix-ui.com/) (Headless), [Lucide React](https://lucide.dev/) (Icons)
-- **Animation**: [Framer Motion](https://www.framer.com/motion/)
-- **Editor**: [Tiptap](https://tiptap.dev/) (Rich Text Editor)
-
-### Deployment
-
-- **Docker**: Standalone output mode optimization
-- **Vercel**: Edge Network deployment
+| 구분 | 기술 스택 |
+| :--- | :--- |
+| **Framework** | Next.js 15 (App Router), React 19 |
+| **Language** | TypeScript |
+| **State & Data** | TanStack Query v5 (`@bookjeok/react-query`), Zustand v5 |
+| **API Client** | `@bookjeok/api-client`, `@bookjeok/core` |
+| **Styling** | Tailwind CSS v4, Radix UI (Headless), Lucide React |
+| **Animation** | Framer Motion |
+| **Editor** | Tiptap (Rich Text Editor) |
+| **Realtime** | Socket.IO Client |
 
 ---
 
-## 🏗️ 프로젝트 구조 (Structure)
+## 📂 프로젝트 구조 (Structure)
 
- 도메인 주도 설계(DDD)의 아이디어를 차용하여 **Feature-Sliced** 구조를 따르며, 비즈니스 로직은 공유 패키지에 의존합니다.
-
-```bash
-src
-├── app/                  # Next.js App Router (Pages, Layouts)
-├── features/             # 기능별 UI 및 웹 전용 래퍼 훅 (Shared Packages 활용)
-│   ├── auth/
-│   ├── book/
-│   └── ...
-├── shared/               # 웹 전용 공용 컴포넌트 및 설정
-│   ├── ui/               # 버튼, 입력창 등 웹 전용 UI
-│   ├── lib/              # 웹 전용 유틸리티 (axios 인스턴스 등)
-│   └── config/           # 환경 변수 및 설정
-└── styles/               # 전역 스타일 및 Tailwind 설정
+```
+src/
+├── app/                  # Next.js App Router (다국어 라우트 [locale], 메타데이터)
+├── views/                # 페이지 단위 조립 뷰 레이어 ([feature]-view/)
+├── features/             # 도메인별 기능 UI 컴포넌트 & 상태 관리
+│   ├── auth/             # 로그인, 회원가입, 소셜 콜백 처리
+│   ├── book/             # 도서 검색, 상세 정보, AI 추천 슬라이더
+│   ├── book-sale/        # 중고 도서 등록 폼, 마켓 목록
+│   ├── chat/             # 1:1 실시간 채팅방 컴포넌트
+│   ├── reading-log/      # 독서 캘린더, 라운지 피드, 3D 덱 뷰어
+│   ├── review/           # Tiptap 리뷰 에디터 및 리액션
+│   └── user/             # 프로필 관리, 위시리스트
+├── shared/               # 전역 공용 컴포넌트, 프로바이더, 유틸
+│   ├── components/       # Radix UI 기반 공용 UI
+│   ├── providers/        # QueryProvider, UserProvider, ChatProvider
+│   └── utils/            # 전역 유틸리티 (포맷터, 고유 파일명 생성 등)
+└── layouts/              # DefaultLayout, Header, Navigation
 ```
 
 ---
 
-## 🏛️ 아키텍처 가이드 (Architecture)
+## 🏗️ 개발 원칙 (Development Rules)
 
-본 프로젝트는 멀티 플랫폼 확장을 위해 **명시적 의존성 주입(Explicit DI)** 아키텍처를 채택했습니다.
-
-### 1. 공유 패키지 의존성
-- **Business Logic**: `@bookjeok/react-query`의 훅을 사용하여 데이터 페칭을 관리합니다.
-- **API Engine**: `@bookjeok/api-client`의 순수 함수를 사용하여 통신합니다.
-- **Core Assets**: `@bookjeok/core`의 공통 타입과 유틸리티를 사용합니다.
-
-### 2. 래퍼 훅(Wrapper Hooks) 패턴
-공유 패키지의 훅을 직접 쓰지 않고, 웹 전용 Axios 인스턴스를 주입한 래퍼 훅을Feature 내부에 작성하여 사용합니다.
-```typescript
-// src/features/book/queries.ts
-import { usePopularBooksQuery as useBaseQuery } from "@bookjeok/react-query";
-import { publicAxios } from "@/shared/libs/axios";
-
-// 공유 패키지 루트(@bookjeok/react-query)에서 직접 가져온 훅에 인스턴스를 주입하여 사용
-export const usePopularBooksQuery = () => useBaseQuery(publicAxios);
-```
-이렇게 함으로써 컴포넌트 계층에서는 인스턴스 주입에 신경 쓰지 않고 깔끔하게 훅을 호출할 수 있습니다.
-
----
-
-## 🚦 시작하기 (Getting Started)
-
-### 요구 사항
-
-- Node.js v20+
-- pnpm v9+
-
-### 1. 설치 (Installation)
-
-```bash
-pnpm install
-```
-
-### 2. 환경 변수 설정 (.env)
-
-루트 디렉토리에 `.env.local` 파일을 생성합니다.
-
-```env
-# API URL
-NEXT_PUBLIC_API_URL=http://localhost:8080
-
-# External APIs (필요 시)
-NEXT_PUBLIC_NAVER_CLIENT_ID=...
-```
-
-### 3. 실행 (Running)
-
-#### 로컬 개발 (Local Dev)
-
-```bash
-pnpm dev
-```
-
-#### Docker 실행 (Production Preview)
-
-```bash
-# Standalone 모드로 빌드된 최적화 이미지 실행
-docker build -t bookjeok-front .
-docker run -p 3000:3000 bookjeok-front
-```
-
----
-
-## 💡 기술적 특징 (Highlights)
-
-### 1. 🧠 Headless Component 기반 아키텍처 도입
-- 복잡한 비즈니스 로직(예: 이미지 파일 관리, 최대 허용 개수 검증 등)을 `UI 렌더링`과 분리하여 `useImageUpload` 같은 순수 Custom Hook으로 분리(Headless)했습니다.
-- 이를 통해 UI 재사용성과 로직 테스트 용이성을 극대화하고, 다양한 화면 컴포넌트(`ImageUploader`, `ProfileImageUploader` 등)에서 핵심 로직 패키지를 손쉽게 공유할 수 있습니다.
-
-### 2. 서버/클라이언트 상태 분리
-
-- **TanStack Query**는 서버 데이터(캐싱, 동기화)를 전담하고, **Zustand**는 UI 상태(모달 열림 등)만 관리하여 복잡도를 낮췄습니다.
-
-### 2. 보안 강화 (HttpOnly Cookie)
-- Access Token을 브라우저 JS가 접근할 수 없는 `HttpOnly` 쿠키에 저장하여 XSS 공격으로부터 인증 정보를 보호합니다.
-- CSRF 토큰 검증과 병행하여 보안성을 높였습니다.
-
-### 3. AI 취향 탐색기
-- 정형화된 검색이 아닌, AI와의 대화(Natural Language)를 통해 내 취향에 맞는 책을 찾아주는 RAG 패턴 기반 서비스입니다.
-
-### 4. 사용자 행동 분석 (Analytics)
-- **Google Analytics 4 (GA4)** 및 **Microsoft Clarity**를 연동하여 트래픽 추적(정량적 데이터)과 사용자의 히트맵/세션 데이터(정성적 데이터)를 결합 수집하여 UX 개선에 활용합니다.
-
-### 5. 🔍 체계적인 검색엔진 최적화 (SEO)
-- **다국어 Sitemap 최적화**: Next.js 15의 `alternates` 표준 방식을 적용하여 중복 엔트리 없이 구글 등 검색엔진에 한국어와 영어 대체 주소 간의 연관 관계를 알려줍니다.
-- **Dynamic Canonical & Alternates**: `createPageMetadata`에 `locale`과 `path` 파라미터를 추가하여 각 언어별 canonical URL과 `hreflang` 태그를 동적으로 자동 생성합니다.
-- **다국어 Robots 차단 보완**: 다국어 경로(`/*/my-page/` 등)를 포함하여 크롤러가 개인정보 성격의 마이페이지에 접근하지 못하도록 `robots.txt` 규칙을 보완했습니다.
-- **동적 JSON-LD 데이터 다국어화**: 사이트 구조화 데이터 생성 시 접속한 언어(`locale`)에 맞는 정밀한 URL로 매핑하며, 무효한 리뷰 경로 수정 등 마크업 정합성을 높였습니다.
+1. **로컬 중복 타입 금지**: 도메인 데이터 타입은 반드시 `@bookjeok/core`에서 직접 임포트합니다.
+2. **API 및 쿼리 훅 연동**: 데이터 통신은 `@bookjeok/react-query` 및 `@bookjeok/api-client`를 활용합니다.
+3. **컴포넌트 문맥화**: `src/features/[feature]/components/` 하위는 `list-view/`, `detail-view/`, `forms/`, `common/` 등 문맥 기반 폴더로 그룹화합니다.
