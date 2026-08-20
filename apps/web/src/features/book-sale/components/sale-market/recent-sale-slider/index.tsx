@@ -87,8 +87,8 @@ export const RecentSalesSlider = () => {
       <div className="w-full mx-auto px-4">
         <SliderHeader />
 
-        {/* 1. PC / 태블릿 뷰: 맑은 라이트그레이 페이퍼 캔버스 */}
-        <div className="hidden md:block relative w-full h-[460px] lg:h-[520px] bg-[#f6f6f5] border border-neutral-200 shadow-xs overflow-hidden">
+        {/* 1. PC / 태블릿 뷰: 맑은 라이트그레이 페이퍼 캔버스 (라운드 테두리) */}
+        <div className="hidden md:block relative w-full h-[460px] lg:h-[520px] bg-[#f6f6f5] border border-neutral-200 rounded-xl sm:rounded-2xl shadow-xs overflow-hidden">
           <InfiniteImageField
             items={imageItems}
             imageWidth={180}
@@ -101,12 +101,6 @@ export const RecentSalesSlider = () => {
               router.push(PATHS.BOOK_SALES_DETAIL(String(item.id)))
             }
           />
-
-          {/* 라이트그레이 톤 가장자리 부드러운 마이크로 페이드 */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-12 bg-gradient-to-r from-[#f6f6f5]/70 to-transparent z-10" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-12 bg-gradient-to-l from-[#f6f6f5]/70 to-transparent z-10" />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-8 sm:h-10 bg-gradient-to-b from-[#f6f6f5]/60 to-transparent z-10" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 sm:h-16 bg-gradient-to-t from-[#f6f6f5]/80 via-[#f6f6f5]/30 to-transparent z-10" />
 
           {/* 하단 안내 가이드 바 */}
           <div className="pointer-events-none absolute bottom-5 left-6 z-20 flex items-center gap-3">
