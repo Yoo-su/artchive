@@ -32,6 +32,14 @@ export interface UpdateReadingLogParams {
   memo: string;
 }
 
+/**
+ * 독서 기록 공개 설정
+ */
+export interface ReadingLogSettings {
+  isReadingLogPublic: boolean;
+}
+
+
 /** 라운지 피드에서 한 명의 독자를 나타내는 타입 */
 export interface LoungeReader {
   userId: number;

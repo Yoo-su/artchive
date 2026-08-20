@@ -1,6 +1,6 @@
 "use client";
 
-import { formatAladinCoverImage } from "@bookjeok/core";
+import { AiSearchBookItem, formatAladinCoverImage } from "@bookjeok/core";
 import Image from "next/image";
 import { memo } from "react";
 import { FreeMode } from "swiper/modules";
@@ -10,11 +10,10 @@ import { Highlighter } from "@/shared/components/magicui/highlighter";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
-import { AiSearchBookItem } from "../../constants/ai-chat";
-
 interface AiBookRecommendSliderProps {
   books: AiSearchBookItem[];
 }
+
 
 export const AiBookRecommendSlider = memo(
   function AiBookRecommendSlider({ books }: AiBookRecommendSliderProps) {

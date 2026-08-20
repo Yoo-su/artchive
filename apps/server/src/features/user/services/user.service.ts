@@ -426,4 +426,3 @@ export class UserService implements OnModuleInit {
     await this.userRepository.increment({ id: userId }, 'tokenVersion', 1);
   }
 }
-

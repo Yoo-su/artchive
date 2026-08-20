@@ -1,52 +1,50 @@
 # @bookjeok/api-client
 
-북적 백엔드 API와의 통신을 담당하는 기본 클라이언트 라이브러리입니다.
+북적 백엔드 API와의 HTTP 통신을 담당하는 공용 클라이언트 패키지입니다.
+
+---
 
 ## 🛠 주요 특징
 
-### 1. 명시적 인스턴스 주입
-- 모든 API 함수는 첫 번째 인자로 `AxiosInstance`를 전달받습니다.
-- 웹 환경(`privateAxios`, `publicAxios`)과 모바일 환경(`authAxios` 등)의 차이를 호출부에서 결정할 수 있게 합니다.
+### 1. 캡슐화된 클라이언트 인스턴스 (`publicApiClient`, `privateApiClient`)
+- **`publicApiClient`**: 인증 헤더가 필요 없는 공개 API 호출용 (도서 검색, 인사이트 조회, 라운지 피드 등).
+- **`privateApiClient`**: JWT Access Token 인증이 필요한 보호된 API 호출용 (독서 기록, 중고책 등록, 리뷰 작성, 프로필 수정 등).
+- 토큰 만료 시 Refresh Token을 통한 **Silent Token Refresh 인터셉터**가 내장되어 있어 호출부에서 토큰 갱신을 신경 쓸 필요가 없습니다.
 
-### 2. 공통 에러 핸들링 (`handleApiError`)
-- HTTP 상태 코드별 공통 메시지 추출 로직을 내장하고 있습니다.
-- UI 알림(Toast/Alert) 처리는 콜백(`onShowError`)으로 분리하여 플랫폼 독립성을 유지합니다.
+### 2. 표준 API 함수 인터페이스
+- `@bookjeok/core`의 인터페이스를 준수하는 완전한 타입 안전성을 제공합니다.
+- 호출 시 Axios 인스턴스를 주입할 필요 없이 순수 파라미터만 전달하여 호출합니다.
+
+---
 
 ## 🚀 사용법
 
-### API 호출 예시
 ```typescript
-// 반드시 루트(@bookjeok/api-client)를 통해 임포트하세요.
-import { getPopularBooks } from "@bookjeok/api-client";
-// 프로젝트별 Axios 인스턴스 (예: apps/web/src/shared/libs/axios.ts)
-import { publicAxios } from "./libs/axios";
+// 반드시 루트(@bookjeok/api-client)를 통해 임포트합니다.
+import { getBookList, createBookSale, exchangeAuthTicket } from "@bookjeok/api-client";
 
-const data = await getPopularBooks(publicAxios);
-```
+// 1. 공개 API 호출 예시
+const books = await getBookList({ query: "해리포터", start: 1 });
 
-### 에러 핸들링 예시
-```typescript
-import { handleApiError } from "@bookjeok/api-client";
-
-handleApiError(error, {
-  onShowError: (msg) => alert(msg), // 플랫폼에 맞는 UI 처리
-  context: "Login"
+// 2. 인증 필요 API 호출 예시 (내부에서 토큰 자동 첨부)
+const newSale = await createBookSale({
+  title: "클린 코드 팝니다",
+  price: 15000,
+  isbn: "9788966260959",
+  city: "서울특별시",
+  district: "강남구",
+  content: "상태 깨끗합니다.",
+  imageUrls: [],
 });
 ```
+
+---
 
 ## 🏗️ 개발 가이드 (Development)
 
 1. **상대 경로 사용**: 패키지 내 다른 모듈 참조 시 반드시 **상대 경로**를 사용하세요. 배럴 파일(`index.ts`) 등을 통한 자기 참조는 순환 의존성을 유발합니다.
-2. **비즈니스 로직 금지**: 이 패키지는 순수 통신 엔진 역할만 수행합니다. React Hook이나 상태 관리가 필요한 로직은 `@bookjeok/react-query`에 작성하세요.
-3. **새 기능 추가**: `src/features/*` 하위에 모듈화하여 추가하고, `index.ts`에서 루트 익스포트 처리합니다.
-
-## 📌 Exports 제외 Feature 안내
-
-아래 feature는 폴더(`src/features/`)와 소스 파일 구조는 마련되어 있지만 **아직 API가 구현되지 않아 `package.json` exports에서 제외**되어 있습니다.
-
-| Feature | 상태 |
-|---|---|
-| `intro` | 미구현 (추후 추가 예정) |
-| `recommend` | 미구현 (추후 추가 예정) |
-
-구현 완료 후 `package.json`의 `exports`와 `tsup.config.ts`의 `entry`에 해당 경로를 추가하세요.
+2. **비즈니스 로직 및 UI 코드 금지**: 이 패키지는 순수 HTTP 통신 엔진 역할만 수행합니다. React Hook이나 상태 관리는 `@bookjeok/react-query` 또는 프론트엔드 앱에서 처리하세요.
+3. **새 API 엔드포인트 추가 시**:
+   - `packages/core`의 `API_PATHS` 및 도메인 타입을 먼저 확인/추가합니다.
+   - `src/features/[feature]/apis.ts`에 함수를 추가하고 `src/index.ts`에서 export합니다.
+   - 변경 후 `pnpm --filter @bookjeok/api-client build`를 실행하여 빌드 무결성을 확인합니다.

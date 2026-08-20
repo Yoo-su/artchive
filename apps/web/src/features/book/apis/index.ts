@@ -1,5 +1,20 @@
-import { getBookDetail as sharedGetBookDetail, getBookList as sharedGetBookList, getBookSummary as sharedGetBookSummary, getPopularBooks as sharedGetPopularBooks, getPopularKeywords as sharedGetPopularKeywords, recordBookView as sharedRecordBookView, recordSearchKeyword as sharedRecordSearchKeyword } from "@bookjeok/api-client";
-import { BaseBookInfo, GetBookDetailSuccessResponse, GetBookListParams, GetBookListSuccessResponse } from "@bookjeok/core";
+import {
+  getBookDetail as sharedGetBookDetail,
+  getBookList as sharedGetBookList,
+  getBookSummary as sharedGetBookSummary,
+  getPopularBooks as sharedGetPopularBooks,
+  getPopularKeywords as sharedGetPopularKeywords,
+  recordBookView as sharedRecordBookView,
+  recordSearchKeyword as sharedRecordSearchKeyword,
+} from "@bookjeok/api-client";
+import {
+  BaseBookInfo,
+  GetBookDetailSuccessResponse,
+  GetBookListParams,
+  GetBookListSuccessResponse,
+  PopularKeyword,
+} from "@bookjeok/core";
+
 
 /**
  * 책 검색결과를 조회합니다.
@@ -46,15 +61,10 @@ export const getBookSummary = async (
 
 // ===== 인기 검색어 관련 API =====
 
-/** 인기 검색어 응답 타입 */
-export interface PopularKeyword {
-  keyword: string;
-  searchCount: number;
-}
-
 /**
  * 검색어를 기록합니다.
  */
+
 export const recordSearchKeyword = async (keyword: string): Promise<void> => {
   return sharedRecordSearchKeyword(keyword);
 };

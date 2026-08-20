@@ -1,8 +1,8 @@
+import { BOOK_DOMAINS } from '@bookjeok/core';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { BOOK_DOMAINS } from '@/features/review/constants';
 import { Review } from '@/features/review/entities/review.entity';
 import {
   ReviewReaction,

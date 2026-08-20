@@ -1,13 +1,5 @@
+import { AiSearchBookItem, AiSearchSseEvent } from '@bookjeok/core';
 import { Response } from 'express';
-
-import { BookSearchResultDto } from '@/features/search/dtos/ai-search.dto';
-
-export type SseEvent =
-  | { type: 'searching'; message: string }
-  | { type: 'books'; books: BookSearchResultDto[] }
-  | { type: 'text'; chunk: string }
-  | { type: 'done' }
-  | { type: 'error'; message: string };
 
 /**
  * Express Response 객체를 래핑하여 SSE(Server-Sent Events) 스트림 전송을 캡슐화하는 어댑터
@@ -39,7 +31,7 @@ export class SseStreamWriter {
   /**
    * SSE 데이터 패킷 전송
    */
-  sendEvent(event: SseEvent): void {
+  sendEvent(event: AiSearchSseEvent): void {
     if (!this.isConnected) return;
     try {
       this.res.write(`data: ${JSON.stringify(event)}\n\n`);
@@ -58,7 +50,7 @@ export class SseStreamWriter {
   /**
    * 도서 목록 선발송 이벤트 전송
    */
-  sendBooks(books: BookSearchResultDto[]): void {
+  sendBooks(books: AiSearchBookItem[]): void {
     this.sendEvent({ type: 'books', books });
   }
 

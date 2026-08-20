@@ -1,137 +1,180 @@
-# bookjeok 프로젝트 가이드라인
+# 북적 (bookjeok) 모노레포 개발 가이드라인
 
-이 문서는 bookjeok 프로젝트에서 사용되는 개발 규칙, 디렉토리 구조 및 컨벤션에 대한 참고 자료입니다.
+이 문서는 북적 모노레포 프로젝트에 새로 합류한 개발자가 시스템 구조를 빠르게 이해하고, 일관된 아키텍처 규칙에 따라 안전하게 기능을 개발할 수 있도록 작성된 공식 온보딩 가이드입니다.
 
-## 1. 기술 스택 (Technology Stack)
+---
 
-### 프론트엔드 (`apps/web`)
+## 1. 모노레포 아키텍처 및 패키지 계층 구조
 
-- **프레임워크**: Next.js 15 (App Router)
-- **언어**: TypeScript
-- **스타일링**: Tailwind CSS v4, Shadcn UI
-- **상태 관리**: Zustand
-- **데이터 페칭**: TanStack Query (React Query) v5
-- **폼 핸들링**: React Hook Form + Zod
-- **테스트**: Vitest, React Testing Library, Storybook
+북적은 **Turborepo + pnpm 워크스페이스** 기반의 계층형 모노레포로 구성되어 있습니다. 각 패키지와 애플리케이션은 명확한 책임과 단방향 의존성 규칙을 가집니다.
 
-### 백엔드 (`apps/server`)
+```mermaid
+flowchart TD
+    subgraph Packages ["Shared Packages (packages/)"]
+        Core["@bookjeok/core<br/>(순수 도메인 모델, DTO 인터페이스, 상수, 유틸)"]
+        ApiClient["@bookjeok/api-client<br/>(Axios 인스턴스, 인터셉터, API 호출 모듈)"]
+        ReactQuery["@bookjeok/react-query<br/>(쿼리 키 팩토리, TanStack Query 훅)"]
+    end
 
-- **프레임워크**: NestJS
-- **언어**: TypeScript
-- **데이터베이스**: PostgreSQL (via TypeORM)
-- **인증**: Passport (JWT, OAuth)
-- **API 문서화**: Swagger
+    subgraph Applications ["Applications (apps/)"]
+        Server["apps/server<br/>(NestJS 11 백엔드 API & TypeORM)"]
+        Web["apps/web<br/>(Next.js 15 사용자 웹 서비스)"]
+        Admin["apps/admin<br/>(Next.js 15 관리자 포털 & ISR 캐시 제어)"]
+    end
 
-## 2. 디렉토리 구조 (Directory Structure)
+    Core --> ApiClient
+    Core --> ReactQuery
+    Core --> Server
+    Core --> Web
+    Core --> Admin
 
-이 프로젝트는 **기능 기반 아키텍처 (Feature-based Architecture)**를 따릅니다. 코드는 기술적 유형보다는 비즈니스 도메인(기능)별로 구성됩니다.
+    ApiClient --> ReactQuery
+    ApiClient --> Web
+    ApiClient --> Admin
 
-### 프론트엔드 구조 (`src/`)
+    ReactQuery --> Web
+    ReactQuery --> Admin
+```
 
-- **`app/`**: Next.js App Router 페이지. 라우팅 로직과 최소한의 레이아웃 코드만 포함해야 합니다. 실제 UI 렌더링은 `views` 디렉토리의 컴포넌트에 위임합니다.
-  - `(auth)`, `(default)` 등의 라우트 그룹을 사용하여 레이아웃을 분리합니다.
-- **`views/`**: 페이지 단위의 조립 컴포넌트.
-  - `[feature]-view/` 디렉토리 내에 위치하며, 여러 기능(features)과 공유 컴포넌트(shared)를 조합하여 완성된 페이지를 구성합니다.
-  - 예: `views/book-search-view/index.tsx`
-- **`features/`**: 도메인별 로직과 컴포넌트를 포함합니다. 가장 핵심적인 비즈니스 로직이 위치하는 곳입니다.
-  - `features/[feature-name]/components`: 해당 기능에 특화된 UI 컴포넌트.
-  - `features/[feature-name]/hooks`: 커스텀 훅 (UI 로직, 데이터 가공 등).
-  - `features/[feature-name]/stores`: 해당 기능 전용 Zustand 스토어 (예: `useBookSearchStore`).
-  - `features/[feature-name]/apis`: API 호출 함수.
-    - `index.ts`: 클라이언트 사이드 API 호출 (React Query 등에서 사용).
-    - `server.ts`: 서버 컴포넌트 전용 API 호출 (직접 페칭 또는 `service.ts` 사용).
-  - `features/[feature-name]/server`: 서버 사이드 비즈니스 로직 및 서비스 레이어.
-  - `features/[feature-name]/actions`: 서버 액션 (Server Actions) - `delete-action.ts`, `upload-action.ts` 등.
-  - `features/[feature-name]/queries.tsx`: React Query 쿼리 훅 (`useQuery` 래퍼).
-  - `features/[feature-name]/mutations.tsx`: React Query 뮤테이션 훅 (`useMutation` 래퍼).
-  - `features/[feature-name]/types.ts`: 도메인 타입 정의.
-  - `features/[feature-name]/constants.ts`: 도메인별 상수.
-  - `features/[feature-name]/utils.ts`: 도메인별 유틸리티 함수.
-- **`shared/`**: 여러 기능에서 공통으로 사용되는 코드.
-  - `shared/components/ui`: 재사용 가능한 UI 컴포넌트 (버튼, 모달, 입력 필드 등).
-  - `shared/components/shadcn`: Shadcn UI 기반 기본 컴포넌트.
-  - `shared/libs`: 외부 라이브러리 설정 (예: `axios.ts`, `query-client.ts`).
-  - `shared/providers`: 전역 프로바이더 (`query-provider`, `user-provider` 등).
-  - `shared/constants`: 전역 상수 (`query-keys`, `mutation-keys` 등).
-  - `shared/utils`: 공통 유틸리티 함수.
-  - `shared/hooks`: 공통 커스텀 훅.
-- **`layouts/`**: 전역 레이아웃 컴포넌트 (헤더, 푸터, 사이드바).
+### 각 레이어의 역할 및 책임
 
-### 백엔드 구조 (`src/`)
+| 경로 / 패키지 | 역할 및 기술 스택 | 지켜야 할 핵심 규칙 |
+| :--- | :--- | :--- |
+| **`packages/core`** | 순수 도메인 타입, API 경로 상수, 포맷터 | **런타임 의존성 0B 유지**. 브라우저/Node 전용 라이브러리 임포트 금지 |
+| **`packages/api-client`** | Axios 통신 클라이언트, 토큰 인터셉터 | 순수 HTTP 통신 래핑. React Hook이나 상태 관리 코드 포함 금지 |
+| **`packages/react-query`** | TanStack Query v5 훅, 쿼리 키 팩토리 | UI 부수 효과(Toast, Router 이동) 금지, 순수 데이터 훅으로 작성 |
+| **`apps/server`** | NestJS 11, TypeORM, PostgreSQL + pgvector | **Entity와 Class DTO는 서버 내부에 격리** (`implements` 패턴 적용) |
+| **`apps/web`** | Next.js 15 App Router (사용자 웹) | 중복 로컬 타입 금지, `@bookjeok/core` 및 공용 패키지 직접 참조 |
+| **`apps/admin`** | Next.js 15 App Router (관리자 웹) | 장터/리뷰 모니터링, 실시간 메트릭, ISR 웹훅 온디맨드 재검증 |
 
-- **`features/`**: 도메인 모듈.
-  - `auth`: 인증 및 소셜 로그인
-  - `book`: 도서 정보 및 중고 서적 판매
-  - `chat`: 실시간 채팅
-  - `comment`: 댓글 시스템
-  - `insights`: 인사이트 대시보드
-  - `llm`: AI 도서 요약 (Google Gemini)
-  - `reading-log`: 독서 기록
-  - `review`: 도서 리뷰
-  - `user`: 사용자 정보
-  - 각 기능 모듈은 자체적인 Controller, Service, Entity, DTO를 포함합니다.
-- **`shared/`**: 공유 유틸리티, 예외, 타입.
+---
 
-## 3. 네이밍 컨벤션 (Naming Conventions)
+## 2. 신규 기능 개발 표준 워크플로우 (Contract-First)
 
-- **파일 및 디렉토리**: `kebab-case` (예: `book-sale-card.tsx`, `user-profile/`).
-- **컴포넌트**: `PascalCase` (예: `BookSaleCard`).
-- **인터페이스 및 타입**: `PascalCase` (예: `User`, `BookSale`).
-- **변수 및 함수**: `camelCase` (예: `handleSubmit`, `isLoading`).
-- **상수**: `UPPER_SNAKE_CASE` (예: `MAX_IMAGE_COUNT`).
+새로운 도메인 기능(예: `Bookmark` 기능)을 추가할 때는 반드시 다음 **5단계 표준 순서**를 따릅니다.
 
-## 4. 개발 규칙 (Development Rules)
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Dev as 개발자
+    participant Core as 1. @bookjeok/core
+    participant Server as 2. apps/server
+    participant Client as 3. @bookjeok/api-client
+    participant Query as 4. @bookjeok/react-query
+    participant App as 5. apps/web (UI)
 
-### 관심사의 분리 (Separation of Concerns, SoC)
+    Dev->>Core: ① 요청/응답 순수 인터페이스 및 API 경로 정의
+    Dev->>Server: ② 코어 인터페이스를 implements하는 DTO Class & Service 구현
+    Dev->>Client: ③ publicApiClient / privateApiClient 기반 API 호출 함수 작성
+    Dev->>Query: ④ 쿼리 키 팩토리 등록 및 useQuery / useMutation 훅 작성
+    Dev->>App: ⑤ React 컴포넌트에서 훅을 호출하여 UI 완성
+```
 
-- **로직 추출**: 재사용 가능한 로직은 커스텀 훅(`use...`)이나 유틸리티 함수로 추출합니다. 복잡한 로직을 UI 컴포넌트 내부에 두지 마십시오.
-- **데이터 페칭 전략 (Data Fetching Strategy)**:
-  - **Client Components**:
-    - `features/[feature]/queries.tsx` 모듈의 React Query 훅을 사용합니다.
-    - 내부적으로 `features/[feature]/apis/index.ts`의 함수를 호출하여 데이터를 가져옵니다.
-    - **Axios 인스턴스 구분**:
-      - `publicAxios`: 인증이 필요 없는 요청.
-      - `privateAxios`: 인증(AccessToken)이 필요한 요청. 인터셉터를 통해 토큰 자동 주입 및 갱신 처리됨.
-      - `internalAxios`: Next.js API Routes (`/api`) 호출 시 사용.
-  - **Server Components**:
-    - `features/[feature]/apis/server.ts` 또는 `features/[feature]/server/service.ts`의 함수를 사용하여 데이터를 직접 페칭합니다.
-    - 서버 환경 변수(`process.env`)에 접근 가능하므로 외부 API를 직접 호출할 수 있습니다.
-  - **Server Actions**:
-    - 데이터 변경(Mutation)이나 폼 제출, 재검증(Revalidation) 로직은 `features/[feature]/actions/` 내의 파일을 사용합니다.
-  - **UI 컴포넌트는 API `axios` 호출을 직접 하지 않습니다.** 반드시 상위 레이어(Hooks, Service)를 거쳐야 합니다.
-- **기능 격리 (Feature Isolation)**:
-  - 기능별 로직은 해당 기능 디렉토리 내에 완벽하게 격리되어야 합니다.
-  - 다른 기능의 컴포넌트나 로직이 필요한 경우, 직접 import 하기보다 `shared`를 통하거나 명확한 인터페이스를 통해야 합니다.
+### 단계별 상세 가이드
 
-### 컴포넌트 설계 (Component Design)
+#### 1단계: `@bookjeok/core`에 순수 계약(Contract) 정의
+- `packages/core/src/features/[feature]/types.ts`에 요청 파라미터 및 응답 인터페이스 선언
+- `packages/core/src/shared/constants/apis.ts`에 API 엔드포인트 경로 상수 등록
+- `packages/core/src/index.ts`에서 export
 
-- **컨테이너/프레젠테이셔널 패턴 (Container/Presentational Pattern)**:
-  - **View 컴포넌트 (`views/`)**: 페이지의 최상위 컨테이너 역할을 하며, 여러 Feature Container를 조립합니다.
-  - **Feature Container (`features/[feature]/components`)**: 비즈니스 로직, 상태 관리(Store/Query), 이벤트 핸들링을 담당합니다.
-  - **Presentational Component**: 오직 props로 전달받은 데이터만 렌더링하며, 상태 의존성이 없어야 합니다. Storybook 테스트의 주 대상입니다.
-- **합성 (Composition)**: 복잡한 UI는 작은 단위의 컴포넌트 합성을 통해 구축합니다.
-- **Shadcn UI 활용**: `src/shared/components/shadcn` 경로의 기본 컴포넌트를 활용하여 일관된 디자인 시스템을 유지합니다.
+#### 2단계: `apps/server`에서 DTO 및 백엔드 API 구현
+- `apps/server/src/features/[feature]/dtos/`에 NestJS DTO Class 작성 시 코어 인터페이스를 `implements`
+  ```typescript
+  import { CreateBookmarkParams } from '@bookjeok/core';
+  import { IsNotEmpty, IsString } from 'class-validator';
 
-### 상태 관리 (State Management)
+  export class CreateBookmarkDto implements CreateBookmarkParams {
+    @IsString()
+    @IsNotEmpty()
+    bookId: string;
+  }
+  ```
+- Controller, Service, TypeORM Entity 구현 및 Swagger 데코레이터 적용
 
-- **Server State**: `TanStack Query (React Query)`를 사용하여 관리합니다. `query-keys` 폴더에서 키를 중앙 관리합니다.
-- **Client Global State**: `Zustand`를 사용합니다. `features/[feature]/stores` 또는 `features/auth/store.ts` 등 기능별 스토어 위주로 구성합니다.
-- **Client Local State**: `useState`, `useReducer`, `React Hook Form` 등을 사용합니다.
+#### 3단계: `packages/api-client`에 API 통신 함수 추가
+- `packages/api-client/src/features/[feature]/apis.ts` 작성
+- 비인증 요청은 `publicApiClient`, 인증 필요 요청은 `privateApiClient` 사용
 
-### 스타일링 (Styling)
+#### 4단계: `packages/react-query`에 쿼리 키 및 훅 작성
+- `packages/react-query/src/features/[feature]/queries.ts` 또는 `mutations.ts` 작성
+- `@bookjeok/core`의 쿼리 키 팩토리를 참조하여 캐시 무효화(`queryClient.invalidateQueries`) 연동
 
-- **Tailwind CSS**: v4 버전을 사용하며, 유틸리티 클래스 위주로 작성합니다.
-- **조건부 스타일링**: `cn` (clsx + tw-merge) 유틸리티를 필수적으로 사용하여 클래스 충돌을 방지합니다.
-- **반응형**: 모바일 퍼스트(`min-width`) 미디어 쿼리를 기본으로 합니다.
+#### 5단계: `apps/web` / `apps/admin`에서 UI 조립
+- 컴포넌트에서 `@bookjeok/react-query` 훅과 `@bookjeok/core` 타입을 직접 임포트하여 화면 구성
 
-### 테스트 (Testing)
+---
 
-- **Storybook**: UI 컴포넌트의 시각적 테스트를 위해 스토리를 작성합니다. `views/` 레벨보다는 `features/[feature]/components`나 `shared/` 컴포넌트 위주로 작성합니다.
-- **Unit Tests**: 순수 함수 유틸리티, 복잡한 커스텀 훅에 대해 테스트를 작성합니다.
+## 3. 핵심 아키텍처 규칙
 
-## 5. 워크플로우 (Workflow)
+### ① Entity & DTO의 서버 격리 원칙 (`implements` 패턴)
+- **Entity**: `typeorm` 데코레이터가 붙은 DB 매핑 클래스입니다. 내부 전용 컬럼(`password`, `tokenVersion` 등)이 포함되므로 클라이언트에 절대 노출하지 않습니다.
+- **DTO**: `class-validator`, `class-transformer`, `@nestjs/swagger` 데코레이터가 붙은 런타임 클래스입니다. 프론트엔드로 보내면 번들 오염 및 브라우저 호환 에러를 유발하므로 서버 내부에 둡니다.
+- **규칙**: `@bookjeok/core`에는 순수 인터페이스만 두고, 서버의 DTO 클래스가 이를 `implements`하여 컴파일 타임 정합성을 보장합니다.
 
-1.  **계획 (Plan)**: 기능 요구사항과 구현 계획을 정의합니다.
-2.  **디자인 (Design)**: UI 컴포넌트를 위한 Storybook 스토리를 생성/업데이트합니다.
-3.  **구현 (Implement)**: 위 구조에 따라 코드를 작성합니다.
-4.  **검증 (Verify)**: 수동으로 테스트하고 자동화된 검사(린트, 빌드)를 실행합니다.
+### ② 인증 및 토큰 관리 구조
+- **크로스 도메인 환경**: 백엔드와 프론트엔드 배포 도메인이 상이하므로 HttpOnly Cookie 대신 `Authorization: Bearer <token>` 헤더 방식을 사용합니다.
+- **1회용 인증 티켓 (Social Login Ticket Exchange)**:
+  - 카카오/네이버 소셜 로그인 완료 후 백엔드는 JWT를 URL에 직접 노출하지 않고 60초 유효의 일회용 `ticket`을 발급하여 프론트엔드로 리다이렉트합니다.
+  - 프론트엔드는 `POST /auth/exchange`를 호출하여 안전하게 JWT를 발급받습니다.
+- **Silent Refresh & 토큰 무효화 (`tokenVersion`)**:
+  - `packages/api-client`의 Axios 인터셉터가 Access Token 만료 시 Refresh Token으로 자동 갱신합니다.
+  - 로그아웃 또는 보안 무효화 시 백엔드의 `user.tokenVersion`을 증가시켜 이전 Refresh Token을 즉시 무효화합니다.
+
+### ③ 불필요한 중복 타입 및 중간 Re-export 금지
+- 로컬 컴포넌트/유틸 파일에서 `export type MyType = CoreType` 같은 단순 별칭이나 징검다리 re-export를 만들지 마세요.
+- 원본인 `@bookjeok/core`에서 직접 `import { ... } from '@bookjeok/core'`로 가져옵니다.
+
+---
+
+## 4. 디렉토리 구조 상세
+
+### 프론트엔드 (`apps/web/src/`)
+```
+src/
+├── app/                  # Next.js App Router (다국어 라우트 [locale], 레이아웃, 메타데이터)
+├── views/                # 페이지 단위 조립 컴포넌트 ([feature]-view/)
+├── features/             # 도메인별 기능 컴포넌트, 상태 스토어
+│   └── [feature]/
+│       ├── components/   # 문맥 기반 UI 컴포넌트 (list-view/, detail-view/, common/)
+│       ├── stores/       # 기능별 Zustand 스토어
+│       └── utils/        # 기능별 전용 헬퍼
+├── shared/               # 전역 공용 컴포넌트, 스타일, 유틸
+│   ├── components/       # Radix UI 기반 공용 컴포넌트
+│   ├── providers/        # QueryProvider, UserProvider 등
+│   └── utils/            # 전역 UI 유틸리티
+└── layouts/              # 전역 헤더, 푸터, 네비게이션 레이아웃
+```
+
+### 백엔드 (`apps/server/src/`)
+```
+src/
+├── features/             # 도메인 모듈 (NestJS Modular Architecture)
+│   └── [feature]/
+│       ├── controllers/  # API 라우트 핸들러
+│       ├── services/     # 비즈니스 로직
+│       ├── entities/     # TypeORM DB 엔티티
+│       └── dtos/         # 유효성 검증 DTO (Core interface implements)
+└── shared/               # 전역 가드(JwtAuthGuard, RolesGuard), 필터, 인터셉터
+```
+
+---
+
+## 5. 검증 및 빌드 커맨드 가이드
+
+작업 완료 후에는 반드시 루트에서 다음 명령어들을 실행하여 무결성을 검증합니다.
+
+```bash
+# 1. 공용 패키지 빌드
+pnpm --filter @bookjeok/core build
+pnpm --filter @bookjeok/api-client build
+
+# 2. 전체 앱 타입 검사 (에러 0건 확인)
+pnpm --filter @bookjeok/server exec tsc --noEmit
+pnpm --filter @bookjeok/web exec tsc --noEmit
+pnpm --filter @bookjeok/admin exec tsc --noEmit
+
+# 3. 전체 단위 테스트 실행 (100% 통과 확인)
+pnpm --filter @bookjeok/server test
+pnpm --filter @bookjeok/web test
+pnpm --filter @bookjeok/api-client test
+```

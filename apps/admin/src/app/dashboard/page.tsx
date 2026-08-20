@@ -1,31 +1,16 @@
 "use client";
 
-import { BookOpen, Hash,Heart, Loader2, ShoppingBag, TrendingUp } from "lucide-react";
+import { InsightsResponse } from "@bookjeok/core";
+import { BookOpen, Hash, Heart, Loader2, ShoppingBag, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { AdminLayout } from "../../layouts/admin-layout";
 import { api } from "../../libs/api";
 
-interface InsightsSummary {
-  totalSales: number;
-  totalReviews: number;
-  totalReactions: number;
-  totalTags: number;
-}
-
-interface PopularTag {
-  name: string;
-  count: number;
-}
-
-interface InsightsData {
-  summary: InsightsSummary;
-  popularTags: PopularTag[];
-}
-
 export default function DashboardPage() {
-  const [data, setData] = useState<InsightsData | null>(null);
+  const [data, setData] = useState<InsightsResponse | null>(null);
   const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     async function fetchInsights() {

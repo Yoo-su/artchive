@@ -1,5 +1,6 @@
 "use client";
 
+import { UsedBookSale } from "@bookjeok/core";
 import axios from "axios";
 import { Loader2, RefreshCw, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -7,20 +8,6 @@ import { useEffect, useState } from "react";
 import { AdminLayout } from "../../../layouts/admin-layout";
 import { api } from "../../../libs/api";
 
-interface UsedBookSale {
-  id: number;
-  title: string;
-  price: number;
-  status: string; // "FOR_SALE" | "RESERVED" | "SOLD"
-  createdAt: string;
-  book?: {
-    title: string;
-    author: string;
-  };
-  user?: {
-    nickname: string;
-  };
-}
 
 export default function SalesModerationPage() {
   const [sales, setSales] = useState<UsedBookSale[]>([]);

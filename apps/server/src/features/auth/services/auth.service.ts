@@ -162,8 +162,11 @@ export class AuthService {
    * @returns 60초간 유효한 1회용 티켓 문자열
    */
   async createAuthTicket(user: User): Promise<string> {
-    const { accessToken, refreshToken, user: loggedInUser } =
-      await this.socialLogin(user);
+    const {
+      accessToken,
+      refreshToken,
+      user: loggedInUser,
+    } = await this.socialLogin(user);
 
     const safeUser = {
       id: loggedInUser.id,
@@ -237,7 +240,6 @@ export class AuthService {
   async logout(userId: number): Promise<void> {
     await this.userService.incrementTokenVersion(userId);
   }
-
 
   /**
    * 이메일 회원가입을 처리합니다.

@@ -1,5 +1,20 @@
-import { addToWishlist as sharedAddToWishlist, checkNickname as sharedCheckNickname, checkWishlistStatus as sharedCheckWishlistStatus, getMyProfile as sharedGetMyProfile, getMyWishlist as sharedGetMyWishlist, getPublicUserProfile as sharedGetPublicUserProfile, getUserStats as sharedGetUserStats, removeFromWishlist as sharedRemoveFromWishlist, updateProfile as sharedUpdateProfile } from "@bookjeok/api-client";
-import { PublicUserProfile, UserStats, WishlistItem } from "@bookjeok/core";
+import {
+  addToWishlist as sharedAddToWishlist,
+  checkNickname as sharedCheckNickname,
+  checkWishlistStatus as sharedCheckWishlistStatus,
+  getMyProfile as sharedGetMyProfile,
+  getMyWishlist as sharedGetMyWishlist,
+  getPublicUserProfile as sharedGetPublicUserProfile,
+  getUserStats as sharedGetUserStats,
+  removeFromWishlist as sharedRemoveFromWishlist,
+  updateProfile as sharedUpdateProfile,
+} from "@bookjeok/api-client";
+import {
+  PublicUserProfile,
+  UpdateUserProfileParams,
+  UserStats,
+  WishlistItem,
+} from "@bookjeok/core";
 
 /**
  * 사용자의 활동 통계(판매, 채팅, 리뷰 수 등)를 조회합니다.
@@ -28,11 +43,6 @@ export const getMyProfile = async () => {
   return sharedGetMyProfile();
 };
 
-export interface UpdateUserProfileParams {
-  nickname?: string;
-  profileImageUrl?: string;
-}
-
 /**
  * 내 프로필 정보를 수정합니다.
  * @param params 수정할 프로필 정보
@@ -41,6 +51,7 @@ export interface UpdateUserProfileParams {
 export const updateProfile = async (params: UpdateUserProfileParams) => {
   return sharedUpdateProfile(params);
 };
+
 
 /**
  * 닉네임 사용 가능 여부를 확인합니다.

@@ -1,8 +1,7 @@
-import { API_PATHS } from "@bookjeok/core";
+import { AiSearchBookItem, API_PATHS } from "@bookjeok/core";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 
-import { AiSearchBookItem } from "../constants/ai-chat";
 
 export interface StreamAiChatOptions {
   messages: { role: string; content: string }[];

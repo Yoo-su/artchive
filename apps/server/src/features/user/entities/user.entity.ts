@@ -64,7 +64,6 @@ export class User {
   @Column({ default: 0 })
   tokenVersion: number;
 
-
   @OneToMany(() => UsedBookSale, (sale) => sale.user)
   usedBookSales: UsedBookSale[];
 

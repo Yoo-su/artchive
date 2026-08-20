@@ -128,3 +128,36 @@ export interface AiBookSummaryData {
   updatedAt?: string;
 }
 
+/**
+ * 실시간 인기 검색어 항목
+ */
+export interface PopularKeyword {
+  keyword: string;
+  searchCount: number;
+}
+
+/**
+ * AI 도서 검색/추천 결과 도서 아이템
+ */
+export interface AiSearchBookItem {
+  isbn: string;
+  title: string;
+  author: string;
+  publisher: string;
+  description: string;
+  image: string;
+  similarity: number;
+  reason?: string;
+}
+
+/**
+ * AI 도서 대화 SSE(Server-Sent Events) 스트림 이벤트
+ */
+export type AiSearchSseEvent =
+  | { type: "searching"; message: string }
+  | { type: "books"; books: AiSearchBookItem[] }
+  | { type: "text"; chunk: string }
+  | { type: "done" }
+  | { type: "error"; message: string };
+
+
