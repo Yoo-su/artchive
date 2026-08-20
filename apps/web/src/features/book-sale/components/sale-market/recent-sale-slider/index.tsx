@@ -87,8 +87,8 @@ export const RecentSalesSlider = () => {
       <div className="w-full mx-auto px-4">
         <SliderHeader />
 
-        {/* 1. PC / 태블릿 뷰: 넉넉한 몰입형 인터랙티브 무한 이미지 필드 */}
-        <div className="hidden md:block relative w-full h-[460px] lg:h-[520px] bg-[#1c1c1c] border border-neutral-800 shadow-xs overflow-hidden">
+        {/* 1. PC / 태블릿 뷰: 있는 듯 없는 듯 극도로 은은한 마이크로 페이드 & 직각 글래스 림 */}
+        <div className="hidden md:block relative w-full h-[460px] lg:h-[520px] bg-[#1c1c1c] border border-white/8 shadow-lg overflow-hidden">
           <InfiniteImageField
             items={imageItems}
             imageWidth={180}
@@ -102,18 +102,24 @@ export const RecentSalesSlider = () => {
             }
           />
 
+          {/* 극도로 은은한 가장자리 마이크로 페이드 (있는 듯 없는 듯 부드러운 감쇠) */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-12 bg-gradient-to-r from-[#1c1c1c]/50 to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-12 bg-gradient-to-l from-[#1c1c1c]/50 to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-8 sm:h-10 bg-gradient-to-b from-[#1c1c1c]/40 to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 sm:h-16 bg-gradient-to-t from-[#1c1c1c]/60 via-[#1c1c1c]/25 to-transparent z-10" />
+
           {/* 하단 안내 가이드 바 */}
-          <div className="pointer-events-none absolute bottom-5 left-5 z-10 flex items-center gap-3">
-            <span className="text-xs font-sans text-white/60 bg-black/50 backdrop-blur-md px-3 py-1.5 border border-white/10">
+          <div className="pointer-events-none absolute bottom-5 left-6 z-20 flex items-center gap-3">
+            <span className="text-xs font-sans text-neutral-300 bg-neutral-900/80 backdrop-blur-md px-3.5 py-1.5 border border-white/10 shadow-sm">
               {t("field_guide")}
             </span>
           </div>
 
           {/* 우하단 마켓 전체보기 링크 */}
-          <div className="absolute bottom-5 right-5 z-10">
+          <div className="absolute bottom-5 right-6 z-20">
             <Link
               href={PATHS.BOOK_MARKET}
-              className="inline-flex items-center gap-1.5 text-xs font-medium px-4 py-2 bg-white/90 hover:bg-white text-neutral-900 border border-white shadow-md hover:shadow-lg transition-all"
+              className="inline-flex items-center gap-1.5 text-xs font-medium px-4 py-2 bg-white/95 hover:bg-white text-neutral-950 border border-white shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all"
             >
               {t("view_all_button")}
               <ArrowRight className="w-3.5 h-3.5" />
