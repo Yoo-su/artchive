@@ -18,7 +18,7 @@ interface BookSaleRootProps {
   priority?: boolean;
 }
 
-// 중고책 판매 카드 루트 - 이미지 배경 + 오버레이 레이아웃
+// 중고책 판매 카드 루트
 export const Root = ({
   sale,
   children,
@@ -36,8 +36,11 @@ export const Root = ({
         passHref
         className={cn("block h-full w-full group", className)}
       >
-        <article className="relative h-full w-full overflow-hidden">{children}</article>
+        <article className="h-full w-full bg-white border border-neutral-200 flex flex-col justify-between overflow-hidden transition-all duration-300 group-hover:border-neutral-400 group-hover:shadow-md">
+          {children}
+        </article>
       </Link>
     </BookSaleContext.Provider>
   );
 };
+
