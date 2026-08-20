@@ -65,6 +65,39 @@ function drawRoundedRect(
   ctx.closePath();
 }
 
+/**
+ * 2D 좌표 (col, row)에 대해 무작위성과 고른 분산을 보장하고,
+ * 가로/세로 인접 셀 간 동일 이미지 중복을 수학적으로 방지하는 결정론적 인덱스 계산기
+ */
+function getCellIndex(col: number, row: number, total: number): number {
+  if (total <= 1) return 0;
+  if (total === 2) {
+    const c = ((col % 2) + 2) % 2;
+    const r = ((row % 2) + 2) % 2;
+    return (c + r) % 2;
+  }
+
+  const c = ((col % total) + total) % total;
+  const r = ((row % total) + total) % total;
+
+  // total과 서로소(gcd=1)인 계수 k를 선택하여 세로 방향 인접 셀과의 충돌 방지
+  let k = 2;
+  while (total % k === 0) {
+    k++;
+  }
+
+  const base = (c + r * k) % total;
+
+  // 결정론적 1:1 순열(Permutation) 매핑: (base * prime + offset) % total
+  // prime이 total과 서로소이면 1:1 전단사 함수가 되어 비인접성이 100% 보존되면서 시각적 무작위 순서가 생성됨
+  let primeMultiplier = 7;
+  while (total % primeMultiplier === 0 || primeMultiplier === total) {
+    primeMultiplier += 2;
+  }
+
+  return (base * primeMultiplier + 11) % total;
+}
+
 export function InfiniteImageField({
   className,
   items,
@@ -98,15 +131,9 @@ export function InfiniteImageField({
         }))
   ).filter((item) => Boolean(item.image));
 
-  // If few items (e.g. 1~15 items in DB), safely repeat so the 2D grid distributes them organically
   const safeItems: InfiniteImageItem[] =
     normalizedItems.length > 0
-      ? normalizedItems.length < 16
-        ? Array.from(
-            { length: Math.ceil(16 / normalizedItems.length) },
-            () => normalizedItems
-          ).flat()
-        : normalizedItems
+      ? normalizedItems
       : [{ id: 0, image: "/images/placeholder-image.svg" }];
 
   activeItemsRef.current = safeItems;
@@ -173,9 +200,8 @@ export function InfiniteImageField({
         const sx = col * cellW - camX + W / 2 - imageWidth / 2;
         const sy = row * cellH - camY + H / 2 - imageHeight / 2;
 
-        // Deterministic image assignment — same cell always gets same image
-        const imgIdx =
-          Math.abs(col * 7 + row * 13 + ((col * row * 3) | 0)) % numImages;
+        // Deterministic image assignment — avoiding adjacent collision
+        const imgIdx = getCellIndex(col, row, numImages);
         const img = imgs[imgIdx];
         const item = activeItemsRef.current[imgIdx];
 
@@ -271,8 +297,7 @@ export function InfiniteImageField({
         clickY >= sy &&
         clickY <= sy + imageHeight
       ) {
-        const imgIdx =
-          Math.abs(col * 7 + row * 13 + ((col * row * 3) | 0)) % numImages;
+        const imgIdx = getCellIndex(col, row, numImages);
         const item = activeItemsRef.current[imgIdx];
         if (item) {
           onItemClick(item, imgIdx);
