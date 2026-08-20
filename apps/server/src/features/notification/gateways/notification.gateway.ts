@@ -10,6 +10,7 @@ import { Server, Socket } from 'socket.io';
 
 import { JwtPayload } from '@/features/auth/types/jwt-payload.type';
 import { SocketAuthGuard } from '@/features/chat/guards/socket-auth.guard'; // Reusing existing guard
+import { Notification } from '@/features/notification/entities/notification.entity';
 import { UserService } from '@/features/user/services/user.service';
 
 @UseGuards(SocketAuthGuard)
@@ -88,7 +89,10 @@ export class NotificationGateway
    * @param recipientId 수신자 ID
    * @param payload 전송할 알림 데이터
    */
-  sendNotification(recipientId: number, payload: any) {
+  sendNotification(
+    recipientId: number,
+    payload: Notification | Record<string, unknown>,
+  ) {
     const socket = this.connectedUsers.get(recipientId);
     if (socket) {
       socket.emit('newNotification', payload);

@@ -44,8 +44,9 @@ export async function streamAiChat(
       },
       body: JSON.stringify({ messages }),
     });
-  } catch (netErr: any) {
-    throw new Error(`Network Error: ${netErr?.message || netErr}`);
+  } catch (netErr: unknown) {
+    const message = netErr instanceof Error ? netErr.message : String(netErr);
+    throw new Error(`Network Error: ${message}`);
   }
 
   // 401 Unauthorized 발생 시 Silent Refresh & Retry 수행

@@ -1,8 +1,9 @@
 "use client";
 
+import { getErrorMessage } from "@bookjeok/api-client";
 import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 
 import { api } from "../libs/api";
 import { useAuthStore } from "../stores/auth";
@@ -42,16 +43,13 @@ export default function LoginPage() {
       setUser(loggedInUser);
       router.push("/dashboard");
     } catch (err) {
-      if (err instanceof AxiosError && err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else {
-        setError("로그인 중 에러가 발생했습니다.");
-      }
+      setError(getErrorMessage(err, "로그인 중 에러가 발생했습니다."));
       clearAuth();
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-white dark:bg-neutral-950 px-4">

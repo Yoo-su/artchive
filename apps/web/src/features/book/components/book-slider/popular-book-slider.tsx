@@ -43,7 +43,7 @@ export const PopularBookSlider = () => {
   return (
     <section className="w-full py-16 bg-white">
       <div className="w-full mx-auto px-4">
-        {/* 헤더 - 기품있는 버티컬 라인 에디토리얼 스타일 */}
+        {/* 헤더 */}
         <div className="mb-10 flex items-end">
           <div className="flex justify-between items-end w-full">
             <div className="border-l-[3px] border-[#242424] pl-5 sm:pl-6">
@@ -59,7 +59,7 @@ export const PopularBookSlider = () => {
 
         {/* 벤토 그리드 레이아웃 */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-stretch">
-          {/* 1위 & 인터랙티브 스포트라이트 카드 (5 cols on lg) */}
+          {/* 1위 스포트라이트 카드 */}
           {activeBook && (
             <motion.div
               whileHover={{ y: -4 }}
@@ -80,7 +80,7 @@ export const PopularBookSlider = () => {
                     className="flex flex-col justify-between h-full"
                   >
                     <div>
-                      {/* 상단 랭킹 번호 및 출판사 */}
+                      {/* 상단 랭킹 및 출판사 */}
                       <div className="flex items-center justify-between border-b border-neutral-700/80 pb-3 sm:pb-4 mb-4 sm:mb-6">
                         <div className="flex items-center gap-2.5">
                           <span className="font-sans text-2xl sm:text-3xl font-black text-white leading-none">
@@ -99,9 +99,8 @@ export const PopularBookSlider = () => {
                         )}
                       </div>
 
-                      {/* 본문 콘텐츠 */}
+                      {/* 도서 정보 */}
                       <div className="flex gap-4 sm:gap-6 items-start">
-                        {/* 표지 이미지 (직각) */}
                         <div className="w-24 sm:w-32 lg:w-36 shrink-0 aspect-2/3 overflow-hidden bg-neutral-800 border border-neutral-700 shadow-md relative">
                           <Image
                             src={activeBook.image || "/placeholder.jpg"}
@@ -113,7 +112,6 @@ export const PopularBookSlider = () => {
                           />
                         </div>
 
-                        {/* 텍스트 영역 */}
                         <div className="space-y-1.5 sm:space-y-2 min-w-0 flex-1">
                           {activeBook.author && (
                             <span className="text-[11px] sm:text-xs text-neutral-400 font-sans block truncate">
@@ -132,7 +130,6 @@ export const PopularBookSlider = () => {
                       </div>
                     </div>
 
-                    {/* 하단 상세 보기 바 */}
                     <div className="mt-6 sm:mt-8 pt-3 sm:pt-4 border-t border-neutral-700/80 flex items-center justify-between text-xs text-neutral-400">
                       <span className="text-neutral-400 font-light truncate max-w-[60%]">
                         {activeBook.author ? `${activeBook.author} 지음` : ""}
@@ -148,7 +145,7 @@ export const PopularBookSlider = () => {
             </motion.div>
           )}
 
-          {/* 2위 & 3위: 듀오 벤토 카드 (태블릿은 2열 가로, 데스크톱은 3 cols 세로) */}
+          {/* 2위, 3위 도서 */}
           <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4">
             {secondaryBooks.map((book, idx) => {
               const rank = idx === 0 ? "02" : "03";
@@ -201,7 +198,7 @@ export const PopularBookSlider = () => {
             })}
           </div>
 
-          {/* 4~7위: 에디토리얼 인덱스 리스트 (4 cols on lg) */}
+          {/* 4~7위 도서 */}
           <div className="lg:col-span-4 p-4 sm:p-6 bg-[#fafafa] border border-neutral-200 shadow-xs flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between pb-3 border-b border-neutral-200 mb-2">

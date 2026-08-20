@@ -8,7 +8,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import TextAlign from "@tiptap/extension-text-align";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Underline from "@tiptap/extension-underline";
-import { EditorContent, useEditor } from "@tiptap/react";
+import { Editor, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Bold, Heading2, Italic } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
@@ -35,7 +35,7 @@ export const TiptapEditor = ({
 }: TiptapEditorProps) => {
   const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
 
-  const updateMenuPosition = useCallback((editor: any) => {
+  const updateMenuPosition = useCallback((editor: Editor) => {
     const { view, state } = editor;
     const { from, to } = state.selection;
     const selectedText = state.doc.textBetween(from, to, " ");

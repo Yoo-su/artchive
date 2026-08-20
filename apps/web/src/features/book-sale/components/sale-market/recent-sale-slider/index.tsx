@@ -87,7 +87,7 @@ export const RecentSalesSlider = () => {
       <div className="w-full mx-auto px-4">
         <SliderHeader />
 
-        {/* 1. PC / 태블릿 뷰: 맑은 라이트그레이 페이퍼 캔버스 (라운드 테두리) */}
+        {/* PC / 태블릿 뷰 (무한 이미지 필드) */}
         <div className="hidden md:block relative w-full h-[460px] lg:h-[520px] bg-[#f6f6f5] border border-neutral-200 rounded-xl sm:rounded-2xl shadow-xs overflow-hidden">
           <InfiniteImageField
             items={imageItems}
@@ -102,14 +102,14 @@ export const RecentSalesSlider = () => {
             }
           />
 
-          {/* 하단 안내 가이드 바 */}
+          {/* 하단 안내 가이드 */}
           <div className="pointer-events-none absolute bottom-5 left-6 z-20 flex items-center gap-3">
             <span className="text-xs font-sans text-neutral-600 bg-white/95 backdrop-blur-md px-3.5 py-1.5 border border-neutral-200 shadow-xs">
               {t("field_guide")}
             </span>
           </div>
 
-          {/* 우하단 마켓 전체보기 링크 */}
+          {/* 마켓 전체보기 링크 */}
           <div className="absolute bottom-5 right-6 z-20">
             <Link
               href={PATHS.BOOK_MARKET}
@@ -120,41 +120,41 @@ export const RecentSalesSlider = () => {
             </Link>
           </div>
         </div>
+      </div>
 
-        {/* 2. 모바일 뷰: 터치 친화적 가로 슬라이더 */}
-        <div className="block md:hidden">
-          <Swiper
-            modules={[Autoplay]}
-            slidesPerView={"auto"}
-            spaceBetween={14}
-            loop={false}
-            speed={600}
-            autoplay={
-              sales.length > 3
-                ? {
-                    delay: 3500,
-                    disableOnInteraction: false,
-                    pauseOnMouseEnter: true,
-                  }
-                : false
-            }
-            className="w-full overflow-visible py-2"
+      {/* 모바일 뷰 (가로 슬라이더) */}
+      <div className="block md:hidden">
+        <Swiper
+          modules={[Autoplay]}
+          slidesPerView={"auto"}
+          spaceBetween={14}
+          loop={false}
+          speed={600}
+          autoplay={
+            sales.length > 3
+              ? {
+                  delay: 3500,
+                  disableOnInteraction: false,
+                  pauseOnMouseEnter: true,
+                }
+              : false
+          }
+          className="pb-4 pt-4 -mt-4 px-4! overflow-visible!"
+        >
+          {sales.map((sale, index) => (
+            <SwiperSlide key={sale.id} className="w-[200px]! select-none">
+              <RecentSaleCard sale={sale} priority={index < 3} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+
+        <div className="mt-4 pt-3 border-t border-neutral-200 text-center px-4">
+          <Link
+            href={PATHS.BOOK_MARKET}
+            className="inline-flex items-center gap-1 text-xs font-medium text-neutral-700 hover:text-neutral-950"
           >
-            {sales.map((sale, index) => (
-              <SwiperSlide key={sale.id} className="w-[200px]! select-none">
-                <RecentSaleCard sale={sale} priority={index < 3} />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-
-          <div className="mt-4 pt-3 border-t border-neutral-200 text-center">
-            <Link
-              href={PATHS.BOOK_MARKET}
-              className="inline-flex items-center gap-1 text-xs font-medium text-neutral-700 hover:text-neutral-950"
-            >
-              {t("mobile_view_all")} <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
+            {t("mobile_view_all")} <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
       </div>
     </section>

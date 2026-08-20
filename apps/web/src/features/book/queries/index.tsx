@@ -1,4 +1,4 @@
-import { GetBookListParams } from "@bookjeok/core";
+import { AiBookSummaryData, GetBookListParams } from "@bookjeok/core";
 import {
   useBookDetailQuery as useBaseBookDetailQuery,
   useBookListQuery as useBaseBookListQuery,
@@ -45,7 +45,7 @@ export const useBookSummaryQuery = (isbn: string) =>
  * LLM 책 요약 생성 Mutation
  */
 export const useGenerateBookSummaryMutation = (options?: {
-  onSuccess?: (data: any) => void;
+  onSuccess?: (data: AiBookSummaryData) => void;
   onError?: (error: unknown) => void;
 }) =>
   useBaseGenerateBookSummaryMutation(options);

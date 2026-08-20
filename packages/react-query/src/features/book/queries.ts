@@ -1,6 +1,6 @@
 "use client";
 import { getBookDetail, getBookList, getBookStats, getBookSummary, getExternalBookDetail, getExternalBookList, getPopularBooks, getPopularKeywords,getSavedBookSummary } from "@bookjeok/api-client";
-import { bookKeys, BookStats, DEFAULT_DISPLAY, GetBookListParams } from "@bookjeok/core";
+import { AiBookSummaryData,bookKeys, BookStats, DEFAULT_DISPLAY, GetBookListParams } from "@bookjeok/core";
 import { keepPreviousData,useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 /**
@@ -125,12 +125,9 @@ export const useBookSummaryQuery = (
   });
 };
 
-/**
- * LLM 책 요약 생성 Mutation
- */
 export const useGenerateBookSummaryMutation = (
   options?: {
-    onSuccess?: (data: any) => void;
+    onSuccess?: (data: AiBookSummaryData) => void;
     onError?: (error: unknown) => void;
   },
 ) => {

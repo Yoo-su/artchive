@@ -9,7 +9,7 @@ export const useSafeSubmit = () => {
 
   /**
    * API 호출과 같은 비동기 함수를 래핑합니다.
-   * 첫 번째 인자로 전달되는 콜백은 (idempotencyKey: string) => Promise<any> 형태여야 합니다.
+   * 첫 번째 인자로 전달되는 콜백은 (idempotencyKey: string) => Promise<T> 형태여야 합니다.
    */
   const executeSafeSubmit = useCallback(
     async <T>(

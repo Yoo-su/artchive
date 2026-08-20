@@ -1,5 +1,11 @@
-import { handleApiError } from "@bookjeok/api-client";
+import {
+  getErrorCode,
+  getErrorMessage,
+  handleApiError,
+} from "@bookjeok/api-client";
 import { toast } from "sonner";
+
+export { getErrorCode, getErrorMessage };
 
 /**
  * Mutation 에러를 HTTP 상태 코드별로 분기 처리하는 공통 유틸리티입니다.
@@ -14,3 +20,4 @@ export const handleMutationError = (error: unknown, context?: string) => {
     onShowError: (message) => toast.error(message),
   });
 };
+

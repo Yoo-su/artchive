@@ -1,7 +1,15 @@
+import {
+  ActiveReadersResponse,
+  LoungeBookReadersResponse,
+  LoungeFeedResponse,
+  LoungePopularResponse,
+  LoungeReader,
+} from '@bookjeok/core';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
+import { Book } from '@/features/book/entities/book.entity';
 import { User } from '@/features/user/entities/user.entity';
 import { BusinessException } from '@/shared/exceptions/business.exception';
 
@@ -14,6 +22,21 @@ import {
 import { CreateReadingLogDto } from '../dto/create-reading-log.dto';
 import { UpdateReadingLogDto } from '../dto/update-reading-log.dto';
 import { ReadingLog } from '../entities/reading-log.entity';
+
+interface FeedGroupAccumulator {
+  isbn: string;
+  book: LoungeFeedResponse['items'][number]['book'] | null;
+  latestDate: string;
+  readersMap: Map<number, LoungeReader>;
+}
+
+interface PopularGroupAccumulator {
+  isbn: string;
+  book: LoungePopularResponse['items'][number]['book'] | null;
+  readerCount: number;
+  readersSet: Set<number>;
+  recentReaders: LoungePopularResponse['items'][number]['recentReaders'];
+}
 
 @Injectable()
 export class ReadingLogService {
@@ -33,7 +56,7 @@ export class ReadingLogService {
    * @param cursor 페이지네이션 커서 (format: "YYYY-MM-DD|isbn")
    * @returns 그룹화된 피드 아이템 + 다음 커서
    */
-  async getLoungeFeed(cursor?: string) {
+  async getLoungeFeed(cursor?: string): Promise<LoungeFeedResponse> {
     // 1단계: ISBN별 최신 독서 날짜 조회 (공개 사용자만)
     const subQuery = this.readingLogRepository
       .createQueryBuilder('rl')
@@ -84,15 +107,7 @@ export class ReadingLogService {
       .getMany();
 
     // 3단계: ISBN별로 그룹화 + 사용자별 최신 기록만 유지 (재독 중복 제거)
-    const groupMap = new Map<
-      string,
-      {
-        isbn: string;
-        book: any;
-        latestDate: string;
-        readersMap: Map<number, any>;
-      }
-    >();
+    const groupMap = new Map<string, FeedGroupAccumulator>();
 
     for (const group of bookGroups) {
       const dateStr =
@@ -122,6 +137,9 @@ export class ReadingLogService {
           publisher: log.book.publisher,
           image: log.book.image,
           description: log.book.description,
+          link: '',
+          discount: '',
+          pubdate: '',
         };
       }
 
@@ -129,11 +147,11 @@ export class ReadingLogService {
       if (!group.readersMap.has(log.userId)) {
         group.readersMap.set(log.userId, {
           userId: log.userId,
-          nickname: (log as any).user?.nickname || '',
-          handle: (log as any).user?.handle || '',
-          profileImageUrl: (log as any).user?.profileImageUrl || null,
+          nickname: log.user?.nickname || '',
+          handle: log.user?.handle || '',
+          profileImageUrl: log.user?.profileImageUrl || null,
           date: log.date,
-          memo: log.memo || null,
+          memo: log.memo || undefined,
         });
       }
     }
@@ -145,7 +163,7 @@ export class ReadingLogService {
 
       return {
         isbn: group.isbn,
-        book: group.book,
+        book: group.book!,
         latestDate: group.latestDate,
         readers: allReaders.slice(0, LOUNGE_MAX_READERS),
         totalReaderCount: allReaders.length,
@@ -168,7 +186,7 @@ export class ReadingLogService {
    *
    * @returns 인기 도서 목록
    */
-  async getLoungePopular() {
+  async getLoungePopular(): Promise<LoungePopularResponse> {
     const sinceDate = new Date();
     sinceDate.setDate(sinceDate.getDate() - LOUNGE_POPULAR_DAYS);
     const sinceDateStr = sinceDate.toISOString().split('T')[0];
@@ -210,14 +228,14 @@ export class ReadingLogService {
       .getMany();
 
     // ISBN별 그룹화
-    const bookMap = new Map<string, any>();
+    const bookMap = new Map<string, PopularGroupAccumulator>();
     for (const pb of popularBooks) {
       bookMap.set(pb.isbn, {
         isbn: pb.isbn,
         book: null,
         readerCount: Number(pb.readerCount),
         readersSet: new Set<number>(),
-        recentReaders: [] as any[],
+        recentReaders: [],
       });
     }
 
@@ -233,6 +251,9 @@ export class ReadingLogService {
           publisher: log.book.publisher,
           image: log.book.image,
           description: log.book.description,
+          link: '',
+          discount: '',
+          pubdate: '',
         };
       }
 
@@ -242,18 +263,18 @@ export class ReadingLogService {
       ) {
         entry.readersSet.add(log.userId);
         entry.recentReaders.push({
-          nickname: (log as any).user?.nickname || '',
-          handle: (log as any).user?.handle || '',
-          profileImageUrl: (log as any).user?.profileImageUrl || null,
+          nickname: log.user?.nickname || '',
+          handle: log.user?.handle || '',
+          profileImageUrl: log.user?.profileImageUrl || null,
         });
       }
     }
 
     const items = popularBooks.map((pb) => {
-      const entry = bookMap.get(pb.isbn);
+      const entry = bookMap.get(pb.isbn)!;
       return {
         isbn: entry.isbn,
-        book: entry.book,
+        book: entry.book!,
         readerCount: entry.readerCount,
         recentReaders: entry.recentReaders,
       };
@@ -269,12 +290,11 @@ export class ReadingLogService {
    * @param limit 조회할 최대 사용자 수 (기본값: 10)
    * @returns 열성 독서가 목록
    */
-  async getLoungeActiveReaders(limit = 10) {
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-    const sinceDateStr = threeMonthsAgo.toISOString().split('T')[0];
+  async getLoungeActiveReaders(limit = 10): Promise<ActiveReadersResponse> {
+    const sinceDate = new Date();
+    sinceDate.setDate(sinceDate.getDate() - 90);
+    const sinceDateStr = sinceDate.toISOString().split('T')[0];
 
-    // 1. 최근 3개월 독서수 및 누적 독서수 집계
     const rawUsers: {
       id: number;
       nickname: string;
@@ -283,23 +303,30 @@ export class ReadingLogService {
       recentCount: string;
       totalCount: string;
     }[] = await this.userRepository
-      .createQueryBuilder('user')
-      .leftJoin('user.readingLogs', 'rl')
-      .select([
-        'user.id AS id',
-        'user.nickname AS nickname',
-        'user.handle AS handle',
-        'user.profileImageUrl AS "profileImageUrl"',
-      ])
-      .addSelect('COUNT(rl.id)', 'totalCount')
+      .createQueryBuilder('u')
+      .select('u.id', 'id')
+      .addSelect('u.nickname', 'nickname')
+      .addSelect('u.handle', 'handle')
+      .addSelect('u.profileImageUrl', 'profileImageUrl')
       .addSelect(
-        'COUNT(CASE WHEN rl.date >= :sinceDate THEN 1 END)',
+        (subQuery) =>
+          subQuery
+            .select('COUNT(rl.id)', 'recentCount')
+            .from(ReadingLog, 'rl')
+            .where('rl.userId = u.id')
+            .andWhere('rl.date >= :sinceDate', { sinceDate: sinceDateStr }),
         'recentCount',
       )
-      .where('user.isReadingLogPublic = :isPublic', { isPublic: true })
-      .andWhere('user.deletedAt IS NULL')
-      .setParameter('sinceDate', sinceDateStr)
-      .groupBy('user.id')
+      .addSelect(
+        (subQuery) =>
+          subQuery
+            .select('COUNT(rl2.id)', 'totalCount')
+            .from(ReadingLog, 'rl2')
+            .where('rl2.userId = u.id'),
+        'totalCount',
+      )
+      .where('u.isReadingLogPublic = :isPublic', { isPublic: true })
+      .andWhere('u.deletedAt IS NULL')
       .orderBy('"recentCount"', 'DESC')
       .addOrderBy('"totalCount"', 'DESC')
       .limit(limit)
@@ -328,12 +355,15 @@ export class ReadingLogService {
    * @param cursor 페이지네이션 커서 (userId)
    * @returns 독자 목록 + 다음 커서 + 전체 수
    */
-  async getLoungeBookReaders(isbn: string, cursor?: string) {
+  async getLoungeBookReaders(
+    isbn: string,
+    cursor?: string,
+  ): Promise<LoungeBookReadersResponse> {
     const PAGE_SIZE = 20;
 
     // 도서 정보 조회
     const bookEntity = await this.dataSource
-      .getRepository('Book')
+      .getRepository(Book)
       .findOne({ where: { isbn } });
 
     const book = bookEntity
@@ -344,8 +374,21 @@ export class ReadingLogService {
           publisher: bookEntity.publisher,
           image: bookEntity.image,
           description: bookEntity.description,
+          link: '',
+          discount: '',
+          pubdate: '',
         }
-      : null;
+      : {
+          isbn,
+          title: '',
+          author: '',
+          publisher: '',
+          image: '',
+          description: '',
+          link: '',
+          discount: '',
+          pubdate: '',
+        };
 
     // 전체 독자 수 (고유 사용자)
     const totalCountResult = await this.readingLogRepository
@@ -426,11 +469,11 @@ export class ReadingLogService {
 
       return {
         userId: ug.userId,
-        nickname: (log as any)?.user?.nickname || '',
-        handle: (log as any)?.user?.handle || '',
-        profileImageUrl: (log as any)?.user?.profileImageUrl || null,
+        nickname: log?.user?.nickname || '',
+        handle: log?.user?.handle || '',
+        profileImageUrl: log?.user?.profileImageUrl || null,
         date: formattedDate,
-        memo: log?.memo || null,
+        memo: log?.memo || undefined,
       };
     });
 

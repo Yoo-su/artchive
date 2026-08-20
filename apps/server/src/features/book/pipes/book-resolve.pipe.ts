@@ -11,19 +11,20 @@ import { BookService } from '../services/book.service';
 export class BookResolvePipe implements PipeTransform {
   constructor(private readonly bookService: BookService) {}
 
-  async transform(value: any, metadata: ArgumentMetadata): Promise<any> {
+  async transform<T>(value: T, metadata: ArgumentMetadata): Promise<T> {
     // 1. Body 데이터 처리 (isbn 필드 또는 위시리스트 id)
-    if (metadata.type === 'body' && value) {
-      const isbnToResolve =
-        value.isbn || (value.type === 'BOOK' ? value.id : null);
+    if (metadata.type === 'body' && value && typeof value === 'object') {
+      const record = value as Record<string, unknown>;
+      const rawIsbn =
+        record.isbn ?? (record.type === 'BOOK' ? record.id : null);
 
-      if (isbnToResolve) {
-        await this.bookService.resolveBook(String(isbnToResolve));
+      if (typeof rawIsbn === 'string' || typeof rawIsbn === 'number') {
+        await this.bookService.resolveBook(String(rawIsbn));
       }
     }
 
     // 2. Param 데이터 처리 (isbn 파라미터)
-    if (metadata.type === 'param' && value && typeof value === 'string') {
+    if (metadata.type === 'param' && typeof value === 'string') {
       await this.bookService.resolveBook(value);
     }
 

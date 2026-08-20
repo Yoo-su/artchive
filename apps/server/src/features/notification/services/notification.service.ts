@@ -30,7 +30,7 @@ export class NotificationService {
     recipientId: number,
     actorId: number,
     type: NotificationType,
-    metadata: Record<string, any>,
+    metadata: Record<string, unknown>,
   ) {
     if (recipientId === actorId) return;
 

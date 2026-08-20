@@ -138,7 +138,10 @@ privateApiClient.interceptors.response.use(
       }
 
       try {
-        const { data } = await publicApiClient.post(
+        const { data } = await publicApiClient.post<{
+          accessToken: string;
+          refreshToken?: string;
+        }>(
           `/auth/refresh`,
           {},
           {
@@ -149,7 +152,7 @@ privateApiClient.interceptors.response.use(
         );
 
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
-          data as any;
+          data;
 
         if (!newAccessToken) {
           throw new Error("Failed to retrieve new access token");
@@ -157,7 +160,7 @@ privateApiClient.interceptors.response.use(
 
         useAuthStore.getState().setTokens({
           accessToken: newAccessToken,
-          refreshToken: newRefreshToken,
+          refreshToken: newRefreshToken || refreshToken,
         });
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;

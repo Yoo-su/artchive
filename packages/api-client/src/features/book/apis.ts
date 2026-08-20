@@ -1,4 +1,15 @@
-import { API_PATHS, BaseBookInfo, BookStats, DEFAULT_DISPLAY, DEFAULT_SORT, DEFAULT_START, GetBookDetailSuccessResponse, GetBookListParams, GetBookListSuccessResponse } from "@bookjeok/core";
+import {
+  AiBookSummaryData,
+  API_PATHS,
+  BaseBookInfo,
+  BookStats,
+  DEFAULT_DISPLAY,
+  DEFAULT_SORT,
+  DEFAULT_START,
+  GetBookDetailSuccessResponse,
+  GetBookListParams,
+  GetBookListSuccessResponse,
+} from "@bookjeok/core";
 
 import { privateApiClient, publicApiClient } from "../../client";
 
@@ -98,8 +109,8 @@ export const getPopularBooks = async (): Promise<BaseBookInfo[]> => {
  */
 export const getSavedBookSummary = async (
   isbn: string,
-) => {
-  const { data } = await publicApiClient.get(API_PATHS.llm.getSummary(isbn));
+): Promise<AiBookSummaryData | null> => {
+  const { data } = await publicApiClient.get<AiBookSummaryData | null>(API_PATHS.llm.getSummary(isbn));
   return data;
 };
 
@@ -112,8 +123,8 @@ export const getBookSummary = async (
   description?: string,
   isbn?: string,
   publisher?: string,
-) => {
-  const { data } = await privateApiClient.post(API_PATHS.llm.summary, {
+): Promise<AiBookSummaryData> => {
+  const { data } = await privateApiClient.post<AiBookSummaryData>(API_PATHS.llm.summary, {
     title,
     author,
     description,

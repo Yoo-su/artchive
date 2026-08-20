@@ -4,7 +4,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Cache } from 'cache-manager';
 import { DataSource, In, Repository } from 'typeorm';
 
+import { Book } from '@/features/book/entities/book.entity';
 import { BookService } from '@/features/book/services/book.service';
+import { User } from '@/features/user/entities/user.entity';
 import { UserService } from '@/features/user/services/user.service';
 import { BusinessException } from '@/shared/exceptions';
 
@@ -54,8 +56,8 @@ export class UsedBookSaleService {
     // 엔티티 생성 및 관계 설정 (ID 참조 방식 활용으로 추가 조회 최소화)
     const newSale = this.usedBookSaleRepository.create({
       ...saleData,
-      user: { id: userId } as any, // Shallow reference
-      book: { isbn } as any, // Shallow reference
+      user: { id: userId } as User,
+      book: { isbn } as Book,
     });
 
     const savedSale = await this.usedBookSaleRepository.save(newSale);

@@ -8,7 +8,7 @@ export const routing = defineRouting({
   localeDetection: false,
 });
 
-// Next.js의 네비게이션 API를 감싸는 경량 래퍼로,
-// 로케일을 자동으로 처리합니다.
 export const { Link, redirect, usePathname, useRouter, getPathname } =
   createNavigation(routing);
+
+export type Locale = (typeof routing.locales)[number];

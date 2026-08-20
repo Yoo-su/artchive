@@ -49,9 +49,9 @@ const _serverEnv = {
 // }
 
 export const config = {
-  ...(_clientEnv as any),
-  ...(_serverEnv as any),
+  ..._clientEnv,
+  ..._serverEnv,
   isDev: process.env.NODE_ENV === "development",
   isProd: process.env.NODE_ENV === "production",
-} as z.infer<typeof clientEnvSchema> &
+} as unknown as z.infer<typeof clientEnvSchema> &
   z.infer<typeof serverEnvSchema> & { isDev: boolean; isProd: boolean };

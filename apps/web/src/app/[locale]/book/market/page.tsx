@@ -50,10 +50,10 @@ export default async function Page({
     {
       type: "infinite" as const,
       queryKey: bookSaleKeys.marketSales({}).queryKey,
-      queryFn: ({ pageParam }: any) =>
+      queryFn: ({ pageParam }: { pageParam?: string }) =>
         getBookSales({
           page: 1,
-          cursor: pageParam as string | undefined,
+          cursor: pageParam,
         }),
       initialPageParam: undefined,
     },

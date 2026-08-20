@@ -38,7 +38,7 @@ export class Notification {
   type: NotificationType;
 
   @Column({ type: 'jsonb', default: {} })
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 
   @Column({ default: false })
   isRead: boolean;

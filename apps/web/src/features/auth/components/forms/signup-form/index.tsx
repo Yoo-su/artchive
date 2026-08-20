@@ -21,6 +21,7 @@ import {
 } from "@/shared/components/shadcn/form";
 import { Input } from "@/shared/components/shadcn/input";
 import { Link, useRouter } from "@/shared/config/i18n/routing";
+import { getErrorMessage } from "@/shared/utils/error-handler";
 
 export const SignupForm = () => {
   const t = useTranslations("auth.signup");
@@ -51,7 +52,7 @@ export const SignupForm = () => {
       router.push("/login");
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 409) {
-        const message = error.response.data.message;
+        const message = getErrorMessage(error, "");
         if (message === "EMAIL_ALREADY_EXISTS") {
           form.setError("email", { message: t("error.email_exists") });
         } else if (message === "NICKNAME_ALREADY_EXISTS") {
@@ -62,7 +63,7 @@ export const SignupForm = () => {
           toast.error(t("error.info_exists"));
         }
       } else if (axios.isAxiosError(error)) {
-        const serverMessage = error.response?.data?.message;
+        const serverMessage = getErrorMessage(error, "");
         if (serverMessage) {
           toast.error(`오류: ${serverMessage}`);
         } else {
@@ -75,6 +76,7 @@ export const SignupForm = () => {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className="w-full max-w-md space-y-8">
