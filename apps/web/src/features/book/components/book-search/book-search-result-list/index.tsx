@@ -110,7 +110,7 @@ export const BookSearchResultList = ({
   return (
     <div className={cn("transition-opacity duration-300", isTransitioning && "opacity-40 pointer-events-none")}>
       <div className="grid gap-x-4 gap-y-6 grid-cols-2 sm:grid-cols-4">
-        {data?.pages.map((page: any, pageIndex: number) => (
+        {data?.pages.map((page, pageIndex: number) => (
           <motion.div
             key={`page-${pageIndex}`}
             className="col-span-full grid gap-x-4 gap-y-6 grid-cols-2 sm:grid-cols-4"
@@ -118,7 +118,7 @@ export const BookSearchResultList = ({
             animate="visible"
             variants={containerVariants}
           >
-            {(page.items as BookInfo[] | undefined)?.map((book: BookInfo, bookIndex: number) => (
+            {page.items?.map((book: BookInfo, bookIndex: number) => (
               <motion.div
                 key={book.isbn || `book-${pageIndex}-${bookIndex}`}
                 variants={itemVariants}

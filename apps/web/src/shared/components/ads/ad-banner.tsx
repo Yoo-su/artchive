@@ -8,7 +8,7 @@ import { cn } from "@/shared/utils/cn";
 
 declare global {
   interface Window {
-    adsbygoogle: any[];
+    adsbygoogle: unknown[];
   }
 }
 

@@ -81,12 +81,9 @@ export const useUpdateReadingLogSettingsMutation = (
       );
       const previousUser = queryClient.getQueryData<User>(userKeys.me.queryKey);
 
-      queryClient.setQueryData(
+      queryClient.setQueryData<{ isReadingLogPublic: boolean }>(
         readingLogKeys.settings.queryKey,
-        (old: any) => ({
-          ...old,
-          isReadingLogPublic,
-        }),
+        (old) => (old ? { ...old, isReadingLogPublic } : { isReadingLogPublic }),
       );
 
       if (previousUser) {

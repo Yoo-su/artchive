@@ -20,7 +20,7 @@ import GoogleAnalytics from "@/shared/components/analytics/google-analytics";
 import MicrosoftClarity from "@/shared/components/analytics/microsoft-clarity";
 import { Toaster } from "@/shared/components/shadcn/sonner";
 import { config } from "@/shared/config/env";
-import { routing } from "@/shared/config/i18n/routing";
+import { Locale, routing } from "@/shared/config/i18n/routing";
 import { getJsonLd } from "@/shared/config/json-ld";
 import { generateGlobalMetadata } from "@/shared/config/metadata";
 import { QueryProvider } from "@/shared/providers/query-provider";
@@ -61,7 +61,7 @@ export default async function Layout({
   const { locale } = await params;
 
   // 유효하지 않은 locale 진입 시 404 처리
-  if (!routing.locales.includes(locale as any)) {
+  if (!routing.locales.includes(locale as Locale)) {
     notFound();
   }
 

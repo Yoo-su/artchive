@@ -118,3 +118,13 @@ export interface BookStats {
   wishlistUserCount: number;
 }
 
+export interface AiBookSummaryData {
+  isbn: string;
+  summary: string;
+  keyPoints: string[];
+  targetAudience: string;
+  keywords: string[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+

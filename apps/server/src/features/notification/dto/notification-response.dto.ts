@@ -28,7 +28,7 @@ export class NotificationResponseDto {
     description: '메타데이터 (JSON)',
     example: { reviewId: 1, content: '...' },
   })
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 
   @ApiProperty({ description: '읽음 여부' })
   isRead: boolean;

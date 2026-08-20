@@ -1,3 +1,4 @@
+import { User } from "@bookjeok/core";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useEffect } from "react";
 
@@ -6,11 +7,18 @@ import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { CHAT_STORAGE_KEY } from "../../constants/ai-chat";
 import { AiChatWindow } from "./ai-chat-window";
 
-const mockUser = {
+const mockUser: User = {
   id: 1,
+  provider: "local",
+  providerId: "1",
   email: "reader@example.com",
   nickname: "애독자너구리",
   handle: "reader_neoguri",
+  profileImageUrl: null,
+  createdAt: "2024-01-01T00:00:00Z",
+  updatedAt: "2024-01-01T00:00:00Z",
+  isReadingLogPublic: true,
+  role: "USER",
 };
 
 const mockMessages = [
@@ -80,7 +88,7 @@ export const LoggedInWithActiveChat: Story = {
   decorators: [
     (Story) => {
       useEffect(() => {
-        useAuthStore.setState({ user: mockUser as any });
+        useAuthStore.setState({ user: mockUser });
         if (typeof window !== "undefined") {
           const storageKey = `${CHAT_STORAGE_KEY}_user_${mockUser.id}`;
           sessionStorage.setItem(storageKey, JSON.stringify(mockMessages));

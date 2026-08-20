@@ -18,7 +18,7 @@ export class IdempotencyInterceptor implements NestInterceptor {
   async intercept(
     context: ExecutionContext,
     next: CallHandler,
-  ): Promise<Observable<any>> {
+  ): Promise<Observable<unknown>> {
     const request = context.switchToHttp().getRequest();
     const idempotencyKey = request.headers['x-idempotency-key'];
 
@@ -40,7 +40,7 @@ export class IdempotencyInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap({
-        next: (data: any) => {
+        next: (data: unknown) => {
           // 성공 시 완료 상태 유지 (10분)
           this.cacheManager
             .set(cacheKey, data || 'completed', 600000)

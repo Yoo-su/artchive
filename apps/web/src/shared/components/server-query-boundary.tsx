@@ -1,14 +1,20 @@
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { dehydrate, HydrationBoundary, QueryFunction } from "@tanstack/react-query";
 import { ReactNode } from "react";
 
 import { getQueryClient } from "@/shared/libs/query-client";
 
-type QueryConfig = {
-  queryKey: readonly unknown[];
-  queryFn: (context?: any) => Promise<any>;
-  type?: "query" | "infinite";
-  initialPageParam?: any;
-};
+type QueryConfig =
+  | {
+      type?: "query";
+      queryKey: readonly unknown[];
+      queryFn: QueryFunction<unknown, readonly unknown[], never>;
+    }
+  | {
+      type: "infinite";
+      queryKey: readonly unknown[];
+      queryFn: QueryFunction<unknown, readonly unknown[], any>;
+      initialPageParam?: unknown;
+    };
 
 type ServerQueryBoundaryProps = {
   queries?: QueryConfig[];

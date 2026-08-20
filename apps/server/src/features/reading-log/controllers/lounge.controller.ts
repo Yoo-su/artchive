@@ -1,3 +1,9 @@
+import {
+  ActiveReadersResponse,
+  LoungeBookReadersResponse,
+  LoungeFeedResponse,
+  LoungePopularResponse,
+} from '@bookjeok/core';
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
   ApiOperation,
@@ -29,7 +35,7 @@ export class LoungeController {
     status: 200,
     description: '라운지 피드 목록을 반환합니다.',
   })
-  getLoungeFeed(@Query('cursor') cursor?: string) {
+  getLoungeFeed(@Query('cursor') cursor?: string): Promise<LoungeFeedResponse> {
     return this.readingLogService.getLoungeFeed(cursor);
   }
 
@@ -43,7 +49,7 @@ export class LoungeController {
     status: 200,
     description: '인기 도서 목록을 반환합니다.',
   })
-  getLoungePopular() {
+  getLoungePopular(): Promise<LoungePopularResponse> {
     return this.readingLogService.getLoungePopular();
   }
 
@@ -57,7 +63,7 @@ export class LoungeController {
     status: 200,
     description: '열성 독서가 목록을 반환합니다.',
   })
-  getLoungeActiveReaders() {
+  getLoungeActiveReaders(): Promise<ActiveReadersResponse> {
     return this.readingLogService.getLoungeActiveReaders();
   }
 
@@ -80,7 +86,7 @@ export class LoungeController {
   getLoungeBookReaders(
     @Param('isbn') isbn: string,
     @Query('cursor') cursor?: string,
-  ) {
+  ): Promise<LoungeBookReadersResponse> {
     return this.readingLogService.getLoungeBookReaders(isbn, cursor);
   }
 }

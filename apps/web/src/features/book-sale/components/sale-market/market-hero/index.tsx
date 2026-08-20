@@ -97,21 +97,18 @@ const SpringDivider = () => {
           strokeLinecap="round"
           className="text-zinc-400 dark:text-zinc-600"
           animate={{
-            scaleX: [1, 1.8, 0.6, 1], // 보통 -> 늘어남 (긴장) -> 압축됨 -> 보통
+            scaleX: [1, 1.8, 0.6, 1],
           }}
           transition={{
-            duration: 10, // 덜 산만하도록 느린 모션
+            duration: 10,
             ease: "easeInOut",
-            times: [0, 0.4, 0.7, 1], // 늘어남 vs 압축됨 시간 분배
+            times: [0, 0.4, 0.7, 1],
             repeat: Infinity,
-            repeatDelay: 1, // 사이클 간 일시정지
+            repeatDelay: 1,
           }}
           style={{ transformOrigin: "center" }}
         />
-        {/* 복잡성이 필요한 경우 미러 경로 추가, 또는 요청대로 '얇은 선' 유지 */}
       </motion.svg>
     </div>
   );
 };
-
-// ... (removed inline component)

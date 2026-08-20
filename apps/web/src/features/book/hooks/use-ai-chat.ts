@@ -311,7 +311,7 @@ export const useAiChat = () => {
             setLoading(false);
           },
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("AI Chat Request Failed:", error);
         if (rafIdRef.current) {
           cancelAnimationFrame(rafIdRef.current);
@@ -323,7 +323,11 @@ export const useAiChat = () => {
         activeAiMessageIdRef.current = null;
 
         const isUnauthorized =
-          error?.message === "UNAUTHORIZED" || error?.response?.status === 401;
+          (error instanceof Error && error.message === "UNAUTHORIZED") ||
+          (typeof error === "object" &&
+            error !== null &&
+            "response" in error &&
+            (error as { response?: { status?: number } }).response?.status === 401);
         const errorContent = isUnauthorized
           ? "AI 도서 추천 기능은 로그인 후 이용하실 수 있는 회원 전용 서비스입니다."
           : "죄송합니다, 대화를 처리하는 중 일시적인 오류가 발생했습니다. 다시 말씀해 주시겠어요?";

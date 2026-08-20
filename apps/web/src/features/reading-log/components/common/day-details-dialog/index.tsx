@@ -88,7 +88,7 @@ export function DayDetailsDialog({
           date: format(date, "yyyy-MM-dd"),
           memo,
           idempotencyKey,
-        } as any,
+        },
         {
           onSuccess: () => {
             setSelectedBookForCreate(null);

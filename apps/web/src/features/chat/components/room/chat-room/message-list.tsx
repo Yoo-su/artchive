@@ -95,8 +95,8 @@ interface MessageListProps {
   messages: ChatMessage[];
   currentUserId?: number;
   isFetchingPreviousPage: boolean;
-  messagesEndRef: any;
-  messageContainerRef: any;
+  messagesEndRef: RefObject<HTMLDivElement | null>;
+  messageContainerRef: RefObject<HTMLDivElement | null>;
   onScroll: () => void;
 }
 

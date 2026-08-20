@@ -22,9 +22,10 @@ async function handleRevalidate(request: NextRequest) {
     // Next.js ISR 캐시 파괴 및 즉시 재생성 트리거
     revalidatePath(path);
     return NextResponse.json({ revalidated: true, path, now: Date.now() });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
-      { message: "Revalidation failed", error: err.message },
+      { message: "Revalidation failed", error },
       { status: 500 },
     );
   }

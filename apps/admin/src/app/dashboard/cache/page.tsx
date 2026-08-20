@@ -5,7 +5,6 @@ import axios from "axios";
 import { AlertTriangle, CheckCircle, Loader2, RefreshCw, Send } from "lucide-react";
 import { useState } from "react";
 
-
 import { AdminLayout } from "../../../layouts/admin-layout";
 
 interface ISRPage {

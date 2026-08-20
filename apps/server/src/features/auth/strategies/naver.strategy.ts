@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy } from 'passport-naver';
 
+import { User } from '@/features/user/entities/user.entity';
+
 import { AuthService } from '../services/auth.service';
 
 @Injectable()
@@ -22,7 +24,7 @@ export class NaverStrategy extends PassportStrategy(Strategy, 'naver') {
     accessToken: string,
     refreshToken: string,
     profile: Profile,
-    done: any,
+    done: (error: unknown, user?: User | false, info?: unknown) => void,
   ) {
     const {
       id: providerId,

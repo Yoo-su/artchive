@@ -407,16 +407,11 @@ export const ReviewForm = ({
                     </p>
                   </div>
                   <FormControl>
-                    {(() => {
-                      const SwitchAny = Switch as any;
-                      return (
-                        <SwitchAny
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          disabled={isProcessing}
-                        />
-                      );
-                    })()}
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={isProcessing}
+                    />
                   </FormControl>
                 </FormItem>
                 <div className="mt-3 flex gap-2 rounded-md bg-blue-50 p-3 text-sm text-blue-700">

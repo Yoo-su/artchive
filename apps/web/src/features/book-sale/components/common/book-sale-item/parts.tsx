@@ -182,7 +182,7 @@ export const Meta = ({ className }: { className?: string }) => {
   );
 };
 
-// 효과 - BorderBeam 제거 (안전한 빈 컴포넌트 유지)
+// 기존 호출부 호환용 컴포넌트
 export const Effect = ({
   duration: _duration,
   delay: _delay,
