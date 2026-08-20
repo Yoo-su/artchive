@@ -78,8 +78,10 @@ export const deleteBookSale = async (saleId: number) => {
 /**
  * 최근 등록된 중고책 판매글 목록을 조회합니다.
  */
-export const getRecentBookSales = async (): Promise<UsedBookSale[]> => {
-  return sharedGetRecentBookSales();
+export const getRecentBookSales = async (
+  limit: number = 25,
+): Promise<UsedBookSale[]> => {
+  return sharedGetRecentBookSales(limit);
 };
 
 /**

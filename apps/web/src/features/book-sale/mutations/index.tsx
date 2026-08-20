@@ -59,7 +59,7 @@ export const useCreateBookSaleMutation = () => {
   const sharedMutation = useSharedCreateBookSaleMutation({
     onSuccess: () => {
       toast.success("판매글이 성공적으로 등록되었습니다.");
-      queryClient.invalidateQueries({ queryKey: bookSaleKeys.availableRegions.queryKey });
+      queryClient.invalidateQueries({ queryKey: bookSaleKeys._def });
       router.push(PATHS.MY_PAGE_SALES);
     },
     onError: (error: Error) => {

@@ -126,7 +126,7 @@ export const useRelatedSalesQuery = ({
  */
 export const useRecentBookSalesQuery = (limit: number = 25) => {
   return useQuery({
-    queryKey: [...bookSaleKeys.recentSales.queryKey, limit],
+    queryKey: bookSaleKeys.recentSales(limit).queryKey,
     queryFn: () => getRecentBookSales(limit),
   });
 };
