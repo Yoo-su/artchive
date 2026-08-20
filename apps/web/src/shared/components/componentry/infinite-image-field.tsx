@@ -179,7 +179,16 @@ export function InfiniteImageField({
         const img = imgs[imgIdx];
         const item = activeItemsRef.current[imgIdx];
 
-        // Draw Book Cover Image (Clean, no heavy blur shadows or flickering gradients)
+        // Draw Book Cover Image (Tactile physical book feel with soft shadow & clean edge)
+        ctx.save();
+        ctx.shadowColor = "rgba(0, 0, 0, 0.07)";
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetY = 3;
+        ctx.fillStyle = "#ffffff";
+        drawRoundedRect(ctx, sx, sy, imageWidth, imageHeight, borderRadius);
+        ctx.fill();
+        ctx.restore();
+
         ctx.save();
         drawRoundedRect(ctx, sx, sy, imageWidth, imageHeight, borderRadius);
         ctx.clip();
@@ -187,7 +196,7 @@ export function InfiniteImageField({
         if (img && img.complete && img.naturalWidth > 0) {
           ctx.drawImage(img, sx, sy, imageWidth, imageHeight);
         } else {
-          ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
+          ctx.fillStyle = "rgba(0, 0, 0, 0.04)";
           ctx.fillRect(sx, sy, imageWidth, imageHeight);
         }
         ctx.restore();
@@ -195,7 +204,7 @@ export function InfiniteImageField({
         // Subtle crisp border outline
         ctx.save();
         drawRoundedRect(ctx, sx, sy, imageWidth, imageHeight, borderRadius);
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.08)";
         ctx.lineWidth = 1;
         ctx.stroke();
         ctx.restore();

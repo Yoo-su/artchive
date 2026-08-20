@@ -44,11 +44,8 @@ export const PopularBookSlider = () => {
     <section className="w-full py-16 bg-white">
       <div className="w-full mx-auto px-4">
         {/* 헤더 - 기품있는 버티컬 라인 에디토리얼 스타일 */}
-        <div className="mb-10 relative flex items-end">
-          <div className="absolute -top-8 sm:-top-16 -left-2 sm:-left-4 text-[100px] sm:text-[140px] font-serif italic text-neutral-100 leading-none tracking-tighter select-none pointer-events-none -z-0">
-            TOP
-          </div>
-          <div className="relative z-10 flex justify-between items-end w-full">
+        <div className="mb-10 flex items-end">
+          <div className="flex justify-between items-end w-full">
             <div className="border-l-[3px] border-[#242424] pl-5 sm:pl-6">
               <h2 className="font-serif text-3xl sm:text-4xl lg:text-[40px] font-medium text-neutral-900 tracking-tight break-keep">
                 {t("title")}

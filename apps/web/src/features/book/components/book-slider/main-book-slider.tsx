@@ -419,7 +419,7 @@ export const MainBookSlider = () => {
   };
 
   return (
-    <div className="w-full bg-stone-50/30 py-16 md:py-24 overflow-hidden select-none">
+    <div className="w-full bg-transparent py-16 md:py-24 overflow-hidden select-none">
       <div className="container mx-auto w-full px-4 md:px-0 mb-12 flex flex-col items-center text-center">
         <TextAnimate
           as="h2"

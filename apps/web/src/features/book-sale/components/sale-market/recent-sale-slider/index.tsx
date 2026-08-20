@@ -87,8 +87,8 @@ export const RecentSalesSlider = () => {
       <div className="w-full mx-auto px-4">
         <SliderHeader />
 
-        {/* 1. PC / 태블릿 뷰: 있는 듯 없는 듯 극도로 은은한 마이크로 페이드 & 직각 글래스 림 */}
-        <div className="hidden md:block relative w-full h-[460px] lg:h-[520px] bg-[#1c1c1c] border border-white/8 shadow-lg overflow-hidden">
+        {/* 1. PC / 태블릿 뷰: 맑은 라이트그레이 페이퍼 캔버스 */}
+        <div className="hidden md:block relative w-full h-[460px] lg:h-[520px] bg-[#f6f6f5] border border-neutral-200 shadow-xs overflow-hidden">
           <InfiniteImageField
             items={imageItems}
             imageWidth={180}
@@ -102,15 +102,15 @@ export const RecentSalesSlider = () => {
             }
           />
 
-          {/* 극도로 은은한 가장자리 마이크로 페이드 (있는 듯 없는 듯 부드러운 감쇠) */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-12 bg-gradient-to-r from-[#1c1c1c]/50 to-transparent z-10" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-12 bg-gradient-to-l from-[#1c1c1c]/50 to-transparent z-10" />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-8 sm:h-10 bg-gradient-to-b from-[#1c1c1c]/40 to-transparent z-10" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 sm:h-16 bg-gradient-to-t from-[#1c1c1c]/60 via-[#1c1c1c]/25 to-transparent z-10" />
+          {/* 라이트그레이 톤 가장자리 부드러운 마이크로 페이드 */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-12 bg-gradient-to-r from-[#f6f6f5]/70 to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-12 bg-gradient-to-l from-[#f6f6f5]/70 to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-8 sm:h-10 bg-gradient-to-b from-[#f6f6f5]/60 to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 sm:h-16 bg-gradient-to-t from-[#f6f6f5]/80 via-[#f6f6f5]/30 to-transparent z-10" />
 
           {/* 하단 안내 가이드 바 */}
           <div className="pointer-events-none absolute bottom-5 left-6 z-20 flex items-center gap-3">
-            <span className="text-xs font-sans text-neutral-300 bg-neutral-900/80 backdrop-blur-md px-3.5 py-1.5 border border-white/10 shadow-sm">
+            <span className="text-xs font-sans text-neutral-600 bg-white/95 backdrop-blur-md px-3.5 py-1.5 border border-neutral-200 shadow-xs">
               {t("field_guide")}
             </span>
           </div>
@@ -119,7 +119,7 @@ export const RecentSalesSlider = () => {
           <div className="absolute bottom-5 right-6 z-20">
             <Link
               href={PATHS.BOOK_MARKET}
-              className="inline-flex items-center gap-1.5 text-xs font-medium px-4 py-2 bg-white/95 hover:bg-white text-neutral-950 border border-white shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all"
+              className="inline-flex items-center gap-1.5 text-xs font-medium px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white border border-neutral-900 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all"
             >
               {t("view_all_button")}
               <ArrowRight className="w-3.5 h-3.5" />
