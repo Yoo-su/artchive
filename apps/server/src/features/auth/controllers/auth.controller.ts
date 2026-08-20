@@ -39,7 +39,8 @@ export class AuthController {
   @UseGuards(AuthGuard('naver'))
   @ApiOperation({
     summary: '네이버 로그인 콜백',
-    description: '네이버 로그인 후 1회용 인증 티켓을 발급하여 클라이언트로 리다이렉트합니다.',
+    description:
+      '네이버 로그인 후 1회용 인증 티켓을 발급하여 클라이언트로 리다이렉트합니다.',
   })
   @ApiResponse({
     status: 302,
@@ -49,7 +50,8 @@ export class AuthController {
     const ticket = await this.authService.createAuthTicket(user);
 
     const clientDomain =
-      this.configService.get<string>('CLIENT_DOMAIN') ?? 'http://localhost:3000';
+      this.configService.get<string>('CLIENT_DOMAIN') ??
+      'http://localhost:3000';
     const url = new URL(`${clientDomain}/callback`);
     url.searchParams.set('ticket', ticket);
     return res.redirect(url.toString());
@@ -71,7 +73,8 @@ export class AuthController {
   @UseGuards(AuthGuard('kakao'))
   @ApiOperation({
     summary: '카카오 로그인 콜백',
-    description: '카카오 로그인 후 1회용 인증 티켓을 발급하여 클라이언트로 리다이렉트합니다.',
+    description:
+      '카카오 로그인 후 1회용 인증 티켓을 발급하여 클라이언트로 리다이렉트합니다.',
   })
   @ApiResponse({
     status: 302,
@@ -81,7 +84,8 @@ export class AuthController {
     const ticket = await this.authService.createAuthTicket(user);
 
     const clientDomain =
-      this.configService.get<string>('CLIENT_DOMAIN') ?? 'http://localhost:3000';
+      this.configService.get<string>('CLIENT_DOMAIN') ??
+      'http://localhost:3000';
     const url = new URL(`${clientDomain}/callback`);
     url.searchParams.set('ticket', ticket);
     return res.redirect(url.toString());
@@ -91,7 +95,8 @@ export class AuthController {
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({
     summary: '1회용 인증 티켓 교환',
-    description: '소셜 로그인 후 발급된 1회용 인증 티켓을 Access/Refresh Token으로 교환합니다.',
+    description:
+      '소셜 로그인 후 발급된 1회용 인증 티켓을 Access/Refresh Token으로 교환합니다.',
   })
   @ApiResponse({
     status: 200,
@@ -135,7 +140,8 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({
     summary: '로그아웃',
-    description: '사용자의 토큰 버전을 증가시켜 기존 Refresh Token을 즉시 무효화합니다.',
+    description:
+      '사용자의 토큰 버전을 증가시켜 기존 Refresh Token을 즉시 무효화합니다.',
   })
   @ApiResponse({
     status: 200,
@@ -168,4 +174,3 @@ export class AuthController {
     return await this.authService.login(loginDto);
   }
 }
-

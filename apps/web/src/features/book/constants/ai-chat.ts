@@ -1,13 +1,4 @@
-export interface AiSearchBookItem {
-  isbn: string;
-  title: string;
-  author: string;
-  publisher: string;
-  description: string;
-  image: string;
-  similarity: number;
-  reason?: string;
-}
+import { AiSearchBookItem } from "@bookjeok/core";
 
 export interface ChatMessage {
   id: string;
@@ -17,6 +8,8 @@ export interface ChatMessage {
   isStreaming?: boolean;
   statusMessage?: string;
 }
+
+
 
 export const CHAT_STORAGE_KEY = "bookjeok_ai_chat_history";
 

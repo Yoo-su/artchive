@@ -1,3 +1,4 @@
+import { BOOK_DOMAINS } from '@bookjeok/core';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -15,7 +16,7 @@ import {
 import { Tag } from '@/features/review/entities/tag.entity';
 import { BusinessException } from '@/shared/exceptions';
 
-import { BOOK_DOMAINS, POPULAR_REVIEW_MONTHS } from '../constants';
+import { POPULAR_REVIEW_MONTHS } from '../constants';
 import { CreateReviewDto } from '../dto/create-review.dto';
 import { GetReviewsQueryDto } from '../dto/get-reviews-query.dto';
 import {

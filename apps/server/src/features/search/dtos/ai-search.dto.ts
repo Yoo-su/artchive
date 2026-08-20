@@ -1,3 +1,4 @@
+import { AiSearchBookItem } from '@bookjeok/core';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
@@ -42,7 +43,7 @@ export class AiSearchRequestDto {
   messages: ChatMessageDto[];
 }
 
-export class BookSearchResultDto {
+export class BookSearchResultDto implements AiSearchBookItem {
   @ApiProperty({ description: 'ISBN' })
   isbn: string;
 

@@ -25,3 +25,24 @@ export interface GetChatMessagesResponse {
   hasNextPage: boolean;
   nextCursor?: number;
 }
+
+/**
+ * 실시간 채팅 WebSocket 페이로드 타입
+ */
+export interface SendMessagePayload {
+  roomId: number;
+  content: string;
+}
+
+export interface TypingPayload {
+  roomId: number;
+}
+
+export interface MarkAsReadPayload {
+  roomId: number;
+}
+
+export interface LeaveRoomPayload {
+  roomId: number;
+}
+

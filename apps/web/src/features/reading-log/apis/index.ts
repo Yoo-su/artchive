@@ -20,6 +20,7 @@ import {
   CreateReadingLogParams,
   ReadingLog,
   ReadingLogListResponse,
+  ReadingLogSettings,
   ReadingLogStats,
   UpdateReadingLogParams,
 } from "@bookjeok/core";
@@ -47,21 +48,14 @@ export const getReadingLogStats = async (year: number, month: number) => {
 };
 
 /**
- * 독서 기록 설정 타입
- */
-export interface ReadingLogSettings {
-  /** 독서 기록 공개 여부 (프로필에 표시 여부) */
-  isReadingLogPublic: boolean;
-}
-
-/**
  * 독서 기록 설정을 조회합니다.
  *
  * @returns 현재 사용자의 독서 기록 설정
  */
-export const getReadingLogSettings = async () => {
+export const getReadingLogSettings = async (): Promise<ReadingLogSettings> => {
   return sharedGetReadingLogSettings();
 };
+
 
 /**
  * 독서 기록 설정을 수정합니다.

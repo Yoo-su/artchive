@@ -9,9 +9,11 @@ import {
   GetBookDetailSuccessResponse,
   GetBookListParams,
   GetBookListSuccessResponse,
+  PopularKeyword,
 } from "@bookjeok/core";
 
 import { privateApiClient, publicApiClient } from "../../client";
+
 
 /**
  * 책 검색결과를 조회합니다.
@@ -136,15 +138,10 @@ export const getBookSummary = async (
 
 // ===== 인기 검색어 관련 API =====
 
-/** 인기 검색어 응답 타입 */
-export interface PopularKeyword {
-  keyword: string;
-  searchCount: number;
-}
-
 /**
  * 검색어를 기록합니다.
  */
+
 export const recordSearchKeyword = async (
   keyword: string,
 ): Promise<void> => {

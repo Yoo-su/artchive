@@ -1,6 +1,19 @@
-import { ActiveReadersResponse,API_PATHS, CreateReadingLogParams, LoungeBookReadersResponse, LoungeFeedResponse, LoungePopularResponse, ReadingLog, ReadingLogListResponse, ReadingLogStats, UpdateReadingLogParams } from "@bookjeok/core";
+import {
+  ActiveReadersResponse,
+  API_PATHS,
+  CreateReadingLogParams,
+  LoungeBookReadersResponse,
+  LoungeFeedResponse,
+  LoungePopularResponse,
+  ReadingLog,
+  ReadingLogListResponse,
+  ReadingLogSettings,
+  ReadingLogStats,
+  UpdateReadingLogParams,
+} from "@bookjeok/core";
 
 import { privateApiClient, publicApiClient } from "../../client";
+
 
 /**
  * 독서 기록 목록을 조회합니다.
@@ -83,8 +96,8 @@ export const getReadingLogStats = async (
 /**
  * 독서 기록 설정을 조회합니다.
  */
-export const getReadingLogSettings = async (): Promise<{ isReadingLogPublic: boolean }> => {
-  const response = await privateApiClient.get<{ isReadingLogPublic: boolean }>(
+export const getReadingLogSettings = async (): Promise<ReadingLogSettings> => {
+  const response = await privateApiClient.get<ReadingLogSettings>(
     API_PATHS.readingLog.settings,
   );
   return response.data;
@@ -95,8 +108,8 @@ export const getReadingLogSettings = async (): Promise<{ isReadingLogPublic: boo
  */
 export const updateReadingLogSettings = async (
   isReadingLogPublic: boolean,
-): Promise<{ isReadingLogPublic: boolean }> => {
-  const response = await privateApiClient.patch<{ isReadingLogPublic: boolean }>(
+): Promise<ReadingLogSettings> => {
+  const response = await privateApiClient.patch<ReadingLogSettings>(
     API_PATHS.readingLog.settings,
     {
       isReadingLogPublic,
@@ -104,6 +117,7 @@ export const updateReadingLogSettings = async (
   );
   return response.data;
 };
+
 
 /**
  * 라운지 피드를 조회합니다. (공개 API - 인증 불필요)
