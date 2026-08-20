@@ -98,11 +98,14 @@ export function InfiniteImageField({
         }))
   ).filter((item) => Boolean(item.image));
 
-  // If few items, duplicate to provide dense organic field
-  const safeItems =
+  // If few items (e.g. 1~15 items in DB), safely repeat so the 2D grid distributes them organically
+  const safeItems: InfiniteImageItem[] =
     normalizedItems.length > 0
-      ? normalizedItems.length < 6
-        ? [...normalizedItems, ...normalizedItems, ...normalizedItems]
+      ? normalizedItems.length < 16
+        ? Array.from(
+            { length: Math.ceil(16 / normalizedItems.length) },
+            () => normalizedItems
+          ).flat()
         : normalizedItems
       : [{ id: 0, image: "/images/placeholder-image.svg" }];
 

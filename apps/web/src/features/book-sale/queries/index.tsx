@@ -24,8 +24,8 @@ export const useRelatedSalesQuery = (props: {
   enabled?: boolean;
 }) => useBaseRelatedSalesQuery(props);
 
-export const useRecentBookSalesQuery = () =>
-  useBaseRecentBookSalesQuery();
+export const useRecentBookSalesQuery = (limit: number = 25) =>
+  useBaseRecentBookSalesQuery(limit);
 
 export const usePopularBookSalesQuery = () =>
   useBasePopularBookSalesQuery();

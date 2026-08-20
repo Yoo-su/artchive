@@ -387,13 +387,14 @@ export class UsedBookSaleService {
   }
 
   /**
-   * 가장 최근에 등록된 중고책 판매글을 조회합니다. (최대 10개)
+   * 가장 최근에 등록된 중고책 판매글을 조회합니다. (기본 25개, 최대 50개)
    */
-  async findRecentSales(): Promise<UsedBookSale[]> {
+  async findRecentSales(limit: number = 25): Promise<UsedBookSale[]> {
+    const take = Math.min(Math.max(Number(limit) || 25, 1), 50);
     return await this.usedBookSaleRepository.find({
       where: { status: SaleStatus.FOR_SALE },
       order: { createdAt: 'DESC' },
-      take: 10,
+      take,
       relations: ['user', 'book'],
     });
   }
