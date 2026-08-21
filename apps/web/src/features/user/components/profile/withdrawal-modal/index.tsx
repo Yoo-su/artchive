@@ -26,8 +26,8 @@ export const WithdrawalModal = () => {
 
   return (
     <Button
-      variant="destructive"
-      className="w-full sm:w-auto"
+      variant="outline"
+      className="h-9 w-full rounded-xl border-stone-300 text-xs font-medium text-stone-600 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 sm:w-auto"
       onClick={handleWithdraw}
       disabled={isPending}
     >

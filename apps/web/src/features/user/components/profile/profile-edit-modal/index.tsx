@@ -386,10 +386,18 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
-          <Button variant="outline" onClick={() => setOpen(false)}>
+          <Button
+            variant="outline"
+            className="rounded-xl border-stone-200 text-stone-700 hover:bg-stone-100"
+            onClick={() => setOpen(false)}
+          >
             {t("cancel")}
           </Button>
-          <Button onClick={handleSave} disabled={isSaveDisabled}>
+          <Button
+            className="rounded-xl bg-stone-900 text-white hover:bg-stone-800"
+            onClick={handleSave}
+            disabled={isSaveDisabled}
+          >
             {isSaving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
