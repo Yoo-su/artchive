@@ -84,12 +84,9 @@ export class ChatService {
     const existingRoom = await this.chatRoomRepository
       .createQueryBuilder('room')
       .innerJoin('room.participants', 'p1')
-      .innerJoin(
-        'p1.user',
-        'u1',
-        'u1.id = :buyerId AND u1.deletedAt IS NULL',
-        { buyerId },
-      )
+      .innerJoin('p1.user', 'u1', 'u1.id = :buyerId AND u1.deletedAt IS NULL', {
+        buyerId,
+      })
       .innerJoin('room.participants', 'p2')
       .innerJoin(
         'p2.user',
@@ -184,8 +181,7 @@ export class ChatService {
         content: `${participant.user.nickname}님이 다시 참여했습니다.`,
         sender: null,
       });
-      const savedMessage =
-        await this.chatMessageRepository.save(systemMessage);
+      const savedMessage = await this.chatMessageRepository.save(systemMessage);
       systemMessages.push(savedMessage);
     }
     return systemMessages;

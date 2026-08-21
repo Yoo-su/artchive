@@ -168,8 +168,13 @@ describe('ChatService', () => {
 
       const newRoom = { id: 99 };
       (chatRoomRepo.create as jest.Mock).mockReturnValue(newRoom);
-      (chatRoomRepo.save as jest.Mock).mockResolvedValue({ ...newRoom, id: 99 });
-      (chatParticipantRepo.create as jest.Mock).mockImplementation((data) => data);
+      (chatRoomRepo.save as jest.Mock).mockResolvedValue({
+        ...newRoom,
+        id: 99,
+      });
+      (chatParticipantRepo.create as jest.Mock).mockImplementation(
+        (data: ChatParticipant) => data,
+      );
       (chatParticipantRepo.save as jest.Mock).mockResolvedValue([]);
       (chatRoomRepo.findOne as jest.Mock).mockResolvedValue({ ...newRoom });
 
@@ -190,8 +195,13 @@ describe('ChatService', () => {
 
       const newRoom = { id: 99 };
       (chatRoomRepo.create as jest.Mock).mockReturnValue(newRoom);
-      (chatRoomRepo.save as jest.Mock).mockResolvedValue({ ...newRoom, id: 99 });
-      (chatParticipantRepo.create as jest.Mock).mockImplementation((data) => data);
+      (chatRoomRepo.save as jest.Mock).mockResolvedValue({
+        ...newRoom,
+        id: 99,
+      });
+      (chatParticipantRepo.create as jest.Mock).mockImplementation(
+        (data: ChatParticipant) => data,
+      );
       (chatParticipantRepo.save as jest.Mock).mockResolvedValue([]);
       (chatRoomRepo.findOne as jest.Mock).mockResolvedValue({ ...newRoom });
 
