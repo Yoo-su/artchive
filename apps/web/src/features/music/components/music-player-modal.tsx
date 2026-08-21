@@ -55,7 +55,7 @@ export function MusicPlayerModal() {
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogContent className="max-w-md overflow-hidden rounded-3xl border border-stone-200/90 bg-white/95 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
-        <DialogHeader className="flex flex-row items-center justify-between pb-2">
+        <DialogHeader className="flex flex-row items-center justify-between pr-10 pb-2">
           <div className="flex items-center gap-2">
             <Disc3
               className={`h-5 w-5 text-stone-900 ${isPlaying ? "animate-spin" : ""}`}
@@ -64,12 +64,12 @@ export function MusicPlayerModal() {
             <DialogTitle className="font-serif text-base font-bold tracking-tight text-stone-900">
               {t("title")}
             </DialogTitle>
+            {playlist.length > 1 && (
+              <span className="ml-1 rounded-md bg-stone-100 px-1.5 py-0.5 font-mono text-[10.5px] font-semibold text-stone-600">
+                {currentIndex + 1} / {playlist.length}
+              </span>
+            )}
           </div>
-          {playlist.length > 1 && (
-            <span className="font-mono text-xs font-medium text-stone-400">
-              {currentIndex + 1} / {playlist.length}
-            </span>
-          )}
         </DialogHeader>
 
         {/* LP 턴테이블 메인 플레이어 */}
