@@ -27,7 +27,6 @@ export class NotificationGateway
   @WebSocketServer()
   server: Server;
 
-  private connectedUsers: Map<number, Socket> = new Map();
   private readonly logger = new Logger(NotificationGateway.name);
 
   constructor(
@@ -37,7 +36,7 @@ export class NotificationGateway
 
   /**
    * 클라이언트 소켓 연결 시 처리
-   * JWT 토큰을 검증하고 사용자 정보를 소켓 세션에 저장합니다.
+   * JWT 토큰을 검증하고 사용자 정보를 소켓 세션에 저장하며 유저 룸에 조인합니다.
    *
    * @param client 연결된 소켓 클라이언트
    */
@@ -57,7 +56,9 @@ export class NotificationGateway
       if (!user) return client.disconnect();
 
       client.data.user = user;
-      this.connectedUsers.set(user.id, client);
+
+      // 멀티탭/멀티디바이스 환경 지원을 위해 유저 전용 룸에 소켓을 조인시킵니다.
+      await client.join(`user:${user.id}`);
       this.logger.log(
         `Notification Client connected: ${client.id}, User ID: ${user.id}`,
       );
@@ -69,22 +70,22 @@ export class NotificationGateway
 
   /**
    * 클라이언트 소켓 연결 해제 시 처리
-   * 접속자 목록에서 사용자를 제거합니다.
    *
    * @param client 연결 해제된 소켓 클라이언트
    */
   handleDisconnect(client: Socket) {
     if (client.data.user) {
-      this.connectedUsers.delete(client.data.user.id);
       this.logger.log(
         `Notification Client disconnected: User ID ${client.data.user.id}`,
       );
+    } else {
+      this.logger.log(`Notification Client disconnected: ${client.id}`);
     }
   }
 
   /**
    * 특정 사용자에게 실시간 알림을 전송합니다.
-   * 사용자가 현재 접속 중(connectedUsers)일 경우에만 전송됩니다.
+   * 사용자의 모든 활성 탭/기기(user:${recipientId} 룸)로 브로드캐스팅합니다.
    *
    * @param recipientId 수신자 ID
    * @param payload 전송할 알림 데이터
@@ -93,10 +94,7 @@ export class NotificationGateway
     recipientId: number,
     payload: Notification | Record<string, unknown>,
   ) {
-    const socket = this.connectedUsers.get(recipientId);
-    if (socket) {
-      socket.emit('newNotification', payload);
-      this.logger.log(`Sent notification to User ${recipientId}`);
-    }
+    this.server?.to(`user:${recipientId}`).emit('newNotification', payload);
+    this.logger.log(`Sent notification to User ${recipientId}`);
   }
 }
