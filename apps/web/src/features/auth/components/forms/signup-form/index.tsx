@@ -1,14 +1,13 @@
 "use client";
 
+import { useEmailSignupMutation } from "@bookjeok/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { emailSignup } from "@/features/auth/apis";
 import { createSignupSchema, SignupSchemaType } from "@/features/auth/schema";
 import { Button } from "@/shared/components/shadcn/button";
 import {
@@ -27,7 +26,6 @@ export const SignupForm = () => {
   const t = useTranslations("auth.signup");
   const tValidation = useTranslations("auth.validation");
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<SignupSchemaType>({
     resolver: zodResolver(createSignupSchema((key) => tValidation(key))),
@@ -39,18 +37,12 @@ export const SignupForm = () => {
     },
   });
 
-  const onSubmit = async (values: SignupSchemaType) => {
-    try {
-      setIsLoading(true);
-      await emailSignup({
-        email: values.email,
-        password: values.password,
-        nickname: values.nickname,
-      });
-
+  const { mutate: signup, isPending: isLoading } = useEmailSignupMutation({
+    onSuccess: () => {
       toast.success(t("success"));
       router.push("/login");
-    } catch (error) {
+    },
+    onError: (error) => {
       if (axios.isAxiosError(error) && error.response?.status === 409) {
         const message = getErrorMessage(error, "");
         if (message === "EMAIL_ALREADY_EXISTS") {
@@ -72,11 +64,16 @@ export const SignupForm = () => {
       } else {
         toast.error(t("error.unknown"));
       }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+  });
 
+  const onSubmit = (values: SignupSchemaType) => {
+    signup({
+      email: values.email,
+      password: values.password,
+      nickname: values.nickname,
+    });
+  };
 
   return (
     <div className="w-full max-w-md space-y-8">

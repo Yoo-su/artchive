@@ -1,3 +1,4 @@
+import { ArtDetailItem, ArtItem } from '@bookjeok/core';
 import { HttpService } from '@nestjs/axios';
 import {
   Injectable,
@@ -11,16 +12,16 @@ import { lastValueFrom } from 'rxjs';
 @Injectable()
 export class ArtService {
   constructor(
-    private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly httpService: HttpService,
   ) {}
 
   /**
-   * KOPIS 공연/예술 목록 조회 (Expo 등 프록시용)
+   * KOPIS 공연 목록 조회 (Expo 등 프록시용)
    */
   async getExternalArtList(
     query: Record<string, string | undefined>,
-  ): Promise<Record<string, unknown>> {
+  ): Promise<ArtItem[]> {
     const serviceKey = this.configService.get<string>('CULTURE_SERVICE_KEY');
 
     if (!serviceKey) {
@@ -49,11 +50,17 @@ export class ArtService {
       );
 
       const parser = new XMLParser();
-      const jsonData = parser.parse(response.data);
+      const jsonData = parser.parse(response.data) as {
+        dbs?: { db?: ArtItem | ArtItem[] };
+      };
 
-      const result = jsonData?.dbs?.db ?? [];
+      const raw = jsonData?.dbs?.db;
+      if (!raw) {
+        return [];
+      }
+      const result: ArtItem[] = Array.isArray(raw) ? raw : [raw];
 
-      return result as Record<string, unknown>;
+      return result;
     } catch (error) {
       console.error('공연 목록 조회 실패:', error);
       throw new InternalServerErrorException('공연 목록을 가져올 수 없습니다.');
@@ -63,7 +70,7 @@ export class ArtService {
   /**
    * KOPIS 공연 상세 조회 (Expo 등 프록시용)
    */
-  async getExternalArtDetail(artId: string): Promise<Record<string, unknown>> {
+  async getExternalArtDetail(artId: string): Promise<ArtDetailItem> {
     const serviceKey = this.configService.get<string>('CULTURE_SERVICE_KEY');
 
     if (!serviceKey) {
@@ -82,13 +89,18 @@ export class ArtService {
       );
 
       const parser = new XMLParser();
-      const jsonData = parser.parse(response.data);
+      const jsonData = parser.parse(response.data) as {
+        dbs?: { db?: ArtDetailItem | ArtDetailItem[] };
+      };
 
       if (!jsonData?.dbs?.db) {
         throw new NotFoundException('해당 ID의 공연 정보를 찾을 수 없습니다.');
       }
 
-      return jsonData.dbs.db as Record<string, unknown>;
+      const raw = jsonData.dbs.db;
+      const detail: ArtDetailItem = Array.isArray(raw) ? raw[0] : raw;
+
+      return detail;
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;

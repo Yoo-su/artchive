@@ -1,12 +1,11 @@
+import { useEmailLoginMutation } from "@bookjeok/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { emailLogin } from "@/features/auth/apis";
 import { createLoginSchema, LoginSchemaType } from "@/features/auth/schema"; // Using centralized schema
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { consumeReturnUrl } from "@/features/auth/utils/return-url";
@@ -101,7 +100,6 @@ function EmailLoginForm() {
   const t = useTranslations("auth.login");
   const tValidation = useTranslations("auth.validation");
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const form = useForm<LoginSchemaType>({
@@ -112,15 +110,14 @@ function EmailLoginForm() {
     },
   });
 
-  const onSubmit = async (values: LoginSchemaType) => {
-    try {
-      setIsLoading(true);
-      const data = await emailLogin(values);
+  const { mutate: login, isPending: isLoading } = useEmailLoginMutation({
+    onSuccess: (data) => {
       setAuth(data);
       toast.success(t("success"));
       const returnUrl = consumeReturnUrl();
       router.push(returnUrl || "/");
-    } catch (error) {
+    },
+    onError: (error) => {
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         const message = getErrorMessage(error, "");
         if (message === "SOCIAL_LOGIN_USER") {
@@ -135,9 +132,11 @@ function EmailLoginForm() {
       } else {
         toast.error(t("error.general"));
       }
-    } finally {
-      setIsLoading(false);
-    }
+    },
+  });
+
+  const onSubmit = (values: LoginSchemaType) => {
+    login(values);
   };
 
   return (

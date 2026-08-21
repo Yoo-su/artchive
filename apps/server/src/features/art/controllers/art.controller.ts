@@ -1,3 +1,4 @@
+import { ArtDetailItem, ArtItem } from '@bookjeok/core';
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
   ApiOperation,
@@ -50,7 +51,7 @@ export class ArtController {
     @Query('endDate') endDate?: string,
     @Query('genreCode') genreCode?: string,
     @Query('signgucode') signgucode?: string,
-  ): Promise<Record<string, unknown>> {
+  ): Promise<ArtItem[]> {
     return await this.artService.getExternalArtList({
       cpage,
       rows,
@@ -72,9 +73,7 @@ export class ArtController {
     status: 200,
     description: '공연 상세정보를 반환합니다.',
   })
-  async getExternalArtDetail(
-    @Param('id') id: string,
-  ): Promise<Record<string, unknown>> {
+  async getExternalArtDetail(@Param('id') id: string): Promise<ArtDetailItem> {
     return await this.artService.getExternalArtDetail(id);
   }
 }

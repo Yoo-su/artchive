@@ -1,12 +1,12 @@
 "use client";
 
 import type { LoungeBookCard } from "@bookjeok/core";
+import { useLoungeBookReadersInfiniteQuery } from "@bookjeok/react-query";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useRef } from "react";
 
-import { useLoungeBookReadersInfiniteQuery } from "@/features/reading-log/queries";
+import { ImpressionArea } from "@/shared/components/common/impression-area";
 import {
   Dialog,
   DialogContent,
@@ -22,10 +22,7 @@ interface LoungeBookDetailModalProps {
   isbn: string | null;
   isOpen: boolean;
   onClose: () => void;
-  initialBook?: Pick<
-    LoungeBookCard["book"],
-    "title" | "author" | "image"
-  > | null;
+  initialBook?: LoungeBookCard["book"] | null;
   initialTotalCount?: number;
 }
 
@@ -41,27 +38,6 @@ export function LoungeBookDetailModal({
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useLoungeBookReadersInfiniteQuery(isbn || "", isOpen && !!isbn);
-
-  const loaderRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!hasNextPage || isFetchingNextPage) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 0.1 },
-    );
-
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const book = data?.pages[0]?.book || initialBook;
   const readers = data?.pages.flatMap((page) => page.items) || [];
@@ -163,7 +139,14 @@ export function LoungeBookDetailModal({
                   </motion.div>
                 ))}
 
-                <div ref={loaderRef} className="p-4 flex justify-center">
+                <ImpressionArea
+                  onImpression={() => {
+                    if (hasNextPage && !isFetchingNextPage) {
+                      fetchNextPage();
+                    }
+                  }}
+                  className="p-4 flex justify-center"
+                >
                   {isFetchingNextPage && (
                     <div className="flex items-center gap-1.5 text-stone-400 text-xs">
                       <div className="w-1 h-1 bg-stone-300 rounded-full animate-bounce [animation-delay:-0.3s]" />
@@ -172,7 +155,7 @@ export function LoungeBookDetailModal({
                       <span className="ml-1 font-light">{t("loading")}</span>
                     </div>
                   )}
-                </div>
+                </ImpressionArea>
               </div>
             ) : (
               <div className="py-20 text-center">

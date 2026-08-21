@@ -87,7 +87,6 @@ export const ReviewForm = ({
   const tFilters = useTranslations("review.filters");
   const tValidation = useTranslations("review.validation");
 
-  const [isBookModalOpen, setIsBookModalOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState<BookInfo | null>(
     initialData?.book || null,
   );
@@ -122,7 +121,6 @@ export const ReviewForm = ({
   const handleBookSelect = (book: BookInfo) => {
     setSelectedBook(book);
     form.setValue("isbn", book.isbn, { shouldValidate: true });
-    setIsBookModalOpen(false);
   };
 
   const handleAddTag = () => {
@@ -202,8 +200,6 @@ export const ReviewForm = ({
                 {!isEditMode && (
                   <BookSearchModal
                     onSelect={handleBookSelect}
-                    open={isBookModalOpen}
-                    onOpenChange={setIsBookModalOpen}
                     trigger={
                       <Button
                         type="button"
@@ -242,8 +238,6 @@ export const ReviewForm = ({
                     <div className="flex items-center gap-2 pt-2">
                       <BookSearchModal
                         onSelect={handleBookSelect}
-                        open={isBookModalOpen}
-                        onOpenChange={setIsBookModalOpen}
                         trigger={
                           <Button
                             type="button"

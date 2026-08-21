@@ -15,6 +15,7 @@ import {
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { useOverlay } from "@/shared/hooks/use-overlay";
 import { cn } from "@/shared/utils";
 
 import { useReadingLogPrefetch } from "../../../hooks/use-reading-log-prefetch";
@@ -45,9 +46,7 @@ export function ReadingLogCalendar({
   initialLogs = [],
 }: ReadingLogCalendarProps) {
   const t = useTranslations("reading_log.calendar");
-  // 내부 상태는 선택된 날짜와 다이얼로그, 뷰 모드만 관리
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const overlay = useOverlay();
   const [viewMode, setViewMode] = useState<ReadingLogViewMode>("calendar");
 
   // 계절 테마 훅 사용
@@ -85,14 +84,21 @@ export function ReadingLogCalendar({
 
   const weekDayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
-  const handleDayClick = (date: Date) => {
-    setSelectedDate(date);
-    setIsDialogOpen(true);
-  };
-
   const getLogsForDate = (date: Date) => {
     const dateStr = format(date, "yyyy-MM-dd");
     return logs.filter((log) => log.date === dateStr);
+  };
+
+  const handleDayClick = (date: Date) => {
+    overlay.open(({ isOpen, close }) => (
+      <DayDetailsDialog
+        date={date}
+        logs={getLogsForDate(date)}
+        open={isOpen}
+        onOpenChange={(open) => !open && close()}
+        readOnly={readOnly}
+      />
+    ));
   };
 
   return (
@@ -168,14 +174,6 @@ export function ReadingLogCalendar({
           </div>
         </div>
       )}
-
-      <DayDetailsDialog
-        date={selectedDate}
-        logs={selectedDate ? getLogsForDate(selectedDate) : []}
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        readOnly={readOnly}
-      />
     </div>
   );
 }
