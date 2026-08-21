@@ -44,7 +44,7 @@ interface DayDetailsDialogProps {
 
 export function DayDetailsDialog({
   date,
-  logs,
+  logs: initialLogs = [],
   open,
   onOpenChange,
   readOnly = false,
@@ -65,11 +65,24 @@ export function DayDetailsDialog({
   const updateMutation = useUpdateReadingLogMutation();
   const { executeSafeSubmit } = useSafeSubmit();
 
+  // readOnly가 아닐 때는 TanStack Query로부터 해당 월의 실시간 기록 목록을 직접 구독
+  const { data: monthlyLogs = [] } = useReadingLogsQuery(
+    date
+      ? { year: date.getFullYear(), month: date.getMonth() + 1 }
+      : undefined,
+    { enabled: !readOnly && !!date },
+  );
+
+  const dateStr = date ? format(date, "yyyy-MM-dd") : "";
+  const currentLogs = readOnly
+    ? initialLogs
+    : monthlyLogs.filter((log) => log.date === dateStr);
+
   if (!date) return null;
 
   const handleBookSelect = (book: BookInfo) => {
     // 해당 날짜에 이미 추가된 책인지 확인
-    const exists = logs.some((log) => log.isbn === book.isbn);
+    const exists = currentLogs.some((log) => log.isbn === book.isbn);
     if (exists) {
       toast.error("이미 추가된 책입니다.");
       return;
@@ -170,14 +183,14 @@ export function DayDetailsDialog({
           )}
 
           <ScrollArea className="max-h-[60vh] mt-2 -mx-6 px-6">
-            {logs.length === 0 ? (
+            {currentLogs.length === 0 ? (
               <div className="py-12 text-center text-stone-400 bg-stone-50/50 rounded-xl border border-dashed border-stone-200 text-sm mx-1">
                 <p>{readOnly ? t("empty_read") : t("empty_write")}</p>
                 {!readOnly && <p className="mt-1">{t("empty_write_sub")}</p>}
               </div>
             ) : (
               <div className="space-y-4 p-1">
-                {logs.map((log) => (
+                {currentLogs.map((log) => (
                   <div
                     key={log.id}
                     className="group relative flex gap-4 p-4 border border-stone-100 rounded-2xl bg-white shadow-sm hover:shadow-md hover:border-stone-200 transition-all hover:-translate-y-0.5"
