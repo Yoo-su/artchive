@@ -1,14 +1,12 @@
 import { PublicUserProfile, SaleStatus } from "@bookjeok/core";
-import { BookOpen, Calendar, ShoppingBag, User } from "lucide-react";
+import { ArrowRight, BookOpen, Calendar, ShoppingBag, User } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { SaleStatusBadge } from "@/features/book-sale/components/common/sale-status-badge";
 import { ReadingLogCalendar } from "@/features/reading-log/components/calendar-view/reading-log-calendar";
-import { ReadingTimeline } from "@/features/reading-log/components/stats-view/reading-timeline";
 import { usePublicProfileQuery } from "@/features/user/queries";
-import { Card, CardContent, CardHeader } from "@/shared/components/shadcn/card";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { NotFoundRedirect } from "@/shared/components/ui/not-found-redirect";
 import { Link } from "@/shared/config/i18n/routing";
@@ -22,8 +20,6 @@ interface UserProfileProps {
 
 /**
  * 유저 프로필 메인 컴포넌트
- * - 내부에서 쿼리 호출 및 로딩/에러 상태 처리
- * - 하위 Presentational 컴포넌트들로 구성
  */
 export const UserProfile = ({ handle }: UserProfileProps) => {
   const t = useTranslations("user_profile");
@@ -39,23 +35,24 @@ export const UserProfile = ({ handle }: UserProfileProps) => {
   }
 
   return (
-    <div className="container mx-auto w-full px-4 py-8" data-clarity-mask="true">
+    <div className="container mx-auto max-w-5xl px-4 py-10" data-clarity-mask="true">
       <UserProfileHeader profile={profile} />
       <UserProfileStats stats={profile.stats} />
 
-      {/* 독서 기록 타임라인 */}
-      {/* {profile.readingLogs && profile.readingLogs.length > 0 && (
-        <div className="mb-8">
-          <ReadingTimeline logs={profile.readingLogs} />
-        </div>
-      )} */}
-
       {/* 독서 기록 캘린더 */}
       {profile.readingLogs && profile.readingLogs.length > 0 && (
-        <div className="mb-8 p-0 bg-transparent border-0 shadow-none md:bg-white md:p-6 rounded-3xl md:border md:border-stone-200/60 md:shadow-sm">
-          <h3 className="font-serif text-xl font-semibold text-stone-900 mb-6 pl-1 px-4 md:px-0">
-            {t("reading_log_calendar_title", { name: profile.nickname })}
-          </h3>
+        <div className="mb-10 rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs sm:p-8">
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-stone-100 text-stone-700">
+                <BookOpen className="h-4 w-4" />
+              </span>
+              <h3 className="font-serif text-xl font-semibold text-stone-900">
+                {t("reading_log_calendar_title", { name: profile.nickname })}
+              </h3>
+            </div>
+            <span className="text-xs text-stone-400">월별 독서 캘린더</span>
+          </div>
           <ReadingLogCalendar
             currentDate={currentDate}
             onDateChange={setCurrentDate}
@@ -65,15 +62,15 @@ export const UserProfile = ({ handle }: UserProfileProps) => {
         </div>
       )}
 
-      {/* 최근 리뷰 */}
-      {profile.recentReviews.length > 0 && (
-        <UserRecentReviews reviews={profile.recentReviews} />
-      )}
-
-      {/* 최근 판매글 */}
-      {profile.recentSales.length > 0 && (
-        <UserRecentSales sales={profile.recentSales} />
-      )}
+      {/* 최근 리뷰 및 최근 판매글 (2-column layout) */}
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        {profile.recentReviews.length > 0 && (
+          <UserRecentReviews reviews={profile.recentReviews} />
+        )}
+        {profile.recentSales.length > 0 && (
+          <UserRecentSales sales={profile.recentSales} />
+        )}
+      </div>
     </div>
   );
 };
@@ -84,45 +81,53 @@ export const UserProfile = ({ handle }: UserProfileProps) => {
 interface UserProfileHeaderProps {
   profile: Pick<
     PublicUserProfile,
-    "profileImageUrl" | "nickname" | "createdAt"
+    "profileImageUrl" | "nickname" | "createdAt" | "handle"
   >;
 }
 
 const UserProfileHeader = ({ profile }: UserProfileHeaderProps) => {
   const t = useTranslations("user_profile");
   const locale = useLocale();
+  const profileImageSrc = getProfileImageUrl(profile.profileImageUrl);
 
   return (
-    <Card className="mb-8">
-      <CardContent className="flex items-center gap-4 p-4 sm:gap-6 sm:p-6">
-        <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-stone-100 sm:h-24 sm:w-24">
-          {getProfileImageUrl(profile.profileImageUrl) ? (
+    <div className="mb-8 overflow-hidden rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs sm:p-8">
+      <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center">
+        <div className="relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-stone-100 bg-stone-50 shadow-sm sm:h-28 sm:w-28">
+          {profileImageSrc ? (
             <Image
-              src={getProfileImageUrl(profile.profileImageUrl)!}
+              src={profileImageSrc}
               alt={profile.nickname}
               fill
               unoptimized
-              className="absolute inset-0 w-full h-full object-cover"
+              className="object-cover"
             />
           ) : (
-            <User className="h-10 w-10 text-stone-400 sm:h-12 sm:w-12" />
+            <User className="h-12 w-12 text-stone-400" />
           )}
         </div>
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate text-xl font-bold text-stone-900 sm:text-2xl">
-            {profile.nickname}
-          </h1>
-          <div className="mt-1 flex items-center gap-1 text-xs text-stone-500 sm:text-sm">
-            <Calendar className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
-            <span className="truncate">
+        <div className="min-w-0 flex-1 text-center sm:text-left">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+            <h1 className="text-2xl font-bold tracking-tight text-stone-900 sm:text-3xl">
+              {profile.nickname}
+            </h1>
+            {profile.handle && (
+              <span className="rounded-md bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-600">
+                @{profile.handle}
+              </span>
+            )}
+          </div>
+          <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-stone-500 sm:justify-start sm:text-sm">
+            <Calendar className="h-3.5 w-3.5 text-stone-400" />
+            <span>
               {t("joined", {
                 date: formatDate(profile.createdAt, locale, "yearMonth"),
               })}
             </span>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
@@ -137,37 +142,34 @@ const UserProfileStats = ({ stats }: UserProfileStatsProps) => {
   const t = useTranslations("user_profile.stats");
 
   return (
-    <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-4">
-      <Card>
-        <CardContent className="flex items-center gap-3 p-3 sm:gap-4 sm:p-4">
-          <div className="shrink-0 rounded-full bg-emerald-50 p-2 sm:p-3">
-            <ShoppingBag className="h-4 w-4 text-emerald-600 sm:h-5 sm:w-5" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-xl font-bold text-stone-900 sm:text-2xl">
-              {stats.salesCount}
-            </p>
-            <p className="truncate text-xs text-stone-500 sm:text-sm">
-              {t("sales_count")}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent className="flex items-center gap-3 p-3 sm:gap-4 sm:p-4">
-          <div className="shrink-0 rounded-full bg-blue-50 p-2 sm:p-3">
-            <BookOpen className="h-4 w-4 text-blue-600 sm:h-5 sm:w-5" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-xl font-bold text-stone-900 sm:text-2xl">
-              {stats.reviewsCount}
-            </p>
-            <p className="truncate text-xs text-stone-500 sm:text-sm">
-              {t("reviews_count")}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="mb-8 grid grid-cols-2 gap-4">
+      <div className="flex items-center gap-4 rounded-2xl border border-stone-200/80 bg-white p-5 shadow-xs transition-all hover:border-stone-300">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-stone-100 text-stone-800">
+          <ShoppingBag className="h-5 w-5 text-emerald-600" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-2xl font-bold tracking-tight text-stone-900 sm:text-3xl">
+            {stats.salesCount}
+          </p>
+          <p className="truncate text-xs font-medium text-stone-500">
+            {t("sales_count")}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-4 rounded-2xl border border-stone-200/80 bg-white p-5 shadow-xs transition-all hover:border-stone-300">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-stone-100 text-stone-800">
+          <BookOpen className="h-5 w-5 text-indigo-600" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-2xl font-bold tracking-tight text-stone-900 sm:text-3xl">
+            {stats.reviewsCount}
+          </p>
+          <p className="truncate text-xs font-medium text-stone-500">
+            {t("reviews_count")}
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
@@ -183,44 +185,48 @@ const UserRecentReviews = ({ reviews }: UserRecentReviewsProps) => {
   const t = useTranslations("user_profile.sections");
 
   return (
-    <Card className="mb-6">
-      <CardHeader className="pb-3">
-        <h2 className="text-lg font-semibold">{t("recent_reviews")}</h2>
-      </CardHeader>
-      <CardContent className="space-y-3">
+    <div className="rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-base font-semibold text-stone-900">
+          {t("recent_reviews")}
+        </h2>
+        <span className="text-xs text-stone-400">최근 리뷰</span>
+      </div>
+      <div className="space-y-3">
         {reviews.map((review) => (
           <Link
             key={review.id}
             href={PATHS.REVIEW_DETAIL(review.id)}
-            className="flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-stone-50"
+            className="group flex items-center gap-3.5 rounded-xl border border-stone-100 bg-stone-50/50 p-3 transition-all hover:border-stone-200 hover:bg-stone-50"
           >
-            <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-stone-100">
+            <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded-lg bg-stone-200 shadow-2xs">
               {review.bookImage ? (
                 <Image
                   src={review.bookImage}
                   alt={review.bookTitle}
                   fill
                   unoptimized
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="object-cover"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
-                  <BookOpen className="h-5 w-5 text-stone-300" />
+                  <BookOpen className="h-5 w-5 text-stone-400" />
                 </div>
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate font-medium text-stone-900">
+              <p className="truncate text-sm font-semibold text-stone-900 transition-colors group-hover:text-stone-950">
                 {review.title}
               </p>
-              <p className="truncate text-sm text-stone-500">
+              <p className="mt-0.5 truncate text-xs text-stone-500">
                 {review.bookTitle}
               </p>
             </div>
+            <ArrowRight className="h-4 w-4 shrink-0 text-stone-300 transition-transform group-hover:translate-x-0.5 group-hover:text-stone-600" />
           </Link>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
@@ -235,45 +241,48 @@ const UserRecentSales = ({ sales }: UserRecentSalesProps) => {
   const t = useTranslations("user_profile.sections");
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <h2 className="text-lg font-semibold">{t("recent_sales")}</h2>
-      </CardHeader>
-      <CardContent className="space-y-3">
+    <div className="rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-base font-semibold text-stone-900">
+          {t("recent_sales")}
+        </h2>
+        <span className="text-xs text-stone-400">책방 거래</span>
+      </div>
+      <div className="space-y-3">
         {sales.map((sale) => (
           <Link
             key={sale.id}
             href={PATHS.BOOK_SALES_DETAIL(String(sale.id))}
-            className="flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-stone-50"
+            className="group flex items-center gap-3.5 rounded-xl border border-stone-100 bg-stone-50/50 p-3 transition-all hover:border-stone-200 hover:bg-stone-50"
           >
-            <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-stone-100">
+            <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded-lg bg-stone-200 shadow-2xs">
               {sale.bookImage ? (
                 <Image
                   src={sale.bookImage}
                   alt={sale.bookTitle}
                   fill
                   unoptimized
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="object-cover"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
-                  <ShoppingBag className="h-5 w-5 text-stone-300" />
+                  <ShoppingBag className="h-5 w-5 text-stone-400" />
                 </div>
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate font-medium text-stone-900">
+              <p className="truncate text-sm font-semibold text-stone-900 transition-colors group-hover:text-stone-950">
                 {sale.bookTitle}
               </p>
-              <p className="text-sm text-stone-500">
+              <p className="mt-0.5 text-xs font-medium text-stone-600">
                 {sale.price.toLocaleString()}원
               </p>
             </div>
             <SaleStatusBadge status={sale.status as SaleStatus} />
           </Link>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
@@ -281,20 +290,20 @@ const UserRecentSales = ({ sales }: UserRecentSalesProps) => {
  * 로딩 스켈레톤
  */
 export const UserProfileSkeleton = () => (
-  <div className="container mx-auto w-full px-4 py-8">
-    <Card className="mb-8">
-      <CardContent className="flex items-center gap-4 p-4 sm:gap-6 sm:p-6">
-        <Skeleton className="h-20 w-20 shrink-0 rounded-full sm:h-24 sm:w-24" />
-        <div className="min-w-0 flex-1 space-y-2">
-          <Skeleton className="h-6 w-24 max-w-full sm:h-7 sm:w-32" />
-          <Skeleton className="h-3.5 w-32 max-w-full sm:h-4 sm:w-48" />
+  <div className="container mx-auto max-w-5xl px-4 py-10">
+    <div className="mb-8 rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs sm:p-8">
+      <div className="flex items-center gap-5">
+        <Skeleton className="h-24 w-24 rounded-full sm:h-28 sm:w-28" />
+        <div className="space-y-2">
+          <Skeleton className="h-7 w-36" />
+          <Skeleton className="h-4 w-28" />
         </div>
-      </CardContent>
-    </Card>
-    <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-4">
-      <Skeleton className="h-20 rounded-lg sm:h-24" />
-      <Skeleton className="h-20 rounded-lg sm:h-24" />
+      </div>
     </div>
-    <Skeleton className="h-48 rounded-lg" />
+    <div className="mb-8 grid grid-cols-2 gap-4">
+      <Skeleton className="h-24 rounded-2xl" />
+      <Skeleton className="h-24 rounded-2xl" />
+    </div>
+    <Skeleton className="h-64 rounded-2xl" />
   </div>
 );

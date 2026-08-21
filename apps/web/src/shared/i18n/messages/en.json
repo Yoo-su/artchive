@@ -645,15 +645,19 @@
       "description": "Check your activity and information."
     },
     "title": "My Page",
-    "activity_manage": "Manage Activity",
+    "activity_manage": "Activity",
+    "quick_actions": {
+      "reading_log": "Reading Log",
+      "register_sale": "List Used Book"
+    },
     "menu": {
       "reading_log": {
         "label": "My Reading Log",
-        "desc": "Monthly reading calendar and stats"
+        "desc": "Calendar & deck view of your reading journey"
       },
       "sales": {
         "label": "My Sales",
-        "desc": "Manage used book sales",
+        "desc": "Manage your used book listings and status",
         "metadata": {
           "title": "Sales History",
           "description": "History of used books I'm selling."
@@ -661,15 +665,15 @@
       },
       "reviews": {
         "label": "My Reviews",
-        "desc": "Check written reviews"
+        "desc": "Manage written book reviews and notes"
       },
       "wishlist": {
         "label": "Wishlist",
-        "desc": "Saved books"
+        "desc": "Saved books and wishlist"
       },
       "comments": {
         "label": "My Comments",
-        "desc": "Manage written comments"
+        "desc": "Manage your written comments"
       }
     },
     "profile": {
@@ -677,11 +681,19 @@
       "joined": "Joined {date}"
     },
     "stats": {
+      "my_reviews_title": "My Reviews",
+      "view_all": "View all",
+      "unit_count": "reviews",
+      "btn_reading_log": "Reading Log",
+      "btn_manage_reviews": "Manage Reviews",
+      "market_title": "Book Market",
+      "my_sales": "My Listings",
       "for_sale": "Selling",
       "reserved": "Reserved",
       "sold": "Sold",
       "chats": "Chats",
-      "reviews": "Reviews"
+      "reviews": "Reviews",
+      "register_sale": "+ List Used Book"
     },
     "danger_zone": {
       "title": "Danger Zone",

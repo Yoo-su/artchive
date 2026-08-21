@@ -644,16 +644,20 @@
       "title": "마이페이지",
       "description": "내 활동 내역과 정보를 확인하세요."
     },
-    "title": "마이 페이지",
+    "title": "마이페이지",
     "activity_manage": "활동 관리",
+    "quick_actions": {
+      "reading_log": "독서 기록장",
+      "register_sale": "중고책 판매글 등록"
+    },
     "menu": {
       "reading_log": {
         "label": "나의 독서 기록",
-        "desc": "월별 독서 캘린더 및 통계"
+        "desc": "달력과 덱으로 기록하는 독서 기록장"
       },
       "sales": {
         "label": "나의 판매 내역",
-        "desc": "등록한 중고책 판매글 관리",
+        "desc": "등록한 중고책 판매글 및 상태 관리",
         "metadata": {
           "title": "판매 내역",
           "description": "내가 등록한 중고 서적 판매 내역입니다."
@@ -661,15 +665,15 @@
       },
       "reviews": {
         "label": "나의 리뷰",
-        "desc": "작성한 도서 리뷰 확인"
+        "desc": "작성한 도서 리뷰 관리"
       },
       "wishlist": {
         "label": "위시리스트",
-        "desc": "찜한 도서 목록"
+        "desc": "관심 도서 및 찜한 목록"
       },
       "comments": {
         "label": "나의 댓글",
-        "desc": "작성한 댓글 관리"
+        "desc": "작성한 댓글 목록 및 내역"
       }
     },
     "profile": {
@@ -677,11 +681,19 @@
       "joined": "{date} 가입"
     },
     "stats": {
+      "my_reviews_title": "나의 리뷰",
+      "view_all": "전체보기",
+      "unit_count": "개",
+      "btn_reading_log": "독서 캘린더",
+      "btn_manage_reviews": "리뷰 관리",
+      "market_title": "도서 거래",
+      "my_sales": "내 판매글",
       "for_sale": "판매중",
       "reserved": "예약중",
       "sold": "완료",
       "chats": "채팅",
-      "reviews": "리뷰"
+      "reviews": "리뷰",
+      "register_sale": "+ 중고책 판매글 등록"
     },
     "danger_zone": {
       "title": "Danger Zone",

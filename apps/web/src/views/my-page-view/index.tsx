@@ -1,13 +1,15 @@
 "use client";
 
 import {
+  ArrowRight,
+  BookMarked,
   BookOpen,
   Calendar,
   CalendarDays,
-  ChevronRight,
   Heart,
   MessageSquare,
   Pencil,
+  Plus,
   ShoppingBag,
   User,
 } from "lucide-react";
@@ -19,7 +21,6 @@ import { UserStatsDashboard } from "@/features/user/components/dashboard/user-st
 import { ProfileEditModal } from "@/features/user/components/profile/profile-edit-modal";
 import { WithdrawalModal } from "@/features/user/components/profile/withdrawal-modal";
 import { Button } from "@/shared/components/shadcn/button";
-import { Card, CardContent } from "@/shared/components/shadcn/card";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { formatDate } from "@/shared/utils/format-date";
@@ -30,106 +31,131 @@ export const MyPageView = () => {
   const user = useAuthStore((state) => state.user);
   const locale = useLocale();
 
-  // 활동 메뉴 정의
+  if (!user) {
+    return null;
+  }
+
+  const profileImageSrc = getProfileImageUrl(user.profileImageUrl);
+
   const activityMenus = [
     {
       icon: CalendarDays,
       label: t("menu.reading_log.label"),
       description: t("menu.reading_log.desc"),
       href: PATHS.READING_LOG,
-      color: "text-indigo-500",
-      bgColor: "bg-indigo-50",
     },
     {
       icon: ShoppingBag,
       label: t("menu.sales.label"),
       description: t("menu.sales.desc"),
       href: PATHS.MY_PAGE_SALES,
-      color: "text-emerald-500",
-      bgColor: "bg-emerald-50",
     },
     {
       icon: BookOpen,
       label: t("menu.reviews.label"),
       description: t("menu.reviews.desc"),
       href: PATHS.MY_REVIEWS,
-      color: "text-blue-500",
-      bgColor: "bg-blue-50",
     },
     {
       icon: Heart,
       label: t("menu.wishlist.label"),
       description: t("menu.wishlist.desc"),
       href: PATHS.MY_PAGE_WISHLIST,
-      color: "text-rose-500",
-      bgColor: "bg-rose-50",
     },
     {
       icon: MessageSquare,
       label: t("menu.comments.label"),
       description: t("menu.comments.desc"),
       href: PATHS.MY_COMMENTS,
-      color: "text-amber-500",
-      bgColor: "bg-amber-50",
     },
   ];
 
-  if (!user) {
-    return null;
-  }
-
-  // 프로필 이미지 URL 변환 (기본 프로필 식별자 → 실제 경로)
-  const profileImageSrc = getProfileImageUrl(user.profileImageUrl);
-
   return (
-    <div className="container mx-auto w-full px-4 py-8" data-clarity-mask="true">
-      <h1 className="mb-8 text-3xl font-bold">{t("title")}</h1>
+    <div className="container mx-auto max-w-5xl px-4 py-8" data-clarity-mask="true">
+      {/* 상단 페이지 헤더 */}
+      <div className="mb-6 flex flex-col justify-between gap-4 border-b border-stone-200/80 pb-5 sm:flex-row sm:items-center">
+        <div>
+          <h1 className="font-serif text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
+            {t("title")}
+          </h1>
+        </div>
+
+        {/* 퀵 액션 버튼 그룹 */}
+        <div className="flex items-center gap-2">
+          <Link href={PATHS.READING_LOG}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 gap-1.5 rounded-xl border-stone-200 text-xs font-medium text-stone-700 transition-all hover:bg-stone-50 hover:text-stone-950 active:scale-98"
+            >
+              <BookMarked className="h-3.5 w-3.5 text-stone-500" />
+              <span>{t("quick_actions.reading_log")}</span>
+            </Button>
+          </Link>
+          <Link href={PATHS.BOOK_SALES_REGISTER}>
+            <Button
+              size="sm"
+              className="h-9 gap-1.5 rounded-xl bg-stone-900 text-xs font-medium text-white shadow-xs transition-all hover:bg-stone-800 active:scale-98"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>{t("quick_actions.register_sale")}</span>
+            </Button>
+          </Link>
+        </div>
+      </div>
 
       {/* 프로필 섹션 */}
-      <Card className="mb-8">
-        <CardContent className="p-6">
-          <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
+      <div className="mb-6 rounded-2xl border border-stone-200/80 bg-white p-5 shadow-xs transition-shadow duration-300 hover:shadow-sm sm:p-6">
+        <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col items-center gap-4 sm:flex-row">
             {/* 아바타 */}
-            <div
-              className="relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full bg-stone-100"
-              data-nosnippet
-            >
-              {profileImageSrc ? (
-                <Image
-                  src={profileImageSrc}
-                  alt={user.nickname}
-                  fill
-                  sizes="96px"
-                  className="object-cover"
-                  unoptimized
-                />
-              ) : (
-                <User className="h-10 w-10 text-stone-400" />
-              )}
+            <div className="relative group">
+              <div
+                className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-stone-200 bg-stone-50 shadow-2xs sm:h-22 sm:w-22"
+                data-nosnippet
+              >
+                {profileImageSrc ? (
+                  <Image
+                    src={profileImageSrc}
+                    alt={user.nickname}
+                    fill
+                    sizes="88px"
+                    className="object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <User className="h-9 w-9 text-stone-400" />
+                )}
+              </div>
+              <ProfileEditModal
+                trigger={
+                  <button
+                    type="button"
+                    className="absolute right-0 bottom-0 flex h-6.5 w-6.5 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 shadow-xs transition-transform hover:scale-105 hover:text-stone-900"
+                    aria-label={t("profile.edit")}
+                  >
+                    <Pencil className="h-3 w-3" />
+                  </button>
+                }
+              />
             </div>
 
             {/* 사용자 정보 */}
-            <div className="flex-1 text-center sm:text-left">
-              <div className="flex items-center justify-center gap-2 sm:justify-start">
-                <h2 className="text-xl font-semibold text-stone-900">
+            <div className="text-center sm:text-left">
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                <h2 className="text-xl font-bold tracking-tight text-stone-900 sm:text-2xl">
                   {user.nickname}
                 </h2>
-                <ProfileEditModal
-                  trigger={
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-stone-400 hover:text-stone-600"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                  }
-                />
+                {user.handle && (
+                  <span className="rounded-md bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-500">
+                    @{user.handle}
+                  </span>
+                )}
               </div>
-              <p className="mt-1 text-sm text-stone-500">{user.email}</p>
+              <p className="mt-0.5 text-xs text-stone-500">{user.email}</p>
               {user.createdAt && (
-                <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-stone-400 sm:justify-start">
-                  <Calendar className="h-3.5 w-3.5" />
+                <div className="mt-1.5 flex items-center justify-center gap-1.5 text-xs text-stone-400 sm:justify-start">
+                  <Calendar className="h-3 w-3" />
                   <span>
                     {t("profile.joined", {
                       date: formatDate(user.createdAt, locale, "yearMonth"),
@@ -139,46 +165,68 @@ export const MyPageView = () => {
               )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+
+          <ProfileEditModal
+            trigger={
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8.5 rounded-xl border-stone-200 text-xs font-medium text-stone-700 transition-colors hover:bg-stone-50 hover:text-stone-900"
+              >
+                <Pencil className="mr-1.5 h-3 w-3" />
+                <span>{t("profile.edit")}</span>
+              </Button>
+            }
+          />
+        </div>
+      </div>
 
       {/* 통계 대시보드 */}
       <UserStatsDashboard />
 
       {/* 활동 메뉴 */}
-      <h3 className="mb-4 text-lg font-semibold">{t("activity_manage")}</h3>
-      <div className="mb-12 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {activityMenus.map((menu) => (
-          <Link key={menu.href} href={menu.href} className="block">
-            <Card className="h-full transition-colors hover:bg-stone-50">
-              <CardContent className="flex items-center gap-4 p-4">
-                <div className={`rounded-xl p-3 ${menu.bgColor}`}>
-                  <menu.icon className={`h-5 w-5 ${menu.color}`} />
+      <div className="mb-10">
+        <div className="mb-3.5 flex items-center justify-between">
+          <h2 className="text-lg font-bold tracking-tight text-stone-900 sm:text-xl">
+            {t("activity_manage")}
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {activityMenus.map((menu) => (
+            <Link
+              key={menu.href}
+              href={menu.href}
+              className="group flex flex-col justify-between rounded-xl border border-stone-200/80 bg-white p-4.5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-sm"
+            >
+              <div>
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-stone-100 text-stone-700 transition-colors group-hover:bg-stone-900 group-hover:text-white">
+                  <menu.icon className="h-4.5 w-4.5" />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-stone-900">{menu.label}</p>
-                  <p className="truncate text-xs text-stone-500">
-                    {menu.description}
-                  </p>
-                </div>
-                <ChevronRight className="h-5 w-5 shrink-0 text-stone-300" />
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+                <h4 className="mt-3 text-sm font-semibold text-stone-900 transition-colors group-hover:text-stone-950">
+                  {menu.label}
+                </h4>
+                <p className="mt-0.5 text-xs text-stone-500">
+                  {menu.description}
+                </p>
+              </div>
+
+              <div className="mt-4 flex items-center gap-1 text-xs font-medium text-stone-400 transition-colors group-hover:text-stone-700">
+                <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
 
-      {/* 위험 구역 (탈퇴) */}
-      <div className="border-t pt-8">
-        <h3 className="mb-4 text-lg font-semibold text-red-600">
-          {t("danger_zone.title")}
-        </h3>
-        <div className="flex flex-col items-start justify-between gap-4 rounded-lg border border-red-100 bg-red-50 p-6 sm:flex-row sm:items-center">
+      {/* 계정 탈퇴 */}
+      <div className="rounded-xl border border-stone-200/80 bg-stone-50/50 p-5">
+        <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
           <div>
-            <h4 className="font-medium text-red-900">
+            <h4 className="text-xs font-semibold text-stone-700">
               {t("danger_zone.withdraw_title")}
             </h4>
-            <p className="mt-1 text-sm text-red-700">
+            <p className="mt-0.5 text-xs text-stone-500">
               {t("danger_zone.withdraw_desc")}
             </p>
           </div>
