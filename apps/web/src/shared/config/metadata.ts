@@ -85,27 +85,39 @@ type CreatePageMetadataProps = {
   locale?: string;
   path?: string;
   noIndex?: boolean;
+  absoluteTitle?: boolean;
 };
 
 export const createPageMetadata = ({
   title,
   description,
   imageUrl,
-  locale,
+  locale = "ko",
   path,
   noIndex = false,
+  absoluteTitle = false,
 }: CreatePageMetadataProps): Metadata => {
   const images = imageUrl ? [imageUrl] : ["/logo-og-sketch.png"];
   const currentLocale = locale || "ko";
   const cleanPath = path ? (path.startsWith("/") ? path : `/${path}`) : "";
   const fullPath = `/${currentLocale}${cleanPath}`;
+  const brandName = currentLocale === "en" ? "Bookjeok" : "북적";
+
+  // 이미 타이틀에 브랜드명이 포함되어 있거나 absoluteTitle이 명시된 경우
+  const isAbsolute =
+    absoluteTitle ||
+    title.includes("북적") ||
+    title.includes("Bookjeok") ||
+    cleanPath === "";
+
+  const formattedOgTitle = isAbsolute ? title : `${title} | ${brandName}`;
 
   const metadata: Metadata = {
     metadataBase: new URL("https://bookjeok.com"),
-    title,
+    title: isAbsolute ? { absolute: title } : title,
     description,
     openGraph: {
-      title: `${title} | 북적`,
+      title: formattedOgTitle,
       description,
       images,
       siteName: "Bookjeok",
@@ -114,7 +126,7 @@ export const createPageMetadata = ({
     },
     twitter: {
       card: imageUrl ? "summary_large_image" : "summary",
-      title: `${title} | 북적`,
+      title: formattedOgTitle,
       description,
       images,
     },

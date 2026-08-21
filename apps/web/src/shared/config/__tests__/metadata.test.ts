@@ -43,7 +43,23 @@ describe("createPageMetadata (페이지별 메타데이터 생성 헬퍼)", () =
     });
 
     expect(meta.openGraph?.images).toEqual(["https://example.com/custom.png"]);
+    expect(meta.openGraph?.title).toBe("테스트 제목 | Bookjeok");
     expect(meta.openGraph?.url).toBe("https://bookjeok.com/en/test-path");
+  });
+
+  it("이미 브랜드명이 포함된 타이틀이나 홈 경로는 absolute 타이틀로 처리되어 중복이 방지되어야 한다", () => {
+    const metaHome = createPageMetadata({
+      title: "북적 - AI 도서 추천, 독서 기록, 리뷰, 중고책 거래",
+      description: "홈 설명",
+      path: "",
+    });
+
+    expect(metaHome.title).toEqual({
+      absolute: "북적 - AI 도서 추천, 독서 기록, 리뷰, 중고책 거래",
+    });
+    expect(metaHome.openGraph?.title).toBe(
+      "북적 - AI 도서 추천, 독서 기록, 리뷰, 중고책 거래",
+    );
   });
 
   it("noIndex 옵션이 true일 경우 robots 설정에 index: false가 적용되어야 한다", () => {
