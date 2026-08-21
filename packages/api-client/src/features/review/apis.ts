@@ -108,6 +108,15 @@ export const getReview = async (id: number) => {
 };
 
 /**
+ * 인증된 상태로 리뷰 상세 정보를 조회합니다.
+ * 비공개 리뷰의 경우 작성자 본인만 원본 내용을 조회할 수 있습니다.
+ */
+export const getReviewAuthenticated = async (id: number) => {
+  const { data } = await privateApiClient.get<Review>(API_PATHS.review.detail(id));
+  return data;
+};
+
+/**
  * 수정을 위한 리뷰 조회 (본인 리뷰만 조회 가능)
  */
 export const getReviewForEdit = async (id: number) => {

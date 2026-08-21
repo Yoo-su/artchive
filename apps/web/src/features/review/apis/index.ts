@@ -5,6 +5,7 @@ import {
   getPopularReviews as sharedGetPopularReviews,
   getRecommendedReviews as sharedGetRecommendedReviews,
   getReview as sharedGetReview,
+  getReviewAuthenticated as sharedGetReviewAuthenticated,
   getReviewFeeds as sharedGetReviewFeeds,
   getReviewForEdit as sharedGetReviewForEdit,
   getReviews as sharedGetReviews,
@@ -93,7 +94,7 @@ export const getReview = async (id: number) => {
  * @returns 리뷰 상세 정보
  */
 export const getReviewAuthenticated = async (id: number) => {
-  return sharedGetReview(id);
+  return sharedGetReviewAuthenticated(id);
 };
 
 /**

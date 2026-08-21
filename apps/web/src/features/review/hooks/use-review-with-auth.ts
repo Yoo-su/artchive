@@ -2,7 +2,7 @@
 
 import { Review, reviewKeys } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { getReviewAuthenticated } from "@/features/review/apis";
@@ -20,6 +20,7 @@ import { useReviewDetailQuery } from "@/features/review/queries";
 export const useReviewWithAuth = (id: number, initialReview?: Review) => {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
+  const [isFetchingAuth, setIsFetchingAuth] = useState(false);
 
   const { data: review, isLoading } = useReviewDetailQuery(
     id,
@@ -32,12 +33,20 @@ export const useReviewWithAuth = (id: number, initialReview?: Review) => {
 
   // 본인의 비공개 리뷰인데 마스킹 상태라면, 인증된 요청으로 원본 데이터를 가져옴
   useEffect(() => {
-    if (isPrivateMasked && isAuthor) {
-      getReviewAuthenticated(id).then((fullReview) => {
-        queryClient.setQueryData(reviewKeys.detail(id).queryKey, fullReview);
-      });
+    if (isPrivateMasked && isAuthor && !isFetchingAuth) {
+      setIsFetchingAuth(true);
+      getReviewAuthenticated(id)
+        .then((fullReview) => {
+          queryClient.setQueryData(reviewKeys.detail(id).queryKey, fullReview);
+        })
+        .catch((error) => {
+          console.error("Failed to fetch authenticated review:", error);
+        })
+        .finally(() => {
+          setIsFetchingAuth(false);
+        });
     }
-  }, [id, isPrivateMasked, isAuthor, queryClient]);
+  }, [id, isPrivateMasked, isAuthor, isFetchingAuth, queryClient]);
 
   return {
     review,
