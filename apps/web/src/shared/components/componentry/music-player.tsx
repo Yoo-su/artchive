@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/shared/utils";
@@ -109,17 +109,25 @@ export function MusicPlayer({
         </>
       )}
 
-      <div
+      <motion.div
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ type: "spring", stiffness: 400, damping: 25 }}
         className="relative h-64 w-64 cursor-pointer select-none md:h-80 md:w-80"
         onClick={handleToggle}
         title={isPlaying ? "일시정지" : "재생"}
       >
-        {/* Tonearm */}
+        {/* Tonearm with spring physics */}
         <motion.div
           className="pointer-events-none absolute right-[-10%] top-[-5%] z-20 h-[15%] w-[60%] origin-top-right sm:right-[-15%] sm:top-[-8%]"
-          initial={{ rotate: 10 }}
-          animate={{ rotate: isPlaying ? -20 : 10 }}
-          transition={{ duration: 0.5, ease: "easeInOut" }}
+          initial={{ rotate: 12 }}
+          animate={{ rotate: isPlaying ? -22 : 12 }}
+          transition={{
+            type: "spring",
+            stiffness: 180,
+            damping: 24,
+            mass: 0.8,
+          }}
         >
           {/* Tonearm base */}
           <div className="absolute right-0 top-0 z-10 h-8 w-8 -translate-y-1/2 translate-x-1/2 transform rounded-full border-4 border-zinc-200 bg-zinc-400 shadow-md md:h-10 md:w-10 dark:border-zinc-800 dark:bg-zinc-600" />
@@ -140,11 +148,18 @@ export function MusicPlayer({
             animationPlayState: isPlaying ? "running" : "paused",
           }}
         >
-          {/* Album Cover Background */}
-          <div
-            className="absolute inset-0 bg-cover bg-center opacity-90 transition-opacity"
-            style={{ backgroundImage: `url(${coverArt})` }}
-          />
+          {/* Album Cover Background with smooth crossfade */}
+          <AnimatePresence mode="popLayout">
+            <motion.div
+              key={coverArt}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.9 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${coverArt})` }}
+            />
+          </AnimatePresence>
 
           {/* Grooves Overlay */}
           <div
@@ -170,7 +185,7 @@ export function MusicPlayer({
             <div className="h-3 w-3 rounded-full border border-black/40 bg-zinc-300 shadow-inner md:h-4 md:w-4 dark:bg-zinc-600" />
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
