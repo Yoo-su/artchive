@@ -82,15 +82,7 @@ export function ReviewFeedList() {
                 key={review.id}
                 className="w-[280px]! sm:w-[320px]! h-auto select-none"
               >
-                <ReviewCard.Root review={review}>
-                  <ReviewCard.Image />
-                  <ReviewCard.Content>
-                    <ReviewCard.Meta />
-                    <ReviewCard.Title />
-                    <ReviewCard.Tags />
-                    <ReviewCard.Action />
-                  </ReviewCard.Content>
-                </ReviewCard.Root>
+                <ReviewCard review={review} />
               </SwiperSlide>
             ))}
           </Swiper>

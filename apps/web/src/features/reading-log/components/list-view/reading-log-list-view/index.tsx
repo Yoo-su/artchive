@@ -12,7 +12,6 @@ import { getDateLocale } from "@/shared/utils/format-date";
 
 import { getSeasonalTheme } from "../../../hooks/use-seasonal-theme";
 import { useReadingLogsInfiniteQuery } from "../../../queries";
-import { DayDetailsDialog } from "../../common/day-details-dialog";
 
 export function ReadingLogListView() {
   const t = useTranslations("reading_log.list");

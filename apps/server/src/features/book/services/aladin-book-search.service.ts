@@ -159,6 +159,123 @@ export class AladinBookSearchService {
   }
 
   /**
+   * 알라딘 검색 API를 호출하여 정제된 표준 도서 목록 응답을 반환합니다.
+   */
+  async searchFormatted(
+    query: string,
+    display: number = 10,
+    start: number = 1,
+    sort: string = 'sim',
+    queryType: string = 'Keyword',
+  ) {
+    const ttbKey = this.getTtbKey();
+    const sortParam = sort === 'date' ? 'PublishTime' : 'Accuracy';
+    const pageStart = Math.floor((start - 1) / Math.max(display, 1)) + 1;
+
+    try {
+      const response = await lastValueFrom(
+        this.httpService.get<AladinApiResponse>(
+          'https://www.aladin.co.kr/ttb/api/ItemSearch.aspx',
+          {
+            params: {
+              ttbkey: ttbKey,
+              Query: query,
+              QueryType: queryType,
+              SearchTarget: 'Book',
+              MaxResults: display,
+              Start: pageStart,
+              Sort: sortParam,
+              Output: 'js',
+              Version: '20131101',
+              Cover: 'Big',
+              OptResult: 'fulldescription',
+            },
+          },
+        ),
+      );
+
+      const aladinData = response.data;
+      const items = (aladinData?.item || []).map((item) => ({
+        title: cleanHtmlText(item.title),
+        author: cleanHtmlText(item.author),
+        publisher: cleanHtmlText(item.publisher),
+        description: extractAladinDetailedDescription(item),
+        image: formatAladinCoverImage(item.cover),
+        isbn: item.isbn13 || item.isbn,
+        link: item.link,
+        discount: String(item.priceSales || item.priceStandard || ''),
+        pubdate: item.pubDate,
+      }));
+
+      return {
+        total: aladinData?.totalResults || 0,
+        start: aladinData?.startIndex || start,
+        display: aladinData?.itemsPerPage || display,
+        lastBuildDate: aladinData?.pubDate || new Date().toISOString(),
+        items,
+      };
+    } catch (error) {
+      console.error('알라딘 도서 검색 API 호출 실패:', error);
+      throw new InternalServerErrorException(
+        '도서 정보를 검색하는 도중 오류가 발생했습니다.',
+      );
+    }
+  }
+
+  /**
+   * 알라딘 상세검색 API를 호출하여 정제된 표준 도서 상세 응답을 반환합니다.
+   */
+  async searchDetailFormatted(isbn: string) {
+    const ttbKey = this.getTtbKey();
+    const itemIdType = isbn.length === 13 ? 'ISBN13' : 'ISBN';
+
+    try {
+      const response = await lastValueFrom(
+        this.httpService.get<AladinApiResponse>(
+          'https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx',
+          {
+            params: {
+              ttbkey: ttbKey,
+              ItemId: isbn,
+              ItemIdType: itemIdType,
+              Output: 'js',
+              Version: '20131101',
+              Cover: 'Big',
+              OptResult: 'fulldescription',
+            },
+          },
+        ),
+      );
+
+      const aladinData = response.data;
+      const items = (aladinData?.item || []).map((item) => ({
+        title: cleanHtmlText(item.title),
+        author: cleanHtmlText(item.author),
+        publisher: cleanHtmlText(item.publisher),
+        description: extractAladinDetailedDescription(item),
+        image: formatAladinCoverImage(item.cover),
+        isbn: item.isbn13 || item.isbn,
+        link: item.link,
+        discount: String(item.priceSales || item.priceStandard || ''),
+        pubdate: item.pubDate,
+      }));
+
+      return {
+        total: aladinData?.totalResults || items.length,
+        start: aladinData?.startIndex || 1,
+        display: aladinData?.itemsPerPage || 10,
+        lastBuildDate: aladinData?.pubDate || new Date().toISOString(),
+        items,
+      };
+    } catch (error) {
+      console.error('알라딘 도서 상세 API 호출 실패:', error);
+      throw new InternalServerErrorException(
+        '도서 상세 정보를 가져오는 데 실패했습니다.',
+      );
+    }
+  }
+
+  /**
    * 알라딘 검색 API를 호출하여 raw 응답을 반환합니다. (Expo 등 외부 프록시용)
    */
   async searchRaw(

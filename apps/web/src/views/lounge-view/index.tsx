@@ -1,7 +1,6 @@
 "use client";
 
 import type { LoungeBookCard } from "@bookjeok/core";
-import { useState } from "react";
 
 import { LoungeActiveReaders } from "@/features/reading-log/components/lounge-feed/lounge-active-readers";
 import { LoungeBookDetailModal } from "@/features/reading-log/components/lounge-feed/lounge-book-detail-modal";
@@ -9,28 +8,25 @@ import { LoungeFeedList } from "@/features/reading-log/components/lounge-feed/lo
 import { LoungePopularBanner } from "@/features/reading-log/components/lounge-feed/lounge-popular-banner";
 import { AdBanner } from "@/shared/components/ads/ad-banner";
 import { CrowdCanvas } from "@/shared/components/skiperui/canvas-crowd";
+import { useOverlay } from "@/shared/hooks/use-overlay";
 
 export function LoungeView() {
-  const [modalData, setModalData] = useState<{
-    isbn: string;
-    book?: LoungeBookCard["book"];
-    totalCount?: number;
-  } | null>(null);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const overlay = useOverlay();
 
   const handleOpenModal = (
     isbn: string,
     book?: LoungeBookCard["book"],
     totalCount?: number,
   ) => {
-    setModalData({ isbn, book, totalCount });
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setTimeout(() => setModalData(null), 300);
+    overlay.open(({ isOpen, close }) => (
+      <LoungeBookDetailModal
+        isbn={isbn}
+        initialBook={book || null}
+        initialTotalCount={totalCount || 0}
+        isOpen={isOpen}
+        onClose={close}
+      />
+    ));
   };
 
   return (
@@ -67,15 +63,6 @@ export function LoungeView() {
           <LoungeFeedList onCardClick={handleOpenModal} />
         </div>
       </div>
-
-      {/* 뷰 레벨 공통 상세 모달 */}
-      <LoungeBookDetailModal
-        isbn={modalData?.isbn || null}
-        initialBook={modalData?.book || null}
-        initialTotalCount={modalData?.totalCount || 0}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
     </div>
   );
 }

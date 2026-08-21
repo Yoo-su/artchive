@@ -20,33 +20,8 @@ const baseURL =
 publicApiClient.defaults.baseURL = baseURL;
 privateApiClient.defaults.baseURL = baseURL;
 
-const commonRequestInterceptor = (
-  config: InternalAxiosRequestConfig,
-): InternalAxiosRequestConfig => {
-  // Next.js 내부 API Route (공연/예술, 도서, 업로드) 처리
-  if (
-    config.url?.includes("/art-list") ||
-    config.url?.includes("/art-detail") ||
-    config.url?.includes("/book-list") ||
-    config.url?.includes("/book-detail") ||
-    config.url?.includes("/upload")
-  ) {
-    if (typeof window !== "undefined") {
-      config.baseURL = "/api";
-    } else {
-      const origin = process.env.CLIENT_DOMAIN || "https://bookjeok.com";
-      config.baseURL = `${origin}/api`;
-    }
-  }
-  return config;
-};
-
-publicApiClient.interceptors.request.use(commonRequestInterceptor);
-
 privateApiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-    config = commonRequestInterceptor(config);
-
     const accessToken = useAuthStore.getState().accessToken;
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;

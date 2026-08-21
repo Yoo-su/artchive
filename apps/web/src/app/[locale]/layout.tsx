@@ -23,6 +23,7 @@ import { config } from "@/shared/config/env";
 import { Locale, routing } from "@/shared/config/i18n/routing";
 import { getJsonLd } from "@/shared/config/json-ld";
 import { generateGlobalMetadata } from "@/shared/config/metadata";
+import { OverlayProvider } from "@/shared/hooks/use-overlay";
 import { QueryProvider } from "@/shared/providers/query-provider";
 import { SocketProvider } from "@/shared/providers/socket-provider";
 import UserProvider from "@/shared/providers/user-provider";
@@ -89,7 +90,9 @@ export default async function Layout({
 
               {/* 채팅 시스템 (중첩 또는 병렬 - 리스너가 각 제공자 내부에 있으므로 형제 관계도 작동함) */}
               <SocketProvider namespace="/chat">
-                <ChatProvider>{children}</ChatProvider>
+                <ChatProvider>
+                  <OverlayProvider>{children}</OverlayProvider>
+                </ChatProvider>
               </SocketProvider>
             </UserProvider>
 

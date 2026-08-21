@@ -76,7 +76,7 @@ export class BookController {
   @Get('external/list')
   @ApiOperation({
     summary: '외부 공공 API: 책 검색',
-    description: '알라딘 책 검색 결과를 정제 없이 그대로 반환합니다.',
+    description: '알라딘 책 검색 결과를 정제된 표준 DTO 형태로 반환합니다.',
   })
   @ApiQuery({ name: 'query', description: '검색어' })
   @ApiQuery({
@@ -92,6 +92,7 @@ export class BookController {
     type: Number,
   })
   @ApiQuery({ name: 'sort', description: '정렬', required: false })
+  @ApiQuery({ name: 'queryType', description: '검색 유형', required: false })
   @ApiResponse({
     status: 200,
     description: '검색된 책 목록을 반환합니다.',
@@ -101,12 +102,14 @@ export class BookController {
     @Query('display') display?: number,
     @Query('start') start?: number,
     @Query('sort') sort?: string,
-  ): Promise<Record<string, unknown>> {
-    return await this.aladinBookSearchService.searchRaw(
+    @Query('queryType') queryType?: string,
+  ) {
+    return await this.aladinBookSearchService.searchFormatted(
       query,
       display,
       start,
       sort,
+      queryType,
     );
   }
 
@@ -114,17 +117,15 @@ export class BookController {
   @ApiOperation({
     summary: '외부 공공 API: 책 상세조회',
     description:
-      '알라딘 상세조회(ItemLookUp) 결과를 정제 없이 그대로 반환합니다.',
+      '알라딘 상세조회(ItemLookUp) 결과를 정제된 표준 DTO 형태로 반환합니다.',
   })
   @ApiQuery({ name: 'isbn', description: '책 ISBN' })
   @ApiResponse({
     status: 200,
     description: '책 상세정보를 반환합니다.',
   })
-  async getExternalBookDetail(
-    @Query('isbn') isbn: string,
-  ): Promise<Record<string, unknown>> {
-    return await this.aladinBookSearchService.searchDetailRaw(isbn);
+  async getExternalBookDetail(@Query('isbn') isbn: string) {
+    return await this.aladinBookSearchService.searchDetailFormatted(isbn);
   }
 
   @Get(':isbn/stats')

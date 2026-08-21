@@ -19,9 +19,9 @@ export const API_PATHS = {
     checkNickname: "/user/check-nickname",
   },
   book: {
-    list: "/book-list",
+    list: "/book/external/list",
     externalList: "/book/external/list",
-    detail: "/book-detail",
+    detail: "/book/external/detail",
     externalDetail: "/book/external/detail",
     sales: "/book/sales",
     sale: "/book/sale",
@@ -45,9 +45,9 @@ export const API_PATHS = {
     popular: "/search-keywords/popular",
   },
   art: {
-    list: "/art-list",
+    list: "/art/external/list",
     externalList: "/art/external/list",
-    detail: (artId: string) => `/art-detail/${artId}`,
+    detail: (artId: string) => `/art/external/detail/${artId}`,
     externalDetail: (artId: string) => `/art/external/detail/${artId}`,
   },
   llm: {
