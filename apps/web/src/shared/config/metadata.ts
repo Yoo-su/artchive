@@ -30,7 +30,7 @@ export const generateGlobalMetadata = (
     alternates: {
       types: {
         "application/rss+xml": [
-          { url: "/rss.xml", title: "북적 RSS 피드" },
+          { url: "/rss.xml", title: t("meta.rss_title") },
         ],
       },
     },

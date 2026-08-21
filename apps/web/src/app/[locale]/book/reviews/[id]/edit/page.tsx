@@ -11,7 +11,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; id: string }>;
 }) {
-  const { locale } = await params;
+  const { locale, id } = await params;
   const t = await getTranslations({
     locale,
     namespace: "review.edit.metadata",
@@ -20,6 +20,8 @@ export async function generateMetadata({
   return createPageMetadata({
     title: t("title"),
     description: t("description"),
+    locale,
+    path: `/book/reviews/${id}/edit`,
     noIndex: true,
   });
 }

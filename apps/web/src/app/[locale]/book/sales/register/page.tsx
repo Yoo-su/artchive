@@ -20,6 +20,8 @@ export async function generateMetadata({
   return createPageMetadata({
     title: t("title_write"),
     description: md("description"),
+    locale,
+    path: "/book/sales/register",
     noIndex: true,
   });
 }

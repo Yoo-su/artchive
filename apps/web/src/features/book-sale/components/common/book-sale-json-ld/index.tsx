@@ -40,7 +40,7 @@ export function BookSaleJsonLd({ sale, locale = "ko" }: BookSaleJsonLdProps) {
       price: sale.price,
       priceCurrency: "KRW",
       availability: getAvailability(sale.status),
-      priceValidUntil: `${new Date().getFullYear()}-12-31`, // Search Console 경고 방어용
+      priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // 현재로부터 1년 후
       seller: {
         "@type": "Person",
         name: sale.user.nickname,

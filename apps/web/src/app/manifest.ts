@@ -7,9 +7,12 @@ export default function manifest(): MetadataRoute.Manifest {
     description:
       "AI 도서 추천·요약, 독서 기록, 리뷰, 중고책 거래 통합 도서 플랫폼",
     start_url: "/",
+    scope: "/",
     display: "standalone",
     background_color: "#ffffff",
     theme_color: "#ffffff",
+    lang: "ko",
+    categories: ["books", "education", "shopping"],
     icons: [
       {
         src: "/icon-192.png",

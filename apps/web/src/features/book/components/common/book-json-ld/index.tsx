@@ -22,6 +22,7 @@ export function BookJsonLd({ book, locale }: BookJsonLdProps) {
     },
     datePublished: book.pubdate,
     description: book.description,
+    inLanguage: locale === "en" ? "en" : "ko",
     url: `https://bookjeok.com/${locale}/book/${book.isbn}/detail`,
   };
 

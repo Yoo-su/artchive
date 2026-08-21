@@ -32,9 +32,11 @@ export function ArtJsonLd({ art, locale }: ArtJsonLdProps) {
     startDate: formatDate(art.prfpdfrom),
     endDate: formatDate(art.prfpdto),
     eventStatus:
-      art.prfstate === "공연중" || art.prfstate === "공연예정"
+      art.prfstate === "공연중" ||
+      art.prfstate === "공연예정" ||
+      art.prfstate === "공연완료"
         ? "https://schema.org/EventScheduled"
-        : "https://schema.org/EventPostponed",
+        : "https://schema.org/EventCancelled",
     location: {
       "@type": "Place",
       name: art.fcltynm,
