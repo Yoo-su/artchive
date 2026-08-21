@@ -13,25 +13,21 @@ export function FloatingMusicPill() {
   const isModalOpen = useMusicStore((state) => state.isModalOpen);
   const togglePlay = useMusicStore((state) => state.togglePlay);
   const toggleModal = useMusicStore((state) => state.toggleModal);
-  const currentTrack = useMusicStore((state) => state.currentTrack);
+  const playlist = useMusicStore((state) => state.playlist);
+  const currentIndex = useMusicStore((state) => state.currentIndex);
+
+  const currentTrack = playlist[currentIndex] || playlist[0];
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted || !isPlaying || isModalOpen) {
+  if (!mounted || !isPlaying || isModalOpen || !currentTrack) {
     return null;
   }
 
-  const trackTitle =
-    currentTrack.id === "default-bgm"
-      ? t("default_track.title")
-      : currentTrack.title;
-
-  const trackArtist =
-    currentTrack.id === "default-bgm"
-      ? t("default_track.artist")
-      : currentTrack.artist;
+  const trackTitle = currentTrack.title;
+  const trackArtist = currentTrack.artist;
 
   return (
     <aside

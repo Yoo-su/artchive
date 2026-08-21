@@ -1084,8 +1084,14 @@
     "controls": {
       "play": "Play",
       "pause": "Pause",
+      "prev": "Previous track",
+      "next": "Next track",
       "mute": "Mute",
-      "unmute": "Unmute"
+      "unmute": "Unmute",
+      "repeat_all": "Repeat all",
+      "repeat_one": "Repeat one",
+      "repeat_off": "Repeat off",
+      "playlist": "Playlist"
     },
     "tip": "Music continues playing even if you close the popup or navigate to other pages."
   }

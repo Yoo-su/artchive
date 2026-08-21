@@ -6,9 +6,14 @@ import { useMusicStore } from "../stores/use-music-store";
 
 export function GlobalMusicHost() {
   const isPlaying = useMusicStore((state) => state.isPlaying);
-  const currentTrack = useMusicStore((state) => state.currentTrack);
+  const playlist = useMusicStore((state) => state.playlist);
+  const currentIndex = useMusicStore((state) => state.currentIndex);
+  const repeatMode = useMusicStore((state) => state.repeatMode);
   const volume = useMusicStore((state) => state.volume);
   const setIsPlaying = useMusicStore((state) => state.setIsPlaying);
+  const playNext = useMusicStore((state) => state.playNext);
+
+  const currentTrack = playlist[currentIndex];
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -23,7 +28,39 @@ export function GlobalMusicHost() {
 
   const youtubeId = currentTrack?.src ? getYoutubeId(currentTrack.src) : null;
 
-  // Handle Play / Pause
+  // Handle YouTube message events (track ended detection)
+  useEffect(() => {
+    const handleWindowMessage = (event: MessageEvent) => {
+      if (typeof event.data !== "string") return;
+      try {
+        const parsed = JSON.parse(event.data);
+        // YouTube PlayerState: 0 = ENDED
+        if (parsed.event === "onStateChange" && parsed.info === 0) {
+          if (repeatMode === "one") {
+            if (iframeRef.current?.contentWindow) {
+              iframeRef.current.contentWindow.postMessage(
+                JSON.stringify({ event: "command", func: "seekTo", args: [0, true] }),
+                "*"
+              );
+              iframeRef.current.contentWindow.postMessage(
+                JSON.stringify({ event: "command", func: "playVideo", args: [] }),
+                "*"
+              );
+            }
+          } else {
+            playNext();
+          }
+        }
+      } catch {
+        // Not a JSON message, ignore
+      }
+    };
+
+    window.addEventListener("message", handleWindowMessage);
+    return () => window.removeEventListener("message", handleWindowMessage);
+  }, [repeatMode, playNext]);
+
+  // Handle Play / Pause & Volume
   useEffect(() => {
     if (isPlaying) {
       if (youtubeId && iframeRef.current?.contentWindow) {
@@ -63,6 +100,17 @@ export function GlobalMusicHost() {
     }
   }, [volume, youtubeId]);
 
+  const handleAudioEnded = () => {
+    if (repeatMode === "one") {
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(() => setIsPlaying(false));
+      }
+    } else {
+      playNext();
+    }
+  };
+
   if (!currentTrack) return null;
 
   return (
@@ -72,8 +120,11 @@ export function GlobalMusicHost() {
     >
       {youtubeId ? (
         <iframe
+          key={youtubeId}
           ref={iframeRef}
-          src={`https://www.youtube.com/embed/${youtubeId}?enablejsapi=1&autoplay=0&controls=0&playsinline=1`}
+          src={`https://www.youtube.com/embed/${youtubeId}?enablejsapi=1&autoplay=${
+            isPlaying ? 1 : 0
+          }&controls=0&playsinline=1`}
           allow="autoplay; encrypted-media"
           title="Global Persistent Music Engine"
           className="h-1 w-1 border-0"
@@ -82,7 +133,7 @@ export function GlobalMusicHost() {
         <audio
           ref={audioRef}
           src={currentTrack.src}
-          onEnded={() => setIsPlaying(false)}
+          onEnded={handleAudioEnded}
           className="hidden"
         />
       )}
