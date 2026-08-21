@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { saveReturnUrl } from "@/features/auth/utils/return-url";
 import {
   Sheet,
   SheetContent,
@@ -21,7 +22,6 @@ interface NavItem {
   href: string;
   label: string;
   index: string;
-  requiresAuth?: boolean;
 }
 
 interface NavSection {
@@ -62,7 +62,6 @@ export const MobileNavSheet = () => {
           href: PATHS.READING_LOG,
           label: t("reading_log"),
           index: "02",
-          requiresAuth: true,
         },
         {
           href: PATHS.LOUNGE,
@@ -83,13 +82,11 @@ export const MobileNavSheet = () => {
           href: PATHS.BOOK_SALES_REGISTER,
           label: t("write_sales"),
           index: "04.2",
-          requiresAuth: true,
         },
         {
           href: PATHS.MY_PAGE_SALES,
           label: t("my_sales"),
           index: "04.3",
-          requiresAuth: true,
         },
       ],
     },
@@ -105,13 +102,11 @@ export const MobileNavSheet = () => {
           href: PATHS.REVIEW_WRITE,
           label: t("write_review"),
           index: "05.2",
-          requiresAuth: true,
         },
         {
           href: PATHS.MY_REVIEWS,
           label: t("my_reviews"),
           index: "05.3",
-          requiresAuth: true,
         },
       ],
     },
@@ -127,7 +122,10 @@ export const MobileNavSheet = () => {
     },
   ];
 
-  const handleLinkClick = () => {
+  const handleLinkClick = (href: string) => {
+    if (!currentUser) {
+      saveReturnUrl(href);
+    }
     setOpen(false);
   };
 
@@ -147,7 +145,7 @@ export const MobileNavSheet = () => {
       >
         <SheetHeader className="flex flex-row items-center justify-between space-y-0 border-b border-stone-50 px-6 py-5">
           <SheetTitle className="flex items-center text-left" asChild>
-            <div onClick={handleLinkClick}>
+            <div onClick={() => setOpen(false)}>
               <Logo />
             </div>
           </SheetTitle>
@@ -155,52 +153,43 @@ export const MobileNavSheet = () => {
         </SheetHeader>
 
         <nav className="flex flex-col gap-6 p-6 overflow-y-auto h-[calc(100vh-80px)]">
-          {navSections.map((section) => {
-            // 인증이 필요한 아이템만 있는 섹션은 로그인 시에만 표시
-            const visibleItems = section.items.filter(
-              (item) => !item.requiresAuth || currentUser,
-            );
-
-            if (visibleItems.length === 0) return null;
-
-            return (
-              <div key={section.title} className="space-y-2">
-                <h3 className="text-[11px] font-bold uppercase tracking-widest text-stone-400 font-mono">
-                  {section.title}
-                </h3>
-                <div className="flex flex-col gap-1">
-                  {visibleItems.map((item) => {
-                    const active = isActive(item.href);
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={handleLinkClick}
+          {navSections.map((section) => (
+            <div key={section.title} className="space-y-2">
+              <h3 className="text-[11px] font-bold uppercase tracking-widest text-stone-400 font-mono">
+                {section.title}
+              </h3>
+              <div className="flex flex-col gap-1">
+                {section.items.map((item) => {
+                  const active = isActive(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => handleLinkClick(item.href)}
+                      className={cn(
+                        "flex items-center justify-between py-2 px-3 text-sm transition-all duration-200 rounded-md",
+                        active
+                          ? "bg-stone-100/80 font-bold text-stone-900 border-l-2 border-stone-900 pl-2.5"
+                          : "text-stone-600 font-medium hover:bg-stone-50 hover:text-stone-900",
+                      )}
+                    >
+                      <span>{item.label}</span>
+                      <span
                         className={cn(
-                          "flex items-center justify-between py-2 px-3 text-sm transition-all duration-200 rounded-md",
+                          "font-mono text-[10.5px] tabular-nums tracking-wider select-none",
                           active
-                            ? "bg-stone-100/80 font-bold text-stone-900 border-l-2 border-stone-900 pl-2.5"
-                            : "text-stone-600 font-medium hover:bg-stone-50 hover:text-stone-900",
+                            ? "text-stone-900 font-semibold"
+                            : "text-stone-400",
                         )}
                       >
-                        <span>{item.label}</span>
-                        <span
-                          className={cn(
-                            "font-mono text-[10.5px] tabular-nums tracking-wider select-none",
-                            active
-                              ? "text-stone-900 font-semibold"
-                              : "text-stone-400",
-                          )}
-                        >
-                          {item.index}
-                        </span>
-                      </Link>
-                    );
-                  })}
-                </div>
+                        {item.index}
+                      </span>
+                    </Link>
+                  );
+                })}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </nav>
       </SheetContent>
     </Sheet>

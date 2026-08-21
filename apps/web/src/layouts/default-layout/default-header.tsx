@@ -115,19 +115,18 @@ export const DefaultHeader = () => {
             {isActive(PATHS.BOOK_SEARCH) && <HandDrawnUnderline />}
           </Link>
 
-          {/* 02. 독서 기록 (로그인 전용) */}
-          {currentUser && (
-            <Link
-              href={PATHS.READING_LOG}
-              className={getLinkClass(PATHS.READING_LOG)}
-            >
-              <span className={getIndexNumClass(PATHS.READING_LOG)}>02</span>
-              <span className="tracking-tight">{t("nav.menu_log")}</span>
-              {isActive(PATHS.READING_LOG) && <HandDrawnUnderline />}
-            </Link>
-          )}
+          {/* 02. 독서 기록 */}
+          <Link
+            href={PATHS.READING_LOG}
+            onClick={!currentUser ? () => saveReturnUrl(PATHS.READING_LOG) : undefined}
+            className={getLinkClass(PATHS.READING_LOG)}
+          >
+            <span className={getIndexNumClass(PATHS.READING_LOG)}>02</span>
+            <span className="tracking-tight">{t("nav.menu_log")}</span>
+            {isActive(PATHS.READING_LOG) && <HandDrawnUnderline />}
+          </Link>
 
-          {/* 03. 라운지 (공개) */}
+          {/* 03. 라운지 */}
           <Link href={PATHS.LOUNGE} className={getLinkClass(PATHS.LOUNGE)}>
             <span className={getIndexNumClass(PATHS.LOUNGE)}>03</span>
             <span className="tracking-tight">{t("nav.menu_lounge")}</span>
@@ -167,32 +166,30 @@ export const DefaultHeader = () => {
                     </span>
                   </Link>
                 </DropdownMenuItem>
-                {currentUser && (
-                  <>
-                    <DropdownMenuItem asChild className={dropdownItemClass}>
-                      <Link
-                        href={PATHS.BOOK_SALES_REGISTER}
-                        className={dropdownLinkClass}
-                      >
-                        <span>{t("nav.write_sales")}</span>
-                        <span className="font-mono text-[9.5px] tabular-nums text-stone-400 group-hover/item:text-stone-600">
-                          04.2
-                        </span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className={dropdownItemClass}>
-                      <Link
-                        href={PATHS.MY_PAGE_SALES}
-                        className={dropdownLinkClass}
-                      >
-                        <span>{t("nav.my_sales")}</span>
-                        <span className="font-mono text-[9.5px] tabular-nums text-stone-400 group-hover/item:text-stone-600">
-                          04.3
-                        </span>
-                      </Link>
-                    </DropdownMenuItem>
-                  </>
-                )}
+                <DropdownMenuItem asChild className={dropdownItemClass}>
+                  <Link
+                    href={PATHS.BOOK_SALES_REGISTER}
+                    onClick={!currentUser ? () => saveReturnUrl(PATHS.BOOK_SALES_REGISTER) : undefined}
+                    className={dropdownLinkClass}
+                  >
+                    <span>{t("nav.write_sales")}</span>
+                    <span className="font-mono text-[9.5px] tabular-nums text-stone-400 group-hover/item:text-stone-600">
+                      04.2
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className={dropdownItemClass}>
+                  <Link
+                    href={PATHS.MY_PAGE_SALES}
+                    onClick={!currentUser ? () => saveReturnUrl(PATHS.MY_PAGE_SALES) : undefined}
+                    className={dropdownLinkClass}
+                  >
+                    <span>{t("nav.my_sales")}</span>
+                    <span className="font-mono text-[9.5px] tabular-nums text-stone-400 group-hover/item:text-stone-600">
+                      04.3
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -230,31 +227,31 @@ export const DefaultHeader = () => {
                     </span>
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild className={dropdownItemClass}>
+                  <Link
+                    href={PATHS.REVIEW_WRITE}
+                    onClick={!currentUser ? () => saveReturnUrl(PATHS.REVIEW_WRITE) : undefined}
+                    className={dropdownLinkClass}
+                  >
+                    <span>{t("nav.write_review")}</span>
+                    <span className="font-mono text-[9.5px] tabular-nums text-stone-400 group-hover/item:text-stone-600">
+                      05.2
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className={dropdownItemClass}>
+                  <Link
+                    href={PATHS.MY_REVIEWS}
+                    onClick={!currentUser ? () => saveReturnUrl(PATHS.MY_REVIEWS) : undefined}
+                    className={dropdownLinkClass}
+                  >
+                    <span>{t("nav.my_reviews")}</span>
+                    <span className="font-mono text-[9.5px] tabular-nums text-stone-400 group-hover/item:text-stone-600">
+                      05.3
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
               </DropdownMenuGroup>
-              {currentUser && (
-                <DropdownMenuGroup>
-                  <DropdownMenuItem asChild className={dropdownItemClass}>
-                    <Link
-                      href={PATHS.REVIEW_WRITE}
-                      className={dropdownLinkClass}
-                    >
-                      <span>{t("nav.write_review")}</span>
-                      <span className="font-mono text-[9.5px] tabular-nums text-stone-400 group-hover/item:text-stone-600">
-                        05.2
-                      </span>
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem asChild className={dropdownItemClass}>
-                    <Link href={PATHS.MY_REVIEWS} className={dropdownLinkClass}>
-                      <span>{t("nav.my_reviews")}</span>
-                      <span className="font-mono text-[9.5px] tabular-nums text-stone-400 group-hover/item:text-stone-600">
-                        05.3
-                      </span>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              )}
             </DropdownMenuContent>
           </DropdownMenu>
 
