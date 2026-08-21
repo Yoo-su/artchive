@@ -1084,8 +1084,14 @@
     "controls": {
       "play": "재생",
       "pause": "일시정지",
+      "prev": "이전 곡",
+      "next": "다음 곡",
       "mute": "음소거",
-      "unmute": "음소거 해제"
+      "unmute": "음소거 해제",
+      "repeat_all": "전체 반복",
+      "repeat_one": "한 곡 반복",
+      "repeat_off": "반복 안 함",
+      "playlist": "재생목록"
     },
     "tip": "팝업을 닫거나 다른 페이지로 이동해도 음악은 계속 재생됩니다."
   }

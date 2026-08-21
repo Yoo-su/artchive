@@ -1,6 +1,16 @@
 "use client";
 
-import { Disc3, Pause, Play, Volume2, VolumeX } from "lucide-react";
+import {
+  Disc3,
+  Pause,
+  Play,
+  Repeat,
+  Repeat1,
+  SkipBack,
+  SkipForward,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { MusicPlayer } from "@/shared/components/componentry/music-player";
@@ -20,19 +30,27 @@ export function MusicPlayerModal() {
   const setIsModalOpen = useMusicStore((state) => state.setIsModalOpen);
   const isPlaying = useMusicStore((state) => state.isPlaying);
   const togglePlay = useMusicStore((state) => state.togglePlay);
-  const currentTrack = useMusicStore((state) => state.currentTrack);
+  const playlist = useMusicStore((state) => state.playlist);
+  const currentIndex = useMusicStore((state) => state.currentIndex);
+  const repeatMode = useMusicStore((state) => state.repeatMode);
+  const cycleRepeatMode = useMusicStore((state) => state.cycleRepeatMode);
+  const playNext = useMusicStore((state) => state.playNext);
+  const playPrev = useMusicStore((state) => state.playPrev);
   const volume = useMusicStore((state) => state.volume);
   const setVolume = useMusicStore((state) => state.setVolume);
 
-  const trackTitle =
-    currentTrack.id === "default-bgm"
-      ? t("default_track.title")
-      : currentTrack.title;
+  const currentTrack = playlist[currentIndex] || playlist[0];
 
-  const trackArtist =
-    currentTrack.id === "default-bgm"
-      ? t("default_track.artist")
-      : currentTrack.artist;
+  if (!currentTrack) return null;
+
+  const trackTitle = currentTrack.title;
+  const trackArtist = currentTrack.artist;
+
+  const getRepeatTitle = () => {
+    if (repeatMode === "all") return t("controls.repeat_all");
+    if (repeatMode === "one") return t("controls.repeat_one");
+    return t("controls.repeat_off");
+  };
 
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -47,6 +65,11 @@ export function MusicPlayerModal() {
               {t("title")}
             </DialogTitle>
           </div>
+          {playlist.length > 1 && (
+            <span className="font-mono text-xs font-medium text-stone-400">
+              {currentIndex + 1} / {playlist.length}
+            </span>
+          )}
         </DialogHeader>
 
         {/* LP 턴테이블 메인 플레이어 */}
@@ -71,8 +94,42 @@ export function MusicPlayerModal() {
 
           {/* 컨트롤 바 */}
           <div className="mt-6 flex w-full flex-col gap-4 border-t border-stone-100 pt-5">
-            {/* 재생/일시정지 메인 버튼 */}
-            <div className="flex items-center justify-center gap-3">
+            {/* 이전곡, 재생/정지, 다음곡, 반복재생 버튼 */}
+            <div className="flex items-center justify-center gap-4">
+              {/* 반복 재생 토글 버튼 */}
+              <button
+                type="button"
+                onClick={cycleRepeatMode}
+                className={`relative flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+                  repeatMode !== "off"
+                    ? "bg-stone-100 text-stone-900 hover:bg-stone-200"
+                    : "text-stone-400 hover:bg-stone-100 hover:text-stone-700"
+                }`}
+                title={getRepeatTitle()}
+                aria-label={getRepeatTitle()}
+              >
+                {repeatMode === "one" ? (
+                  <Repeat1 className="h-4.5 w-4.5" />
+                ) : (
+                  <Repeat className="h-4.5 w-4.5" />
+                )}
+                {repeatMode !== "off" && (
+                  <span className="absolute bottom-1 h-1 w-1 rounded-full bg-stone-900" />
+                )}
+              </button>
+
+              {/* 이전 곡 */}
+              <button
+                type="button"
+                onClick={playPrev}
+                className="flex h-10 w-10 items-center justify-center rounded-full text-stone-600 transition-all hover:bg-stone-100 hover:text-stone-950 active:scale-95"
+                title={t("controls.prev")}
+                aria-label={t("controls.prev")}
+              >
+                <SkipBack className="h-5 w-5 fill-current" />
+              </button>
+
+              {/* 재생 / 일시정지 메인 버튼 */}
               <Button
                 type="button"
                 onClick={togglePlay}
@@ -86,6 +143,17 @@ export function MusicPlayerModal() {
                   <Play className="ml-0.5 h-6 w-6 fill-current" />
                 )}
               </Button>
+
+              {/* 다음 곡 */}
+              <button
+                type="button"
+                onClick={playNext}
+                className="flex h-10 w-10 items-center justify-center rounded-full text-stone-600 transition-all hover:bg-stone-100 hover:text-stone-950 active:scale-95"
+                title={t("controls.next")}
+                aria-label={t("controls.next")}
+              >
+                <SkipForward className="h-5 w-5 fill-current" />
+              </button>
             </div>
 
             {/* 볼륨 컨트롤 */}
@@ -119,9 +187,7 @@ export function MusicPlayerModal() {
 
         {/* 닫기 안내 문구 */}
         <div className="border-t border-stone-100 pt-3 text-center">
-          <p className="text-[11px] text-stone-400">
-            {t("tip")}
-          </p>
+          <p className="text-[11px] text-stone-400">{t("tip")}</p>
         </div>
       </DialogContent>
     </Dialog>
