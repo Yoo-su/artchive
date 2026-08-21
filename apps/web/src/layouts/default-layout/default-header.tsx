@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { saveReturnUrl } from "@/features/auth/utils/return-url";
+import { HeaderMusicButton } from "@/features/music";
 import { NotificationPopover } from "@/features/notification/components/notification-popover";
 import {
   DropdownMenu,
@@ -69,13 +70,13 @@ export const DefaultHeader = () => {
 
   const getLinkClass = (path: string) =>
     cn(
-      "group relative inline-flex items-center gap-1.5 py-1 text-sm font-medium transition-colors duration-200",
+      "group relative inline-flex items-center gap-1.5 py-1 text-sm font-medium whitespace-nowrap shrink-0 transition-colors duration-200",
       isActive(path) ? "text-stone-900" : "text-stone-500 hover:text-stone-900",
     );
 
   const getIndexNumClass = (path: string) =>
     cn(
-      "font-mono text-[10px] tabular-nums tracking-wider select-none transition-colors duration-200",
+      "font-mono text-[10px] tabular-nums tracking-wider select-none transition-colors duration-200 shrink-0",
       isActive(path)
         ? "text-stone-900 font-semibold"
         : "text-stone-400/90 group-hover:text-stone-700",
@@ -92,7 +93,7 @@ export const DefaultHeader = () => {
     <header className="sticky top-0 left-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-stone-100">
       <div className="flex items-center justify-between max-w-5xl w-full px-4 py-3.5 mx-auto">
         {/* 좌측: 모바일 메뉴 + 로고 */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
           {/* 모바일 햄버거 메뉴 */}
           <MobileNavSheet />
 
@@ -101,7 +102,7 @@ export const DefaultHeader = () => {
 
         {/* 중앙: 데스크탑 에디토리얼 챕터 인덱스 네비게이션 */}
         <nav
-          className="hidden md:flex items-center gap-7 font-[family-name:var(--font-gowun-batang)]"
+          className="hidden lg:flex items-center gap-5.5 xl:gap-7 whitespace-nowrap shrink-0 font-[family-name:var(--font-gowun-batang)]"
           aria-label={t("nav.main_menu")}
         >
           {/* 01. 도서 검색 */}
@@ -139,7 +140,7 @@ export const DefaultHeader = () => {
               <button
                 type="button"
                 className={cn(
-                  "group relative inline-flex items-center gap-1.5 py-1 text-sm font-medium transition-colors duration-200 outline-none cursor-pointer",
+                  "group relative inline-flex items-center gap-1.5 py-1 text-sm font-medium whitespace-nowrap shrink-0 transition-colors duration-200 outline-none cursor-pointer",
                   isActive(PATHS.BOOK_MARKET)
                     ? "text-stone-900"
                     : "text-stone-500 hover:text-stone-900",
@@ -202,7 +203,7 @@ export const DefaultHeader = () => {
               <button
                 type="button"
                 className={cn(
-                  "group relative inline-flex items-center gap-1.5 py-1 text-sm font-medium transition-colors duration-200 outline-none cursor-pointer",
+                  "group relative inline-flex items-center gap-1.5 py-1 text-sm font-medium whitespace-nowrap shrink-0 transition-colors duration-200 outline-none cursor-pointer",
                   isActive(PATHS.REVIEWS)
                     ? "text-stone-900"
                     : "text-stone-500 hover:text-stone-900",
@@ -265,9 +266,10 @@ export const DefaultHeader = () => {
           </Link>
         </nav>
 
-        {/* 우측: 사용자 메뉴 */}
-        <div className="flex items-center gap-3">
-          <LanguageSwitcher className="hidden md:flex" />
+        {/* 우측: 사용자 메뉴 & BGM */}
+        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+          <HeaderMusicButton />
+          <LanguageSwitcher className="hidden lg:flex shrink-0" />
           {!mounted ? (
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-stone-100/80 animate-pulse border border-stone-200/40 flex items-center justify-center">

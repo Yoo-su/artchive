@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import React, { useEffect,useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/shared/utils";
 
@@ -12,6 +12,12 @@ export interface MusicPlayerProps extends React.HTMLAttributes<HTMLDivElement> {
   coverArt: string;
   /** Whether to auto-play the audio when loaded */
   autoPlay?: boolean;
+  /** Controlled playing state */
+  isPlaying?: boolean;
+  /** Callback when user clicks the vinyl to toggle playback */
+  onTogglePlay?: () => void;
+  /** Disable internal audio/iframe engine (when using global persistent host) */
+  disableInternalAudio?: boolean;
 }
 
 export function MusicPlayer({
@@ -19,9 +25,14 @@ export function MusicPlayer({
   src,
   coverArt,
   autoPlay = false,
+  isPlaying: controlledIsPlaying,
+  onTogglePlay,
+  disableInternalAudio = false,
   ...props
 }: MusicPlayerProps) {
-  const [isPlaying, setIsPlaying] = useState(autoPlay);
+  const [internalIsPlaying, setInternalIsPlaying] = useState(autoPlay);
+  const isPlaying = controlledIsPlaying !== undefined ? controlledIsPlaying : internalIsPlaying;
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
@@ -32,10 +43,12 @@ export function MusicPlayer({
     );
     return match ? match[1] : null;
   };
-  
+
   const youtubeId = src ? getYoutubeId(src) : null;
 
   useEffect(() => {
+    if (disableInternalAudio) return;
+
     if (isPlaying) {
       if (youtubeId && iframeRef.current?.contentWindow) {
         iframeRef.current.contentWindow.postMessage(
@@ -43,7 +56,7 @@ export function MusicPlayer({
           "*"
         );
       } else {
-        audioRef.current?.play().catch(() => setIsPlaying(false));
+        audioRef.current?.play().catch(() => setInternalIsPlaying(false));
       }
     } else {
       if (youtubeId && iframeRef.current?.contentWindow) {
@@ -55,10 +68,14 @@ export function MusicPlayer({
         audioRef.current?.pause();
       }
     }
-  }, [isPlaying, youtubeId]);
+  }, [isPlaying, youtubeId, disableInternalAudio]);
 
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
+  const handleToggle = () => {
+    if (onTogglePlay) {
+      onTogglePlay();
+    } else {
+      setInternalIsPlaying(!internalIsPlaying);
+    }
   };
 
   return (
@@ -66,52 +83,60 @@ export function MusicPlayer({
       className={cn("relative inline-flex flex-col items-center", className)}
       {...props}
     >
-      {youtubeId ? (
-        <iframe
-          ref={iframeRef}
-          className="hidden"
-          src={`https://www.youtube.com/embed/${youtubeId}?enablejsapi=1&autoplay=${
-            autoPlay ? 1 : 0
-          }&controls=0`}
-          allow="autoplay"
-        />
-      ) : (
-        <audio
-          ref={audioRef}
-          src={src}
-          onEnded={() => setIsPlaying(false)}
-          className="hidden"
-        />
+      {!disableInternalAudio && (
+        <>
+          {youtubeId ? (
+            <iframe
+              ref={iframeRef}
+              className="pointer-events-none fixed -left-[9999px] -top-[9999px] h-1 w-1 opacity-0"
+              src={`https://www.youtube.com/embed/${youtubeId}?enablejsapi=1&autoplay=${
+                autoPlay ? 1 : 0
+              }&controls=0`}
+              allow="autoplay"
+              title="Music Player Audio"
+            />
+          ) : (
+            <audio
+              ref={audioRef}
+              src={src}
+              onEnded={() => {
+                if (onTogglePlay && isPlaying) onTogglePlay();
+                else setInternalIsPlaying(false);
+              }}
+              className="hidden"
+            />
+          )}
+        </>
       )}
 
       <div
-        className="relative cursor-pointer select-none h-64 w-64 md:h-80 md:w-80"
-        onClick={togglePlay}
-        title={isPlaying ? "Pause" : "Play"}
+        className="relative h-64 w-64 cursor-pointer select-none md:h-80 md:w-80"
+        onClick={handleToggle}
+        title={isPlaying ? "일시정지" : "재생"}
       >
         {/* Tonearm */}
         <motion.div
-          className="absolute z-20 top-[-5%] right-[-10%] sm:top-[-8%] sm:right-[-15%] origin-top-right w-[60%] h-[15%] pointer-events-none"
+          className="pointer-events-none absolute right-[-10%] top-[-5%] z-20 h-[15%] w-[60%] origin-top-right sm:right-[-15%] sm:top-[-8%]"
           initial={{ rotate: 10 }}
           animate={{ rotate: isPlaying ? -20 : 10 }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
         >
           {/* Tonearm base */}
-          <div className="absolute top-0 right-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-zinc-400 dark:bg-zinc-600 shadow-md transform translate-x-1/2 -translate-y-1/2 border-4 border-zinc-200 dark:border-zinc-800 z-10" />
+          <div className="absolute right-0 top-0 z-10 h-8 w-8 -translate-y-1/2 translate-x-1/2 transform rounded-full border-4 border-zinc-200 bg-zinc-400 shadow-md md:h-10 md:w-10 dark:border-zinc-800 dark:bg-zinc-600" />
           {/* Tonearm stick & Needle */}
-          <div className="absolute top-0 right-[10px] sm:right-[15px] w-[90%] h-2 md:h-3 bg-zinc-400 dark:bg-zinc-500 rounded-full origin-right -rotate-12 shadow-sm flex items-center justify-start">
+          <div className="absolute right-[10px] top-0 flex h-2 w-[90%] origin-right -rotate-12 items-center justify-start rounded-full bg-zinc-400 shadow-xs sm:right-[15px] md:h-3 dark:bg-zinc-500">
             {/* Needle */}
-            <div className="w-4 h-4 md:w-5 md:h-5 bg-zinc-800 dark:bg-zinc-300 rounded-full shadow-md transform -translate-x-1/2" />
+            <div className="h-4 w-4 -translate-x-1/2 transform rounded-full bg-zinc-800 shadow-md md:h-5 md:w-5 dark:bg-zinc-300" />
           </div>
         </motion.div>
 
         {/* Record Disc */}
         <div
           className={cn(
-            "relative w-full h-full rounded-full border-4 sm:border-8 border-black/10 dark:border-white/10 shadow-xl overflow-hidden shadow-black/30 bg-black animate-spin"
+            "relative h-full w-full overflow-hidden rounded-full border-4 border-black/10 bg-black shadow-xl shadow-black/30 sm:border-8 dark:border-white/10"
           )}
           style={{
-            animationDuration: "4s",
+            animation: "spin 4s linear infinite",
             animationPlayState: isPlaying ? "running" : "paused",
           }}
         >
@@ -121,7 +146,7 @@ export function MusicPlayer({
             style={{ backgroundImage: `url(${coverArt})` }}
           />
 
-          {/* Grooves Overlay (Multiple dark gradient rings) */}
+          {/* Grooves Overlay */}
           <div
             className="absolute inset-0 rounded-full border border-black/20"
             style={{
@@ -132,7 +157,7 @@ export function MusicPlayer({
 
           {/* Glare effect */}
           <div
-            className="absolute inset-0 rounded-full pointer-events-none"
+            className="pointer-events-none absolute inset-0 rounded-full"
             style={{
               background:
                 "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.2) 100%)",
@@ -140,9 +165,9 @@ export function MusicPlayer({
           />
 
           {/* Center Hole and Label Area */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/3 h-1/3 rounded-full bg-zinc-900 border border-zinc-700 shadow-inner flex items-center justify-center">
-            {/* The very center pin hole */}
-            <div className="w-3 h-3 md:w-4 md:h-4 bg-zinc-300 dark:bg-zinc-600 rounded-full shadow-inner border border-black/40" />
+          <div className="absolute left-1/2 top-1/2 flex h-1/3 w-1/3 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 shadow-inner">
+            {/* The center pin hole */}
+            <div className="h-3 w-3 rounded-full border border-black/40 bg-zinc-300 shadow-inner md:h-4 md:w-4 dark:bg-zinc-600" />
           </div>
         </div>
       </div>
