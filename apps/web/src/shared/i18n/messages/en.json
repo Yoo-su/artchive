@@ -646,10 +646,6 @@
     },
     "title": "My Page",
     "activity_manage": "Activity",
-    "quick_actions": {
-      "reading_log": "Reading Log",
-      "register_sale": "List Used Book"
-    },
     "menu": {
       "reading_log": {
         "label": "My Reading Log",
@@ -1073,5 +1069,24 @@
       "loading": "Loading...",
       "empty": "No other reading logs for this book yet."
     }
+  },
+  "music": {
+    "title": "Bookjeok Turntable",
+    "default_track": {
+      "title": "Music for Reading",
+      "artist": "Bookjeok Cozy BGM"
+    },
+    "header_button": {
+      "label": "BGM",
+      "title": "Bookjeok Turntable",
+      "aria_label": "Open background music player"
+    },
+    "controls": {
+      "play": "Play",
+      "pause": "Pause",
+      "mute": "Mute",
+      "unmute": "Unmute"
+    },
+    "tip": "Music continues playing even if you close the popup or navigate to other pages."
   }
 }

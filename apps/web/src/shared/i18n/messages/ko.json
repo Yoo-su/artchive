@@ -646,10 +646,6 @@
     },
     "title": "마이페이지",
     "activity_manage": "활동 관리",
-    "quick_actions": {
-      "reading_log": "독서 기록장",
-      "register_sale": "중고책 판매글 등록"
-    },
     "menu": {
       "reading_log": {
         "label": "나의 독서 기록",
@@ -1073,5 +1069,24 @@
       "loading": "불러오는 중...",
       "empty": "아직 이 책의 다른 독서 기록이 없습니다."
     }
+  },
+  "music": {
+    "title": "북적 턴테이블",
+    "default_track": {
+      "title": "책 읽을 때 듣는 음악",
+      "artist": "북적 BGM"
+    },
+    "header_button": {
+      "label": "BGM",
+      "title": "북적 턴테이블",
+      "aria_label": "배경 음악 플레이어 열기"
+    },
+    "controls": {
+      "play": "재생",
+      "pause": "일시정지",
+      "mute": "음소거",
+      "unmute": "음소거 해제"
+    },
+    "tip": "팝업을 닫거나 다른 페이지로 이동해도 음악은 계속 재생됩니다."
   }
 }

@@ -2,14 +2,12 @@
 
 import {
   ArrowRight,
-  BookMarked,
   BookOpen,
   Calendar,
   CalendarDays,
   Heart,
   MessageSquare,
   Pencil,
-  Plus,
   ShoppingBag,
   User,
 } from "lucide-react";
@@ -73,35 +71,10 @@ export const MyPageView = () => {
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8" data-clarity-mask="true">
       {/* 상단 페이지 헤더 */}
-      <div className="mb-6 flex flex-col justify-between gap-4 border-b border-stone-200/80 pb-5 sm:flex-row sm:items-center">
-        <div>
-          <h1 className="font-serif text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
-            {t("title")}
-          </h1>
-        </div>
-
-        {/* 퀵 액션 버튼 그룹 */}
-        <div className="flex items-center gap-2">
-          <Link href={PATHS.READING_LOG}>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 gap-1.5 rounded-xl border-stone-200 text-xs font-medium text-stone-700 transition-all hover:bg-stone-50 hover:text-stone-950 active:scale-98"
-            >
-              <BookMarked className="h-3.5 w-3.5 text-stone-500" />
-              <span>{t("quick_actions.reading_log")}</span>
-            </Button>
-          </Link>
-          <Link href={PATHS.BOOK_SALES_REGISTER}>
-            <Button
-              size="sm"
-              className="h-9 gap-1.5 rounded-xl bg-stone-900 text-xs font-medium text-white shadow-xs transition-all hover:bg-stone-800 active:scale-98"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              <span>{t("quick_actions.register_sale")}</span>
-            </Button>
-          </Link>
-        </div>
+      <div className="mb-6 border-b border-stone-200/80 pb-5">
+        <h1 className="font-serif text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
+          {t("title")}
+        </h1>
       </div>
 
       {/* 프로필 섹션 */}
