@@ -44,7 +44,8 @@
     "nav": {
       "market": "중고마켓",
       "review": "도서리뷰",
-      "search": "도서검색"
+      "search": "도서검색",
+      "lounge": "독서 라운지"
     }
   },
   "meta": {
@@ -59,7 +60,8 @@
     "twitter": {
       "title": "북적 - AI 도서 추천, 독서 기록, 리뷰, 중고책 거래",
       "description": "취향을 말하면 AI가 책을 찾아드립니다. 독서 기록, 리뷰, 중고 거래까지 한 곳에서."
-    }
+    },
+    "rss_title": "북적 RSS 피드"
   },
   "notification": {
     "title": "알림",

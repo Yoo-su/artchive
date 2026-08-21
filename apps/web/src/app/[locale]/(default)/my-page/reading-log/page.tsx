@@ -17,6 +17,8 @@ export async function generateMetadata({
   return createPageMetadata({
     title: t("title"),
     description: t("description"),
+    locale,
+    path: "/my-page/reading-log",
     noIndex: true,
   });
 }

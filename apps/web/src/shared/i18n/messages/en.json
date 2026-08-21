@@ -44,7 +44,8 @@
     "nav": {
       "market": "Used Market",
       "review": "Book Reviews",
-      "search": "Book Search"
+      "search": "Book Search",
+      "lounge": "Reading Lounge"
     }
   },
   "meta": {
@@ -59,7 +60,8 @@
     "twitter": {
       "title": "Bookjeok - AI Book Recommendations, Reading Log, Reviews & Used Book Trading",
       "description": "Tell us your taste, and AI finds the right book for you. Reading logs, reviews, and used book trading in one place."
-    }
+    },
+    "rss_title": "Bookjeok RSS Feed"
   },
   "notification": {
     "title": "Notifications",

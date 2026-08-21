@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getInsights } from "@/features/insights/apis";
+import { BreadcrumbJsonLd } from "@/shared/components/breadcrumb-json-ld";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
 import InsightsView from "@/views/insights-view";
@@ -33,11 +34,18 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: "header" });
+
+  const breadcrumbs = [
+    { name: locale === "ko" ? "홈" : "Home", url: `/${locale}` },
+    { name: t("nav.menu_insights"), url: `/${locale}/insights` },
+  ];
 
   return (
     <ServerQueryBoundary
       queries={[{ queryKey: insightsKeys.all.queryKey, queryFn: getInsights }]}
     >
+      <BreadcrumbJsonLd items={breadcrumbs} />
       <InsightsView />
     </ServerQueryBoundary>
   );

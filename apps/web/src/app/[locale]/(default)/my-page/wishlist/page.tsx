@@ -14,6 +14,8 @@ export async function generateMetadata({
   return createPageMetadata({
     title: t("title"),
     description: t("description"),
+    locale,
+    path: "/my-page/wishlist",
     noIndex: true,
   });
 }

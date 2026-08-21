@@ -7,15 +7,17 @@ import { BookSaleEditView } from "@/views/book-sale-edit-view";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ locale: string }>;
+  params: Promise<{ locale: string; id: string }>;
 }): Promise<Metadata> {
-  const { locale } = await params;
+  const { locale, id } = await params;
   const t = await getTranslations({ locale, namespace: "market.form" });
   const md = await getTranslations({ locale, namespace: "market.hero.metadata" });
 
   return createPageMetadata({
     title: t("title_edit"),
     description: md("description"),
+    locale,
+    path: `/my-page/sales/${id}/edit`,
     noIndex: true,
   });
 }

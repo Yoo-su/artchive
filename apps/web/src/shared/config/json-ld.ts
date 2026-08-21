@@ -43,6 +43,11 @@ export const getJsonLd = (t: (key: string) => string, locale: string = "ko") => 
         name: t("json_ld.nav.search"),
         url: `https://bookjeok.com/${locale}/book/search`,
       },
+      {
+        "@type": "SiteNavigationElement",
+        name: t("json_ld.nav.lounge"),
+        url: `https://bookjeok.com/${locale}/lounge`,
+      },
     ],
   };
 };

@@ -53,7 +53,7 @@ export async function GET() {
       <link>${item.link}</link>
       <description><![CDATA[${item.description}]]></description>
       <pubDate>${item.pubDate.toUTCString()}</pubDate>
-      <guid>${item.link}</guid>
+      <guid isPermaLink="true">${item.link}</guid>
     </item>`)
     .join("");
 
@@ -65,6 +65,7 @@ export async function GET() {
     <link>https://bookjeok.com/ko</link>
     <description>독서 기록을 관리하고, 도서 리뷰를 공유하며, 중고책을 안전하게 거래하는 플랫폼 북적의 최신 소식입니다.</description>
     <language>ko</language>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="https://bookjeok.com/rss.xml" rel="self" type="application/rss+xml" />
     ${xmlItems}
   </channel>

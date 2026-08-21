@@ -19,6 +19,8 @@ export async function generateMetadata({
   return createPageMetadata({
     title: t("title"),
     description: t("description"),
+    locale,
+    path: "/signup",
     noIndex: true,
   });
 }
