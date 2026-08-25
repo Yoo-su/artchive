@@ -91,7 +91,7 @@ export const ReviewForm = ({
     initialData?.book || null,
   );
   const [tagInput, setTagInput] = useState("");
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
 
   const { handleImageAdd, uploadImages, isUploading } = useEditorImageHandler({
     uploadPath: (file) =>

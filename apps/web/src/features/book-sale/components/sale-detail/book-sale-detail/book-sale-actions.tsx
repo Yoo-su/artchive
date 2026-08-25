@@ -34,7 +34,7 @@ export const BookSaleActions = ({ sale }: BookSaleActionsProps) => {
   const currentUser = mounted ? user : null;
   const isOwner = currentUser?.id === sale.user.id;
   const [isCreatingChat, setIsCreatingChat] = useState(false);
-  const { openChatRoom } = useChatStore();
+  const openChatRoom = useChatStore((state) => state.openChatRoom);
   const { socket } = useSocketContext();
   const queryClient = useQueryClient();
   const { mutate: deleteSale, isPending: isDeleting } =

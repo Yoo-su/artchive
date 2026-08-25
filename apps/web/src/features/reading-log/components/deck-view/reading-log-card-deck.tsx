@@ -33,7 +33,7 @@ export function ReadingLogCardDeck({
   isLoading = false,
 }: ReadingLogCardDeckProps) {
   const t = useTranslations("reading_log");
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
   const [isMobile, setIsMobile] = useState(false);
 
   // logs prop이 전달되지 않은 경우 자체적으로 최근 독서기록 50개 조회

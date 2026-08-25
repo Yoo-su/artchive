@@ -17,7 +17,8 @@ import {
 export const useChatEvents = () => {
   const { socket } = useSocketContext();
   const queryClient = useQueryClient();
-  const { setTyping, setRoomInactive } = useChatStore();
+  const setTyping = useChatStore((state) => state.setTyping);
+  const setRoomInactive = useChatStore((state) => state.setRoomInactive);
 
   const handleNewChatRoom = useCallback(
     (newRoom: ChatRoom) => {

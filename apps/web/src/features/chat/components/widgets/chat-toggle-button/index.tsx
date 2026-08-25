@@ -10,7 +10,8 @@ import { useMyChatRoomsQuery } from "../../../queries";
 import { useChatStore } from "../../../stores/use-chat-store";
 
 export const ChatToggleButton = () => {
-  const { toggleChat, isChatOpen } = useChatStore();
+  const toggleChat = useChatStore((state) => state.toggleChat);
+  const isChatOpen = useChatStore((state) => state.isChatOpen);
   const { data: rooms } = useMyChatRoomsQuery();
 
   const totalUnreadCount = useMemo(() => {
