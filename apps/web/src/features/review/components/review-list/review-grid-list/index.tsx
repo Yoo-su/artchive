@@ -47,15 +47,20 @@ export function ReviewGridList({
   });
 
   const t = useTranslations("review.list");
+  const tCommon = useTranslations("common");
 
-  // 무한 스크롤 감지
-  const { ref, inView } = useInView();
+  // Intersection Observer로 무한 스크롤 트리거 감지
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: "100px",
+  });
 
+  // 스크롤이 하단에 도달하고 다음 페이지가 있으면 추가 데이터 로드
   useEffect(() => {
-    if (inView && hasNextPage) {
+    if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [inView, hasNextPage, fetchNextPage]);
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // 로딩 상태
   if (isLoading) {
@@ -66,9 +71,9 @@ export function ReviewGridList({
   if (isError) {
     return (
       <div className="py-32 flex flex-col items-center justify-center text-red-500">
-        <p className="mb-4">리뷰 목록을 불러오는데 실패했습니다.</p>
+        <p className="mb-4">{t("error")}</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
-          다시 시도
+          {tCommon("actions.retry")}
         </Button>
       </div>
     );

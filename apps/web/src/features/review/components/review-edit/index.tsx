@@ -21,6 +21,7 @@ interface ReviewEditProps {
 
 export const ReviewEdit = ({ id }: ReviewEditProps) => {
   const t = useTranslations("review.form");
+  const tToast = useTranslations("review.toast");
   const router = useRouter();
 
   // 수정용 전용 API 사용 (본인 리뷰만 조회 가능)
@@ -37,11 +38,11 @@ export const ReviewEdit = ({ id }: ReviewEditProps) => {
     if (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response?.status === 403) {
-        toast.error("수정 권한이 없습니다.");
+        toast.error(tToast("unauthorized"));
         router.replace(PATHS.MY_PAGE);
       }
     }
-  }, [error, router]);
+  }, [error, router, tToast]);
 
   const handleSubmit = async (
     data: ReviewFormValues,
@@ -61,7 +62,7 @@ export const ReviewEdit = ({ id }: ReviewEditProps) => {
     return (
       <div className="container mx-auto py-20 text-center text-red-500">
         <AlertTriangle className="mx-auto h-12 w-12" />
-        <p className="mt-4 font-semibold">리뷰 정보를 불러올 수 없습니다.</p>
+        <p className="mt-4 font-semibold">{tToast("fetch_failed")}</p>
       </div>
     );
   }

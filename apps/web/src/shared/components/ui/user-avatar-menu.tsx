@@ -1,6 +1,7 @@
 "use client";
 
 import { User as UserIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
@@ -39,74 +40,67 @@ interface UserAvatarMenuProps {
   menuSide?: "top" | "right" | "bottom" | "left";
   /** 메뉴 정렬 */
   menuAlign?: "start" | "center" | "end";
-  /** 추가 스타일 */
   className?: string;
 }
 
-const sizeClasses = {
-  sm: "w-5 h-5",
-  md: "w-9 h-9",
-  lg: "w-10 h-10",
-};
-
-const textSizeClasses = {
-  sm: "text-xs",
-  md: "text-sm",
-  lg: "text-base",
-};
-
 /**
- * 사용자 아바타 메뉴 컴포넌트
- * - 로그인 상태: 클릭 시 드롭다운 메뉴 표시 → 프로필 보기
- * - 비로그인 상태: 메뉴 비활성화 (일반 아바타로 표시)
+ * 사용자 아바타 및 프로필 메뉴 컴포넌트
+ * - 로그인 상태: 아바타 클릭 시 프로필 보기 메뉴 노출
+ * - 비로그인 상태: 아바타만 노출 (메뉴 없음)
  */
 export function UserAvatarMenu({
   user,
-  showNickname = true,
+  showNickname = false,
   label,
   size = "md",
   menuSide = "bottom",
-  menuAlign = "start",
+  menuAlign = "end",
   className,
 }: UserAvatarMenuProps) {
-  const authUser = useAuthStore((state) => state.user);
-  const [mounted, setMounted] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  const currentUser = mounted ? authUser : null;
+  const t = useTranslations("common");
+  const currentUser = useAuthStore((state) => state.user);
   const isLoggedIn = !!currentUser;
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // 모바일 터치 환경에서 메뉴 닫힘 처리
+  useEffect(() => {
+    const handleTouchOutside = () => {
+      if (isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener("touchstart", handleTouchOutside);
+    }
+
+    return () => {
+      document.removeEventListener("touchstart", handleTouchOutside);
+    };
+  }, [isMenuOpen]);
+
+  const sizeClasses = {
+    sm: "h-6 w-6",
+    md: "h-8 w-8",
+    lg: "h-10 w-10",
+  };
 
   const avatarContent = (
-    <div
-      className={cn(
-        "flex items-center gap-2",
-        isLoggedIn && "cursor-pointer",
-        className,
-      )}
-    >
+    <div className={cn("flex items-center gap-2 cursor-pointer", className)}>
       <Avatar className={cn(sizeClasses[size], "border border-stone-200")}>
         <AvatarImage
           src={getProfileImageUrl(user.profileImageUrl)}
           alt={user.nickname}
         />
-        <AvatarFallback className="bg-stone-100 text-stone-500 text-xs font-medium">
-          {user.nickname.slice(0, 1)}
+        <AvatarFallback className="bg-stone-100 text-stone-600 text-xs">
+          {user.nickname.slice(0, 2).toUpperCase()}
         </AvatarFallback>
       </Avatar>
-      {(showNickname || label) && (
-        <div className="flex flex-col">
-          {showNickname && (
-            <span
-              className={cn(
-                "font-medium text-stone-900",
-                textSizeClasses[size],
-              )}
-            >
-              {user.nickname}
-            </span>
-          )}
+      {showNickname && (
+        <div className="flex flex-col text-left">
+          <span className="text-sm font-medium text-stone-800">
+            {user.nickname}
+          </span>
           {label && <span className="text-xs text-stone-500">{label}</span>}
         </div>
       )}
@@ -119,15 +113,13 @@ export function UserAvatarMenu({
   }
 
   // 로그인 상태: 드롭다운 메뉴
-  // 모바일에서 스크롤 시 의도치 않게 메뉴가 열리는 것을 방지하기 위해
-  // open 상태를 직접 관리합니다.
   return (
     <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
       <DropdownMenuTrigger asChild>
         <button
           className="flex items-center focus:outline-none rounded-lg p-1 -m-1"
           style={{ touchAction: "manipulation" }}
-          aria-label={`${user.nickname} 프로필 메뉴`}
+          aria-label={t("aria.user_profile_menu", { name: user.nickname })}
           // 모바일에서 스크롤 시 pointerDown이 메뉴를 열지 않도록 방지
           onPointerDown={(e) => e.preventDefault()}
           onClick={() => setIsMenuOpen((prev: boolean) => !prev)}
@@ -142,7 +134,7 @@ export function UserAvatarMenu({
             className="flex items-center gap-2"
           >
             <UserIcon className="w-4 h-4" />
-            <span>프로필 보기</span>
+            <span>{t("actions.view_profile")}</span>
           </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>

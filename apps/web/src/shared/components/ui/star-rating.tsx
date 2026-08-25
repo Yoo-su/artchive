@@ -1,6 +1,7 @@
 "use client";
 
 import { Star, StarHalf } from "lucide-react";
+import { useTranslations } from "next-intl";
 import React from "react";
 
 import { cn } from "@/shared/utils";
@@ -22,6 +23,7 @@ export const StarRating = ({
   size = 24,
   disabled = false,
 }: StarRatingProps) => {
+  const t = useTranslations("common.aria");
   const [hoverValue, setHoverValue] = React.useState<number | null>(null);
 
   const handleMouseMove = (
@@ -57,9 +59,11 @@ export const StarRating = ({
       onChange?.(newValue);
     } else if (e.key === "Home") {
       e.preventDefault();
+      newValue = 0;
       onChange?.(0);
     } else if (e.key === "End") {
       e.preventDefault();
+      newValue = 5;
       onChange?.(5);
     }
   };
@@ -67,7 +71,7 @@ export const StarRating = ({
   return (
     <div
       role={readonly || disabled ? undefined : "slider"}
-      aria-label="평점 선택"
+      aria-label={t("rating_select")}
       aria-valuemin={readonly || disabled ? undefined : 0}
       aria-valuemax={readonly || disabled ? undefined : 5}
       aria-valuenow={readonly || disabled ? undefined : value}

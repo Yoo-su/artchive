@@ -2,6 +2,7 @@
 
 import { ReviewFormValues } from "@bookjeok/core";
 import { useCreateReviewMutation as useSharedCreateReviewMutation, useDeleteReviewMutation as useSharedDeleteReviewMutation, useToggleReviewReactionMutation as useSharedToggleReviewReactionMutation, useUpdateReviewMutation as useSharedUpdateReviewMutation } from "@bookjeok/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { deleteImages } from "@/features/book-sale/actions/delete-action";
@@ -18,9 +19,10 @@ export const useToggleReviewReactionMutation = (reviewId: number) => {
  * 리뷰를 생성하는 뮤테이션 훅입니다.
  */
 export const useCreateReviewMutation = () => {
+  const t = useTranslations("review.toast");
   return useSharedCreateReviewMutation({
     onSuccess: () => {
-      toast.success("리뷰가 작성되었습니다.");
+      toast.success(t("create_success"));
     },
   });
 };
@@ -29,9 +31,10 @@ export const useCreateReviewMutation = () => {
  * 리뷰를 수정하는 뮤테이션 훅입니다.
  */
 export const useUpdateReviewMutation = () => {
+  const t = useTranslations("review.toast");
   const sharedMutation = useSharedUpdateReviewMutation({
     onSuccess: () => {
-      toast.success("리뷰가 수정되었습니다!");
+      toast.success(t("update_success"));
     },
   });
 
@@ -72,9 +75,10 @@ export const useUpdateReviewMutation = () => {
  * 리뷰를 삭제하는 뮤테이션 훅입니다.
  */
 export const useDeleteReviewMutation = () => {
+  const t = useTranslations("review.toast");
   return useSharedDeleteReviewMutation({
     onSuccess: () => {
-      toast.success("리뷰가 삭제되었습니다.");
+      toast.success(t("delete_success"));
     },
   });
 };

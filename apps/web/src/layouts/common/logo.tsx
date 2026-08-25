@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 import { BookjeokTextLogo, LogoVariant } from "@/shared/components/icons/bookjeok-text-logo";
 import { Link } from "@/shared/config/i18n/routing";
@@ -10,6 +11,7 @@ interface LogoProps {
 }
 
 export const Logo = ({ size = "md", variant = "ko" }: LogoProps) => {
+  const t = useTranslations("common.aria");
   const isSmall = size === "sm";
   const isKorean = variant.startsWith("ko");
 
@@ -17,7 +19,7 @@ export const Logo = ({ size = "md", variant = "ko" }: LogoProps) => {
     <Link
       href={PATHS.HOME}
       className="inline-block"
-      aria-label="북적 홈으로 이동"
+      aria-label={t("go_home")}
     >
       <div className="group relative flex items-center cursor-pointer select-none">
         <Image

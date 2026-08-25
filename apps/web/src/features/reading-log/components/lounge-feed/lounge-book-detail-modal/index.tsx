@@ -34,6 +34,7 @@ export function LoungeBookDetailModal({
   initialTotalCount,
 }: LoungeBookDetailModalProps) {
   const t = useTranslations("lounge.detail_modal");
+  const tLounge = useTranslations("lounge");
   const locale = useLocale();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
@@ -46,7 +47,7 @@ export function LoungeBookDetailModal({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-md p-0 overflow-hidden gap-0 rounded-2xl">
-        <DialogTitle className="sr-only">독자 목록</DialogTitle>
+        <DialogTitle className="sr-only">{tLounge("readers_title")}</DialogTitle>
         <div className="relative flex flex-col h-[80vh] md:h-[70vh] max-h-[800px]">
           {/* 헤더 */}
           <div className="flex items-start gap-4 p-5 border-b border-stone-100 bg-white sticky top-0 z-10">

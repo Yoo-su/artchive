@@ -12,6 +12,88 @@
         "3": "Almost there...",
         "4": "Discover more books on Bookjeok"
       }
+    },
+    "actions": {
+      "save": "Save",
+      "saving": "Saving...",
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "retry": "Retry",
+      "share": "Share",
+      "close": "Close",
+      "add": "Add",
+      "copy": "Copy",
+      "view_more": "View More",
+      "go_home": "Go to Home",
+      "go_back": "Go Back",
+      "view_profile": "View Profile"
+    },
+    "status": {
+      "loading": "Loading...",
+      "empty": "No data available.",
+      "error": "An error occurred.",
+      "private": "Private",
+      "public": "Public"
+    },
+    "toast": {
+      "copied": "Link copied to clipboard",
+      "copy_failed": "Failed to copy",
+      "kakao_loading": "Loading Kakao Share. Please try again in a moment.",
+      "max_images": "You can attach up to {max} images.",
+      "unauthorized": "You do not have permission."
+    },
+    "aria": {
+      "back": "Go back",
+      "forward": "Go forward",
+      "scroll_top": "Scroll to top",
+      "close": "Close",
+      "menu": "Menu",
+      "user_profile_menu": "{name}'s profile menu",
+      "rating_select": "Select rating",
+      "share": "Share content",
+      "share_kakao": "Share via KakaoTalk",
+      "share_x": "Share on X (Twitter)",
+      "copy_link": "Copy link",
+      "copy_link_done": "Link copied",
+      "delete_image": "Delete image {index}",
+      "preview_image": "Preview new image {index}",
+      "existing_image": "Existing image {index}",
+      "go_home": "Go to Bookjeok Home"
+    },
+    "map": {
+      "location_title": "Preferred Deal Location",
+      "find_current_location": "Find Current Location",
+      "search_placeholder": "Search place (e.g. Gangnam Station) - Use arrows/Enter",
+      "loading": "Loading map...",
+      "error": "An error occurred while loading the map.",
+      "address_loading": "Loading address...",
+      "geolocation_unavailable": "Unable to retrieve current location.",
+      "geolocation_unsupported": "Geolocation is not supported by this browser.",
+      "lat": "Lat",
+      "lng": "Lng"
+    },
+    "image": {
+      "add": "Add Image",
+      "only_image_allowed": "Only image files can be uploaded.",
+      "size_limit_exceeded": "Image is too large ({size}MB). Only images under {maxSize}MB can be attached."
+    },
+    "currency": {
+      "unit": "KRW"
+    },
+    "editor": {
+      "placeholder": "Enter content here...",
+      "prompt_url": "Enter URL"
+    },
+    "player": {
+      "play": "Play",
+      "pause": "Pause"
+    },
+    "confirm": {
+      "title": "Confirm",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
     }
   },
   "art": {
@@ -73,7 +155,11 @@
     "review_reaction": "{actorName} reacted to your review \"{bookTitle}\".",
     "review_comment": "{actorName} commented on your review \"{bookTitle}\": \"{commentContent}\"",
     "comment_like": "{actorName} liked your comment.",
-    "default": "New notification arrived."
+    "default": "New notification arrived.",
+    "toast": {
+      "read_all_success": "Marked all notifications as read.",
+      "delete_success": "Notification deleted."
+    }
   },
   "auth": {
     "login": {
@@ -367,6 +453,65 @@
       "comments": {
         "title": "Reader Comments"
       }
+    },
+    "ai_chat": {
+      "analyzing": "Analyzing conversation...",
+      "recommending": "Selecting recommended books and preparing introduction...",
+      "error_temporary": "A temporary error occurred while processing the conversation. Could you try again in a moment?",
+      "login_required": "AI Book Recommendation is a members-only feature available after logging in.",
+      "error_generic": "An error occurred while processing the conversation."
+    },
+    "search_modal": {
+      "title": "Search Books",
+      "trigger": "Search Books",
+      "placeholder": "Search by book title, author, or publisher",
+      "aria_label": "Search Books",
+      "loading": "Searching for books...",
+      "error_title": "An error occurred while searching.",
+      "error_desc": "Please try again shortly.",
+      "empty_prompt_title": "Which book are you looking for?",
+      "empty_prompt_desc": "Search for a book to sell or review.",
+      "no_results_title": "No results found",
+      "no_results_desc": "Check your search terms or try other keywords.",
+      "no_description": "No book description available."
+    },
+    "slider": {
+      "preview": "Preview",
+      "author_suffix": "By {author}",
+      "view_detail": "View Book Details",
+      "popular_rank": "Top Ranking",
+      "find_more": "Find more in Book Search"
+    },
+    "recent_drawer": {
+      "title": "Recently Viewed Books"
+    },
+    "ai_chat_window": {
+      "title": "Conversational AI Book Recommendations",
+      "members_only": "Members Only",
+      "clear_chat": "Clear Chat",
+      "ai_preparing": "AI is preparing a response...",
+      "login_notice": "AI book recommendations are available after logging in.",
+      "login_button": "Log In",
+      "placeholder_logged_in": "What kind of book are you looking for?",
+      "placeholder_logged_out": "Available after logging in.",
+      "send_aria": "Send Message",
+      "welcome_msg": "Hello! What kind of book are you looking for? Feel free to tell me your mood, thoughts, or preferred genre, and I'll find the perfect book for you.",
+      "suggestion_chips": [
+        "I feel overwhelmed and tired lately",
+        "A short novel to dive into over the weekend",
+        "An essay offering life perspective",
+        "A light read for the commute"
+      ]
+    },
+    "ai_recommend_slider": {
+      "title": "AI Curated Recommendations",
+      "count": "({count} books)",
+      "swipe_hint": "Swipe left/right to browse",
+      "recommend_reason": "Why We Recommend"
+    },
+    "detail_error": {
+      "title": "Unable to load book information.",
+      "desc": "The requested book could not be found or an error occurred."
     }
   },
   "review": {
@@ -476,6 +621,28 @@
         "title": "Edit Review",
         "description": "Edit your book review."
       }
+    },
+    "toast": {
+      "create_success": "Review posted successfully.",
+      "update_success": "Review updated successfully!",
+      "delete_success": "Review deleted successfully.",
+      "unauthorized": "You do not have permission to edit.",
+      "fetch_failed": "Unable to load review information."
+    },
+    "recommend": {
+      "title": "How about these reviews?",
+      "subtitle": "Found stories with similar taste",
+      "empty": "No other recommended reviews available yet.",
+      "error": "Failed to load recommended reviews."
+    },
+    "private": {
+      "title": "Private Review",
+      "description": "Only the author can view the content."
+    },
+    "reactions": {
+      "like": "Like",
+      "insightful": "Insightful",
+      "support": "Support"
     }
   },
   "reading_log": {
@@ -576,6 +743,27 @@
       "error_desc": "The requested reading deck is invalid or set to private.",
       "go_home": "Go to Home",
       "footer_brand": "Bookjeok, a platform for book and knowledge sharing"
+    },
+    "toast": {
+      "create_success": "Reading log registered successfully.",
+      "create_error": "Failed to register reading log.",
+      "update_success": "Reading log updated successfully.",
+      "update_error": "Failed to update reading log.",
+      "delete_success": "Reading log deleted successfully.",
+      "delete_error": "Failed to delete reading log.",
+      "settings_updated": "Reading log settings updated successfully.",
+      "already_added": "This book is already added.",
+      "share_deck_copied": "Reading deck link copied to clipboard!",
+      "login_required_share": "Please log in to use the share feature."
+    },
+    "dialog": {
+      "delete_title": "Delete Reading Log",
+      "delete_desc": "Are you sure you want to delete this reading log?",
+      "record_new": "Record a new book",
+      "readers_list": "Readers list"
+    },
+    "feed": {
+      "fetch_error": "A problem occurred while loading data."
     }
   },
   "insights": {
@@ -780,6 +968,10 @@
       "view_detail": "View Detail",
       "sold_out": "Sold Out",
       "sale_ended": "Sale Ended"
+    },
+    "toast": {
+      "add_success": "Added to wishlist.",
+      "delete_success": "Removed from wishlist."
     }
   },
   "user_profile": {
@@ -796,7 +988,14 @@
     },
     "sections": {
       "recent_reviews": "Recent Reviews",
-      "recent_sales": "Recent Sales"
+      "recent_sales": "Recent Sales",
+      "badge_calendar": "Monthly Reading Calendar",
+      "badge_recent_reviews": "Recent Reviews",
+      "badge_recent_sales": "Bookstore Deals"
+    },
+    "toast": {
+      "update_success": "User profile updated successfully.",
+      "withdraw_success": "Your membership withdrawal is complete. Thank you for using our service."
     }
   },
   "market": {
@@ -878,7 +1077,19 @@
       },
       "submit": "Register Sale",
       "submit_edit": "Update Complete",
-      "error_location": "Location cannot be verified. Please select a valid location."
+      "error_location": "Location cannot be verified. Please select a valid location.",
+      "region_help": "Selecting a location on the map assigns the region.",
+      "region_label": "Deal Region",
+      "unauthorized": "You do not have permission to edit this post.",
+      "fetch_error": "Failed to load post information.",
+      "char_unit": " chars",
+      "suggested_tags": [
+        "#Mint Condition",
+        "#Direct Deal Preferred",
+        "#Shipping Available",
+        "#No Markings/Notes",
+        "#No Negotiation"
+      ]
     },
     "validation": {
       "title_min": "Title must be at least 5 characters.",
@@ -950,14 +1161,32 @@
       "empty_title": "No sales history.",
       "empty_desc": "Register a new used book!",
       "change_status": "Change Status"
+    },
+    "toast": {
+      "create_success": "Sale post registered successfully.",
+      "update_success": "Sale post updated successfully.",
+      "delete_success": "Sale post deleted successfully.",
+      "login_required": "Login is required."
+    },
+    "seller_fallback": "Seller",
+    "upload_progress": {
+      "stage1": "Step 1: Optimizing image size (Compressing)",
+      "stage2": "Step 2: Uploading images to storage ({progress}%)",
+      "stage3_edit": "Step 3: Finalizing post update",
+      "stage3_create": "Step 3: Creating post and saving to DB",
+      "stage4": "Step 4: Completed! Redirecting shortly."
     }
   },
   "error_pages": {
     "not_found": {
       "title": "404",
       "subtitle": "Page Not Found",
-      "description": "The page you requested may have been deleted or moved.<br />Please check the URL again.",
-      "home_button": "Go Home"
+      "description": "The page you requested may not exist or may have been deleted.",
+      "back_home": "Back to Home",
+      "default_message": "The requested page could not be found.",
+      "countdown": "Redirecting automatically in {countdown}s...",
+      "btn_prev": "Previous Page",
+      "btn_home": "Go to Home"
     },
     "general_error": {
       "title": "OOPs!",
@@ -1070,7 +1299,9 @@
       "read_on": "{date}",
       "loading": "Loading...",
       "empty": "No other reading logs for this book yet."
-    }
+    },
+    "readers_title": "Readers List",
+    "feed_fetch_error": "A problem occurred while loading data."
   },
   "music": {
     "title": "Bookjeok Turntable",
@@ -1096,5 +1327,29 @@
       "playlist": "Playlist"
     },
     "tip": "Music continues playing even if you close the popup or navigate to other pages."
+  },
+  "chat": {
+    "title": "Chats",
+    "empty": "No conversations yet.",
+    "no_messages": "No messages yet.",
+    "target_book": "Book for Sale",
+    "user_not_found": "Unable to find user information.",
+    "closed_room": "This chat room is closed.",
+    "input_placeholder": "Type a message...",
+    "typing": "{nickname} is typing...",
+    "yesterday": "Yesterday",
+    "leave_dialog": {
+      "title": "Leave Chat Room",
+      "description": "Are you sure you want to leave this chat room?",
+      "confirm": "Leave"
+    },
+    "toast": {
+      "leave_error": "Failed to leave chat room: {error}",
+      "send_error": "Failed to send message: {error}"
+    },
+    "aria": {
+      "close_room": "Close chat room",
+      "leave_room": "Leave chat room"
+    }
   }
 }

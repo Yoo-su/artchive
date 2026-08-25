@@ -127,7 +127,7 @@ export const ReviewForm = ({
     if (!tagInput.trim()) return;
     const currentTags = form.getValues("tags");
     if (currentTags.length >= 5) {
-      toast.error("태그는 최대 5개까지 입력 가능합니다.");
+      toast.error(t("form.fields.tags_error_limit"));
       return;
     }
     if (!currentTags.includes(tagInput.trim())) {

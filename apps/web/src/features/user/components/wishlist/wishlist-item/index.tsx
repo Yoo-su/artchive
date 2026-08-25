@@ -1,4 +1,4 @@
-import { WishlistItem as WishlistItemType } from "@bookjeok/core";
+import { SaleStatus, WishlistItem as WishlistItemType } from "@bookjeok/core";
 import { ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -7,6 +7,7 @@ import { SaleStatusBadge } from "@/features/book-sale/components/common/sale-sta
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card } from "@/shared/components/shadcn/card";
+import { PriceDisplay } from "@/shared/components/ui/price-display";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
@@ -23,14 +24,20 @@ export const WishlistItem = ({ item }: WishlistItemProps) => {
   if (item.book) {
     return (
       <Card className="overflow-hidden transition-shadow hover:shadow-md">
-        <div className="flex flex-row">
-          <div className="relative w-24 h-32 sm:w-32 sm:h-40 shrink-0">
-            <Image
-              src={item.book.image}
-              alt={item.book.title}
-              fill
-              className="object-cover"
-            />
+        <div className="flex flex-col sm:flex-row">
+          <div className="relative w-24 h-32 sm:w-32 sm:h-40 shrink-0 bg-gray-100 flex items-center justify-center">
+            {item.book.image ? (
+              <Image
+                src={item.book.image}
+                alt={item.book.title}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">
+                No Image
+              </div>
+            )}
           </div>
           <div className="flex flex-col justify-between flex-1 p-4">
             <div>
@@ -40,8 +47,8 @@ export const WishlistItem = ({ item }: WishlistItemProps) => {
                     {t("type_book")}
                   </Badge>
                   <h3 className="font-bold line-clamp-1">{item.book.title}</h3>
-                  <p className="text-sm text-gray-500 line-clamp-1">
-                    {item.book.author} | {item.book.publisher}
+                  <p className="text-sm text-gray-600 line-clamp-1">
+                    {item.book.author}
                   </p>
                 </div>
                 <WishlistButton
@@ -53,9 +60,9 @@ export const WishlistItem = ({ item }: WishlistItemProps) => {
               </div>
             </div>
             <div className="flex justify-end mt-2">
-              <Button asChild size="sm" variant="secondary">
+              <Button asChild variant="outline" size="sm">
                 <Link href={PATHS.BOOK_DETAIL(item.book.isbn)}>
-                  {t("view_detail")}
+                  {t("view_details")}
                 </Link>
               </Button>
             </div>
@@ -68,15 +75,11 @@ export const WishlistItem = ({ item }: WishlistItemProps) => {
   // 2. 중고 판매글 찜하기인 경우
   if (item.usedBookSale) {
     const sale = item.usedBookSale;
-    const isSoldOut = sale.status === "SOLD";
+    const isSoldOut = sale.status === SaleStatus.SOLD;
 
     return (
-      <Card
-        className={`overflow-hidden transition-shadow hover:shadow-md ${
-          isSoldOut ? "opacity-60 bg-gray-50" : ""
-        }`}
-      >
-        <div className="flex flex-row">
+      <Card className="overflow-hidden transition-shadow hover:shadow-md">
+        <div className="flex flex-col sm:flex-row">
           <div className="relative w-24 h-32 sm:w-32 sm:h-40 shrink-0 bg-gray-100 flex items-center justify-center">
             {sale.imageUrls?.[0] ? (
               <Image
@@ -103,13 +106,13 @@ export const WishlistItem = ({ item }: WishlistItemProps) => {
                     <SaleStatusBadge status={sale.status} />
                   </div>
                   <h3 className="font-bold line-clamp-1">{sale.title}</h3>
-                  <p className="font-bold text-emerald-600">
-                    {sale.price.toLocaleString()}원
-                  </p>
+                  <div className="mt-1">
+                    <PriceDisplay value={sale.price} className="text-emerald-600 font-bold" />
+                  </div>
                 </div>
                 <WishlistButton
                   type="SALE"
-                  id={sale.id}
+                  id={String(sale.id)}
                   className="text-red-500 hover:bg-red-50"
                   initialIsWishlisted={true}
                 />

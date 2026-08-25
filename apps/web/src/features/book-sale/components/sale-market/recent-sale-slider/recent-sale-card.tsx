@@ -28,6 +28,7 @@ export const RecentSaleCard = ({
   priority = false,
 }: RecentSaleCardProps) => {
   const tCommon = useTranslations("common");
+  const tMarket = useTranslations("market");
   const displayImage = sale.imageUrls[0] || sale.book?.image || "/images/placeholder-image.svg";
 
   const originalPrice = Number(sale.book?.discount);
@@ -53,45 +54,37 @@ export const RecentSaleCard = ({
             priority={priority}
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
           />
-
-          {/* 할인율 뱃지 */}
-          {isDiscounted && discountRate > 0 && (
-            <div className="absolute bottom-2 left-2 z-10">
-              <span className="px-1.5 py-0.5 bg-[#2C2C2C] text-white text-[10px] font-sans font-bold shadow-xs">
-                -{discountRate}%
-              </span>
+          {isDiscounted && (
+            <div className="absolute top-2 left-2 bg-rose-600 text-white font-medium text-[10px] px-1.5 py-0.5 shadow-sm">
+              {discountRate}% OFF
             </div>
           )}
-
-          {/* 판매 상태 뱃지 */}
           <SaleStatusBadge
             status={sale.status}
             className="absolute right-2 top-2 z-10 shadow-xs text-[10px]"
           />
         </div>
 
-        {/* 하단 텍스트 및 정보 영역 */}
-        <div className="p-3.5 flex flex-col justify-between flex-1 space-y-2">
-          <div>
-            <h3 className="text-xs font-medium text-neutral-900 leading-snug line-clamp-1 group-hover:text-neutral-600 transition-colors">
+        {/* 하단 텍스트 영역 */}
+        <div className="p-3 flex flex-col justify-between flex-1">
+          <div className="space-y-1">
+            <p className="text-[11px] font-medium text-neutral-400 truncate">
+              {sale.book?.title}
+            </p>
+            <h4 className="text-xs font-medium text-neutral-900 line-clamp-1 group-hover:text-neutral-600 transition-colors">
               {sale.title}
-            </h3>
-            {sale.book?.title && (
-              <p className="text-[10px] text-neutral-400 font-light truncate mt-0.5">
-                {sale.book.title}
-              </p>
-            )}
+            </h4>
           </div>
 
-          {/* 가격 */}
-          <div className="flex items-baseline gap-1">
-            <span className="text-base font-bold text-neutral-900 tracking-tight">
+          {/* 가격 정보 */}
+          <div className="flex items-baseline gap-1.5 mt-2">
+            <span className="text-sm font-semibold text-neutral-900">
               {sale.price.toLocaleString()}
               <span className="text-xs font-medium ml-0.5">{tCommon("won")}</span>
             </span>
             {isDiscounted && (
               <span className="text-[10px] text-neutral-400 line-through font-light">
-                {originalPrice.toLocaleString()}원
+                {originalPrice.toLocaleString()}{tCommon("won")}
               </span>
             )}
           </div>
@@ -106,7 +99,7 @@ export const RecentSaleCard = ({
                 </AvatarFallback>
               </Avatar>
               <span className="text-[10px] text-neutral-600 truncate max-w-[70px]">
-                {sale.user?.nickname || "판매자"}
+                {sale.user?.nickname || tMarket("seller_fallback")}
               </span>
             </div>
             <span className="text-[9px] text-neutral-400 truncate max-w-[80px]">

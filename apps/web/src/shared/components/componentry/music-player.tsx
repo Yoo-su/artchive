@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import React, { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/shared/utils";
@@ -30,6 +31,7 @@ export function MusicPlayer({
   disableInternalAudio = false,
   ...props
 }: MusicPlayerProps) {
+  const t = useTranslations("music.controls");
   const [internalIsPlaying, setInternalIsPlaying] = useState(autoPlay);
   const isPlaying = controlledIsPlaying !== undefined ? controlledIsPlaying : internalIsPlaying;
 
@@ -115,7 +117,7 @@ export function MusicPlayer({
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
         className="relative h-64 w-64 cursor-pointer select-none md:h-80 md:w-80"
         onClick={handleToggle}
-        title={isPlaying ? "일시정지" : "재생"}
+        title={isPlaying ? t("pause") : t("play")}
       >
         {/* Tonearm with spring physics */}
         <motion.div

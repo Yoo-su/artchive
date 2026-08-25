@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -29,6 +30,7 @@ export const useImageUpload = ({
   onFilesChange,
   onExistingImagesChange,
 }: UseImageUploadOptions = {}) => {
+  const t = useTranslations("common");
   const [existingImages, setExistingImages] = useState<string[]>(
     initialExistingImages,
   );
@@ -52,7 +54,11 @@ export const useImageUpload = ({
       // 파일 형식 및 크기 검증
       const validFiles: File[] = [];
       for (const file of fileArray) {
-        const validationError = validateImageForUpload(file);
+        const validationError = validateImageForUpload(file, {
+          onlyImage: t("image.only_image_allowed"),
+          sizeLimitExceeded: (sizeMB, maxSizeMB) =>
+            t("image.size_limit_exceeded", { size: sizeMB, maxSize: maxSizeMB }),
+        });
         if (validationError) {
           toast.error(validationError);
           return;
@@ -64,7 +70,7 @@ export const useImageUpload = ({
       const totalCount =
         existingImages.length + newFiles.length + validFiles.length;
       if (totalCount > maxFiles) {
-        toast.error(`이미지는 최대 ${maxFiles}개까지 첨부할 수 있습니다.`);
+        toast.error(t("toast.max_images", { max: maxFiles }));
         return;
       }
 
@@ -77,7 +83,7 @@ export const useImageUpload = ({
 
       onFilesChange?.(updatedFiles);
     },
-    [existingImages.length, newFiles, maxFiles, onFilesChange],
+    [existingImages.length, newFiles, maxFiles, onFilesChange, t],
   );
 
   const handleNewImageRemove = useCallback(

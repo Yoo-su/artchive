@@ -12,6 +12,88 @@
         "3": "거의 다 되었습니다...",
         "4": "북적에서 더 많은 책을 만나보세요"
       }
+    },
+    "actions": {
+      "save": "저장",
+      "saving": "저장 중...",
+      "edit": "수정",
+      "delete": "삭제",
+      "cancel": "취소",
+      "confirm": "확인",
+      "retry": "다시 시도",
+      "share": "공유하기",
+      "close": "닫기",
+      "add": "추가",
+      "copy": "복사",
+      "view_more": "더보기",
+      "go_home": "홈으로 이동",
+      "go_back": "이전 페이지",
+      "view_profile": "프로필 보기"
+    },
+    "status": {
+      "loading": "불러오는 중...",
+      "empty": "데이터가 없습니다.",
+      "error": "오류가 발생했습니다.",
+      "private": "비공개",
+      "public": "공개"
+    },
+    "toast": {
+      "copied": "링크가 복사되었습니다",
+      "copy_failed": "복사에 실패했습니다",
+      "kakao_loading": "카카오 공유를 불러오는 중입니다. 잠시 후 다시 시도해주세요.",
+      "max_images": "이미지는 최대 {max}개까지 첨부할 수 있습니다.",
+      "unauthorized": "권한이 없습니다."
+    },
+    "aria": {
+      "back": "뒤로 가기",
+      "forward": "앞으로 가기",
+      "scroll_top": "맨 위로 스크롤",
+      "close": "닫기",
+      "menu": "메뉴",
+      "user_profile_menu": "{name} 프로필 메뉴",
+      "rating_select": "평점 선택",
+      "share": "콘텐츠 공유하기",
+      "share_kakao": "카카오톡으로 공유",
+      "share_x": "X(트위터)에 공유",
+      "copy_link": "링크 복사",
+      "copy_link_done": "링크 복사 완료",
+      "delete_image": "이미지 {index} 삭제",
+      "preview_image": "새 이미지 미리보기 {index}",
+      "existing_image": "기존 이미지 {index}",
+      "go_home": "북적 홈으로 이동"
+    },
+    "map": {
+      "location_title": "거래 희망 위치",
+      "find_current_location": "현재 위치 찾기",
+      "search_placeholder": "장소 검색 (예: 강남역) - 방향키/엔터로 선택 가능",
+      "loading": "지도를 불러오는 중...",
+      "error": "지도를 로드하는 중 오류가 발생했습니다.",
+      "address_loading": "주소를 불러오는 중...",
+      "geolocation_unavailable": "현재 위치를 가져올 수 없습니다.",
+      "geolocation_unsupported": "Geolocation이 지원되지 않는 브라우저입니다.",
+      "lat": "위도",
+      "lng": "경도"
+    },
+    "image": {
+      "add": "이미지 추가",
+      "only_image_allowed": "이미지 파일만 업로드할 수 있습니다.",
+      "size_limit_exceeded": "이미지 크기가 너무 큽니다 ({size}MB). {maxSize}MB 이하의 이미지만 첨부할 수 있습니다."
+    },
+    "currency": {
+      "unit": "원"
+    },
+    "editor": {
+      "placeholder": "내용을 입력하세요...",
+      "prompt_url": "URL을 입력하세요"
+    },
+    "player": {
+      "play": "재생",
+      "pause": "일시정지"
+    },
+    "confirm": {
+      "title": "확인",
+      "cancel": "취소",
+      "confirm": "확인"
     }
   },
   "art": {
@@ -73,7 +155,11 @@
     "review_reaction": "{actorName}님이 회원님의 리뷰 \"{bookTitle}\"에 반응을 남겼습니다.",
     "review_comment": "{actorName}님이 회원님의 리뷰 \"{bookTitle}\"에 댓글을 남겼습니다: \"{commentContent}\"",
     "comment_like": "{actorName}님이 회원님의 댓글에 좋아요를 눌렀습니다.",
-    "default": "새로운 알림이 도착했습니다."
+    "default": "새로운 알림이 도착했습니다.",
+    "toast": {
+      "read_all_success": "모든 알림을 읽음 처리했습니다.",
+      "delete_success": "알림이 삭제되었습니다."
+    }
   },
   "auth": {
     "login": {
@@ -367,6 +453,65 @@
       "comments": {
         "title": "독자들의 코멘트"
       }
+    },
+    "ai_chat": {
+      "analyzing": "대화 내용을 분석하고 있습니다...",
+      "recommending": "추천 도서를 선정하여 소개글을 작성하고 있습니다...",
+      "error_temporary": "대화를 처리하는 도중 일시적인 오류가 발생했습니다. 잠시 후 다시 말씀해 주시겠어요?",
+      "login_required": "AI 도서 추천 기능은 로그인 후 이용하실 수 있는 회원 전용 서비스입니다.",
+      "error_generic": "대화를 처리하는 도중 오류가 발생했습니다."
+    },
+    "search_modal": {
+      "title": "책 검색",
+      "trigger": "책 검색",
+      "placeholder": "책 제목, 저자 또는 출판사로 검색해보세요",
+      "aria_label": "책 검색",
+      "loading": "책을 찾고 있어요...",
+      "error_title": "검색 중 오류가 발생했습니다.",
+      "error_desc": "잠시 후 다시 시도해주세요.",
+      "empty_prompt_title": "어떤 책을 찾으시나요?",
+      "empty_prompt_desc": "판매하거나 리뷰를 남길 책을 검색해주세요.",
+      "no_results_title": "검색 결과가 없습니다",
+      "no_results_desc": "검색어를 확인하거나 다른 키워드로 시도해보세요.",
+      "no_description": "책 소개가 없습니다."
+    },
+    "slider": {
+      "preview": "미리보기",
+      "author_suffix": "{author} 지음",
+      "view_detail": "도서 상세 보기",
+      "popular_rank": "인기 순위",
+      "find_more": "도서 검색에서 더 찾아보기"
+    },
+    "recent_drawer": {
+      "title": "최근 본 책"
+    },
+    "ai_chat_window": {
+      "title": "대화형 AI 도서 추천",
+      "members_only": "회원 전용",
+      "clear_chat": "대화 초기화",
+      "ai_preparing": "AI가 답변을 준비하고 있습니다...",
+      "login_notice": "AI 도서 추천은 로그인 후 이용하실 수 있습니다.",
+      "login_button": "로그인하기",
+      "placeholder_logged_in": "어떤 도서를 찾고 계신가요?",
+      "placeholder_logged_out": "로그인 후 이용 가능합니다.",
+      "send_aria": "메시지 전송",
+      "welcome_msg": "안녕하세요! 어떤 책을 찾고 계신가요? 마음속 고민이나 읽고 싶은 분위기, 선호하는 장르를 편안하게 말씀해 주시면 꼭 맞는 책을 찾아드릴게요.",
+      "suggestion_chips": [
+        "요즘 너무 지치고 마음이 무거워요",
+        "주말에 몰입해서 읽을 단편 소설",
+        "삶의 태도에 대해 조언을 주는 에세이",
+        "퇴근길 가볍게 읽기 좋은 책"
+      ]
+    },
+    "ai_recommend_slider": {
+      "title": "AI 엄선 추천 도서",
+      "count": "({count}권)",
+      "swipe_hint": "좌우 스와이프로 확인하세요",
+      "recommend_reason": "추천 까닭"
+    },
+    "detail_error": {
+      "title": "책 정보를 불러올 수 없습니다.",
+      "desc": "요청하신 책을 찾지 못했거나 오류가 발생했습니다."
     }
   },
   "review": {
@@ -476,6 +621,28 @@
         "title": "리뷰 수정",
         "description": "도서 리뷰 수정 페이지입니다."
       }
+    },
+    "toast": {
+      "create_success": "리뷰가 작성되었습니다.",
+      "update_success": "리뷰가 수정되었습니다!",
+      "delete_success": "리뷰가 삭제되었습니다.",
+      "unauthorized": "수정 권한이 없습니다.",
+      "fetch_failed": "리뷰 정보를 불러올 수 없습니다."
+    },
+    "recommend": {
+      "title": "이런 리뷰는 어떠세요?",
+      "subtitle": "비슷한 취향의 글을 찾아봤어요",
+      "empty": "아직 추천할 만한 다른 리뷰가 없습니다.",
+      "error": "추천 글을 불러오는 데 실패했습니다."
+    },
+    "private": {
+      "title": "비공개 리뷰입니다",
+      "description": "작성자만 내용을 확인할 수 있습니다."
+    },
+    "reactions": {
+      "like": "좋아요",
+      "insightful": "유익해요",
+      "support": "응원해요"
     }
   },
   "reading_log": {
@@ -576,6 +743,27 @@
       "error_desc": "요청하신 독서 덱 정보가 유효하지 않거나 비공개 상태일 수 있습니다.",
       "go_home": "북적 홈으로 가기",
       "footer_brand": "책과 지식의 선순환 플랫폼, 북적"
+    },
+    "toast": {
+      "create_success": "독서 기록이 등록되었습니다.",
+      "create_error": "독서 기록 등록에 실패했습니다.",
+      "update_success": "독서 기록이 수정되었습니다.",
+      "update_error": "독서 기록 수정에 실패했습니다.",
+      "delete_success": "독서 기록이 삭제되었습니다.",
+      "delete_error": "독서 기록 삭제에 실패했습니다.",
+      "settings_updated": "독서 기록 설정이 변경되었습니다.",
+      "already_added": "이미 추가된 책입니다.",
+      "share_deck_copied": "올해의 독서 덱 링크가 복사되었습니다! 새 탭에서 확인해보세요.",
+      "login_required_share": "로그인 후 공유 기능을 이용하실 수 있습니다."
+    },
+    "dialog": {
+      "delete_title": "독서 기록 삭제",
+      "delete_desc": "정말 이 독서 기록을 삭제하시겠습니까?",
+      "record_new": "새로운 책 기록하기",
+      "readers_list": "독자 목록"
+    },
+    "feed": {
+      "fetch_error": "데이터를 불러오는 중 문제가 발생했습니다."
     }
   },
   "insights": {
@@ -780,6 +968,10 @@
       "view_detail": "상세보기",
       "sold_out": "판매완료",
       "sale_ended": "판매 종료"
+    },
+    "toast": {
+      "add_success": "위시리스트에 추가되었습니다.",
+      "delete_success": "위시리스트에서 삭제되었습니다."
     }
   },
   "user_profile": {
@@ -796,7 +988,14 @@
     },
     "sections": {
       "recent_reviews": "최근 리뷰",
-      "recent_sales": "최근 판매 도서"
+      "recent_sales": "최근 판매 도서",
+      "badge_calendar": "월별 독서 캘린더",
+      "badge_recent_reviews": "최근 리뷰",
+      "badge_recent_sales": "책방 거래"
+    },
+    "toast": {
+      "update_success": "회원 정보가 수정되었습니다.",
+      "withdraw_success": "회원 탈퇴가 완료되었습니다. 그동안 이용해 주셔서 감사합니다."
     }
   },
   "market": {
@@ -878,7 +1077,19 @@
       },
       "submit": "판매글 등록하기",
       "submit_edit": "수정 완료",
-      "error_location": "주소가 확인되지 않는 지역입니다. 정확한 위치를 다시 선택해주세요."
+      "error_location": "주소가 확인되지 않는 지역입니다. 정확한 위치를 다시 선택해주세요.",
+      "region_help": "지도에서 위치를 선택하면 시/도 및 시/군/구 지역이 지정됩니다.",
+      "region_label": "거래 지역",
+      "unauthorized": "수정 권한이 없습니다.",
+      "fetch_error": "게시글 정보를 불러올 수 없습니다.",
+      "char_unit": "자",
+      "suggested_tags": [
+        "#책 상태 최상",
+        "#직거래 선호",
+        "#택배 거래 가능",
+        "#밑줄/필기 없음",
+        "#네고 불가"
+      ]
     },
     "validation": {
       "title_min": "제목은 5자 이상 입력해주세요.",
@@ -950,14 +1161,32 @@
       "empty_title": "판매 내역이 없습니다.",
       "empty_desc": "새로운 중고책을 등록해보세요!",
       "change_status": "상태 변경"
+    },
+    "toast": {
+      "create_success": "판매글이 성공적으로 등록되었습니다.",
+      "update_success": "판매글이 성공적으로 수정되었습니다.",
+      "delete_success": "판매글이 삭제되었습니다.",
+      "login_required": "로그인이 필요한 서비스입니다."
+    },
+    "seller_fallback": "판매자",
+    "upload_progress": {
+      "stage1": "1단계: 이미지 용량 최적화 (압축 중)",
+      "stage2": "2단계: 이미지 스토리지 업로드 중 ({progress}%)",
+      "stage3_edit": "3단계: 게시글 수정 완료 처리 중",
+      "stage3_create": "3단계: 게시글 생성 및 DB 저장 중",
+      "stage4": "4단계: 완결! 잠시 후 이동합니다."
     }
   },
   "error_pages": {
     "not_found": {
       "title": "404",
       "subtitle": "페이지를 찾을 수 없습니다",
-      "description": "요청하신 페이지가 삭제되었거나 주소가 변경되었을 수 있습니다.<br />입력하신 주소가 정확한지 다시 한 번 확인해주세요.",
-      "home_button": "홈으로 돌아가기"
+      "description": "요청하신 페이지가 존재하지 않거나 삭제되었을 수 있습니다.",
+      "back_home": "홈으로 돌아가기",
+      "default_message": "요청하신 페이지를 찾을 수 없습니다.",
+      "countdown": "{countdown}초 후 자동으로 이동합니다...",
+      "btn_prev": "이전 페이지",
+      "btn_home": "홈으로 이동"
     },
     "general_error": {
       "title": "OOPs!",
@@ -1070,7 +1299,9 @@
       "read_on": "{date}",
       "loading": "불러오는 중...",
       "empty": "아직 이 책의 다른 독서 기록이 없습니다."
-    }
+    },
+    "readers_title": "독자 목록",
+    "feed_fetch_error": "데이터를 불러오는 중 문제가 발생했습니다."
   },
   "music": {
     "title": "북적 턴테이블",
@@ -1096,5 +1327,29 @@
       "playlist": "재생목록"
     },
     "tip": "팝업을 닫거나 다른 페이지로 이동해도 음악은 계속 재생됩니다."
+  },
+  "chat": {
+    "title": "채팅 목록",
+    "empty": "아직 대화가 없어요.",
+    "no_messages": "아직 메시지가 없습니다.",
+    "target_book": "판매도서",
+    "user_not_found": "상대방 정보를 찾을 수 없습니다.",
+    "closed_room": "대화가 종료된 채팅방입니다.",
+    "input_placeholder": "메시지를 입력하세요...",
+    "typing": "{nickname}님이 입력 중...",
+    "yesterday": "어제",
+    "leave_dialog": {
+      "title": "채팅방 나가기",
+      "description": "정말로 이 채팅방을 나가시겠습니까?",
+      "confirm": "나가기"
+    },
+    "toast": {
+      "leave_error": "채팅방을 나가는 데 실패했습니다: {error}",
+      "send_error": "메시지 전송에 실패했습니다: {error}"
+    },
+    "aria": {
+      "close_room": "채팅방 닫기",
+      "leave_room": "채팅방 나가기"
+    }
   }
 }

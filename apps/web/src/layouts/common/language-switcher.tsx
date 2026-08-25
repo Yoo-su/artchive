@@ -24,7 +24,7 @@ export const LanguageSwitcher = ({ className }: { className?: string }) => {
   };
 
   const languages = [
-    { code: "ko", label: "Korean" },
+    { code: "ko", label: "한국어" },
     { code: "en", label: "English" },
   ] as const;
 

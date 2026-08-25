@@ -1,3 +1,5 @@
+import { useLocale, useTranslations } from "next-intl";
+
 import { cn } from "@/shared/utils/cn";
 
 interface PriceDisplayProps {
@@ -13,7 +15,11 @@ export const PriceDisplay = ({
   size = "md",
   className,
 }: PriceDisplayProps) => {
-  const formattedValue = new Intl.NumberFormat("ko-KR").format(value);
+  const locale = useLocale();
+  const t = useTranslations("common");
+  const formattedValue = new Intl.NumberFormat(
+    locale === "en" ? "en-US" : "ko-KR",
+  ).format(value);
 
   const sizeClasses = {
     sm: "text-sm",
@@ -22,14 +28,23 @@ export const PriceDisplay = ({
     xl: "text-3xl font-extrabold",
   };
 
+  const isKRW = currency === "KRW";
+
   return (
     <span
       className={cn("font-medium text-gray-900", sizeClasses[size], className)}
     >
-      {formattedValue}
-      <span className="ml-0.5 text-sm font-normal text-gray-600">
-        {currency === "KRW" ? "원" : currency}
-      </span>
+      {locale === "en" && isKRW ? `₩${formattedValue}` : formattedValue}
+      {locale !== "en" && (
+        <span className="ml-0.5 text-sm font-normal text-gray-600">
+          {isKRW ? t("currency.unit") : currency}
+        </span>
+      )}
+      {locale === "en" && !isKRW && (
+        <span className="ml-0.5 text-sm font-normal text-gray-600">
+          {currency}
+        </span>
+      )}
     </span>
   );
 };

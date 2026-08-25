@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle, ArrowLeft, Home } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/shared/components/shadcn/button";
@@ -24,13 +25,16 @@ interface NotFoundRedirectProps {
  * - 수동 이동 버튼 제공
  */
 export function NotFoundRedirect({
-  message = "요청하신 페이지를 찾을 수 없습니다.",
+  message,
   fallbackPath = PATHS.HOME,
   delay = 3000,
   useBack = false,
 }: NotFoundRedirectProps) {
+  const t = useTranslations("error_pages.not_found");
   const router = useRouter();
   const [countdown, setCountdown] = useState(Math.ceil(delay / 1000));
+
+  const displayMessage = message || t("default_message");
 
   useEffect(() => {
     // 카운트다운
@@ -71,23 +75,23 @@ export function NotFoundRedirect({
     <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
       <AlertTriangle className="w-16 h-16 text-amber-500 mb-6" />
       <h1 className="text-2xl font-bold text-stone-900 mb-2">
-        페이지를 찾을 수 없습니다
+        {t("subtitle")}
       </h1>
-      <p className="text-stone-600 mb-6 max-w-md">{message}</p>
+      <p className="text-stone-600 mb-6 max-w-md">{displayMessage}</p>
       <p className="text-sm text-stone-400 mb-8">
-        {countdown}초 후 자동으로 이동합니다...
+        {t("countdown", { countdown })}
       </p>
       <div className="flex gap-3">
         <Button variant="outline" onClick={handleManualRedirect}>
           {useBack ? (
             <>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              이전 페이지
+              {t("btn_prev")}
             </>
           ) : (
             <>
               <Home className="w-4 h-4 mr-2" />
-              홈으로 이동
+              {t("btn_home")}
             </>
           )}
         </Button>

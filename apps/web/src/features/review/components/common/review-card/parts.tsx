@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { ReactNode } from "react";
 
 import {
@@ -16,6 +16,7 @@ import { getProfileImageUrl } from "@/shared/utils/profile-image";
 import { useReviewCardContext } from "./context";
 
 export const ImageArea = ({ className }: { className?: string }) => {
+  const t = useTranslations("common");
   const { review, priority } = useReviewCardContext();
   const book = review.book;
 
@@ -46,7 +47,7 @@ export const ImageArea = ({ className }: { className?: string }) => {
       {/* 비공개 표시 */}
       {!review.isPublic && (
         <div className="absolute top-2 left-2 text-[9px] text-white/90 bg-black/50 px-1.5 py-0.5">
-          비공개
+          {t("status.private")}
         </div>
       )}
     </div>
@@ -150,6 +151,7 @@ export const Action = ({
   onDelete,
   hideUser = false,
 }: ActionProps) => {
+  const t = useTranslations("common");
   const { review } = useReviewCardContext();
 
   const handleEdit = (e: React.MouseEvent) => {
@@ -182,12 +184,12 @@ export const Action = ({
               {review.user?.nickname?.[0] || "U"}
             </AvatarFallback>
           </Avatar>
-          <span className="text-[11px] text-stone-500 line-clamp-1 font-light">
+          <span className="text-xs text-stone-500 font-light" data-nosnippet>
             {review.user?.nickname || "Anonymous"}
           </span>
         </div>
       ) : (
-        <div /> 
+        <div />
       )}
 
       {(onEdit || onDelete) && (
@@ -197,7 +199,7 @@ export const Action = ({
               onClick={handleEdit}
               className="text-[10px] text-stone-400 hover:text-stone-600 transition-colors px-1 py-0.5"
             >
-              수정
+              {t("actions.edit")}
             </button>
           )}
           {onDelete && (
@@ -205,7 +207,7 @@ export const Action = ({
               onClick={handleDelete}
               className="text-[10px] text-stone-400 hover:text-red-500 transition-colors px-1 py-0.5"
             >
-              삭제
+              {t("actions.delete")}
             </button>
           )}
         </div>

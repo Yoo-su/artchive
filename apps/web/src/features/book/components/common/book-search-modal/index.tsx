@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import debounce from "lodash/debounce";
 import { Loader2, Search } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { useInView } from "react-intersection-observer";
 
@@ -34,6 +35,7 @@ export const BookSearchModal = ({
   open: controlledOpen,
   onOpenChange: setControlledOpen,
 }: BookSearchModalProps) => {
+  const t = useTranslations("book.search_modal");
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : uncontrolledOpen;
@@ -91,12 +93,12 @@ export const BookSearchModal = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {trigger || <Button variant="outline">책 검색</Button>}
+        {trigger || <Button variant="outline">{t("trigger")}</Button>}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] h-[80vh] flex flex-col p-0 gap-0 overflow-hidden border-none shadow-2xl bg-white/95 backdrop-blur-xl">
         <DialogHeader className="px-6 pt-6 pb-2 shrink-0">
           <DialogTitle className="text-2xl font-bold tracking-tight">
-            책 검색
+            {t("title")}
           </DialogTitle>
         </DialogHeader>
         <div className="px-6 py-2 shrink-0">
@@ -106,11 +108,11 @@ export const BookSearchModal = ({
               aria-hidden="true"
             />
             <Input
-              placeholder="책 제목, 저자 또는 출판사로 검색해보세요"
+              placeholder={t("placeholder")}
               defaultValue=""
               onChange={handleSearchChange}
               className="pl-12 h-14 text-lg bg-muted/30 border-none shadow-inner focus-visible:ring-0 focus-visible:bg-muted/50 rounded-2xl transition-all"
-              aria-label="책 검색"
+              aria-label={t("aria_label")}
             />
           </div>
         </div>
@@ -126,7 +128,7 @@ export const BookSearchModal = ({
               >
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
                 <p className="text-muted-foreground animate-pulse">
-                  책을 찾고 있어요...
+                  {t("loading")}
                 </p>
               </motion.div>
             ) : status === "error" ? (
@@ -137,9 +139,9 @@ export const BookSearchModal = ({
                 exit={{ opacity: 0 }}
                 className="text-center py-20 text-destructive"
               >
-                <p className="font-medium">검색 중 오류가 발생했습니다.</p>
+                <p className="font-medium">{t("error_title")}</p>
                 <p className="text-sm opacity-80 mt-1">
-                  잠시 후 다시 시도해주세요.
+                  {t("error_desc")}
                 </p>
               </motion.div>
             ) : !debouncedQuery ? (
@@ -155,10 +157,10 @@ export const BookSearchModal = ({
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg text-foreground">
-                    어떤 책을 찾으시나요?
+                    {t("empty_prompt_title")}
                   </h3>
                   <p className="text-muted-foreground mt-1">
-                    판매하거나 리뷰를 남길 책을 검색해주세요.
+                    {t("empty_prompt_desc")}
                   </p>
                 </div>
               </motion.div>
@@ -175,10 +177,10 @@ export const BookSearchModal = ({
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg text-foreground">
-                    검색 결과가 없습니다
+                    {t("no_results_title")}
                   </h3>
                   <p className="text-muted-foreground mt-1">
-                    검색어를 확인하거나 다른 키워드로 시도해보세요.
+                    {t("no_results_desc")}
                   </p>
                 </div>
               </motion.div>
@@ -218,7 +220,7 @@ export const BookSearchModal = ({
                         {book.publisher}
                       </p>
                       <p className="text-xs text-muted-foreground/70 line-clamp-2 leading-relaxed">
-                        {book.description || "책 소개가 없습니다."}
+                        {book.description || t("no_description")}
                       </p>
                     </div>
                   </motion.div>

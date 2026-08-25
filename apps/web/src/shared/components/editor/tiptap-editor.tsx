@@ -12,6 +12,7 @@ import { Editor, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Bold, Heading2, Italic } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ImageResize from "tiptap-extension-resize-image";
 
@@ -24,15 +25,17 @@ interface TiptapEditorProps {
   content: string;
   onChange: (content: string) => void;
   placeholder?: string;
-  onImageAdd?: (file: File) => string | null; // 객체 URL 반환 (웉량 초과 시 null)
+  onImageAdd?: (file: File) => string | null; // 객체 URL 반환 (용량 초과 시 null)
 }
 
 export const TiptapEditor = ({
   content,
   onChange,
-  placeholder = "내용을 입력하세요...",
+  placeholder,
   onImageAdd,
 }: TiptapEditorProps) => {
+  const t = useTranslations("common.editor");
+  const effectivePlaceholder = placeholder ?? t("placeholder");
   const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
 
   const updateMenuPosition = useCallback((editor: Editor) => {
@@ -66,7 +69,7 @@ export const TiptapEditor = ({
         autolink: true,
       }),
       Placeholder.configure({
-        placeholder,
+        placeholder: effectivePlaceholder,
       }),
       ImageResize,
       BubbleMenuExtension,

@@ -1,4 +1,5 @@
 import { useDeleteNotificationMutation as useSharedDeleteNotificationMutation, useMarkAllNotificationsAsReadMutation as useSharedMarkAllNotificationsAsReadMutation, useMarkNotificationAsReadMutation as useSharedMarkNotificationAsReadMutation } from "@bookjeok/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 /**
@@ -12,9 +13,10 @@ export const useMarkAsRead = () => {
  * 모든 알림 읽음 처리 뮤테이션 훅
  */
 export const useMarkAllAsRead = () => {
+  const t = useTranslations("notification.toast");
   return useSharedMarkAllNotificationsAsReadMutation({
     onSuccess: () => {
-      toast.success("모든 알림을 읽음 처리했습니다.");
+      toast.success(t("read_all_success"));
     },
   });
 };
@@ -23,9 +25,10 @@ export const useMarkAllAsRead = () => {
  * 알림 삭제 뮤테이션 훅
  */
 export const useDeleteNotification = () => {
+  const t = useTranslations("notification.toast");
   return useSharedDeleteNotificationMutation({
     onSuccess: () => {
-      toast.success("알림이 삭제되었습니다.");
+      toast.success(t("delete_success"));
     },
   });
 };

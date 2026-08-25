@@ -31,21 +31,34 @@ const DEFAULT_OPTIONS: Required<CompressImageOptions> = {
   useWebWorker: true,
 };
 
+export interface ImageValidationMessages {
+  onlyImage?: string;
+  sizeLimitExceeded?: (sizeMB: string, maxSizeMB: number) => string;
+}
+
 /**
  * 이미지 파일을 첨부할 수 있는지 검증합니다.
  * @param file - 검증할 이미지 파일
+ * @param messages - 커스텀 다국어 에러 메시지
  * @returns 에러 메시지 (유효하면 null)
  */
-export function validateImageForUpload(file: File): string | null {
+export function validateImageForUpload(
+  file: File,
+  messages?: ImageValidationMessages,
+): string | null {
   // 이미지 타입 검증
   if (!file.type.startsWith("image/")) {
-    return "이미지 파일만 업로드할 수 있습니다.";
+    return messages?.onlyImage ?? "이미지 파일만 업로드할 수 있습니다.";
   }
 
   // 용량 검증 (10MB)
   if (file.size > MAX_UPLOAD_SIZE) {
     const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-    return `이미지 크기가 너무 큽니다 (${sizeMB}MB). 10MB 이하의 이미지만 첨부할 수 있습니다.`;
+    const maxSizeMB = MAX_UPLOAD_SIZE / (1024 * 1024);
+    return (
+      messages?.sizeLimitExceeded?.(sizeMB, maxSizeMB) ??
+      `이미지 크기가 너무 큽니다 (${sizeMB}MB). ${maxSizeMB}MB 이하의 이미지만 첨부할 수 있습니다.`
+    );
   }
 
   return null;

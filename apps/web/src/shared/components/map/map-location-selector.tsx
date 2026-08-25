@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { Map, MapMarker, useKakaoLoader } from "react-kakao-maps-sdk";
 
@@ -25,6 +26,7 @@ export const MapLocationSelector = ({
   defaultLat = 37.5665,
   defaultLng = 126.978,
 }: MapLocationSelectorProps) => {
+  const t = useTranslations("common.map");
   const [position, setPosition] = useState<{ lat: number; lng: number }>({
     lat: defaultLat,
     lng: defaultLng,
@@ -94,11 +96,11 @@ export const MapLocationSelector = ({
         },
         (err) => {
           console.error(err);
-          alert("현재 위치를 가져올 수 없습니다.");
+          alert(t("geolocation_unavailable"));
         },
       );
     } else {
-      alert("Geolocation이 지원되지 않는 브라우저입니다.");
+      alert(t("geolocation_unsupported"));
     }
   };
 
@@ -210,14 +212,14 @@ export const MapLocationSelector = ({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium">거래 희망 위치</span>
+        <span className="text-sm font-medium">{t("location_title")}</span>
         <Button
           type="button"
           variant="outline"
           size="sm"
           onClick={handleCurrentLocation}
         >
-          현재 위치 찾기
+          {t("find_current_location")}
         </Button>
       </div>
 
@@ -230,7 +232,7 @@ export const MapLocationSelector = ({
             setIsSelectionMode(false);
           }}
           onKeyDown={handleKeyDown}
-          placeholder="장소 검색 (예: 강남역) - 방향키/엔터로 선택 가능"
+          placeholder={t("search_placeholder")}
           className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
         />
         {searchResults.length > 0 && (
@@ -263,11 +265,11 @@ export const MapLocationSelector = ({
       <div className="w-full h-[300px] border rounded-md overflow-hidden bg-muted relative">
         {loading ? (
           <div className="absolute inset-0 flex items-center justify-center bg-muted/50 z-10">
-            <span className="text-muted-foreground">지도를 불러오는 중...</span>
+            <span className="text-muted-foreground">{t("loading")}</span>
           </div>
         ) : error ? (
           <div className="absolute inset-0 flex items-center justify-center bg-muted/50 z-10 text-red-500">
-            지도를 로드하는 중 오류가 발생했습니다.
+            {t("error")}
           </div>
         ) : (
           <Map
@@ -329,9 +331,9 @@ export const MapLocationSelector = ({
               {selectedPlaceInfo.placeName}
             </div>
           )}
-          <div>{selectedPlaceInfo?.address || "주소를 불러오는 중..."}</div>
+          <div>{selectedPlaceInfo?.address || t("address_loading")}</div>
           <div className="text-[10px] opacity-70">
-            위도: {position.lat.toFixed(6)}, 경도: {position.lng.toFixed(6)}
+            {t("lat")}: {position.lat.toFixed(6)}, {t("lng")}: {position.lng.toFixed(6)}
           </div>
         </div>
       )}

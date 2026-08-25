@@ -12,6 +12,7 @@ import {
   useUpdateBookSaleStatusMutation as useSharedUpdateBookSaleStatusMutation,
 } from "@bookjeok/react-query";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
@@ -37,11 +38,11 @@ interface CreateSaleVariables {
 /**
  * 이미지 업로드 전 만료된 AccessToken을 미리 Refresh하는 헬퍼 함수
  */
-const ensureFreshAuthToken = async () => {
+const ensureFreshAuthToken = async (loginRequiredMsg = "로그인이 필요한 서비스입니다.") => {
   await privateApiClient.get("/user/profile");
   const authState = useAuthStore.getState();
   if (!authState.user || !authState.accessToken) {
-    throw new Error("로그인이 필요한 서비스입니다.");
+    throw new Error(loginRequiredMsg);
   }
   return {
     user: authState.user,
@@ -53,12 +54,13 @@ const ensureFreshAuthToken = async () => {
  * 중고책 판매글을 생성하는 뮤테이션 훅입니다.
  */
 export const useCreateBookSaleMutation = () => {
+  const t = useTranslations("market.toast");
   const router = useRouter();
   const queryClient = useQueryClient();
 
   const sharedMutation = useSharedCreateBookSaleMutation({
     onSuccess: () => {
-      toast.success("판매글이 성공적으로 등록되었습니다.");
+      toast.success(t("create_success"));
       queryClient.invalidateQueries({ queryKey: bookSaleKeys._def });
       router.push(PATHS.MY_PAGE_SALES);
     },
@@ -134,12 +136,13 @@ interface UpdateSaleVariables {
 }
 
 export const useUpdateBookSaleMutation = () => {
+  const t = useTranslations("market.toast");
   const router = useRouter();
   const queryClient = useQueryClient();
 
   const sharedMutation = useSharedUpdateBookSaleMutation({
     onSuccess: (data: UsedBookSale) => {
-      toast.success("판매글이 성공적으로 수정되었습니다.");
+      toast.success(t("update_success"));
       queryClient.invalidateQueries({
         queryKey: bookSaleKeys.mySales.queryKey,
       });
@@ -205,12 +208,13 @@ export const useUpdateBookSaleMutation = () => {
  * 중고책 판매글 삭제를 위한 뮤테이션 훅입니다.
  */
 export const useDeleteBookSaleMutation = () => {
+  const t = useTranslations("market.toast");
   const queryClient = useQueryClient();
   const router = useRouter();
 
   const sharedMutation = useSharedDeleteBookSaleMutation({
     onSuccess: () => {
-      toast.success("판매글이 삭제되었습니다.");
+      toast.success(t("delete_success"));
       queryClient.invalidateQueries({ queryKey: bookSaleKeys._def });
     },
     onError: (error: Error) => {
