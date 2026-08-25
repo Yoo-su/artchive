@@ -39,6 +39,7 @@ export const HomeView = () => {
 
       <RecentReviewList />
 
+      {/* 공연/전시 슬라이더 영역 (KOPIS 키 재발급 전까지 임시 비활성화)
       <div>
         <MainArtSlider
           titlePrefix={tArt("spotlight.title_prefix")}
@@ -58,6 +59,7 @@ export const HomeView = () => {
           align="left"
         />
       </div>
+      */}
     </div>
   );
 };
