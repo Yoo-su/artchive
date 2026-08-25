@@ -13,7 +13,8 @@ import { PATHS } from "@/shared/constants/paths";
 function CallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { setTokens, setUser } = useAuthStore();
+  const setTokens = useAuthStore((state) => state.setTokens);
+  const setUser = useAuthStore((state) => state.setUser);
 
   useEffect(() => {
     const handleAuth = async () => {

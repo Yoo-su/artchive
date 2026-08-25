@@ -11,7 +11,8 @@ import { ChatList } from "../../list/chat-list";
 import { ChatRoom } from "../../room/chat-room";
 
 export const ChatWidget = () => {
-  const { isChatOpen, activeChatRoomId } = useChatStore();
+  const isChatOpen = useChatStore((state) => state.isChatOpen);
+  const activeChatRoomId = useChatStore((state) => state.activeChatRoomId);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {

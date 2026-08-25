@@ -33,7 +33,7 @@ const formatLastMessageTime = (date: string, locale: string) => {
 
 export const ChatItem = ({ room }: { room: ChatRoom }) => {
   const t = useTranslations("chat");
-  const { openChatRoom } = useChatStore();
+  const openChatRoom = useChatStore((state) => state.openChatRoom);
   const currentUser = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
   const locale = useLocale();

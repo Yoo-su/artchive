@@ -26,7 +26,13 @@ import { ChatRoomSkeleton } from "./skeleton";
  * - 소켓 연결 상태에 따라 읽음 처리를 수행합니다.
  */
 export const ChatRoom = () => {
-  const { activeChatRoomId, typingUsers, isRoomInactive } = useChatStore();
+  const activeChatRoomId = useChatStore((state) => state.activeChatRoomId);
+  const typingNickname = useChatStore((state) =>
+    activeChatRoomId ? state.typingUsers[activeChatRoomId] || "" : "",
+  );
+  const isInactive = useChatStore((state) =>
+    activeChatRoomId ? state.isRoomInactive[activeChatRoomId] || false : false,
+  );
   const { socket } = useSocketContext();
   const currentUser = useAuthStore((state) => state.user);
 
@@ -82,10 +88,6 @@ export const ChatRoom = () => {
   const opponent = room?.participants.find(
     (p) => p.user.id !== currentUser?.id,
   )?.user;
-
-  // UI 상태
-  const typingNickname = activeChatRoomId ? typingUsers[activeChatRoomId] : "";
-  const isInactive = isRoomInactive[room?.id ?? -1] || false;
 
   // 채팅방 입장 시 읽음 처리
   useEffect(() => {

@@ -35,7 +35,8 @@ export const ChatRoomHeader = ({
   typingNickname,
 }: ChatRoomHeaderProps) => {
   const t = useTranslations("chat");
-  const { closeChatRoom, activeChatRoomId } = useChatStore();
+  const closeChatRoom = useChatStore((state) => state.closeChatRoom);
+  const activeChatRoomId = useChatStore((state) => state.activeChatRoomId);
   const { socket } = useSocketContext();
   const queryClient = useQueryClient();
 

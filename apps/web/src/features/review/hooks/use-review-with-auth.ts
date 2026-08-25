@@ -18,7 +18,7 @@ import { useReviewDetailQuery } from "@/features/review/queries";
  * @param initialReview 서버에서 프리패치된 초기 데이터 (ISR)
  */
 export const useReviewWithAuth = (id: number, initialReview?: Review) => {
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
   const [isFetchingAuth, setIsFetchingAuth] = useState(false);
 
