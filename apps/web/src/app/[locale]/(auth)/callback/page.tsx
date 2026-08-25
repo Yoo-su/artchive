@@ -12,6 +12,7 @@ import { PATHS } from "@/shared/constants/paths";
 
 function CallbackContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const setTokens = useAuthStore((state) => state.setTokens);
   const setUser = useAuthStore((state) => state.setUser);
 
