@@ -2,6 +2,7 @@
 
 import { ImagePlus, X } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { ChangeEvent, useRef } from "react";
 
 import { Input } from "@/shared/components/shadcn/input";
@@ -45,6 +46,7 @@ export const ImageUploader = ({
   maxFiles = 5,
   className,
 }: ImageUploaderProps) => {
+  const t = useTranslations("common");
   const inputRef = useRef<HTMLInputElement>(null);
   const totalImages = previews.length + existingImages.length;
 
@@ -72,7 +74,7 @@ export const ImageUploader = ({
         <div key={url} className="relative group">
           <Image
             src={url}
-            alt={`기존 이미지 ${index + 1}`}
+            alt={t("aria.existing_image", { index: index + 1 })}
             width={96}
             height={96}
             unoptimized
@@ -82,7 +84,7 @@ export const ImageUploader = ({
             <button
               type="button"
               onClick={() => onExistingImageRemove(url)}
-              aria-label={`기존 이미지 ${index + 1} 삭제`}
+              aria-label={t("aria.delete_image", { index: index + 1 })}
               className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white shadow-md hover:bg-red-600 transition-colors opacity-70 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
             >
               <X className="w-3 h-3" aria-hidden="true" />
@@ -96,7 +98,7 @@ export const ImageUploader = ({
         <div key={src} className="relative group">
           <Image
             src={src}
-            alt={`새 이미지 미리보기 ${index + 1}`}
+            alt={t("aria.preview_image", { index: index + 1 })}
             width={96}
             height={96}
             unoptimized
@@ -105,7 +107,7 @@ export const ImageUploader = ({
           <button
             type="button"
             onClick={() => onImageRemove(index)}
-            aria-label={`새 이미지 ${index + 1} 삭제`}
+            aria-label={t("aria.delete_image", { index: index + 1 })}
             className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white shadow-md hover:bg-red-600 transition-colors opacity-70 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
           >
             <X className="w-3 h-3" aria-hidden="true" />
@@ -123,7 +125,7 @@ export const ImageUploader = ({
           >
             <ImagePlus className="w-8 h-8 text-gray-400 mb-1" aria-hidden="true" />
             <span className="text-xs text-gray-500 font-medium">
-              이미지 추가
+              {t("image.add")}
             </span>
           </label>
           <Input

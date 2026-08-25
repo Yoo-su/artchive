@@ -1,6 +1,7 @@
 "use client";
 
 import { MapPin } from "lucide-react";
+import { useTranslations } from "next-intl";
 import React from "react";
 
 interface RegionDisplayCardProps {
@@ -19,6 +20,7 @@ export const RegionDisplayCard: React.FC<RegionDisplayCardProps> = ({
   placeName,
   error,
 }) => {
+  const t = useTranslations("market.form");
   const hasRegion = Boolean(city && district);
 
   if (!hasRegion) {
@@ -27,7 +29,7 @@ export const RegionDisplayCard: React.FC<RegionDisplayCardProps> = ({
         <div className="flex items-center gap-3 rounded-lg border border-dashed border-stone-300 dark:border-stone-700 bg-stone-50/70 dark:bg-stone-900/40 px-4 py-3 text-sm">
           <MapPin className="h-4 w-4 text-stone-400 shrink-0" />
           <span className="text-stone-500 dark:text-stone-400">
-            지도에서 위치를 선택하면 시/도 및 시/군/구 지역이 지정됩니다.
+            {t("region_help")}
           </span>
         </div>
         {error && (
@@ -43,7 +45,7 @@ export const RegionDisplayCard: React.FC<RegionDisplayCardProps> = ({
         <div className="flex items-center gap-2.5 min-w-0">
           <MapPin className="h-4 w-4 text-stone-700 dark:text-stone-300 shrink-0" />
           <span className="text-xs font-medium text-stone-400 uppercase tracking-wider shrink-0">
-            거래 지역
+            {t("region_label")}
           </span>
           <span className="h-3 w-px bg-stone-300 dark:bg-stone-700 shrink-0" />
           <span className="font-semibold text-stone-900 dark:text-stone-100 truncate">

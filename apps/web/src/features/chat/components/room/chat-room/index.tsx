@@ -1,6 +1,7 @@
 "use client";
 
 import { ChatMessage, ChatRoom as ChatRoomType } from "@bookjeok/core";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
@@ -93,6 +94,8 @@ export const ChatRoom = () => {
     }
   }, [socket, activeChatRoomId]);
 
+  const t = useTranslations("chat");
+
   // 로딩 상태
   if (isMessagesLoading || !room) {
     return <ChatRoomSkeleton />;
@@ -102,7 +105,7 @@ export const ChatRoom = () => {
   if (!opponent) {
     return (
       <div className="h-full flex items-center justify-center text-gray-500">
-        상대방 정보를 찾을 수 없습니다.
+        {t("user_not_found")}
       </div>
     );
   }

@@ -129,7 +129,7 @@ export function LoungeFeedList({ onCardClick }: LoungeFeedListProps) {
         )}
         {isError && items.length > 0 && (
           <p className="text-red-400 text-xs font-light">
-            데이터를 불러오는 중 문제가 발생했습니다.
+            {t("error")}
           </p>
         )}
       </ImpressionArea>

@@ -155,7 +155,7 @@ export const BookSaleForm = () => {
                       <div className="flex items-center justify-between">
                         <FormLabel>{t("fields.title")}</FormLabel>
                         <span className="text-xs text-muted-foreground">
-                          {field.value?.length || 0} / 50자
+                          {field.value?.length || 0} / 50{t("char_unit")}
                         </span>
                       </div>
                       <FormControl>
@@ -292,18 +292,12 @@ export const BookSaleForm = () => {
                     <div className="flex items-center justify-between">
                       <FormLabel>{t("fields.content")}</FormLabel>
                       <span className="text-xs text-muted-foreground">
-                        {field.value?.length || 0} / 1000자
+                        {field.value?.length || 0} / 1000{t("char_unit")}
                       </span>
                     </div>
 
                     <div className="flex flex-wrap gap-1.5 pt-1">
-                      {[
-                        "#책 상태 최상",
-                        "#직거래 선호",
-                        "#택배 거래 가능",
-                        "#밑줄/필기 없음",
-                        "#네고 불가",
-                      ].map((tag) => (
+                      {((t.raw("suggested_tags") as string[]) || []).map((tag) => (
                         <button
                           key={tag}
                           type="button"

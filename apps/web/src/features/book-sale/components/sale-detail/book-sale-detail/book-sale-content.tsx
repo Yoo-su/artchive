@@ -1,4 +1,5 @@
 import { UsedBookSale } from "@bookjeok/core";
+import { useTranslations } from "next-intl";
 
 import { ShareButton } from "@/shared/components/ui/share-button";
 
@@ -8,6 +9,8 @@ interface BookSaleContentProps {
 
 /** 판매글 본문: 상세 설명 + 공유 버튼 */
 export const BookSaleContent = ({ sale }: BookSaleContentProps) => {
+  const t = useTranslations("common");
+
   return (
     <>
       <div className="prose max-w-none text-gray-700 min-h-[200px] bg-gray-50/50 p-6 rounded-xl border border-gray-100">
@@ -18,7 +21,7 @@ export const BookSaleContent = ({ sale }: BookSaleContentProps) => {
       <div className="flex justify-end pt-4">
         <ShareButton
           title={sale.title}
-          description={`${sale.book.title} | ${sale.price.toLocaleString()}원`}
+          description={`${sale.book.title} | ${sale.price.toLocaleString()}${t("currency.unit")}`}
           imageUrl={sale.imageUrls[0] || sale.book.image}
           showLabel
         />

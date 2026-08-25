@@ -1,6 +1,7 @@
 import { chatKeys, ChatMessage } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { SendHorizontal } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { FormEvent, useCallback, useState } from "react";
 import { toast } from "sonner";
 
@@ -35,6 +36,7 @@ export const ChatInput = ({
   onTyping,
   cancelTyping,
 }: ChatInputProps) => {
+  const t = useTranslations("chat");
   const [newMessage, setNewMessage] = useState("");
   const { socket } = useSocketContext();
   const queryClient = useQueryClient();
@@ -95,7 +97,7 @@ export const ChatInput = ({
         (response: { status: string; error?: string }) => {
           if (response.status !== "ok") {
             console.error("Message failed to send:", response.error);
-            toast.error(`메시지 전송에 실패했습니다: ${response.error}`);
+            toast.error(t("toast.send_error", { error: response.error || "" }));
 
             // 실패 시 낙관적 메시지 롤백
             queryClient.setQueryData<{
@@ -123,6 +125,7 @@ export const ChatInput = ({
       currentUserProfileImageUrl,
       queryClient,
       cancelTyping,
+      t,
     ],
   );
 
@@ -130,7 +133,7 @@ export const ChatInput = ({
     return (
       <div className="p-4 border-t bg-white shrink-0">
         <div className="text-center text-sm text-gray-500 bg-gray-100 p-3 rounded-md">
-          대화가 종료된 채팅방입니다.
+          {t("closed_room")}
         </div>
       </div>
     );
@@ -142,7 +145,7 @@ export const ChatInput = ({
         <Input
           value={newMessage}
           onChange={handleInputChange}
-          placeholder="메시지를 입력하세요..."
+          placeholder={t("input_placeholder")}
           autoComplete="off"
           className="grow"
         />

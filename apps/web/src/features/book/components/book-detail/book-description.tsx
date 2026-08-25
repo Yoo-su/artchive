@@ -24,14 +24,13 @@ export const BookDescription = ({ description }: BookDescriptionProps) => {
 
       {/* 알라딘 OpenAPI 프리미엄 규정 준수: 출처 표기 */}
       <div className="pt-2 text-xs text-stone-400 font-normal">
-        도서 DB 제공 :{" "}
         <a
           href="https://www.aladin.co.kr"
           target="_blank"
           rel="noopener noreferrer"
           className="underline underline-offset-2 hover:text-stone-600 transition-colors"
         >
-          알라딘 인터넷서점(www.aladin.co.kr)
+          {t("aladin_source_credit")}
         </a>
       </div>
     </div>

@@ -22,6 +22,7 @@ import {
   Strikethrough,
   Underline,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/shared/components/shadcn/button";
@@ -219,9 +220,11 @@ export const EditorToolbar = ({ editor, onImageAdd }: EditorToolbarProps) => {
     "#FFF4E6",
   ];
 
+  const t = useTranslations("common.editor");
+
   const setLink = () => {
     const previousUrl = editor.getAttributes("link").href;
-    const url = window.prompt("URL을 입력하세요", previousUrl);
+    const url = window.prompt(t("prompt_url"), previousUrl);
 
     if (url === null) return;
 

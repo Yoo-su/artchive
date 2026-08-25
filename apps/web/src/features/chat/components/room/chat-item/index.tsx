@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { isToday, isYesterday } from "date-fns";
 import { motion } from "framer-motion";
 import { MessageSquareText } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import {
@@ -32,6 +32,7 @@ const formatLastMessageTime = (date: string, locale: string) => {
 };
 
 export const ChatItem = ({ room }: { room: ChatRoom }) => {
+  const t = useTranslations("chat");
   const { openChatRoom } = useChatStore();
   const currentUser = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
@@ -62,7 +63,7 @@ export const ChatItem = ({ room }: { room: ChatRoom }) => {
         </div>
         <div className="flex items-center gap-2 mt-1">
           <span className="text-xs font-medium bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full shrink-0">
-            판매도서
+            {t("target_book")}
           </span>
           <p className="text-sm text-gray-700 truncate font-semibold">
             {room.usedBookSale.book.title}
@@ -73,7 +74,7 @@ export const ChatItem = ({ room }: { room: ChatRoom }) => {
             <div className="flex items-center gap-1.5 truncate text-gray-500 w-10/12">
               <MessageSquareText className="h-4 w-4 shrink-0" />
               <p className="truncate" data-clarity-mask="true">
-                {room.lastMessage?.content || "아직 메시지가 없습니다."}
+                {room.lastMessage?.content || t("no_messages")}
               </p>
             </div>
             {room.lastMessage && (

@@ -20,6 +20,7 @@ import { usePopularBooksQuery } from "../../queries";
  */
 export const PopularBookSlider = () => {
   const t = useTranslations("home.sections.popular_books");
+  const tSlider = useTranslations("book.slider");
   const { data: books, isLoading, isError } = usePopularBooksQuery();
   const [hoveredBook, setHoveredBook] = useState<NonNullable<typeof books>[number] | null>(null);
 
@@ -88,7 +89,7 @@ export const PopularBookSlider = () => {
                           </span>
                           {hoveredBook && (
                             <span className="text-[10px] sm:text-[11px] font-sans px-2 py-0.5 bg-neutral-700/60 text-neutral-300 tracking-tight">
-                              미리보기
+                              {tSlider("preview")}
                             </span>
                           )}
                         </div>
@@ -132,10 +133,10 @@ export const PopularBookSlider = () => {
 
                     <div className="mt-6 sm:mt-8 pt-3 sm:pt-4 border-t border-neutral-700/80 flex items-center justify-between text-xs text-neutral-400">
                       <span className="text-neutral-400 font-light truncate max-w-[60%]">
-                        {activeBook.author ? `${activeBook.author} 지음` : ""}
+                        {activeBook.author ? tSlider("author_suffix", { author: activeBook.author }) : ""}
                       </span>
                       <span className="inline-flex items-center gap-1.5 text-neutral-300 group-hover:text-white font-medium shrink-0 ml-2">
-                        도서 상세 보기{" "}
+                        {tSlider("view_detail")}{" "}
                         <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-300 ease-out" />
                       </span>
                     </div>
@@ -206,7 +207,7 @@ export const PopularBookSlider = () => {
                   04 — 07
                 </span>
                 <span className="text-[11px] font-sans text-neutral-400">
-                  인기 순위
+                  {tSlider("popular_rank")}
                 </span>
               </div>
 
@@ -273,7 +274,7 @@ export const PopularBookSlider = () => {
                 href={PATHS.BOOK_SEARCH}
                 className="block w-full py-2.5 text-xs text-center font-medium text-neutral-700 bg-white hover:text-neutral-950 border border-neutral-200 shadow-2xs hover:shadow-xs transition-all"
               >
-                도서 검색에서 더 찾아보기
+                {tSlider("find_more")}
               </Link>
             </div>
           </div>

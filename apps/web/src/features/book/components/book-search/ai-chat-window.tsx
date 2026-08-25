@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { RotateCcw, Send, Sparkles } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 import remarkGfm from "remark-gfm";
 
 import { Particles } from "@/shared/components/magicui/particles";
@@ -21,6 +22,7 @@ const ReactMarkdown = dynamic(() => import("react-markdown"), {
 });
 
 export const AiChatWindow = () => {
+  const t = useTranslations("book.ai_chat_window");
   const {
     isLoggedIn,
     messages,
@@ -31,6 +33,8 @@ export const AiChatWindow = () => {
     handleSendMessage,
     handleClearChat,
   } = useAiChat();
+
+  const suggestionChips = (t.raw("suggestion_chips") as string[]) || AI_CHAT_SUGGESTION_CHIPS;
 
   return (
     <div className="relative w-full bg-white rounded-2xl border border-stone-200/80 shadow-xs flex flex-col h-[680px] overflow-hidden">
@@ -48,11 +52,11 @@ export const AiChatWindow = () => {
           <h2
             className={`text-base sm:text-lg font-bold text-stone-800 tracking-tight ${gowun_batang.className}`}
           >
-            대화형 AI 도서 추천
+            {t("title")}
           </h2>
           {!isLoggedIn && (
             <span className="text-[11px] text-stone-500 bg-stone-100 border border-stone-200 px-2 py-0.5 rounded">
-              회원 전용
+              {t("members_only")}
             </span>
           )}
         </div>
@@ -63,7 +67,7 @@ export const AiChatWindow = () => {
           className="flex items-center gap-1.5 px-3 py-1 text-xs text-stone-500 hover:text-stone-900 border border-stone-200 rounded-md bg-white transition-colors cursor-pointer"
         >
           <RotateCcw className="w-3.5 h-3.5" />
-          <span>대화 초기화</span>
+          <span>{t("clear_chat")}</span>
         </button>
       </div>
 
@@ -78,95 +82,76 @@ export const AiChatWindow = () => {
             initial={{ opacity: 0, y: 10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{
-              duration: 0.25,
-              ease: [0.16, 1, 0.3, 1],
+              type: "spring",
+              stiffness: 400,
+              damping: 30,
             }}
             className={`flex flex-col ${
               msg.role === "user" ? "items-end" : "items-start"
             }`}
           >
-            {(msg.content || msg.isStreaming) && (
-              <div
-                className={`text-xs sm:text-sm leading-relaxed transition-all ${
-                  msg.role === "user"
-                    ? "bg-stone-900/90 backdrop-blur-md border border-stone-800 text-white rounded-2xl rounded-tr-xs whitespace-pre-line shadow-sm shadow-stone-900/10 px-4 py-3 max-w-[85%] sm:max-w-[75%]"
-                    : "bg-white/90 backdrop-blur-md border border-stone-200/80 text-stone-850 rounded-2xl rounded-tl-xs shadow-xs px-4 py-3.5 sm:px-5 sm:py-4 max-w-[92%] sm:max-w-[88%] min-w-[140px] w-fit"
-                }`}
-              >
-                {msg.role === "user" ? (
-                  msg.content
-                ) : (
-                  <div className="relative">
-                    {/* 스트리밍 단계별 동적 상태 메시지 */}
-                    {msg.isStreaming && !msg.content && (
-                      <div className="flex items-center gap-2 py-0.5 text-stone-500 text-xs">
-                        <Spinner className="size-3.5 text-stone-500" />
-                        <span className="text-stone-600 font-medium">
-                          {msg.statusMessage || "AI가 답변을 준비하고 있습니다..."}
-                        </span>
-                      </div>
-                    )}
+            {/* 메시지 말풍선 */}
+            <div
+              className={`max-w-[85%] sm:max-w-[78%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                msg.role === "user"
+                  ? "bg-stone-900 text-white rounded-br-xs shadow-xs"
+                  : "bg-stone-100/90 text-stone-800 rounded-bl-xs border border-stone-200/60 shadow-2xs"
+              }`}
+            >
+              {msg.role === "assistant" && (
+                <div className="flex items-center gap-1.5 mb-1.5 text-xs font-semibold text-stone-700">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Bookjeok AI</span>
+                </div>
+              )}
 
-                  {msg.content ? (
-                    <div className="prose prose-stone max-w-none text-xs sm:text-sm text-stone-850">
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                          p: ({ node, ...props }) => (
-                            <p
-                              {...props}
-                              className="mb-2 last:mb-0 leading-relaxed text-stone-800"
-                            />
-                          ),
-                          strong: ({ node, ...props }) => (
-                            <strong
-                              {...props}
-                              className="font-semibold text-stone-950"
-                            />
-                          ),
-                          em: ({ node, ...props }) => (
-                            <em {...props} className="italic text-stone-800" />
-                          ),
-                          a: ({ node, ...props }) => (
-                            <a
-                              {...props}
-                              className="underline font-medium text-emerald-600 hover:text-emerald-700"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            />
-                          ),
-                          ul: ({ node, ...props }) => (
-                            <ul
-                              {...props}
-                              className="list-disc pl-5 space-y-1 my-2"
-                            />
-                          ),
-                          ol: ({ node, ...props }) => (
-                            <ol
-                              {...props}
-                              className="list-decimal pl-5 space-y-1 my-2"
-                            />
-                          ),
-                        }}
-                      >
-                        {msg.content}
-                      </ReactMarkdown>
-                    </div>
-                  ) : null}
+              {/* 로딩 / 상태 메시지 표시 */}
+              {msg.isStreaming && !msg.content ? (
+                <div className="flex items-center gap-2 py-0.5 text-stone-500 text-xs">
+                  <Spinner className="size-3.5 text-stone-500" />
+                  <span className="text-stone-600 font-medium">
+                    {msg.statusMessage || t("ai_preparing")}
+                  </span>
+                </div>
+              ) : (
+                <div className="prose prose-stone prose-sm max-w-none break-words leading-relaxed text-inherit font-[family-name:var(--font-pretendard)]">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      p: ({ children }) => (
+                        <p className="mb-2 last:mb-0">{children}</p>
+                      ),
+                      ul: ({ children }) => (
+                        <ul className="list-disc pl-4 mb-2 space-y-1">
+                          {children}
+                        </ul>
+                      ),
+                      ol: ({ children }) => (
+                        <ol className="list-decimal pl-4 mb-2 space-y-1">
+                          {children}
+                        </ol>
+                      ),
+                      li: ({ children }) => (
+                        <li className="text-xs sm:text-sm">{children}</li>
+                      ),
+                      strong: ({ children }) => (
+                        <strong className="font-semibold text-stone-900">
+                          {children}
+                        </strong>
+                      ),
+                    }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
                 </div>
               )}
             </div>
-          )}
 
+            {/* 도서 추천 슬라이더 카드 (도서 목록이 포함된 경우) */}
             {msg.books && msg.books.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="w-full"
-              >
+              <div className="w-full mt-3">
                 <AiBookRecommendSlider books={msg.books} />
-              </motion.div>
+              </div>
             )}
           </motion.div>
         ))}
@@ -176,13 +161,13 @@ export const AiChatWindow = () => {
       {!isLoggedIn && (
         <div className="relative z-10 mx-4 sm:mx-6 my-2 p-3 bg-stone-100 border border-stone-200 rounded-xl flex items-center justify-between gap-3 text-xs">
           <span className="text-stone-600">
-            AI 도서 추천은 로그인 후 이용하실 수 있습니다.
+            {t("login_notice")}
           </span>
           <Link
             href={PATHS.LOGIN}
             className="px-3 py-1.5 bg-stone-800 text-white font-medium rounded-lg hover:bg-stone-900 transition-colors shrink-0"
           >
-            로그인하기
+            {t("login_button")}
           </Link>
         </div>
       )}
@@ -190,7 +175,7 @@ export const AiChatWindow = () => {
       {/* 4. 대화 추천 칩 */}
       {isLoggedIn && messages.length <= 2 && (
         <div className="relative z-10 px-4 sm:px-6 py-2 flex flex-wrap gap-1.5 bg-stone-50/50 border-t border-stone-100">
-          {AI_CHAT_SUGGESTION_CHIPS.map((chip, idx) => (
+          {suggestionChips.map((chip, idx) => (
             <button
               key={`chip-${idx}`}
               type="button"
@@ -218,8 +203,8 @@ export const AiChatWindow = () => {
             onChange={(e) => setInput(e.target.value)}
             placeholder={
               isLoggedIn
-                ? "어떤 도서를 찾고 계신가요?"
-                : "로그인 후 이용 가능합니다."
+                ? t("placeholder_logged_in")
+                : t("placeholder_logged_out")
             }
             disabled={!isLoggedIn || loading}
             className="w-full pl-4 pr-12 h-11 text-base sm:text-sm bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:border-stone-400 transition-all placeholder:text-stone-400 disabled:bg-stone-100 disabled:cursor-not-allowed"
@@ -229,7 +214,7 @@ export const AiChatWindow = () => {
             type="submit"
             disabled={!isLoggedIn || !input.trim() || loading}
             className="absolute right-2 w-7 h-7 bg-stone-800 hover:bg-stone-900 text-white rounded-lg flex items-center justify-center disabled:opacity-40 transition-colors cursor-pointer"
-            aria-label="메시지 전송"
+            aria-label={t("send_aria")}
           >
             <Send className="w-3.5 h-3.5" />
           </button>

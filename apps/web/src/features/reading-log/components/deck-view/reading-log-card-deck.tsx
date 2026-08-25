@@ -61,12 +61,12 @@ export function ReadingLogCardDeck({
     }
     const userHandle = user?.handle || user?.nickname || user?.id;
     if (!userHandle) {
-      toast.error("로그인 후 공유 기능을 이용하실 수 있습니다.");
+      toast.error(t("toast.login_required_share"));
       return;
     }
     const shareUrl = `${window.location.origin}/share/deck/${encodeURIComponent(userHandle)}?year=${currentDate.getFullYear()}`;
     navigator.clipboard.writeText(shareUrl);
-    toast.success("올해의 독서 덱 링크가 복사되었습니다!");
+    toast.success(t("toast.share_deck_copied"));
   };
 
   if (effectiveLoading) {

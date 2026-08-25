@@ -1,12 +1,15 @@
 "use client";
 
 import { Lock } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 /**
  * 비공개 리뷰 안내 오버레이 컴포넌트
  * 접근 권한이 없는 사용자에게 보여지는 Glassmorphism 스타일의 UI
  */
 export const PrivateReviewOverlay = () => {
+  const t = useTranslations("review.private");
+
   return (
     <div className="relative w-full h-72 rounded-3xl overflow-hidden bg-white shadow-[0_8px_30px_rgb(0,0,0,0.08)] select-none ring-1 ring-stone-100/50">
       {/* 미묘한 패턴 배경 */}
@@ -22,10 +25,10 @@ export const PrivateReviewOverlay = () => {
         </div>
 
         <h3 className="text-lg font-semibold text-stone-800 mb-1.5 tracking-tight">
-          비공개 리뷰입니다
+          {t("title")}
         </h3>
         <p className="text-sm text-stone-400">
-          작성자만 내용을 확인할 수 있습니다.
+          {t("description")}
         </p>
       </div>
     </div>

@@ -9,6 +9,7 @@ import { ReadingLogCalendar } from "@/features/reading-log/components/calendar-v
 import { usePublicProfileQuery } from "@/features/user/queries";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { NotFoundRedirect } from "@/shared/components/ui/not-found-redirect";
+import { PriceDisplay } from "@/shared/components/ui/price-display";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { formatDate } from "@/shared/utils/format-date";
@@ -51,7 +52,7 @@ export const UserProfile = ({ handle }: UserProfileProps) => {
                 {t("reading_log_calendar_title", { name: profile.nickname })}
               </h3>
             </div>
-            <span className="text-xs text-stone-400">월별 독서 캘린더</span>
+            <span className="text-xs text-stone-400">{t("sections.badge_calendar")}</span>
           </div>
           <ReadingLogCalendar
             currentDate={currentDate}
@@ -190,7 +191,7 @@ const UserRecentReviews = ({ reviews }: UserRecentReviewsProps) => {
         <h2 className="text-base font-semibold text-stone-900">
           {t("recent_reviews")}
         </h2>
-        <span className="text-xs text-stone-400">최근 리뷰</span>
+        <span className="text-xs text-stone-400">{t("badge_recent_reviews")}</span>
       </div>
       <div className="space-y-3">
         {reviews.map((review) => (
@@ -246,7 +247,7 @@ const UserRecentSales = ({ sales }: UserRecentSalesProps) => {
         <h2 className="text-base font-semibold text-stone-900">
           {t("recent_sales")}
         </h2>
-        <span className="text-xs text-stone-400">책방 거래</span>
+        <span className="text-xs text-stone-400">{t("badge_recent_sales")}</span>
       </div>
       <div className="space-y-3">
         {sales.map((sale) => (
@@ -274,9 +275,9 @@ const UserRecentSales = ({ sales }: UserRecentSalesProps) => {
               <p className="truncate text-sm font-semibold text-stone-900 transition-colors group-hover:text-stone-950">
                 {sale.bookTitle}
               </p>
-              <p className="mt-0.5 text-xs font-medium text-stone-600">
-                {sale.price.toLocaleString()}원
-              </p>
+              <div className="mt-0.5">
+                <PriceDisplay value={sale.price} size="sm" />
+              </div>
             </div>
             <SaleStatusBadge status={sale.status as SaleStatus} />
           </Link>

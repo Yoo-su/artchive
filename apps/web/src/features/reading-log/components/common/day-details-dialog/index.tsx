@@ -52,6 +52,8 @@ export function DayDetailsDialog({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const locale = useLocale();
   const t = useTranslations("reading_log.details_dialog");
+  const tLog = useTranslations("reading_log");
+  const tCommon = useTranslations("common");
 
   // 생성 모드 상태
   const [selectedBookForCreate, setSelectedBookForCreate] =
@@ -73,10 +75,12 @@ export function DayDetailsDialog({
     { enabled: !readOnly && !!date },
   );
 
-  const dateStr = date ? format(date, "yyyy-MM-dd") : "";
+  // 현재 날짜의 로그 필터링
   const currentLogs = readOnly
     ? initialLogs
-    : monthlyLogs.filter((log) => log.date === dateStr);
+    : monthlyLogs.filter(
+        (log) => log.date === (date ? format(date, "yyyy-MM-dd") : ""),
+      );
 
   if (!date) return null;
 
@@ -84,7 +88,7 @@ export function DayDetailsDialog({
     // 해당 날짜에 이미 추가된 책인지 확인
     const exists = currentLogs.some((log) => log.isbn === book.isbn);
     if (exists) {
-      toast.error("이미 추가된 책입니다.");
+      toast.error(tLog("toast.already_added"));
       return;
     }
 
@@ -135,9 +139,9 @@ export function DayDetailsDialog({
 
   const handleRemoveLog = async (log: ReadingLog) => {
     const isConfirmed = await confirm({
-      title: "독서 기록 삭제",
-      description: "정말 이 독서 기록을 삭제하시겠습니까?",
-      confirmText: "삭제",
+      title: tLog("dialog.delete_title"),
+      description: tLog("dialog.delete_desc"),
+      confirmText: tCommon("actions.delete"),
       variant: "destructive",
     });
 
@@ -175,7 +179,7 @@ export function DayDetailsDialog({
                     onClick={() => setIsSearchOpen(true)}
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    새로운 책 기록하기
+                    {tLog("dialog.record_new")}
                   </Button>
                 }
               />

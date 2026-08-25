@@ -2,6 +2,7 @@
 
 import { Check, Link2, MessageCircle, Share2, X } from "lucide-react";
 import Script from "next/script";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -70,6 +71,7 @@ export const ShareButton = ({
   className,
   showLabel = false,
 }: ShareButtonProps) => {
+  const t = useTranslations("common");
   const [copied, setCopied] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [kakaoReady, setKakaoReady] = useState(false);
@@ -108,13 +110,13 @@ export const ShareButton = ({
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
-      toast.success("링크가 복사되었습니다");
+      toast.success(t("toast.copied"));
       setTimeout(() => {
         setCopied(false);
         setIsOpen(false);
       }, 1500);
     } catch {
-      toast.error("복사에 실패했습니다");
+      toast.error(t("toast.copy_failed"));
     }
   };
 
@@ -128,9 +130,7 @@ export const ShareButton = ({
   // 카카오톡 공유
   const handleKakaoShare = () => {
     if (!window.Kakao || !kakaoReady) {
-      toast.error(
-        "카카오 공유를 불러오는 중입니다. 잠시 후 다시 시도해주세요.",
-      );
+      toast.error(t("toast.kakao_loading"));
       return;
     }
 
@@ -138,7 +138,7 @@ export const ShareButton = ({
       objectType: "feed",
       content: {
         title,
-        description: description || "북적에서 확인해보세요!",
+        description: description || t("actions.view_more"),
         imageUrl: imageUrl || "https://bookjeok.vercel.app/og-image.png",
         link: {
           mobileWebUrl: shareUrl,
@@ -147,7 +147,7 @@ export const ShareButton = ({
       },
       buttons: [
         {
-          title: "자세히 보기",
+          title: t("actions.view_more"),
           link: {
             mobileWebUrl: shareUrl,
             webUrl: shareUrl,
@@ -176,10 +176,10 @@ export const ShareButton = ({
               showLabel ? "h-8 px-3 gap-1.5" : "h-8 w-8 p-0",
               className,
             )}
-            aria-label={showLabel ? undefined : "콘텐츠 공유하기"}
+            aria-label={showLabel ? undefined : t("aria.share")}
           >
             <Share2 className="w-4 h-4" aria-hidden="true" />
-            {showLabel && <span className="text-xs">공유하기</span>}
+            {showLabel && <span className="text-xs">{t("actions.share")}</span>}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-2" align="center">
@@ -190,8 +190,8 @@ export const ShareButton = ({
               size="sm"
               className="h-9 w-9 p-0 rounded-full hover:bg-yellow-100"
               onClick={handleKakaoShare}
-              title="카카오톡으로 공유"
-              aria-label="카카오톡으로 공유"
+              title={t("aria.share_kakao")}
+              aria-label={t("aria.share_kakao")}
             >
               <MessageCircle className="w-4 h-4 text-yellow-600" aria-hidden="true" />
             </Button>
@@ -202,8 +202,8 @@ export const ShareButton = ({
               size="sm"
               className="h-9 w-9 p-0 rounded-full hover:bg-black hover:text-white"
               onClick={handleTwitterShare}
-              title="X(트위터)에 공유"
-              aria-label="X(트위터)에 공유"
+              title={t("aria.share_x")}
+              aria-label={t("aria.share_x")}
             >
               <X className="w-4 h-4" aria-hidden="true" />
             </Button>
@@ -217,8 +217,8 @@ export const ShareButton = ({
                 copied ? "bg-emerald-100 text-emerald-600" : "hover:bg-stone-100",
               )}
               onClick={handleCopyLink}
-              title="링크 복사"
-              aria-label={copied ? "링크 복사 완료" : "링크 복사"}
+              title={t("aria.copy_link")}
+              aria-label={copied ? t("aria.copy_link_done") : t("aria.copy_link")}
             >
               {copied ? (
                 <Check className="w-4 h-4" aria-hidden="true" />

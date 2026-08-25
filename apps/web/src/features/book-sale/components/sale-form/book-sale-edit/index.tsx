@@ -2,6 +2,7 @@
 
 import { AxiosError } from "axios";
 import { AlertTriangle, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
@@ -16,6 +17,7 @@ interface BookSaleEditProps {
 }
 
 export const BookSaleEdit = ({ saleId }: BookSaleEditProps) => {
+  const t = useTranslations("market.form");
   const router = useRouter();
   const {
     data: sale,
@@ -29,11 +31,11 @@ export const BookSaleEdit = ({ saleId }: BookSaleEditProps) => {
     if (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response?.status === 403) {
-        toast.error("수정 권한이 없습니다.");
+        toast.error(t("unauthorized"));
         router.replace(PATHS.MY_PAGE_SALES);
       }
     }
-  }, [error, router]);
+  }, [error, router, t]);
 
   if (isLoading) {
     return (
@@ -47,7 +49,7 @@ export const BookSaleEdit = ({ saleId }: BookSaleEditProps) => {
     return (
       <div className="py-20 text-center text-red-500">
         <AlertTriangle className="mx-auto h-12 w-12" />
-        <p className="mt-4 font-semibold">게시글 정보를 불러올 수 없습니다.</p>
+        <p className="mt-4 font-semibold">{t("fetch_error")}</p>
       </div>
     );
   }

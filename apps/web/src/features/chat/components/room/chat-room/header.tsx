@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, LogOut } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useCallback } from "react";
 import { toast } from "sonner";
 
@@ -33,6 +34,7 @@ export const ChatRoomHeader = ({
   opponentProfileImageUrl,
   typingNickname,
 }: ChatRoomHeaderProps) => {
+  const t = useTranslations("chat");
   const { closeChatRoom, activeChatRoomId } = useChatStore();
   const { socket } = useSocketContext();
   const queryClient = useQueryClient();
@@ -45,9 +47,9 @@ export const ChatRoomHeader = ({
     }
 
     const isConfirmed = await confirm({
-      title: "채팅방 나가기",
-      description: "정말로 이 채팅방을 나가시겠습니까?",
-      confirmText: "나가기",
+      title: t("leave_dialog.title"),
+      description: t("leave_dialog.description"),
+      confirmText: t("leave_dialog.confirm"),
       variant: "destructive",
     });
 
@@ -63,11 +65,11 @@ export const ChatRoomHeader = ({
           });
           closeChatRoom();
         } else {
-          toast.error(`채팅방을 나가는 데 실패했습니다: ${response.error}`);
+          toast.error(t("toast.leave_error", { error: response.error || "" }));
         }
       },
     );
-  }, [socket, activeChatRoomId, confirm, queryClient, closeChatRoom]);
+  }, [socket, activeChatRoomId, confirm, queryClient, closeChatRoom, t]);
 
   return (
     <div className="flex items-center justify-between p-4 border-b shrink-0">
@@ -77,7 +79,7 @@ export const ChatRoomHeader = ({
           size="icon"
           className="h-8 w-8"
           onClick={closeChatRoom}
-          aria-label="채팅방 닫기"
+          aria-label={t("aria.close_room")}
         >
           <ArrowLeft size={20} />
         </Button>
@@ -112,7 +114,7 @@ export const ChatRoomHeader = ({
                   transition={{ duration: 0.2 }}
                   className="text-xs text-emerald-600 truncate"
                 >
-                  {typingNickname}님이 입력 중...
+                  {t("typing", { nickname: typingNickname })}
                 </motion.p>
               )}
             </AnimatePresence>
@@ -125,7 +127,7 @@ export const ChatRoomHeader = ({
         size="icon"
         className="h-8 w-8 text-red-500 hover:bg-red-50"
         onClick={handleLeaveRoom}
-        aria-label="채팅방 나가기"
+        aria-label={t("aria.leave_room")}
       >
         <LogOut size={20} />
       </Button>

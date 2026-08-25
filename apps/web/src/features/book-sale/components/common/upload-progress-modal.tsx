@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
 import {
@@ -27,6 +28,8 @@ export const UploadProgressModal = ({
   progress,
   isEdit = false,
 }: UploadProgressModalProps) => {
+  const t = useTranslations("market.upload_progress");
+
   // 업로드 진행 중 페이지 새로고침 / 닫기 방지
   useEffect(() => {
     if (!open || step === "idle" || step === "success") return;
@@ -44,18 +47,16 @@ export const UploadProgressModal = ({
 
   const loadingStates: LoadingState[] = [
     {
-      text: "1단계: 이미지 용량 최적화 (압축 중)",
+      text: t("stage1"),
     },
     {
-      text: `2단계: 이미지 스토리지 업로드 중 (${Math.min(100, Math.max(0, progress))}%)`,
+      text: t("stage2", { progress: Math.min(100, Math.max(0, progress)) }),
     },
     {
-      text: isEdit
-        ? "3단계: 게시글 수정 완료 처리 중"
-        : "3단계: 게시글 생성 및 DB 저장 중",
+      text: isEdit ? t("stage3_edit") : t("stage3_create"),
     },
     {
-      text: "4단계: 완결! 잠시 후 이동합니다.",
+      text: t("stage4"),
     },
   ];
 

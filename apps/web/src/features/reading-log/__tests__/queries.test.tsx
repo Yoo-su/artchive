@@ -12,6 +12,11 @@ vi.mock("@bookjeok/api-client", () => ({
   updateReadingLogSettings: vi.fn(),
 }));
 
+vi.mock("next-intl", () => ({
+  useLocale: () => "ko",
+  useTranslations: () => (key: string) => key,
+}));
+
 const mockProfile: User = {
   id: 1,
   provider: "KAKAO",

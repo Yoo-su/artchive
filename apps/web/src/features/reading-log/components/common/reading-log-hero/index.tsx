@@ -19,6 +19,7 @@ interface ReadingLogHeroProps {
 export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
   const t = useTranslations("reading_log.hero");
   const tDeck = useTranslations("reading_log.deck");
+  const tToast = useTranslations("reading_log.toast");
   // 테마 및 배경 이미지 로직
   const theme = useSeasonalTheme(currentDate);
   const [isMounted, setIsMounted] = useState(false);
@@ -66,7 +67,7 @@ export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
     
     // 공유 링크 클립보드 복증 복사
     navigator.clipboard.writeText(shareUrl);
-    toast.success("올해의 독서 덱 링크가 복사되었습니다! 새 탭에서 확인해보세요.");
+    toast.success(tToast("share_deck_copied"));
     
     // 새 탭으로 미리보기 페이지 열기
     window.open(shareUrl, "_blank");

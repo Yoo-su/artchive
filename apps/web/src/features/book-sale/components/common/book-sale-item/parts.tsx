@@ -156,6 +156,7 @@ export const Location = ({ className }: { className?: string }) => {
 
 // 메타 정보 - 판매자 아바타 & 지역 / 조회수
 export const Meta = ({ className }: { className?: string }) => {
+  const t = useTranslations("market");
   const { sale } = useBookSaleContext();
   return (
     <div
@@ -172,7 +173,7 @@ export const Meta = ({ className }: { className?: string }) => {
           </AvatarFallback>
         </Avatar>
         <span className="text-[11px] text-neutral-600 truncate max-w-[85px]">
-          {sale.user?.nickname || "판매자"}
+          {sale.user?.nickname || t("seller_fallback")}
         </span>
       </div>
       <span className="text-[10px] text-neutral-400 truncate max-w-[100px]">

@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,6 +16,7 @@ import {
 import { useConfirmStore } from "../stores/confirm-store";
 
 export const ConfirmHost = () => {
+  const t = useTranslations("common.confirm");
   const current = useConfirmStore((state) => state.queue[0]);
   const resolveCurrent = useConfirmStore((state) => state.resolveCurrent);
 
@@ -39,7 +42,7 @@ export const ConfirmHost = () => {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="font-serif">
-            {options.title || "확인"}
+            {options.title || t("title")}
           </AlertDialogTitle>
           {options.description && (
             <AlertDialogDescription className="whitespace-pre-line text-stone-600 leading-relaxed">
@@ -49,7 +52,7 @@ export const ConfirmHost = () => {
         </AlertDialogHeader>
         <AlertDialogFooter className="mt-4">
           <AlertDialogCancel onClick={handleCancel}>
-            {options.cancelText || "취소"}
+            {options.cancelText || t("cancel")}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
@@ -59,7 +62,7 @@ export const ConfirmHost = () => {
                 : "bg-stone-900 hover:bg-stone-850 text-white font-medium"
             }
           >
-            {options.confirmText || "확인"}
+            {options.confirmText || t("confirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

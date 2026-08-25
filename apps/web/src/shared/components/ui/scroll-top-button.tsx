@@ -2,11 +2,13 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/shared/components/shadcn/button";
 
 export const ScrollTopButton = () => {
+  const t = useTranslations("common.aria");
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -48,7 +50,7 @@ export const ScrollTopButton = () => {
             onClick={scrollToTop}
           >
             <ArrowUp className="h-5 w-5" />
-            <span className="sr-only">맨 위로 스크롤</span>
+            <span className="sr-only">{t("scroll_top")}</span>
           </Button>
         </motion.div>
       )}
