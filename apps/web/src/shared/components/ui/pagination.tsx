@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { Button } from "@/shared/components/shadcn/button";
 import { cn } from "@/shared/utils";
 
@@ -22,6 +24,8 @@ export const Pagination = ({
   maxVisiblePages = 5,
   className,
 }: PaginationProps) => {
+  const t = useTranslations("common.aria");
+
   // 표시할 페이지 번호 계산
   const getPageNumbers = () => {
     const pages: number[] = [];
@@ -46,7 +50,11 @@ export const Pagination = ({
   if (totalPages <= 1) return null;
 
   return (
-    <div className={cn("flex items-center justify-center gap-1", className)}>
+    <div
+      role="navigation"
+      aria-label={t("pagination")}
+      className={cn("flex items-center justify-center gap-1", className)}
+    >
       {/* 이전 버튼 */}
       <Button
         variant="ghost"
@@ -54,6 +62,7 @@ export const Pagination = ({
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
         className="px-3"
+        aria-label={t("prev_page")}
       >
         ←
       </Button>
@@ -66,11 +75,14 @@ export const Pagination = ({
             size="sm"
             onClick={() => onPageChange(1)}
             className="px-3"
+            aria-label={t("page_num", { num: 1 })}
           >
             1
           </Button>
           {pageNumbers[0] > 2 && (
-            <span className="px-2 text-muted-foreground">...</span>
+            <span className="px-2 text-muted-foreground" aria-hidden="true">
+              ...
+            </span>
           )}
         </>
       )}
@@ -83,6 +95,8 @@ export const Pagination = ({
           size="sm"
           onClick={() => onPageChange(num)}
           className="px-3"
+          aria-label={t("page_num", { num })}
+          aria-current={num === currentPage ? "page" : undefined}
         >
           {num}
         </Button>
@@ -92,13 +106,16 @@ export const Pagination = ({
       {pageNumbers[pageNumbers.length - 1] < totalPages && (
         <>
           {pageNumbers[pageNumbers.length - 1] < totalPages - 1 && (
-            <span className="px-2 text-muted-foreground">...</span>
+            <span className="px-2 text-muted-foreground" aria-hidden="true">
+              ...
+            </span>
           )}
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onPageChange(totalPages)}
             className="px-3"
+            aria-label={t("page_num", { num: totalPages })}
           >
             {totalPages}
           </Button>
@@ -112,6 +129,7 @@ export const Pagination = ({
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
         className="px-3"
+        aria-label={t("next_page")}
       >
         →
       </Button>

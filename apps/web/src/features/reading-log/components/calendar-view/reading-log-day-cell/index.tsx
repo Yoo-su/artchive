@@ -33,11 +33,23 @@ export function ReadingLogDayCell({
   const firstLog = hasLogs ? logs[0] : null;
   const extraCount = Math.max(0, logs.length - 1);
 
+  const formattedDate = format(date, "yyyy-MM-dd");
+  const cellAriaLabel = `${formattedDate}${hasLogs ? ` (${logs.length})` : ""}`;
+
   return (
     <div
+      role={isFuture || !isCurrentMonth ? undefined : "button"}
+      tabIndex={isFuture || !isCurrentMonth ? -1 : 0}
+      aria-label={cellAriaLabel}
       onClick={isFuture ? undefined : onClick}
+      onKeyDown={(e) => {
+        if ((e.key === "Enter" || e.key === " ") && !isFuture && isCurrentMonth) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
       className={cn(
-        "relative p-2 h-full flex flex-col transition-all duration-300 group hover:z-10",
+        "relative p-2 h-full flex flex-col transition-all duration-300 group hover:z-10 outline-none focus-visible:ring-2 focus-visible:ring-stone-500 focus-visible:z-20",
         isFuture ? "cursor-default" : "cursor-pointer",
         !isFuture && theme.hoverBg,
         !isCurrentMonth && "opacity-30 pointer-events-none bg-stone-50/50",

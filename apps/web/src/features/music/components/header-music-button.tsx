@@ -24,11 +24,20 @@ export function HeaderMusicButton() {
 
   return (
     <div className="relative flex items-center shrink-0">
-      <motion.button
+      <motion.div
         whileTap={{ scale: 0.96 }}
-        type="button"
+        role="button"
+        tabIndex={0}
         onClick={toggleModal}
-        className={`group relative flex h-8.5 w-21 items-center justify-between rounded-full border px-2.5 whitespace-nowrap shrink-0 transition-colors duration-200 ${
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            if (e.target === e.currentTarget) {
+              e.preventDefault();
+              toggleModal();
+            }
+          }
+        }}
+        className={`group relative flex h-8.5 w-21 items-center justify-between rounded-full border px-2.5 whitespace-nowrap shrink-0 transition-colors duration-200 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-stone-400 ${
           isPlaying
             ? "border-stone-300 bg-stone-100/70 text-stone-900 shadow-2xs"
             : "border-stone-200/90 bg-white/90 text-stone-600 hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900"
@@ -44,6 +53,7 @@ export function HeaderMusicButton() {
               : "text-stone-400 group-hover:text-stone-700"
           }`}
           style={{ animationDuration: "3s" }}
+          aria-hidden="true"
         />
 
         {/* 고정 텍스트 (재생 상태가 바뀌어도 폭 고정) */}
@@ -64,15 +74,17 @@ export function HeaderMusicButton() {
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.stopPropagation();
+              e.preventDefault();
               togglePlay();
             }
           }}
-          className={`flex h-4.5 w-4.5 items-center justify-center rounded-full transition-colors ${
+          className={`flex h-4.5 w-4.5 items-center justify-center rounded-full transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-stone-600 ${
             isPlaying
               ? "bg-stone-800 text-white hover:bg-stone-950"
               : "bg-stone-200/70 text-stone-600 hover:bg-stone-300 hover:text-stone-900"
           }`}
           title={isPlaying ? t("controls.pause") : t("controls.play")}
+          aria-label={isPlaying ? t("controls.pause") : t("controls.play")}
         >
           <AnimatePresence mode="wait">
             <motion.span
@@ -84,14 +96,14 @@ export function HeaderMusicButton() {
               className="flex items-center justify-center"
             >
               {isPlaying ? (
-                <Pause className="h-2 w-2 fill-current" />
+                <Pause className="h-2 w-2 fill-current" aria-hidden="true" />
               ) : (
-                <Play className="ml-0.5 h-2 w-2 fill-current" />
+                <Play className="ml-0.5 h-2 w-2 fill-current" aria-hidden="true" />
               )}
             </motion.span>
           </AnimatePresence>
         </motion.span>
-      </motion.button>
+      </motion.div>
     </div>
   );
 }

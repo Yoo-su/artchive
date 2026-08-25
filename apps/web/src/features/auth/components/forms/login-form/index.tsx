@@ -54,10 +54,11 @@ export const LoginForm = () => {
       <div className="flex flex-col gap-3">
         {/* 카카오 로그인 버튼 */}
         <button
+          type="button"
           onClick={() => handleSocialLogin("auth/kakao")}
-          className="w-full h-11 flex items-center justify-center gap-2 bg-[#FEE500] hover:bg-[#FDD835] transition-colors rounded-lg font-medium text-[#000000] text-[15px]"
+          className="w-full h-11 flex items-center justify-center gap-2 bg-[#FEE500] hover:bg-[#FDD835] transition-colors rounded-lg font-medium text-[#000000] text-[15px] cursor-pointer"
         >
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
             <path
               fillRule="evenodd"
               clipRule="evenodd"
@@ -70,10 +71,11 @@ export const LoginForm = () => {
 
         {/* 네이버 로그인 버튼 */}
         <button
+          type="button"
           onClick={() => handleSocialLogin("auth/naver")}
-          className="w-full h-11 flex items-center justify-center gap-2 bg-[#03C75A] hover:bg-[#02B350] transition-colors rounded-lg font-medium text-white text-[15px]"
+          className="w-full h-11 flex items-center justify-center gap-2 bg-[#03C75A] hover:bg-[#02B350] transition-colors rounded-lg font-medium text-white text-[15px] cursor-pointer"
         >
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
             <path
               d="M12.1575 9.7125L5.5575 0H0V18H5.8425V8.2875L12.4425 18H18V0H12.1575V9.7125Z"
               fill="white"
@@ -150,6 +152,7 @@ function EmailLoginForm() {
               <FormControl>
                 <Input
                   placeholder={t("placeholders.email")}
+                  aria-label={t("placeholders.email")}
                   type="email"
                   {...field}
                 />
@@ -166,6 +169,7 @@ function EmailLoginForm() {
               <FormControl>
                 <Input
                   placeholder={t("placeholders.password")}
+                  aria-label={t("placeholders.password")}
                   type="password"
                   {...field}
                 />
@@ -176,7 +180,11 @@ function EmailLoginForm() {
         />
 
         {form.formState.errors.root && (
-          <div className="text-[13px] font-medium text-destructive text-center">
+          <div
+            role="alert"
+            aria-live="assertive"
+            className="text-[13px] font-medium text-destructive text-center"
+          >
             {form.formState.errors.root.message}
           </div>
         )}

@@ -115,9 +115,18 @@ export function MusicPlayer({
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
-        className="relative h-64 w-64 cursor-pointer select-none md:h-80 md:w-80"
+        role="button"
+        tabIndex={0}
         onClick={handleToggle}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleToggle();
+          }
+        }}
+        className="relative h-64 w-64 cursor-pointer select-none md:h-80 md:w-80 outline-none focus-visible:ring-4 focus-visible:ring-stone-400 focus-visible:ring-offset-4 rounded-full"
         title={isPlaying ? t("pause") : t("play")}
+        aria-label={isPlaying ? t("pause") : t("play")}
       >
         {/* Tonearm with spring physics */}
         <motion.div

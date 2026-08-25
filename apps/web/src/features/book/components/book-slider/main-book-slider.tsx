@@ -256,6 +256,7 @@ export const MainBookSlider = () => {
   const rotationY = useMotionValue(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const autoplayIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -340,22 +341,22 @@ export const MainBookSlider = () => {
     }
   };
 
-  // 사용자 호버 또는 드래그 상태에 따른 자동 스크롤 제어
+  // 사용자 호버, 포커스 또는 드래그 상태에 따른 자동 스크롤 제어
   useEffect(() => {
-    if (isHovered || isDragging) {
+    if (isHovered || isDragging || isFocused) {
       stopAutoplay();
     } else {
       startAutoplay();
     }
     return () => stopAutoplay();
-  }, [isHovered, isDragging, N, angleStep]);
+  }, [isHovered, isDragging, isFocused, N, angleStep]);
 
   // 출판사 변경 시 회전 상태 초기화 및 자동 스크롤 재개
   useEffect(() => {
     stopAutoplay();
     rotationY.set(0);
     dragDistanceRef.current = 0;
-    if (!isHovered && !isDragging) {
+    if (!isHovered && !isDragging && !isFocused) {
       startAutoplay();
     }
   }, [activePublisher]);
@@ -479,6 +480,12 @@ export const MainBookSlider = () => {
             onPanEnd={handlePanEnd}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                setIsFocused(false);
+              }
+            }}
           >
             <motion.div
               style={{

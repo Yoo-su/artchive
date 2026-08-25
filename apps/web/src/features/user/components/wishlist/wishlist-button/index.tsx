@@ -2,6 +2,7 @@
 
 import { BookInfo } from "@bookjeok/core";
 import { Heart } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -27,6 +28,7 @@ export const WishlistButton = ({
   className,
   initialIsWishlisted,
 }: WishlistButtonProps) => {
+  const t = useTranslations("common.aria");
   const user = useAuthStore((state) => state.user);
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -99,8 +101,9 @@ export const WishlistButton = ({
         size="icon"
         className={cn("rounded-full", className)}
         disabled
+        aria-label={t("add_wishlist")}
       >
-        <Heart className="w-5 h-5 text-gray-300" />
+        <Heart className="w-5 h-5 text-gray-300" aria-hidden="true" />
       </Button>
     );
   }
@@ -111,6 +114,8 @@ export const WishlistButton = ({
       size="icon"
       className={cn("rounded-full hover:bg-transparent", className)}
       onClick={handleToggle}
+      aria-label={isWishlisted ? t("remove_wishlist") : t("add_wishlist")}
+      aria-pressed={isWishlisted}
     >
       <Heart
         className={cn(
@@ -119,6 +124,7 @@ export const WishlistButton = ({
             ? "fill-red-500 text-red-500"
             : "text-gray-400 hover:text-red-500"
         )}
+        aria-hidden="true"
       />
     </Button>
   );
