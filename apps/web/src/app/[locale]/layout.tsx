@@ -81,6 +81,12 @@ export default async function Layout({
       className={`${pretendard.variable} ${nanum_gothic.variable} ${bitcount.variable} ${gowun_batang.variable} ${song_myung.variable} ${do_hyeon.variable} ${diphylleia.variable}`}
     >
       <body style={{ fontFamily: "var(--font-pretendard)" }}>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-stone-900 focus:text-white focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        >
+          {t("common.aria.skip_to_content")}
+        </a>
         <NextIntlClientProvider messages={messages}>
           <QueryProvider>
             <UserProvider>
@@ -92,7 +98,11 @@ export default async function Layout({
               {/* 채팅 시스템 (중첩 또는 병렬 - 리스너가 각 제공자 내부에 있으므로 형제 관계도 작동함) */}
               <SocketProvider namespace="/chat">
                 <ChatProvider>
-                  <OverlayProvider>{children}</OverlayProvider>
+                  <OverlayProvider>
+                    <div id="main-content" tabIndex={-1} className="outline-none">
+                      {children}
+                    </div>
+                  </OverlayProvider>
                 </ChatProvider>
               </SocketProvider>
             </UserProvider>

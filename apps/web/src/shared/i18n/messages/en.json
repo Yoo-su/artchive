@@ -60,7 +60,19 @@
       "delete_image": "Delete image {index}",
       "preview_image": "Preview new image {index}",
       "existing_image": "Existing image {index}",
-      "go_home": "Go to Bookjeok Home"
+      "go_home": "Go to Bookjeok Home",
+      "skip_to_content": "Skip to main content",
+      "pagination": "Pagination Navigation",
+      "prev_page": "Previous page",
+      "next_page": "Next page",
+      "page_num": "Page {num}",
+      "add_wishlist": "Add to wishlist",
+      "remove_wishlist": "Remove from wishlist",
+      "more_options": "More options",
+      "like": "Like",
+      "unlike": "Unlike",
+      "tag_remove": "Remove tag {tag}",
+      "select_book": "Select {title}"
     },
     "map": {
       "location_title": "Preferred Deal Location",
@@ -1324,7 +1336,8 @@
       "repeat_all": "Repeat all",
       "repeat_one": "Repeat one",
       "repeat_off": "Repeat off",
-      "playlist": "Playlist"
+      "playlist": "Playlist",
+      "volume": "Volume control"
     },
     "tip": "Music continues playing even if you close the popup or navigate to other pages."
   },
@@ -1349,7 +1362,8 @@
     },
     "aria": {
       "close_room": "Close chat room",
-      "leave_room": "Leave chat room"
+      "leave_room": "Leave chat room",
+      "send_message": "Send message"
     }
   }
 }

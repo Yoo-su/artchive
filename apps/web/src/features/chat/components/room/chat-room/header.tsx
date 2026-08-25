@@ -105,7 +105,7 @@ export const ChatRoomHeader = ({
             )}
             <p className="font-semibold truncate">{opponentNickname}</p>
           </div>
-          <div className="h-5">
+          <div className="h-5" aria-live="polite" aria-atomic="true">
             <AnimatePresence>
               {typingNickname && (
                 <motion.p

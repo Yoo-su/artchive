@@ -116,6 +116,9 @@ export const MessageList = ({
 }: MessageListProps) => {
   return (
     <div
+      role="log"
+      aria-live="polite"
+      aria-relevant="additions"
       className="grow overflow-y-auto p-4 space-y-4"
       ref={messageContainerRef}
       onScroll={onScroll}

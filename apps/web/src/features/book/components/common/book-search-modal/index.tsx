@@ -199,7 +199,16 @@ export const BookSearchModal = ({
                       backgroundColor: "rgba(0,0,0,0.02)",
                     }}
                     whileTap={{ scale: 0.98 }}
-                    className="group flex items-start gap-4 p-3 rounded-xl cursor-pointer border border-transparent hover:border-border/50 hover:shadow-sm transition-all"
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleSelect(book);
+                      }
+                    }}
+                    aria-label={book.title}
+                    className="group flex items-start gap-4 p-3 rounded-xl cursor-pointer border border-transparent hover:border-border/50 hover:shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-border transition-all"
                     onClick={() => handleSelect(book)}
                   >
                     <div className="relative w-20 h-28 shrink-0 rounded-lg overflow-hidden shadow-md group-hover:shadow-lg transition-shadow">

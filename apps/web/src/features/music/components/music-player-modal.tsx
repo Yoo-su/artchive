@@ -205,13 +205,14 @@ export function MusicPlayerModal() {
                 whileTap={{ scale: 0.9 }}
                 type="button"
                 onClick={() => setVolume(volume > 0 ? 0 : 80)}
-                className="text-stone-400 transition-colors hover:text-stone-700"
+                className="text-stone-400 transition-colors hover:text-stone-700 cursor-pointer"
                 title={volume === 0 ? t("controls.unmute") : t("controls.mute")}
+                aria-label={volume === 0 ? t("controls.unmute") : t("controls.mute")}
               >
                 {volume === 0 ? (
-                  <VolumeX className="h-4 w-4" />
+                  <VolumeX className="h-4 w-4" aria-hidden="true" />
                 ) : (
-                  <Volume2 className="h-4 w-4" />
+                  <Volume2 className="h-4 w-4" aria-hidden="true" />
                 )}
               </motion.button>
               <input
@@ -219,6 +220,10 @@ export function MusicPlayerModal() {
                 min="0"
                 max="100"
                 value={volume}
+                aria-label={t("controls.volume")}
+                aria-valuenow={volume}
+                aria-valuemin={0}
+                aria-valuemax={100}
                 onChange={(e) => setVolume(Number(e.target.value))}
                 className="h-1.5 w-40 cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-900"
               />

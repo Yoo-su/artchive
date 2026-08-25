@@ -86,6 +86,7 @@ export const ReviewForm = ({
   const t = useTranslations("review.form");
   const tFilters = useTranslations("review.filters");
   const tValidation = useTranslations("review.validation");
+  const tAria = useTranslations("common.aria");
 
   const [selectedBook, setSelectedBook] = useState<BookInfo | null>(
     initialData?.book || null,
@@ -369,8 +370,17 @@ export const ReviewForm = ({
                         <Badge
                           key={tag}
                           variant="secondary"
-                          className="px-3 py-1 text-sm cursor-pointer hover:bg-gray-200"
+                          role="button"
+                          tabIndex={0}
+                          aria-label={tAria("tag_remove", { tag })}
+                          className="px-3 py-1 text-sm cursor-pointer hover:bg-gray-200 outline-none focus-visible:ring-2 focus-visible:ring-stone-400"
                           onClick={() => handleRemoveTag(tag)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              handleRemoveTag(tag);
+                            }
+                          }}
                         >
                           #{tag} ✕
                         </Badge>

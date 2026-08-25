@@ -18,11 +18,18 @@ export const SearchModeTabs = ({
 
   return (
     <div className="max-w-2xl mx-auto w-full mb-6">
-      <div className="p-1 bg-stone-100/90 rounded-2xl border border-stone-200/80 grid grid-cols-2 gap-1 shadow-2xs">
+      <div
+        role="tablist"
+        aria-label={t("title") || "검색 모드"}
+        className="p-1 bg-stone-100/90 rounded-2xl border border-stone-200/80 grid grid-cols-2 gap-1 shadow-2xs"
+      >
         <button
           type="button"
+          role="tab"
+          id="tab-keyword"
+          aria-selected={activeMode === "KEYWORD"}
           onClick={() => onModeChange("KEYWORD")}
-          className={`relative py-2.5 text-xs sm:text-sm font-medium transition-colors duration-200 rounded-xl select-none cursor-pointer text-center ${
+          className={`relative py-2.5 text-xs sm:text-sm font-medium transition-colors duration-200 rounded-xl select-none cursor-pointer text-center outline-none focus-visible:ring-2 focus-visible:ring-stone-400 ${
             activeMode === "KEYWORD"
               ? "text-stone-900 font-semibold"
               : "text-stone-500 hover:text-stone-800"
@@ -40,8 +47,11 @@ export const SearchModeTabs = ({
 
         <button
           type="button"
+          role="tab"
+          id="tab-ai"
+          aria-selected={activeMode === "AI"}
           onClick={() => onModeChange("AI")}
-          className={`relative py-2.5 text-xs sm:text-sm font-medium transition-colors duration-200 rounded-xl select-none cursor-pointer text-center ${
+          className={`relative py-2.5 text-xs sm:text-sm font-medium transition-colors duration-200 rounded-xl select-none cursor-pointer text-center outline-none focus-visible:ring-2 focus-visible:ring-stone-400 ${
             activeMode === "AI"
               ? "text-stone-900 font-semibold"
               : "text-stone-500 hover:text-stone-800"

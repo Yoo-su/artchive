@@ -48,6 +48,7 @@ export const CommentItem = ({
   const [editContent, setEditContent] = useState(comment.content);
 
   const t = useTranslations("comment.item");
+  const tAria = useTranslations("common.aria");
   const locale = useLocale();
 
   const user = useAuthStore((state) => state.user);
@@ -149,9 +150,10 @@ export const CommentItem = ({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full hover:bg-stone-100 text-stone-400"
+                className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-300 rounded-full hover:bg-stone-100 text-stone-400"
+                aria-label={tAria("more_options")}
               >
-                <MoreVertical className="h-4 w-4" />
+                <MoreVertical className="h-4 w-4" aria-hidden="true" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-[100px]">
@@ -230,8 +232,10 @@ export const CommentItem = ({
         {/* 더 보기 버튼 */}
         {!isEditing && isLongComment && (
           <button
+            type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-[12px] text-stone-400 hover:text-stone-900 transition-colors mt-2 font-medium underline underline-offset-4 decoration-stone-200 hover:decoration-stone-400"
+            aria-expanded={isExpanded}
+            className="text-[12px] text-stone-400 hover:text-stone-900 transition-colors mt-2 font-medium underline underline-offset-4 decoration-stone-200 hover:decoration-stone-400 cursor-pointer"
           >
             {isExpanded ? t("fold") : t("more")}
           </button>
@@ -240,10 +244,13 @@ export const CommentItem = ({
         {!isEditing && (
           <div className="flex items-center gap-4 mt-3 pb-1">
             <button
+              type="button"
               onClick={handleLike}
               disabled={!isAuthenticated || isLikePending}
+              aria-label={comment.isLiked ? tAria("unlike") : tAria("like")}
+              aria-pressed={comment.isLiked}
               className={cn(
-                "group/like flex items-center gap-2 text-[12px] transition-all duration-300 outline-hidden",
+                "group/like flex items-center gap-2 text-[12px] transition-all duration-300 outline-hidden cursor-pointer",
                 comment.isLiked
                   ? "text-stone-900 font-medium"
                   : "text-stone-400 hover:text-stone-900",
@@ -264,6 +271,7 @@ export const CommentItem = ({
                     comment.isLiked && "fill-current scale-110",
                   )}
                   strokeWidth={comment.isLiked ? 0 : 2}
+                  aria-hidden="true"
                 />
               </div>
               {comment.likeCount > 0 && (

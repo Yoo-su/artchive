@@ -60,7 +60,19 @@
       "delete_image": "이미지 {index} 삭제",
       "preview_image": "새 이미지 미리보기 {index}",
       "existing_image": "기존 이미지 {index}",
-      "go_home": "북적 홈으로 이동"
+      "go_home": "북적 홈으로 이동",
+      "skip_to_content": "본문으로 바로가기",
+      "pagination": "페이지 이동 네비게이션",
+      "prev_page": "이전 페이지",
+      "next_page": "다음 페이지",
+      "page_num": "{num} 페이지",
+      "add_wishlist": "위시리스트에 추가",
+      "remove_wishlist": "위시리스트에서 삭제",
+      "more_options": "추가 옵션",
+      "like": "좋아요",
+      "unlike": "좋아요 취소",
+      "tag_remove": "{tag} 태그 삭제",
+      "select_book": "{title} 선택"
     },
     "map": {
       "location_title": "거래 희망 위치",
@@ -1324,7 +1336,8 @@
       "repeat_all": "전체 반복",
       "repeat_one": "한 곡 반복",
       "repeat_off": "반복 안 함",
-      "playlist": "재생목록"
+      "playlist": "재생목록",
+      "volume": "볼륨 조절"
     },
     "tip": "팝업을 닫거나 다른 페이지로 이동해도 음악은 계속 재생됩니다."
   },
@@ -1349,7 +1362,8 @@
     },
     "aria": {
       "close_room": "채팅방 닫기",
-      "leave_room": "채팅방 나가기"
+      "leave_room": "채팅방 나가기",
+      "send_message": "메시지 전송"
     }
   }
 }

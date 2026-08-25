@@ -146,11 +146,17 @@ export const ChatInput = ({
           value={newMessage}
           onChange={handleInputChange}
           placeholder={t("input_placeholder")}
+          aria-label={t("input_placeholder")}
           autoComplete="off"
           className="grow"
         />
-        <Button type="submit" size="icon" disabled={!newMessage.trim()}>
-          <SendHorizontal size={20} />
+        <Button
+          type="submit"
+          size="icon"
+          disabled={!newMessage.trim()}
+          aria-label={t("aria.send_message")}
+        >
+          <SendHorizontal size={20} aria-hidden="true" />
         </Button>
       </form>
     </div>

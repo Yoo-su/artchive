@@ -75,10 +75,11 @@ export function FloatingMusicPill() {
             whileTap={{ scale: 0.88 }}
             type="button"
             onClick={togglePlay}
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-stone-800 text-stone-200 transition-colors hover:bg-stone-700 hover:text-white shrink-0"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-stone-800 text-stone-200 transition-colors hover:bg-stone-700 hover:text-white shrink-0 cursor-pointer"
             title={t("controls.pause")}
+            aria-label={t("controls.pause")}
           >
-            <Pause className="h-3 w-3 fill-current" />
+            <Pause className="h-3 w-3 fill-current" aria-hidden="true" />
           </motion.button>
         </motion.aside>
       )}

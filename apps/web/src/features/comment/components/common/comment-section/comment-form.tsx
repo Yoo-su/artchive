@@ -129,6 +129,7 @@ export const CommentForm = ({ targetType, targetId }: CommentFormProps) => {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={t("placeholder")}
+            aria-label={t("placeholder")}
             maxLength={MAX_COMMENT_LENGTH}
             className={cn(
               "min-h-[50px] resize-none bg-transparent border-0 focus-visible:ring-0 p-0",
