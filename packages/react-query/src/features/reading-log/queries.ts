@@ -122,13 +122,16 @@ export const useUpdateReadingLogSettingsMutation = (
 /**
  * 독서 기록 무한 스크롤 조회
  */
-export const useReadingLogsInfiniteQuery = () => {
+export const useReadingLogsInfiniteQuery = (options?: {
+  enabled?: boolean;
+}) => {
   return useInfiniteQuery({
     queryKey: readingLogKeys.infinite.queryKey,
     queryFn: ({ pageParam }) =>
       getReadingLogsInfinite(pageParam as string | null),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
+    enabled: options?.enabled,
   });
 };
 

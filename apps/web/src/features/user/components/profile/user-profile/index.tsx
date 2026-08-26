@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { SaleStatusBadge } from "@/features/book-sale/components/common/sale-status-badge";
 import { ReadingLogCalendar } from "@/features/reading-log/components/calendar-view/reading-log-calendar";
+import { ReadingLogListView } from "@/features/reading-log/components/list-view/reading-log-list-view";
 import { usePublicProfileQuery } from "@/features/user/queries";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { NotFoundRedirect } from "@/shared/components/ui/not-found-redirect";
@@ -40,26 +41,39 @@ export const UserProfile = ({ handle }: UserProfileProps) => {
       <UserProfileHeader profile={profile} />
       <UserProfileStats stats={profile.stats} />
 
-      {/* 독서 기록 캘린더 */}
+      {/* 독서 기록 영역 (PC: 캘린더, 모바일: 리스트) */}
       {profile.readingLogs && profile.readingLogs.length > 0 && (
-        <div className="mb-10 rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs sm:p-8">
-          <div className="mb-6 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-stone-100 text-stone-700">
-                <BookOpen className="h-4 w-4" />
+        <div className="mb-10">
+          {/* PC 뷰 (md 이상: 캘린더) */}
+          <div className="hidden md:block rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs sm:p-8">
+            <div className="mb-6 flex items-center justify-between gap-3">
+              <h3 className="font-serif text-xl font-semibold text-stone-900 break-keep">
+                {t("reading_log_calendar_title", { name: profile.nickname })}
+              </h3>
+              <span className="text-xs text-stone-400 font-serif shrink-0 whitespace-nowrap">
+                {t("sections.badge_calendar")}
               </span>
-              <h3 className="font-serif text-xl font-semibold text-stone-900">
+            </div>
+            <ReadingLogCalendar
+              currentDate={currentDate}
+              onDateChange={setCurrentDate}
+              readOnly
+              initialLogs={profile.readingLogs}
+            />
+          </div>
+
+          {/* 모바일 뷰 (md 미만: 리스트 & 무한 스크롤) */}
+          <div className="block md:hidden rounded-2xl border border-stone-200/80 bg-white p-4 sm:p-5 shadow-xs">
+            <div className="mb-4">
+              <h3 className="font-serif text-base sm:text-lg font-semibold text-stone-900 break-keep">
                 {t("reading_log_calendar_title", { name: profile.nickname })}
               </h3>
             </div>
-            <span className="text-xs text-stone-400">{t("sections.badge_calendar")}</span>
+            <ReadingLogListView
+              logs={profile.readingLogs}
+              readOnly
+            />
           </div>
-          <ReadingLogCalendar
-            currentDate={currentDate}
-            onDateChange={setCurrentDate}
-            readOnly
-            initialLogs={profile.readingLogs}
-          />
         </div>
       )}
 
@@ -132,6 +146,67 @@ const UserProfileHeader = ({ profile }: UserProfileHeaderProps) => {
   );
 };
 
+/** 사용자 지정 SVG 아이콘 - 도서 */
+const BookIcon = ({ className = "h-4 w-4", ...props }: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    {...props}
+  >
+    <path d="M20.5 16V18.5C20.5 20.43 18.93 22 17 22H7C5.07 22 3.5 20.43 3.5 18.5V17.85C3.5 16.28 4.78 15 6.35 15H19.5C20.05 15 20.5 15.45 20.5 16Z" />
+    <path d="M15.5 2H8.5C4.5 2 3.5 3 3.5 7V14.58C4.26 13.91 5.26 13.5 6.35 13.5H19.5C20.05 13.5 20.5 13.05 20.5 12.5V7C20.5 3 19.5 2 15.5 2ZM13 10.75H8C7.59 10.75 7.25 10.41 7.25 10C7.25 9.59 7.59 9.25 8 9.25H13C13.41 9.25 13.75 9.59 13.75 10C13.75 10.41 13.41 10.75 13 10.75ZM16 7.25H8C7.59 7.25 7.25 6.91 7.25 6.5C7.25 6.09 7.59 5.75 8 5.75H16C16.41 5.75 16.75 6.09 16.75 6.5C16.75 6.91 16.41 7.25 16 7.25Z" />
+  </svg>
+);
+
+/** 사용자 지정 SVG 아이콘 - 리뷰/인용 */
+const QuoteUpCircleIcon = ({ className = "h-4 w-4", ...props }: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    {...props}
+  >
+    <path
+      d="M17 11.8398H14.32C13.61 11.8398 13.13 11.2998 13.13 10.6498V9.15973C13.13 8.50973 13.61 7.96973 14.32 7.96973H15.81C16.46 7.96973 17 8.50973 17 9.15973V11.8398Z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M17 11.8398C17 14.6298 16.48 15.0998 14.91 16.0298"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M10.86 11.8398H8.17998C7.46998 11.8398 6.98999 11.2998 6.98999 10.6498V9.15973C6.98999 8.50973 7.46998 7.96973 8.17998 7.96973H9.66998C10.32 7.96973 10.86 8.50973 10.86 9.15973V11.8398Z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M10.86 11.8398C10.86 14.6298 10.34 15.0998 8.77002 16.0298"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 /**
  * 활동 통계 - 판매 수, 리뷰 수
  */
@@ -143,32 +218,40 @@ const UserProfileStats = ({ stats }: UserProfileStatsProps) => {
   const t = useTranslations("user_profile.stats");
 
   return (
-    <div className="mb-8 grid grid-cols-2 gap-4">
-      <div className="flex items-center gap-4 rounded-2xl border border-stone-200/80 bg-white p-5 shadow-xs transition-all hover:border-stone-300">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-stone-100 text-stone-800">
-          <ShoppingBag className="h-5 w-5 text-emerald-600" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-2xl font-bold tracking-tight text-stone-900 sm:text-3xl">
-            {stats.salesCount}
-          </p>
-          <p className="truncate text-xs font-medium text-stone-500">
+    <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-4">
+      {/* 판매 중인 도서 */}
+      <div className="group relative flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-white p-4.5 sm:p-5 shadow-xs transition-all duration-200 hover:border-stone-300 hover:shadow-sm">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs font-medium text-stone-500 sm:text-sm break-keep">
             {t("sales_count")}
-          </p>
+          </span>
+          <BookIcon className="h-5 w-5 text-stone-400 transition-all duration-200 group-hover:text-stone-800 group-hover:scale-110" />
+        </div>
+        <div className="mt-3 flex items-baseline gap-1.5">
+          <span className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 transition-colors group-hover:text-stone-950">
+            {stats.salesCount}
+          </span>
+          <span className="font-serif text-xs text-stone-400 font-medium sm:text-sm">
+            {t("unit_books")}
+          </span>
         </div>
       </div>
 
-      <div className="flex items-center gap-4 rounded-2xl border border-stone-200/80 bg-white p-5 shadow-xs transition-all hover:border-stone-300">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-stone-100 text-stone-800">
-          <BookOpen className="h-5 w-5 text-indigo-600" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-2xl font-bold tracking-tight text-stone-900 sm:text-3xl">
-            {stats.reviewsCount}
-          </p>
-          <p className="truncate text-xs font-medium text-stone-500">
+      {/* 작성한 리뷰 */}
+      <div className="group relative flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-white p-4.5 sm:p-5 shadow-xs transition-all duration-200 hover:border-stone-300 hover:shadow-sm">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs font-medium text-stone-500 sm:text-sm break-keep">
             {t("reviews_count")}
-          </p>
+          </span>
+          <QuoteUpCircleIcon className="h-5 w-5 text-stone-400 transition-all duration-200 group-hover:text-stone-800 group-hover:scale-110" />
+        </div>
+        <div className="mt-3 flex items-baseline gap-1.5">
+          <span className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 transition-colors group-hover:text-stone-950">
+            {stats.reviewsCount}
+          </span>
+          <span className="font-serif text-xs text-stone-400 font-medium sm:text-sm">
+            {t("unit_reviews")}
+          </span>
         </div>
       </div>
     </div>

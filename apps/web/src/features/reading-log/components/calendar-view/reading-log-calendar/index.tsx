@@ -116,8 +116,11 @@ export function ReadingLogCalendar({
         readOnly={readOnly}
       />
 
-      {viewMode === "list" && !readOnly ? (
-        <ReadingLogListView />
+      {viewMode === "list" ? (
+        <ReadingLogListView
+          logs={readOnly ? initialLogs : undefined}
+          readOnly={readOnly}
+        />
       ) : viewMode === "deck" ? (
         <ReadingLogCardDeck
           logs={readOnly ? initialLogs : undefined}
