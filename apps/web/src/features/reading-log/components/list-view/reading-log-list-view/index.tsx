@@ -1,9 +1,11 @@
 "use client";
 
+import { ReadingLog } from "@bookjeok/core";
 import { format, parseISO } from "date-fns";
+import { BookOpen } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
-import { Fragment, useEffect } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
@@ -13,32 +15,67 @@ import { getDateLocale } from "@/shared/utils/format-date";
 import { getSeasonalTheme } from "../../../hooks/use-seasonal-theme";
 import { useReadingLogsInfiniteQuery } from "../../../queries";
 
-export function ReadingLogListView() {
+interface ReadingLogListViewProps {
+  logs?: ReadingLog[];
+  readOnly?: boolean;
+}
+
+export function ReadingLogListView({
+  logs: propLogs,
+  readOnly = false,
+}: ReadingLogListViewProps = {}) {
   const t = useTranslations("reading_log.list");
   const locale = useLocale();
   const dateLocale = getDateLocale(locale);
 
+  const isControlled = Boolean(propLogs);
+  const [visibleCount, setVisibleCount] = useState(10);
+
+  const queryResult = useReadingLogsInfiniteQuery({ enabled: !isControlled });
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
-    useReadingLogsInfiniteQuery();
+    isControlled
+      ? {
+          data: null,
+          fetchNextPage: () => {},
+          hasNextPage: false,
+          isFetchingNextPage: false,
+          status: "success" as const,
+        }
+      : queryResult;
 
   const { ref, inView } = useInView();
 
-  useEffect(() => {
-    if (inView && hasNextPage) {
-      fetchNextPage();
-    }
-  }, [inView, hasNextPage, fetchNextPage]);
+  const totalControlledCount = propLogs?.length || 0;
+  const hasMoreControlled = isControlled && visibleCount < totalControlledCount;
 
-  if (status === "pending") {
-    // 스켈레톤에도 테마 적용하면 좋겠지만 일단 유지
+  useEffect(() => {
+    if (inView) {
+      if (isControlled && hasMoreControlled) {
+        setVisibleCount((prev) => Math.min(prev + 10, totalControlledCount));
+      } else if (!isControlled && hasNextPage) {
+        fetchNextPage();
+      }
+    }
+  }, [
+    inView,
+    isControlled,
+    hasMoreControlled,
+    hasNextPage,
+    fetchNextPage,
+    totalControlledCount,
+  ]);
+
+  if (!isControlled && status === "pending") {
     return <ReadingLogListSkeleton />;
   }
 
-  if (status === "error") {
+  if (!isControlled && status === "error") {
     return <div className="text-center py-8 text-red-500">{t("error")}</div>;
   }
 
-  const allLogs = data?.pages.flatMap((page) => page.items) || [];
+  const allLogs: ReadingLog[] = isControlled
+    ? (propLogs || []).slice(0, visibleCount)
+    : data?.pages.flatMap((page) => page.items) || [];
 
   if (allLogs.length === 0) {
     return (
@@ -81,34 +118,40 @@ export function ReadingLogListView() {
             )}
             <div
               className={cn(
-                "flex gap-4 p-4 bg-white rounded-2xl border border-stone-100 shadow-sm transition-all group",
+                "flex gap-4 p-3.5 sm:p-4 bg-white rounded-2xl border border-stone-100 shadow-sm transition-all group",
                 "hover:shadow-md hover:-translate-y-0.5",
                 // 동적 테두리 색상 (hover)
                 `hover:${theme.border}`,
               )}
             >
-              <div className="relative w-24 h-32 shrink-0 rounded-lg overflow-hidden bg-stone-100 shadow-md ring-1 ring-black/5">
-                <Image
-                  src={log.book.image}
-                  alt={log.book.title}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
-                  sizes="100px"
-                />
+              <div className="relative w-20 h-28 sm:w-24 sm:h-32 shrink-0 rounded-xl overflow-hidden bg-stone-100 shadow-xs ring-1 ring-black/5">
+                {log.book.image ? (
+                  <Image
+                    src={log.book.image}
+                    alt={log.book.title}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 640px) 80px, 96px"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-stone-400">
+                    <BookOpen className="h-6 w-6" />
+                  </div>
+                )}
               </div>
               <div className="flex-1 min-w-0 flex flex-col justify-center">
-                <div className="flex justify-between items-start gap-4">
+                <div className="flex justify-between items-start gap-3">
                   <div className="min-w-0 flex-1">
-                    <h4 className="font-bold text-stone-900 line-clamp-1 mb-1 text-lg font-serif tracking-tight">
+                    <h4 className="font-bold text-stone-900 line-clamp-1 mb-1 text-base sm:text-lg font-serif tracking-tight">
                       {log.book.title}
                     </h4>
-                    <p className="text-sm text-stone-500 line-clamp-1 mb-3 font-medium">
+                    <p className="text-xs sm:text-sm text-stone-500 line-clamp-1 mb-2.5 font-medium">
                       {log.book.author}
                     </p>
                   </div>
                   <span
                     className={cn(
-                      "text-xs font-medium px-2.5 py-1 rounded-full border shrink-0 whitespace-nowrap",
+                      "text-[11px] sm:text-xs font-medium px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border shrink-0 whitespace-nowrap",
                       theme.bg,
                       theme.primary,
                       theme.border,
@@ -122,7 +165,7 @@ export function ReadingLogListView() {
                 {log.memo && (
                   <div
                     className={cn(
-                      "p-3.5 rounded-xl text-sm mt-1 whitespace-pre-wrap leading-relaxed font-medium",
+                      "p-2.5 sm:p-3.5 rounded-xl text-xs sm:text-sm mt-0.5 whitespace-pre-wrap leading-relaxed font-medium",
                       theme.bg,
                       theme.activeText,
                     )}
@@ -138,10 +181,9 @@ export function ReadingLogListView() {
 
       {/* 무한 스크롤 트리거 */}
       <div ref={ref} className="h-4 w-full">
-        {isFetchingNextPage && (
+        {(isFetchingNextPage || (isControlled && hasMoreControlled)) && (
           <div className="py-4 space-y-4">
-            <Skeleton className="h-32 w-full rounded-xl" />
-            <Skeleton className="h-32 w-full rounded-xl" />
+            <Skeleton className="h-28 w-full rounded-2xl" />
           </div>
         )}
       </div>

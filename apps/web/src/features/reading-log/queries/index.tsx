@@ -20,8 +20,8 @@ export const useReadingLogStatsQuery = (year: number, month: number) =>
 export const useReadingLogSettingsQuery = () =>
   useBaseReadingLogSettingsQuery();
 
-export const useReadingLogsInfiniteQuery = () =>
-  useBaseReadingLogsInfiniteQuery();
+export const useReadingLogsInfiniteQuery = (options?: { enabled?: boolean }) =>
+  useBaseReadingLogsInfiniteQuery(options);
 
 // ✅ 라운지 훅들 (인증 불필요)
 export const useLoungeFeedInfiniteQuery = () =>

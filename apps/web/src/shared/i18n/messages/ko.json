@@ -1046,6 +1046,8 @@
     "stats": {
       "sales_count": "판매 중인 도서",
       "reviews_count": "작성한 리뷰",
+      "unit_books": "권",
+      "unit_reviews": "편",
       "email_verified": "인증 완료",
       "manner_score": "매너 지수",
       "trade_count": "안전 거래 완료"
@@ -1054,6 +1056,7 @@
       "recent_reviews": "최근 리뷰",
       "recent_sales": "최근 판매 도서",
       "badge_calendar": "월별 독서 캘린더",
+      "badge_recent_reading": "독서 기록 목록",
       "badge_recent_reviews": "최근 리뷰",
       "badge_recent_sales": "책방 거래"
     },

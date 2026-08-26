@@ -1046,6 +1046,8 @@
     "stats": {
       "sales_count": "Books for Sale",
       "reviews_count": "Reviews",
+      "unit_books": "books",
+      "unit_reviews": "reviews",
       "email_verified": "Verified",
       "manner_score": "Manner Score",
       "trade_count": "Completed Trades"
@@ -1054,6 +1056,7 @@
       "recent_reviews": "Recent Reviews",
       "recent_sales": "Recent Sales",
       "badge_calendar": "Monthly Reading Calendar",
+      "badge_recent_reading": "Reading Log List",
       "badge_recent_reviews": "Recent Reviews",
       "badge_recent_sales": "Bookstore Deals"
     },
