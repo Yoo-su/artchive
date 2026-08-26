@@ -1,7 +1,7 @@
 {
   "common": {
     "new": "NEW",
-    "won": "KRW",
+    "won": "₩",
     "unknown": "Unknown",
     "anonymous": "Anonymous",
     "loader": {
@@ -171,7 +171,8 @@
     "toast": {
       "read_all_success": "Marked all notifications as read.",
       "delete_success": "Notification deleted."
-    }
+    },
+    "delete": "Delete"
   },
   "auth": {
     "login": {
@@ -979,7 +980,8 @@
       "type_sale": "Used Trade",
       "view_detail": "View Detail",
       "sold_out": "Sold Out",
-      "sale_ended": "Sale Ended"
+      "sale_ended": "Sale Ended",
+      "view_details": "View Details"
     },
     "toast": {
       "add_success": "Added to wishlist.",
@@ -996,7 +998,10 @@
     "reading_log_calendar_title": "{name}'s Reading Log",
     "stats": {
       "sales_count": "Books for Sale",
-      "reviews_count": "Reviews"
+      "reviews_count": "Reviews",
+      "email_verified": "Verified",
+      "manner_score": "Manner Score",
+      "trade_count": "Completed Trades"
     },
     "sections": {
       "recent_reviews": "Recent Reviews",
@@ -1187,7 +1192,8 @@
       "stage3_edit": "Step 3: Finalizing post update",
       "stage3_create": "Step 3: Creating post and saving to DB",
       "stage4": "Step 4: Completed! Redirecting shortly."
-    }
+    },
+    "won": "₩"
   },
   "error_pages": {
     "not_found": {
@@ -1198,7 +1204,8 @@
       "default_message": "The requested page could not be found.",
       "countdown": "Redirecting automatically in {countdown}s...",
       "btn_prev": "Previous Page",
-      "btn_home": "Go to Home"
+      "btn_home": "Go to Home",
+      "home_button": "Go to Home"
     },
     "general_error": {
       "title": "OOPs!",

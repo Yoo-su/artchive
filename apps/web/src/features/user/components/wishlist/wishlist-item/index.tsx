@@ -62,7 +62,7 @@ export const WishlistItem = ({ item }: WishlistItemProps) => {
             <div className="flex justify-end mt-2">
               <Button asChild variant="outline" size="sm">
                 <Link href={PATHS.BOOK_DETAIL(item.book.isbn)}>
-                  {t("view_details")}
+                  {t("view_detail")}
                 </Link>
               </Button>
             </div>

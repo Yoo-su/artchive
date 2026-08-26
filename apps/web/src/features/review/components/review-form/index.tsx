@@ -128,7 +128,7 @@ export const ReviewForm = ({
     if (!tagInput.trim()) return;
     const currentTags = form.getValues("tags");
     if (currentTags.length >= 5) {
-      toast.error(t("form.fields.tags_error_limit"));
+      toast.error(t("fields.tags_error_limit"));
       return;
     }
     if (!currentTags.includes(tagInput.trim())) {
