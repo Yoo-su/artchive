@@ -171,7 +171,8 @@
     "toast": {
       "read_all_success": "모든 알림을 읽음 처리했습니다.",
       "delete_success": "알림이 삭제되었습니다."
-    }
+    },
+    "delete": "삭제"
   },
   "auth": {
     "login": {
@@ -979,7 +980,8 @@
       "type_sale": "중고거래",
       "view_detail": "상세보기",
       "sold_out": "판매완료",
-      "sale_ended": "판매 종료"
+      "sale_ended": "판매 종료",
+      "view_details": "상세보기"
     },
     "toast": {
       "add_success": "위시리스트에 추가되었습니다.",
@@ -996,7 +998,10 @@
     "reading_log_calendar_title": "{name}님의 독서 기록",
     "stats": {
       "sales_count": "판매 중인 도서",
-      "reviews_count": "작성한 리뷰"
+      "reviews_count": "작성한 리뷰",
+      "email_verified": "인증 완료",
+      "manner_score": "매너 지수",
+      "trade_count": "안전 거래 완료"
     },
     "sections": {
       "recent_reviews": "최근 리뷰",
@@ -1187,7 +1192,8 @@
       "stage3_edit": "3단계: 게시글 수정 완료 처리 중",
       "stage3_create": "3단계: 게시글 생성 및 DB 저장 중",
       "stage4": "4단계: 완결! 잠시 후 이동합니다."
-    }
+    },
+    "won": "원"
   },
   "error_pages": {
     "not_found": {
@@ -1198,7 +1204,8 @@
       "default_message": "요청하신 페이지를 찾을 수 없습니다.",
       "countdown": "{countdown}초 후 자동으로 이동합니다...",
       "btn_prev": "이전 페이지",
-      "btn_home": "홈으로 이동"
+      "btn_home": "홈으로 이동",
+      "home_button": "홈으로 돌아가기"
     },
     "general_error": {
       "title": "OOPs!",
