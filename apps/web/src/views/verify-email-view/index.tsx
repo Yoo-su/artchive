@@ -57,49 +57,49 @@ export const VerifyEmailView = () => {
   }, [token, verify, t]);
 
   return (
-    <div className="flex min-h-[70vh] items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md rounded-2xl border border-stone-200/90 bg-white p-8 shadow-xs text-center">
+    <div className="flex min-h-[60vh] sm:min-h-[70vh] items-center justify-center py-6 sm:py-12">
+      <div className="w-full max-w-md rounded-2xl border border-stone-200/90 dark:border-stone-800 bg-white dark:bg-stone-900 p-6 sm:p-8 shadow-xs text-center">
         <div className="mb-6 flex justify-center">
           <Logo />
         </div>
 
         {status === "loading" && (
           <div className="space-y-4 py-6">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 text-stone-700">
-              <Loader2 className="h-7 w-7 animate-spin text-stone-600" />
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300">
+              <Loader2 className="h-7 w-7 animate-spin text-stone-600 dark:text-stone-300" />
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-stone-900">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
               {t("title")}
             </h1>
-            <p className="text-sm text-stone-500">{t("verifying")}</p>
+            <p className="text-sm text-stone-500 dark:text-stone-400 break-keep">{t("verifying")}</p>
           </div>
         )}
 
         {status === "success" && (
           <div className="space-y-4 py-2">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-              <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-stone-900">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
               {t("success_title")}
             </h1>
-            <p className="text-sm text-stone-600 leading-relaxed">
+            <p className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed break-keep">
               {t("success_desc")}
             </p>
 
-            <div className="pt-6 flex flex-col sm:flex-row gap-2 justify-center">
+            <div className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full">
               <Button
                 asChild
-                className="w-full bg-stone-900 hover:bg-stone-800 text-white rounded-xl h-11 text-sm font-medium"
+                className="w-full bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 rounded-xl h-11 text-sm font-medium transition-colors"
               >
                 <Link href={PATHS.MY_PAGE}>{t("btn_mypage")}</Link>
               </Button>
               <Button
                 asChild
                 variant="outline"
-                className="w-full border-stone-200 text-stone-700 hover:bg-stone-50 rounded-xl h-11 text-sm font-medium"
+                className="w-full border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 rounded-xl h-11 text-sm font-medium transition-colors"
               >
-                <Link href="/">{t("btn_home")}</Link>
+                <Link href={PATHS.HOME}>{t("btn_home")}</Link>
               </Button>
             </div>
           </div>
@@ -107,29 +107,29 @@ export const VerifyEmailView = () => {
 
         {status === "error" && (
           <div className="space-y-4 py-2">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 text-rose-600">
-              <AlertCircle className="h-8 w-8 text-rose-600" />
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400">
+              <AlertCircle className="h-8 w-8 text-rose-600 dark:text-rose-400" />
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-stone-900">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
               {t("error_title")}
             </h1>
-            <p className="text-sm text-stone-600 leading-relaxed">
+            <p className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed break-keep">
               {errorMessage || t("error_desc")}
             </p>
 
-            <div className="pt-6 flex flex-col sm:flex-row gap-2 justify-center">
+            <div className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full">
               <Button
                 asChild
-                className="w-full bg-stone-900 hover:bg-stone-800 text-white rounded-xl h-11 text-sm font-medium"
+                className="w-full bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 rounded-xl h-11 text-sm font-medium transition-colors"
               >
                 <Link href={PATHS.LOGIN}>{t("btn_login")}</Link>
               </Button>
               <Button
                 asChild
                 variant="outline"
-                className="w-full border-stone-200 text-stone-700 hover:bg-stone-50 rounded-xl h-11 text-sm font-medium"
+                className="w-full border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 rounded-xl h-11 text-sm font-medium transition-colors"
               >
-                <Link href="/">{t("btn_home")}</Link>
+                <Link href={PATHS.HOME}>{t("btn_home")}</Link>
               </Button>
             </div>
           </div>
