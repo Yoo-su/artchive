@@ -6,7 +6,9 @@ const STORAGE_KEY = "auth-return-url";
  */
 export function saveReturnUrl(url: string) {
   try {
-    sessionStorage.setItem(STORAGE_KEY, url);
+    // next-intl 라우터와 호환되도록 언어 접두사(/ko, /en)가 포함된 경우 제거하여 저장
+    const cleanUrl = url.replace(/^\/(ko|en)(\/|$)/, "/");
+    sessionStorage.setItem(STORAGE_KEY, cleanUrl);
   } catch {
     // SSR 또는 sessionStorage 접근 불가 환경 무시
   }

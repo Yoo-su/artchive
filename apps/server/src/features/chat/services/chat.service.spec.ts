@@ -1,3 +1,4 @@
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -85,6 +86,7 @@ describe('ChatService', () => {
         },
         { provide: getRepositoryToken(ReadReceipt), useValue: {} },
         { provide: ChatGateway, useValue: chatGateway },
+        { provide: EventEmitter2, useValue: { emit: jest.fn() } },
       ],
     }).compile();
 

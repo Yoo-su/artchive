@@ -14,6 +14,7 @@ import {
   UsedBookSale,
 } from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { BusinessException } from '@/shared/exceptions/business.exception';
+import { MailService } from '@/shared/mail/mail.service';
 
 import { User } from '../entities/user.entity';
 
@@ -31,6 +32,7 @@ export class UserService implements OnModuleInit {
     private readonly dataSource: DataSource,
     private readonly txHost: TransactionHost<TransactionalAdapterTypeOrm>,
     private readonly eventEmitter: EventEmitter2,
+    private readonly mailService: MailService,
   ) {}
 
   private readonly logger = new Logger(UserService.name);
@@ -51,7 +53,7 @@ export class UserService implements OnModuleInit {
 
   /**
    * 소셜 제공자 ID로 유저를 조회합니다.
-   * @param provider 제공자 (naver, kakao 등)
+   * @param provider 제공자 (naver 등)
    * @param providerId 제공자 측 유저 ID
    * @returns 유저 엔티티 또는 null
    */
@@ -65,13 +67,17 @@ export class UserService implements OnModuleInit {
   }
 
   /**
-   * 새로운 유저를 생성합니다.
+   * 새로운 소셜 유저를 생성합니다.
    * @param socialLoginDto 소셜 로그인 정보
    * @returns 생성된 유저
    */
   async createUser(socialLoginDto: SocialLoginDto): Promise<User> {
     const handle = `user_${Math.random().toString(36).substring(2, 10)}`;
-    const newUser = this.userRepository.create({ ...socialLoginDto, handle });
+    const newUser = this.userRepository.create({
+      ...socialLoginDto,
+      handle,
+      isEmailVerified: socialLoginDto.isEmailVerified ?? true,
+    });
     return await this.userRepository.save(newUser);
   }
 
@@ -80,12 +86,22 @@ export class UserService implements OnModuleInit {
    * @param email 이메일
    * @param password 암호화된 비밀번호
    * @param nickname 닉네임
+   * @param name 실명
+   * @param gender 성별
+   * @param ageRange 연령대
+   * @param verificationToken 이메일 인증 토큰
+   * @param verificationExpiresAt 이메일 인증 만료 시간
    * @returns 생성된 유저
    */
   async createEmailUser(
     email: string,
     password: string,
     nickname: string,
+    name: string,
+    gender?: string | null,
+    ageRange?: string | null,
+    verificationToken?: string | null,
+    verificationExpiresAt?: Date | null,
   ): Promise<User> {
     let handle = `user_${Math.random().toString(36).substring(2, 10)}`;
     let isUnique = false;
@@ -113,7 +129,13 @@ export class UserService implements OnModuleInit {
       email,
       password,
       nickname,
+      name,
+      gender: gender || null,
+      ageRange: ageRange || null,
       handle,
+      isEmailVerified: false,
+      emailVerificationToken: verificationToken || null,
+      emailVerificationExpiresAt: verificationExpiresAt || null,
       profileImageUrl: `default_profile${Math.floor(Math.random() * 10) + 1}`,
     });
     return await this.userRepository.save(newUser);
@@ -139,7 +161,7 @@ export class UserService implements OnModuleInit {
 
   /**
    * 유저 정보를 업데이트합니다.
-   * 닉네임 변경 시 중복 검사를 수행합니다.
+   * 닉네임 및 이메일 변경 시 중복 검사를 수행하며, 이메일 변경 시 미인증 상태로 전환 후 인증 메일을 발송합니다.
    * @param userId 유저 ID
    * @param updateUserDto 업데이트할 유저 정보
    * @returns 업데이트된 유저
@@ -156,7 +178,7 @@ export class UserService implements OnModuleInit {
     // 닉네임 변경 시 중복 검사
     if (updateUserDto.nickname && updateUserDto.nickname !== user.nickname) {
       const existingUser = await this.findByNickname(updateUserDto.nickname);
-      if (existingUser) {
+      if (existingUser && existingUser.id !== userId) {
         throw new BusinessException(
           'NICKNAME_ALREADY_EXISTS',
           HttpStatus.CONFLICT,
@@ -164,8 +186,54 @@ export class UserService implements OnModuleInit {
       }
     }
 
+    // 이메일 변경 시 검증 및 재인증 처리
+    let newVerificationToken: string | null = null;
+    if (updateUserDto.email && updateUserDto.email !== user.email) {
+      if (user.provider !== 'local') {
+        throw new BusinessException(
+          'SOCIAL_USER_EMAIL_CHANGE_NOT_ALLOWED',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const existingEmailUser = await this.findByEmail(updateUserDto.email);
+      if (existingEmailUser && existingEmailUser.id !== userId) {
+        throw new BusinessException(
+          'EMAIL_ALREADY_EXISTS',
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      // 이메일 변경 시 미인증 상태 전환 & 24시간 유효 인증 토큰 생성
+      newVerificationToken = crypto.randomUUID();
+      updateUserDto.isEmailVerified = false;
+      updateUserDto.emailVerificationToken = newVerificationToken;
+      updateUserDto.emailVerificationExpiresAt = new Date(
+        Date.now() + 24 * 60 * 60 * 1000,
+      );
+      updateUserDto.providerId = updateUserDto.email;
+    }
+
     const updatedUser = this.userRepository.merge(user, updateUserDto);
-    return await this.userRepository.save(updatedUser);
+    const savedUser = await this.userRepository.save(updatedUser);
+
+    // 이메일이 변경된 경우 새 주소로 인증 메일 발송
+    if (newVerificationToken && savedUser.email) {
+      this.mailService
+        .sendVerificationEmail(
+          savedUser.email,
+          savedUser.nickname,
+          newVerificationToken,
+        )
+        .catch((err) =>
+          this.logger.error(
+            'Failed to send verification email on email change:',
+            err,
+          ),
+        );
+    }
+
+    return savedUser;
   }
 
   /**
@@ -424,5 +492,78 @@ export class UserService implements OnModuleInit {
    */
   async incrementTokenVersion(userId: number): Promise<void> {
     await this.userRepository.increment({ id: userId }, 'tokenVersion', 1);
+  }
+
+  /**
+   * 이메일 인증 토큰을 검증하고 이메일 인증을 완료합니다.
+   * @param token 이메일 인증 토큰
+   * @returns 인증 완료된 유저
+   */
+  async verifyEmailToken(token: string): Promise<User> {
+    if (!token) {
+      throw new BusinessException(
+        'INVALID_OR_EXPIRED_VERIFICATION_TOKEN',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const user = await this.userRepository.findOne({
+      where: { emailVerificationToken: token },
+    });
+
+    if (!user) {
+      throw new BusinessException(
+        'INVALID_OR_EXPIRED_VERIFICATION_TOKEN',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (
+      user.emailVerificationExpiresAt &&
+      user.emailVerificationExpiresAt < new Date()
+    ) {
+      throw new BusinessException(
+        'EXPIRED_VERIFICATION_TOKEN',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerificationToken = null;
+    user.emailVerificationExpiresAt = null;
+
+    return await this.userRepository.save(user);
+  }
+
+  /**
+   * 인증 메일을 재발송합니다.
+   * @param userId 사용자 ID
+   */
+  async resendVerificationEmail(userId: number): Promise<void> {
+    const user = await this.findById(userId);
+    if (!user) {
+      throw new BusinessException('USER_NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
+
+    if (user.isEmailVerified) {
+      throw new BusinessException('ALREADY_VERIFIED', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!user.email) {
+      throw new BusinessException('EMAIL_NOT_FOUND', HttpStatus.BAD_REQUEST);
+    }
+
+    const token = crypto.randomUUID();
+    user.emailVerificationToken = token;
+    user.emailVerificationExpiresAt = new Date(
+      Date.now() + 24 * 60 * 60 * 1000,
+    );
+
+    await this.userRepository.save(user);
+    await this.mailService.sendVerificationEmail(
+      user.email,
+      user.nickname,
+      token,
+    );
   }
 }

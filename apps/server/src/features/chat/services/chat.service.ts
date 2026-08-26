@@ -1,4 +1,5 @@
 import { forwardRef, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -30,6 +31,7 @@ export class ChatService {
     private readonly readReceiptRepository: Repository<ReadReceipt>,
     @Inject(forwardRef(() => ChatGateway))
     private readonly chatGateway: ChatGateway,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   // 동일 saleId:buyerId에 대해 동시에 진행 중인 채팅방 조회/생성 작업을 관리하는 Map (Request Collapsing)
@@ -160,6 +162,17 @@ export class ChatService {
       );
 
     this.chatGateway.notifyNewRoom(sellerId, createdRoom);
+
+    // 신규 채팅방 생성 비동기 알림 이벤트 발행
+    const buyerParticipant = createdRoom.participants?.find(
+      (p) => p.user?.id === buyerId,
+    );
+    this.eventEmitter.emit('chat.room_created', {
+      seller: sale.user,
+      buyerNickname: buyerParticipant?.user?.nickname ?? '구매자',
+      bookTitle: sale.book?.title ?? '중고 도서',
+      chatRoomId: createdRoom.id,
+    });
 
     return createdRoom;
   }

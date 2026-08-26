@@ -56,3 +56,25 @@ export const getUserProfile = async () => {
   return data;
 };
 
+/**
+ * 이메일 인증 메일 재발송을 요청합니다.
+ */
+export const sendVerificationEmail = async () => {
+  const { data } = await privateApiClient.post<{ success: boolean; message: string }>(
+    API_PATHS.auth.sendVerificationEmail,
+  );
+  return data;
+};
+
+/**
+ * 1회용 인증 토큰으로 이메일 인증을 완료합니다.
+ */
+export const verifyEmail = async (token: string) => {
+  const { data } = await publicApiClient.post<{
+    success: boolean;
+    message: string;
+    user: Partial<User>;
+  }>(API_PATHS.auth.verifyEmail, { token });
+  return data;
+};
+

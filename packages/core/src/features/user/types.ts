@@ -69,4 +69,8 @@ export interface UserStats {
 export interface UpdateUserProfileParams {
   nickname?: string;
   profileImageUrl?: string;
+  name?: string | null;
+  gender?: string | null;
+  ageRange?: string | null;
+  email?: string;
 }

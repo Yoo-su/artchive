@@ -19,6 +19,7 @@ const mockUser: User = {
   updatedAt: "2024-01-01T00:00:00Z",
   isReadingLogPublic: true,
   role: "USER",
+  isEmailVerified: true,
 };
 
 const mockMessages = [

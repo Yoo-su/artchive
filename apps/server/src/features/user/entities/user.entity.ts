@@ -61,6 +61,24 @@ export class User {
   @Column({ type: 'varchar', default: 'USER' })
   role: 'USER' | 'ADMIN';
 
+  @Column({ type: 'varchar', nullable: true })
+  name: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  gender: string | null;
+
+  @Column({ name: 'ageRange', type: 'varchar', nullable: true })
+  ageRange: string | null;
+
+  @Column({ type: 'boolean', default: false })
+  isEmailVerified: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  emailVerificationToken: string | null;
+
+  @Column({ nullable: true, type: 'timestamptz' })
+  emailVerificationExpiresAt: Date | null;
+
   @Column({ default: 0 })
   tokenVersion: number;
 

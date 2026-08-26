@@ -210,24 +210,54 @@
         "email": "Email",
         "password": "Password",
         "password_confirm": "Confirm Password",
-        "nickname": "Nickname"
+        "nickname": "Nickname",
+        "name": "Full Name",
+        "gender": "Gender (Optional)",
+        "age_range": "Age Group (Optional)"
       },
       "placeholders": {
         "email": "example@email.com",
         "password": "Min 8 chars, letters/numbers/special chars",
         "password_confirm": "Confirm Password",
-        "nickname": "Nickname to use"
+        "nickname": "Nickname to use",
+        "name": "John Doe",
+        "gender_placeholder": "Select gender",
+        "age_range_placeholder": "Select age group"
+      },
+      "options": {
+        "gender_none": "Not specified",
+        "gender_m": "Male",
+        "gender_f": "Female",
+        "age_none": "Not specified",
+        "age_0_9": "Under 10",
+        "age_10_19": "10s (10~19)",
+        "age_20_29": "20s (20~29)",
+        "age_30_39": "30s (30~39)",
+        "age_40_49": "40s (40~49)",
+        "age_50_59": "50s (50~59)",
+        "age_60_": "60 and above"
       },
       "submit": "Sign Up",
       "has_account": "Already have an account?",
       "login_link": "Login",
-      "success": "Sign up complete! Please log in.",
+      "success": "Sign up complete! A verification email has been sent.",
       "error": {
         "email_exists": "Email already in use.",
         "nickname_exists": "Nickname already in use.",
         "info_exists": "Information already in use.",
         "unknown": "Unknown error during sign up. Please try again later."
       }
+    },
+    "verification": {
+      "title": "Email Verification",
+      "verifying": "Verifying your email...",
+      "success_title": "Email Verified",
+      "success_desc": "Your email address has been successfully verified. You can now use all features of Bookjeok.",
+      "error_title": "Verification Failed",
+      "error_desc": "The verification link is invalid or expired. Please request a new verification email on My Page.",
+      "btn_mypage": "Go to My Page",
+      "btn_home": "Go to Home",
+      "btn_login": "Go to Login"
     },
     "validation": {
       "email_invalid": "Invalid email format.",
@@ -236,7 +266,9 @@
       "password_mismatch": "Passwords do not match.",
       "nickname_min": "Nickname must be at least 2 characters.",
       "nickname_max": "Nickname can be up to 10 characters.",
-      "password_required": "Please enter a password."
+      "password_required": "Please enter a password.",
+      "name_required": "Please enter your name.",
+      "name_max": "Name cannot exceed 50 characters."
     }
   },
   "hero": {
@@ -877,7 +909,13 @@
     },
     "profile": {
       "edit": "Edit Profile",
-      "joined": "Joined {date}"
+      "joined": "Joined {date}",
+      "verified": "Verified",
+      "unverified": "Unverified Email",
+      "resend_verification": "Send Verification Email",
+      "resend_success": "Verification email sent. Please check your inbox.",
+      "resend_error": "Failed to send verification email.",
+      "resending": "Sending..."
     },
     "stats": {
       "my_reviews_title": "My Reviews",
@@ -914,10 +952,19 @@
       "nickname_check": "Please check nickname availability.",
       "nickname_available": "Nickname available.",
       "nickname_help": "2-10 characters, Korean/English/Numbers",
+      "name_label": "Full Name",
+      "name_placeholder": "Enter your name",
+      "email_label": "Email Address",
+      "email_social_notice": "Email cannot be changed for social accounts.",
+      "email_change_notice": "Changing email will require re-verification via a new verification link.",
+      "gender_label": "Gender",
+      "age_range_label": "Age Group",
       "image_size_error": "Image size must be 20MB or less.",
       "image_type_error": "Only image files are allowed.",
       "image_error": "Error processing image.",
       "save_success": "Profile updated.",
+      "email_change_success": "Profile updated. A verification link has been sent to your new email.",
+      "email_already_exists": "This email address is already in use.",
       "save_error": "Error updating profile.",
       "cancel": "Cancel",
       "save": "Save",

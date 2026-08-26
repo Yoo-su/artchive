@@ -27,6 +27,18 @@ export class MyProfileResponseDto {
   @ApiProperty({ description: '소셜 로그인 제공자 ID' })
   providerId: string;
 
+  @ApiProperty({ description: '실명', nullable: true })
+  name: string | null;
+
+  @ApiProperty({ description: '성별', nullable: true })
+  gender: string | null;
+
+  @ApiProperty({ description: '연령대', nullable: true })
+  ageRange: string | null;
+
+  @ApiProperty({ description: '이메일 인증 완료 여부' })
+  isEmailVerified: boolean;
+
   constructor(user: User) {
     this.id = user.id;
     this.email = user.email;
@@ -36,5 +48,9 @@ export class MyProfileResponseDto {
     this.isReadingLogPublic = user.isReadingLogPublic;
     this.provider = user.provider;
     this.providerId = user.providerId;
+    this.name = user.name ?? null;
+    this.gender = user.gender ?? null;
+    this.ageRange = user.ageRange ?? null;
+    this.isEmailVerified = user.isEmailVerified ?? false;
   }
 }
