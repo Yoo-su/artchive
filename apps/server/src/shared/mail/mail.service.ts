@@ -100,7 +100,7 @@ export class MailService {
       return false;
     }
 
-    const chatUrl = `${this.clientDomain}/chat?roomId=${chatRoomId}`;
+    const serviceUrl = this.clientDomain;
     const subject = `[북적] '${bookTitle}' 판매글에 새로운 채팅 문의가 도착했습니다`;
     const html = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 40px 20px; background-color: #fcfbf9;">
@@ -114,11 +114,11 @@ export class MailService {
             등록하신 <strong>'${bookTitle}'</strong> 중고책 판매글에 <strong>${buyerNickname}</strong>님이 채팅 문의를 보냈습니다.
           </p>
           <div style="margin-bottom: 28px; text-align: center;">
-            <a href="${chatUrl}" style="display: inline-block; background-color: #1c1917; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 10px; font-size: 15px; font-weight: 600; letter-spacing: -0.2px;">채팅방 바로가기</a>
+            <a href="${serviceUrl}" style="display: inline-block; background-color: #1c1917; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 10px; font-size: 15px; font-weight: 600; letter-spacing: -0.2px;">북적 바로가기</a>
           </div>
           <hr style="border: none; border-top: 1px solid #f5f5f4; margin: 24px 0;" />
           <p style="font-size: 12px; color: #a8a29e; line-height: 1.4; margin: 0;">
-            북적 웹사이트에 로그인하시면 실시간으로 구매자와 대화를 나누실 수 있습니다.
+            북적 웹사이트에 로그인하시면 우측 하단 채팅 버튼을 통해 실시간으로 구매자와 대화를 나누실 수 있습니다.
           </p>
         </div>
       </div>
@@ -128,7 +128,7 @@ export class MailService {
       seller.email,
       subject,
       html,
-      `Chat notification for User #${seller.id}: ${chatUrl}`,
+      `Chat notification for User #${seller.id}: ${serviceUrl}`,
     );
   }
 
