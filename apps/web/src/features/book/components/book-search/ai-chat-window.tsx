@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { RotateCcw, Send, Sparkles } from "lucide-react";
+import { RotateCcw, Send } from "lucide-react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import remarkGfm from "remark-gfm";
 
@@ -100,7 +101,14 @@ export const AiChatWindow = () => {
             >
               {msg.role === "assistant" && (
                 <div className="flex items-center gap-1.5 mb-1.5 text-xs font-semibold text-stone-700">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                  <Image
+                    src="/icons/reindeer-face.svg"
+                    alt="Bookjeok AI"
+                    width={16}
+                    height={16}
+                    className="w-4 h-4 shrink-0"
+                    unoptimized
+                  />
                   <span>Bookjeok AI</span>
                 </div>
               )}
