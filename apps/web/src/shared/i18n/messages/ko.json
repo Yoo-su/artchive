@@ -210,24 +210,54 @@
         "email": "이메일",
         "password": "비밀번호",
         "password_confirm": "비밀번호 확인",
-        "nickname": "닉네임"
+        "nickname": "닉네임",
+        "name": "이름 (실명)",
+        "gender": "성별 (선택)",
+        "age_range": "연령대 (선택)"
       },
       "placeholders": {
         "email": "example@email.com",
         "password": "8자 이상, 영문/숫자/특수문자",
         "password_confirm": "비밀번호 확인",
-        "nickname": "사용할 닉네임"
+        "nickname": "사용할 닉네임",
+        "name": "홍길동",
+        "gender_placeholder": "성별 선택",
+        "age_range_placeholder": "연령대 선택"
+      },
+      "options": {
+        "gender_none": "선택 안 함",
+        "gender_m": "남성",
+        "gender_f": "여성",
+        "age_none": "선택 안 함",
+        "age_0_9": "10세 미만",
+        "age_10_19": "10대 (10~19세)",
+        "age_20_29": "20대 (20~29세)",
+        "age_30_39": "30대 (30~39세)",
+        "age_40_49": "40대 (40~49세)",
+        "age_50_59": "50대 (50~59세)",
+        "age_60_": "60세 이상"
       },
       "submit": "가입하기",
       "has_account": "이미 계정이 있으신가요?",
       "login_link": "로그인하기",
-      "success": "가입이 완료되었습니다! 로그인해주세요.",
+      "success": "가입이 완료되었습니다! 인증 메일이 발송되었으니 확인해주세요.",
       "error": {
         "email_exists": "이미 사용 중인 이메일입니다.",
         "nickname_exists": "이미 사용 중인 닉네임입니다.",
         "info_exists": "이미 사용 중인 정보입니다.",
         "unknown": "회원가입 중 알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
       }
+    },
+    "verification": {
+      "title": "이메일 인증",
+      "verifying": "이메일 인증을 확인하는 중입니다...",
+      "success_title": "이메일 인증 완료",
+      "success_desc": "이메일 인증이 성공적으로 완료되었습니다. 북적의 모든 기능을 자유롭게 이용하실 수 있습니다.",
+      "error_title": "인증 실패",
+      "error_desc": "유효하지 않거나 만료된 인증 링크입니다. 마이페이지에서 인증 메일을 다시 요청해주세요.",
+      "btn_mypage": "마이페이지로 이동",
+      "btn_home": "홈으로 이동",
+      "btn_login": "로그인하기"
     },
     "validation": {
       "email_invalid": "올바른 이메일 형식이 아닙니다.",
@@ -236,7 +266,9 @@
       "password_mismatch": "비밀번호가 일치하지 않습니다.",
       "nickname_min": "닉네임은 최소 2자 이상이어야 합니다.",
       "nickname_max": "닉네임은 최대 10자까지 가능합니다.",
-      "password_required": "비밀번호를 입력해주세요."
+      "password_required": "비밀번호를 입력해주세요.",
+      "name_required": "이름을 입력해주세요.",
+      "name_max": "이름은 50자 이하로 입력해주세요."
     }
   },
   "hero": {
@@ -877,7 +909,13 @@
     },
     "profile": {
       "edit": "프로필 수정",
-      "joined": "{date} 가입"
+      "joined": "{date} 가입",
+      "verified": "인증됨",
+      "unverified": "미인증",
+      "resend_verification": "인증 메일 발송",
+      "resend_success": "인증 메일이 발송되었습니다. 받은 편지함을 확인해주세요.",
+      "resend_error": "인증 메일 발송 중 오류가 발생했습니다.",
+      "resending": "발송 중..."
     },
     "stats": {
       "my_reviews_title": "나의 리뷰",
@@ -914,10 +952,19 @@
       "nickname_check": "닉네임 중복 확인을 해주세요.",
       "nickname_available": "사용 가능한 닉네임입니다.",
       "nickname_help": "한글, 영문, 숫자 포함 2-10자",
+      "name_label": "이름 (실명)",
+      "name_placeholder": "실명을 입력하세요",
+      "email_label": "이메일 주소",
+      "email_social_notice": "소셜 로그인 계정은 이메일을 변경할 수 없습니다.",
+      "email_change_notice": "이메일을 변경하시면 해당 주소로 새 인증 메일이 발송되며 재인증이 필요합니다.",
+      "gender_label": "성별",
+      "age_range_label": "연령대",
       "image_size_error": "이미지 크기는 20MB 이하여야 합니다.",
       "image_type_error": "이미지 파일만 업로드할 수 있습니다.",
       "image_error": "이미지 처리 중 오류가 발생했습니다.",
       "save_success": "프로필이 업데이트되었습니다.",
+      "email_change_success": "프로필이 업데이트되었습니다. 새 이메일로 인증 링크가 발송되었습니다.",
+      "email_already_exists": "이미 사용 중인 이메일 주소입니다.",
       "save_error": "프로필 수정 중 오류가 발생했습니다.",
       "cancel": "취소",
       "save": "저장",

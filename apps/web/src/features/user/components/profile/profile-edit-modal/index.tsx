@@ -1,5 +1,5 @@
 import { upload } from "@vercel/blob/client";
-import { Camera, Loader2 } from "lucide-react";
+import { Camera, Loader2, Lock } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
@@ -23,6 +23,13 @@ import {
 } from "@/shared/components/shadcn/dialog";
 import { Input } from "@/shared/components/shadcn/input";
 import { Label } from "@/shared/components/shadcn/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/shadcn/select";
 import { compressImage } from "@/shared/utils/compress-image";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
@@ -49,11 +56,12 @@ interface ProfileEditModalProps {
 
 /**
  * 프로필 수정 모달
- * - 닉네임 변경 (중복 검사)
+ * - 닉네임, 실명, 이메일(로컬 유저 전용), 성별, 연령대 변경
  * - 프로필 이미지 변경 (커스텀 업로드 또는 기본 이미지 선택)
  */
 export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
   const t = useTranslations("my_page.edit_modal");
+  const tSignup = useTranslations("auth.signup");
   const [open, setOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
@@ -61,6 +69,10 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
 
   // 폼 상태
   const [nickname, setNickname] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [gender, setGender] = useState<string>("U");
+  const [ageRange, setAgeRange] = useState<string>("none");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [customImageFile, setCustomImageFile] = useState<File | null>(null);
   const [customImagePreview, setCustomImagePreview] = useState<string | null>(
@@ -84,6 +96,10 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
   useEffect(() => {
     if (open && user) {
       setNickname(user.nickname);
+      setName(user.name || "");
+      setEmail(user.email || "");
+      setGender(user.gender || "U");
+      setAgeRange(user.ageRange || "none");
       setSelectedImage(user.profileImageUrl);
       setCustomImageFile(null);
       setCustomImagePreview(null);
@@ -207,17 +223,47 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
     setIsSaving(true);
 
     try {
-      const updateData: { nickname?: string; profileImageUrl?: string } = {};
+      const updateData: {
+        nickname?: string;
+        name?: string | null;
+        email?: string;
+        gender?: string | null;
+        ageRange?: string | null;
+        profileImageUrl?: string;
+      } = {};
 
       // 닉네임 변경
       if (nickname !== user.nickname) {
         updateData.nickname = nickname;
       }
 
+      // 이름 변경
+      if (name !== (user.name || "")) {
+        updateData.name = name || null;
+      }
+
+      // 이메일 변경 (로컬 유저만)
+      const isEmailChanged =
+        user.provider === "local" && email && email !== user.email;
+      if (isEmailChanged) {
+        updateData.email = email;
+      }
+
+      // 성별 변경
+      const mappedGender = gender === "U" || !gender ? null : gender;
+      if (mappedGender !== (user.gender || null)) {
+        updateData.gender = mappedGender;
+      }
+
+      // 연령대 변경
+      const mappedAgeRange =
+        ageRange === "none" || !ageRange ? null : ageRange;
+      if (mappedAgeRange !== (user.ageRange || null)) {
+        updateData.ageRange = mappedAgeRange;
+      }
+
       // 이미지 변경
       if (customImageFile) {
-        // Vercel Blob에 업로드
-        // 경로: {provider}-{userId}/profile/{filename}.jpg
         const filePath = `${user.provider}-${user.id}/profile/${customImageFile.name}`;
         const blob = await upload(filePath, customImageFile, {
           access: "public",
@@ -239,9 +285,14 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
         setUser({
           ...user,
           ...updateData,
+          ...(isEmailChanged ? { isEmailVerified: false } : {}),
         });
 
-        toast.success(t("save_success"));
+        if (isEmailChanged) {
+          toast.success(t("email_change_success"));
+        } else {
+          toast.success(t("save_success"));
+        }
       }
 
       setOpen(false);
@@ -251,6 +302,11 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
         error.message.includes("NICKNAME_ALREADY_EXISTS")
       ) {
         toast.error(t("nickname_taken"));
+      } else if (
+        error instanceof Error &&
+        error.message.includes("EMAIL_ALREADY_EXISTS")
+      ) {
+        toast.error(t("email_already_exists"));
       } else {
         toast.error(t("save_error"));
       }
@@ -260,6 +316,10 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
   }, [
     user,
     nickname,
+    name,
+    email,
+    gender,
+    ageRange,
     nicknameAvailable,
     selectedImage,
     customImageFile,
@@ -281,6 +341,8 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
     (nickname !== user.nickname && !nicknameAvailable) ||
     !!nicknameError;
 
+  const isLocalUser = user.provider === "local";
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -290,27 +352,27 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t("title")}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-5 py-3">
           {/* 프로필 이미지 */}
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
-              <Avatar className="h-24 w-24 border-2 border-stone-200">
+              <Avatar className="h-22 w-22 border-2 border-stone-200">
                 <AvatarImage src={displayImage} alt={nickname} />
-                <AvatarFallback className="text-2xl">
+                <AvatarFallback className="text-xl">
                   {nickname.slice(0, 2)}
                 </AvatarFallback>
               </Avatar>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 rounded-full bg-stone-800 p-2 text-white transition-colors hover:bg-stone-700"
+                className="absolute bottom-0 right-0 rounded-full bg-stone-900 p-2 text-white transition-colors hover:bg-stone-800 cursor-pointer shadow-xs"
               >
-                <Camera className="h-4 w-4" />
+                <Camera className="h-3.5 w-3.5" />
               </button>
               <input
                 ref={fileInputRef}
@@ -322,15 +384,15 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
             </div>
 
             {/* 기본 이미지 선택 */}
-            <div className="mx-auto grid w-full max-w-[320px] grid-cols-5 gap-3 sm:max-w-none sm:gap-4">
+            <div className="mx-auto grid w-full max-w-[320px] grid-cols-5 gap-2.5 sm:max-w-none sm:gap-3">
               {DEFAULT_PROFILE_IMAGES.map((imageId) => (
                 <button
                   key={imageId}
                   type="button"
                   onClick={() => handleDefaultImageSelect(imageId)}
-                  className={`relative aspect-square overflow-hidden rounded-full border-2 transition-all hover:scale-105 active:scale-95 ${
+                  className={`relative aspect-square overflow-hidden rounded-full border-2 transition-all hover:scale-105 active:scale-95 cursor-pointer ${
                     selectedImage === imageId && !customImageFile
-                      ? "border-emerald-500 ring-2 ring-emerald-200 ring-offset-1"
+                      ? "border-emerald-600 ring-2 ring-emerald-200 ring-offset-1"
                       : "border-stone-100 hover:border-stone-300"
                   }`}
                 >
@@ -346,8 +408,11 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
             </div>
           </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="nickname">{t("nickname_label")}</Label>
+          {/* 닉네임 */}
+          <div className="grid gap-1.5">
+            <Label htmlFor="nickname" className="text-xs font-semibold text-stone-700">
+              {t("nickname_label")}
+            </Label>
             <div className="relative">
               <Input
                 id="nickname"
@@ -355,13 +420,13 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
                 onChange={(e) => setNickname(e.target.value)}
                 placeholder={t("nickname_placeholder")}
                 maxLength={20}
-                className={
+                className={`h-10 bg-stone-50 border-stone-200 focus:bg-white text-sm ${
                   nicknameError
                     ? "border-red-500 focus-visible:ring-red-200"
                     : nicknameAvailable
                       ? "border-emerald-500 focus-visible:ring-emerald-200"
                       : ""
-                }
+                }`}
               />
               {isCheckingNickname && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -370,31 +435,118 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
               )}
             </div>
             {nicknameError ? (
-              <p className="flex items-center gap-1 text-sm text-red-500">
+              <p className="flex items-center gap-1 text-xs text-red-500">
                 <span className="inline-block h-1 w-1 rounded-full bg-red-500" />
                 {nicknameError}
               </p>
             ) : nicknameAvailable && nickname !== user.nickname ? (
-              <p className="flex items-center gap-1 text-sm text-emerald-600">
+              <p className="flex items-center gap-1 text-xs text-emerald-600">
                 <span className="inline-block h-1 w-1 rounded-full bg-emerald-500" />
                 {t("nickname_available")}
               </p>
             ) : (
-              <p className="text-xs text-stone-500">{t("nickname_help")}</p>
+              <p className="text-[11px] text-stone-500">{t("nickname_help")}</p>
             )}
+          </div>
+
+          {/* 이름 (실명) */}
+          <div className="grid gap-1.5">
+            <Label htmlFor="name" className="text-xs font-semibold text-stone-700">
+              {t("name_label")}
+            </Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={t("name_placeholder")}
+              maxLength={50}
+              className="h-10 bg-stone-50 border-stone-200 focus:bg-white text-sm"
+            />
+          </div>
+
+          {/* 이메일 */}
+          <div className="grid gap-1.5">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="email" className="text-xs font-semibold text-stone-700">
+                {t("email_label")}
+              </Label>
+              {!isLocalUser && (
+                <span className="inline-flex items-center gap-1 text-[11px] text-stone-400">
+                  <Lock className="h-3 w-3" />
+                  {t("email_social_notice")}
+                </span>
+              )}
+            </div>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={!isLocalUser}
+              className={`h-10 text-sm ${
+                !isLocalUser
+                  ? "bg-stone-100 text-stone-500 cursor-not-allowed border-stone-200"
+                  : "bg-stone-50 border-stone-200 focus:bg-white"
+              }`}
+            />
+            {isLocalUser && email !== user.email && (
+              <p className="text-[11px] text-amber-600">
+                {t("email_change_notice")}
+              </p>
+            )}
+          </div>
+
+          {/* 성별 & 연령대 그리드 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid gap-1.5">
+              <Label className="text-xs font-semibold text-stone-700">
+                {t("gender_label")}
+              </Label>
+              <Select value={gender} onValueChange={setGender}>
+                <SelectTrigger className="h-10 w-full bg-stone-50 border-stone-200 focus:bg-white text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="U">{tSignup("options.gender_none")}</SelectItem>
+                  <SelectItem value="M">{tSignup("options.gender_m")}</SelectItem>
+                  <SelectItem value="F">{tSignup("options.gender_f")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-1.5">
+              <Label className="text-xs font-semibold text-stone-700">
+                {t("age_range_label")}
+              </Label>
+              <Select value={ageRange} onValueChange={setAgeRange}>
+                <SelectTrigger className="h-10 w-full bg-stone-50 border-stone-200 focus:bg-white text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">{tSignup("options.age_none")}</SelectItem>
+                  <SelectItem value="0-9">{tSignup("options.age_0_9")}</SelectItem>
+                  <SelectItem value="10-19">{tSignup("options.age_10_19")}</SelectItem>
+                  <SelectItem value="20-29">{tSignup("options.age_20_29")}</SelectItem>
+                  <SelectItem value="30-39">{tSignup("options.age_30_39")}</SelectItem>
+                  <SelectItem value="40-49">{tSignup("options.age_40_49")}</SelectItem>
+                  <SelectItem value="50-59">{tSignup("options.age_50_59")}</SelectItem>
+                  <SelectItem value="60-">{tSignup("options.age_60_")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-stone-100">
           <Button
             variant="outline"
-            className="rounded-xl border-stone-200 text-stone-700 hover:bg-stone-100"
+            className="rounded-xl border-stone-200 text-stone-700 hover:bg-stone-100 h-10 text-sm"
             onClick={() => setOpen(false)}
           >
             {t("cancel")}
           </Button>
           <Button
-            className="rounded-xl bg-stone-900 text-white hover:bg-stone-800"
+            className="rounded-xl bg-stone-900 text-white hover:bg-stone-800 h-10 text-sm transition-colors"
             onClick={handleSave}
             disabled={isSaveDisabled}
           >

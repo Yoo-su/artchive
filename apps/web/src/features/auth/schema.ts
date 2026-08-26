@@ -13,6 +13,9 @@ export const createSignupSchema = (t: (key: string) => string) =>
         ),
       passwordConfirm: z.string(),
       nickname: z.string().min(2, t("nickname_min")).max(10, t("nickname_max")),
+      name: z.string().min(1, t("name_required")).max(50, t("name_max")),
+      gender: z.string().optional().nullable(),
+      ageRange: z.string().optional().nullable(),
     })
     .refine((data) => data.password === data.passwordConfirm, {
       message: t("password_mismatch"),

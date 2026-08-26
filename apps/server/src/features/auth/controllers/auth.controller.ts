@@ -57,38 +57,34 @@ export class AuthController {
     return res.redirect(url.toString());
   }
 
-  @Get('kakao')
-  @SocialAuth('kakao')
+  @Post('send-verification-email')
+  @UseGuards(AuthGuard('jwt'))
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @ApiOperation({
-    summary: '카카오 로그인',
-    description: '카카오 소셜 로그인을 시작합니다.',
+    summary: '이메일 인증 메일 재발송',
+    description: '로그인한 사용자에게 이메일 인증 링크를 재발송합니다.',
   })
   @ApiResponse({
-    status: 302,
-    description: '카카오 로그인 페이지로 리다이렉트됩니다.',
+    status: 200,
+    description: '인증 메일 발송 성공',
   })
-  async kakaoLogin() {}
+  async sendVerificationEmail(@CurrentUser() user: User) {
+    return await this.authService.resendVerificationEmail(user.id);
+  }
 
-  @Get('kakao/callback')
-  @UseGuards(AuthGuard('kakao'))
+  @Post('verify-email')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({
-    summary: '카카오 로그인 콜백',
+    summary: '이메일 인증 토큰 검증',
     description:
-      '카카오 로그인 후 1회용 인증 티켓을 발급하여 클라이언트로 리다이렉트합니다.',
+      '이메일로 전달받은 1회용 인증 토큰을 검증하여 이메일 인증을 완료합니다.',
   })
   @ApiResponse({
-    status: 302,
-    description: '로그인 성공 후 클라이언트로 리다이렉트됩니다.',
+    status: 200,
+    description: '이메일 인증 완료',
   })
-  async kakaoLoginCallback(@CurrentUser() user: User, @Res() res: Response) {
-    const ticket = await this.authService.createAuthTicket(user);
-
-    const clientDomain =
-      this.configService.get<string>('CLIENT_DOMAIN') ??
-      'http://localhost:3000';
-    const url = new URL(`${clientDomain}/callback`);
-    url.searchParams.set('ticket', ticket);
-    return res.redirect(url.toString());
+  async verifyEmail(@Body('token') token: string) {
+    return await this.authService.verifyEmail(token);
   }
 
   @Post('exchange')

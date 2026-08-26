@@ -19,6 +19,13 @@ import {
   FormMessage,
 } from "@/shared/components/shadcn/form";
 import { Input } from "@/shared/components/shadcn/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/shadcn/select";
 import { Link, useRouter } from "@/shared/config/i18n/routing";
 import { getErrorMessage } from "@/shared/utils/error-handler";
 
@@ -34,6 +41,9 @@ export const SignupForm = () => {
       password: "",
       passwordConfirm: "",
       nickname: "",
+      name: "",
+      gender: "U",
+      ageRange: "",
     },
   });
 
@@ -72,6 +82,9 @@ export const SignupForm = () => {
       email: values.email,
       password: values.password,
       nickname: values.nickname,
+      name: values.name,
+      gender: values.gender === "U" || !values.gender ? null : values.gender,
+      ageRange: values.ageRange ? values.ageRange : null,
     });
   };
 
@@ -93,7 +106,7 @@ export const SignupForm = () => {
               render={({ field }) => (
                 <FormItem className="space-y-1">
                   <FormLabel className="text-gray-700 font-medium">
-                    {t("labels.email")}
+                    {t("labels.email")} <span className="text-rose-500">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -117,7 +130,7 @@ export const SignupForm = () => {
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormLabel className="text-gray-700 font-medium">
-                      {t("labels.password")}
+                      {t("labels.password")} <span className="text-rose-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -139,7 +152,7 @@ export const SignupForm = () => {
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormLabel className="text-gray-700 font-medium">
-                      {t("labels.password_confirm")}
+                      {t("labels.password_confirm")} <span className="text-rose-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -157,32 +170,123 @@ export const SignupForm = () => {
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="nickname"
-              render={({ field }) => (
-                <FormItem className="space-y-1">
-                  <FormLabel className="text-gray-700 font-medium">
-                    {t("labels.nickname")}
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={t("placeholders.nickname")}
-                      className="h-11 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
-                      {...field}
-                    />
-                  </FormControl>
-                  <div className="min-h-[20px]">
-                    <FormMessage className="text-xs" />
-                  </div>
-                </FormItem>
-              )}
-            />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-gray-700 font-medium">
+                      {t("labels.name")} <span className="text-rose-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={t("placeholders.name")}
+                        className="h-11 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
+                        {...field}
+                      />
+                    </FormControl>
+                    <div className="min-h-[20px]">
+                      <FormMessage className="text-xs" />
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="nickname"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-gray-700 font-medium">
+                      {t("labels.nickname")} <span className="text-rose-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={t("placeholders.nickname")}
+                        className="h-11 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
+                        {...field}
+                      />
+                    </FormControl>
+                    <div className="min-h-[20px]">
+                      <FormMessage className="text-xs" />
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-gray-700 font-medium">
+                      {t("labels.gender")}
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value || "U"}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="h-11 w-full bg-gray-50 border-gray-200 focus:bg-white text-stone-900">
+                          <SelectValue placeholder={t("placeholders.gender_placeholder")} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="U">{t("options.gender_none")}</SelectItem>
+                        <SelectItem value="M">{t("options.gender_m")}</SelectItem>
+                        <SelectItem value="F">{t("options.gender_f")}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="min-h-[20px]">
+                      <FormMessage className="text-xs" />
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="ageRange"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-gray-700 font-medium">
+                      {t("labels.age_range")}
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value || "none"}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="h-11 w-full bg-gray-50 border-gray-200 focus:bg-white text-stone-900">
+                          <SelectValue placeholder={t("placeholders.age_range_placeholder")} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="none">{t("options.age_none")}</SelectItem>
+                        <SelectItem value="0-9">{t("options.age_0_9")}</SelectItem>
+                        <SelectItem value="10-19">{t("options.age_10_19")}</SelectItem>
+                        <SelectItem value="20-29">{t("options.age_20_29")}</SelectItem>
+                        <SelectItem value="30-39">{t("options.age_30_39")}</SelectItem>
+                        <SelectItem value="40-49">{t("options.age_40_49")}</SelectItem>
+                        <SelectItem value="50-59">{t("options.age_50_59")}</SelectItem>
+                        <SelectItem value="60-">{t("options.age_60_")}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="min-h-[20px]">
+                      <FormMessage className="text-xs" />
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="pt-2">
               <Button
                 type="submit"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-11 text-[15px] font-medium transition-colors"
                 disabled={isLoading}
               >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

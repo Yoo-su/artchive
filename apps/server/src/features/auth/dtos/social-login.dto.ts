@@ -43,4 +43,39 @@ export class SocialLoginDto {
     required: false,
   })
   profileImageUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: '회원 실명',
+    example: '홍길동',
+    required: false,
+  })
+  name?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: '성별',
+    example: 'M',
+    required: false,
+  })
+  gender?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: '연령대',
+    example: '20-29',
+    required: false,
+  })
+  ageRange?: string;
+
+  @IsOptional()
+  @ApiProperty({
+    description: '이메일 인증 여부',
+    example: true,
+    required: false,
+  })
+  isEmailVerified?: boolean;
 }

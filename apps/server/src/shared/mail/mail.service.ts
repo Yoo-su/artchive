@@ -1,0 +1,177 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Resend } from 'resend';
+
+import { User } from '@/features/user/entities/user.entity';
+
+@Injectable()
+export class MailService {
+  private readonly logger = new Logger(MailService.name);
+  private resend: Resend | null = null;
+  private readonly fromEmail: string;
+  private readonly clientDomain: string;
+
+  constructor(private readonly configService: ConfigService) {
+    const apiKey = this.configService.get<string>('RESEND_API_KEY');
+    if (apiKey) {
+      this.resend = new Resend(apiKey);
+    } else {
+      this.logger.warn(
+        'RESEND_API_KEY is not set. Emails will be logged to console in dev fallback mode.',
+      );
+    }
+    this.fromEmail =
+      this.configService.get<string>('RESEND_FROM_EMAIL') ??
+      '북적 <onboarding@resend.dev>';
+    this.clientDomain =
+      this.configService.get<string>('CLIENT_DOMAIN') ??
+      'http://localhost:3000';
+  }
+
+  /**
+   * 이메일 인증 링크를 포함한 인증 메일을 전송합니다.
+   * @param to 수신자 이메일
+   * @param nickname 사용자 닉네임
+   * @param token 인증 토큰
+   */
+  async sendVerificationEmail(
+    to: string,
+    nickname: string,
+    token: string,
+  ): Promise<boolean> {
+    const verificationUrl = `${this.clientDomain}/verify-email?token=${token}`;
+
+    const subject = '[북적] 이메일 주소 인증을 완료해주세요';
+    const html = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 40px 20px; background-color: #fcfbf9;">
+        <div style="background-color: #ffffff; border: 1px solid #e7e5e4; border-radius: 16px; padding: 36px 32px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
+          <div style="margin-bottom: 24px;">
+            <span style="font-size: 22px; font-weight: 700; color: #1c1917; letter-spacing: -0.5px;">북적 (Bookjeok)</span>
+          </div>
+          <h1 style="font-size: 20px; font-weight: 600; color: #1c1917; margin-bottom: 16px; letter-spacing: -0.3px;">이메일 인증 요청</h1>
+          <p style="font-size: 15px; color: #44403c; line-height: 1.6; margin-bottom: 24px;">
+            안녕하세요, <strong>${nickname}</strong>님.<br/>
+            북적 서비스를 안전하고 편리하게 이용하시려면 아래 버튼을 눌러 이메일 인증을 완료해주세요.
+          </p>
+          <div style="margin-bottom: 32px; text-align: center;">
+            <a href="${verificationUrl}" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 10px; font-size: 15px; font-weight: 600; letter-spacing: -0.2px;">이메일 인증하기</a>
+          </div>
+          <p style="font-size: 13px; color: #78716c; line-height: 1.5; margin-bottom: 12px;">
+            버튼이 클릭되지 않는 경우 아래 링크를 브라우저 주소창에 직접 입력해주세요:
+          </p>
+          <p style="font-size: 12px; color: #059669; word-break: break-all; margin-bottom: 24px; padding: 10px; background-color: #f5f5f4; border-radius: 6px;">
+            ${verificationUrl}
+          </p>
+          <hr style="border: none; border-top: 1px solid #f5f5f4; margin: 24px 0;" />
+          <p style="font-size: 12px; color: #a8a29e; line-height: 1.4; margin: 0;">
+            본인이 요청한 이메일 인증이 아니라면 이 메일을 무시하셔도 됩니다. 인증 링크는 24시간 동안 유효합니다.
+          </p>
+        </div>
+      </div>
+    `;
+
+    return this.sendMail(
+      to,
+      subject,
+      html,
+      `Verification Link: ${verificationUrl}`,
+    );
+  }
+
+  /**
+   * 중고책 판매글에 새로운 채팅방이 열렸을 때 판매자에게 알림 메일을 전송합니다.
+   * [Verification Guard]: 수신자가 이메일 인증을 완료한(isEmailVerified === true) 경우에만 발송합니다.
+   */
+  async sendChatRoomCreatedNotification(
+    seller: User,
+    buyerNickname: string,
+    bookTitle: string,
+    chatRoomId: number,
+  ): Promise<boolean> {
+    // 1. 발송 가드: 이메일 미존재 또는 미인증 사용자 시 발송 건너뜀
+    if (
+      !seller.email ||
+      !seller.isEmailVerified ||
+      seller.email.startsWith('deleted_')
+    ) {
+      this.logger.debug(
+        `Skipped chat notification: User #${seller.id} (${seller.email}) is not email-verified or deleted.`,
+      );
+      return false;
+    }
+
+    const chatUrl = `${this.clientDomain}/chat?roomId=${chatRoomId}`;
+    const subject = `[북적] '${bookTitle}' 판매글에 새로운 채팅 문의가 도착했습니다`;
+    const html = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 40px 20px; background-color: #fcfbf9;">
+        <div style="background-color: #ffffff; border: 1px solid #e7e5e4; border-radius: 16px; padding: 36px 32px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
+          <div style="margin-bottom: 24px;">
+            <span style="font-size: 22px; font-weight: 700; color: #1c1917; letter-spacing: -0.5px;">북적 (Bookjeok)</span>
+          </div>
+          <h1 style="font-size: 20px; font-weight: 600; color: #1c1917; margin-bottom: 16px; letter-spacing: -0.3px;">새로운 채팅 문의 도착</h1>
+          <p style="font-size: 15px; color: #44403c; line-height: 1.6; margin-bottom: 20px;">
+            안녕하세요, <strong>${seller.nickname}</strong>님.<br/>
+            등록하신 <strong>'${bookTitle}'</strong> 중고책 판매글에 <strong>${buyerNickname}</strong>님이 채팅 문의를 보냈습니다.
+          </p>
+          <div style="margin-bottom: 28px; text-align: center;">
+            <a href="${chatUrl}" style="display: inline-block; background-color: #1c1917; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 10px; font-size: 15px; font-weight: 600; letter-spacing: -0.2px;">채팅방 바로가기</a>
+          </div>
+          <hr style="border: none; border-top: 1px solid #f5f5f4; margin: 24px 0;" />
+          <p style="font-size: 12px; color: #a8a29e; line-height: 1.4; margin: 0;">
+            북적 웹사이트에 로그인하시면 실시간으로 구매자와 대화를 나누실 수 있습니다.
+          </p>
+        </div>
+      </div>
+    `;
+
+    return this.sendMail(
+      seller.email,
+      subject,
+      html,
+      `Chat notification for User #${seller.id}: ${chatUrl}`,
+    );
+  }
+
+  /**
+   * 실제 메일 전송 로직 (Resend API 또는 개발 모드 Fallback 콘솔 출력)
+   */
+  private async sendMail(
+    to: string,
+    subject: string,
+    html: string,
+    devInfo: string,
+  ): Promise<boolean> {
+    if (this.resend) {
+      try {
+        const { error } = await this.resend.emails.send({
+          from: this.fromEmail,
+          to,
+          subject,
+          html,
+        });
+
+        if (error) {
+          this.logger.error(`Resend API Error sending mail to ${to}:`, error);
+          this.logDevFallback(to, subject, devInfo);
+          return false;
+        }
+
+        this.logger.log(`Email successfully sent to ${to} via Resend.`);
+        return true;
+      } catch (err) {
+        this.logger.error(`Failed to send email to ${to}:`, err);
+        this.logDevFallback(to, subject, devInfo);
+        return false;
+      }
+    } else {
+      this.logDevFallback(to, subject, devInfo);
+      return true;
+    }
+  }
+
+  private logDevFallback(to: string, subject: string, devInfo: string) {
+    this.logger.log(
+      `\n================ [MAIL SERVICE DEV LOG] ================\nTo: ${to}\nSubject: ${subject}\nInfo: ${devInfo}\n========================================================\n`,
+    );
+  }
+}

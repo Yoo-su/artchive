@@ -15,6 +15,7 @@ import { Cache } from 'cache-manager';
 import { User } from '@/features/user/entities/user.entity';
 import { UserService } from '@/features/user/services/user.service';
 import { NicknameGenerator } from '@/features/user/utils/nickname-generator';
+import { MailService } from '@/shared/mail/mail.service';
 
 import { TOKEN_EXPIRY } from '../auth.constants';
 import { JwtPayload } from '../types/jwt-payload.type';
@@ -26,12 +27,13 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly mailService: MailService,
   ) {}
 
   /**
    * 소셜 로그인 정보를 검증하고 유저를 생성하거나 반환합니다.
-   * - 기존 유저: 그대로 반환 (provider 정보로 덮어쓰지 않음)
-   * - 신규 유저: 랜덤 닉네임 + 기본 프로필 이미지 번호로 생성
+   * - 기존 유저: 누락된 소셜 정보 보강 후 반환
+   * - 신규 유저: 랜덤 닉네임 + 기본 프로필 이미지 번호 + 소셜 프로필 정보(이름, 성별, 연령대, 이메일 인증)로 생성
    * @param socialLoginDto 소셜 로그인 정보
    * @returns 유저 정보
    */
@@ -39,12 +41,16 @@ export class AuthService {
     provider: string;
     providerId: string;
     nickname: string;
-    profileImg: string;
+    profileImg?: string;
+    name?: string;
+    email?: string;
+    gender?: string;
+    ageRange?: string;
   }) {
-    const { provider, providerId } = socialLoginDto;
+    const { provider, providerId, name, email, gender, ageRange } =
+      socialLoginDto;
     const user = await this.userService.findByProviderId(provider, providerId);
 
-    // 기존 유저인 경우: 더 이상 provider 정보로 덮어쓰지 않고 그대로 반환
     if (user) {
       return user;
     }
@@ -79,10 +85,9 @@ export class AuthService {
     const profileNumber = NicknameGenerator.getRandomProfileNumber();
 
     const newUser = await this.userService.createUser({
-      provider,
-      providerId,
+      ...socialLoginDto,
       nickname: randomNickname,
-      // 기본 프로필 이미지 번호 저장 (프런트에서 해당 번호의 이미지 표시)
+      isEmailVerified: true,
       profileImageUrl: `default_profile${profileNumber}`,
     });
     return newUser;
@@ -171,10 +176,13 @@ export class AuthService {
     const safeUser = {
       id: loggedInUser.id,
       nickname: loggedInUser.nickname,
+      name: loggedInUser.name,
+      email: loggedInUser.email,
       handle: loggedInUser.handle,
       profileImageUrl: loggedInUser.profileImageUrl,
       role: loggedInUser.role,
       isReadingLogPublic: loggedInUser.isReadingLogPublic,
+      isEmailVerified: loggedInUser.isEmailVerified,
     };
 
     const ticket = crypto.randomUUID();
@@ -250,8 +258,11 @@ export class AuthService {
     email: string;
     password: string;
     nickname: string;
+    name: string;
+    gender?: string;
+    ageRange?: string;
   }) {
-    const { email, password, nickname } = registerDto;
+    const { email, password, nickname, name, gender, ageRange } = registerDto;
 
     // 1. 이메일 중복 체크
     const existingEmail = await this.userService.findByEmail(email);
@@ -269,12 +280,63 @@ export class AuthService {
     // 3. 비밀번호 해싱
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 4. 유저 생성
-    return await this.userService.createEmailUser(
+    // 4. 인증 토큰 생성
+    const verificationToken = crypto.randomUUID();
+    const verificationExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    // 5. 유저 생성 (미인증 상태로 생성)
+    const newUser = await this.userService.createEmailUser(
       email,
       hashedPassword,
       nickname,
+      name,
+      gender,
+      ageRange,
+      verificationToken,
+      verificationExpiresAt,
     );
+
+    // 6. 인증 메일 비동기 발송
+    this.mailService
+      .sendVerificationEmail(email, nickname, verificationToken)
+      .catch((err) =>
+        this.userService['logger'].error(
+          'Failed to send signup verification email:',
+          err,
+        ),
+      );
+
+    return newUser;
+  }
+
+  /**
+   * 이메일 인증 토큰을 검증합니다.
+   * @param token 인증 토큰
+   */
+  async verifyEmail(token: string) {
+    const user = await this.userService.verifyEmailToken(token);
+    return {
+      success: true,
+      message: '이메일 인증이 완료되었습니다.',
+      user: {
+        id: user.id,
+        email: user.email,
+        nickname: user.nickname,
+        isEmailVerified: user.isEmailVerified,
+      },
+    };
+  }
+
+  /**
+   * 인증 메일을 재발송합니다.
+   * @param userId 사용자 ID
+   */
+  async resendVerificationEmail(userId: number) {
+    await this.userService.resendVerificationEmail(userId);
+    return {
+      success: true,
+      message: '인증 메일이 발송되었습니다.',
+    };
   }
 
   /**

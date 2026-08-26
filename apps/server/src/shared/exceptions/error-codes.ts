@@ -32,6 +32,30 @@ export const ERROR_CODES = {
     code: 'AUTH_004',
     message: '접근 권한이 없습니다.',
   },
+  EMAIL_ALREADY_EXISTS: {
+    code: 'AUTH_005',
+    message: '이미 사용 중인 이메일 주소입니다.',
+  },
+  INVALID_OR_EXPIRED_VERIFICATION_TOKEN: {
+    code: 'AUTH_006',
+    message: '유효하지 않거나 만료된 인증 링크입니다.',
+  },
+  EXPIRED_VERIFICATION_TOKEN: {
+    code: 'AUTH_007',
+    message: '만료된 인증 링크입니다. 인증 메일을 재발송해주세요.',
+  },
+  ALREADY_VERIFIED: {
+    code: 'AUTH_008',
+    message: '이미 이메일 인증이 완료된 계정입니다.',
+  },
+  EMAIL_NOT_FOUND: {
+    code: 'AUTH_009',
+    message: '이메일 주소를 찾을 수 없습니다.',
+  },
+  SOCIAL_USER_EMAIL_CHANGE_NOT_ALLOWED: {
+    code: 'AUTH_010',
+    message: '소셜 로그인 계정은 이메일을 변경할 수 없습니다.',
+  },
 
   // ============================================
   // 사용자 관련 에러 (USER)

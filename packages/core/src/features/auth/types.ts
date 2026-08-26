@@ -33,6 +33,18 @@ export interface User {
 
   /** 사용자 권한 (USER 또는 ADMIN) */
   role: UserRole;
+
+  /** 회원 실명 (선택) */
+  name?: string | null;
+
+  /** 성별 ('M' | 'F' | 'U' | null) */
+  gender?: string | null;
+
+  /** 연령대 ('0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-' | null) */
+  ageRange?: string | null;
+
+  /** 이메일 인증 완료 여부 */
+  isEmailVerified?: boolean;
 }
 
 export interface EmailLoginParams {
@@ -44,6 +56,9 @@ export interface EmailSignupParams {
   email: string;
   password: string;
   nickname: string;
+  name: string;
+  gender?: string | null;
+  ageRange?: string | null;
 }
 
 export interface LoginResponse {

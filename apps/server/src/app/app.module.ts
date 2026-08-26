@@ -27,6 +27,7 @@ import { UserModule } from '@/features/user/user.module';
 import { WishlistModule } from '@/features/wishlist/wishlist.module';
 import { ActivityModule } from '@/shared/activity/activity.module';
 import { SmartCacheModule } from '@/shared/cache/smart-cache.module';
+import { MailModule } from '@/shared/mail/mail.module';
 
 @Module({
   imports: [
@@ -110,6 +111,7 @@ import { SmartCacheModule } from '@/shared/cache/smart-cache.module';
     HealthModule,
     ActivityModule,
     SmartCacheModule,
+    MailModule,
   ],
   controllers: [],
   providers: [

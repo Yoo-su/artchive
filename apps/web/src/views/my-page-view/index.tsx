@@ -1,11 +1,15 @@
 "use client";
 
+import { useSendVerificationEmailMutation } from "@bookjeok/react-query";
 import {
   ArrowRight,
   BookOpen,
   Calendar,
   CalendarDays,
+  CheckCircle2,
   Heart,
+  Loader2,
+  Mail,
   MessageSquare,
   Pencil,
   ShoppingBag,
@@ -13,6 +17,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { UserStatsDashboard } from "@/features/user/components/dashboard/user-stats-dashboard";
@@ -119,13 +124,33 @@ export const MyPageView = () => {
                 <h2 className="text-xl font-bold tracking-tight text-stone-900 sm:text-2xl">
                   {user.nickname}
                 </h2>
+                {user.name && (
+                  <span className="text-xs text-stone-500 font-medium">
+                    ({user.name})
+                  </span>
+                )}
                 {user.handle && (
                   <span className="rounded-md bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-500">
                     @{user.handle}
                   </span>
                 )}
               </div>
-              <p className="mt-0.5 text-xs text-stone-500">{user.email}</p>
+
+              <div className="mt-1.5 flex flex-wrap items-center justify-center gap-1.5 sm:justify-start text-xs text-stone-500">
+                <span>{user.email}</span>
+                {user.isEmailVerified ? (
+                  <>
+                    <span className="text-stone-300">·</span>
+                    <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 font-medium">
+                      <CheckCircle2 className="h-3 w-3" />
+                      {t("profile.verified")}
+                    </span>
+                  </>
+                ) : (
+                  <ResendVerificationAction />
+                )}
+              </div>
+
               {user.createdAt && (
                 <div className="mt-1.5 flex items-center justify-center gap-1.5 text-xs text-stone-400 sm:justify-start">
                   <Calendar className="h-3 w-3" />
@@ -158,13 +183,10 @@ export const MyPageView = () => {
       <UserStatsDashboard />
 
       {/* 활동 메뉴 */}
-      <div className="mb-10">
-        <div className="mb-3.5 flex items-center justify-between">
-          <h2 className="text-lg font-bold tracking-tight text-stone-900 sm:text-xl">
-            {t("activity_manage")}
-          </h2>
-        </div>
-
+      <div className="mb-6">
+        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-stone-400">
+          {t("activity_manage")}
+        </h3>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {activityMenus.map((menu) => (
             <Link
@@ -207,5 +229,33 @@ export const MyPageView = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const ResendVerificationAction = () => {
+  const t = useTranslations("my_page.profile");
+  const { mutate: resend, isPending } = useSendVerificationEmailMutation({
+    onSuccess: () => {
+      toast.success(t("resend_success"));
+    },
+    onError: () => {
+      toast.error(t("resend_error"));
+    },
+  });
+
+  return (
+    <>
+      <span className="text-stone-300">·</span>
+      <span className="text-stone-400">{t("unverified")}</span>
+      <span className="text-stone-300">·</span>
+      <button
+        type="button"
+        onClick={() => resend()}
+        disabled={isPending}
+        className="font-medium text-emerald-600 hover:text-emerald-700 underline underline-offset-2 transition-colors cursor-pointer disabled:opacity-50"
+      >
+        {isPending ? t("resending") : t("resend_verification")}
+      </button>
+    </>
   );
 };

@@ -7,6 +7,16 @@ import { User } from '@/features/user/entities/user.entity';
 
 import { AuthService } from '../services/auth.service';
 
+interface NaverProfileJson {
+  id?: string | number;
+  nickname?: string;
+  profile_image?: string;
+  name?: string;
+  email?: string;
+  gender?: string;
+  age?: string | number;
+}
+
 @Injectable()
 export class NaverStrategy extends PassportStrategy(Strategy, 'naver') {
   constructor(
@@ -26,11 +36,14 @@ export class NaverStrategy extends PassportStrategy(Strategy, 'naver') {
     profile: Profile,
     done: (error: unknown, user?: User | false, info?: unknown) => void,
   ) {
-    const {
-      id: providerId,
-      nickname,
-      profile_image: profileImg,
-    } = profile._json;
+    const naverJson = (profile as unknown as { _json: NaverProfileJson })._json;
+    const providerId = naverJson.id != null ? `${naverJson.id}` : '';
+    const nickname = naverJson.nickname || '';
+    const profileImg = naverJson.profile_image || '';
+    const name = naverJson.name || undefined;
+    const email = naverJson.email || undefined;
+    const gender = naverJson.gender || undefined;
+    const ageRange = naverJson.age != null ? `${naverJson.age}` : undefined;
     const provider = 'naver';
 
     try {
@@ -39,6 +52,10 @@ export class NaverStrategy extends PassportStrategy(Strategy, 'naver') {
         providerId,
         nickname,
         profileImg,
+        name,
+        email,
+        gender,
+        ageRange,
       });
       done(null, user);
     } catch (error) {
