@@ -1,6 +1,13 @@
 "use client";
 
-import { chatKeys, ChatMessage, ChatRoom } from "@bookjeok/core";
+import {
+  bookSaleKeys,
+  chatKeys,
+  ChatMessage,
+  ChatMessageType,
+  ChatRoom,
+  orderKeys,
+} from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 
@@ -63,7 +70,22 @@ export const useChatEvents = () => {
       }
 
       // 채팅방 목록 업데이트: 마지막 메시지 & 안읽음 카운트 갱신
-      updateRoomLastMessage(queryClient, roomId, newMessage, isChatVisible);
+      updateRoomLastMessage(
+        queryClient,
+        roomId,
+        newMessage,
+        Boolean(isChatVisible || isMyMessage),
+      );
+
+      // 거래 관련 상태 변경 메시지 수신 시 주문/판매글/채팅방목록 쿼리 캐시 즉시 동기화
+      if (
+        newMessage.type === ChatMessageType.TRADE_STATUS ||
+        newMessage.type === ChatMessageType.TRADE_ACTION
+      ) {
+        queryClient.invalidateQueries({ queryKey: orderKeys._def });
+        queryClient.invalidateQueries({ queryKey: bookSaleKeys._def });
+        queryClient.invalidateQueries({ queryKey: chatKeys.rooms.queryKey });
+      }
     },
     [queryClient, socket],
   );

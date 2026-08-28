@@ -14,6 +14,7 @@ import {
   useMyChatRoomsQuery,
 } from "../../../queries";
 import { useChatStore } from "../../../stores/use-chat-store";
+import { TradeStatusBanner } from "../../trade/trade-status-banner";
 import { ChatRoomHeader } from "./header";
 import { ChatInput } from "./input";
 import { MessageList } from "./message-list";
@@ -77,7 +78,13 @@ export const ChatRoom = () => {
   });
 
   // 스크롤 관리 훅
-  const { messagesEndRef, messageContainerRef, handleScroll } = useChatScroll({
+  const {
+    messagesEndRef,
+    messageContainerRef,
+    contentRef,
+    handleScroll,
+  } = useChatScroll({
+    roomId: activeChatRoomId ?? undefined,
     messages,
     hasPreviousPage: hasPreviousPage ?? false,
     isFetchingPreviousPage,
@@ -121,12 +128,21 @@ export const ChatRoom = () => {
         typingNickname={typingNickname}
       />
 
+      {currentUser && (
+        <TradeStatusBanner
+          room={room}
+          currentUser={currentUser}
+          opponent={opponent}
+        />
+      )}
+
       <MessageList
         messages={messages}
         currentUserId={currentUser?.id}
         isFetchingPreviousPage={isFetchingPreviousPage}
         messagesEndRef={messagesEndRef}
         messageContainerRef={messageContainerRef}
+        contentRef={contentRef}
         onScroll={handleScroll}
       />
 

@@ -21,6 +21,12 @@ export enum SaleStatus {
   WITHDRAWN = 'WITHDRAWN', // 탈퇴로 인한 숨김
 }
 
+export enum TradeMethod {
+  DIRECT_ONLY = 'DIRECT_ONLY',
+  DELIVERY_ONLY = 'DELIVERY_ONLY',
+  BOTH = 'BOTH',
+}
+
 @Entity({ name: 'used_book_sales' })
 @Index(['status', 'createdAt', 'id'])
 @Index(['status', 'price', 'id'])
@@ -61,6 +67,13 @@ export class UsedBookSale {
     default: SaleStatus.FOR_SALE,
   })
   status: SaleStatus;
+
+  @Column({
+    type: 'enum',
+    enum: TradeMethod,
+    default: TradeMethod.DIRECT_ONLY,
+  })
+  tradeMethod: TradeMethod;
 
   @Column({ default: 0 })
   viewCount: number;

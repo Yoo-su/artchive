@@ -1,4 +1,4 @@
-import { UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core";
+import { TradeMethod, UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -57,6 +57,7 @@ export const useBookSaleEditForm = ({ sale }: UseBookSaleEditFormProps) => {
     defaultValues: {
       title: sale.title,
       price: String(sale.price),
+      tradeMethod: sale.tradeMethod ?? TradeMethod.BOTH,
       city: sale.city,
       district: sale.district,
       latitude: sale.latitude ?? undefined,
@@ -76,6 +77,7 @@ export const useBookSaleEditForm = ({ sale }: UseBookSaleEditFormProps) => {
     const payload: UpdateBookSaleParams = {
       title: data.title,
       price: Number(data.price),
+      tradeMethod: data.tradeMethod,
       city: data.city,
       district: data.district,
       latitude: data.latitude,

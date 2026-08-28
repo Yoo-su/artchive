@@ -1,10 +1,22 @@
 import { PublicUserProfile, SaleStatus } from "@bookjeok/core";
-import { ArrowRight, BookOpen, Calendar, ShoppingBag, User } from "lucide-react";
+import { useSellerStatsQuery } from "@bookjeok/react-query";
+import {
+  ArrowRight,
+  BookOpen,
+  Calendar,
+  MessageSquare,
+  ShoppingBag,
+  User,
+} from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { SaleStatusBadge } from "@/features/book-sale/components/common/sale-status-badge";
+import {
+  SellerTrustBadge,
+  UserTradeReviewsList,
+} from "@/features/order";
 import { ReadingLogCalendar } from "@/features/reading-log/components/calendar-view/reading-log-calendar";
 import { ReadingLogListView } from "@/features/reading-log/components/list-view/reading-log-list-view";
 import { usePublicProfileQuery } from "@/features/user/queries";
@@ -20,12 +32,19 @@ interface UserProfileProps {
   handle: string;
 }
 
+type ProfileTab = "READING" | "TRADE_REVIEWS";
+
 /**
  * 유저 프로필 메인 컴포넌트
  */
 export const UserProfile = ({ handle }: UserProfileProps) => {
   const t = useTranslations("user_profile");
+  const tReview = useTranslations("order.trade_review");
   const { data: profile, isLoading, error } = usePublicProfileQuery(handle);
+  const { data: sellerStats } = useSellerStatsQuery(handle, {
+    enabled: !!handle,
+  });
+  const [activeTab, setActiveTab] = useState<ProfileTab>("READING");
   const [currentDate, setCurrentDate] = useState<Date>(() => new Date());
 
   if (isLoading) {
@@ -36,62 +55,104 @@ export const UserProfile = ({ handle }: UserProfileProps) => {
     return <NotFoundRedirect message={t("not_found")} useBack />;
   }
 
+  const reviewCount = sellerStats?.totalReviews ?? 0;
+
   return (
     <div className="container mx-auto max-w-5xl px-4 py-10" data-clarity-mask="true">
       <UserProfileHeader profile={profile} />
       <UserProfileStats stats={profile.stats} />
 
-      {/* 독서 기록 영역 (PC: 캘린더, 모바일: 리스트) */}
-      {profile.readingLogs && profile.readingLogs.length > 0 && (
-        <div className="mb-10">
-          {/* PC 뷰 (md 이상: 캘린더) */}
-          <div className="hidden md:block rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs sm:p-8">
-            <div className="mb-6 flex items-center justify-between gap-3">
-              <h3 className="font-serif text-xl font-semibold text-stone-900 break-keep">
-                {t("reading_log_calendar_title", { name: profile.nickname })}
-              </h3>
-              <span className="text-xs text-stone-400 font-serif shrink-0 whitespace-nowrap">
-                {t("sections.badge_calendar")}
-              </span>
-            </div>
-            <ReadingLogCalendar
-              currentDate={currentDate}
-              onDateChange={setCurrentDate}
-              readOnly
-              initialLogs={profile.readingLogs}
-            />
-          </div>
+      {/* 탭 네비게이션 */}
+      <div className="mb-8 border-b border-stone-200/80">
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveTab("READING")}
+            className={`pb-3 px-4 text-sm font-bold border-b-2 transition-all cursor-pointer ${
+              activeTab === "READING"
+                ? "border-stone-900 text-stone-900"
+                : "border-transparent text-stone-400 hover:text-stone-600"
+            }`}
+          >
+            {tReview("list.tab_reading")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("TRADE_REVIEWS")}
+            className={`pb-3 px-4 text-sm font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === "TRADE_REVIEWS"
+                ? "border-stone-900 text-stone-900"
+                : "border-transparent text-stone-400 hover:text-stone-600"
+            }`}
+          >
+            <span>
+              {tReview("list.tab_trade_reviews", { count: reviewCount })}
+            </span>
+          </button>
+        </div>
+      </div>
 
-          {/* 모바일 뷰 (md 미만: 리스트 & 무한 스크롤) */}
-          <div className="block md:hidden rounded-2xl border border-stone-200/80 bg-white p-4 sm:p-5 shadow-xs">
-            <div className="mb-4">
-              <h3 className="font-serif text-base sm:text-lg font-semibold text-stone-900 break-keep">
-                {t("reading_log_calendar_title", { name: profile.nickname })}
-              </h3>
+      {/* 탭 콘텐츠: 독서 활동 */}
+      {activeTab === "READING" && (
+        <div className="space-y-10">
+          {/* 독서 기록 영역 (PC: 캘린더, 모바일: 리스트) */}
+          {profile.readingLogs && profile.readingLogs.length > 0 && (
+            <div>
+              {/* PC 뷰 (md 이상: 캘린더) */}
+              <div className="hidden md:block rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs sm:p-8">
+                <div className="mb-6 flex items-center justify-between gap-3">
+                  <h3 className="font-serif text-xl font-semibold text-stone-900 break-keep">
+                    {t("reading_log_calendar_title", { name: profile.nickname })}
+                  </h3>
+                  <span className="text-xs text-stone-400 font-serif shrink-0 whitespace-nowrap">
+                    {t("sections.badge_calendar")}
+                  </span>
+                </div>
+                <ReadingLogCalendar
+                  currentDate={currentDate}
+                  onDateChange={setCurrentDate}
+                  readOnly
+                  initialLogs={profile.readingLogs}
+                />
+              </div>
+
+              {/* 모바일 뷰 (md 미만: 리스트 & 무한 스크롤) */}
+              <div className="block md:hidden rounded-2xl border border-stone-200/80 bg-white p-4 sm:p-5 shadow-xs">
+                <div className="mb-4">
+                  <h3 className="font-serif text-base sm:text-lg font-semibold text-stone-900 break-keep">
+                    {t("reading_log_calendar_title", { name: profile.nickname })}
+                  </h3>
+                </div>
+                <ReadingLogListView
+                  logs={profile.readingLogs}
+                  readOnly
+                />
+              </div>
             </div>
-            <ReadingLogListView
-              logs={profile.readingLogs}
-              readOnly
-            />
+          )}
+
+          {/* 최근 리뷰 및 최근 판매글 (2-column layout) */}
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+            {profile.recentReviews.length > 0 && (
+              <UserRecentReviews reviews={profile.recentReviews} />
+            )}
+            {profile.recentSales.length > 0 && (
+              <UserRecentSales sales={profile.recentSales} />
+            )}
           </div>
         </div>
       )}
 
-      {/* 최근 리뷰 및 최근 판매글 (2-column layout) */}
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-        {profile.recentReviews.length > 0 && (
-          <UserRecentReviews reviews={profile.recentReviews} />
-        )}
-        {profile.recentSales.length > 0 && (
-          <UserRecentSales sales={profile.recentSales} />
-        )}
-      </div>
+      {/* 탭 콘텐츠: 거래 후기 */}
+      {activeTab === "TRADE_REVIEWS" && (
+        <UserTradeReviewsList handle={handle} />
+      )}
     </div>
   );
 };
 
 /**
- * 프로필 헤더 - 아바타, 닉네임, 가입일
+ * 프로필 헤더 - 아바타, 닉네임, 가입일, 거래 신뢰 지표
  */
 interface UserProfileHeaderProps {
   profile: Pick<
@@ -132,13 +193,19 @@ const UserProfileHeader = ({ profile }: UserProfileHeaderProps) => {
               </span>
             )}
           </div>
-          <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-stone-500 sm:justify-start sm:text-sm">
-            <Calendar className="h-3.5 w-3.5 text-stone-400" />
-            <span>
-              {t("joined", {
-                date: formatDate(profile.createdAt, locale, "yearMonth"),
-              })}
-            </span>
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-3 text-xs text-stone-500 sm:justify-start sm:text-sm">
+            <div className="flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5 text-stone-400" />
+              <span>
+                {t("joined", {
+                  date: formatDate(profile.createdAt, locale, "yearMonth"),
+                })}
+              </span>
+            </div>
+            {/* 판매자 안전거래 신뢰 뱃지 */}
+            {profile.handle && (
+              <SellerTrustBadge handle={profile.handle} size="sm" />
+            )}
           </div>
         </div>
       </div>

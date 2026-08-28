@@ -128,22 +128,30 @@ export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-32">
-                <DropdownMenuItem asChild>
-                  <Link href={PATHS.MY_PAGE_SALES_EDIT(String(sale.id))}>
-                    <Edit className="mr-2 h-3.5 w-3.5" />
-                    <span className="text-xs">{tActions("edit")}</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-red-600 focus:text-red-700 focus:bg-red-50"
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                >
-                  <Trash2 className="mr-2 h-3.5 w-3.5" />
-                  <span className="text-xs">
-                    {isDeleting ? tActions("deleting") : tActions("delete")}
-                  </span>
-                </DropdownMenuItem>
+                {sale.status === SaleStatus.RESERVED ? (
+                  <DropdownMenuItem disabled className="text-xs text-stone-400">
+                    {tActions("in_trade_cannot_modify")}
+                  </DropdownMenuItem>
+                ) : (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href={PATHS.MY_PAGE_SALES_EDIT(String(sale.id))}>
+                        <Edit className="mr-2 h-3.5 w-3.5" />
+                        <span className="text-xs">{tActions("edit")}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-red-600 focus:text-red-700 focus:bg-red-50"
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                    >
+                      <Trash2 className="mr-2 h-3.5 w-3.5" />
+                      <span className="text-xs">
+                        {isDeleting ? tActions("deleting") : tActions("delete")}
+                      </span>
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -158,8 +166,15 @@ export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
           </p>
 
           <div onClick={handleDropdownClick}>
-            <Select value={sale.status} onValueChange={handleStatusChange}>
-              <SelectTrigger className="w-[110px] h-8 text-xs bg-white border-stone-200 focus:ring-stone-200 shadow-sm">
+            <Select
+              value={sale.status}
+              onValueChange={handleStatusChange}
+              disabled={sale.status === SaleStatus.RESERVED}
+            >
+              <SelectTrigger
+                className="w-[110px] h-8 text-xs bg-white border-stone-200 focus:ring-stone-200 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                title={sale.status === SaleStatus.RESERVED ? tActions("in_trade_status_auto") : undefined}
+              >
                 <SelectValue placeholder={t("change_status")} />
               </SelectTrigger>
               <SelectContent>

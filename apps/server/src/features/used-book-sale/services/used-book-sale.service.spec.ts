@@ -1,13 +1,16 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource, EntityManager } from 'typeorm';
 
 import { BookService } from '@/features/book/services/book.service';
+import { Order, OrderStatus } from '@/features/order/entities/order.entity';
 import { UserService } from '@/features/user/services/user.service';
+import { BusinessException } from '@/shared/exceptions/business.exception';
 
 import { CreateBookSaleDto } from '../dtos/create-book-sale.dto';
-import { UsedBookSale } from '../entities/used-book-sale.entity';
+import { SaleStatus, UsedBookSale } from '../entities/used-book-sale.entity';
 import { UsedBookSaleService } from './used-book-sale.service';
 
 describe('UsedBookSaleService', () => {
@@ -22,6 +25,10 @@ describe('UsedBookSaleService', () => {
     increment: jest.fn(),
     remove: jest.fn(),
     merge: jest.fn(),
+  };
+
+  const mockOrderRepository = {
+    findOne: jest.fn(),
   };
 
   const mockBookService = {
@@ -52,6 +59,10 @@ describe('UsedBookSaleService', () => {
         {
           provide: getRepositoryToken(UsedBookSale),
           useValue: mockUsedBookSaleRepository,
+        },
+        {
+          provide: getRepositoryToken(Order),
+          useValue: mockOrderRepository,
         },
         { provide: BookService, useValue: mockBookService },
         { provide: UserService, useValue: mockUserService },
@@ -107,6 +118,54 @@ describe('UsedBookSaleService', () => {
       expect(result).toEqual(expectedSale);
       expect(mockUsedBookSaleRepository.create).toHaveBeenCalled();
       expect(mockUsedBookSaleRepository.save).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('updateSaleStatus - edge case', () => {
+    it('활성 주문이 존재하는 판매글의 상태 변경 시 SALE_IN_TRADE_CANNOT_CHANGE_STATUS 예외를 던져야 합니다', async () => {
+      const sale = { id: 10, user: { id: 1 }, status: SaleStatus.FOR_SALE };
+      mockUsedBookSaleRepository.findOne.mockResolvedValue(sale);
+      mockOrderRepository.findOne.mockResolvedValue({
+        id: 1,
+        saleId: 10,
+        status: OrderStatus.PAID,
+      });
+
+      await expect(
+        service.updateSaleStatus(10, 1, SaleStatus.SOLD),
+      ).rejects.toThrow(BusinessException);
+    });
+  });
+
+  describe('updateUsedBookSale - edge case', () => {
+    it('활성 주문이 존재하는 판매글 수정 시 SALE_IN_TRADE_CANNOT_UPDATE 예외를 던져야 합니다', async () => {
+      const sale = { id: 10, user: { id: 1 }, title: '기존 제목' };
+      mockUsedBookSaleRepository.findOne.mockResolvedValue(sale);
+      mockOrderRepository.findOne.mockResolvedValue({
+        id: 1,
+        saleId: 10,
+        status: OrderStatus.AWAITING_PAYMENT,
+      });
+
+      await expect(
+        service.updateUsedBookSale(10, 1, { title: '새 제목' } as any),
+      ).rejects.toThrow(BusinessException);
+    });
+  });
+
+  describe('deleteUsedBookSale - edge case', () => {
+    it('활성 주문이 존재하는 판매글 삭제 시 SALE_IN_TRADE_CANNOT_DELETE 예외를 던져야 합니다', async () => {
+      const sale = { id: 10, user: { id: 1 } };
+      mockUsedBookSaleRepository.findOne.mockResolvedValue(sale);
+      mockOrderRepository.findOne.mockResolvedValue({
+        id: 1,
+        saleId: 10,
+        status: OrderStatus.SHIPPED,
+      });
+
+      await expect(service.deleteUsedBookSale(10, 1)).rejects.toThrow(
+        BusinessException,
+      );
     });
   });
 });

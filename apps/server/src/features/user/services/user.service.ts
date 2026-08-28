@@ -3,10 +3,11 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional, TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterTypeOrm } from '@nestjs-cls/transactional-adapter-typeorm';
-import { DataSource, MoreThanOrEqual, Repository } from 'typeorm';
+import { DataSource, In, MoreThanOrEqual, Repository } from 'typeorm';
 
 import { SocialLoginDto } from '@/features/auth/dtos/social-login.dto';
 import { ChatParticipant } from '@/features/chat/entities/chat-participant.entity';
+import { Order, OrderStatus } from '@/features/order/entities/order.entity';
 import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
 import { Review } from '@/features/review/entities/review.entity';
 import {
@@ -29,6 +30,8 @@ export class UserService implements OnModuleInit {
     private readonly chatParticipantRepository: Repository<ChatParticipant>,
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
     private readonly dataSource: DataSource,
     private readonly txHost: TransactionHost<TransactionalAdapterTypeOrm>,
     private readonly eventEmitter: EventEmitter2,
@@ -453,6 +456,40 @@ export class UserService implements OnModuleInit {
   @Transactional()
   async withdraw(userId: number): Promise<void> {
     const manager = this.txHost.tx;
+
+    // 0. 활성 거래 여부 검증 (자신이 판매자 또는 구매자로 참여 중인 활성 주문이 있는 경우 탈퇴 불가)
+    const activeOrder = await manager.findOne(Order, {
+      where: [
+        {
+          buyerId: userId,
+          status: In([
+            OrderStatus.AWAITING_PAYMENT,
+            OrderStatus.PAID,
+            OrderStatus.SHIPPED,
+            OrderStatus.DELIVERED,
+            OrderStatus.DISPUTED,
+          ]),
+        },
+        {
+          sellerId: userId,
+          status: In([
+            OrderStatus.AWAITING_PAYMENT,
+            OrderStatus.PAID,
+            OrderStatus.SHIPPED,
+            OrderStatus.DELIVERED,
+            OrderStatus.DISPUTED,
+          ]),
+        },
+      ],
+    });
+
+    if (activeOrder) {
+      throw new BusinessException(
+        'USER_IN_TRADE_CANNOT_WITHDRAW',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const user = await manager.findOne(User, {
       where: { id: userId },
     });

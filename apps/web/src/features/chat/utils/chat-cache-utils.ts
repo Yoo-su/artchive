@@ -99,18 +99,22 @@ export const updateRoomLastMessage = (
   message: ChatMessage,
   isViewing: boolean,
 ): void => {
-  queryClient.setQueryData<ChatRoom[]>(chatKeys.rooms.queryKey, (oldRooms) => {
-    if (!oldRooms) return [];
+  let roomFound = false;
 
-    const updatedRooms = oldRooms.map((room) =>
-      room.id === roomId
-        ? {
-            ...room,
-            lastMessage: message,
-            unreadCount: isViewing ? 0 : (room.unreadCount || 0) + 1,
-          }
-        : room,
-    );
+  queryClient.setQueryData<ChatRoom[]>(chatKeys.rooms.queryKey, (oldRooms) => {
+    if (!oldRooms) return oldRooms;
+
+    const updatedRooms = oldRooms.map((room) => {
+      if (room.id === roomId) {
+        roomFound = true;
+        return {
+          ...room,
+          lastMessage: message,
+          unreadCount: isViewing ? 0 : (room.unreadCount || 0) + 1,
+        };
+      }
+      return room;
+    });
 
     return updatedRooms.sort(
       (a, b) =>
@@ -118,4 +122,11 @@ export const updateRoomLastMessage = (
         new Date(a.lastMessage?.createdAt ?? 0).getTime(),
     );
   });
+
+  // 캐시에 해당 방이 없거나 아직 로드되지 않은 경우 방 목록 쿼리 무효화하여 최신 안읽음 뱃지 동기화
+  if (!roomFound) {
+    queryClient.invalidateQueries({
+      queryKey: chatKeys.rooms.queryKey,
+    });
+  }
 };

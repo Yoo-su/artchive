@@ -11,8 +11,10 @@ import {
   Loader2,
   Mail,
   MessageSquare,
+  PackageCheck,
   Pencil,
   ShoppingBag,
+  Truck,
   User,
 } from "lucide-react";
 import Image from "next/image";
@@ -46,6 +48,18 @@ export const MyPageView = () => {
       label: t("menu.reading_log.label"),
       description: t("menu.reading_log.desc"),
       href: PATHS.READING_LOG,
+    },
+    {
+      icon: PackageCheck,
+      label: t("menu.purchases.label"),
+      description: t("menu.purchases.desc"),
+      href: PATHS.MY_PAGE_PURCHASES,
+    },
+    {
+      icon: Truck,
+      label: t("menu.sales_orders.label"),
+      description: t("menu.sales_orders.desc"),
+      href: PATHS.MY_PAGE_SALES_ORDERS,
     },
     {
       icon: ShoppingBag,

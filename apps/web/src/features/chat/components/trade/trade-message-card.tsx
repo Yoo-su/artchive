@@ -1,0 +1,232 @@
+"use client";
+
+import { ChatMessage, OrderStatus } from "@bookjeok/core";
+import { useOrderDetailQuery } from "@bookjeok/react-query";
+import {
+  AlertTriangle,
+  ArrowRight,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
+import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+
+import { EmailVerificationModal } from "@/features/auth/components/email-verification-alert";
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import {
+  BoxIcon,
+  CardPosIcon,
+  ClockIcon,
+  TruckFastIcon,
+} from "@/shared/components/icons";
+import { Button } from "@/shared/components/shadcn/button";
+import { PATHS } from "@/shared/constants/paths";
+
+interface TradeMessageCardProps {
+  message: ChatMessage;
+  currentUserId?: number;
+}
+
+export const TradeMessageCard = ({
+  message,
+  currentUserId,
+}: TradeMessageCardProps) => {
+  const t = useTranslations("chat.trade.message_card");
+  const tCommon = useTranslations("common");
+  const authUser = useAuthStore((state) => state.user);
+
+  const effectiveUserId = currentUserId ?? authUser?.id;
+
+  const metadata = message.metadata || {};
+  const status = metadata.status as OrderStatus | undefined;
+  const orderId = (metadata.orderId || metadata.orderNumber) as string | undefined;
+  const amount = metadata.amount as number | undefined;
+  const carrier = metadata.carrier as string | undefined;
+  const trackingNumber = metadata.trackingNumber as string | undefined;
+  const reason = (metadata.disputeReason || metadata.reason) as
+    | string
+    | undefined;
+
+  const { data: orderDetail } = useOrderDetailQuery(orderId, {
+    enabled: Boolean(orderId),
+    refetchInterval: false,
+  });
+
+  const isOrderExpired = Boolean(
+    orderDetail?.expiresAt &&
+      new Date(orderDetail.expiresAt).getTime() <= Date.now(),
+  );
+
+  const isOrderInactive = Boolean(
+    orderDetail &&
+      (orderDetail.status !== OrderStatus.AWAITING_PAYMENT || isOrderExpired),
+  );
+
+  // 판매자 여부 판별 (판매자는 결제 버튼 비노출, 주문 상세 버튼만 노출)
+  const sellerId =
+    orderDetail?.sellerId ??
+    message.chatRoom?.usedBookSale?.user?.id ??
+    (message.chatRoom?.usedBookSale as any)?.userId;
+  const isSeller = Boolean(
+    effectiveUserId && sellerId && effectiveUserId === sellerId,
+  );
+
+  const handlePayClick = (e: React.MouseEvent) => {
+    if (isOrderInactive) {
+      e.preventDefault();
+      toast.error(t("order_closed_toast"));
+    }
+  };
+
+  const getStatusDisplay = () => {
+    switch (status) {
+      case OrderStatus.AWAITING_PAYMENT:
+        return {
+          icon: <ClockIcon className="w-4 h-4 text-stone-700 dark:text-stone-300" />,
+          title: t("title.AWAITING_PAYMENT"),
+          titleColor: "text-stone-900 dark:text-stone-100",
+        };
+      case OrderStatus.PAID:
+        return {
+          icon: <BoxIcon className="w-4 h-4 text-stone-700 dark:text-stone-300" />,
+          title: t("title.PAID"),
+          titleColor: "text-stone-900 dark:text-stone-100",
+        };
+      case OrderStatus.SHIPPED:
+        return {
+          icon: <TruckFastIcon className="w-4 h-4 text-stone-700 dark:text-stone-300" />,
+          title: t("title.SHIPPED"),
+          titleColor: "text-stone-900 dark:text-stone-100",
+        };
+      case OrderStatus.DELIVERED:
+        return {
+          icon: (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          ),
+          title: t("title.DELIVERED"),
+          titleColor: "text-emerald-600 dark:text-emerald-400",
+        };
+      case OrderStatus.CONFIRMED:
+        return {
+          icon: (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          ),
+          title: t("title.CONFIRMED"),
+          titleColor: "text-emerald-600 dark:text-emerald-400",
+        };
+      case OrderStatus.DISPUTED:
+        return {
+          icon: (
+            <AlertTriangle className="w-4 h-4 text-stone-700 dark:text-stone-300" />
+          ),
+          title: t("title.DISPUTED"),
+          titleColor: "text-stone-800 dark:text-stone-200",
+        };
+      case OrderStatus.CANCELLED:
+      default:
+        return {
+          icon: <XCircle className="w-4 h-4 text-stone-400" />,
+          title: t("title.CANCELLED"),
+          titleColor: "text-stone-500 dark:text-stone-400",
+        };
+    }
+  };
+
+  const display = getStatusDisplay();
+
+  return (
+    <div className="flex justify-center my-3 w-full px-2">
+      <div className="w-full max-w-sm rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900/90 p-4 shadow-2xs transition-all">
+        {/* 상단: 아이콘 + 상태 텍스트 (배경 박스 완전 제거 & 완벽한 수직 중앙 정렬) */}
+        <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-stone-100 dark:border-stone-800/80">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <div className="flex items-center justify-center shrink-0">
+              {display.icon}
+            </div>
+            <span className={`text-xs font-bold leading-none ${display.titleColor}`}>
+              {display.title}
+            </span>
+          </div>
+        </div>
+
+        <p className="text-sm font-medium text-stone-900 dark:text-stone-100 mt-2.5 leading-snug">
+          {message.content}
+        </p>
+
+        {/* 상세 메타 정보 (가격 폰트 통일 및 폰트 왜곡 해결) */}
+        {(amount || (carrier && trackingNumber) || reason) && (
+          <div className="mt-3 pt-2.5 border-t border-stone-100 dark:border-stone-800 space-y-1.5 text-xs text-stone-500 dark:text-stone-400">
+            {amount && (
+              <div className="flex justify-between items-center">
+                <span>결제 금액</span>
+                <span className="font-bold text-stone-900 dark:text-stone-100 text-sm">
+                  <span className="tabular-nums">{amount.toLocaleString()}</span>
+                  <span className="ml-0.5 font-medium text-xs">{tCommon("won")}</span>
+                </span>
+              </div>
+            )}
+            {carrier && trackingNumber && (
+              <div className="flex justify-between items-center">
+                <span>운송장 정보</span>
+                <span className="font-mono font-medium text-stone-900 dark:text-stone-100">
+                  {carrier} {trackingNumber}
+                </span>
+              </div>
+            )}
+            {reason && (
+              <div className="flex justify-between items-start gap-2">
+                <span className="shrink-0">사유</span>
+                <span className="text-right text-stone-700 dark:text-stone-300">
+                  {reason}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 버튼 액션 */}
+        {orderId && (
+          <div className="mt-3 pt-2 border-t border-stone-100 dark:border-stone-800 flex items-center gap-2">
+            {status === OrderStatus.AWAITING_PAYMENT && !isSeller && (
+              isOrderInactive ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handlePayClick}
+                  className="flex-1 h-8 text-xs font-medium gap-1 shadow-2xs rounded-lg opacity-60 cursor-not-allowed text-stone-500 border-stone-200 dark:border-stone-700 hover:bg-transparent"
+                  title={t("order_closed_toast")}
+                >
+                  <CardPosIcon className="w-3.5 h-3.5 text-stone-400" />
+                  {t("btn_pay_now")}
+                </Button>
+              ) : (
+                <Button
+                  asChild
+                  size="sm"
+                  className="flex-1 h-8 text-xs bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 font-medium gap-1 shadow-2xs rounded-lg cursor-pointer"
+                >
+                  <Link href={PATHS.ORDER_PAYMENT(orderId!)}>
+                    <CardPosIcon className="w-3.5 h-3.5" />
+                    {t("btn_pay_now")}
+                  </Link>
+                </Button>
+              )
+            )}
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="flex-1 h-8 text-xs gap-1 border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 bg-background rounded-lg cursor-pointer"
+            >
+              <Link href={PATHS.ORDER_DETAIL(orderId!)}>
+                {t("btn_view_detail")}
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

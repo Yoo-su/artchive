@@ -1,4 +1,4 @@
-import { BookInfo, CreateBookSaleParams } from "@bookjeok/core";
+import { BookInfo, CreateBookSaleParams, TradeMethod } from "@bookjeok/core";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -32,6 +32,7 @@ export const useBookSaleForm = () => {
     defaultValues: {
       title: "",
       price: "",
+      tradeMethod: TradeMethod.BOTH,
       content: "",
       city: "",
       district: "",
@@ -65,6 +66,7 @@ export const useBookSaleForm = () => {
     const payload: Omit<CreateBookSaleParams, "imageUrls"> = {
       title: data.title,
       price: Number(data.price),
+      tradeMethod: data.tradeMethod,
       city: data.city,
       district: data.district,
       latitude: data.latitude,

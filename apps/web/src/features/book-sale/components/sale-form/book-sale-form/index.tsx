@@ -1,11 +1,15 @@
-import { BookOpen, Loader2 } from "lucide-react";
+import { TradeMethod } from "@bookjeok/core";
+import { Handshake, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
+import { EmailVerificationAlert } from "@/features/auth/components/email-verification-alert";
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { BookSearchModal } from "@/features/book/components/common/book-search-modal";
 import { StatefulButton } from "@/shared/components/aceternityui/stateful-button";
+import { BookIcon, BoxIcon, TruckFastIcon } from "@/shared/components/icons";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Card,
@@ -46,6 +50,9 @@ const MapLocationSelector = dynamic(
 
 export const BookSaleForm = () => {
   const t = useTranslations("market.form");
+  const user = useAuthStore((state) => state.user);
+  const isEmailUnverified = !!user && !user.isEmailVerified;
+
   const {
     form,
     imagePreviews,
@@ -67,9 +74,16 @@ export const BookSaleForm = () => {
         <CardDescription>{t("desc_write")}</CardDescription>
       </CardHeader>
       <CardContent className="px-0 sm:px-6">
+        {isEmailUnverified && (
+          <EmailVerificationAlert
+            title="이메일 인증 후 판매글 작성이 가능합니다"
+            description="사기 및 허위 매물 방지를 위해 이메일 인증이 완료된 회원만 판매글을 등록할 수 있습니다."
+            className="mb-6"
+          />
+        )}
         <Form {...form}>
           <form onSubmit={onSubmit} className="space-y-8">
-            <fieldset disabled={isSubmitDisabled} className="space-y-8">
+            <fieldset disabled={isSubmitDisabled || isEmailUnverified} className="space-y-8">
               <FormField
                 control={form.control}
                 name="book"
@@ -80,7 +94,7 @@ export const BookSaleForm = () => {
                       {!selectedBook ? (
                         <div className="flex flex-col items-center justify-center py-12 px-4 mb-2 border-2 border-dashed rounded-xl bg-muted/30 gap-6 hover:bg-muted/50 transition-colors group">
                           <div className="w-16 h-16 rounded-full bg-background flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                            <BookOpen className="w-8 h-8 text-muted-foreground" />
+                            <BookIcon className="w-8 h-8 text-muted-foreground" />
                           </div>
                           <div className="text-center space-y-2">
                             <h3 className="font-semibold text-lg">
@@ -193,6 +207,68 @@ export const BookSaleForm = () => {
                   )}
                 />
               </div>
+
+              {/* 거래 방식 선택 */}
+              <FormField
+                control={form.control}
+                name="tradeMethod"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>거래 방식</FormLabel>
+                    <FormControl>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {[
+                          {
+                            value: TradeMethod.BOTH,
+                            title: "직거래 · 택배 모두",
+                            desc: "직거래와 택배거래 모두 가능해요",
+                            icon: <BoxIcon className="w-4 h-4 text-stone-800 dark:text-stone-200" />,
+                          },
+                          {
+                            value: TradeMethod.DELIVERY_ONLY,
+                            title: "택배거래만",
+                            desc: "안전결제 및 택배 배송으로 거래해요",
+                            icon: <TruckFastIcon className="w-4 h-4 text-stone-800 dark:text-stone-200" />,
+                          },
+                          {
+                            value: TradeMethod.DIRECT_ONLY,
+                            title: "직거래만",
+                            desc: "직접 만나서 거래해요",
+                            icon: <Handshake className="w-4 h-4 text-stone-800 dark:text-stone-200" />,
+                          },
+                        ].map((item) => {
+                          const isSelected = field.value === item.value;
+                          return (
+                            <button
+                              key={item.value}
+                              type="button"
+                              onClick={() => field.onChange(item.value)}
+                              className={`p-3.5 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer ${
+                                isSelected
+                                  ? "border-stone-900 bg-stone-50 dark:bg-stone-800 dark:border-stone-100 ring-1 ring-stone-900 dark:ring-stone-100 shadow-2xs"
+                                  : "border-stone-200 dark:border-stone-800 bg-card hover:bg-stone-50 dark:hover:bg-stone-900"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <div className="p-1.5 rounded-md bg-background shadow-2xs">
+                                  {item.icon}
+                                </div>
+                                <span className="font-semibold text-sm text-foreground">
+                                  {item.title}
+                                </span>
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                                {item.desc}
+                              </p>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <div className="border rounded-xl p-4 sm:p-6 bg-muted/20 space-y-4">
                 <div className="space-y-1">
@@ -344,7 +420,7 @@ export const BookSaleForm = () => {
                     : "loading"
               }
               className="w-full mt-10"
-              disabled={isSubmitDisabled}
+              disabled={isSubmitDisabled || isEmailUnverified}
             >
               {t("submit")}
             </StatefulButton>
