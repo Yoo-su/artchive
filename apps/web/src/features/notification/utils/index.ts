@@ -6,7 +6,7 @@ export const getNotificationMessageParams = (
   notification: Notification,
 ): { key: string; params: Record<string, string> } => {
   const { type, actor, metadata } = notification;
-  const actorName = actor?.nickname ?? "unknown_user";
+  const actorName = actor?.nickname ?? "사용자";
 
   switch (type) {
     case NotificationType.REVIEW_REACTION:
@@ -14,7 +14,7 @@ export const getNotificationMessageParams = (
         key: "review_reaction",
         params: {
           actorName,
-          bookTitle: metadata.bookTitle || "",
+          bookTitle: (metadata.bookTitle as string) || "",
         },
       };
     case NotificationType.REVIEW_COMMENT:
@@ -22,13 +22,89 @@ export const getNotificationMessageParams = (
         key: "review_comment",
         params: {
           actorName,
-          bookTitle: metadata.bookTitle || "",
-          commentContent: metadata.commentContent || "",
+          bookTitle: (metadata.bookTitle as string) || "",
+          commentContent: (metadata.commentContent as string) || "",
         },
       };
     case NotificationType.COMMENT_LIKE:
       return {
         key: "comment_like",
+        params: {
+          actorName,
+        },
+      };
+    case NotificationType.BUYER_SELECTED:
+      return {
+        key: "buyer_selected",
+        params: {
+          actorName,
+        },
+      };
+    case NotificationType.OTHER_BUYER_TRADING:
+      return {
+        key: "other_buyer_trading",
+        params: {},
+      };
+    case NotificationType.PAYMENT_COMPLETED:
+      return {
+        key: "payment_completed",
+        params: {
+          actorName,
+        },
+      };
+    case NotificationType.PAYMENT_EXPIRED:
+      return {
+        key: "payment_expired",
+        params: {},
+      };
+    case NotificationType.SHIPPING_STARTED: {
+      const carrier = (metadata.carrier as string) || "";
+      const trackingNumber = (metadata.trackingNumber as string) || "";
+      const trackingInfo = [carrier, trackingNumber].filter(Boolean).join(" ");
+      return {
+        key: "shipping_started",
+        params: {
+          actorName,
+          trackingInfo: trackingInfo ? `(${trackingInfo})` : "",
+        },
+      };
+    }
+    case NotificationType.DELIVERY_COMPLETED:
+      return {
+        key: "delivery_completed",
+        params: {},
+      };
+    case NotificationType.AUTO_CONFIRM_IMMINENT:
+      return {
+        key: "auto_confirm_imminent",
+        params: {
+          hours: String(metadata.remainingHours || 24),
+        },
+      };
+    case NotificationType.PURCHASE_CONFIRMED:
+      return {
+        key: "purchase_confirmed",
+        params: {
+          actorName,
+        },
+      };
+    case NotificationType.ORDER_CANCELLED:
+      return {
+        key: "order_cancelled",
+        params: {
+          reason: (metadata.reason as string) || "거래 취소",
+        },
+      };
+    case NotificationType.SHIPPING_DEADLINE_IMMINENT:
+      return {
+        key: "shipping_deadline_imminent",
+        params: {
+          hours: String(metadata.remainingHours || 24),
+        },
+      };
+    case NotificationType.TRADE_REVIEW_RECEIVED:
+      return {
+        key: "trade_review_received",
         params: {
           actorName,
         },
@@ -43,14 +119,39 @@ export const getNotificationMessageParams = (
 
 export const getNotificationLink = (notification: Notification): string => {
   const { type, metadata } = notification;
+  const orderTarget =
+    (metadata.orderNumber as string) ||
+    (metadata.orderId ? String(metadata.orderId) : null);
 
   switch (type) {
     case NotificationType.REVIEW_REACTION:
     case NotificationType.REVIEW_COMMENT:
-      return metadata.reviewId ? PATHS.REVIEW_DETAIL(metadata.reviewId) : "#";
     case NotificationType.COMMENT_LIKE:
-      // 리뷰 댓글에 대한 좋아요인 경우, 리뷰 상세 페이지로 이동
-      return metadata.reviewId ? PATHS.REVIEW_DETAIL(metadata.reviewId) : "#";
+      return metadata.reviewId
+        ? PATHS.REVIEW_DETAIL(metadata.reviewId as number)
+        : "#";
+    case NotificationType.BUYER_SELECTED:
+      return orderTarget
+        ? PATHS.ORDER_PAYMENT(orderTarget)
+        : PATHS.MY_PAGE_PURCHASES;
+    case NotificationType.PAYMENT_COMPLETED:
+    case NotificationType.SHIPPING_DEADLINE_IMMINENT:
+      return orderTarget
+        ? PATHS.ORDER_DETAIL(orderTarget)
+        : PATHS.MY_PAGE_SALES_ORDERS;
+    case NotificationType.SHIPPING_STARTED:
+    case NotificationType.DELIVERY_COMPLETED:
+    case NotificationType.AUTO_CONFIRM_IMMINENT:
+    case NotificationType.PURCHASE_CONFIRMED:
+    case NotificationType.ORDER_CANCELLED:
+    case NotificationType.PAYMENT_EXPIRED:
+      return orderTarget
+        ? PATHS.ORDER_DETAIL(orderTarget)
+        : PATHS.MY_PAGE_PURCHASES;
+    case NotificationType.TRADE_REVIEW_RECEIVED:
+      return PATHS.MY_REVIEWS;
+    case NotificationType.OTHER_BUYER_TRADING:
+      return PATHS.LOUNGE;
     default:
       return "#";
   }

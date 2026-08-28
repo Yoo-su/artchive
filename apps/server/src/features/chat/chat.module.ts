@@ -5,6 +5,7 @@ import { UsedBookSaleModule } from '@/features/used-book-sale/used-book-sale.mod
 
 import { AuthModule } from '../auth/auth.module';
 import { BookModule } from '../book/book.module';
+import { Order } from '../order/entities/order.entity';
 import { UserModule } from '../user/user.module';
 import { ChatController } from './controllers/chat.controller';
 import { ChatMessage } from './entities/chat-message.entity';
@@ -23,6 +24,7 @@ import { ChatService } from './services/chat.service';
       ChatParticipant,
       ChatMessage,
       ReadReceipt,
+      Order,
     ]),
     AuthModule,
     UserModule,
@@ -31,5 +33,6 @@ import { ChatService } from './services/chat.service';
   ],
   providers: [ChatGateway, ChatService, SocketAuthGuard, ChatCleanupListener],
   controllers: [ChatController],
+  exports: [ChatService, ChatGateway],
 })
 export class ChatModule {}

@@ -105,4 +105,24 @@ export const API_PATHS = {
     ai: "/search/ai",
     aiStream: "/search/ai/stream",
   },
+  order: {
+    base: "/orders",
+    cancelSelection: (orderNumber: string) => `/orders/${orderNumber}/selection`,
+    pay: (orderNumber: string) => `/orders/${orderNumber}/pay`,
+    ship: (orderNumber: string) => `/orders/${orderNumber}/ship`,
+    confirm: (orderNumber: string) => `/orders/${orderNumber}/confirm`,
+    dispute: (orderNumber: string) => `/orders/${orderNumber}/dispute`,
+    cancel: (orderNumber: string) => `/orders/${orderNumber}/cancel`,
+    myPurchases: "/orders/my-purchases",
+    mySales: "/orders/my-sales",
+    detail: (orderNumber: string) => `/orders/${orderNumber}`,
+    byRoom: (roomId: number) => `/orders/by-room/${roomId}`,
+  },
+  tradeReview: {
+    base: "/trade-reviews",
+    detail: (reviewId: number) => `/trade-reviews/${reviewId}`,
+    userReviews: (handle: string) => `/trade-reviews/user/${handle}`,
+    sellerStats: (handle: string) => `/trade-reviews/user/${handle}/stats`,
+  },
 };
+

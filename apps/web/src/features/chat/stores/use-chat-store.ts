@@ -13,7 +13,7 @@ interface ChatState {
   typingTimeouts: { [roomId: number]: NodeJS.Timeout };
 
   toggleChat: () => void;
-  openChatRoom: (roomId: number, queryClient: QueryClient) => void;
+  openChatRoom: (roomId: number, queryClient?: QueryClient) => void;
   closeChatRoom: () => void;
   setTyping: (roomId: number, nickname: string) => void;
   setRoomInactive: (roomId: number, isInactive: boolean) => void;
@@ -32,7 +32,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
   toggleChat: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
 
   openChatRoom: (roomId, queryClient) => {
-    get().markRoomAsRead(roomId, queryClient);
+    if (queryClient) {
+      get().markRoomAsRead(roomId, queryClient);
+    }
     set({ activeChatRoomId: roomId, isChatOpen: true });
   },
 

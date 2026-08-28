@@ -1,3 +1,4 @@
+import { TradeMethod } from "@bookjeok/core";
 import { z } from "zod";
 
 export const createSellFormSchema = (t: (key: string) => string) =>
@@ -8,6 +9,7 @@ export const createSellFormSchema = (t: (key: string) => string) =>
         .string()
         .refine((val) => /^\d+$/.test(val), t("price_number"))
         .refine((val) => parseInt(val) > 0, t("price_min")),
+      tradeMethod: z.nativeEnum(TradeMethod),
       city: z.string().min(1, t("city_required")),
       district: z.string(),
       latitude: z.number(),

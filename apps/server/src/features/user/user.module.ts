@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { ChatParticipant } from '../chat/entities/chat-participant.entity';
+import { Order } from '../order/entities/order.entity';
 import { Review } from '../review/entities/review.entity';
 import { UsedBookSale } from '../used-book-sale/entities/used-book-sale.entity';
 import { UserController } from './controllers/user.controller';
@@ -18,6 +19,7 @@ import { UserService } from './services/user.service';
       UsedBookSale,
       ChatParticipant,
       Review,
+      Order,
     ]),
   ],
   controllers: [UserController],

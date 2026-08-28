@@ -11,6 +11,13 @@ import { User } from '../../user/entities/user.entity';
 import { ChatRoom } from './chat-room.entity';
 import { ReadReceipt } from './read-receipt.entity';
 
+export enum ChatMessageType {
+  TEXT = 'TEXT',
+  SYSTEM = 'SYSTEM',
+  TRADE_STATUS = 'TRADE_STATUS',
+  TRADE_ACTION = 'TRADE_ACTION',
+}
+
 @Entity({ name: 'chat_messages' })
 export class ChatMessage {
   @PrimaryGeneratedColumn()
@@ -19,7 +26,17 @@ export class ChatMessage {
   @Column({ type: 'text' })
   content: string;
 
-  @CreateDateColumn()
+  @Column({
+    type: 'enum',
+    enum: ChatMessageType,
+    default: ChatMessageType.TEXT,
+  })
+  type: ChatMessageType;
+
+  @Column({ type: 'jsonb', nullable: true })
+  metadata: Record<string, any> | null;
+
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
   @ManyToOne(() => User, { nullable: true })

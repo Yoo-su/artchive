@@ -16,6 +16,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+import { EmailVerifiedGuard } from '@/features/auth/guards/email-verified.guard';
 import { BookResolvePipe } from '@/features/book/pipes/book-resolve.pipe';
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { UpdateSaleStatusDto } from '@/features/user/dtos/update-sale-status.dto';
@@ -38,7 +39,7 @@ export class UsedBookSaleController {
   constructor(private readonly usedBookSaleService: UsedBookSaleService) {}
 
   @Post('sale')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), EmailVerifiedGuard)
   @UseInterceptors(IdempotencyInterceptor)
   @TrackActivity(ActivityType.SALE_CREATE, (req) => ({ isbn: req.body.isbn }))
   @ApiOperation({
@@ -201,7 +202,7 @@ export class UsedBookSaleController {
   }
 
   @Patch('sales/:id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), EmailVerifiedGuard)
   @TrackActivity(ActivityType.SALE_UPDATE, (req) => ({ id: req.params.id }))
   @ApiOperation({
     summary: '판매글 수정',

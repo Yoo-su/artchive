@@ -167,6 +167,17 @@
     "review_reaction": "{actorName} reacted to your review \"{bookTitle}\".",
     "review_comment": "{actorName} commented on your review \"{bookTitle}\": \"{commentContent}\"",
     "comment_like": "{actorName} liked your comment.",
+    "buyer_selected": "{actorName} selected you as trading partner. Please proceed with payment.",
+    "other_buyer_trading": "The item you inquired about is now trading with another buyer.",
+    "payment_completed": "{actorName} completed payment. Please ship the item.",
+    "payment_expired": "Order was cancelled due to payment expiration (24h).",
+    "shipping_started": "{actorName} shipped the item. {trackingInfo}",
+    "delivery_completed": "Your ordered item has been delivered. Please inspect and confirm purchase.",
+    "auto_confirm_imminent": "Purchase will be automatically confirmed in {hours} hours.",
+    "purchase_confirmed": "{actorName} confirmed purchase. Settlement completed.",
+    "order_cancelled": "Order was cancelled. (Reason: {reason})",
+    "shipping_deadline_imminent": "{hours} hours remaining before shipping deadline. Please register tracking number.",
+    "trade_review_received": "{actorName} left a trade review.",
     "default": "New notification arrived.",
     "toast": {
       "read_all_success": "Marked all notifications as read.",
@@ -905,6 +916,22 @@
       "comments": {
         "label": "My Comments",
         "desc": "Manage your written comments"
+      },
+      "purchases": {
+        "label": "My Purchases",
+        "desc": "Track orders and shipment status",
+        "metadata": {
+          "title": "Purchases",
+          "description": "History of used books you purchased."
+        }
+      },
+      "sales_orders": {
+        "label": "Sales Orders",
+        "desc": "View shipping addresses & register tracking",
+        "metadata": {
+          "title": "Sales Orders",
+          "description": "Manage orders and shipping for your book sales."
+        }
       }
     },
     "profile": {
@@ -938,7 +965,7 @@
       "withdraw_desc": "All data will be deleted or anonymized and cannot be recovered.",
       "withdraw_button": "Delete Account",
       "processing": "Processing...",
-      "confirm": "Are you sure you want to delete your account?\n\nAll personal information will be deleted or anonymized, and this action cannot be undone.\nYour sales posts will be hidden, and chat room participation will be disabled."
+      "confirm": "Are you sure you want to delete your account?\n\nIf you have active trades (buying/selling) in progress, please complete or cancel them before deleting.\nAll personal information will be deleted or anonymized, and this action cannot be undone.\nYour sales posts will be hidden, and chat room participation will be disabled."
     },
     "edit_modal": {
       "edit": "Edit",
@@ -974,9 +1001,13 @@
   "my_reviews": {
     "metadata": {
       "title": "My Reviews",
-      "description": "Collect your book reviews."
+      "description": "Collect and manage your book reviews."
     },
     "title": "My Reviews",
+    "subtitle": "Manage your honest book reviews and reading impressions.",
+    "btn_write_review": "Write New Review",
+    "empty_title": "No reviews written yet",
+    "empty_desc": "Write your first review for a memorable book!",
     "delete_modal": {
       "title": "Delete Review",
       "desc": "Are you sure you want to delete this review?",
@@ -1198,7 +1229,9 @@
         "chat_start": "Chat with Seller",
         "chat_opening": "Opening chat...",
         "chat_error": "Failed to open chat. Please try again.",
-        "login_required": "Login required to chat or wishlist."
+        "login_required": "Login required to chat or wishlist.",
+        "in_trade_cannot_modify": "Sales in trade cannot be modified or deleted.",
+        "in_trade_status_auto": "Status is managed automatically during trade."
       },
       "location": {
         "title": "Preferred Trade Location",
@@ -1221,13 +1254,30 @@
       "RESERVED": "Reserved",
       "SOLD": "Sold"
     },
+    "trade_method": {
+      "label": "Trade Method",
+      "DIRECT_ONLY": "Direct Only",
+      "DELIVERY_ONLY": "Delivery Only",
+      "BOTH": "Both Direct & Delivery",
+      "DIRECT_ONLY_desc": "Trade in person",
+      "DELIVERY_ONLY_desc": "Secure payment and parcel delivery",
+      "BOTH_desc": "Both direct and delivery trades available"
+    },
     "history": {
-      "title": "My Sales",
-      "error_title": "Error Occurred",
-      "error_desc": "Failed to load sales history.",
-      "empty_title": "No sales history.",
-      "empty_desc": "Register a new used book!",
-      "change_status": "Change Status"
+      "title": "My Used Book Sales",
+      "subtitle": "Manage your registered used book sale posts and connect with new readers.",
+      "error_title": "Failed to load sales posts",
+      "error_desc": "Please check your network connection and try again.",
+      "empty_title": "No sales posts registered yet",
+      "empty_desc": "Register used books you no longer read and find new readers!",
+      "btn_register_sale": "Create Sale Post",
+      "change_status": "Change Status",
+      "tabs": {
+        "all": "All",
+        "for_sale": "For Sale",
+        "reserved": "Reserved",
+        "sold": "Sold"
+      }
     },
     "toast": {
       "create_success": "Sale post registered successfully.",
@@ -1413,6 +1463,7 @@
       "description": "Are you sure you want to leave this chat room?",
       "confirm": "Leave"
     },
+    "cannot_leave_during_trade": "Cannot leave the chat room while a trade is in progress. Please complete or cancel the trade first.",
     "toast": {
       "leave_error": "Failed to leave chat room: {error}",
       "send_error": "Failed to send message: {error}"
@@ -1421,6 +1472,318 @@
       "close_room": "Close chat room",
       "leave_room": "Leave chat room",
       "send_message": "Send message"
+    },
+    "trade": {
+      "select_buyer_modal": {
+        "title": "Select Buyer & Start Trade",
+        "description": "Select this chat user as the buyer to create an escrow delivery order.",
+        "book_title": "Book for Sale",
+        "buyer_name": "Prospective Buyer",
+        "price": "Payment Amount",
+        "notice": "Once selected, a 24-hour payment window begins. Unpaid orders will automatically expire.",
+        "confirm": "Select as Buyer",
+        "cancel": "Cancel",
+        "success": "Buyer selected. Waiting for payment.",
+        "error": "Failed to select buyer: {error}"
+      },
+      "cancel_selection_dialog": {
+        "title": "Cancel Buyer Selection",
+        "description": "Are you sure you want to cancel the buyer selection? The sale post will revert to For Sale.",
+        "confirm": "Cancel Selection",
+        "cancel": "Close",
+        "success": "Buyer selection cancelled.",
+        "error": "Failed to cancel selection: {error}"
+      },
+      "status_banner": {
+        "direct_only_hint": "This sale is for direct in-person trade only.",
+        "other_trading_hint": "Trade in progress with another buyer.",
+        "opponent_left_hint": "The other user has left the chat room.",
+        "seller_start_prompt": "Would you like to proceed with delivery trade with this buyer?",
+        "btn_select_buyer": "Select as Buyer",
+        "status_title": {
+          "AWAITING_PAYMENT": "Awaiting Payment",
+          "PAID": "Payment Completed",
+          "SHIPPED": "Shipped",
+          "DELIVERED": "Delivered",
+          "CONFIRMED": "Trade Completed",
+          "DISPUTED": "Dispute Filed",
+          "CANCELLED": "Order Cancelled"
+        },
+        "buyer_desc": {
+          "AWAITING_PAYMENT": "Seller selected you as the buyer. Please complete payment within 24 hours.",
+          "PAID": "Payment completed. Please wait while the seller prepares shipment.",
+          "SHIPPED": "Your item has been shipped.",
+          "DELIVERED": "Item delivered. Please inspect the item and confirm purchase.",
+          "CONFIRMED": "Purchase confirmed! Leave a trade review for the seller.",
+          "DISPUTED": "Dispute has been submitted.",
+          "CANCELLED": "Order has been cancelled."
+        },
+        "seller_desc": {
+          "AWAITING_PAYMENT": "Awaiting buyer payment. (Auto-cancelled after 24h if unpaid)",
+          "PAID": "Buyer has completed payment. Please ship the item and register tracking number.",
+          "SHIPPED": "Tracking registered. Delivery is in progress.",
+          "DELIVERED": "Item delivered. Waiting for buyer purchase confirmation.",
+          "CONFIRMED": "Purchase confirmed. Trade completed successfully.",
+          "DISPUTED": "Buyer has declined confirmation and filed a dispute.",
+          "CANCELLED": "Order has been cancelled."
+        },
+        "btn_pay": "Pay Now",
+        "btn_cancel_selection": "Cancel Selection",
+        "btn_register_shipping": "Register Tracking",
+        "btn_view_order": "Order Details",
+        "btn_confirm_purchase": "Confirm Purchase",
+        "btn_write_review": "Write Review",
+        "carrier_tracking": "{carrier} {trackingNumber}"
+      },
+      "message_card": {
+        "title": {
+          "AWAITING_PAYMENT": "Payment Request",
+          "PAID": "Payment Completed",
+          "SHIPPED": "Item Shipped",
+          "DELIVERED": "Delivery Completed",
+          "CONFIRMED": "Trade Completed",
+          "DISPUTED": "Dispute Filed",
+          "CANCELLED": "Order Cancelled"
+        },
+        "btn_pay_now": "Proceed to Payment",
+        "btn_view_detail": "View Order Details",
+        "order_closed_toast": "This trade has already been cancelled or completed."
+      }
+    }
+  },
+  "order": {
+    "payment": {
+      "page_title": "Order Payment",
+      "checkout_title": "Order & Checkout",
+      "order_number": "Order Number",
+      "expires_in": "Time Remaining for Payment",
+      "expired_notice": "Payment window has expired.",
+      "not_buyer_notice": "Only the designated buyer can make payment for this order.",
+      "invalid_status_notice": "This order is not in awaiting payment status.",
+      "product_info": "Product Details",
+      "seller_info": "Seller",
+      "shipping_info": "Shipping Address",
+      "recipient_name": "Recipient Name",
+      "recipient_name_placeholder": "Enter full name",
+      "recipient_phone": "Phone Number",
+      "recipient_phone_placeholder": "Enter phone number",
+      "zip_code": "Postal Code",
+      "search_zip_code": "Search Address",
+      "address": "Base Address",
+      "address_placeholder": "Auto-filled from address search",
+      "address_detail": "Detailed Address",
+      "address_detail_placeholder": "Unit number, building name, etc.",
+      "delivery_memo": "Delivery Note (Optional)",
+      "delivery_memo_placeholder": "E.g. Please leave at front door",
+      "postcode_modal_title": "Search Address",
+      "payment_summary": "Payment Summary",
+      "book_price": "Book Price",
+      "shipping_fee": "Shipping Fee",
+      "shipping_free": "Free Shipping",
+      "total_amount": "Total Amount",
+      "escrow_protection": "Toss Payments Escrow Protection",
+      "escrow_desc": "Payment funds are held securely until you receive the book and confirm the purchase.",
+      "btn_pay": "Pay ₩{amount}",
+      "processing_payment": "Opening payment window...",
+      "errors": {
+        "required_recipient_name": "Please enter recipient name.",
+        "required_recipient_phone": "Please enter recipient phone number.",
+        "invalid_phone": "Please enter a valid phone number.",
+        "required_address": "Please search and select a shipping address.",
+        "required_address_detail": "Please enter detailed address.",
+        "order_not_found": "Order information not found.",
+        "toss_load_failed": "Failed to load Toss Payments SDK.",
+        "confirm_failed": "Payment confirmation failed: {error}"
+      },
+      "success": {
+        "title": "Payment Completed Securely!",
+        "subtitle": "Shipment request has been sent to the seller.",
+        "confirming_title": "Processing payment approval",
+        "confirming_desc": "Please wait a moment while we verify the payment...",
+        "order_summary": "Order & Payment Summary",
+        "paid_amount": "Paid Amount",
+        "shipping_to": "Ship to",
+        "steps": {
+          "step1": "Payment Completed",
+          "step2": "Preparing Shipment",
+          "step3": "In Transit",
+          "step4": "Delivered / Confirmed"
+        },
+        "escrow_guide": "Payment funds will remain safe in escrow until you confirm the purchase.",
+        "btn_order_detail": "View Order Details",
+        "btn_go_home": "Back to Home"
+      },
+      "fail": {
+        "title": "Payment Failed",
+        "subtitle": "An error occurred during payment processing.",
+        "error_code": "Error Code",
+        "error_message": "Reason",
+        "btn_retry": "Retry Payment",
+        "btn_go_home": "Back to Home",
+        "help_text": "If this problem persists, please contact customer support or the seller."
+      }
+    },
+    "detail": {
+      "page_title": "Order Details",
+      "order_number": "Order Number",
+      "order_date": "Order Date",
+      "status_timeline": "Order Progress Timeline",
+      "book_info": "Book Information",
+      "seller_info": "Seller Information",
+      "buyer_info": "Buyer Information",
+      "payment_info": "Payment Breakdown",
+      "shipping_info": "Shipping & Delivery Status",
+      "tracking_number": "Tracking Number",
+      "carrier": "Carrier",
+      "no_tracking_yet": "Tracking number has not been registered yet.",
+      "copy_tracking": "Copy Tracking Number",
+      "copied_tracking": "Tracking number copied to clipboard.",
+      "tracking_track_btn": "Track Package",
+      "dispute_reason_title": "Dispute Reason",
+      "cancel_reason_title": "Cancellation Reason",
+      "expiry_countdown": "Payment expires in",
+      "auto_confirm_countdown": "Auto-confirm in",
+      "auto_cancel_countdown": "Shipping deadline in",
+      "auto_refund_countdown": "Auto-refund in",
+      "action_pay": "Pay Now",
+      "action_ship": "Register Shipping",
+      "action_confirm": "Confirm Purchase",
+      "action_dispute": "Report Issue (Dispute)",
+      "action_cancel": "Cancel Order",
+      "action_cancel_selection": "Cancel Selection",
+      "action_chat": "Go to Chat",
+      "confirm_purchase_title": "Confirm Purchase?",
+      "confirm_purchase_desc": "If you have safely received the book, please confirm your purchase. Funds will be released to the seller and this action cannot be undone.",
+      "cancel_order_title": "Cancel Order?",
+      "cancel_order_desc": "A full refund will be processed. Would you like to proceed?",
+      "cancel_selection_title": "Cancel Buyer Selection?",
+      "cancel_selection_desc": "Buyer selection will be cancelled and the listing will return to For Sale status.",
+      "errors": {
+        "not_authorized": "You do not have permission to view this order.",
+        "not_found": "Order information not found."
+      }
+    },
+    "purchases": {
+      "title": "My Purchases",
+      "subtitle": "View the progress of your used book purchases protected by escrow.",
+      "tabs": {
+        "all": "All",
+        "awaiting_payment": "Awaiting Payment",
+        "paid": "Paid",
+        "shipped": "In Transit",
+        "delivered": "Delivered",
+        "confirmed": "Confirmed",
+        "cancelled_disputed": "Cancelled / Disputed"
+      },
+      "empty_title": "No purchase history",
+      "empty_desc": "Explore great pre-loved books on Bookjeok Market!",
+      "btn_browse_market": "Browse Market",
+      "card": {
+        "order_no": "Order #",
+        "seller": "Seller",
+        "view_detail": "View Details",
+        "btn_pay": "Pay Now",
+        "btn_confirm": "Confirm Purchase",
+        "btn_review": "Write Review",
+        "btn_chat": "Chat"
+      }
+    },
+    "sales_orders": {
+      "title": "Sales Orders",
+      "subtitle": "Manage orders and shipping for your used book listings.",
+      "tabs": {
+        "all": "All",
+        "awaiting_payment": "Awaiting Payment",
+        "paid": "Shipment Requested",
+        "shipped": "In Transit",
+        "delivered": "Delivered",
+        "confirmed": "Completed",
+        "cancelled_disputed": "Cancelled / Disputed"
+      },
+      "empty_title": "No sales orders",
+      "empty_desc": "Select a buyer from your chat room to initiate a sale.",
+      "card": {
+        "order_no": "Order #",
+        "buyer": "Buyer",
+        "shipping_to": "Shipping Address",
+        "view_detail": "View Details",
+        "btn_ship": "Register Shipping",
+        "btn_cancel_selection": "Cancel Selection",
+        "btn_chat": "Chat"
+      }
+    },
+    "shipping_modal": {
+      "title": "Register Tracking Number",
+      "desc": "Please enter the carrier and tracking number after shipping the book.",
+      "carrier_label": "Carrier",
+      "carrier_placeholder": "Select carrier",
+      "tracking_label": "Tracking Number",
+      "tracking_placeholder": "Enter numbers only (without hyphens)",
+      "submit": "Save Tracking Info",
+      "submitting": "Saving...",
+      "success": "Tracking number registered successfully.",
+      "errors": {
+        "carrier_required": "Please select a carrier.",
+        "tracking_required": "Please enter a tracking number.",
+        "invalid_tracking": "Tracking number must be between 8 and 16 digits."
+      }
+    },
+    "dispute_modal": {
+      "title": "Dispute Order / Reject Confirmation",
+      "desc": "If the item is not as described, damaged, or not received, please provide the details.",
+      "reason_label": "Reason",
+      "reason_placeholder": "Please explain the issue in detail (at least 5 characters).",
+      "escrow_warning": "Disputing will hold escrow payout for 7 days of mutual resolution. Unresolved disputes will result in automatic refund.",
+      "submit": "Submit Dispute",
+      "submitting": "Submitting...",
+      "success": "Dispute submitted successfully.",
+      "errors": {
+        "reason_required": "Please enter the dispute reason.",
+        "reason_min_length": "Please enter at least 5 characters explaining the reason."
+      }
+    },
+    "trade_review": {
+      "modal_title": "Write Trade Review",
+      "modal_desc": "How was your transaction? Leaving an honest review helps other book lovers in the community.",
+      "seller_label": "Seller",
+      "positive_tags_title": "What went well?",
+      "negative_tags_title": "What could be improved?",
+      "tags": {
+        "GOOD_CONDITION": "Condition matches description",
+        "FAST_RESPONSE": "Fast communication",
+        "FAST_SHIPPING": "Fast shipping",
+        "METICULOUS_PACKAGING": "Careful packaging",
+        "KIND_MANNER": "Kind & friendly manner",
+        "BAD_CONDITION": "Condition differs from description",
+        "SLOW_RESPONSE": "Slow response",
+        "LATE_SHIPPING": "Late shipping",
+        "POOR_PACKAGING": "Poor packaging"
+      },
+      "content_label": "Detailed Review (Optional)",
+      "content_placeholder": "Share any additional thoughts about your experience or book condition (up to 500 characters).",
+      "submit": "Submit Review",
+      "submitting": "Submitting...",
+      "success": "Trade review submitted successfully.",
+      "errors": {
+        "tag_required": "Please select at least one tag.",
+        "content_max": "Review must be 500 characters or fewer."
+      },
+      "stats": {
+        "title": "Seller Trust Rating",
+        "completed_trades": "{count} Completed Trades",
+        "positive_rate": "{rate}% Positive Reviews",
+        "total_reviews": "{count} Total Reviews",
+        "no_reviews": "No trade reviews yet.",
+        "tag_summary_title": "Feedback Summary",
+        "badge_trust": "{count} trades · {rate}% positive"
+      },
+      "list": {
+        "title": "Trade Reviews",
+        "tab_reading": "Reading Activity",
+        "tab_trade_reviews": "Trade Reviews ({count})",
+        "empty_title": "No trade reviews yet",
+        "empty_desc": "This user has not received any trade reviews yet."
+      }
     }
   }
 }

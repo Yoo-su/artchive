@@ -1,0 +1,231 @@
+"use client";
+
+import {
+  NEGATIVE_TRADE_REVIEW_TAGS,
+  POSITIVE_TRADE_REVIEW_TAGS,
+  TradeReviewTag,
+} from "@bookjeok/core";
+import { useCreateTradeReviewMutation } from "@bookjeok/react-query";
+import { Check, MessageSquare, ThumbsDown, ThumbsUp } from "lucide-react";
+import { useTranslations } from "next-intl";
+import React, { useState } from "react";
+import { toast } from "sonner";
+
+import { QuoteUpCircleIcon } from "@/shared/components/icons";
+import { Button } from "@/shared/components/shadcn/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/components/shadcn/dialog";
+import { Label } from "@/shared/components/shadcn/label";
+import { Textarea } from "@/shared/components/shadcn/textarea";
+
+interface TradeReviewModalProps {
+  orderId: string;
+  targetUserNickname?: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
+}
+
+export const TradeReviewModal = ({
+  orderId,
+  targetUserNickname,
+  open,
+  onOpenChange,
+  onSuccess,
+}: TradeReviewModalProps) => {
+  const t = useTranslations("order.trade_review");
+
+  const [selectedTags, setSelectedTags] = useState<TradeReviewTag[]>([]);
+  const [content, setContent] = useState<string>("");
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  const createReviewMutation = useCreateTradeReviewMutation({
+    onSuccess: () => {
+      toast.success(t("success"));
+      onOpenChange(false);
+      resetForm();
+      onSuccess?.();
+    },
+    onError: (err) => {
+      toast.error(err.message || "거래 후기 등록 중 오류가 발생했습니다.");
+    },
+  });
+
+  const resetForm = () => {
+    setSelectedTags([]);
+    setContent("");
+    setValidationError(null);
+  };
+
+  const handleTagToggle = (tag: TradeReviewTag) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    );
+    if (validationError) {
+      setValidationError(null);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (selectedTags.length === 0) {
+      setValidationError(t("errors.tag_required"));
+      return;
+    }
+
+    if (content.length > 500) {
+      setValidationError(t("errors.content_max"));
+      return;
+    }
+
+    createReviewMutation.mutate({
+      orderId,
+      tags: selectedTags,
+      content: content.trim() || undefined,
+    });
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          resetForm();
+        }
+        onOpenChange(isOpen);
+      }}
+    >
+      <DialogContent className="max-w-md sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <div className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-800 text-stone-900 dark:text-stone-100">
+              <QuoteUpCircleIcon className="h-5 w-5" />
+            </div>
+            <DialogTitle className="text-lg font-bold text-stone-900 dark:text-stone-100">
+              {t("modal_title")}
+            </DialogTitle>
+          </div>
+          <DialogDescription className="text-xs text-stone-500 pt-1">
+            {targetUserNickname
+              ? `${targetUserNickname}님과의 ${t("modal_desc")}`
+              : t("modal_desc")}
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-5 py-2">
+          {/* 1. 긍정 태그 선택 섹션 */}
+          <div className="space-y-2.5">
+            <Label className="text-xs font-bold flex items-center gap-1.5 text-stone-800 dark:text-stone-200">
+              <ThumbsUp className="h-3.5 w-3.5 text-emerald-600" />
+              {t("positive_tags_title")}
+            </Label>
+            <div className="flex flex-wrap gap-2">
+              {POSITIVE_TRADE_REVIEW_TAGS.map((tag) => {
+                const isSelected = selectedTags.includes(tag);
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => handleTagToggle(tag)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border transition-all cursor-pointer ${
+                      isSelected
+                        ? "bg-emerald-50 text-emerald-800 border-emerald-400 font-semibold shadow-2xs dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-700"
+                        : "bg-stone-50 dark:bg-stone-800/60 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-700 hover:text-stone-900"
+                    }`}
+                  >
+                    {isSelected && <Check className="h-3.5 w-3.5 text-emerald-600" />}
+                    {t(`tags.${tag}`)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 2. 부정 태그 선택 섹션 */}
+          <div className="space-y-2.5">
+            <Label className="text-xs font-bold flex items-center gap-1.5 text-stone-800 dark:text-stone-200">
+              <ThumbsDown className="h-3.5 w-3.5 text-stone-500" />
+              {t("negative_tags_title")}
+            </Label>
+            <div className="flex flex-wrap gap-2">
+              {NEGATIVE_TRADE_REVIEW_TAGS.map((tag) => {
+                const isSelected = selectedTags.includes(tag);
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => handleTagToggle(tag)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border transition-all cursor-pointer ${
+                      isSelected
+                        ? "bg-stone-100 text-stone-900 border-stone-400 font-semibold shadow-2xs dark:bg-stone-800 dark:text-stone-100 dark:border-stone-600"
+                        : "bg-stone-50 dark:bg-stone-800/60 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-700 hover:text-stone-900"
+                    }`}
+                  >
+                    {isSelected && <Check className="h-3.5 w-3.5 text-stone-700 dark:text-stone-300" />}
+                    {t(`tags.${tag}`)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 3. 텍스트 상세 후기 */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <Label className="text-xs font-bold flex items-center gap-1.5 text-stone-800 dark:text-stone-200">
+                <MessageSquare className="h-3.5 w-3.5 text-stone-400" />
+                {t("content_label")}
+              </Label>
+              <span className="text-[11px] text-stone-400 font-mono">
+                {content.length}/500
+              </span>
+            </div>
+            <Textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder={t("content_placeholder")}
+              rows={3}
+              maxLength={500}
+              className="text-xs resize-none border-stone-200 dark:border-stone-700"
+            />
+          </div>
+
+          {/* 유효성 검사 에러 표시 */}
+          {validationError && (
+            <div className="rounded-xl bg-stone-100 dark:bg-stone-800 p-2.5 text-xs text-destructive font-medium">
+              {validationError}
+            </div>
+          )}
+
+          <DialogFooter className="gap-2 sm:gap-0 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => onOpenChange(false)}
+              disabled={createReviewMutation.isPending}
+              className="border-stone-200 dark:border-stone-700"
+            >
+              취소
+            </Button>
+            <Button
+              type="submit"
+              size="sm"
+              disabled={createReviewMutation.isPending}
+              className="font-bold bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 shadow-2xs"
+            >
+              {createReviewMutation.isPending ? t("submitting") : t("submit")}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};

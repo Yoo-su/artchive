@@ -3,12 +3,13 @@ import { Clock, Eye, MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { SaleStatusBadge } from "../../common/sale-status-badge";
+import { TradeMethodBadge } from "../../common/trade-method-badge";
 
 interface BookSaleHeaderProps {
   sale: UsedBookSale;
 }
 
-/** 판매글 헤더: 판매상태 뱃지 + 제목 + 가격 + 메타 태그(지역/날짜/조회수) */
+/** 판매글 헤더: 판매상태 뱃지 + 거래방식 뱃지 + 제목 + 가격 + 메타 태그(지역/날짜/조회수) */
 export const BookSaleHeader = ({ sale }: BookSaleHeaderProps) => {
   const t = useTranslations("market.detail");
   const tCommon = useTranslations("common");
@@ -30,6 +31,7 @@ export const BookSaleHeader = ({ sale }: BookSaleHeaderProps) => {
     <div>
       <div className="flex items-center gap-2 mb-3">
         <SaleStatusBadge status={sale.status} />
+        <TradeMethodBadge tradeMethod={sale.tradeMethod} />
       </div>
       <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 leading-snug break-keep">
         {sale.title}

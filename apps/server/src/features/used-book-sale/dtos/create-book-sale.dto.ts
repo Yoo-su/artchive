@@ -1,14 +1,18 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsArray,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
   IsUrl,
   MaxLength,
   MinLength,
 } from 'class-validator';
+
+import { TradeMethod } from '../entities/used-book-sale.entity';
 
 export class CreateBookSaleDto {
   @IsString()
@@ -27,6 +31,16 @@ export class CreateBookSaleDto {
   @IsPositive()
   @ApiProperty({ description: '판매 가격', example: 15000, minimum: 0 })
   price: number;
+
+  @IsOptional()
+  @IsEnum(TradeMethod)
+  @ApiPropertyOptional({
+    description: '거래 방식',
+    enum: TradeMethod,
+    default: TradeMethod.DIRECT_ONLY,
+    example: TradeMethod.BOTH,
+  })
+  tradeMethod?: TradeMethod;
 
   @IsString()
   @IsNotEmpty()

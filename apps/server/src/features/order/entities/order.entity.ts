@@ -1,0 +1,146 @@
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
+  PrimaryColumn,
+  UpdateDateColumn,
+  VersionColumn,
+} from 'typeorm';
+
+import { ChatRoom } from '@/features/chat/entities/chat-room.entity';
+import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
+import { User } from '@/features/user/entities/user.entity';
+
+import { TradeReview } from './trade-review.entity';
+
+export enum OrderStatus {
+  AWAITING_PAYMENT = 'AWAITING_PAYMENT',
+  PAID = 'PAID',
+  SHIPPED = 'SHIPPED',
+  DELIVERED = 'DELIVERED',
+  CONFIRMED = 'CONFIRMED',
+  DISPUTED = 'DISPUTED',
+  CANCELLED = 'CANCELLED',
+}
+
+@Entity({ name: 'orders' })
+@Index(['status', 'expiresAt'])
+@Index(['status', 'deliveredAt'])
+@Index(['status', 'disputedAt'])
+@Index(['buyerId'])
+@Index(['sellerId'])
+export class Order {
+  @PrimaryColumn({ type: 'varchar' })
+  id: string;
+
+  @Column({
+    type: 'enum',
+    enum: OrderStatus,
+    default: OrderStatus.AWAITING_PAYMENT,
+  })
+  status: OrderStatus;
+
+  @Column({ type: 'integer' })
+  amount: number;
+
+  @Column({ type: 'varchar', nullable: true })
+  paymentKey: string | null;
+
+  // 배송지 스냅샷
+  @Column({ type: 'varchar', nullable: true })
+  recipientName: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  recipientPhone: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  zipCode: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  address: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  addressDetail: string | null;
+
+  // 배송 정보
+  @Column({ type: 'varchar', nullable: true })
+  carrier: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  trackingNumber: string | null;
+
+  // 시각 필드 (timestamptz)
+  @Column({ type: 'timestamptz', nullable: true })
+  expiresAt: Date | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  paidAt: Date | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  shippedAt: Date | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  deliveredAt: Date | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  confirmedAt: Date | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  disputedAt: Date | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  cancelledAt: Date | null;
+
+  // 사유
+  @Column({ type: 'text', nullable: true })
+  disputeReason: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  cancelReason: string | null;
+
+  // 동시성 제어를 위한 낙관적 락 버전 컬럼
+  @VersionColumn()
+  version: number;
+
+  // 관계 설정
+  @ManyToOne(() => UsedBookSale, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'saleId' })
+  sale: UsedBookSale;
+
+  @Column()
+  saleId: number;
+
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'buyerId' })
+  buyer: User;
+
+  @Column()
+  buyerId: number;
+
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'sellerId' })
+  seller: User;
+
+  @Column()
+  sellerId: number;
+
+  @ManyToOne(() => ChatRoom, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'chatRoomId' })
+  chatRoom: ChatRoom | null;
+
+  @Column({ nullable: true })
+  chatRoomId: number | null;
+
+  @OneToOne(() => TradeReview, (tradeReview) => tradeReview.order)
+  tradeReview: TradeReview;
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date;
+}
