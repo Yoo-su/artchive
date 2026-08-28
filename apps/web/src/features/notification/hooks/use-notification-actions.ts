@@ -19,15 +19,7 @@ export const useNotificationActions = () => {
       const { key, params } = getNotificationMessageParams(notification);
       const message = t(key, params);
 
-      toast(t("title"), {
-        description: message,
-        action: {
-          label: t("action_view"),
-          onClick: () => {
-            // 추후 클릭 시 라우팅 로직 추가 가능
-          },
-        },
-      });
+      toast.info(message);
     },
     [queryClient, t],
   );

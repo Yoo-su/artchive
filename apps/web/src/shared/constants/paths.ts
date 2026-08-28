@@ -23,4 +23,10 @@ export const PATHS = {
   READING_LOG: "/my-page/reading-log",
   TERMS: "/terms",
   PRIVACY: "/privacy",
+  ORDER_PAYMENT: (orderId: string | number) => `/order/payment/${orderId}`,
+  ORDER_PAYMENT_SUCCESS: "/order/payment/success",
+  ORDER_PAYMENT_FAIL: "/order/payment/fail",
+  ORDER_DETAIL: (orderId: string | number) => `/order/${orderId}`,
+  MY_PAGE_PURCHASES: "/my-page/purchases",
+  MY_PAGE_SALES_ORDERS: "/my-page/sales-orders",
 } as const;

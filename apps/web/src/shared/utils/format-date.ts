@@ -10,22 +10,26 @@ const localeMap: Record<string, Locale> = {
 // 로케일별 사전 정의 포맷 패턴
 const DATE_FORMATS = {
   ko: {
+    date: "yyyy.MM.dd",
+    dateTime: "yyyy.MM.dd HH:mm",
     full: "yyyy년 M월 d일",
     short: "yyyy.MM.dd",
     monthDay: "M월 d일",
     yearMonth: "yyyy년 M월",
     monthDayWeekday: "M월 d일 eeee",
-    time: "p",
+    time: "HH:mm",
     monthDayShort: "M월 d일",
     day: "d",
   },
   en: {
+    date: "yyyy-MM-dd",
+    dateTime: "MMM d, yyyy HH:mm",
     full: "MMMM d, yyyy",
     short: "MM/dd/yyyy",
     monthDay: "MMM d",
     yearMonth: "MMM yyyy",
     monthDayWeekday: "eeee, MMM d",
-    time: "p",
+    time: "HH:mm",
     monthDayShort: "MMM d",
     day: "d",
   },
@@ -44,7 +48,7 @@ export function getDateLocale(locale: string): Locale {
 
 /**
  * 로케일 기반 날짜 포맷 함수.
- * 사전 정의 키(full, short 등)와 커스텀 포맷 문자열 모두 지원합니다.
+ * 사전 정의 키(full, short, date, dateTime 등)와 커스텀 포맷 문자열 모두 지원합니다.
  *
  * @param date - 날짜 객체 또는 ISO 문자열
  * @param locale - 로케일 문자열 ("ko" | "en")
@@ -55,7 +59,10 @@ export function formatDate(
   locale: string,
   formatKeyOrPattern: DateFormatKey | string,
 ): string {
+  if (!date) return "";
   const dateObj = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(dateObj.getTime())) return "";
+
   const dateLocale = getDateLocale(locale);
   const localeKey = locale in DATE_FORMATS ? locale : "ko";
   const formats = DATE_FORMATS[localeKey as keyof typeof DATE_FORMATS];
@@ -75,7 +82,10 @@ export function formatDate(
  * @param locale - 로케일 문자열 ("ko" | "en")
  */
 export function formatRelativeTime(date: Date | string, locale: string): string {
+  if (!date) return "";
   const dateObj = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(dateObj.getTime())) return "";
+
   const dateLocale = getDateLocale(locale);
 
   return formatDistanceToNow(dateObj, {

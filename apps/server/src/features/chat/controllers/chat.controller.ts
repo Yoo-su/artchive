@@ -20,6 +20,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { EmailVerifiedGuard } from '@/features/auth/guards/email-verified.guard';
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { User } from '@/features/user/entities/user.entity';
 
@@ -78,6 +79,7 @@ export class ChatController {
   }
 
   @Post('rooms')
+  @UseGuards(EmailVerifiedGuard)
   @ApiOperation({
     summary: '채팅방 생성 또는 조회',
     description: '특정 판매글에 대한 채팅방을 찾거나, 없으면 새로 생성합니다.',

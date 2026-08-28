@@ -10,6 +10,15 @@ export enum SaleStatus {
 }
 
 /**
+ * 중고거래 방식 Enum
+ */
+export enum TradeMethod {
+  DIRECT_ONLY = "DIRECT_ONLY",
+  DELIVERY_ONLY = "DELIVERY_ONLY",
+  BOTH = "BOTH",
+}
+
+/**
  * 판매글 작성자의 공개 프로필 정보
  */
 export interface SaleAuthor {
@@ -17,6 +26,7 @@ export interface SaleAuthor {
   handle: string;
   nickname: string;
   profileImageUrl: string | null;
+  deletedAt?: string | null;
 }
 
 /**
@@ -31,6 +41,7 @@ export interface UsedBookSale {
   content: string;
   imageUrls: string[];
   status: SaleStatus;
+  tradeMethod?: TradeMethod;
   createdAt: string;
   updatedAt: string;
   user: SaleAuthor;
@@ -51,6 +62,7 @@ export interface CreateBookSaleParams {
   district: string;
   content: string;
   imageUrls: string[];
+  tradeMethod?: TradeMethod;
   latitude?: number;
   longitude?: number;
   placeName?: string;
@@ -67,6 +79,7 @@ export type UpdateBookSaleParams = Partial<{
   district: string;
   content: string;
   imageUrls: string[];
+  tradeMethod: TradeMethod;
   latitude: number;
   longitude: number;
   placeName: string;

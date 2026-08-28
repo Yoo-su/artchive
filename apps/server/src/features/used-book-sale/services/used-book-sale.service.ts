@@ -6,6 +6,7 @@ import { DataSource, In, Repository } from 'typeorm';
 
 import { Book } from '@/features/book/entities/book.entity';
 import { BookService } from '@/features/book/services/book.service';
+import { Order, OrderStatus } from '@/features/order/entities/order.entity';
 import { User } from '@/features/user/entities/user.entity';
 import { UserService } from '@/features/user/services/user.service';
 import { BusinessException } from '@/shared/exceptions';
@@ -34,6 +35,8 @@ export class UsedBookSaleService {
   constructor(
     @InjectRepository(UsedBookSale)
     private readonly usedBookSaleRepository: Repository<UsedBookSale>,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
     private readonly bookService: BookService,
     private readonly userService: UserService,
     private readonly dataSource: DataSource,
@@ -86,9 +89,33 @@ export class UsedBookSaleService {
       throw new BusinessException('SALE_FORBIDDEN', HttpStatus.FORBIDDEN);
     }
 
+    // 활성 주문이 걸려있는 판매글은 수동 상태 변경 차단
+    if (await this.hasActiveOrder(saleId)) {
+      throw new BusinessException(
+        'SALE_IN_TRADE_CANNOT_CHANGE_STATUS',
+        HttpStatus.CONFLICT,
+      );
+    }
+
     sale.status = status;
     sale.updatedAt = new Date();
     return await this.usedBookSaleRepository.save(sale);
+  }
+
+  private async hasActiveOrder(saleId: number): Promise<boolean> {
+    const activeOrder = await this.orderRepository.findOne({
+      where: {
+        saleId,
+        status: In([
+          OrderStatus.AWAITING_PAYMENT,
+          OrderStatus.PAID,
+          OrderStatus.SHIPPED,
+          OrderStatus.DELIVERED,
+          OrderStatus.DISPUTED,
+        ]),
+      },
+    });
+    return !!activeOrder;
   }
 
   /**
@@ -354,6 +381,14 @@ export class UsedBookSaleService {
       throw new BusinessException('SALE_FORBIDDEN', HttpStatus.FORBIDDEN);
     }
 
+    // 활성 주문이 걸려있는 판매글은 수정 차단
+    if (await this.hasActiveOrder(saleId)) {
+      throw new BusinessException(
+        'SALE_IN_TRADE_CANNOT_UPDATE',
+        HttpStatus.CONFLICT,
+      );
+    }
+
     const updatedSale = this.usedBookSaleRepository.merge(
       sale,
       updateBookSaleDto,
@@ -383,6 +418,14 @@ export class UsedBookSaleService {
 
     if (sale.user.id !== userId && userRole !== 'ADMIN') {
       throw new BusinessException('SALE_FORBIDDEN', HttpStatus.FORBIDDEN);
+    }
+
+    // 활성 주문이 걸려있는 판매글은 삭제 차단
+    if (await this.hasActiveOrder(saleId)) {
+      throw new BusinessException(
+        'SALE_IN_TRADE_CANNOT_DELETE',
+        HttpStatus.CONFLICT,
+      );
     }
 
     await this.usedBookSaleRepository.remove(sale);

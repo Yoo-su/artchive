@@ -56,6 +56,11 @@ export const ERROR_CODES = {
     code: 'AUTH_010',
     message: '소셜 로그인 계정은 이메일을 변경할 수 없습니다.',
   },
+  EMAIL_NOT_VERIFIED: {
+    code: 'AUTH_011',
+    message:
+      '이메일 인증이 완료되지 않은 계정입니다. 이메일 인증 후 이용해주세요.',
+  },
 
   // ============================================
   // 사용자 관련 에러 (USER)
@@ -71,6 +76,11 @@ export const ERROR_CODES = {
   NICKNAME_ALREADY_EXISTS: {
     code: 'USER_003',
     message: '이미 사용 중인 닉네임입니다.',
+  },
+  USER_IN_TRADE_CANNOT_WITHDRAW: {
+    code: 'USER_004',
+    message:
+      '진행 중인 거래가 있어 회원 탈퇴를 진행할 수 없습니다. 모든 거래를 완료하거나 취소한 후 다시 시도해주세요.',
   },
 
   // ============================================
@@ -99,6 +109,18 @@ export const ERROR_CODES = {
   SALE_ALREADY_WITHDRAWN: {
     code: 'SALE_004',
     message: '탈퇴한 회원의 판매글이므로 처리할 수 없습니다.',
+  },
+  SALE_IN_TRADE_CANNOT_UPDATE: {
+    code: 'SALE_005',
+    message: '진행 중인 거래가 있어 판매글을 수정할 수 없습니다.',
+  },
+  SALE_IN_TRADE_CANNOT_DELETE: {
+    code: 'SALE_006',
+    message: '진행 중인 거래가 있어 판매글을 삭제할 수 없습니다.',
+  },
+  SALE_IN_TRADE_CANNOT_CHANGE_STATUS: {
+    code: 'SALE_007',
+    message: '진행 중인 거래가 있어 판매글 상태를 수동으로 변경할 수 없습니다.',
   },
 
   // ============================================
@@ -160,6 +182,14 @@ export const ERROR_CODES = {
     code: 'CHAT_006',
     message: '대화 상대방이 탈퇴하여 메시지를 전송할 수 없습니다.',
   },
+  CHAT_CANNOT_LEAVE_DURING_TRADE: {
+    code: 'CHAT_007',
+    message: '진행 중인 거래가 있어 채팅방을 나갈 수 없습니다.',
+  },
+  CHAT_PARTICIPANT_INACTIVE: {
+    code: 'CHAT_008',
+    message: '대화방을 나갔거나 탈퇴한 사용자에게는 주문을 생성할 수 없습니다.',
+  },
 
   // ============================================
   // 위시리스트 관련 에러 (WISHLIST)
@@ -171,6 +201,70 @@ export const ERROR_CODES = {
   WISHLIST_INVALID_STATUS: {
     code: 'WISHLIST_002',
     message: '판매 중인 상품만 위시리스트에 추가할 수 있습니다.',
+  },
+
+  // ============================================
+  // 주문/결제 관련 에러 (ORDER)
+  // ============================================
+  ORDER_NOT_FOUND: {
+    code: 'ORDER_001',
+    message: '주문을 찾을 수 없습니다.',
+  },
+  ORDER_INVALID_STATUS: {
+    code: 'ORDER_002',
+    message: '유효하지 않은 주문 상태입니다.',
+  },
+  ORDER_FORBIDDEN: {
+    code: 'ORDER_003',
+    message: '주문에 접근할 권한이 없습니다.',
+  },
+  ORDER_CONCURRENT_MODIFICATION: {
+    code: 'ORDER_004',
+    message: '다른 요청에 의해 주문 상태가 변경되었습니다. 다시 시도해주세요.',
+  },
+  ORDER_AMOUNT_MISMATCH: {
+    code: 'ORDER_005',
+    message: '결제 요청 금액이 주문 금액과 일치하지 않습니다.',
+  },
+  ORDER_ALREADY_EXISTS: {
+    code: 'ORDER_006',
+    message: '해당 판매글에 이미 진행 중인 거래가 존재합니다.',
+  },
+  ORDER_CANNOT_CANCEL_SHIPPED: {
+    code: 'ORDER_007',
+    message: '배송 중에는 주문을 취소할 수 없습니다.',
+  },
+  ORDER_CANNOT_SELECT_SELF: {
+    code: 'ORDER_008',
+    message: '자기 자신을 거래 상대로 선택할 수 없습니다.',
+  },
+  ORDER_PAYMENT_EXPIRED: {
+    code: 'ORDER_009',
+    message: '결제 유효 시간(24시간)이 만료된 주문입니다.',
+  },
+  ORDER_DIRECT_ONLY_NOT_ALLOWED: {
+    code: 'ORDER_010',
+    message: '직거래 전용 판매글에는 온라인 주문을 생성할 수 없습니다.',
+  },
+
+  // ============================================
+  // 거래 후기 관련 에러 (TRADE_REVIEW)
+  // ============================================
+  TRADE_REVIEW_ALREADY_EXISTS: {
+    code: 'TRADE_REVIEW_001',
+    message: '이미 작성된 거래 후기가 존재합니다.',
+  },
+  TRADE_REVIEW_EXPIRED: {
+    code: 'TRADE_REVIEW_002',
+    message: '거래 후기 작성 기한(14일)이 만료되었습니다.',
+  },
+  TRADE_REVIEW_FORBIDDEN: {
+    code: 'TRADE_REVIEW_003',
+    message: '거래 후기를 작성할 권한이 없습니다.',
+  },
+  TRADE_REVIEW_NOT_FOUND: {
+    code: 'TRADE_REVIEW_004',
+    message: '거래 후기를 찾을 수 없습니다.',
   },
 
   // ============================================

@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { Order } from '@/features/order/entities/order.entity';
 import {
   SaleStatus,
   UsedBookSale,
@@ -25,6 +26,7 @@ describe('ChatService', () => {
   let chatRoomRepo: Partial<Repository<ChatRoom>>;
   let chatParticipantRepo: Partial<Repository<ChatParticipant>>;
   let chatMessageRepo: Partial<Repository<ChatMessage>>;
+  let orderRepo: Partial<Repository<Order>>;
   let mockQueryBuilder: any;
 
   // Services
@@ -61,6 +63,10 @@ describe('ChatService', () => {
       save: jest.fn(),
     };
 
+    orderRepo = {
+      findOne: jest.fn(),
+    };
+
     usedBookSaleService = {
       findSaleById: jest.fn(),
     };
@@ -80,6 +86,7 @@ describe('ChatService', () => {
           useValue: chatParticipantRepo,
         },
         { provide: getRepositoryToken(ChatMessage), useValue: chatMessageRepo },
+        { provide: getRepositoryToken(Order), useValue: orderRepo },
         {
           provide: UsedBookSaleService,
           useValue: usedBookSaleService,
@@ -114,8 +121,19 @@ describe('ChatService', () => {
 
     it('탈퇴한 회원의 판매글로 채팅방 개설을 시도하면 예외를 던져야 합니다', async () => {
       (usedBookSaleService.findSaleById as jest.Mock).mockResolvedValue({
-        user: { id: 2 },
+        user: { id: 2, isEmailVerified: true },
         status: SaleStatus.WITHDRAWN,
+      });
+
+      await expect(service.getChatRoom(1, 1)).rejects.toThrow(
+        BusinessException,
+      );
+    });
+
+    it('판매자가 이메일 미인증 상태인 경우 EMAIL_NOT_VERIFIED 예외를 던져야 합니다', async () => {
+      (usedBookSaleService.findSaleById as jest.Mock).mockResolvedValue({
+        user: { id: 2, isEmailVerified: false },
+        status: SaleStatus.FOR_SALE,
       });
 
       await expect(service.getChatRoom(1, 1)).rejects.toThrow(
@@ -125,7 +143,7 @@ describe('ChatService', () => {
 
     it('기존 채팅방이 있으면 올바른 조인 쿼리를 실행하고 반환해야 합니다', async () => {
       const existingRoom = { id: 1, participants: [{ isActive: true }] };
-      const sale = { id: 1, user: { id: 2 } };
+      const sale = { id: 1, user: { id: 2, isEmailVerified: true } };
 
       (usedBookSaleService.findSaleById as jest.Mock).mockResolvedValue(sale);
       mockQueryBuilder.getOne.mockResolvedValue(existingRoom);
@@ -162,7 +180,7 @@ describe('ChatService', () => {
     });
 
     it('기존 채팅방이 없으면 새로 생성해야 합니다', async () => {
-      const sale = { id: 1, user: { id: 2 } }; // Seller = 2
+      const sale = { id: 1, user: { id: 2, isEmailVerified: true } }; // Seller = 2
       const buyerId = 1;
 
       (usedBookSaleService.findSaleById as jest.Mock).mockResolvedValue(sale);
@@ -189,7 +207,7 @@ describe('ChatService', () => {
     });
 
     it('동시에 여러 요청이 들어와도 Request Collapsing에 의해 방 생성이 1회만 실행되어야 합니다', async () => {
-      const sale = { id: 1, user: { id: 2 } };
+      const sale = { id: 1, user: { id: 2, isEmailVerified: true } };
       const buyerId = 1;
 
       (usedBookSaleService.findSaleById as jest.Mock).mockResolvedValue(sale);
@@ -275,6 +293,15 @@ describe('ChatService', () => {
       await expect(service.leaveRoom(1, 1)).rejects.toThrow(BusinessException);
     });
 
+    it('진행 중인 활성 거래가 존재하는 경우 CHAT_CANNOT_LEAVE_DURING_TRADE 예외를 던져야 합니다', async () => {
+      (orderRepo.findOne as jest.Mock).mockResolvedValue({
+        id: 1,
+        chatRoomId: 1,
+      });
+
+      await expect(service.leaveRoom(1, 1)).rejects.toThrow(BusinessException);
+    });
+
     it('채팅방을 정상적으로 나가고 시스템 메시지를 생성해야 합니다', async () => {
       const participant = {
         id: 1,
@@ -282,6 +309,7 @@ describe('ChatService', () => {
         user: { id: 1, nickname: '테스터' },
       };
 
+      (orderRepo.findOne as jest.Mock).mockResolvedValue(null);
       (chatParticipantRepo.findOne as jest.Mock).mockResolvedValue(participant);
       (chatMessageRepo.create as jest.Mock).mockReturnValue({
         content: '테스터님이 나갔습니다.',
@@ -297,6 +325,66 @@ describe('ChatService', () => {
       expect(chatParticipantRepo.save).toHaveBeenCalledWith(participant);
       expect(chatMessageRepo.save).toHaveBeenCalled();
       expect(result.content).toBe('테스터님이 나갔습니다.');
+    });
+  });
+
+  describe('sendTradeMessage', () => {
+    it('거래 상태 메시지를 저장하고 브로드캐스트해야 합니다', async () => {
+      const room = { id: 10, updatedAt: new Date() };
+      (chatRoomRepo.findOneBy as jest.Mock).mockResolvedValue(room);
+      (chatMessageRepo.create as jest.Mock).mockImplementation(
+        (data: unknown) => data,
+      );
+      (chatMessageRepo.save as jest.Mock).mockImplementation((data: unknown) =>
+        Promise.resolve({ id: 50, ...(data as object) }),
+      );
+
+      const result = await service.sendTradeMessage(
+        10,
+        '결제가 완료되었습니다.',
+        undefined,
+        { orderId: 1 },
+      );
+
+      expect(result).toBeDefined();
+      expect(result.content).toBe('결제가 완료되었습니다.');
+      expect(chatRoomRepo.save).toHaveBeenCalled();
+      expect(chatMessageRepo.save).toHaveBeenCalled();
+    });
+
+    it('채팅방이 존재하지 않으면 CHAT_ROOM_NOT_FOUND 예외를 던져야 합니다', async () => {
+      (chatRoomRepo.findOneBy as jest.Mock).mockResolvedValue(null);
+
+      await expect(service.sendTradeMessage(999, '메시지')).rejects.toThrow(
+        BusinessException,
+      );
+    });
+  });
+
+  describe('notifyOtherBuyersTrading', () => {
+    it('동일 판매글의 다른 채팅방들에 거래 진행 메시지를 발송해야 합니다', async () => {
+      const otherRooms = [{ id: 11 }, { id: 12 }];
+      mockQueryBuilder.getMany = jest.fn().mockResolvedValue(otherRooms);
+      (chatRoomRepo.createQueryBuilder as jest.Mock).mockReturnValue({
+        innerJoin: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        getMany: jest.fn().mockResolvedValue(otherRooms),
+      });
+
+      const spy = jest
+        .spyOn(service, 'sendTradeMessage')
+        .mockResolvedValue({ id: 1 } as any);
+
+      await service.notifyOtherBuyersTrading(100, 10);
+
+      expect(spy).toHaveBeenCalledTimes(2);
+      expect(spy).toHaveBeenCalledWith(
+        11,
+        '판매자가 다른 구매자와 거래를 진행 중입니다.',
+        expect.anything(),
+        expect.objectContaining({ saleId: 100 }),
+      );
     });
   });
 });

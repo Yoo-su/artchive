@@ -1,8 +1,9 @@
 import { forwardRef, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
+import { Order, OrderStatus } from '@/features/order/entities/order.entity';
 import {
   SaleStatus,
   UsedBookSale,
@@ -11,7 +12,7 @@ import { UsedBookSaleService } from '@/features/used-book-sale/services/used-boo
 import { User } from '@/features/user/entities/user.entity';
 import { BusinessException } from '@/shared/exceptions/business.exception';
 
-import { ChatMessage } from '../entities/chat-message.entity';
+import { ChatMessage, ChatMessageType } from '../entities/chat-message.entity';
 import { ChatParticipant } from '../entities/chat-participant.entity';
 import { ChatRoom } from '../entities/chat-room.entity';
 import { ReadReceipt } from '../entities/read-receipt.entity';
@@ -26,6 +27,8 @@ export class ChatService {
     private readonly chatParticipantRepository: Repository<ChatParticipant>,
     @InjectRepository(ChatMessage)
     private readonly chatMessageRepository: Repository<ChatMessage>,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
     private readonly usedBookSaleService: UsedBookSaleService,
     @InjectRepository(ReadReceipt)
     private readonly readReceiptRepository: Repository<ReadReceipt>,
@@ -82,6 +85,11 @@ export class ChatService {
       throw new BusinessException('CHAT_SELF_CHAT', HttpStatus.FORBIDDEN);
     }
 
+    // 판매자 이메일 인증 여부 검증
+    if (sale.user.isEmailVerified === false) {
+      throw new BusinessException('EMAIL_NOT_VERIFIED', HttpStatus.FORBIDDEN);
+    }
+
     // 1. 기존 방 조회 (탈퇴자 제외하고 활성 참가자 확인)
     const existingRoom = await this.chatRoomRepository
       .createQueryBuilder('room')
@@ -126,6 +134,7 @@ export class ChatService {
           'participants.user',
           'usedBookSale',
           'usedBookSale.book',
+          'usedBookSale.user',
         ],
       });
 
@@ -152,6 +161,7 @@ export class ChatService {
         'participants.user',
         'usedBookSale',
         'usedBookSale.book',
+        'usedBookSale.user',
       ],
     });
 
@@ -246,6 +256,7 @@ export class ChatService {
       .leftJoinAndSelect('allParticipants.user', 'participantUser')
       .leftJoinAndSelect('room.usedBookSale', 'sale')
       .leftJoinAndSelect('sale.book', 'book')
+      .leftJoinAndSelect('sale.user', 'saleUser')
       .orderBy('room.updatedAt', 'DESC')
       .getMany();
 
@@ -272,16 +283,17 @@ export class ChatService {
       lastMessageMap.set(msg.chatRoom.id, msg);
     });
 
-    // 3. 안 읽은 메시지 개수 일괄 조회
+    // 3. 안 읽은 메시지 개수 일괄 조회 (내가 보낸 메시지 제외, 상대방 메시지 및 시스템/거래 메시지 포함)
     const unreadCounts = await this.chatMessageRepository
       .createQueryBuilder('message')
+      .leftJoin('message.sender', 'sender')
       .leftJoin('message.readReceipts', 'receipt', 'receipt.userId = :userId', {
         userId,
       })
       .select('message.chatRoom.id', 'roomId')
       .addSelect('COUNT(message.id)', 'count')
       .where('message.chatRoom.id IN (:...roomIds)', { roomIds })
-      .andWhere('message.sender.id != :userId', { userId })
+      .andWhere('(sender.id IS NULL OR sender.id != :userId)', { userId })
       .andWhere('receipt.id IS NULL')
       .groupBy('message.chatRoom.id')
       .getRawMany();
@@ -435,14 +447,15 @@ export class ChatService {
    * @returns 처리 결과
    */
   async markMessagesAsRead(roomId: number, userId: number) {
-    // 1. 이 방에서, 상대방이 보냈고, 내가 아직 읽지 않은 모든 메시지를 찾습니다.
+    // 1. 이 방에서, 내가 보낸 메시지가 아니고(상대방 메시지 및 시스템/거래 메시지), 내가 아직 읽지 않은 모든 메시지를 찾습니다.
     const unreadMessages = await this.chatMessageRepository
       .createQueryBuilder('message')
+      .leftJoin('message.sender', 'sender')
       .leftJoin('message.readReceipts', 'receipt', 'receipt.userId = :userId', {
         userId,
       })
       .where('message.chatRoom.id = :roomId', { roomId })
-      .andWhere('message.sender.id != :userId', { userId })
+      .andWhere('(sender.id IS NULL OR sender.id != :userId)', { userId })
       .andWhere('receipt.id IS NULL')
       .getMany();
 
@@ -469,7 +482,31 @@ export class ChatService {
    * @param userId - 나가는 사용자 ID
    */
   async leaveRoom(roomId: number, userId: number) {
-    // 1. 내 참여 정보 조회
+    // 1. 활성 거래 여부 검증 (결제 기능 활성화 시 진행 중인 거래가 있는 경우 나가기 불가)
+    const isPaymentEnabled = process.env.FEATURE_PAYMENT_ENABLED === 'true';
+    if (isPaymentEnabled) {
+      const activeOrder = await this.orderRepository.findOne({
+        where: {
+          chatRoomId: roomId,
+          status: In([
+            OrderStatus.AWAITING_PAYMENT,
+            OrderStatus.PAID,
+            OrderStatus.SHIPPED,
+            OrderStatus.DELIVERED,
+            OrderStatus.DISPUTED,
+          ]),
+        },
+      });
+
+      if (activeOrder) {
+        throw new BusinessException(
+          'CHAT_CANNOT_LEAVE_DURING_TRADE',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
+    // 2. 내 참여 정보 조회
     const participant = await this.chatParticipantRepository.findOne({
       where: { chatRoom: { id: roomId }, user: { id: userId } },
       relations: ['user'],
@@ -479,16 +516,93 @@ export class ChatService {
       throw new BusinessException('CHAT_ALREADY_LEFT', HttpStatus.NOT_FOUND);
     }
 
-    // 2. 내 참여 상태를 false로 변경
+    // 3. 내 참여 상태를 false로 변경
     participant.isActive = false;
     await this.chatParticipantRepository.save(participant);
 
-    // 3. 시스템 메시지 생성 ("OOO님이 나갔습니다.")
+    // 4. 시스템 메시지 생성 ("OOO님이 나갔습니다.")
     const systemMessage = this.chatMessageRepository.create({
       chatRoom: { id: roomId },
       content: `${participant.user.nickname}님이 나갔습니다.`,
       sender: null,
     });
     return await this.chatMessageRepository.save(systemMessage);
+  }
+
+  /**
+   * 거래 상태 변경 또는 거래 액션에 대한 시스템 메시지를 저장하고 브로드캐스트합니다.
+   * @param roomId 채팅방 ID
+   * @param content 메시지 내용
+   * @param type 메시지 타입 (기본: TRADE_STATUS)
+   * @param metadata 거래 상태 정보 등 메타데이터
+   */
+  async sendTradeMessage(
+    roomId: number,
+    content: string,
+    type: ChatMessageType = ChatMessageType.TRADE_STATUS,
+    metadata?: Record<string, any>,
+  ): Promise<ChatMessage> {
+    const chatRoom = await this.chatRoomRepository.findOneBy({ id: roomId });
+    if (!chatRoom) {
+      throw new BusinessException('CHAT_ROOM_NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
+
+    chatRoom.updatedAt = new Date();
+    await this.chatRoomRepository.save(chatRoom);
+
+    const message = this.chatMessageRepository.create({
+      chatRoom: { id: roomId },
+      content,
+      type,
+      metadata: metadata || null,
+      sender: null,
+    });
+
+    const savedMessage = await this.chatMessageRepository.save(message);
+
+    // 실시간 소켓 브로드캐스트
+    if (this.chatGateway?.server) {
+      this.chatGateway.server
+        .to(String(roomId))
+        .emit('newMessage', savedMessage);
+    }
+
+    return savedMessage;
+  }
+
+  /**
+   * 판매자가 특정 구매자와 거래를 시작했을 때, 해당 판매글의 다른 활성 채팅방들에 알림 메시지를 전송합니다.
+   * @param saleId 판매글 ID
+   * @param currentChatRoomId 제외할 현재 거래 진행 중인 채팅방 ID
+   */
+  async notifyOtherBuyersTrading(
+    saleId: number,
+    currentChatRoomId?: number | null,
+  ): Promise<void> {
+    const queryBuilder = this.chatRoomRepository
+      .createQueryBuilder('room')
+      .innerJoin('room.usedBookSale', 'sale')
+      .where('sale.id = :saleId', { saleId });
+
+    if (currentChatRoomId) {
+      queryBuilder.andWhere('room.id != :currentChatRoomId', {
+        currentChatRoomId,
+      });
+    }
+
+    const otherRooms = await queryBuilder.getMany();
+
+    for (const room of otherRooms) {
+      try {
+        await this.sendTradeMessage(
+          room.id,
+          '판매자가 다른 구매자와 거래를 진행 중입니다.',
+          ChatMessageType.TRADE_STATUS,
+          { saleId, status: 'RESERVED' },
+        );
+      } catch (error) {
+        // 개별 방 알림 실패는 무시하고 계속 진행
+      }
+    }
   }
 }

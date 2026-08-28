@@ -17,7 +17,7 @@ export class ChatRoom {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
   @ManyToOne(() => UsedBookSale, (sale) => sale.chatRooms, {
@@ -31,6 +31,6 @@ export class ChatRoom {
   @OneToMany(() => ChatMessage, (message) => message.chatRoom)
   messages: ChatMessage[];
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 }

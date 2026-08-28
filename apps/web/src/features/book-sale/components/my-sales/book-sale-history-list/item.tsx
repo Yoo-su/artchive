@@ -1,9 +1,13 @@
+"use client";
+
 import { SaleStatus, UsedBookSale } from "@bookjeok/core";
-import { Edit, MoreVertical, Trash2 } from "lucide-react";
+import { ChevronRight, Edit, MoreVertical, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
+import React from "react";
 
 import { useConfirm } from "@/features/confirm";
+import { BookIcon } from "@/shared/components/icons";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
 import {
@@ -28,6 +32,7 @@ import {
   useUpdateBookSaleStatusMutation,
 } from "../../../mutations";
 import { SaleStatusBadge } from "../../common/sale-status-badge";
+import { TradeMethodBadge } from "../../common/trade-method-badge";
 
 interface BookSaleHistoryItemProps {
   sale: UsedBookSale;
@@ -68,111 +73,180 @@ export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
 
   const handleDropdownClick = (event: React.MouseEvent) => {
     event.stopPropagation();
-    event.preventDefault();
   };
 
-  const handleCardClick = () => {
-    router.push(PATHS.BOOK_SALES_DETAIL(String(sale.id)));
-  };
+  const bookCover =
+    (sale.imageUrls && sale.imageUrls[0]) || sale.book?.image;
 
   return (
-    <div
-      className="group relative flex gap-4 py-6 border-b border-stone-100 last:border-0 hover:bg-stone-50/50 transition-colors"
-      onClick={handleCardClick}
-    >
-      {/* 이미지 영역 (4:5 비율) */}
-      <div className="relative w-20 aspect-4/5 shrink-0 bg-stone-100 rounded-sm overflow-hidden border border-stone-100">
-        <Image
-          src={sale.imageUrls[0] || "/images/placeholder-image.svg"}
-          alt={sale.title}
-          fill
-          sizes="80px"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-        {/* 상태 배지 (이미지 위 오버레이) */}
-        <div className="absolute top-1 right-1">
-          {/* 공간 절약을 위해 이미지 위에는 텍스트만 띄우거나, 리스트에서는 배지를 콘텐츠 영역으로 이동 */}
+    <Card className="rounded-2xl border border-stone-200 dark:border-stone-800 shadow-2xs hover:shadow-xs transition-all duration-200 bg-white dark:bg-stone-900/80 overflow-hidden">
+      <CardContent className="p-4 sm:p-5 space-y-3">
+        {/* 상단 메타: 등록일시, 배지들 */}
+        <div className="flex items-center justify-between gap-2 pb-2 border-b border-stone-100 dark:border-stone-800 text-xs">
+          <div className="flex items-center gap-1.5 text-stone-400">
+            <span>{formatDate(sale.createdAt, locale, "date")}</span>
+            <span>·</span>
+            <span className="font-mono">#{sale.id}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <TradeMethodBadge
+              tradeMethod={sale.tradeMethod}
+              className="text-[10px] py-0 px-1.5 h-5 font-medium"
+            />
+            <SaleStatusBadge
+              status={sale.status}
+              className="h-5 px-1.5 text-[10px] font-medium"
+            />
+          </div>
         </div>
-      </div>
 
-      {/* 콘텐츠 영역 */}
-      <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-        <div className="flex justify-between items-start gap-2">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 mb-1">
-              <SaleStatusBadge
-                status={sale.status}
-                className="h-5 px-1.5 text-[10px]"
+        {/* 메인: 도서 썸네일 & 판매 정보 */}
+        <div className="flex gap-3.5 items-start">
+          {/* 도서 썸네일 */}
+          <Link
+            href={PATHS.BOOK_SALES_DETAIL(String(sale.id))}
+            className="relative h-22 w-16 shrink-0 overflow-hidden rounded-md border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 group shadow-2xs"
+          >
+            {bookCover ? (
+              <Image
+                src={bookCover}
+                alt={sale.title}
+                fill
+                sizes="64px"
+                className="object-cover transition-transform group-hover:scale-105"
               />
-              <span className="text-xs text-stone-400">
-                {formatDate(sale.createdAt, locale, "short")}
-              </span>
-            </div>
-            <h3 className="font-serif font-bold text-lg text-stone-900 line-clamp-1 leading-tight group-hover:text-stone-600 transition-colors">
-              {sale.title}
-            </h3>
-            <p className="text-sm text-stone-500 line-clamp-1">
-              {sale.book.title}
-            </p>
-          </div>
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-stone-400">
+                <BookIcon className="h-5 w-5" />
+              </div>
+            )}
+          </Link>
 
-          <div onClick={handleDropdownClick}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-stone-400 hover:text-stone-900 hover:bg-stone-100 rounded-full"
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-32">
-                <DropdownMenuItem asChild>
-                  <Link href={PATHS.MY_PAGE_SALES_EDIT(String(sale.id))}>
-                    <Edit className="mr-2 h-3.5 w-3.5" />
-                    <span className="text-xs">{tActions("edit")}</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-red-600 focus:text-red-700 focus:bg-red-50"
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                >
-                  <Trash2 className="mr-2 h-3.5 w-3.5" />
-                  <span className="text-xs">
-                    {isDeleting ? tActions("deleting") : tActions("delete")}
-                  </span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          {/* 도서 텍스트 */}
+          <div className="flex-1 min-w-0 space-y-1">
+            <Link
+              href={PATHS.BOOK_SALES_DETAIL(String(sale.id))}
+              className="block font-serif font-bold text-stone-900 dark:text-stone-100 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors text-base line-clamp-1"
+            >
+              {sale.title}
+            </Link>
+
+            {sale.book && (
+              <p className="text-xs text-stone-500 line-clamp-1">
+                {sale.book.title}
+                {sale.book.author && ` · ${sale.book.author}`}
+              </p>
+            )}
+
+            {sale.content && (
+              <p className="text-xs text-stone-400 dark:text-stone-500 line-clamp-1 pt-0.5">
+                {sale.content}
+              </p>
+            )}
           </div>
         </div>
 
-        <div className="flex items-end justify-between mt-3">
-          <p className="font-bold text-lg text-stone-900">
-            {sale.price.toLocaleString()}
-            <span className="text-sm font-normal text-stone-500 ml-0.5">
+        {/* 하단 바: 금액 + 상태 변경 Select + 액션 메뉴 */}
+        <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-t border-stone-100 dark:border-stone-800">
+          <div className="flex items-baseline gap-1">
+            <span className="text-xs text-stone-400">판매가격:</span>
+            <span className="text-base font-bold text-stone-900 dark:text-stone-100 tabular-nums">
+              {sale.price.toLocaleString()}
+            </span>
+            <span className="text-xs font-normal text-stone-500">
               {tCommon("won")}
             </span>
-          </p>
+          </div>
 
-          <div onClick={handleDropdownClick}>
-            <Select value={sale.status} onValueChange={handleStatusChange}>
-              <SelectTrigger className="w-[110px] h-8 text-xs bg-white border-stone-200 focus:ring-stone-200 shadow-sm">
-                <SelectValue placeholder={t("change_status")} />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.values(SaleStatus).map((status) => (
-                  <SelectItem key={status} value={status} className="text-xs">
-                    {tStatus(status)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            {/* 상태 변경 Select */}
+            <div onClick={handleDropdownClick}>
+              <Select
+                value={sale.status}
+                onValueChange={handleStatusChange}
+                disabled={sale.status === SaleStatus.RESERVED}
+              >
+                <SelectTrigger
+                  className="w-[105px] h-8 text-xs bg-white dark:bg-stone-800 border-stone-200 dark:border-stone-700 rounded-lg shadow-2xs disabled:opacity-60 disabled:cursor-not-allowed"
+                  title={
+                    sale.status === SaleStatus.RESERVED
+                      ? tActions("in_trade_status_auto")
+                      : undefined
+                  }
+                >
+                  <SelectValue placeholder={t("change_status")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.values(SaleStatus).map((status) => (
+                    <SelectItem key={status} value={status} className="text-xs">
+                      {tStatus(status)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 수정 / 삭제 드롭다운 */}
+            <div onClick={handleDropdownClick}>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg cursor-pointer"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-32 rounded-xl">
+                  {sale.status === SaleStatus.RESERVED ? (
+                    <DropdownMenuItem
+                      disabled
+                      className="text-xs text-stone-400"
+                    >
+                      {tActions("in_trade_cannot_modify")}
+                    </DropdownMenuItem>
+                  ) : (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link href={PATHS.MY_PAGE_SALES_EDIT(String(sale.id))}>
+                          <Edit className="mr-2 h-3.5 w-3.5" />
+                          <span className="text-xs">{tActions("edit")}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-red-600 focus:text-red-700 focus:bg-red-50 dark:focus:bg-red-950/40 cursor-pointer"
+                        onClick={handleDelete}
+                        disabled={isDeleting}
+                      >
+                        <Trash2 className="mr-2 h-3.5 w-3.5" />
+                        <span className="text-xs">
+                          {isDeleting
+                            ? tActions("deleting")
+                            : tActions("delete")}
+                        </span>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* 상세 보기 */}
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="h-8 text-xs px-2.5 text-stone-500 hover:text-stone-900 dark:hover:text-stone-100"
+            >
+              <Link href={PATHS.BOOK_SALES_DETAIL(String(sale.id))}>
+                상세보기
+                <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
+              </Link>
+            </Button>
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };

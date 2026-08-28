@@ -1,4 +1,4 @@
-import { BookInfo, CreateBookSaleParams } from "@bookjeok/core";
+import { BookInfo, CreateBookSaleParams, TradeMethod } from "@bookjeok/core";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -27,11 +27,17 @@ export const useBookSaleForm = () => {
 
   const isSubmitDisabled = isPending || isSuccess || isModalOpen;
 
+  const isPaymentFeatureEnabled =
+    process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true";
+
   const form = useForm<SellFormValues>({
     resolver: zodResolver(createSellFormSchema(t)),
     defaultValues: {
       title: "",
       price: "",
+      tradeMethod: isPaymentFeatureEnabled
+        ? TradeMethod.BOTH
+        : TradeMethod.DIRECT_ONLY,
       content: "",
       city: "",
       district: "",
@@ -65,6 +71,7 @@ export const useBookSaleForm = () => {
     const payload: Omit<CreateBookSaleParams, "imageUrls"> = {
       title: data.title,
       price: Number(data.price),
+      tradeMethod: data.tradeMethod,
       city: data.city,
       district: data.district,
       latitude: data.latitude,

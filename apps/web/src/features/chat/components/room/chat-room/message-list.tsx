@@ -1,4 +1,4 @@
-import { ChatMessage } from "@bookjeok/core";
+import { ChatMessage, ChatMessageType } from "@bookjeok/core";
 import { motion } from "framer-motion";
 import { Check, Loader2 } from "lucide-react";
 import { RefObject } from "react";
@@ -10,6 +10,8 @@ import {
 } from "@/shared/components/shadcn/avatar";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
+import { TradeMessageCard } from "../../trade/trade-message-card";
+
 /** 시스템 메시지 버블 */
 const SystemMessageBubble = ({ content }: { content: string }) => (
   <div className="text-center text-xs text-gray-500 py-2">
@@ -20,11 +22,21 @@ const SystemMessageBubble = ({ content }: { content: string }) => (
 interface MessageBubbleProps {
   message: ChatMessage;
   isMine: boolean;
+  currentUserId?: number;
 }
 
-/** 일반 메시지 버블 */
-const MessageBubble = ({ message, isMine }: MessageBubbleProps) => {
-  if (!message.sender) {
+/** 메시지 버블 */
+const MessageBubble = ({ message, isMine, currentUserId }: MessageBubbleProps) => {
+  // 거래 관련 시스템 카드 메시지
+  if (
+    message.type === ChatMessageType.TRADE_STATUS ||
+    message.type === ChatMessageType.TRADE_ACTION
+  ) {
+    return <TradeMessageCard message={message} currentUserId={currentUserId} />;
+  }
+
+  // 일반 시스템 메시지
+  if (!message.sender || message.type === ChatMessageType.SYSTEM) {
     return <SystemMessageBubble content={message.content} />;
   }
 
@@ -97,6 +109,7 @@ interface MessageListProps {
   isFetchingPreviousPage: boolean;
   messagesEndRef: RefObject<HTMLDivElement | null>;
   messageContainerRef: RefObject<HTMLDivElement | null>;
+  contentRef?: RefObject<HTMLDivElement | null>;
   onScroll: () => void;
 }
 
@@ -112,6 +125,7 @@ export const MessageList = ({
   isFetchingPreviousPage,
   messagesEndRef,
   messageContainerRef,
+  contentRef,
   onScroll,
 }: MessageListProps) => {
   return (
@@ -119,23 +133,26 @@ export const MessageList = ({
       role="log"
       aria-live="polite"
       aria-relevant="additions"
-      className="grow overflow-y-auto p-4 space-y-4"
+      className="grow overflow-y-auto p-4"
       ref={messageContainerRef}
       onScroll={onScroll}
     >
-      {isFetchingPreviousPage && (
-        <div className="text-center">
-          <Loader2 className="h-5 w-5 animate-spin mx-auto text-gray-400" />
-        </div>
-      )}
-      {messages.map((message) => (
-        <MessageBubble
-          key={message.id}
-          message={message}
-          isMine={message.sender?.id === currentUserId}
-        />
-      ))}
-      <div ref={messagesEndRef} />
+      <div ref={contentRef} className="space-y-4">
+        {isFetchingPreviousPage && (
+          <div className="text-center">
+            <Loader2 className="h-5 w-5 animate-spin mx-auto text-gray-400" />
+          </div>
+        )}
+        {messages.map((message) => (
+          <MessageBubble
+            key={message.id}
+            message={message}
+            isMine={message.sender?.id === currentUserId}
+            currentUserId={currentUserId}
+          />
+        ))}
+        <div ref={messagesEndRef} className="h-2 shrink-0 pointer-events-none" />
+      </div>
     </div>
   );
 };

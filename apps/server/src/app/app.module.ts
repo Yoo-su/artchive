@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { getDataSourceToken, TypeOrmModule } from '@nestjs/typeorm';
 import { ClsPluginTransactional } from '@nestjs-cls/transactional';
@@ -18,6 +19,7 @@ import { HealthModule } from '@/features/health/health.module';
 import { InsightsModule } from '@/features/insights/insights.module';
 import { LlmModule } from '@/features/llm/llm.module';
 import { NotificationModule } from '@/features/notification/notification.module';
+import { OrderModule } from '@/features/order/order.module';
 import { ReadingLogModule } from '@/features/reading-log/reading-log.module';
 import { ReviewModule } from '@/features/review/review.module';
 import { SearchModule } from '@/features/search/search.module';
@@ -39,6 +41,9 @@ import { MailModule } from '@/shared/mail/mail.module';
           ? undefined
           : ['.env', '../../.env'],
     }),
+
+    // 전역 스케줄러 활성화
+    ScheduleModule.forRoot(),
 
     // 전역 비동기 이벤트 시스템 활성화
     EventEmitterModule.forRoot(),
@@ -101,6 +106,7 @@ import { MailModule } from '@/shared/mail/mail.module';
     ReadingLogModule,
     WishlistModule,
     UsedBookSaleModule,
+    OrderModule,
     ChatModule,
     LlmModule,
     ArtModule,
