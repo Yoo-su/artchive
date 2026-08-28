@@ -255,6 +255,7 @@ export class OrderService {
     const order = await manager.findOne(Order, {
       where: { id: orderId },
       relations: ['sale'],
+      lock: { mode: 'pessimistic_write' },
     });
 
     if (!order) {
@@ -290,29 +291,6 @@ export class OrderService {
     if (dto.amount !== order.amount) {
       throw new BusinessException(
         'ORDER_AMOUNT_MISMATCH',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    // 토스 승인 직전 비관적 락(SELECT FOR UPDATE)으로 상태/만료 최종 재검증
-    // READ COMMITTED 환경에서 스케줄러에 의한 상태 변경(만료/취소)과의 경합 방어
-    const lockedOrder = await manager
-      .getRepository(Order)
-      .createQueryBuilder('order')
-      .setLock('pessimistic_write')
-      .where('order.id = :id', { id: orderId })
-      .getOne();
-
-    if (!lockedOrder || lockedOrder.status !== OrderStatus.AWAITING_PAYMENT) {
-      throw new BusinessException(
-        'ORDER_INVALID_STATUS',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    if (lockedOrder.expiresAt && lockedOrder.expiresAt < new Date()) {
-      throw new BusinessException(
-        'ORDER_PAYMENT_EXPIRED',
         HttpStatus.BAD_REQUEST,
       );
     }

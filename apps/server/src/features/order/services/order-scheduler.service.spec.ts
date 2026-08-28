@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -20,6 +21,7 @@ describe('OrderSchedulerService', () => {
     getTrackingInfo: jest.Mock;
   };
   let mockEventEmitter: { emit: jest.Mock };
+  let mockConfigService: { get: jest.Mock };
 
   const mockOrder = (overrides?: Partial<Order>): Order =>
     ({
@@ -56,6 +58,9 @@ describe('OrderSchedulerService', () => {
     mockEventEmitter = {
       emit: jest.fn(),
     };
+    mockConfigService = {
+      get: jest.fn().mockReturnValue('true'),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -75,6 +80,10 @@ describe('OrderSchedulerService', () => {
         {
           provide: EventEmitter2,
           useValue: mockEventEmitter,
+        },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
         },
       ],
     }).compile();
