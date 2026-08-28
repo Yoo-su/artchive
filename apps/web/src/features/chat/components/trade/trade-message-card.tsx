@@ -48,8 +48,11 @@ export const TradeMessageCard = ({
     | string
     | undefined;
 
+  const isPaymentFeatureEnabled =
+    process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true";
+
   const { data: orderDetail } = useOrderDetailQuery(orderId, {
-    enabled: Boolean(orderId),
+    enabled: Boolean(orderId) && isPaymentFeatureEnabled,
     refetchInterval: false,
   });
 
@@ -186,7 +189,7 @@ export const TradeMessageCard = ({
         )}
 
         {/* 버튼 액션 */}
-        {orderId && (
+        {isPaymentFeatureEnabled && orderId && (
           <div className="mt-3 pt-2 border-t border-stone-100 dark:border-stone-800 flex items-center gap-2">
             {status === OrderStatus.AWAITING_PAYMENT && !isSeller && (
               isOrderInactive ? (

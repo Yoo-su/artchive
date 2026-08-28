@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Logger,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,10 +17,12 @@ import {
 } from '@/features/used-book-sale/entities/used-book-sale.entity';
 
 import { Order, OrderStatus } from '../entities/order.entity';
+import { PaymentFeatureGuard } from '../guards/payment-feature.guard';
 import { TossPaymentsService } from '../services/toss-payments.service';
 
 @ApiTags('주문/결제 웹훅 (Order Webhook)')
 @Controller('orders/webhook')
+@UseGuards(PaymentFeatureGuard)
 export class TossWebhookController {
   private readonly logger = new Logger(TossWebhookController.name);
 

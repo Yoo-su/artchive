@@ -482,25 +482,28 @@ export class ChatService {
    * @param userId - 나가는 사용자 ID
    */
   async leaveRoom(roomId: number, userId: number) {
-    // 1. 활성 거래 여부 검증 (진행 중인 거래가 있는 경우 나가기 불가)
-    const activeOrder = await this.orderRepository.findOne({
-      where: {
-        chatRoomId: roomId,
-        status: In([
-          OrderStatus.AWAITING_PAYMENT,
-          OrderStatus.PAID,
-          OrderStatus.SHIPPED,
-          OrderStatus.DELIVERED,
-          OrderStatus.DISPUTED,
-        ]),
-      },
-    });
+    // 1. 활성 거래 여부 검증 (결제 기능 활성화 시 진행 중인 거래가 있는 경우 나가기 불가)
+    const isPaymentEnabled = process.env.FEATURE_PAYMENT_ENABLED === 'true';
+    if (isPaymentEnabled) {
+      const activeOrder = await this.orderRepository.findOne({
+        where: {
+          chatRoomId: roomId,
+          status: In([
+            OrderStatus.AWAITING_PAYMENT,
+            OrderStatus.PAID,
+            OrderStatus.SHIPPED,
+            OrderStatus.DELIVERED,
+            OrderStatus.DISPUTED,
+          ]),
+        },
+      });
 
-    if (activeOrder) {
-      throw new BusinessException(
-        'CHAT_CANNOT_LEAVE_DURING_TRADE',
-        HttpStatus.BAD_REQUEST,
-      );
+      if (activeOrder) {
+        throw new BusinessException(
+          'CHAT_CANNOT_LEAVE_DURING_TRADE',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
     }
 
     // 2. 내 참여 정보 조회

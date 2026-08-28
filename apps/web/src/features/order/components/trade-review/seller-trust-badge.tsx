@@ -19,11 +19,14 @@ export const SellerTrustBadge = ({
   className,
 }: SellerTrustBadgeProps) => {
   const t = useTranslations("order.trade_review.stats");
+  const isPaymentFeatureEnabled =
+    process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true";
+
   const { data: stats, isLoading } = useSellerStatsQuery(handle, {
-    enabled: !!handle,
+    enabled: Boolean(handle) && isPaymentFeatureEnabled,
   });
 
-  if (isLoading || !stats) {
+  if (!isPaymentFeatureEnabled || isLoading || !stats) {
     return null;
   }
 

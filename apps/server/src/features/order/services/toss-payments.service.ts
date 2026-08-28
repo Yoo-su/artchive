@@ -43,9 +43,15 @@ export class TossPaymentsService {
   ) {}
 
   private getAuthHeaders(): { Authorization: string; 'Content-Type': string } {
-    const secretKey =
-      this.configService.get<string>('TOSS_PAYMENTS_SECRET_KEY') ||
-      'test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R';
+    const secretKey = this.configService.get<string>(
+      'TOSS_PAYMENTS_SECRET_KEY',
+    );
+    if (!secretKey) {
+      throw new BusinessException(
+        'EXTERNAL_API_ERROR',
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
     const encodedKey = Buffer.from(`${secretKey}:`).toString('base64');
     return {
       Authorization: `Basic ${encodedKey}`,
@@ -125,10 +131,7 @@ export class TossPaymentsService {
       );
       return response.data;
     } catch (error) {
-      this.logger.warn(
-        `토스 에스크로 구매확정 API 호출 실패 (paymentKey: ${paymentKey}): ${(error as Error).message}`,
-      );
-      return { paymentKey, status: 'ESCROW_CONFIRMED_FALLBACK' };
+      this.handleTossError(error, '에스크로 구매확정 실패');
     }
   }
 
@@ -150,10 +153,7 @@ export class TossPaymentsService {
       );
       return response.data;
     } catch (error) {
-      this.logger.warn(
-        `토스 에스크로 구매거부 API 호출 실패 (paymentKey: ${paymentKey}): ${(error as Error).message}`,
-      );
-      return { paymentKey, status: 'ESCROW_REJECTED_FALLBACK' };
+      this.handleTossError(error, '에스크로 구매거부 실패');
     }
   }
 

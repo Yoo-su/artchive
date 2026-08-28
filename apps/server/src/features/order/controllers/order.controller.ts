@@ -25,11 +25,12 @@ import { DisputeOrderDto } from '../dtos/dispute-order.dto';
 import { QueryOrderDto } from '../dtos/query-order.dto';
 import { RegisterShippingDto } from '../dtos/register-shipping.dto';
 import { Order } from '../entities/order.entity';
+import { PaymentFeatureGuard } from '../guards/payment-feature.guard';
 import { OrderService } from '../services/order.service';
 
 @ApiTags('주문/결제 (Order)')
 @Controller('orders')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(PaymentFeatureGuard, AuthGuard('jwt'))
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 

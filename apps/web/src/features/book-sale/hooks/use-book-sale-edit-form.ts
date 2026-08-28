@@ -52,12 +52,17 @@ export const useBookSaleEditForm = ({ sale }: UseBookSaleEditFormProps) => {
     },
   });
 
+  const isPaymentFeatureEnabled =
+    process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true";
+
   const form = useForm<EditFormValues>({
     resolver: zodResolver(createEditFormSchema(t)),
     defaultValues: {
       title: sale.title,
       price: String(sale.price),
-      tradeMethod: sale.tradeMethod ?? TradeMethod.BOTH,
+      tradeMethod: isPaymentFeatureEnabled
+        ? (sale.tradeMethod ?? TradeMethod.BOTH)
+        : TradeMethod.DIRECT_ONLY,
       city: sale.city,
       district: sale.district,
       latitude: sale.latitude ?? undefined,

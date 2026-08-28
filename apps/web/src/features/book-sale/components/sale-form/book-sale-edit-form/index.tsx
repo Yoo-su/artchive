@@ -149,67 +149,69 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
                 />
               </div>
 
-              {/* 거래 방식 선택 */}
-              <FormField
-                control={form.control}
-                name="tradeMethod"
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel>거래 방식</FormLabel>
-                    <FormControl>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        {[
-                          {
-                            value: TradeMethod.BOTH,
-                            title: "직거래 · 택배 모두",
-                            desc: "직거래와 택배거래 모두 가능해요",
-                            icon: <BoxIcon className="w-4 h-4 text-stone-800 dark:text-stone-200" />,
-                          },
-                          {
-                            value: TradeMethod.DELIVERY_ONLY,
-                            title: "택배거래만",
-                            desc: "안전결제 및 택배 배송으로 거래해요",
-                            icon: <TruckFastIcon className="w-4 h-4 text-stone-800 dark:text-stone-200" />,
-                          },
-                          {
-                            value: TradeMethod.DIRECT_ONLY,
-                            title: "직거래만",
-                            desc: "직접 만나서 거래해요",
-                            icon: <Handshake className="w-4 h-4 text-stone-800 dark:text-stone-200" />,
-                          },
-                        ].map((item) => {
-                          const isSelected = field.value === item.value;
-                          return (
-                            <button
-                              key={item.value}
-                              type="button"
-                              onClick={() => field.onChange(item.value)}
-                              className={`p-3.5 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer ${
-                                isSelected
-                                  ? "border-stone-900 bg-stone-50 dark:bg-stone-800 dark:border-stone-100 ring-1 ring-stone-900 dark:ring-stone-100 shadow-2xs"
-                                  : "border-stone-200 dark:border-stone-800 bg-card hover:bg-stone-50 dark:hover:bg-stone-900"
-                              }`}
-                            >
-                              <div className="flex items-center gap-2">
-                                <div className="p-1.5 rounded-md bg-background shadow-2xs">
-                                  {item.icon}
+              {/* 거래 방식 선택 (결제 기능 활성화 시에만 노출) */}
+              {process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true" && (
+                <FormField
+                  control={form.control}
+                  name="tradeMethod"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>거래 방식</FormLabel>
+                      <FormControl>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {[
+                            {
+                              value: TradeMethod.BOTH,
+                              title: "직거래 · 택배 모두",
+                              desc: "직거래와 택배거래 모두 가능해요",
+                              icon: <BoxIcon className="w-4 h-4 text-stone-800 dark:text-stone-200" />,
+                            },
+                            {
+                              value: TradeMethod.DELIVERY_ONLY,
+                              title: "택배거래만",
+                              desc: "안전결제 및 택배 배송으로 거래해요",
+                              icon: <TruckFastIcon className="w-4 h-4 text-stone-800 dark:text-stone-200" />,
+                            },
+                            {
+                              value: TradeMethod.DIRECT_ONLY,
+                              title: "직거래만",
+                              desc: "직접 만나서 거래해요",
+                              icon: <Handshake className="w-4 h-4 text-stone-800 dark:text-stone-200" />,
+                            },
+                          ].map((item) => {
+                            const isSelected = field.value === item.value;
+                            return (
+                              <button
+                                key={item.value}
+                                type="button"
+                                onClick={() => field.onChange(item.value)}
+                                className={`p-3.5 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer ${
+                                  isSelected
+                                    ? "border-stone-900 bg-stone-50 dark:bg-stone-800 dark:border-stone-100 ring-1 ring-stone-900 dark:ring-stone-100 shadow-2xs"
+                                    : "border-stone-200 dark:border-stone-800 bg-card hover:bg-stone-50 dark:hover:bg-stone-900"
+                                }`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div className="p-1.5 rounded-md bg-background shadow-2xs">
+                                    {item.icon}
+                                  </div>
+                                  <span className="font-semibold text-sm text-foreground">
+                                    {item.title}
+                                  </span>
                                 </div>
-                                <span className="font-semibold text-sm text-foreground">
-                                  {item.title}
-                                </span>
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                                {item.desc}
-                              </p>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                                <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                                  {item.desc}
+                                </p>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <div className="space-y-6">
                 <div className="border rounded-xl p-4 sm:p-6 bg-muted/20 space-y-4 col-span-1 md:col-span-2">

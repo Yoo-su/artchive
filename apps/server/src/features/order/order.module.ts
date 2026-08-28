@@ -14,6 +14,7 @@ import { TossWebhookController } from './controllers/toss-webhook.controller';
 import { TradeReviewController } from './controllers/trade-review.controller';
 import { Order } from './entities/order.entity';
 import { TradeReview } from './entities/trade-review.entity';
+import { PaymentFeatureGuard } from './guards/payment-feature.guard';
 import { OrderEventListener } from './listeners/order-event.listener';
 import { DeliveryTrackerService } from './services/delivery-tracker.service';
 import { OrderService } from './services/order.service';
@@ -37,6 +38,7 @@ import { TradeReviewService } from './services/trade-review.service';
   ],
   controllers: [OrderController, TossWebhookController, TradeReviewController],
   providers: [
+    PaymentFeatureGuard,
     OrderService,
     TossPaymentsService,
     DeliveryTrackerService,

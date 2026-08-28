@@ -122,6 +122,23 @@ stateDiagram-v2
 - **프론트엔드**:
   - 판매글 작성 폼 상단 안내 배너 + 비활성화, 판매글 상세 "채팅하기" 클릭 시 인증 유도 팝업, 채팅방 상단 거래 배너 및 결제 페이지에서 미인증 사용자에게 [인증 메일 재발송] 액션 제공.
 
+### 11) PG사 승인 전 안전 배포 및 Feature Flag 제어 (Pre-PG Launch Policy)
+- **정책**: PG사 승인 및 사업자 등록 전 프로덕션/스테이징 배포 시 결제 코드는 유실 없이 병합·배포하되, 런타임에서 일반 사용자의 결제 기능 접근을 원천 차단하고 기존 직거래 채팅 중계 기능만 100% 정상 작동하도록 격리한다.
+- **환경변수 플래그**:
+  - 백엔드: `FEATURE_PAYMENT_ENABLED=false` (PG 승인 완료 시 `true` 전환)
+  - 프론트엔드: `NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED=false` (PG 승인 완료 시 `true` 전환)
+- **백엔드 격리**:
+  - `PaymentFeatureGuard`를 `OrderController`, `TossWebhookController`, `TradeReviewController`에 적용하여 비활성화 시 503 Service Unavailable 차단.
+  - `OrderSchedulerService`의 6개 크론 잡에 플래그 가드를 적용하여 비활성화 시 0 반환 및 DB 폴링 차단.
+  - `ChatService.leaveRoom`에서 플래그 OFF 시 활성 주문 검사를 우회하여 일반 채팅방 퇴장 보장.
+  - `TossPaymentsService`에서 시크릿키 부재 시에도 서버 구동에 영향 없도록 안전 처리.
+- **프론트엔드 격리**:
+  - `TradeStatusBanner`: 플래그 OFF 시 `null` 반환 및 `useActiveOrderByRoomQuery` 차단.
+  - `TradeMessageCard`: 결제 및 주문 상세 버튼 숨김 및 `useOrderDetailQuery` 차단.
+  - 판매글 작성/수정 폼: `tradeMethod` 선택 UI를 숨기고 `DIRECT_ONLY`(직거래)로 기본값 고정.
+  - 결제 및 주문 관련 모든 페이지 라우트(`/order/*`, `/my-page/sales-orders`): 접근 시 홈(`/`)으로 즉시 리디렉트.
+  - 유저 프로필 페이지: 거래 후기 탭 및 `SellerTrustBadge` 미노출 및 관련 쿼리 비활성화.
+
 ---
 
 ## 5. Phase별 상세 실행 계획
@@ -430,3 +447,28 @@ cmd.exe /c "pnpm --filter @bookjeok/web exec tsc --noEmit"
 cmd.exe /c "pnpm --filter @bookjeok/server test"
 cmd.exe /c "pnpm --filter @bookjeok/web test"
 ```
+
+---
+
+### Phase 12: 안전 배포 & 점진적 롤아웃 (Feature Flagging)
+> PG사 승인/사업자 등록 전 코드는 병합 및 배포하되 결제 접근은 완벽히 격리·차단
+
+#### 작업 명세:
+1. **환경변수 플래그 추가**:
+   - `FEATURE_PAYMENT_ENABLED=false` (서버)
+   - `NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED=false` (웹)
+2. **백엔드 보안 가드 & 스케줄러 격리**:
+   - `PaymentFeatureGuard`: `OrderController`, `TossWebhookController`, `TradeReviewController`에 503 차단 적용.
+   - `OrderSchedulerService`: 6개 크론 잡 전체에 `isPaymentEnabled()` 검사 및 조기 반환 적용.
+   - `ChatService.leaveRoom`: 플래그 비활성화 시 활성 주문 검사 우회하여 일반 채팅 기능 영향 방지.
+   - `TossPaymentsService`: 시크릿 키 부재 시에도 서버 구동 실패 방지.
+3. **프론트엔드 UI & 라우트 격리**:
+   - `TradeStatusBanner`: 플래그 OFF 시 `null` 반환 및 주문 쿼리 비활성화.
+   - `TradeMessageCard`: 결제 및 상세 버튼 숨김 및 주문 쿼리 비활성화.
+   - `BookSaleForm` / `BookSaleEditForm`: `tradeMethod` 선택 UI 숨김 및 기본값 `DIRECT_ONLY` 고정.
+   - 주문/결제 라우트(`/order/*`, `/my-page/sales-orders`): 접근 시 홈(`/`) 리디렉트.
+   - `UserProfile`: 거래 후기 탭 및 `SellerTrustBadge` 숨김 및 쿼리 비활성화.
+4. **동작 검증**:
+   - `FEATURE_PAYMENT_ENABLED=false` 환경에서 기존 직거래 등록, 채팅 중계, 방 나가기 플로우 100% 정상 작동 확인.
+   - 모노레포 전체 패키지 빌드(`pnpm build`) 100% 성공 검증.
+

@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,7 +19,15 @@ export class OrderSchedulerService {
     private readonly orderService: OrderService,
     private readonly deliveryTrackerService: DeliveryTrackerService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly configService: ConfigService,
   ) {}
+
+  private isPaymentEnabled(): boolean {
+    return (
+      this.configService.get<string>('FEATURE_PAYMENT_ENABLED') === 'true' ||
+      process.env.FEATURE_PAYMENT_ENABLED === 'true'
+    );
+  }
 
   /**
    * 24시간 동안 미결제된 주문을 자동으로 취소합니다. (5분 주기)
@@ -26,6 +35,10 @@ export class OrderSchedulerService {
    */
   @Cron(CronExpression.EVERY_5_MINUTES)
   async handleExpiredOrders(): Promise<number> {
+    if (!this.isPaymentEnabled()) {
+      return 0;
+    }
+
     const now = new Date();
     const expiredOrders = await this.orderRepository.find({
       where: {
@@ -76,6 +89,10 @@ export class OrderSchedulerService {
    */
   @Cron(CronExpression.EVERY_5_MINUTES)
   async handleUnshippedOrders(): Promise<number> {
+    if (!this.isPaymentEnabled()) {
+      return 0;
+    }
+
     const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
     const unshippedOrders = await this.orderRepository.find({
       where: {
@@ -126,6 +143,10 @@ export class OrderSchedulerService {
    */
   @Cron(CronExpression.EVERY_5_MINUTES)
   async handleAutoConfirm(): Promise<number> {
+    if (!this.isPaymentEnabled()) {
+      return 0;
+    }
+
     const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
     const deliveredOrders = await this.orderRepository.find({
       where: {
@@ -173,6 +194,10 @@ export class OrderSchedulerService {
    */
   @Cron(CronExpression.EVERY_5_MINUTES)
   async handleExpiredDisputes(): Promise<number> {
+    if (!this.isPaymentEnabled()) {
+      return 0;
+    }
+
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const expiredDisputes = await this.orderRepository.find({
       where: {
@@ -221,6 +246,10 @@ export class OrderSchedulerService {
    */
   @Cron('*/30 * * * *')
   async pollDeliveryStatus(): Promise<number> {
+    if (!this.isPaymentEnabled()) {
+      return 0;
+    }
+
     const shippedOrders = await this.orderRepository.find({
       where: {
         status: OrderStatus.SHIPPED,
@@ -277,6 +306,10 @@ export class OrderSchedulerService {
     autoConfirmWarnings: number;
     shippingDeadlineWarnings: number;
   }> {
+    if (!this.isPaymentEnabled()) {
+      return { autoConfirmWarnings: 0, shippingDeadlineWarnings: 0 };
+    }
+
     const now = Date.now();
     const oneDayMs = 24 * 60 * 60 * 1000;
 

@@ -61,19 +61,22 @@ export const TradeStatusBanner = ({
   const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
+  const isPaymentFeatureEnabled =
+    process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true";
+
   const sellerId =
     room?.usedBookSale?.user?.id ?? (room?.usedBookSale as any)?.userId;
   const isSeller = Boolean(
     currentUser?.id && sellerId && currentUser.id === sellerId,
   );
   const isBuyer = Boolean(
-    currentUser?.id && (!sellerId || currentUser.id !== sellerId),
+    currentUser?.id && sellerId && currentUser.id !== sellerId,
   );
 
   const { data: order, isLoading: isOrderLoading } = useActiveOrderByRoomQuery(
     room?.id,
     {
-      enabled: Boolean(room?.id),
+      enabled: Boolean(room?.id) && isPaymentFeatureEnabled,
     },
   );
 
@@ -131,7 +134,7 @@ export const TradeStatusBanner = ({
     setIsSelectModalOpen(true);
   };
 
-  if (!room || !room.usedBookSale) {
+  if (!isPaymentFeatureEnabled || !room || !room.usedBookSale) {
     return null;
   }
 

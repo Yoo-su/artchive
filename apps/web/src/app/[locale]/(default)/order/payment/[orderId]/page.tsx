@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { createPageMetadata } from "@/shared/config/metadata";
@@ -22,6 +23,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function Page({ params }: Props) {
+  if (process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED !== "true") {
+    redirect("/");
+  }
+
   const { locale, orderId } = await params;
   setRequestLocale(locale);
 

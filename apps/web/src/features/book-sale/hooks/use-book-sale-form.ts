@@ -27,12 +27,17 @@ export const useBookSaleForm = () => {
 
   const isSubmitDisabled = isPending || isSuccess || isModalOpen;
 
+  const isPaymentFeatureEnabled =
+    process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true";
+
   const form = useForm<SellFormValues>({
     resolver: zodResolver(createSellFormSchema(t)),
     defaultValues: {
       title: "",
       price: "",
-      tradeMethod: TradeMethod.BOTH,
+      tradeMethod: isPaymentFeatureEnabled
+        ? TradeMethod.BOTH
+        : TradeMethod.DIRECT_ONLY,
       content: "",
       city: "",
       district: "",

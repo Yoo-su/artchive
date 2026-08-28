@@ -40,9 +40,12 @@ type ProfileTab = "READING" | "TRADE_REVIEWS";
 export const UserProfile = ({ handle }: UserProfileProps) => {
   const t = useTranslations("user_profile");
   const tReview = useTranslations("order.trade_review");
+  const isPaymentFeatureEnabled =
+    process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true";
+
   const { data: profile, isLoading, error } = usePublicProfileQuery(handle);
   const { data: sellerStats } = useSellerStatsQuery(handle, {
-    enabled: !!handle,
+    enabled: Boolean(handle) && isPaymentFeatureEnabled,
   });
   const [activeTab, setActiveTab] = useState<ProfileTab>("READING");
   const [currentDate, setCurrentDate] = useState<Date>(() => new Date());
@@ -62,35 +65,37 @@ export const UserProfile = ({ handle }: UserProfileProps) => {
       <UserProfileHeader profile={profile} />
       <UserProfileStats stats={profile.stats} />
 
-      {/* 탭 네비게이션 */}
-      <div className="mb-8 border-b border-stone-200/80">
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setActiveTab("READING")}
-            className={`pb-3 px-4 text-sm font-bold border-b-2 transition-all cursor-pointer ${
-              activeTab === "READING"
-                ? "border-stone-900 text-stone-900"
-                : "border-transparent text-stone-400 hover:text-stone-600"
-            }`}
-          >
-            {tReview("list.tab_reading")}
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("TRADE_REVIEWS")}
-            className={`pb-3 px-4 text-sm font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeTab === "TRADE_REVIEWS"
-                ? "border-stone-900 text-stone-900"
-                : "border-transparent text-stone-400 hover:text-stone-600"
-            }`}
-          >
-            <span>
-              {tReview("list.tab_trade_reviews", { count: reviewCount })}
-            </span>
-          </button>
+      {/* 탭 네비게이션 (결제/리뷰 기능 활성화 시에만 탭 노출) */}
+      {isPaymentFeatureEnabled && (
+        <div className="mb-8 border-b border-stone-200/80">
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setActiveTab("READING")}
+              className={`pb-3 px-4 text-sm font-bold border-b-2 transition-all cursor-pointer ${
+                activeTab === "READING"
+                  ? "border-stone-900 text-stone-900"
+                  : "border-transparent text-stone-400 hover:text-stone-600"
+              }`}
+            >
+              {tReview("list.tab_reading")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("TRADE_REVIEWS")}
+              className={`pb-3 px-4 text-sm font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === "TRADE_REVIEWS"
+                  ? "border-stone-900 text-stone-900"
+                  : "border-transparent text-stone-400 hover:text-stone-600"
+              }`}
+            >
+              <span>
+                {tReview("list.tab_trade_reviews", { count: reviewCount })}
+              </span>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 탭 콘텐츠: 독서 활동 */}
       {activeTab === "READING" && (
@@ -203,9 +208,10 @@ const UserProfileHeader = ({ profile }: UserProfileHeaderProps) => {
               </span>
             </div>
             {/* 판매자 안전거래 신뢰 뱃지 */}
-            {profile.handle && (
-              <SellerTrustBadge handle={profile.handle} size="sm" />
-            )}
+            {process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true" &&
+              profile.handle && (
+                <SellerTrustBadge handle={profile.handle} size="sm" />
+              )}
           </div>
         </div>
       </div>

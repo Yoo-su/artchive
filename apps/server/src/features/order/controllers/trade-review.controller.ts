@@ -19,6 +19,7 @@ import { CreateTradeReviewDto } from '../dtos/create-trade-review.dto';
 import { QueryTradeReviewDto } from '../dtos/query-trade-review.dto';
 import { UpdateTradeReviewDto } from '../dtos/update-trade-review.dto';
 import { TradeReview } from '../entities/trade-review.entity';
+import { PaymentFeatureGuard } from '../guards/payment-feature.guard';
 import {
   SellerTradeStats,
   TradeReviewService,
@@ -26,6 +27,7 @@ import {
 
 @ApiTags('거래 후기 (Trade Review)')
 @Controller('trade-reviews')
+@UseGuards(PaymentFeatureGuard)
 export class TradeReviewController {
   constructor(private readonly tradeReviewService: TradeReviewService) {}
 
