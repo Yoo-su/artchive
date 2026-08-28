@@ -1001,9 +1001,13 @@
   "my_reviews": {
     "metadata": {
       "title": "My Reviews",
-      "description": "Collect your book reviews."
+      "description": "Collect and manage your book reviews."
     },
     "title": "My Reviews",
+    "subtitle": "Manage your honest book reviews and reading impressions.",
+    "btn_write_review": "Write New Review",
+    "empty_title": "No reviews written yet",
+    "empty_desc": "Write your first review for a memorable book!",
     "delete_modal": {
       "title": "Delete Review",
       "desc": "Are you sure you want to delete this review?",
@@ -1260,12 +1264,20 @@
       "BOTH_desc": "Both direct and delivery trades available"
     },
     "history": {
-      "title": "My Sales",
-      "error_title": "Error Occurred",
-      "error_desc": "Failed to load sales history.",
-      "empty_title": "No sales history.",
-      "empty_desc": "Register a new used book!",
-      "change_status": "Change Status"
+      "title": "My Used Book Sales",
+      "subtitle": "Manage your registered used book sale posts and connect with new readers.",
+      "error_title": "Failed to load sales posts",
+      "error_desc": "Please check your network connection and try again.",
+      "empty_title": "No sales posts registered yet",
+      "empty_desc": "Register used books you no longer read and find new readers!",
+      "btn_register_sale": "Create Sale Post",
+      "change_status": "Change Status",
+      "tabs": {
+        "all": "All",
+        "for_sale": "For Sale",
+        "reserved": "Reserved",
+        "sold": "Sold"
+      }
     },
     "toast": {
       "create_success": "Sale post registered successfully.",

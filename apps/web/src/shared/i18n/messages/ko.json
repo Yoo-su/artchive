@@ -1004,6 +1004,10 @@
       "description": "내가 작성한 도서 리뷰들을 모아보세요."
     },
     "title": "내가 쓴 리뷰",
+    "subtitle": "직접 읽고 남긴 솔직한 도서 리뷰와 독서 감상을 관리하세요.",
+    "btn_write_review": "새 리뷰 작성",
+    "empty_title": "작성한 리뷰가 없습니다",
+    "empty_desc": "감명 깊게 읽은 도서의 첫 번째 리뷰를 남겨보세요!",
     "delete_modal": {
       "title": "리뷰 삭제",
       "desc": "정말로 이 리뷰를 삭제하시겠습니까?",
@@ -1260,12 +1264,20 @@
       "BOTH_desc": "직거래와 택배거래 모두 가능해요"
     },
     "history": {
-      "title": "나의 판매 내역",
-      "error_title": "오류 발생",
-      "error_desc": "판매 내역을 불러오는 중 문제가 발생했습니다.",
-      "empty_title": "판매 내역이 없습니다.",
-      "empty_desc": "새로운 중고책을 등록해보세요!",
-      "change_status": "상태 변경"
+      "title": "내 중고책 판매글",
+      "subtitle": "등록한 중고 도서의 판매 상태를 관리하고 새로운 독자를 만나보세요.",
+      "error_title": "판매글 목록을 불러오지 못했습니다",
+      "error_desc": "네트워크 연결을 확인한 후 다시 시도해주세요.",
+      "empty_title": "등록된 판매글이 없습니다",
+      "empty_desc": "더 이상 읽지 않는 책을 등록하여 따뜻한 책방 거래를 시작해보세요!",
+      "btn_register_sale": "판매글 등록하기",
+      "change_status": "상태 변경",
+      "tabs": {
+        "all": "전체",
+        "for_sale": "판매중",
+        "reserved": "예약중",
+        "sold": "판매완료"
+      }
     },
     "toast": {
       "create_success": "판매글이 성공적으로 등록되었습니다.",

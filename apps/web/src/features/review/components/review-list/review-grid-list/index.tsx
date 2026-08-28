@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageSquare } from "lucide-react";
+import { AlertTriangle, MessageSquare, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
@@ -70,9 +70,10 @@ export function ReviewGridList({
   // 에러 발생 시
   if (isError) {
     return (
-      <div className="py-32 flex flex-col items-center justify-center text-red-500">
-        <p className="mb-4">{t("error")}</p>
-        <Button variant="outline" onClick={() => window.location.reload()}>
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50/60 dark:bg-stone-900/60 p-10 text-center space-y-3">
+        <AlertTriangle className="h-9 w-9 text-stone-400" />
+        <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{t("error")}</p>
+        <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="mt-2 border-stone-200 dark:border-stone-700">
           {tCommon("actions.retry")}
         </Button>
       </div>
@@ -84,35 +85,41 @@ export function ReviewGridList({
   // 결과 없음
   if (reviews.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 text-center">
-        <div className="w-20 h-20 bg-stone-100 rounded-full flex items-center justify-center mb-6">
-          <MessageSquare className="w-8 h-8 text-stone-400" />
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-stone-200 dark:border-stone-800 bg-stone-50/40 dark:bg-stone-900/40 p-12 text-center space-y-3">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-800 text-stone-400">
+          <MessageSquare className="h-7 w-7" />
         </div>
-        <h3 className="text-2xl font-serif font-bold text-stone-800 mb-3">
-          {searchQuery || category
-            ? t("empty_search_title")
-            : t("empty_list_title")}
-        </h3>
-        <p className="text-stone-500 mb-8 max-w-md mx-auto">
-          {searchQuery || category
-            ? t("empty_search_desc")
-            : t("empty_list_desc")}
-        </p>
+        <div className="space-y-1">
+          <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">
+            {searchQuery || category
+              ? t("empty_search_title")
+              : t("empty_list_title")}
+          </h3>
+          <p className="text-xs text-stone-400 max-w-sm">
+            {searchQuery || category
+              ? t("empty_search_desc")
+              : t("empty_list_desc")}
+          </p>
+        </div>
         {searchQuery || category ? (
           <Button
             variant="outline"
+            size="sm"
             onClick={clearFilters}
-            className="border-stone-300 hover:bg-stone-50"
+            className="mt-2 border-stone-200 dark:border-stone-700"
           >
             {t("view_all")}
           </Button>
         ) : (
           <Button
             asChild
-            variant="outline"
-            className="border-stone-300 hover:bg-stone-50"
+            size="sm"
+            className="mt-2 bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 gap-1.5 shadow-2xs rounded-lg cursor-pointer"
           >
-            <Link href={PATHS.REVIEW_WRITE}>{t("write_first")}</Link>
+            <Link href={PATHS.REVIEW_WRITE}>
+              <Plus className="h-3.5 w-3.5" />
+              {t("write_first")}
+            </Link>
           </Button>
         )}
       </div>
