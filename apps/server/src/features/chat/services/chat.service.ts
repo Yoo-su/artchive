@@ -591,18 +591,17 @@ export class ChatService {
     }
 
     const otherRooms = await queryBuilder.getMany();
+    if (otherRooms.length === 0) return;
 
-    for (const room of otherRooms) {
-      try {
-        await this.sendTradeMessage(
+    await Promise.allSettled(
+      otherRooms.map((room) =>
+        this.sendTradeMessage(
           room.id,
           '판매자가 다른 구매자와 거래를 진행 중입니다.',
           ChatMessageType.TRADE_STATUS,
           { saleId, status: 'RESERVED' },
-        );
-      } catch (error) {
-        // 개별 방 알림 실패는 무시하고 계속 진행
-      }
-    }
+        ),
+      ),
+    );
   }
 }
