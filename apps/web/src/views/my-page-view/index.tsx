@@ -42,6 +42,9 @@ export const MyPageView = () => {
 
   const profileImageSrc = getProfileImageUrl(user.profileImageUrl);
 
+  const isPaymentEnabled =
+    process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true";
+
   const activityMenus = [
     {
       icon: CalendarDays,
@@ -49,18 +52,22 @@ export const MyPageView = () => {
       description: t("menu.reading_log.desc"),
       href: PATHS.READING_LOG,
     },
-    {
-      icon: PackageCheck,
-      label: t("menu.purchases.label"),
-      description: t("menu.purchases.desc"),
-      href: PATHS.MY_PAGE_PURCHASES,
-    },
-    {
-      icon: Truck,
-      label: t("menu.sales_orders.label"),
-      description: t("menu.sales_orders.desc"),
-      href: PATHS.MY_PAGE_SALES_ORDERS,
-    },
+    ...(isPaymentEnabled
+      ? [
+          {
+            icon: PackageCheck,
+            label: t("menu.purchases.label"),
+            description: t("menu.purchases.desc"),
+            href: PATHS.MY_PAGE_PURCHASES,
+          },
+          {
+            icon: Truck,
+            label: t("menu.sales_orders.label"),
+            description: t("menu.sales_orders.desc"),
+            href: PATHS.MY_PAGE_SALES_ORDERS,
+          },
+        ]
+      : []),
     {
       icon: ShoppingBag,
       label: t("menu.sales.label"),
