@@ -42,12 +42,19 @@ export const ChatRoomHeader = ({
   const { socket } = useSocketContext();
   const queryClient = useQueryClient();
 
-  const { data: order } = useActiveOrderByRoomQuery(activeChatRoomId ?? undefined, {
-    enabled: Boolean(activeChatRoomId),
-  });
+  const isPaymentFeatureEnabled =
+    process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true";
+
+  const { data: order } = useActiveOrderByRoomQuery(
+    activeChatRoomId ?? undefined,
+    {
+      enabled: Boolean(activeChatRoomId) && isPaymentFeatureEnabled,
+    },
+  );
 
   const isInTrade = Boolean(
-    order &&
+    isPaymentFeatureEnabled &&
+      order &&
       order.status !== OrderStatus.CANCELLED &&
       order.status !== OrderStatus.CONFIRMED,
   );
