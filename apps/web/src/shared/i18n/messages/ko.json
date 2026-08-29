@@ -1048,15 +1048,32 @@
       "description": "찜한 도서와 판매글을 확인하세요."
     },
     "title": "위시리스트",
+    "subtitle": "찜한 도서와 중고책 판매글을 모아서 확인합니다.",
+    "btn_search_book": "도서 검색",
+    "tabs": {
+      "all": "전체",
+      "book": "도서",
+      "sale": "중고거래"
+    },
     "empty": {
       "title": "위시리스트가 비어있습니다.",
       "desc": "마음에 드는 책이나 판매글을 찜해보세요!",
-      "button": "홈으로 가기"
+      "button": "도서 둘러보기"
     },
+    "empty_tab": {
+      "book_title": "찜한 도서가 없습니다.",
+      "book_desc": "읽고 싶거나 관심 있는 도서를 찜해보세요!",
+      "sale_title": "찜한 중고 판매글이 없습니다.",
+      "sale_desc": "관심 있는 중고책 판매글을 찜해보세요!"
+    },
+    "error_title": "위시리스트를 불러오지 못했습니다",
+    "error_desc": "네트워크 연결을 확인한 후 다시 시도해주세요.",
+    "retry": "다시 시도",
     "item": {
       "type_book": "도서",
       "type_sale": "중고거래",
       "view_detail": "상세보기",
+      "write_review": "서평 작성",
       "sold_out": "판매완료",
       "sale_ended": "판매 종료",
       "view_details": "상세보기"
