@@ -1048,15 +1048,32 @@
       "description": "Check your saved books and sales."
     },
     "title": "Wishlist",
+    "subtitle": "View and manage your saved books and used book sales.",
+    "btn_search_book": "Search Books",
+    "tabs": {
+      "all": "All",
+      "book": "Books",
+      "sale": "Used Sales"
+    },
     "empty": {
       "title": "Your wishlist is empty.",
       "desc": "Save books or sales you like!",
-      "button": "Go Home"
+      "button": "Browse Books"
     },
+    "empty_tab": {
+      "book_title": "No saved books.",
+      "book_desc": "Save books you want to read or explore!",
+      "sale_title": "No saved used book sales.",
+      "sale_desc": "Save used book sales you are interested in!"
+    },
+    "error_title": "Failed to load wishlist",
+    "error_desc": "Please check your network connection and try again.",
+    "retry": "Try Again",
     "item": {
       "type_book": "Book",
       "type_sale": "Used Trade",
       "view_detail": "View Detail",
+      "write_review": "Write Review",
       "sold_out": "Sold Out",
       "sale_ended": "Sale Ended",
       "view_details": "View Details"
