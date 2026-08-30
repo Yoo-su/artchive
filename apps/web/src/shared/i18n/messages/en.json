@@ -1027,7 +1027,15 @@
       "description": "Collect your comments."
     },
     "title": "My Comments",
+    "subtitle": "View and manage all comments you've written on books and reviews.",
     "count_desc": "You wrote {count} comments",
+    "type_book": "Book Comment",
+    "type_review": "Review Comment",
+    "likes_count": "{count} Likes",
+    "no_likes": "0 Likes",
+    "view_book": "Go to Book",
+    "view_review": "Go to Review",
+    "btn_explore_reviews": "Explore Reviews",
     "empty": {
       "title": "No comments yet",
       "desc": "Leave comments on books or reviews!"
@@ -1417,11 +1425,16 @@
     },
     "feed": {
       "title": "Recent Reading Logs",
+      "subtitle": "Discover recently logged books and reviews from fellow readers in real time.",
+      "badge_log": "Reading Log",
       "error": "Failed to load readers' records.",
       "loading_more": "Loading more logs...",
       "all_loaded": "All logs loaded.",
       "readers_reading": "{count} readers total",
       "readers_extra": "and {count} others read this",
+      "readers_count": "{count} readers total",
+      "readers_summary": "{count} reading logs",
+      "view_details": "View readers",
       "date_read": "{date}",
       "empty": {
         "title": "No reading logs yet",

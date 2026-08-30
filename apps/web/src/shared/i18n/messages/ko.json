@@ -1027,10 +1027,18 @@
       "description": "내가 작성한 댓글들을 모아보세요."
     },
     "title": "내가 쓴 댓글",
+    "subtitle": "도서 및 리뷰에 남긴 내 생각과 댓글을 모아보고 관리할 수 있습니다.",
     "count_desc": "총 {count}개의 댓글을 작성했어요",
+    "type_book": "도서 댓글",
+    "type_review": "리뷰 댓글",
+    "likes_count": "좋아요 {count}개",
+    "no_likes": "좋아요 0",
+    "view_book": "도서 바로가기",
+    "view_review": "리뷰 바로가기",
+    "btn_explore_reviews": "리뷰 둘러보기",
     "empty": {
       "title": "작성한 댓글이 없습니다",
-      "desc": "도서나 리뷰에 댓글을 달아보세요!"
+      "desc": "도서나 리뷰에 내 생각과 댓글을 남겨보세요!"
     },
     "delete_modal": {
       "title": "댓글 삭제",
@@ -1417,11 +1425,16 @@
     },
     "feed": {
       "title": "최근 독서 기록",
+      "subtitle": "이웃 독자들이 최근 읽고 기록한 책과 한 줄 감상을 실시간으로 둘러보세요.",
+      "badge_log": "독서 기록",
       "error": "독자들의 기록을 불러오지 못했어요.",
       "loading_more": "기록 더 불러오는 중...",
       "all_loaded": "모든 기록을 불러왔습니다.",
       "readers_reading": "총 {count}명이 읽었어요",
       "readers_extra": "외 {count}명이 읽었어요",
+      "readers_count": "총 {count}명 기록",
+      "readers_summary": "{count}명의 독서 기록",
+      "view_details": "독자 기록 보기",
       "date_read": "{date}",
       "empty": {
         "title": "아직 등록된 독서 기록이 없어요",
