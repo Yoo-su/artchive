@@ -1,8 +1,8 @@
+import { getPopularKeywords } from "@bookjeok/api-client";
 import { bookKeys } from "@bookjeok/core";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Suspense } from "react";
 
-import { getPopularKeywords } from "@/features/book/apis";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
 import BookSearchView from "@/views/book-search-view";

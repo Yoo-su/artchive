@@ -1,12 +1,12 @@
 "use client";
 
+import { useLoungePopularQuery } from "@bookjeok/react-query";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { useLoungePopularQuery } from "@/features/reading-log/queries";
 import { AvatarCircles } from "@/shared/components/magicui/avatar-circles";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { Link } from "@/shared/config/i18n/routing";

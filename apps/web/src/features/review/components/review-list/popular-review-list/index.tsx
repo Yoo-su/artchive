@@ -1,9 +1,8 @@
 "use client";
 
+import { usePopularReviewsQuery } from "@bookjeok/react-query";
 import { useTranslations } from "next-intl";
 import { Swiper, SwiperSlide } from "swiper/react";
-
-import { usePopularReviewsQuery } from "@/features/review/queries";
 
 import { PopularReviewItem } from "./popular-review-item";
 import { PopularReviewListSkeleton } from "./skeleton";

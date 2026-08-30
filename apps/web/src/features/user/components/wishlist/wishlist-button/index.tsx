@@ -1,6 +1,7 @@
 "use client";
 
 import { BookInfo } from "@bookjeok/core";
+import { useWishlistStatusQuery } from "@bookjeok/react-query";
 import { Heart } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -11,7 +12,6 @@ import {
   useAddToWishlistMutation,
   useRemoveFromWishlistMutation,
 } from "@/features/user/mutations";
-import { useWishlistStatusQuery } from "@/features/user/queries";
 import { Button } from "@/shared/components/shadcn/button";
 import { cn } from "@/shared/utils";
 

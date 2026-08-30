@@ -1,6 +1,10 @@
 "use client";
 
 import { ChatMessage, ChatRoom as ChatRoomType } from "@bookjeok/core";
+import {
+  useInfiniteChatMessagesQuery,
+  useMyChatRoomsQuery,
+} from "@bookjeok/react-query";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo } from "react";
 
@@ -9,10 +13,6 @@ import { useSocketContext } from "@/shared/providers/socket-provider";
 
 import { useChatScroll } from "../../../hooks/use-chat-scroll";
 import { useTypingIndicator } from "../../../hooks/use-typing-indicator";
-import {
-  useInfiniteChatMessagesQuery,
-  useMyChatRoomsQuery,
-} from "../../../queries";
 import { useChatStore } from "../../../stores/use-chat-store";
 import { TradeStatusBanner } from "../../trade/trade-status-banner";
 import { ChatRoomHeader } from "./header";

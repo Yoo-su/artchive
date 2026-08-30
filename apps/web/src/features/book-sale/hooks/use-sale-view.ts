@@ -1,8 +1,7 @@
 "use client";
 
+import { recordSaleView } from "@bookjeok/api-client";
 import { useEffect, useRef } from "react";
-
-import { recordSaleView } from "../apis";
 
 /**
  * 중고책 판매글 상세페이지 조회수를 기록하는 훅

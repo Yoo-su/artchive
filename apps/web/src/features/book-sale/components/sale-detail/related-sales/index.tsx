@@ -1,5 +1,6 @@
 "use client";
 
+import { useInfiniteRelatedSalesQuery } from "@bookjeok/react-query";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useInView } from "react-intersection-observer";
@@ -11,7 +12,6 @@ import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";
 
-import { useInfiniteRelatedSalesQuery } from "../../../queries";
 import { UsedBookSale } from "../../common/book-sale-item";
 import { RelatedSalesSkeleton } from "./skeleton";
 

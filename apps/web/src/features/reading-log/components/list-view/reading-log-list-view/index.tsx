@@ -1,6 +1,7 @@
 "use client";
 
 import { ReadingLog } from "@bookjeok/core";
+import { useReadingLogsInfiniteQuery } from "@bookjeok/react-query";
 import { format, parseISO } from "date-fns";
 import { BookOpen } from "lucide-react";
 import Image from "next/image";
@@ -13,7 +14,6 @@ import { cn } from "@/shared/utils";
 import { getDateLocale } from "@/shared/utils/format-date";
 
 import { getSeasonalTheme } from "../../../hooks/use-seasonal-theme";
-import { useReadingLogsInfiniteQuery } from "../../../queries";
 
 interface ReadingLogListViewProps {
   logs?: ReadingLog[];

@@ -1,6 +1,7 @@
 "use client";
 
 import { CommentTargetType } from "@bookjeok/core";
+import { useMyCommentsInfiniteQuery } from "@bookjeok/react-query";
 import {
   BookOpen,
   Heart,
@@ -13,7 +14,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { useCallback } from "react";
 
 import { useDeleteMyCommentMutation } from "@/features/comment/mutations";
-import { useMyCommentsInfiniteQuery } from "@/features/comment/queries";
 import { useConfirm } from "@/features/confirm";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";

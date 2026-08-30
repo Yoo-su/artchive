@@ -1,12 +1,12 @@
 "use client";
 
+import { useMyChatRoomsQuery } from "@bookjeok/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { MessagesSquare, X } from "lucide-react";
 import { useMemo } from "react";
 
 import { Button } from "@/shared/components/shadcn/button";
 
-import { useMyChatRoomsQuery } from "../../../queries";
 import { useChatStore } from "../../../stores/use-chat-store";
 
 export const ChatToggleButton = () => {

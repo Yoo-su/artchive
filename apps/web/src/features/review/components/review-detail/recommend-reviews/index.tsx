@@ -1,12 +1,12 @@
 "use client";
 
+import { useRecommendedReviewsQuery } from "@bookjeok/react-query";
 import { useTranslations } from "next-intl";
 import { useInView } from "react-intersection-observer";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { ReviewCard } from "@/features/review/components/common/review-card";
-import { useRecommendedReviewsQuery } from "@/features/review/queries";
 
 import { RecommendReviewsSkeleton } from "./skeleton";
 

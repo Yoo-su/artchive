@@ -1,4 +1,10 @@
 import {
+  getLoungePopular,
+  getPopularBooks,
+  getRecentBookSales,
+  getReviews,
+} from "@bookjeok/api-client";
+import {
   bookKeys,
   bookSaleKeys,
   HOME_PUBLISHERS,
@@ -7,11 +13,7 @@ import {
 } from "@bookjeok/core";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { getPopularBooks } from "@/features/book/apis";
 import { getPublisherBooksServer } from "@/features/book/apis/server";
-import { getRecentBookSales } from "@/features/book-sale/apis";
-import { getLoungePopular } from "@/features/reading-log/apis";
-import { getReviews } from "@/features/review/apis";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
 import { HomeView } from "@/views/home-view";

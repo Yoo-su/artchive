@@ -1,12 +1,12 @@
 "use client";
 
+import { getLocationSales } from "@bookjeok/api-client";
 import { LocationSales, LocationStat } from "@bookjeok/core";
 import { Loader2, MapPin, Navigation } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CustomOverlayMap, Map, useKakaoLoader } from "react-kakao-maps-sdk";
 
-import { getLocationSales } from "@/features/insights/apis";
 import {
   EmptyState,
   InsightCard,

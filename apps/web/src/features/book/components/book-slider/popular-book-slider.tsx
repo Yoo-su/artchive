@@ -1,5 +1,6 @@
 "use client";
 
+import { usePopularBooksQuery } from "@bookjeok/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import Image from "next/image";
@@ -9,8 +10,6 @@ import { useState } from "react";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
-
-import { usePopularBooksQuery } from "../../queries";
 
 /**
  * 지금 인기많은 책 컴포넌트

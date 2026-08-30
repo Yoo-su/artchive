@@ -1,12 +1,12 @@
 "use client";
 
+import { useRecentBookSalesQuery } from "@bookjeok/react-query";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { useRecentBookSalesQuery } from "@/features/book-sale/queries";
 import {
   InfiniteImageField,
   InfiniteImageItem,

@@ -1,9 +1,8 @@
 "use client";
 
+import { useRecordSearchKeywordMutation } from "@bookjeok/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-
-import { useRecordSearchKeywordMutation } from "../queries";
 
 interface UseBookSearchParamsProps {
   paramName?: string;

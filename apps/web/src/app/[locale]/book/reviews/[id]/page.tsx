@@ -1,10 +1,10 @@
+import { getReview } from "@bookjeok/api-client";
 import { reviewKeys } from "@bookjeok/core";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { cache } from "react";
 
-import { getReview } from "@/features/review/apis";
 import { ReviewJsonLd } from "@/features/review/components/common/review-json-ld";
 import { BreadcrumbJsonLd } from "@/shared/components/breadcrumb-json-ld";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";

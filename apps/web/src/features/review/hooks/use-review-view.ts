@@ -1,8 +1,7 @@
 "use client";
 
+import { recordReviewView } from "@bookjeok/api-client";
 import { useEffect, useRef } from "react";
-
-import { recordReviewView } from "../apis";
 
 /**
  * 리뷰 상세페이지 조회수를 기록하는 훅

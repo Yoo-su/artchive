@@ -1,3 +1,4 @@
+import { useUnreadCountQuery } from "@bookjeok/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -5,15 +6,13 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/shared/components/shadcn/button";
 import { cn } from "@/shared/utils";
 
-import { useUnreadCount } from "../../queries";
-
 interface NotificationBellProps {
   className?: string;
 }
 
 export const NotificationBell = ({ className }: NotificationBellProps) => {
   const t = useTranslations("notification");
-  const { data: count = 0 } = useUnreadCount();
+  const { data: count = 0 } = useUnreadCountQuery();
   const showBadge = count > 0;
 
   return (

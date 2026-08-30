@@ -1,10 +1,9 @@
 "use client";
 
+import { useLoungeActiveReadersQuery } from "@bookjeok/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-
-import { useLoungeActiveReadersQuery } from "@/features/reading-log/queries";
 
 import { ReaderRow } from "./reader-row";
 import { LoungeActiveReadersSkeleton } from "./skeleton";

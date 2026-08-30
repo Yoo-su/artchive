@@ -1,6 +1,7 @@
 "use client";
 
 import { BookInfo } from "@bookjeok/core";
+import { useInfiniteBookSearch } from "@bookjeok/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import debounce from "lodash/debounce";
 import { Loader2, Search } from "lucide-react";
@@ -19,8 +20,6 @@ import {
 } from "@/shared/components/shadcn/dialog";
 import { Input } from "@/shared/components/shadcn/input";
 import { ScrollArea } from "@/shared/components/shadcn/scroll-area";
-
-import { useInfiniteBookSearch } from "../../../queries";
 
 interface BookSearchModalProps {
   onSelect: (book: BookInfo) => void;

@@ -1,3 +1,4 @@
+import { useReadingLogSettingsQuery } from "@bookjeok/react-query";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
@@ -10,7 +11,6 @@ import { cn } from "@/shared/utils";
 
 import { useSeasonalTheme } from "../../../hooks/use-seasonal-theme";
 import { useUpdateReadingLogSettingsMutation } from "../../../mutations";
-import { useReadingLogSettingsQuery } from "../../../queries";
 
 interface ReadingLogHeroProps {
   currentDate: Date;

@@ -1,5 +1,6 @@
 "use client";
 
+import { useBookSaleDetailQuery } from "@bookjeok/react-query";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 
@@ -7,7 +8,6 @@ import { Separator } from "@/shared/components/shadcn/separator";
 import { NotFoundRedirect } from "@/shared/components/ui/not-found-redirect";
 import { PATHS } from "@/shared/constants/paths";
 
-import { useBookSaleDetailQuery } from "../../../queries";
 import { BookInfoCard } from "./book-info-card";
 import { BookSaleActions } from "./book-sale-actions";
 import { BookSaleContent } from "./book-sale-content";

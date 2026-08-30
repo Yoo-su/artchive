@@ -1,6 +1,7 @@
 "use client";
 
 import { ReadingLog } from "@bookjeok/core";
+import { useReadingLogsQuery } from "@bookjeok/react-query";
 import { format } from "date-fns";
 import { BookOpen, Quote, Share2 } from "lucide-react";
 import Image from "next/image";
@@ -9,7 +10,6 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
-import { useReadingLogsQuery } from "@/features/reading-log/queries";
 import {
   DraggableCardBody,
   DraggableCardContainer,

@@ -1,11 +1,11 @@
 "use client";
 
+import { usePublicUserProfileQuery } from "@bookjeok/react-query";
 import { BookOpen, User } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 import { ReadingLogCardDeck } from "@/features/reading-log/components/deck-view/reading-log-card-deck";
-import { usePublicProfileQuery } from "@/features/user/queries";
 import { Button } from "@/shared/components/shadcn/button";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
@@ -18,7 +18,7 @@ interface ShareDeckViewProps {
 
 export function ShareDeckView({ handle, year }: ShareDeckViewProps) {
   const t = useTranslations("reading_log");
-  const { data: profile, isLoading, error } = usePublicProfileQuery(handle);
+  const { data: profile, isLoading, error } = usePublicUserProfileQuery(handle);
 
   if (isLoading) {
     return (

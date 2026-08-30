@@ -1,8 +1,6 @@
-import { getSavedBookSummary } from "@bookjeok/api-client";
+import { getBookList, getSavedBookSummary } from "@bookjeok/api-client";
 import { bookKeys } from "@bookjeok/core";
 import { QueryClient } from "@tanstack/react-query";
-
-import { getBookList } from "../apis";
 
 /**
  * 연관 도서 프리패칭 (서버 사이드)

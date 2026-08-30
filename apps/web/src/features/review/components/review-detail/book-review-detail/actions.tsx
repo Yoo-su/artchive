@@ -1,13 +1,13 @@
 "use client";
 
 import { ReviewReactionType } from "@bookjeok/core";
+import { useMyReviewReactionQuery } from "@bookjeok/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { saveReturnUrl } from "@/features/auth/utils/return-url";
 import { useToggleReviewReactionMutation } from "@/features/review/mutations";
-import { useMyReviewReactionQuery } from "@/features/review/queries";
 import { usePathname, useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";

@@ -1,9 +1,9 @@
+import { useNotificationsInfiniteQuery } from "@bookjeok/react-query";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
-import { useNotifications } from "../../queries";
 import { NotificationItem } from "./notification-item";
 
 interface NotificationListProps {
@@ -13,7 +13,7 @@ interface NotificationListProps {
 export const NotificationList = ({ onClose }: NotificationListProps) => {
   const t = useTranslations("notification");
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useNotifications();
+    useNotificationsInfiniteQuery();
 
   const { ref, inView } = useInView();
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useMyChatRoomsQuery } from "@bookjeok/react-query";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -7,7 +8,6 @@ import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { ChatToggleButton } from "@/features/chat/components/widgets/chat-toggle-button";
 import { ChatWidget } from "@/features/chat/components/widgets/chat-widget";
 import { useChatEvents } from "@/features/chat/hooks/use-chat-events";
-import { useMyChatRoomsQuery } from "@/features/chat/queries";
 import { useChatStore } from "@/features/chat/stores/use-chat-store";
 import { useSocketContext } from "@/shared/providers/socket-provider";
 

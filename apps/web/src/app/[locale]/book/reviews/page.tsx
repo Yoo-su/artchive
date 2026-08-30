@@ -1,8 +1,8 @@
+import { getPopularReviews, getReviewFeeds } from "@bookjeok/api-client";
 import { reviewKeys } from "@bookjeok/core";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Suspense } from "react";
 
-import { getPopularReviews, getReviewFeeds } from "@/features/review/apis";
 import { BreadcrumbJsonLd } from "@/shared/components/breadcrumb-json-ld";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";

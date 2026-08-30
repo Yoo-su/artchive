@@ -1,3 +1,4 @@
+import { getBookSaleDetail } from "@bookjeok/api-client";
 import { bookSaleKeys } from "@bookjeok/core";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -5,7 +6,6 @@ import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import { cache } from "react";
 
-import { getBookSaleDetail } from "@/features/book-sale/apis";
 import { BookSaleJsonLd } from "@/features/book-sale/components/common/book-sale-json-ld";
 import { BreadcrumbJsonLd } from "@/shared/components/breadcrumb-json-ld";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";

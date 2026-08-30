@@ -1,8 +1,7 @@
 "use client";
 
+import { recordBookView } from "@bookjeok/api-client";
 import { useEffect, useRef } from "react";
-
-import { recordBookView } from "../apis";
 
 /**
  * 책 상세페이지 조회수를 기록하는 훅 (부수효과 고립)

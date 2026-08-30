@@ -1,9 +1,9 @@
+import { getArtDetail } from "@bookjeok/api-client";
 import { artKeys } from "@bookjeok/core";
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import { cache } from "react";
 
-import { getArtDetail } from "@/features/art/apis";
 import { ArtJsonLd } from "@/features/art/components/common/art-json-ld";
 import { DefaultLayout } from "@/layouts/default-layout";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";

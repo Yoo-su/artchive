@@ -1,5 +1,6 @@
 "use client";
 
+import { usePopularKeywordsQuery } from "@bookjeok/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -7,8 +8,6 @@ import { useCallback, useEffect, useState } from "react";
 
 import { usePathname, useRouter } from "@/shared/config/i18n/routing";
 import { cn } from "@/shared/utils";
-
-import { usePopularKeywordsQuery } from "../../../queries";
 
 /**
  * 인기 검색어 컴포넌트
