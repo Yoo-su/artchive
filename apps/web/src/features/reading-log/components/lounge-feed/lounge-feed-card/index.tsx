@@ -1,12 +1,12 @@
 "use client";
 
 import { LoungeBookCard } from "@bookjeok/core";
-import { ChevronRight, Quote } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { memo } from "react";
 
-import { BookIcon } from "@/shared/components/icons";
+import { BookIcon, QuoteUpIcon } from "@/shared/components/icons";
 import { AvatarCircles } from "@/shared/components/magicui/avatar-circles";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
@@ -25,8 +25,8 @@ export const LoungeFeedCard = memo(function LoungeFeedCard({
   const t = useTranslations("lounge.feed");
   const locale = useLocale();
 
-  const firstReader = item.readers[0];
-  const hasMemo = Boolean(firstReader?.memo?.trim());
+  // 최근 독자들 중 메모를 작성한 가장 최근 독자 찾기
+  const readerWithMemo = item.readers.find((r) => Boolean(r.memo?.trim()));
 
   return (
     <Card
@@ -37,18 +37,11 @@ export const LoungeFeedCard = memo(function LoungeFeedCard({
       )}
     >
       <CardContent className="p-4 sm:p-5 space-y-3">
-        {/* 상단 메타 바: 등록일시, 배지, 독자 수 */}
+        {/* 상단 메타 바: 등록일시, 독자 수 */}
         <div className="flex items-center justify-between gap-2 pb-2 border-b border-stone-100 dark:border-stone-800 text-xs">
-          <div className="flex items-center gap-1.5 text-stone-400">
-            <span>{formatRelativeTime(item.latestDate, locale)}</span>
-            <span>·</span>
-            <Badge
-              variant="outline"
-              className="text-[10px] py-0 px-1.5 h-5 font-medium border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300"
-            >
-              {t("badge_log")}
-            </Badge>
-          </div>
+          <span className="text-stone-400 font-medium">
+            {formatRelativeTime(item.latestDate, locale)}
+          </span>
 
           <Badge
             variant="secondary"
@@ -88,11 +81,11 @@ export const LoungeFeedCard = memo(function LoungeFeedCard({
               {item.book.publisher && ` · ${item.book.publisher}`}
             </p>
 
-            {hasMemo && firstReader ? (
-              <div className="mt-1 flex items-start gap-1.5 rounded-lg bg-stone-50/80 dark:bg-stone-800/50 p-2 border border-stone-100 dark:border-stone-800/80">
-                <Quote className="h-3 w-3 text-stone-400 shrink-0 mt-0.5" />
-                <p className="text-xs text-stone-600 dark:text-stone-300 line-clamp-2 leading-relaxed italic">
-                  {firstReader.memo}
+            {readerWithMemo ? (
+              <div className="mt-1 flex items-start gap-2 rounded-lg bg-stone-50/80 dark:bg-stone-800/50 p-2.5 border border-stone-100 dark:border-stone-800/80">
+                <QuoteUpIcon className="h-3.5 w-3.5 text-stone-400 shrink-0 mt-0.5" />
+                <p className="text-xs text-stone-600 dark:text-stone-300 line-clamp-2 leading-relaxed italic flex-1 min-w-0 pr-1.5 break-words">
+                  {readerWithMemo.memo}
                 </p>
               </div>
             ) : item.book.description ? (
@@ -101,8 +94,8 @@ export const LoungeFeedCard = memo(function LoungeFeedCard({
               </p>
             ) : (
               <p className="text-xs text-stone-400 dark:text-stone-500 line-clamp-1 pt-0.5">
-                {firstReader?.nickname
-                  ? `${firstReader.nickname}님이 기록한 도서입니다.`
+                {item.readers[0]?.nickname
+                  ? `${item.readers[0].nickname}님이 기록한 도서입니다.`
                   : "최근 기록된 도서입니다."}
               </p>
             )}
