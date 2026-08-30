@@ -25,6 +25,7 @@ export const LoungeFeedCard = memo(function LoungeFeedCard({
   const t = useTranslations("lounge.feed");
   const locale = useLocale();
 
+  const firstReader = item.readers[0];
   // 최근 독자들 중 메모를 작성한 가장 최근 독자 찾기
   const readerWithMemo = item.readers.find((r) => Boolean(r.memo?.trim()));
 
