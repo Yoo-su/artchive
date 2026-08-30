@@ -1,3 +1,4 @@
+import { findOrCreateRoom } from "@bookjeok/api-client";
 import { chatKeys, UsedBookSale } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { Edit, Loader2, MessageCircle, Trash2 } from "lucide-react";
@@ -7,7 +8,6 @@ import { toast } from "sonner";
 
 import { EmailVerificationModal } from "@/features/auth/components/email-verification-alert";
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
-import { findOrCreateRoom } from "@/features/chat/apis";
 import { useChatStore } from "@/features/chat/stores/use-chat-store";
 import { useConfirm } from "@/features/confirm";
 import { SellerTrustBadge } from "@/features/order";

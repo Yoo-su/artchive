@@ -19,11 +19,12 @@ const LocationHeatmap = dynamic(
     ),
   },
 );
+import { useInsightsQuery } from "@bookjeok/react-query";
+
 import { PriceHistogram } from "@/features/insights/components/charts/price-histogram";
 import { ReactionDonutChart } from "@/features/insights/components/charts/reaction-donut-chart";
 import { InsightsHeader } from "@/features/insights/components/common/insights-header";
 import { PopularTagsList } from "@/features/insights/components/lists/popular-tags-list";
-import { useInsightsQuery } from "@/features/insights/queries";
 import { FullScreenLoader } from "@/shared/components/ui/full-screen-loader";
 
 /**

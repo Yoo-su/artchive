@@ -1,5 +1,6 @@
 "use client";
 
+import { useBookStatsQuery } from "@bookjeok/react-query";
 import { ExternalLink } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -11,8 +12,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/shared/components/shadcn/tooltip";
-
-import { useBookStatsQuery } from "../../queries";
 
 interface BookActionsProps {
   isbn: string;

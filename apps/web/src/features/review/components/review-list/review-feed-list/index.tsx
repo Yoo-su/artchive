@@ -1,10 +1,10 @@
 "use client";
 
+import { useReviewFeedsQuery } from "@bookjeok/react-query";
 import { useTranslations } from "next-intl";
 import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { useReviewFeedsQuery } from "@/features/review/queries";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 

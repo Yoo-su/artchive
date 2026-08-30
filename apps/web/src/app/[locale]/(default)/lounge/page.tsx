@@ -1,7 +1,7 @@
+import { getLoungeActiveReaders, getLoungePopular } from "@bookjeok/api-client";
 import { readingLogKeys } from "@bookjeok/core";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { getLoungeActiveReaders, getLoungePopular } from "@/features/reading-log/apis";
 import { BreadcrumbJsonLd } from "@/shared/components/breadcrumb-json-ld";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";

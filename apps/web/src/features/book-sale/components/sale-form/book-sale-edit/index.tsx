@@ -1,5 +1,6 @@
 "use client";
 
+import { useBookSaleForEditQuery } from "@bookjeok/react-query";
 import { AxiosError } from "axios";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -9,7 +10,6 @@ import { toast } from "sonner";
 import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
-import { useBookSaleForEditQuery } from "../../../queries";
 import { BookSaleEditForm } from "../book-sale-edit-form";
 
 interface BookSaleEditProps {

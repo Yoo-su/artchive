@@ -1,7 +1,7 @@
+import { getPublicUserProfile } from "@bookjeok/api-client";
 import { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 
-import { getPublicProfile } from "@/features/user/apis";
 import { createPageMetadata } from "@/shared/config/metadata";
 import { ShareDeckView } from "@/views/share-deck-view";
 
@@ -20,7 +20,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
   let nickname = decodedHandle;
   try {
-    const profile = await getPublicProfile(decodedHandle);
+    const profile = await getPublicUserProfile(decodedHandle);
     if (profile?.nickname) {
       nickname = profile.nickname;
     }

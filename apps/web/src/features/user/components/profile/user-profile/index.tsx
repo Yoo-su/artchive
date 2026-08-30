@@ -1,5 +1,8 @@
 import { PublicUserProfile, SaleStatus } from "@bookjeok/core";
-import { useSellerStatsQuery } from "@bookjeok/react-query";
+import {
+  usePublicUserProfileQuery,
+  useSellerStatsQuery,
+} from "@bookjeok/react-query";
 import {
   ArrowRight,
   BookOpen,
@@ -19,7 +22,6 @@ import {
 } from "@/features/order";
 import { ReadingLogCalendar } from "@/features/reading-log/components/calendar-view/reading-log-calendar";
 import { ReadingLogListView } from "@/features/reading-log/components/list-view/reading-log-list-view";
-import { usePublicProfileQuery } from "@/features/user/queries";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { NotFoundRedirect } from "@/shared/components/ui/not-found-redirect";
 import { PriceDisplay } from "@/shared/components/ui/price-display";
@@ -43,7 +45,7 @@ export const UserProfile = ({ handle }: UserProfileProps) => {
   const isPaymentFeatureEnabled =
     process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true";
 
-  const { data: profile, isLoading, error } = usePublicProfileQuery(handle);
+  const { data: profile, isLoading, error } = usePublicUserProfileQuery(handle);
   const { data: sellerStats } = useSellerStatsQuery(handle, {
     enabled: Boolean(handle) && isPaymentFeatureEnabled,
   });

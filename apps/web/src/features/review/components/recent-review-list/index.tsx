@@ -1,9 +1,9 @@
 "use client";
 
+import { useReviewsQuery } from "@bookjeok/react-query";
 import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { useReviewsQuery } from "@/features/review/queries";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 

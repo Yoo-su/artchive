@@ -1,6 +1,7 @@
 "use client";
 
 import { BookInfo, HOME_PUBLISHERS } from "@bookjeok/core";
+import { useBookListQuery } from "@bookjeok/react-query";
 import { BookOpen } from "lucide-react";
 import { animate, motion, MotionValue, PanInfo, useMotionValue, useTransform } from "motion/react";
 import Image from "next/image";
@@ -11,7 +12,6 @@ import { TextAnimate } from "@/shared/components/magicui/text-animate";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
-import { useBookListQuery } from "../../queries";
 import { BookSliderSkeleton } from "./skeleton";
 
 // 3D 실린더 카드 컴포넌트

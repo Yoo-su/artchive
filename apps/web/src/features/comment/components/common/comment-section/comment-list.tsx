@@ -1,12 +1,12 @@
 "use client";
 
 import { CommentTargetType } from "@bookjeok/core";
+import { useCommentsQuery } from "@bookjeok/react-query";
 import { useTranslations } from "next-intl";
 
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { Pagination } from "@/shared/components/ui/pagination";
 
-import { useCommentsQuery } from "../../../queries";
 import { CommentItem } from "./comment-item";
 
 interface CommentListProps {

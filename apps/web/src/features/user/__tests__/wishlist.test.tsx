@@ -64,8 +64,8 @@ let queryReturn = {
   refetch: vi.fn(),
 };
 
-vi.mock("@/features/user/queries", () => ({
-  useWishlistQuery: () => queryReturn,
+vi.mock("@bookjeok/react-query", () => ({
+  useMyWishlistQuery: () => queryReturn,
   useWishlistStatusQuery: () => ({ data: true, isLoading: false }),
 }));
 

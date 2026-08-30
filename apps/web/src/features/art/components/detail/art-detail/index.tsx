@@ -1,11 +1,10 @@
 "use client";
 
+import { useArtDetailQuery } from "@bookjeok/react-query";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-
-import { useArtDetailQuery } from "@/features/art/queries";
 
 import { ArtDetailSkeleton } from "./skeleton";
 

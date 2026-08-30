@@ -1,12 +1,12 @@
 "use client";
 
 import { ArtDomain, Genre, GetArtListParams } from "@bookjeok/core";
+import { useArtListQuery } from "@bookjeok/react-query";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { useArtListQuery } from "@/features/art/queries";
 import { cn } from "@/shared/utils";
 
 import { ArtSliderSkeleton } from "../skeleton";

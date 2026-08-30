@@ -1,6 +1,7 @@
 "use client";
 
 import { SearchBookSalesParams } from "@bookjeok/core";
+import { useInfiniteBookSalesQuery } from "@bookjeok/react-query";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
@@ -8,7 +9,6 @@ import { useInView } from "react-intersection-observer";
 import { Spinner } from "@/shared/components/shadcn/spinner";
 
 import { useUserLocation } from "../../../hooks/use-user-location";
-import { useInfiniteBookSalesQuery } from "../../../queries";
 import { UsedBookSale } from "../../common/book-sale-item";
 
 interface BookSaleGridProps {

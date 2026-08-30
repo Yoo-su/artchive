@@ -1,10 +1,10 @@
 "use client";
 
+import { useMyWishlistQuery } from "@bookjeok/react-query";
 import { AlertTriangle, Heart, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
-import { useWishlistQuery } from "@/features/user/queries";
 import { Button } from "@/shared/components/shadcn/button";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
@@ -22,7 +22,7 @@ type FilterTabKey = "ALL" | "BOOK" | "SALE";
 export const WishlistList = () => {
   const t = useTranslations("wishlist");
   const [activeTab, setActiveTab] = useState<FilterTabKey>("ALL");
-  const { data: wishlist, isLoading, isError, refetch } = useWishlistQuery();
+  const { data: wishlist, isLoading, isError, refetch } = useMyWishlistQuery();
 
   const tabs: { key: FilterTabKey; label: string }[] = [
     { key: "ALL", label: t("tabs.all") },

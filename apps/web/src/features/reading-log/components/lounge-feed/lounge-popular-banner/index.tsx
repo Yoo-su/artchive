@@ -1,10 +1,10 @@
 "use client";
 
 import type { LoungePopularBook } from "@bookjeok/core";
+import { useLoungePopularQuery } from "@bookjeok/react-query";
 import { useTranslations } from "next-intl";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { useLoungePopularQuery } from "@/features/reading-log/queries";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 
 import { LoungePopularBannerCard } from "./lounge-popular-banner-card";

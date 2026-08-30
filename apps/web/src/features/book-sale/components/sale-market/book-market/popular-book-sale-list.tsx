@@ -1,8 +1,8 @@
+import { usePopularBookSalesQuery } from "@bookjeok/react-query";
 import { useTranslations } from "next-intl";
 import { FreeMode } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { usePopularBookSalesQuery } from "../../../queries";
 import { UsedBookSale } from "../../common/book-sale-item";
 
 export function PopularBookSaleList() {

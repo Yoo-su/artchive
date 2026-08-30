@@ -1,6 +1,7 @@
 "use client";
 
 import { ReadingLog } from "@bookjeok/core";
+import { useReadingLogsQuery } from "@bookjeok/react-query";
 import {
   addMonths,
   eachDayOfInterval,
@@ -20,7 +21,6 @@ import { cn } from "@/shared/utils";
 
 import { useReadingLogPrefetch } from "../../../hooks/use-reading-log-prefetch";
 import { useSeasonalTheme } from "../../../hooks/use-seasonal-theme";
-import { useReadingLogsQuery } from "../../../queries";
 import { DayDetailsDialog } from "../../common/day-details-dialog";
 import { ReadingLogCardDeck } from "../../deck-view/reading-log-card-deck";
 import { ReadingLogListView } from "../../list-view/reading-log-list-view";

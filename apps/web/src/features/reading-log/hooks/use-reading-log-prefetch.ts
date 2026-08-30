@@ -1,11 +1,10 @@
+import { getReadingLogs, getReadingLogStats } from "@bookjeok/api-client";
 import { readingLogKeys } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { addMonths, isAfter, startOfMonth, subMonths } from "date-fns";
 import { useEffect } from "react";
 
 import { CACHE_TIME } from "@/shared/constants/cache";
-
-import { getReadingLogs, getReadingLogStats } from "../apis";
 
 export const useReadingLogPrefetch = (year: number, month: number, enabled = true) => {
   const queryClient = useQueryClient();
@@ -35,7 +34,7 @@ export const useReadingLogPrefetch = (year: number, month: number, enabled = tru
 
       queryClient.prefetchQuery({
         queryKey: readingLogKeys.stats(targetYear, targetMonth).queryKey,
-        queryFn: () => getReadingLogStats(targetYear, targetMonth),
+        queryFn: () => getReadingLogStats({ year: targetYear, month: targetMonth }),
         staleTime: CACHE_TIME.FIVE_MINUTES,
       });
     });

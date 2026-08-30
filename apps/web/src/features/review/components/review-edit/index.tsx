@@ -1,6 +1,7 @@
 "use client";
 
 import { ReviewFormValues } from "@bookjeok/core";
+import { useReviewForEditQuery } from "@bookjeok/react-query";
 import { AxiosError } from "axios";
 import { AlertTriangle } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -9,7 +10,6 @@ import { toast } from "sonner";
 
 import { ReviewForm } from "@/features/review/components/review-form";
 import { useUpdateReviewMutation } from "@/features/review/mutations";
-import { useReviewForEditQuery } from "@/features/review/queries";
 import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 

@@ -1,4 +1,9 @@
 "use client";
+import {
+  useBookDetailQuery,
+  useBookSummaryQuery,
+  useGenerateBookSummaryMutation,
+} from "@bookjeok/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -6,7 +11,6 @@ import { useEffect, useState } from "react";
 import { Separator } from "@/shared/components/shadcn/separator";
 
 import { useBookView } from "../../hooks/use-book-view";
-import { useBookDetailQuery, useBookSummaryQuery, useGenerateBookSummaryMutation } from "../../queries";
 import { useRecentBookStore } from "../../stores/use-recent-book-store";
 import { AISummary } from "./ai-summary";
 import { BookActions } from "./book-actions";

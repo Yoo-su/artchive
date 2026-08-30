@@ -1,10 +1,10 @@
+import { getPublicUserProfile } from "@bookjeok/api-client";
 import { userKeys } from "@bookjeok/core";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { cache } from "react";
 
-import { getPublicProfile } from "@/features/user/apis";
 import { ProfilePageJsonLd } from "@/features/user/components/profile/profile-page-json-ld";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
@@ -18,7 +18,7 @@ interface UserProfilePageProps {
 // React.cache를 사용하여 metadata와 page 렌더링 간 중복 API 요청 방지
 const getCachedPublicProfile = cache(async (handle: string) => {
   try {
-    return await getPublicProfile(handle);
+    return await getPublicUserProfile(handle);
   } catch (error) {
     console.error("유저 프로필 조회 실패:", error);
     return null;

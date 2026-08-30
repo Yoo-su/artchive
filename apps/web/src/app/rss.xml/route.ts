@@ -1,9 +1,7 @@
 import "@/shared/libs/axios";
 
+import { getRecentBookSales, getReviews } from "@bookjeok/api-client";
 import { Review, UsedBookSale } from "@bookjeok/core";
-
-import { getRecentBookSales } from "@/features/book-sale/apis";
-import { getReviews } from "@/features/review/apis";
 
 export const dynamic = "force-dynamic";
 

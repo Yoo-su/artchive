@@ -1,12 +1,12 @@
 "use client";
 
 import { AladinQueryType } from "@bookjeok/core";
+import { useBookListQuery } from "@bookjeok/react-query";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { BookCard } from "@/features/book/components/common/book-card";
-import { useBookListQuery } from "@/features/book/queries";
 import { Link } from "@/shared/config/i18n/routing";
 
 interface RelatedBooksSectionProps {

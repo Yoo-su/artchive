@@ -1,11 +1,10 @@
 import * as apis from "@bookjeok/api-client";
 import { bookSaleKeys, SaleStatus, UsedBookSale } from "@bookjeok/core";
+import { useRecentBookSalesQuery } from "@bookjeok/react-query";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
-import { useRecentBookSalesQuery } from "@/features/book-sale/queries";
 
 vi.mock("@bookjeok/api-client", () => ({
   getRecentBookSales: vi.fn(),

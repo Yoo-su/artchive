@@ -1,8 +1,8 @@
+import { getInsights } from "@bookjeok/api-client";
 import { insightsKeys } from "@bookjeok/core";
 import { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { getInsights } from "@/features/insights/apis";
 import { BreadcrumbJsonLd } from "@/shared/components/breadcrumb-json-ld";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";

@@ -1,4 +1,5 @@
 import { BookInfo ,  ReadingLog } from "@bookjeok/core";
+import { useReadingLogsQuery } from "@bookjeok/react-query";
 import { format } from "date-fns";
 import {
   Calendar as CalendarIcon,
@@ -31,7 +32,6 @@ import {
   useDeleteReadingLogMutation,
   useUpdateReadingLogMutation,
 } from "../../../mutations";
-import { useReadingLogsQuery } from "../../../queries";
 import { ReadingLogFormDialog } from "../reading-log-form-dialog";
 
 interface DayDetailsDialogProps {
