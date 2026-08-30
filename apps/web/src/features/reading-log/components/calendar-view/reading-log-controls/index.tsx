@@ -56,7 +56,7 @@ export function ReadingLogControls({
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-8 px-4 md:px-0">
+    <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-8">
       {/* 날짜 네비게이션 */}
       <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-start">
         {viewMode === "calendar" ? (

@@ -130,7 +130,7 @@ export function ReadingLogCalendar({
       ) : isLoading ? (
         <ReadingLogCalendarSkeleton />
       ) : (
-        <div className="p-1 pb-4">
+        <div className="pb-4">
           <div
             className={cn(
               "bg-white/95 backdrop-blur-xl rounded-3xl shadow-xl shadow-stone-300/40 border border-stone-200/80 overflow-hidden ring-1 transition-all duration-500",
