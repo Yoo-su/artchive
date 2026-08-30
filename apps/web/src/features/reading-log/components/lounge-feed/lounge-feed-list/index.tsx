@@ -40,21 +40,34 @@ export function LoungeFeedList({ onCardClick }: LoungeFeedListProps) {
   if (isLoading) {
     return (
       <section>
-        <div className="mb-10">
-          <Skeleton className="h-8 w-48 mb-3" />
-          <Skeleton className="h-4 w-64" />
+        <div className="mb-10 border-b border-stone-200 dark:border-stone-800 pb-5">
+          <Skeleton className="h-9 w-48 mb-2" />
+          <Skeleton className="h-4 w-72" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="flex gap-4 p-4 rounded-2xl border border-stone-100"
+              className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900/80 p-4 sm:p-5 space-y-3"
             >
-              <Skeleton className="h-28 w-20 rounded-xl shrink-0" />
-              <div className="flex-1 space-y-3 py-2">
-                <Skeleton className="h-5 w-3/4" />
-                <Skeleton className="h-3 w-1/2" />
-                <Skeleton className="h-6 w-32 mt-2" />
+              {/* 상단 메타 스켈레톤 */}
+              <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-800">
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-4 w-16 rounded-full" />
+              </div>
+              {/* 본문 스켈레톤 */}
+              <div className="flex gap-3.5 sm:gap-4 items-start">
+                <Skeleton className="h-24 w-18 sm:h-28 sm:w-20 rounded-md shrink-0" />
+                <div className="flex-1 space-y-2 py-0.5">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-3.5 w-1/2" />
+                  <Skeleton className="h-10 w-full rounded-lg mt-1" />
+                </div>
+              </div>
+              {/* 하단 바 스켈레톤 */}
+              <div className="pt-2 flex items-center justify-between border-t border-stone-100 dark:border-stone-800">
+                <Skeleton className="h-6 w-32 rounded-full" />
+                <Skeleton className="h-4 w-20" />
               </div>
             </div>
           ))}
@@ -81,11 +94,14 @@ export function LoungeFeedList({ onCardClick }: LoungeFeedListProps) {
 
   return (
     <section>
-      {/* 섹션 헤더: 기존 슬라이더 헤더 패턴 */}
-      <div className="mb-10 border-b border-stone-200 pb-5">
-        <h2 className="font-serif text-3xl sm:text-4xl text-stone-900 font-medium tracking-tight">
+      {/* 섹션 헤더 */}
+      <div className="mb-10 border-b border-stone-200 dark:border-stone-800 pb-5">
+        <h2 className="font-serif text-3xl sm:text-4xl text-stone-900 dark:text-stone-100 font-medium tracking-tight">
           {t("title")}
         </h2>
+        <p className="mt-2 text-sm sm:text-base text-stone-500 font-light">
+          {t("subtitle")}
+        </p>
       </div>
 
       {/* 피드 카드 그리드 */}

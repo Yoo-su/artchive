@@ -3,11 +3,11 @@
 import { CommentTargetType } from "@bookjeok/core";
 import { useMyCommentsInfiniteQuery } from "@bookjeok/react-query";
 import {
-  BookOpen,
+  ChevronRight,
   Heart,
   Loader2,
   MessageSquare,
-  PenLine,
+  Search,
   Trash2,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -15,13 +15,15 @@ import { useCallback } from "react";
 
 import { useDeleteMyCommentMutation } from "@/features/comment/mutations";
 import { useConfirm } from "@/features/confirm";
+import { BookIcon, QuoteUpCircleIcon } from "@/shared/components/icons";
+import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";
-import { formatRelativeTime } from "@/shared/utils/format-date";
+import { formatDate } from "@/shared/utils/format-date";
 
 /**
  * 타겟 타입에 따른 링크 생성
@@ -81,137 +83,175 @@ export const MyCommentList = () => {
   }
 
   const allComments = data?.pages.flatMap((page) => page.data) ?? [];
-  const total = data?.pages[0]?.meta.total ?? 0;
 
-  return (
-    <>
-      {/* 헤더 */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-stone-900">{t("title")}</h1>
-          <p className="mt-1 text-sm text-stone-500">
-            {t("count_desc", { count: total })}
+  if (allComments.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-stone-200 dark:border-stone-800 bg-stone-50/40 dark:bg-stone-900/40 p-12 text-center space-y-3">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-800 text-stone-400">
+          <MessageSquare className="h-7 w-7" />
+        </div>
+        <div className="space-y-1">
+          <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">
+            {t("empty.title")}
+          </h3>
+          <p className="text-xs text-stone-400 max-w-sm">
+            {t("empty.desc")}
           </p>
         </div>
+        <Button
+          asChild
+          size="sm"
+          className="mt-2 bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 gap-1.5 shadow-2xs rounded-lg cursor-pointer"
+        >
+          <Link href={PATHS.REVIEWS}>
+            <Search className="h-3.5 w-3.5" />
+            {t("btn_explore_reviews")}
+          </Link>
+        </Button>
       </div>
+    );
+  }
 
-      {allComments.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-20 text-stone-400">
-            <MessageSquare className="mb-4 h-16 w-16 stroke-1" />
-            <p className="text-lg font-medium">{t("empty.title")}</p>
-            <p className="mt-1 text-sm">{t("empty.desc")}</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-3">
-          {allComments.map((comment) => (
+  return (
+    <div className="space-y-4">
+      <div className="space-y-3">
+        {allComments.map((comment) => {
+          const isReview = comment.targetType === CommentTargetType.REVIEW;
+          const targetHref = getTargetLink(comment.targetType, comment.targetId);
+
+          return (
             <Card
               key={comment.id}
-              className="group overflow-hidden border-stone-100 transition-all duration-300 hover:shadow-lg"
+              className="rounded-2xl border border-stone-200 dark:border-stone-800 shadow-2xs hover:shadow-xs transition-all duration-200 bg-white dark:bg-stone-900/80 overflow-hidden group"
             >
-              <CardContent className="p-0">
-                {/* 상단: 대상 정보 */}
-                <Link
-                  href={getTargetLink(comment.targetType, comment.targetId)}
-                  className="block bg-linear-to-r from-stone-50 to-transparent px-5 py-3 transition-colors hover:from-stone-100"
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={cn(
-                        "p-2 rounded-lg",
-                        comment.targetType === CommentTargetType.REVIEW
-                          ? "bg-blue-100"
-                          : "bg-emerald-100",
-                      )}
+              <CardContent className="p-4 sm:p-5 space-y-3">
+                {/* 상단 메타 바: 등록일시, 배지, 삭제 액션 */}
+                <div className="flex items-center justify-between gap-2 pb-2 border-b border-stone-100 dark:border-stone-800 text-xs">
+                  <div className="flex items-center gap-1.5 text-stone-400">
+                    <span>{formatDate(comment.createdAt, locale, "date")}</span>
+                    <span>·</span>
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] py-0 px-1.5 h-5 font-medium border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300"
                     >
-                      {comment.targetType === CommentTargetType.REVIEW ? (
-                        <PenLine className="h-4 w-4 text-blue-600" />
-                      ) : (
-                        <BookOpen className="h-4 w-4 text-emerald-600" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-stone-800">
-                        {comment.targetTitle || t("no_title")}
+                      {isReview ? t("type_review") : t("type_book")}
+                    </Badge>
+                  </div>
+
+                  {/* 삭제 버튼 */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-stone-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg cursor-pointer transition-colors"
+                    disabled={isDeleting}
+                    onClick={() => handleDeleteClick(comment.id)}
+                    title={t("delete_modal.title")}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+
+                {/* 메인: 타겟 아이콘 & 정보 & 내 댓글 */}
+                <div className="flex gap-3.5 sm:gap-4 items-start">
+                  {/* 타겟 아이콘 */}
+                  <Link
+                    href={targetHref}
+                    className="relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 flex items-center justify-center text-stone-500 dark:text-stone-400 group-hover:text-stone-900 dark:group-hover:text-stone-100 group-hover:border-stone-300 transition-all shadow-2xs"
+                  >
+                    {isReview ? (
+                      <QuoteUpCircleIcon className="h-6 w-6 transition-transform group-hover:scale-110" />
+                    ) : (
+                      <BookIcon className="h-6 w-6 transition-transform group-hover:scale-110" />
+                    )}
+                  </Link>
+
+                  {/* 타겟 텍스트 & 댓글 내용 */}
+                  <div className="flex-1 min-w-0 space-y-1.5">
+                    <Link
+                      href={targetHref}
+                      className="block font-serif font-bold text-stone-900 dark:text-stone-100 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors text-base line-clamp-1"
+                    >
+                      {comment.targetTitle || t("no_title")}
+                    </Link>
+
+                    {comment.targetSubtitle && (
+                      <p className="text-xs text-stone-500 line-clamp-1">
+                        {comment.targetSubtitle}
                       </p>
-                      {comment.targetSubtitle && (
-                        <p className="truncate text-xs text-stone-500">
-                          📖 {comment.targetSubtitle}
-                        </p>
-                      )}
+                    )}
+
+                    {/* 내 댓글 박스 */}
+                    <div className="mt-1 rounded-lg bg-stone-50/80 dark:bg-stone-800/50 p-2.5 sm:p-3 border border-stone-100 dark:border-stone-800/80">
+                      <p className="text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed line-clamp-3">
+                        {comment.content}
+                      </p>
                     </div>
-                    <span className="shrink-0 text-xs text-stone-400">
-                      {formatRelativeTime(comment.createdAt, locale)}
+                  </div>
+                </div>
+
+                {/* 하단 바: 좋아요 & 원문 상세 바로가기 */}
+                <div className="pt-2 flex items-center justify-between gap-2.5 border-t border-stone-100 dark:border-stone-800">
+                  <div
+                    className={cn(
+                      "flex items-center gap-1.5 text-xs font-medium",
+                      comment.likeCount > 0
+                        ? "text-rose-500 dark:text-rose-400"
+                        : "text-stone-400",
+                    )}
+                  >
+                    <Heart
+                      className={cn(
+                        "w-3.5 h-3.5",
+                        comment.likeCount > 0 && "fill-current",
+                      )}
+                    />
+                    <span>
+                      {comment.likeCount > 0
+                        ? t("likes_count", { count: comment.likeCount })
+                        : t("no_likes")}
                     </span>
                   </div>
-                </Link>
 
-                {/* 하단: 댓글 내용 */}
-                <div className="flex items-start gap-4 px-5 py-4">
-                  <p className="line-clamp-3 flex-1 text-sm leading-relaxed text-stone-700">
-                    {comment.content}
-                  </p>
-
-                  <div className="flex shrink-0 items-center gap-3">
-                    {/* 좋아요 */}
-                    <div
-                      className={cn(
-                        "flex items-center gap-1 text-xs",
-                        comment.likeCount > 0
-                          ? "text-rose-500"
-                          : "text-stone-300",
-                      )}
-                    >
-                      <Heart
-                        className={cn(
-                          "w-4 h-4",
-                          comment.likeCount > 0 && "fill-current",
-                        )}
-                      />
-                      <span>{comment.likeCount}</span>
-                    </div>
-
-                    {/* 삭제 버튼 */}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-stone-400 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
-                      disabled={isDeleting}
-                      onClick={() => handleDeleteClick(comment.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 text-xs px-2.5 text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 group-hover:translate-x-0.5 transition-all"
+                  >
+                    <Link href={targetHref}>
+                      {isReview ? t("view_review") : t("view_book")}
+                      <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
+                    </Link>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-          ))}
+          );
+        })}
+      </div>
 
-          {/* 더 보기 버튼 */}
-          {hasNextPage && (
-            <div className="flex justify-center pt-6">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => fetchNextPage()}
-                disabled={isFetchingNextPage}
-                className="px-8"
-              >
-                {isFetchingNextPage ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t("loading")}
-                  </>
-                ) : (
-                  t("load_more")
-                )}
-              </Button>
-            </div>
-          )}
+      {/* 더 보기 버튼 */}
+      {hasNextPage && (
+        <div className="flex justify-center pt-6">
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className="px-8 border-stone-200 dark:border-stone-700 text-xs font-medium"
+          >
+            {isFetchingNextPage ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {t("loading")}
+              </>
+            ) : (
+              t("load_more")
+            )}
+          </Button>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
@@ -219,29 +259,34 @@ export const MyCommentList = () => {
  * 스켈레톤 컴포넌트
  */
 export const MyCommentListSkeleton = () => (
-  <>
-    <Skeleton className="mb-2 h-8 w-40" />
-    <Skeleton className="mb-8 h-4 w-48" />
-    <div className="space-y-3">
-      {[1, 2, 3].map((i) => (
-        <Card key={i}>
-          <CardContent className="p-0">
-            <div className="bg-stone-50 px-5 py-3">
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-8 w-8 rounded-lg" />
-                <div className="flex-1">
-                  <Skeleton className="mb-1 h-4 w-32" />
-                  <Skeleton className="h-3 w-24" />
-                </div>
-              </div>
+  <div className="space-y-3">
+    {[1, 2, 3, 4].map((i) => (
+      <Card
+        key={i}
+        className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900/80 p-4 sm:p-5 space-y-3"
+      >
+        <CardContent className="p-0 space-y-3">
+          {/* 상단 메타 스켈레톤 */}
+          <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-800">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-7 w-7 rounded-lg" />
+          </div>
+          {/* 본문 스켈레톤 */}
+          <div className="flex gap-3.5 sm:gap-4 items-start">
+            <Skeleton className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl shrink-0" />
+            <div className="flex-1 space-y-2 py-0.5">
+              <Skeleton className="h-5 w-1/2" />
+              <Skeleton className="h-3.5 w-1/3" />
+              <Skeleton className="h-12 w-full rounded-lg mt-1" />
             </div>
-            <div className="px-5 py-4">
-              <Skeleton className="mb-2 h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  </>
+          </div>
+          {/* 하단 바 스켈레톤 */}
+          <div className="pt-2 flex items-center justify-between border-t border-stone-100 dark:border-stone-800">
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+        </CardContent>
+      </Card>
+    ))}
+  </div>
 );
