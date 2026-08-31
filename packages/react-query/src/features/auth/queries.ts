@@ -1,3 +1,5 @@
+"use client";
+
 import { getUserProfile } from "@bookjeok/api-client";
 import { authKeys } from "@bookjeok/core";
 import { useQuery } from "@tanstack/react-query";

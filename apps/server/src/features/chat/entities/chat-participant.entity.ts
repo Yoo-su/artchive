@@ -6,7 +6,8 @@ import {
   Unique,
 } from 'typeorm';
 
-import { User } from '../../user/entities/user.entity';
+import { User } from '@/features/user/entities/user.entity';
+
 import { ChatRoom } from './chat-room.entity';
 
 @Entity({ name: 'chat_participants' })

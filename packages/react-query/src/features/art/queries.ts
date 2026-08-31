@@ -1,3 +1,5 @@
+"use client";
+
 import { getArtDetail, getArtList, getExternalArtDetail, getExternalArtList } from "@bookjeok/api-client";
 import { ArtItem, artKeys, Genre, GetArtListParams } from "@bookjeok/core";
 import { useQueries, useQuery } from "@tanstack/react-query";

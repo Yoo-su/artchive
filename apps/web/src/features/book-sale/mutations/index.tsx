@@ -1,5 +1,6 @@
 import { privateApiClient } from "@bookjeok/api-client";
 import {
+  API_PATHS,
   bookSaleKeys,
   CreateBookSaleParams,
   UpdateBookSaleParams,
@@ -39,7 +40,7 @@ interface CreateSaleVariables {
  * 이미지 업로드 전 만료된 AccessToken을 미리 Refresh하는 헬퍼 함수
  */
 const ensureFreshAuthToken = async (loginRequiredMsg = "로그인이 필요한 서비스입니다.") => {
-  await privateApiClient.get("/user/profile");
+  await privateApiClient.get(API_PATHS.user.profile);
   const authState = useAuthStore.getState();
   if (!authState.user || !authState.accessToken) {
     throw new Error(loginRequiredMsg);
@@ -238,7 +239,7 @@ export const useDeleteBookSaleMutation = () => {
         onSuccess: () => {
           if (
             typeof window !== "undefined" &&
-            window.location.pathname.includes(`/book/sales/${saleId}`)
+            window.location.pathname.includes(PATHS.BOOK_SALES_DETAIL(saleId))
           ) {
             router.push(PATHS.MY_PAGE_SALES);
           }
@@ -258,7 +259,7 @@ export const useDeleteBookSaleMutation = () => {
       return sharedMutation.mutateAsync(saleId).then((res: void) => {
         if (
           typeof window !== "undefined" &&
-          window.location.pathname.includes(`/book/sales/${saleId}`)
+          window.location.pathname.includes(PATHS.BOOK_SALES_DETAIL(saleId))
         ) {
           router.push(PATHS.MY_PAGE_SALES);
         }

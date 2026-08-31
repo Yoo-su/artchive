@@ -38,9 +38,9 @@ export class Book {
   @Column({ default: 0 })
   viewCount: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 }

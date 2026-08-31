@@ -21,6 +21,7 @@ import {
 import { Input } from "@/shared/components/shadcn/input";
 import { config } from "@/shared/config/env";
 import { Link, useRouter } from "@/shared/config/i18n/routing";
+import { PATHS } from "@/shared/constants/paths";
 import { getErrorMessage } from "@/shared/utils/error-handler";
 
 
@@ -71,7 +72,7 @@ export const LoginForm = () => {
       <div className="text-center text-sm">
         <span className="text-gray-500">{t("no_account")} </span>
         <Link
-          href="/signup"
+          href={PATHS.SIGNUP}
           className="font-medium text-emerald-600 hover:text-emerald-500"
         >
           {t("signup_link")}

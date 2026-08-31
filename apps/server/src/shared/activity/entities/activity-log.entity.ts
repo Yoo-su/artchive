@@ -33,6 +33,6 @@ export class ActivityLog {
   @Column({ type: 'jsonb', nullable: true })
   details: Record<string, unknown>;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }
