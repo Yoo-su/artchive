@@ -203,6 +203,9 @@ export const MainBookSlider = () => {
     isError,
   } = useBookListQuery({ query: activePublisher, display: 18 });
 
+  // 반응형 치수가 확정되기 전까지 슬라이더를 숨겨 레이아웃 점프(FOUC) 방지
+  const [isLayoutReady, setIsLayoutReady] = useState(false);
+
   // 화면 크기별 반응형 파라미터 (여백 최적화 및 간격 조정)
   const [radius, setRadius] = useState(580);
   const [cardWidth, setCardWidth] = useState(180);
@@ -231,6 +234,8 @@ export const MainBookSlider = () => {
     };
 
     handleResize();
+    // 반응형 치수 계산 완료 후 레이아웃 준비 상태로 전환
+    setIsLayoutReady(true);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -457,17 +462,23 @@ export const MainBookSlider = () => {
         </div>
       </div>
 
-      {isLoading && <BookSliderSkeleton />}
+      {/* 레이아웃 준비 전이거나 데이터 로딩 중이면 스켈레톤 표시 */}
+      {(!isLayoutReady || isLoading) && <BookSliderSkeleton />}
 
-      {!isLoading && (isError || !books || books.length === 0) && (
+      {isLayoutReady && !isLoading && (isError || !books || books.length === 0) && (
         <div className="text-center py-20 text-stone-400">
           <BookOpen className="mx-auto h-10 w-10 opacity-20" />
           <p className="mt-4 font-light">{tError("load_books")}</p>
         </div>
       )}
 
-      {!isLoading && books && books.length > 0 && (
-        <div className="w-full relative flex flex-col items-center">
+      {isLayoutReady && !isLoading && books && books.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="w-full relative flex flex-col items-center"
+        >
           <motion.div
             ref={viewportRef}
             style={{
@@ -516,7 +527,7 @@ export const MainBookSlider = () => {
 
           {/* 활성 도서 정보 텍스트 (격리된 리렌더링 서브 컴포넌트) */}
           <ActiveBookInfo key={activePublisher} rotationY={rotationY} books={displayBooks} angleStep={angleStep} />
-        </div>
+        </motion.div>
       )}
     </div>
   );
