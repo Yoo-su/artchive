@@ -84,10 +84,20 @@ export class AuthService {
 
     const profileNumber = NicknameGenerator.getRandomProfileNumber();
 
+    // 이메일 중복 체크 (다른 계정에서 이미 사용 중인 이메일인 경우 소셜 계정에 연결하지 않고 생성)
+    let safeEmail = email;
+    if (safeEmail) {
+      const existingEmailUser = await this.userService.findByEmail(safeEmail);
+      if (existingEmailUser) {
+        safeEmail = undefined;
+      }
+    }
+
     const newUser = await this.userService.createUser({
       ...socialLoginDto,
+      email: safeEmail,
       nickname: randomNickname,
-      isEmailVerified: true,
+      isEmailVerified: !!safeEmail,
       profileImageUrl: `default_profile${profileNumber}`,
     });
     return newUser;

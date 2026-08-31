@@ -242,9 +242,13 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
         updateData.name = name || null;
       }
 
-      // 이메일 변경 (로컬 유저만)
+      // 이메일 변경/등록 (로컬 유저, 카카오 유저, 또는 이메일 미등록 유저)
+      const isAllowedToChangeEmail =
+        user.provider === "local" ||
+        user.provider === "kakao" ||
+        !user.email;
       const isEmailChanged =
-        user.provider === "local" && email && email !== user.email;
+        isAllowedToChangeEmail && email && email !== user.email;
       if (isEmailChanged) {
         updateData.email = email;
       }
@@ -342,6 +346,8 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
     !!nicknameError;
 
   const isLocalUser = user.provider === "local";
+  const isEmailEditable =
+    isLocalUser || user.provider === "kakao" || !user.email;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -470,7 +476,7 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
               <Label htmlFor="email" className="text-xs font-semibold text-stone-700">
                 {t("email_label")}
               </Label>
-              {!isLocalUser && (
+              {!isEmailEditable && (
                 <span className="inline-flex items-center gap-1 text-[11px] text-stone-400">
                   <Lock className="h-3 w-3" />
                   {t("email_social_notice")}
@@ -482,14 +488,15 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              disabled={!isLocalUser}
+              disabled={!isEmailEditable}
+              placeholder={t("email_placeholder")}
               className={`h-10 text-sm ${
-                !isLocalUser
+                !isEmailEditable
                   ? "bg-stone-100 text-stone-500 cursor-not-allowed border-stone-200"
                   : "bg-stone-50 border-stone-200 focus:bg-white"
               }`}
             />
-            {isLocalUser && email !== user.email && (
+            {isEmailEditable && email !== (user.email || "") && (
               <p className="text-[11px] text-amber-600">
                 {t("email_change_notice")}
               </p>
