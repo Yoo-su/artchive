@@ -12,6 +12,7 @@ import {
   useAddToWishlistMutation,
   useRemoveFromWishlistMutation,
 } from "@/features/user/mutations";
+import { AnimatedHeart } from "@/shared/components/icons/animated";
 import { Button } from "@/shared/components/shadcn/button";
 import { cn } from "@/shared/utils";
 
@@ -117,9 +118,12 @@ export const WishlistButton = ({
       aria-label={isWishlisted ? t("remove_wishlist") : t("add_wishlist")}
       aria-pressed={isWishlisted}
     >
-      <Heart
+      <AnimatedHeart
+        size={24}
+        animate={isWishlisted}
+        animateOnHover
         className={cn(
-          "w-6 h-6 transition-colors duration-200",
+          "transition-colors duration-200",
           isWishlisted
             ? "fill-red-500 text-red-500"
             : "text-gray-400 hover:text-red-500"

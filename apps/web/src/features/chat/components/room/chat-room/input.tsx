@@ -1,10 +1,10 @@
 import { chatKeys, ChatMessage } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
-import { SendHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { FormEvent, useCallback, useState } from "react";
 import { toast } from "sonner";
 
+import { AnimatedSend } from "@/shared/components/icons/animated";
 import { Button } from "@/shared/components/shadcn/button";
 import { Input } from "@/shared/components/shadcn/input";
 import { useSocketContext } from "@/shared/providers/socket-provider";
@@ -155,8 +155,15 @@ export const ChatInput = ({
           size="icon"
           disabled={!newMessage.trim()}
           aria-label={t("aria.send_message")}
+          className="transition-transform active:scale-95 cursor-pointer"
         >
-          <SendHorizontal size={20} aria-hidden="true" />
+          <AnimatedSend
+            size={18}
+            animate={newMessage.trim().length > 0 ? "default" : false}
+            animateOnHover={newMessage.trim().length > 0}
+            className="text-primary-foreground"
+            aria-hidden="true"
+          />
         </Button>
       </form>
     </div>

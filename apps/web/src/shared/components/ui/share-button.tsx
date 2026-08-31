@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { AnimatedCopyCheck } from "@/shared/components/icons/animated";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Popover,
@@ -213,18 +214,14 @@ export const ShareButton = ({
               variant="ghost"
               size="sm"
               className={cn(
-                "h-9 w-9 p-0 rounded-full",
-                copied ? "bg-emerald-100 text-emerald-600" : "hover:bg-stone-100",
+                "h-9 w-9 p-0 rounded-full transition-colors",
+                copied ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400" : "hover:bg-stone-100"
               )}
               onClick={handleCopyLink}
               title={t("aria.copy_link")}
               aria-label={copied ? t("aria.copy_link_done") : t("aria.copy_link")}
             >
-              {copied ? (
-                <Check className="w-4 h-4" aria-hidden="true" />
-              ) : (
-                <Link2 className="w-4 h-4" aria-hidden="true" />
-              )}
+              <AnimatedCopyCheck copied={copied} size={16} />
             </Button>
           </div>
         </PopoverContent>

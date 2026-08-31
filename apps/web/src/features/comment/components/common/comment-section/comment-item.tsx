@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { useConfirm } from "@/features/confirm";
+import { AnimatedHeart } from "@/shared/components/icons/animated";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   DropdownMenu,
@@ -262,15 +263,17 @@ export const CommentItem = ({
                   "flex items-center justify-center p-1.5 rounded-[12px] transition-all duration-300",
                   comment.isLiked
                     ? "bg-stone-900 text-white shadow-sm"
-                    : "bg-stone-50 text-stone-400 group-hover/like:bg-stone-100",
+                    : "bg-stone-50 text-stone-400 group-hover/like:bg-stone-100"
                 )}
               >
-                <Heart
+                <AnimatedHeart
+                  size={14}
+                  animate={comment.isLiked}
+                  animateOnHover
                   className={cn(
-                    "h-3.5 w-3.5 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
-                    comment.isLiked && "fill-current scale-110",
+                    "transition-colors duration-200",
+                    comment.isLiked && "fill-current"
                   )}
-                  strokeWidth={comment.isLiked ? 0 : 2}
                   aria-hidden="true"
                 />
               </div>
