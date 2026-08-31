@@ -178,7 +178,7 @@ export class LlmService {
 
           await this.aiBookSummaryRepository.save(summaryEntity);
         } catch (dbError) {
-          console.error('AI 요약 DB 저장에 실패했습니다:', dbError);
+          this.logger.error('AI 요약 DB 저장에 실패했습니다:', dbError);
         }
       }
 

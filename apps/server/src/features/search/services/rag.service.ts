@@ -8,7 +8,10 @@ import {
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { MODEL_NAME } from '@/features/llm/constants/llm-model';
+import { extractJson } from '@/features/llm/utils/extract-json';
+
+// RAG 서비스 전용 기본 모델명 (llm 모듈과 독립적으로 관리)
+const RAG_DEFAULT_MODEL_NAME = 'gemini-3.1-flash-lite';
 import {
   BookSearchResultDto,
   ChatMessageDto,
@@ -48,8 +51,14 @@ export class RagService {
   constructor(private readonly configService: ConfigService) {
     const apiKey = this.configService.get<string>('GEMINI_API_KEY') ?? '';
     this.modelName =
-      this.configService.get<string>('GEMINI_MODEL_NAME') ?? MODEL_NAME;
+      this.configService.get<string>('GEMINI_MODEL_NAME') ??
+      RAG_DEFAULT_MODEL_NAME;
     this.genAI = new GoogleGenerativeAI(apiKey);
+  }
+
+  /** 현재 활성 모델명 (로그 기록 등 외부 참조용) */
+  get activeModelName(): string {
+    return this.modelName;
   }
 
   /**
@@ -66,7 +75,7 @@ export class RagService {
           searchQuery: {
             type: SchemaType.STRING,
             description:
-              '도서 DB 벡터 검색에 최적화된 명확한 한국어 쿼리 문장 (예: "도스토옙스키 대표 소설")',
+              '도서 DB 벡터 검색에 최적화된 구체적인 한국어 쿼리 문장. 반드시 장르+분위기, 작가명, 또는 구체적 주제를 포함해야 합니다. 예: "도스토옙스키의 대표 러시아 문학 소설", "퇴근길에 읽기 좋은 가벼운 일상 에세이", "마음이 따뜻해지는 힐링 소설"',
           },
           targetCount: {
             type: SchemaType.INTEGER,
@@ -426,7 +435,10 @@ export class RagService {
         });
 
         const result = await model.generateContent(prompt);
-        const parsed = JSON.parse(result.response.text());
+        const parsed = extractJson<{
+          message?: string;
+          recommendations?: { isbn: string; reason: string }[];
+        }>(result.response.text());
 
         const reasonMap = new Map<string, string>();
         if (Array.isArray(parsed.recommendations)) {

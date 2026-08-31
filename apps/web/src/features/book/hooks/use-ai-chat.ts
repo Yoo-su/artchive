@@ -151,7 +151,26 @@ export const useAiChat = () => {
   // 대화 변경 시 sessionStorage 동기화 (단, 스트리밍 중인 플래그는 제거 후 저장)
   useEffect(() => {
     if (typeof window !== "undefined" && !loading) {
-      const cleanMessages = messages.map(({ isStreaming, ...rest }) => rest);
+      const cleanMessages = messages.map(
+        ({ isStreaming, books, ...rest }) => ({
+          ...rest,
+          // sessionStorage 용량 절약: 도서 목록은 표시에 필요한 최소 정보만 보존
+          ...(books && books.length > 0
+            ? {
+                books: books.map((b) => ({
+                  isbn: b.isbn,
+                  title: b.title,
+                  author: b.author,
+                  image: b.image,
+                  publisher: b.publisher,
+                  reason: b.reason,
+                  description: "",
+                  similarity: 0,
+                })),
+              }
+            : {}),
+        }),
+      );
       sessionStorage.setItem(userStorageKey, JSON.stringify(cleanMessages));
     }
   }, [messages, userStorageKey, loading]);
@@ -239,10 +258,20 @@ export const useAiChat = () => {
       try {
         const payloadMessages = updatedMessages
           .filter((m) => m.content && m.content.trim().length > 0)
-          .map((m) => ({
-            role: m.role,
-            content: m.content,
-          }));
+          .map((m) => {
+            let content = m.content;
+            // assistant 메시지에 추천 도서 목록이 있으면 히스토리에 포함하여 후속 대화 맥락 유지
+            if (m.role === "assistant" && m.books && m.books.length > 0) {
+              const bookList = m.books
+                .map(
+                  (b, i) =>
+                    `${i + 1}. 《${b.title}》 - ${b.author}${b.publisher ? ` (${b.publisher})` : ""}`,
+                )
+                .join("\n");
+              content += `\n\n[이전 추천 도서 목록]\n${bookList}`;
+            }
+            return { role: m.role, content };
+          });
 
         await streamAiChat({
           messages: payloadMessages,
