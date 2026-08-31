@@ -81,7 +81,7 @@ export function LoungeBookDetailModal({
           </div>
 
           {/* 본문 (독자 리스트) */}
-          <div className="flex-1 overflow-y-auto no-scrollbar">
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
             {isLoading ? (
               <div className="p-4 space-y-3">
                 {[1, 2, 3, 4, 5].map((i) => (

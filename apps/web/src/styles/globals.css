@@ -226,3 +226,33 @@ html::-webkit-scrollbar {
   padding: 0.5rem;
   min-height: 120px;
 }
+
+/* 커스텀 슬림 스크롤바 유틸리티 */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--muted-foreground), transparent 60%) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: color-mix(in oklch, var(--muted-foreground), transparent 60%);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in oklch, var(--muted-foreground), transparent 40%);
+}
+
+/* 동적 콘텐츠 추가 시 스크롤바로 인한 너비 덜컹거림(Layout Shift) 방지 */
+.stable-scroll {
+  scrollbar-gutter: stable;
+}
+

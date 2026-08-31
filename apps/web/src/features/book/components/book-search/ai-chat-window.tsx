@@ -72,10 +72,10 @@ export const AiChatWindow = () => {
         </button>
       </div>
 
-      {/* 2. 대화 타임라인 (내부 독립 스크롤 & overscroll-contain) */}
+      {/* 2. 대화 타임라인 (내부 독립 스크롤 & overscroll-contain & stable-scroll) */}
       <div
         ref={chatContainerRef}
-        className="relative z-10 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4"
+        className="relative z-10 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4 custom-scrollbar stable-scroll"
       >
         {messages.map((msg: ChatMessage) => (
           <motion.div
