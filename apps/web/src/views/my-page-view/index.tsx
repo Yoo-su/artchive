@@ -158,17 +158,36 @@ export const MyPageView = () => {
               </div>
 
               <div className="mt-1.5 flex flex-wrap items-center justify-center gap-1.5 sm:justify-start text-xs text-stone-500">
-                <span>{user.email}</span>
-                {user.isEmailVerified ? (
+                {user.email ? (
                   <>
-                    <span className="text-stone-300">·</span>
-                    <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 font-medium">
-                      <CheckCircle2 className="h-3 w-3" />
-                      {t("profile.verified")}
-                    </span>
+                    <span>{user.email}</span>
+                    {user.isEmailVerified ? (
+                      <>
+                        <span className="text-stone-300">·</span>
+                        <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 font-medium">
+                          <CheckCircle2 className="h-3 w-3" />
+                          {t("profile.verified")}
+                        </span>
+                      </>
+                    ) : (
+                      <ResendVerificationAction />
+                    )}
                   </>
                 ) : (
-                  <ResendVerificationAction />
+                  <>
+                    <span className="text-stone-400">{t("profile.no_email")}</span>
+                    <span className="text-stone-300">·</span>
+                    <ProfileEditModal
+                      trigger={
+                        <button
+                          type="button"
+                          className="font-medium text-emerald-600 hover:text-emerald-700 underline underline-offset-2 transition-colors cursor-pointer"
+                        >
+                          {t("profile.register_email")}
+                        </button>
+                      }
+                    />
+                  </>
                 )}
               </div>
 

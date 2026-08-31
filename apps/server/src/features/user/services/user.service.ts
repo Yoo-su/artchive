@@ -189,10 +189,14 @@ export class UserService implements OnModuleInit {
       }
     }
 
-    // 이메일 변경 시 검증 및 재인증 처리
+    // 이메일 변경/등록 시 검증 및 재인증 처리
     let newVerificationToken: string | null = null;
     if (updateUserDto.email && updateUserDto.email !== user.email) {
-      if (user.provider !== 'local') {
+      // 네이버 등 이미 소셜 프로필 이메일이 연동된 계정은 변경 제한 (로컬 계정, 카카오 계정, 또는 기존 이메일이 없는 소셜 계정은 허용)
+      const isAllowedToChangeEmail =
+        user.provider === 'local' || user.provider === 'kakao' || !user.email;
+
+      if (!isAllowedToChangeEmail) {
         throw new BusinessException(
           'SOCIAL_USER_EMAIL_CHANGE_NOT_ALLOWED',
           HttpStatus.BAD_REQUEST,
@@ -214,7 +218,11 @@ export class UserService implements OnModuleInit {
       updateUserDto.emailVerificationExpiresAt = new Date(
         Date.now() + 24 * 60 * 60 * 1000,
       );
-      updateUserDto.providerId = updateUserDto.email;
+
+      // 로컬 유저만 providerId를 이메일과 동기화
+      if (user.provider === 'local') {
+        updateUserDto.providerId = updateUserDto.email;
+      }
     }
 
     const updatedUser = this.userRepository.merge(user, updateUserDto);

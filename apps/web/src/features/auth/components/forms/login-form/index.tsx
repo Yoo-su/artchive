@@ -67,6 +67,23 @@ export const LoginForm = () => {
           </svg>
           {t("naver")}
         </button>
+
+        {/* 카카오 로그인 버튼 */}
+        <button
+          type="button"
+          onClick={() => handleSocialLogin("auth/kakao")}
+          className="w-full h-11 flex items-center justify-center gap-2 bg-[#FEE500] hover:bg-[#FDD835] transition-colors rounded-xl font-medium text-[#191919] text-[15px] cursor-pointer shadow-xs"
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M9 1.5C4.58172 1.5 1 4.31682 1 7.79167C1 9.94825 2.37894 11.8384 4.49258 12.8715L3.60195 16.1423C3.52285 16.4328 3.85698 16.6663 4.10398 16.5028L7.96207 13.9488C8.30232 14.0041 8.64778 14.0326 9 14.0326C13.4183 14.0326 17 11.2158 17 7.79167C17 4.31682 13.4183 1.5 9 1.5Z"
+              fill="#191919"
+            />
+          </svg>
+          {t("kakao")}
+        </button>
       </div>
 
       <div className="text-center text-sm">

@@ -57,6 +57,40 @@ export class AuthController {
     return res.redirect(url.toString());
   }
 
+  @Get('kakao')
+  @SocialAuth('kakao')
+  @ApiOperation({
+    summary: '카카오 로그인',
+    description: '카카오 소셜 로그인을 시작합니다.',
+  })
+  @ApiResponse({
+    status: 302,
+    description: '카카오 로그인 페이지로 리다이렉트됩니다.',
+  })
+  async kakaoLogin() {}
+
+  @Get('kakao/callback')
+  @UseGuards(AuthGuard('kakao'))
+  @ApiOperation({
+    summary: '카카오 로그인 콜백',
+    description:
+      '카카오 로그인 후 1회용 인증 티켓을 발급하여 클라이언트로 리다이렉트합니다.',
+  })
+  @ApiResponse({
+    status: 302,
+    description: '로그인 성공 후 클라이언트로 리다이렉트됩니다.',
+  })
+  async kakaoLoginCallback(@CurrentUser() user: User, @Res() res: Response) {
+    const ticket = await this.authService.createAuthTicket(user);
+
+    const clientDomain =
+      this.configService.get<string>('CLIENT_DOMAIN') ??
+      'http://localhost:3000';
+    const url = new URL(`${clientDomain}/callback`);
+    url.searchParams.set('ticket', ticket);
+    return res.redirect(url.toString());
+  }
+
   @Post('send-verification-email')
   @UseGuards(AuthGuard('jwt'))
   @Throttle({ default: { limit: 3, ttl: 60000 } })
