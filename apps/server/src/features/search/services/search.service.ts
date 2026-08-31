@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Response } from 'express';
 import { Repository } from 'typeorm';
 
-import { MODEL_NAME } from '@/features/llm/constants/llm-model';
 import { AiRequestLog } from '@/features/llm/entities/ai-request-log.entity';
 import {
   AiSearchRequestDto,
@@ -20,8 +20,8 @@ import { SseStreamWriter } from '../utils/sse-stream-writer';
 @Injectable()
 export class SearchService {
   private readonly logger = new Logger(SearchService.name);
-  private readonly SIMILARITY_THRESHOLD = 0.35; // 최소 유사도 기준값
-  private readonly CANDIDATE_POOL_SIZE = 30; // pgvector에서 검색할 원시 후보 풀 크기
+  private readonly SIMILARITY_THRESHOLD: number;
+  private readonly CANDIDATE_POOL_SIZE: number;
 
   constructor(
     @InjectRepository(AiRequestLog)
@@ -29,7 +29,16 @@ export class SearchService {
     private readonly embeddingService: EmbeddingService,
     private readonly vectorSearchService: VectorSearchService,
     private readonly ragService: RagService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.SIMILARITY_THRESHOLD = parseFloat(
+      this.configService.get<string>('AI_SIMILARITY_THRESHOLD') ?? '0.35',
+    );
+    this.CANDIDATE_POOL_SIZE = parseInt(
+      this.configService.get<string>('AI_CANDIDATE_POOL_SIZE') ?? '30',
+      10,
+    );
+  }
 
   /**
    * Conversational Agent RAG Pipeline (동기 처리)
@@ -401,7 +410,7 @@ export class SearchService {
     await this.saveAiLog({
       userId: params.userId ?? null,
       feature: 'TALK',
-      model: MODEL_NAME,
+      model: this.ragService.activeModelName,
       promptTokens: params.tokens.prompt || null,
       completionTokens: params.tokens.completion || null,
       totalTokens: params.tokens.total || null,
@@ -428,7 +437,7 @@ export class SearchService {
     await this.saveAiLog({
       userId: userId ?? null,
       feature: 'TALK',
-      model: MODEL_NAME,
+      model: this.ragService.activeModelName,
       latencyMs,
       requestPayload: { messages },
       status: 'ERROR',

@@ -102,6 +102,7 @@ export async function streamAiChat(
   const reader = response.body.getReader();
   const decoder = new TextDecoder("utf-8");
   let buffer = "";
+  let doneReceived = false;
 
   const processLine = (rawLine: string) => {
     const trimmed = rawLine.trim();
@@ -126,6 +127,7 @@ export async function streamAiChat(
           }
           break;
         case "done":
+          doneReceived = true;
           onDone();
           break;
         case "error":
@@ -154,5 +156,8 @@ export async function streamAiChat(
     processLine(buffer.trim());
   }
 
-  onDone();
+  // 서버가 done 이벤트를 보내지 못한 채 연결이 끊긴 경우에만 안전장치로 호출
+  if (!doneReceived) {
+    onDone();
+  }
 }
