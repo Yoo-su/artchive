@@ -32,7 +32,7 @@ export const ChatList = () => {
       <div className="p-4 border-b">
         <h3 className="text-lg font-bold">{t("title")}</h3>
       </div>
-      <div className="grow overflow-y-auto">
+      <div className="grow overflow-y-auto custom-scrollbar stable-scroll">
         {rooms.map((room) => (
           <ChatItem key={room.id} room={room} />
         ))}

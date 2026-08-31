@@ -238,7 +238,7 @@ export const MapLocationSelector = ({
         {searchResults.length > 0 && (
           <div
             ref={resultsListRef}
-            className="absolute top-full left-0 z-20 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-[200px] overflow-y-auto"
+            className="absolute top-full left-0 z-20 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-[200px] overflow-y-auto custom-scrollbar stable-scroll"
           >
             {searchResults.map((place, index) => (
               <div

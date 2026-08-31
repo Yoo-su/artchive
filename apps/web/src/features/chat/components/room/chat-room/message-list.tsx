@@ -133,7 +133,7 @@ export const MessageList = ({
       role="log"
       aria-live="polite"
       aria-relevant="additions"
-      className="grow overflow-y-auto p-4"
+      className="grow overflow-y-auto p-4 custom-scrollbar stable-scroll"
       ref={messageContainerRef}
       onScroll={onScroll}
     >

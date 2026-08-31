@@ -152,7 +152,7 @@ export const MobileNavSheet = () => {
           <LanguageSwitcher className="mr-8" />
         </SheetHeader>
 
-        <nav className="flex flex-col gap-6 p-6 overflow-y-auto h-[calc(100vh-80px)]">
+        <nav className="flex flex-col gap-6 p-6 overflow-y-auto h-[calc(100vh-80px)] custom-scrollbar">
           {navSections.map((section) => (
             <div key={section.title} className="space-y-2">
               <h3 className="text-[11px] font-bold uppercase tracking-widest text-stone-400 font-mono">

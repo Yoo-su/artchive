@@ -4,6 +4,8 @@ import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
+import { ScrollArea } from "@/shared/components/shadcn/scroll-area";
+
 import { NotificationItem } from "./notification-item";
 
 interface NotificationListProps {
@@ -42,7 +44,7 @@ export const NotificationList = ({ onClose }: NotificationListProps) => {
   }
 
   return (
-    <div className="h-[300px] sm:h-[400px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    <ScrollArea className="h-[300px] sm:h-[400px]">
       <div className="flex flex-col divide-y">
         {notifications.map((notification) => (
           <NotificationItem
@@ -58,6 +60,7 @@ export const NotificationList = ({ onClose }: NotificationListProps) => {
         )}
         <div ref={ref} className="h-1" />
       </div>
-    </div>
+    </ScrollArea>
   );
 };
+
