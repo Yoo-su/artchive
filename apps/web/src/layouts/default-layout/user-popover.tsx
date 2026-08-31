@@ -58,7 +58,7 @@ export default function UserPopover() {
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-          className="relative w-10 h-10 transition-transform duration-200 rounded-full hover:scale-105"
+          className="relative w-10 h-10 rounded-full p-0"
         >
           <Avatar className="w-10 h-10" data-nosnippet>
             <AvatarImage
