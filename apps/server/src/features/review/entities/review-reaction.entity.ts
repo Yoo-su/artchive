@@ -46,6 +46,6 @@ export class ReviewReaction {
   })
   type: ReviewReactionType;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

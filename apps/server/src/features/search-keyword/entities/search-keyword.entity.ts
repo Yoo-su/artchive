@@ -25,12 +25,12 @@ export class SearchKeyword {
   searchCount: number;
 
   /** 최근 검색 시각 (인기 검색어 조회 시 최근 N일 기준 필터링용) */
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamptz' })
   lastSearchedAt: Date;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 }

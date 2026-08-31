@@ -31,9 +31,9 @@ export class AiBookSummary {
   @Column({ type: 'jsonb' })
   keywords: string[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 }

@@ -1,7 +1,7 @@
 "use client";
-import { checkWishlistStatus, getMyProfile,getMyWishlist, getPublicUserProfile, getUserStats, toggleWishlist } from "@bookjeok/api-client";
+import { checkWishlistStatus, getMyProfile, getMyWishlist, getPublicUserProfile, getUserStats } from "@bookjeok/api-client";
 import { userKeys } from "@bookjeok/core";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 /**
  * 특정 사용자의 공개 프로필 조회
@@ -21,26 +21,6 @@ export const useMyWishlistQuery = () => {
   return useQuery({
     queryKey: userKeys.wishlist.queryKey,
     queryFn: () => getMyWishlist(),
-  });
-};
-
-/**
- * 찜 토글 뮤테이션
- */
-export const useToggleWishlistMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (payload: { isbn?: string; saleId?: number }) =>
-      toggleWishlist(payload),
-    onSuccess: (data, variables) => {
-      // 찜 목록 무효화
-      queryClient.invalidateQueries({ queryKey: userKeys.wishlist.queryKey });
-      // 특정 아이템의 찜 상태 무효화
-      queryClient.invalidateQueries({
-        queryKey: userKeys.wishlistCheck(variables.isbn ? "BOOK" : "SALE", (variables.isbn || variables.saleId)!).queryKey,
-      });
-    },
   });
 };
 

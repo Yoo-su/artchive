@@ -125,5 +125,5 @@ export const removeFromWishlist = async (
  * 회원 탈퇴를 처리합니다.
  */
 export const withdraw = async (): Promise<void> => {
-  await privateApiClient.delete("/user/me");
+  await privateApiClient.delete(API_PATHS.user.me);
 };

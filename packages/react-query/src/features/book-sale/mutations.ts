@@ -1,3 +1,5 @@
+"use client";
+
 import { createBookSale, deleteBookSale, updateBookSale, updateBookSaleStatus } from "@bookjeok/api-client";
 import { bookSaleKeys, CreateBookSaleParams, SaleStatus, UpdateBookSaleParams, UsedBookSale } from "@bookjeok/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

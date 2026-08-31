@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 
 import { ReadingLogService } from '@/features/reading-log/services/reading-log.service';
 import { WishlistService } from '@/features/wishlist/services/wishlist.service';
+import { BusinessException } from '@/shared/exceptions/business.exception';
 
 import { Book } from '../entities/book.entity';
 import { AladinBookSearchService } from './aladin-book-search.service';
@@ -53,9 +54,7 @@ export class BookService {
         }
 
         if (!bookData) {
-          throw new NotFoundException(
-            '해당 도서를 외부 API에서 찾을 수 없습니다.',
-          );
+          throw new BusinessException('BOOK_NOT_FOUND', HttpStatus.NOT_FOUND);
         }
 
         // 안전한 데이터 생성 (Concurrency Safe)

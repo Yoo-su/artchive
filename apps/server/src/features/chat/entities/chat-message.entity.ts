@@ -7,7 +7,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { User } from '../../user/entities/user.entity';
+import { User } from '@/features/user/entities/user.entity';
+
 import { ChatRoom } from './chat-room.entity';
 import { ReadReceipt } from './read-receipt.entity';
 

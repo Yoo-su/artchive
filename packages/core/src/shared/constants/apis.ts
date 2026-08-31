@@ -12,6 +12,7 @@ export const API_PATHS = {
 
   user: {
     base: "/user",
+    me: "/user/me",
     profile: "/user/profile",
     publicProfile: (handle: string) => `/user/profile/${handle}`,
     stats: "/user/stats",

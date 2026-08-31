@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/shared/components/shadcn/select";
 import { Link, useRouter } from "@/shared/config/i18n/routing";
+import { PATHS } from "@/shared/constants/paths";
 import { getErrorMessage } from "@/shared/utils/error-handler";
 
 export const SignupForm = () => {
@@ -50,7 +51,7 @@ export const SignupForm = () => {
   const { mutate: signup, isPending: isLoading } = useEmailSignupMutation({
     onSuccess: () => {
       toast.success(t("success"));
-      router.push("/login");
+      router.push(PATHS.LOGIN);
     },
     onError: (error) => {
       if (axios.isAxiosError(error) && error.response?.status === 409) {
@@ -299,7 +300,7 @@ export const SignupForm = () => {
         <div className="mt-6 text-center text-sm">
           <span className="text-gray-500">{t("has_account")} </span>
           <Link
-            href="/login"
+            href={PATHS.LOGIN}
             className="font-medium text-emerald-600 hover:text-emerald-500"
           >
             {t("login_link")}

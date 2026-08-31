@@ -1,5 +1,6 @@
 import {
   AladinSearchResponse,
+  API_PATHS,
   BookInfo,
   cleanHtmlText,
   DEFAULT_DISPLAY,
@@ -167,7 +168,7 @@ export const fetchBookDetail = cache(async (isbn: string) => {
 
     // 백엔드 Postgres DB 도서 저장 및 조회수 동기화 (비동기 실행 - 실패 시 조용히 무시)
     publicAxios
-      .post(`/book/${isbn}/view`, {}, { timeout: 4000 })
+      .post(API_PATHS.book.recordView(isbn), {}, { timeout: 4000 })
       .catch(() => {
         // 신규 도서(404) 또는 네트워크 타임아웃 시 조용히 무시 (클라이언트 훅 useBookView에서 처리됨)
       });
