@@ -19,7 +19,6 @@
     "hooks": "@/hooks"
   },
   "registries": {
-    "@magicui": "https://magicui.design/r/{name}.json",
-    "@canvas-ui": "https://canvasui.dev/r/{name}.json"
+    "@magicui": "https://magicui.design/r/{name}.json"
   }
 }
