@@ -72,7 +72,9 @@
       "like": "좋아요",
       "unlike": "좋아요 취소",
       "tag_remove": "{tag} 태그 삭제",
-      "select_book": "{title} 선택"
+      "select_book": "{title} 선택",
+      "prev_image": "이전 이미지",
+      "next_image": "다음 이미지"
     },
     "map": {
       "location_title": "거래 희망 위치",
@@ -89,7 +91,8 @@
     "image": {
       "add": "이미지 추가",
       "only_image_allowed": "이미지 파일만 업로드할 수 있습니다.",
-      "size_limit_exceeded": "이미지 크기가 너무 큽니다 ({size}MB). {maxSize}MB 이하의 이미지만 첨부할 수 있습니다."
+      "size_limit_exceeded": "이미지 크기가 너무 큽니다 ({size}MB). {maxSize}MB 이하의 이미지만 첨부할 수 있습니다.",
+      "viewer_title": "이미지 보기"
     },
     "currency": {
       "unit": "원"
@@ -1508,7 +1511,8 @@
       "close_room": "채팅방 닫기",
       "leave_room": "채팅방 나가기",
       "send_message": "메시지 전송",
-      "view_profile": "{nickname}님의 프로필 보기"
+      "view_profile": "{nickname}님의 프로필 보기",
+      "attach_image": "이미지 첨부"
     },
     "trade": {
       "select_buyer_modal": {
@@ -1586,6 +1590,10 @@
         "btn_view_detail": "주문 상세 보기",
         "order_closed_toast": "이미 취소되거나 완료된 거래입니다."
       }
+    },
+    "image": {
+      "limit_exceeded": "이미지는 최대 {max}장까지 첨부할 수 있습니다.",
+      "upload_error": "이미지 업로드에 실패했습니다. 잠시 후 다시 시도해 주세요."
     }
   },
   "order": {

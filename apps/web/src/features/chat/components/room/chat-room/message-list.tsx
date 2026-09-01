@@ -1,13 +1,16 @@
 import { ChatMessage, ChatMessageType } from "@bookjeok/core";
 import { motion } from "framer-motion";
 import { Check, Loader2 } from "lucide-react";
-import { RefObject } from "react";
+import Image from "next/image";
+import { useTranslations } from "next-intl";
+import { RefObject, useState } from "react";
 
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@/shared/components/shadcn/avatar";
+import { ImageLightbox } from "@/shared/components/ui/image-lightbox";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 import { TradeMessageCard } from "../../trade/trade-message-card";
@@ -18,6 +21,63 @@ const SystemMessageBubble = ({ content }: { content: string }) => (
     <span>{content}</span>
   </div>
 );
+
+/** 메시지에 첨부된 이미지 URL을 추출합니다. */
+const getMessageImageUrls = (message: ChatMessage): string[] => {
+  const urls = (message.metadata as { imageUrls?: unknown } | null | undefined)
+    ?.imageUrls;
+  if (!Array.isArray(urls)) return [];
+  return urls.filter((url): url is string => typeof url === "string");
+};
+
+/** 메시지 버블 내 첨부 이미지 그리드. 클릭 시 라이트박스를 엽니다. */
+const MessageImages = ({
+  imageUrls,
+  isSending,
+}: {
+  imageUrls: string[];
+  isSending: boolean;
+}) => {
+  const t = useTranslations("common");
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  return (
+    <>
+      <div
+        className={`grid gap-1 ${imageUrls.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}
+      >
+        {imageUrls.map((url, index) => (
+          <button
+            key={url}
+            type="button"
+            onClick={() => setLightboxIndex(index)}
+            disabled={isSending}
+            aria-label={t("aria.preview_image", { index: index + 1 })}
+            className="relative aspect-square overflow-hidden rounded-lg bg-stone-100 transition-opacity hover:opacity-90 disabled:cursor-default"
+          >
+            <Image
+              src={url}
+              alt={t("aria.preview_image", { index: index + 1 })}
+              fill
+              unoptimized
+              sizes="160px"
+              className="object-cover"
+            />
+          </button>
+        ))}
+      </div>
+
+      <ImageLightbox
+        images={imageUrls}
+        initialIndex={lightboxIndex ?? 0}
+        open={lightboxIndex !== null}
+        onOpenChange={(open) => {
+          if (!open) setLightboxIndex(null);
+        }}
+      />
+    </>
+  );
+};
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -42,6 +102,9 @@ const MessageBubble = ({ message, isMine, currentUserId }: MessageBubbleProps) =
 
   // 음수 ID는 전송 중인 낙관적 메시지
   const isSending = message.id < 0;
+  const imageUrls = getMessageImageUrls(message);
+  const hasImages = imageUrls.length > 0;
+  const hasText = message.content.trim().length > 0;
 
   return (
     <div
@@ -91,13 +154,23 @@ const MessageBubble = ({ message, isMine, currentUserId }: MessageBubbleProps) =
         </div>
       )}
       <div
-        className={`max-w-[70%] rounded-2xl px-4 py-2 ${
+        className={`max-w-[70%] rounded-2xl ${hasImages ? "p-1.5" : "px-4 py-2"} ${
           isMine
             ? "bg-emerald-700 text-white rounded-br-none"
             : "bg-gray-100 text-gray-800 rounded-bl-none"
         } ${isSending ? "opacity-70" : ""}`}
       >
-        <p className="text-sm" data-clarity-mask="true">{message.content}</p>
+        {hasImages && (
+          <MessageImages imageUrls={imageUrls} isSending={isSending} />
+        )}
+        {hasText && (
+          <p
+            className={`text-sm ${hasImages ? "px-2.5 pb-1 pt-2" : ""}`}
+            data-clarity-mask="true"
+          >
+            {message.content}
+          </p>
+        )}
       </div>
     </div>
   );

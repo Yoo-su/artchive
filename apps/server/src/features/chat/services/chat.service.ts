@@ -1,3 +1,4 @@
+import { MAX_CHAT_IMAGES } from '@bookjeok/core';
 import { forwardRef, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -386,12 +387,14 @@ export class ChatService {
    * @param content 메시지 내용
    * @param roomId 채팅방 ID
    * @param sender 보낸 사람
+   * @param imageUrls 첨부 이미지 URL 목록 (있으면 IMAGE 타입으로 저장)
    * @returns 저장된 메시지
    */
   async saveMessage(
     content: string,
     roomId: number,
     sender: User,
+    imageUrls?: string[],
   ): Promise<ChatMessage> {
     // 참여자 검증: 활성 상태인 참여자만 메시지 전송 가능
     const participant = await this.chatParticipantRepository.findOne({
@@ -432,10 +435,21 @@ export class ChatService {
     chatRoom.updatedAt = new Date();
     await this.chatRoomRepository.save(chatRoom);
 
+    const hasImages = Boolean(imageUrls?.length);
+
+    if (hasImages && imageUrls!.length > MAX_CHAT_IMAGES) {
+      throw new BusinessException(
+        'CHAT_IMAGE_LIMIT_EXCEEDED',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const message = this.chatMessageRepository.create({
       content,
       chatRoom,
       sender,
+      type: hasImages ? ChatMessageType.IMAGE : ChatMessageType.TEXT,
+      metadata: hasImages ? { imageUrls } : null,
     });
     return await this.chatMessageRepository.save(message);
   }

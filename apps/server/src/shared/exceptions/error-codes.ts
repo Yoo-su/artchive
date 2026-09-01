@@ -12,6 +12,8 @@
  * - VALIDATION_xxx: 입력값 검증 관련 에러
  * - INTERNAL_xxx: 서버 내부 에러
  */
+import { MAX_CHAT_IMAGES } from '@bookjeok/core';
+
 export const ERROR_CODES = {
   // ============================================
   // 인증 관련 에러 (AUTH)
@@ -189,6 +191,10 @@ export const ERROR_CODES = {
   CHAT_PARTICIPANT_INACTIVE: {
     code: 'CHAT_008',
     message: '대화방을 나갔거나 탈퇴한 사용자에게는 주문을 생성할 수 없습니다.',
+  },
+  CHAT_IMAGE_LIMIT_EXCEEDED: {
+    code: 'CHAT_009',
+    message: `이미지는 한 번에 ${MAX_CHAT_IMAGES}장까지 첨부할 수 있습니다.`,
   },
 
   // ============================================

@@ -5,6 +5,15 @@ export enum ChatMessageType {
   SYSTEM = "SYSTEM",
   TRADE_STATUS = "TRADE_STATUS",
   TRADE_ACTION = "TRADE_ACTION",
+  IMAGE = "IMAGE",
+}
+
+/** 한 메시지에 첨부할 수 있는 최대 이미지 개수 */
+export const MAX_CHAT_IMAGES = 3;
+
+/** IMAGE 타입 메시지의 metadata 구조 */
+export interface ChatImageMetadata {
+  imageUrls: string[];
 }
 
 // 채팅 메시지 타입
@@ -48,6 +57,8 @@ export interface GetChatMessagesResponse {
 export interface SendMessagePayload {
   roomId: number;
   content: string;
+  /** 첨부 이미지 URL 목록. 비어있지 않으면 IMAGE 타입 메시지로 저장됩니다. */
+  imageUrls?: string[];
 }
 
 export interface TypingPayload {

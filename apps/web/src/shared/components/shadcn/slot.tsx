@@ -21,6 +21,25 @@ type SlotProps<T extends HTMLElement = HTMLElement> = {
   children?: any;
 } & DOMMotionProps<T>;
 
+const REACT_LAZY_TYPE = Symbol.for("react.lazy");
+
+type LazyElement = { _payload: PromiseLike<React.ReactElement> };
+
+/**
+ * 서버 컴포넌트에서 `asChild`로 전달된 children은 클라이언트 경계를 넘으면서
+ * react.lazy 참조로 도착합니다. 이 경우 `.type`이 존재하지 않으므로 먼저 해제해야 합니다.
+ */
+function isLazyElement(value: unknown): value is LazyElement {
+  if (value === null || typeof value !== "object") return false;
+  const candidate = value as { $$typeof?: unknown; _payload?: unknown };
+  if (candidate.$$typeof !== REACT_LAZY_TYPE) return false;
+  return (
+    typeof candidate._payload === "object" &&
+    candidate._payload !== null &&
+    "then" in candidate._payload
+  );
+}
+
 function mergeRefs<T>(
   ...refs: (React.Ref<T> | undefined)[]
 ): React.RefCallback<T> {
@@ -64,22 +83,29 @@ function Slot<T extends HTMLElement = HTMLElement>({
   ref,
   ...props
 }: SlotProps<T>) {
+  // 서버 컴포넌트에서 넘어온 children은 lazy 참조이므로 해제 후 element로 다룬다.
+  const resolvedChildren: unknown = isLazyElement(children)
+    ? React.use(children._payload)
+    : children;
+
+  // children이 유효한 element가 아니면 type이 없으므로 motion.create에 넘기지 않는다.
+  const childType = React.isValidElement(resolvedChildren)
+    ? (resolvedChildren.type as React.ElementType)
+    : null;
+
   const isAlreadyMotion =
-    typeof children.type === "object" &&
-    children.type !== null &&
-    isMotionComponent(children.type);
+    typeof childType === "object" &&
+    childType !== null &&
+    isMotionComponent(childType);
 
-  const Base = React.useMemo(
-    () =>
-      isAlreadyMotion
-        ? (children.type as React.ElementType)
-        : motion.create(children.type as React.ElementType),
-    [isAlreadyMotion, children.type]
-  );
+  const Base = React.useMemo(() => {
+    if (childType === null) return null;
+    return isAlreadyMotion ? childType : motion.create(childType);
+  }, [isAlreadyMotion, childType]);
 
-  if (!React.isValidElement(children)) return null;
+  if (!React.isValidElement(resolvedChildren) || Base === null) return null;
 
-  const { ref: childRef, ...childProps } = children.props as AnyProps;
+  const { ref: childRef, ...childProps } = resolvedChildren.props as AnyProps;
 
   const mergedProps = mergeProps(childProps, props);
 

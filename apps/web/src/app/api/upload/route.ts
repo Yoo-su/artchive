@@ -1,6 +1,85 @@
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
 
+/**
+ * 업로드를 허용할 카테고리 목록.
+ * 경로는 항상 `{provider}-{userId}/{카테고리}/{파일명}` 형태여야 합니다.
+ */
+const ALLOWED_CATEGORIES = [
+  "profile",
+  "sales-images",
+  "review-images",
+  "chat-images",
+] as const;
+
+const ALLOWED_CONTENT_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+];
+
+interface AuthenticatedUser {
+  id: number;
+  provider: string;
+}
+
+/**
+ * 액세스 토큰으로 사용자를 식별합니다.
+ * 토큰이 유효하지 않으면 예외를 던집니다.
+ */
+async function resolveUser(token: string): Promise<AuthenticatedUser> {
+  // 서버 통신용 API_URL을 우선 적용하고, 없을 경우 NEXT_PUBLIC_API_URL로 폴백
+  const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "";
+  const response = await fetch(`${apiUrl}/user/profile`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!response.ok) {
+    throw new Error("Unauthorized: Invalid token");
+  }
+
+  const body = await response.json();
+  const user = body?.data;
+
+  if (!user || typeof user.id !== "number" || !user.provider) {
+    throw new Error("Unauthorized: Malformed profile response");
+  }
+
+  return { id: user.id, provider: user.provider };
+}
+
+/**
+ * 업로드 경로가 요청자 본인의 소유인지 검증합니다.
+ * 클라이언트가 보낸 경로를 그대로 신뢰하면 다른 사용자의 디렉터리에
+ * 업로드할 수 있으므로, 접두사와 카테고리를 서버에서 강제합니다.
+ */
+function assertOwnedPathname(pathname: string, user: AuthenticatedUser): void {
+  // 상위 경로 탈출 및 절대 경로 차단
+  if (pathname.includes("..") || pathname.startsWith("/")) {
+    throw new Error("Forbidden: Invalid pathname");
+  }
+
+  const segments = pathname.split("/");
+  if (segments.length < 3) {
+    throw new Error("Forbidden: Invalid pathname structure");
+  }
+
+  const [prefix, category, ...rest] = segments;
+
+  if (prefix !== `${user.provider}-${user.id}`) {
+    throw new Error("Forbidden: Pathname does not belong to the current user");
+  }
+
+  if (!ALLOWED_CATEGORIES.includes(category as (typeof ALLOWED_CATEGORIES)[number])) {
+    throw new Error("Forbidden: Disallowed upload category");
+  }
+
+  if (rest.some((segment) => segment.length === 0)) {
+    throw new Error("Forbidden: Invalid pathname structure");
+  }
+}
+
 export async function POST(request: Request): Promise<NextResponse> {
   const body = (await request.json()) as HandleUploadBody;
 
@@ -8,45 +87,23 @@ export async function POST(request: Request): Promise<NextResponse> {
     const jsonResponse = await handleUpload({
       body,
       request,
-      // 라이브러리 타입 정의에 따라 필수 콜백 함수들을 추가합니다.
-      // 토큰 생성 전 실행: 파일 경로명(pathname)을 그대로 사용하도록 설정하고, 허용할 파일 타입도 지정할 수 있습니다.
+      // 토큰 생성 전 실행: 요청자를 식별하고 업로드 경로 소유권을 검증합니다.
       onBeforeGenerateToken: async (pathname, clientPayload) => {
-        // clientPayload에서 토큰 추출
         const { token } = clientPayload ? JSON.parse(clientPayload) : {};
 
         if (!token) {
           throw new Error("Unauthorized: No token provided");
         }
 
-        // 토큰 유효성 검증 (외부 API 호출)
-        try {
-          // 서버 통신용 API_URL을 우선 적용하고, 없을 경우 NEXT_PUBLIC_API_URL로 폴백
-          const apiUrl =
-            process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "";
-          const response = await fetch(`${apiUrl}/user/profile`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          if (!response.ok) {
-            throw new Error("Unauthorized: Invalid token");
-          }
-        } catch (error) {
-          console.error("Token validation failed:", error);
-          throw new Error("Unauthorized: Token validation failed");
-        }
+        const user = await resolveUser(token);
+        assertOwnedPathname(pathname, user);
 
         return {
-          allowedContentTypes: [
-            "image/jpeg",
-            "image/png",
-            "image/gif",
-            "image/webp",
-          ],
+          allowedContentTypes: ALLOWED_CONTENT_TYPES,
           pathname,
           tokenPayload: JSON.stringify({
-            uploadedBy: "user", // 실제 유저 ID를 넣을 수도 있음
+            uploadedBy: user.id,
+            provider: user.provider,
           }),
         };
       },
