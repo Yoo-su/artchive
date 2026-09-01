@@ -91,7 +91,7 @@ export const ImageLightbox = ({
             alt={t("aria.preview_image", { index: index + 1 })}
             width={1600}
             height={1600}
-            unoptimized
+            sizes="(max-width: 640px) 92vw, 768px"
             className="h-auto max-h-[80vh] w-auto max-w-[92vw] rounded-lg object-contain sm:max-w-3xl"
           />
 
