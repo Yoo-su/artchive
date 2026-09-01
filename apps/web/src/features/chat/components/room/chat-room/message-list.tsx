@@ -13,6 +13,10 @@ import {
 import { ImageLightbox } from "@/shared/components/ui/image-lightbox";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
+import {
+  getMessageImageUrls,
+  hasMessageText,
+} from "../../../utils/chat-message-utils";
 import { TradeMessageCard } from "../../trade/trade-message-card";
 
 /** 시스템 메시지 버블 */
@@ -21,14 +25,6 @@ const SystemMessageBubble = ({ content }: { content: string }) => (
     <span>{content}</span>
   </div>
 );
-
-/** 메시지에 첨부된 이미지 URL을 추출합니다. */
-const getMessageImageUrls = (message: ChatMessage): string[] => {
-  const urls = (message.metadata as { imageUrls?: unknown } | null | undefined)
-    ?.imageUrls;
-  if (!Array.isArray(urls)) return [];
-  return urls.filter((url): url is string => typeof url === "string");
-};
 
 /** 메시지 버블 내 첨부 이미지 그리드. 클릭 시 라이트박스를 엽니다. */
 const MessageImages = ({
@@ -44,7 +40,7 @@ const MessageImages = ({
   return (
     <>
       <div
-        className={`grid gap-1 ${imageUrls.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}
+        className={`grid w-full gap-1 ${imageUrls.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}
       >
         {imageUrls.map((url, index) => (
           <button
@@ -60,7 +56,7 @@ const MessageImages = ({
               alt={t("aria.preview_image", { index: index + 1 })}
               fill
               unoptimized
-              sizes="160px"
+              sizes="208px"
               className="object-cover"
             />
           </button>
@@ -104,7 +100,7 @@ const MessageBubble = ({ message, isMine, currentUserId }: MessageBubbleProps) =
   const isSending = message.id < 0;
   const imageUrls = getMessageImageUrls(message);
   const hasImages = imageUrls.length > 0;
-  const hasText = message.content.trim().length > 0;
+  const hasText = hasMessageText(message);
 
   return (
     <div
@@ -154,7 +150,7 @@ const MessageBubble = ({ message, isMine, currentUserId }: MessageBubbleProps) =
         </div>
       )}
       <div
-        className={`max-w-[70%] rounded-2xl ${hasImages ? "p-1.5" : "px-4 py-2"} ${
+        className={`max-w-[70%] rounded-2xl ${hasImages ? "w-52 p-1.5" : "px-4 py-2"} ${
           isMine
             ? "bg-emerald-700 text-white rounded-br-none"
             : "bg-gray-100 text-gray-800 rounded-bl-none"

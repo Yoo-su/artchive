@@ -17,6 +17,7 @@ import { formatDate } from "@/shared/utils/format-date";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 import { useChatStore } from "../../../stores/use-chat-store";
+import { getMessageImageUrls } from "../../../utils/chat-message-utils";
 
 // 로케일별 "어제" 텍스트
 const YESTERDAY_TEXT: Record<string, string> = {
@@ -41,6 +42,15 @@ export const ChatItem = ({ room }: { room: ChatRoom }) => {
   const opponent = room.participants.find(
     (p) => p.user.id !== currentUser?.id,
   )?.user;
+
+  // 이미지만 있는 메시지는 content가 비어 있으므로 "사진"으로 표시합니다.
+  const lastMessage = room.lastMessage;
+  const lastMessageText = lastMessage?.content.trim();
+  const lastMessagePreview =
+    lastMessageText ||
+    (lastMessage && getMessageImageUrls(lastMessage).length > 0
+      ? t("image.last_message_preview")
+      : t("no_messages"));
 
   const handleOpenRoom = () => {
     openChatRoom(room.id, queryClient);
@@ -74,12 +84,12 @@ export const ChatItem = ({ room }: { room: ChatRoom }) => {
             <div className="flex items-center gap-1.5 truncate text-gray-500 w-10/12">
               <MessageSquareText className="h-4 w-4 shrink-0" />
               <p className="truncate" data-clarity-mask="true">
-                {room.lastMessage?.content || t("no_messages")}
+                {lastMessagePreview}
               </p>
             </div>
-            {room.lastMessage && (
+            {lastMessage && (
               <p className="text-xs text-gray-400 shrink-0">
-                {formatLastMessageTime(room.lastMessage.createdAt, locale)}
+                {formatLastMessageTime(lastMessage.createdAt, locale)}
               </p>
             )}
           </div>
