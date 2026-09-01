@@ -20,19 +20,23 @@ import { ChatInput } from "./input";
 import { MessageList } from "./message-list";
 import { ChatRoomSkeleton } from "./skeleton";
 
+interface ChatRoomProps {
+  /** 표시할 채팅방 ID. 열려 있는 방이 있을 때만 렌더링되므로 항상 존재합니다. */
+  roomId: number;
+}
+
 /**
  * 채팅방 메인 컴포넌트입니다.
  * - 헤더, 메시지 목록, 입력 영역의 레이아웃을 잡고 하위 컴포넌트들을 조합합니다.
  * - 채팅방 데이터(useMyChatRoomsQuery)와 메시지 데이터(useInfiniteChatMessagesQuery)를 관리합니다.
  * - 소켓 연결 상태에 따라 읽음 처리를 수행합니다.
  */
-export const ChatRoom = () => {
-  const activeChatRoomId = useChatStore((state) => state.activeChatRoomId);
-  const typingNickname = useChatStore((state) =>
-    activeChatRoomId ? state.typingUsers[activeChatRoomId] || "" : "",
+export const ChatRoom = ({ roomId }: ChatRoomProps) => {
+  const typingNickname = useChatStore(
+    (state) => state.typingUsers[roomId] || "",
   );
-  const isInactive = useChatStore((state) =>
-    activeChatRoomId ? state.isRoomInactive[activeChatRoomId] || false : false,
+  const isInactive = useChatStore(
+    (state) => state.isRoomInactive[roomId] || false,
   );
   const { socket } = useSocketContext();
   const currentUser = useAuthStore((state) => state.user);
@@ -44,12 +48,12 @@ export const ChatRoom = () => {
     hasPreviousPage,
     isFetchingPreviousPage,
     isLoading: isMessagesLoading,
-  } = useInfiniteChatMessagesQuery(activeChatRoomId!);
+  } = useInfiniteChatMessagesQuery(roomId);
 
   // 현재 채팅방 정보
   const room = useMemo(
-    () => roomsData?.find((r: ChatRoomType) => r.id === activeChatRoomId),
-    [roomsData, activeChatRoomId],
+    () => roomsData?.find((r: ChatRoomType) => r.id === roomId),
+    [roomsData, roomId],
   );
 
   // 메시지 정렬
@@ -73,9 +77,7 @@ export const ChatRoom = () => {
   }, [messagesData]);
 
   // 타이핑 인디케이터 훅
-  const { handleTyping, cancelTyping } = useTypingIndicator({
-    roomId: activeChatRoomId,
-  });
+  const { handleTyping, cancelTyping } = useTypingIndicator({ roomId });
 
   // 스크롤 관리 훅
   const {
@@ -84,7 +86,7 @@ export const ChatRoom = () => {
     contentRef,
     handleScroll,
   } = useChatScroll({
-    roomId: activeChatRoomId ?? undefined,
+    roomId,
     messages,
     hasPreviousPage: hasPreviousPage ?? false,
     isFetchingPreviousPage,
@@ -98,15 +100,15 @@ export const ChatRoom = () => {
 
   // 채팅방 입장 시 읽음 처리
   useEffect(() => {
-    if (socket && activeChatRoomId) {
-      socket.emit("markAsRead", { roomId: activeChatRoomId });
+    if (socket) {
+      socket.emit("markAsRead", { roomId });
     }
-  }, [socket, activeChatRoomId]);
+  }, [socket, roomId]);
 
   const t = useTranslations("chat");
 
   // 로딩 상태
-  if (isMessagesLoading || !room) {
+  if (isMessagesLoading || !room || !currentUser) {
     return <ChatRoomSkeleton />;
   }
 
@@ -129,17 +131,15 @@ export const ChatRoom = () => {
         typingNickname={typingNickname}
       />
 
-      {currentUser && (
-        <TradeStatusBanner
-          room={room}
-          currentUser={currentUser}
-          opponent={opponent}
-        />
-      )}
+      <TradeStatusBanner
+        room={room}
+        currentUser={currentUser}
+        opponent={opponent}
+      />
 
       <MessageList
         messages={messages}
-        currentUserId={currentUser?.id}
+        currentUserId={currentUser.id}
         isFetchingPreviousPage={isFetchingPreviousPage}
         messagesEndRef={messagesEndRef}
         messageContainerRef={messageContainerRef}
@@ -148,11 +148,11 @@ export const ChatRoom = () => {
       />
 
       <ChatInput
-        roomId={activeChatRoomId!}
-        currentUserId={currentUser!.id}
-        currentUserHandle={currentUser!.handle}
-        currentUserNickname={currentUser!.nickname}
-        currentUserProfileImageUrl={currentUser!.profileImageUrl}
+        roomId={roomId}
+        currentUserId={currentUser.id}
+        currentUserHandle={currentUser.handle}
+        currentUserNickname={currentUser.nickname}
+        currentUserProfileImageUrl={currentUser.profileImageUrl}
         isInactive={isInactive}
         onTyping={handleTyping}
         cancelTyping={cancelTyping}

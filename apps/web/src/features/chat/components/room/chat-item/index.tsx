@@ -1,7 +1,6 @@
 "use client";
 
 import { ChatRoom } from "@bookjeok/core";
-import { useQueryClient } from "@tanstack/react-query";
 import { isToday, isYesterday } from "date-fns";
 import { motion } from "framer-motion";
 import { MessageSquareText } from "lucide-react";
@@ -16,7 +15,7 @@ import {
 import { formatDate } from "@/shared/utils/format-date";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
-import { useChatStore } from "../../../stores/use-chat-store";
+import { useOpenChatRoom } from "../../../hooks/use-open-chat-room";
 import { getMessageImageUrls } from "../../../utils/chat-message-utils";
 
 // 로케일별 "어제" 텍스트
@@ -34,9 +33,8 @@ const formatLastMessageTime = (date: string, locale: string) => {
 
 export const ChatItem = ({ room }: { room: ChatRoom }) => {
   const t = useTranslations("chat");
-  const openChatRoom = useChatStore((state) => state.openChatRoom);
+  const openChatRoom = useOpenChatRoom();
   const currentUser = useAuthStore((state) => state.user);
-  const queryClient = useQueryClient();
   const locale = useLocale();
 
   const opponent = room.participants.find(
@@ -53,7 +51,7 @@ export const ChatItem = ({ room }: { room: ChatRoom }) => {
       : t("no_messages"));
 
   const handleOpenRoom = () => {
-    openChatRoom(room.id, queryClient);
+    openChatRoom(room.id);
   };
 
   return (

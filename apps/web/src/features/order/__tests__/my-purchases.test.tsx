@@ -135,6 +135,10 @@ const queryData: any = {
 };
 
 vi.mock("@bookjeok/react-query", () => ({
+  useMarkRoomAsReadMutation: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
   useMyPurchasesQuery: () => ({
     data: queryData,
     isLoading: false,

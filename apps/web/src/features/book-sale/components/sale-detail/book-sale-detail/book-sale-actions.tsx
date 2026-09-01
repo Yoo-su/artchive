@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 import { EmailVerificationModal } from "@/features/auth/components/email-verification-alert";
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
-import { useChatStore } from "@/features/chat/stores/use-chat-store";
+import { useOpenChatRoom } from "@/features/chat/hooks/use-open-chat-room";
 import { useConfirm } from "@/features/confirm";
 import { SellerTrustBadge } from "@/features/order";
 import { WishlistButton } from "@/features/user/components/wishlist/wishlist-button";
@@ -37,7 +37,7 @@ export const BookSaleActions: React.FC<BookSaleActionsProps> = ({ sale }) => {
   const isOwner = currentUser?.id === sale.user.id;
   const [isCreatingChat, setIsCreatingChat] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
-  const openChatRoom = useChatStore((state) => state.openChatRoom);
+  const openChatRoom = useOpenChatRoom();
   const { socket } = useSocketContext();
   const queryClient = useQueryClient();
   const { mutate: deleteSale, isPending: isDeleting } =
@@ -80,7 +80,7 @@ export const BookSaleActions: React.FC<BookSaleActionsProps> = ({ sale }) => {
       });
 
       // 4. 채팅 위젯에서 해당 채팅방을 엽니다.
-      openChatRoom(newRoom.id, queryClient);
+      openChatRoom(newRoom.id);
     } catch (error) {
       console.error("Failed to start chat:", error);
       toast.error(t("actions.chat_error"));

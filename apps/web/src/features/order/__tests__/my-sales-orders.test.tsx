@@ -69,6 +69,10 @@ const mockSalesOrders: Order[] = [
 ];
 
 vi.mock("@bookjeok/react-query", () => ({
+  useMarkRoomAsReadMutation: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
   useMySalesOrdersQuery: () => ({
     data: {
       orders: mockSalesOrders,

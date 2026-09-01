@@ -15,7 +15,7 @@ import { useLocale, useTranslations } from "next-intl";
 import React, { useState } from "react";
 import { toast } from "sonner";
 
-import { useChatStore } from "@/features/chat/stores/use-chat-store";
+import { useOpenChatRoom } from "@/features/chat/hooks/use-open-chat-room";
 import { useConfirm } from "@/features/confirm";
 import {
   BookIcon,
@@ -43,7 +43,7 @@ export const PurchaseOrderCard = ({ order }: PurchaseOrderCardProps) => {
   const t = useTranslations("order.purchases.card");
   const locale = useLocale();
   const confirm = useConfirm();
-  const openChatRoom = useChatStore((state) => state.openChatRoom);
+  const openChatRoom = useOpenChatRoom();
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
   const confirmPurchaseMutation = useConfirmPurchaseMutation({

@@ -1505,7 +1505,9 @@
     "cannot_leave_during_trade": "진행 중인 거래가 있어 채팅방을 나갈 수 없습니다. 거래 완료 또는 취소 후 나가기가 가능합니다.",
     "toast": {
       "leave_error": "채팅방을 나가는 데 실패했습니다: {error}",
-      "send_error": "메시지 전송에 실패했습니다: {error}"
+      "send_error": "메시지 전송에 실패했습니다: {error}",
+      "send_timeout": "메시지 전송이 지연되고 있습니다. 연결 상태를 확인한 뒤 다시 시도해 주세요.",
+      "join_failed": "채팅 연결에 실패했습니다. 새로고침 후 다시 시도해 주세요."
     },
     "aria": {
       "close_room": "채팅방 닫기",

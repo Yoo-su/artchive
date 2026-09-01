@@ -23,6 +23,12 @@ export interface ChatMessage {
   isRead: boolean;
   type?: ChatMessageType;
   metadata?: Record<string, any> | null;
+  /**
+   * 클라이언트가 전송 시 부여한 상관 ID.
+   * 낙관적 메시지를 서버 응답과 정확히 짝지어 교체하기 위해 사용하며,
+   * 저장되지 않고 전송한 클라이언트의 요청을 되돌려주는 용도로만 실립니다.
+   */
+  clientMessageId?: string;
   createdAt: string; // ISO 8601
   sender: SaleAuthor | null;
   chatRoom: { id: number; usedBookSale?: UsedBookSale }; // 순환 참조를 피하기 위해 id 위주로 포함하되 필요 시 판매글 정보 허용
@@ -59,6 +65,8 @@ export interface SendMessagePayload {
   content: string;
   /** 첨부 이미지 URL 목록. 비어있지 않으면 IMAGE 타입 메시지로 저장됩니다. */
   imageUrls?: string[];
+  /** 낙관적 메시지 교체용 상관 ID. 서버가 그대로 되돌려줍니다. */
+  clientMessageId?: string;
 }
 
 export interface TypingPayload {
