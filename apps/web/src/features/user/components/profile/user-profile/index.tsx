@@ -7,6 +7,8 @@ import {
   ArrowRight,
   BookOpen,
   Calendar,
+  CheckCircle2,
+  Clock,
   MessageSquare,
   ShoppingBag,
   User,
@@ -23,11 +25,16 @@ import {
 import { ReadingLogCalendar } from "@/features/reading-log/components/calendar-view/reading-log-calendar";
 import { ReadingLogListView } from "@/features/reading-log/components/list-view/reading-log-list-view";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/shared/components/shadcn/tooltip";
 import { NotFoundRedirect } from "@/shared/components/ui/not-found-redirect";
 import { PriceDisplay } from "@/shared/components/ui/price-display";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
-import { formatDate } from "@/shared/utils/format-date";
+import { formatDate, formatRelativeTime } from "@/shared/utils/format-date";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 interface UserProfileProps {
@@ -164,7 +171,12 @@ export const UserProfile = ({ handle }: UserProfileProps) => {
 interface UserProfileHeaderProps {
   profile: Pick<
     PublicUserProfile,
-    "profileImageUrl" | "nickname" | "createdAt" | "handle"
+    | "profileImageUrl"
+    | "nickname"
+    | "createdAt"
+    | "handle"
+    | "isEmailVerified"
+    | "lastActiveAt"
   >;
 }
 
@@ -209,6 +221,31 @@ const UserProfileHeader = ({ profile }: UserProfileHeaderProps) => {
                 })}
               </span>
             </div>
+            {/* 최근 접속: 정확한 시각 대신 상대시간만 노출 */}
+            {profile.lastActiveAt && (
+              <div className="flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5 text-stone-400" />
+                <span>
+                  {t("last_active", {
+                    time: formatRelativeTime(profile.lastActiveAt, locale),
+                  })}
+                </span>
+              </div>
+            )}
+            {/* 이메일 인증 배지: 인증 여부만 노출하며 이메일 주소는 공개하지 않음 */}
+            {profile.isEmailVerified && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="flex items-center gap-1.5 text-emerald-600">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    <span className="font-medium">{t("email_verified")}</span>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  {t("email_verified_tooltip")}
+                </TooltipContent>
+              </Tooltip>
+            )}
             {/* 판매자 안전거래 신뢰 뱃지 */}
             {process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true" &&
               profile.handle && (

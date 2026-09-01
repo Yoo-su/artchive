@@ -1101,6 +1101,9 @@
     },
     "not_found": "User not found or deleted.",
     "joined": "Joined {date}",
+    "email_verified": "Email verified",
+    "email_verified_tooltip": "This user has verified their email address.",
+    "last_active": "Active {time}",
     "reading_log_calendar_title": "{name}'s Reading Log",
     "stats": {
       "sales_count": "Books for Sale",
@@ -1504,7 +1507,8 @@
     "aria": {
       "close_room": "Close chat room",
       "leave_room": "Leave chat room",
-      "send_message": "Send message"
+      "send_message": "Send message",
+      "view_profile": "View {nickname}'s profile"
     },
     "trade": {
       "select_buyer_modal": {

@@ -7,6 +7,10 @@ export interface PublicUserProfileDto {
   nickname: string;
   profileImageUrl: string | null;
   createdAt: Date;
+  /** 이메일 인증 여부만 공개하며 이메일 주소 자체는 공개하지 않는다. */
+  isEmailVerified: boolean;
+  /** 마지막 접속 시각. 한 번도 기록되지 않았으면 null. */
+  lastActiveAt: Date | null;
   stats: {
     salesCount: number;
     reviewsCount: number;

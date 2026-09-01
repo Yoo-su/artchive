@@ -15,6 +15,10 @@ export interface PublicUserProfile {
   nickname: string;
   profileImageUrl: string | null;
   createdAt: string;
+  /** 이메일 인증 여부. 거래 상대 신뢰도 판단용으로 인증 여부만 공개하며 이메일 주소 자체는 공개하지 않는다. */
+  isEmailVerified: boolean;
+  /** 마지막 접속 시각(ISO 8601). 한 번도 기록되지 않았으면 null. */
+  lastActiveAt: string | null;
   stats: {
     salesCount: number;
     reviewsCount: number;
