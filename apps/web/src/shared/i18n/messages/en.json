@@ -1593,7 +1593,8 @@
     },
     "image": {
       "limit_exceeded": "You can attach up to {max} images.",
-      "upload_error": "Failed to upload the image. Please try again."
+      "upload_error": "Failed to upload the image. Please try again.",
+      "last_message_preview": "Photo"
     }
   },
   "order": {
