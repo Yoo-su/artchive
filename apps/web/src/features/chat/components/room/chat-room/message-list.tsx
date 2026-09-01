@@ -55,7 +55,6 @@ const MessageImages = ({
               src={url}
               alt={t("aria.preview_image", { index: index + 1 })}
               fill
-              unoptimized
               sizes="208px"
               className="object-cover"
             />
