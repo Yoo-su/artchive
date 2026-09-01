@@ -1506,7 +1506,8 @@
     "toast": {
       "leave_error": "Failed to leave chat room: {error}",
       "send_error": "Failed to send message: {error}",
-      "send_timeout": "Sending is taking too long. Check your connection and try again."
+      "send_timeout": "Sending is taking too long. Check your connection and try again.",
+      "join_failed": "Failed to connect to chat. Please refresh and try again."
     },
     "aria": {
       "close_room": "Close chat room",
