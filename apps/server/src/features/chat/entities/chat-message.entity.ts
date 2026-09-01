@@ -17,6 +17,7 @@ export enum ChatMessageType {
   SYSTEM = 'SYSTEM',
   TRADE_STATUS = 'TRADE_STATUS',
   TRADE_ACTION = 'TRADE_ACTION',
+  IMAGE = 'IMAGE',
 }
 
 @Entity({ name: 'chat_messages' })

@@ -72,7 +72,9 @@
       "like": "Like",
       "unlike": "Unlike",
       "tag_remove": "Remove tag {tag}",
-      "select_book": "Select {title}"
+      "select_book": "Select {title}",
+      "prev_image": "Previous image",
+      "next_image": "Next image"
     },
     "map": {
       "location_title": "Preferred Deal Location",
@@ -89,7 +91,8 @@
     "image": {
       "add": "Add Image",
       "only_image_allowed": "Only image files can be uploaded.",
-      "size_limit_exceeded": "Image is too large ({size}MB). Only images under {maxSize}MB can be attached."
+      "size_limit_exceeded": "Image is too large ({size}MB). Only images under {maxSize}MB can be attached.",
+      "viewer_title": "Image viewer"
     },
     "currency": {
       "unit": "KRW"
@@ -1508,7 +1511,8 @@
       "close_room": "Close chat room",
       "leave_room": "Leave chat room",
       "send_message": "Send message",
-      "view_profile": "View {nickname}'s profile"
+      "view_profile": "View {nickname}'s profile",
+      "attach_image": "Attach image"
     },
     "trade": {
       "select_buyer_modal": {
@@ -1586,6 +1590,10 @@
         "btn_view_detail": "View Order Details",
         "order_closed_toast": "This trade has already been cancelled or completed."
       }
+    },
+    "image": {
+      "limit_exceeded": "You can attach up to {max} images.",
+      "upload_error": "Failed to upload the image. Please try again."
     }
   },
   "order": {

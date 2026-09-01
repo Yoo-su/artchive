@@ -89,15 +89,20 @@ type DialogContentProps = React.ComponentPropsWithoutRef<
 > &
   Omit<HTMLMotionProps<"div">, "ref"> & {
     showCloseButton?: boolean;
+    /** 오버레이에 적용할 추가 클래스. 기본 z-index를 덮어써야 할 때 사용합니다. */
+    overlayClassName?: string;
   };
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
->(({ className, children, showCloseButton = true, ...props }, ref) => {
+>((
+  { className, children, showCloseButton = true, overlayClassName, ...props },
+  ref,
+) => {
   return (
     <DialogPortal>
-      <DialogOverlay />
+      <DialogOverlay className={overlayClassName} />
       <DialogPrimitive.Content
         data-slot="dialog-content"
         asChild
