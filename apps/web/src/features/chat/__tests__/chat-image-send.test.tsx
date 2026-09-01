@@ -252,6 +252,12 @@ describe("이미지 첨부 메시지 전송", () => {
       roomId: ROOM_ID,
       imageUrls: ["https://blob.test/uploaded.jpg"],
     });
+    // 낙관적 메시지 교체를 위한 상관 ID가 함께 실려 나간다
+    const payload = mockEmit.mock.calls[0][1] as { clientMessageId?: string };
+    expect(payload.clientMessageId).toBeTruthy();
+    expect(getCachedMessages(queryClient)[0].clientMessageId).toBe(
+      payload.clientMessageId,
+    );
     // 낙관적 메시지도 전역 캐시에 정상 반영됐다
     expect(getCachedMessages(queryClient)).toHaveLength(1);
   });

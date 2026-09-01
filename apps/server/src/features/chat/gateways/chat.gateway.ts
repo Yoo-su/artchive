@@ -17,6 +17,19 @@ import { User } from '@/features/user/entities/user.entity';
 import { UserService } from '@/features/user/services/user.service';
 
 import { ChatMessage } from '../entities/chat-message.entity';
+
+/** 상관 ID 최대 길이 (UUID 기준 여유값) */
+const MAX_CLIENT_MESSAGE_ID_LENGTH = 64;
+
+/**
+ * 클라이언트가 보낸 상관 ID가 그대로 되돌려 보내기에 적합한지 검사합니다.
+ * 값을 저장하지는 않지만 채팅방 참여자 전원에게 브로드캐스트되므로,
+ * 형식과 길이를 제한합니다.
+ */
+const isValidClientMessageId = (value: unknown): value is string =>
+  typeof value === 'string' &&
+  value.length > 0 &&
+  value.length <= MAX_CLIENT_MESSAGE_ID_LENGTH;
 import { ChatRoom } from '../entities/chat-room.entity';
 import { ChatService } from '../services/chat.service';
 
@@ -125,11 +138,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('sendMessage')
   async handleSendMessage(
     @MessageBody()
-    data: { roomId: number; content: string; imageUrls?: string[] },
+    data: {
+      roomId: number;
+      content: string;
+      imageUrls?: string[];
+      clientMessageId?: string;
+    },
     @ConnectedSocket() client: Socket,
   ) {
     const user = client.data.user as User;
-    const { roomId, content, imageUrls } = data;
+    const { roomId, content, imageUrls, clientMessageId } = data;
 
     try {
       const message = await this.chatService.saveMessage(
@@ -138,8 +156,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         user,
         imageUrls,
       );
-      this.server.to(String(roomId)).emit('newMessage', message);
-      return { status: 'ok', message };
+
+      // 보낸 클라이언트가 자신의 낙관적 메시지를 정확히 짝지을 수 있도록
+      // 상관 ID를 그대로 돌려줍니다. 저장하지 않는 일회성 필드입니다.
+      const payload = isValidClientMessageId(clientMessageId)
+        ? { ...message, clientMessageId }
+        : message;
+
+      this.server.to(String(roomId)).emit('newMessage', payload);
+      return { status: 'ok', message: payload };
     } catch (error) {
       this.logger.error(
         `Failed to save message for user ${user.id} in room ${roomId}: ${error.message}`,

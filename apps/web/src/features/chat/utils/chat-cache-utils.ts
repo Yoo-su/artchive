@@ -57,11 +57,54 @@ export const removeMessageFromCache = (
   );
 };
 
+/** 캐시 안에서 낙관적 메시지의 위치 */
+interface OptimisticMessageLocation {
+  pageIndex: number;
+  messageIndex: number;
+}
+
+/**
+ * 교체 대상 낙관적 메시지의 위치를 찾습니다.
+ *
+ * - 상관 ID가 있으면 정확히 일치하는 메시지만 대상으로 삼습니다.
+ *   일치하는 것이 없다면 다른 탭/기기에서 보낸 메시지이므로 교체하지 않습니다.
+ * - 상관 ID가 없으면(구버전 서버) 기존 방식대로 가장 오래된 낙관적 메시지를 대상으로 합니다.
+ */
+const findOptimisticTarget = (
+  data: InfiniteMessagesData,
+  clientMessageId?: string,
+): OptimisticMessageLocation | null => {
+  for (let pageIndex = data.pages.length - 1; pageIndex >= 0; pageIndex--) {
+    const messages = data.pages[pageIndex].messages;
+
+    for (
+      let messageIndex = messages.length - 1;
+      messageIndex >= 0;
+      messageIndex--
+    ) {
+      const message = messages[messageIndex];
+      if (message.id >= 0) continue;
+
+      if (clientMessageId) {
+        if (message.clientMessageId === clientMessageId) {
+          return { pageIndex, messageIndex };
+        }
+        continue;
+      }
+
+      return { pageIndex, messageIndex };
+    }
+  }
+
+  return null;
+};
+
 /**
  * 낙관적 메시지를 실제 서버 응답 메시지로 교체합니다.
- * 낙관적 메시지가 없으면 캐시 맨 앞에 새 메시지를 추가합니다.
+ * 짝이 되는 낙관적 메시지가 없으면 캐시 맨 앞에 새 메시지를 추가합니다.
  *
- * FIFO 방식으로 가장 오래된 낙관적 메시지(ID < 0)부터 교체합니다.
+ * 상관 ID(`clientMessageId`)로 짝을 맞추므로, 다른 탭이나 기기에서 보낸
+ * 내 메시지가 도착해도 이 탭의 전송 중인 메시지를 잘못 교체하지 않습니다.
  */
 export const replaceOptimisticMessage = (
   queryClient: QueryClient,
@@ -73,34 +116,27 @@ export const replaceOptimisticMessage = (
     (oldData) => {
       if (!oldData) return oldData;
 
-      // 가장 오래된 낙관적 메시지 탐색 (역순 순회)
-      let targetPageIdx = -1;
-      let targetMsgIdx = -1;
+      // 이미 반영된 메시지면 중복으로 넣지 않습니다.
+      // (전송 타임아웃 처리 후 서버 응답이 뒤늦게 도착하는 경우 등)
+      const alreadyExists = oldData.pages.some((page) =>
+        page.messages.some((message) => message.id === newMessage.id),
+      );
+      if (alreadyExists) return oldData;
 
-      for (let i = oldData.pages.length - 1; i >= 0; i--) {
-        const page = oldData.pages[i];
-        for (let j = page.messages.length - 1; j >= 0; j--) {
-          if (page.messages[j].id < 0) {
-            targetPageIdx = i;
-            targetMsgIdx = j;
-            break;
-          }
-        }
-        if (targetPageIdx !== -1) break;
-      }
+      const target = findOptimisticTarget(oldData, newMessage.clientMessageId);
 
       // 낙관적 메시지를 찾았으면 교체
-      if (targetPageIdx !== -1 && targetMsgIdx !== -1) {
+      if (target) {
         const newPages = [...oldData.pages];
-        const targetPage = { ...newPages[targetPageIdx] };
+        const targetPage = { ...newPages[target.pageIndex] };
         const newMessages = [...targetPage.messages];
-        newMessages[targetMsgIdx] = newMessage;
+        newMessages[target.messageIndex] = newMessage;
         targetPage.messages = newMessages;
-        newPages[targetPageIdx] = targetPage;
+        newPages[target.pageIndex] = targetPage;
         return { ...oldData, pages: newPages };
       }
 
-      // 낙관적 메시지가 없으면 맨 앞에 추가
+      // 짝이 없으면 맨 앞에 추가
       const newPages = [...oldData.pages];
       newPages[0] = {
         ...newPages[0],

@@ -38,6 +38,15 @@ export interface PendingImage {
  */
 const SEND_ACK_TIMEOUT_MS = 10_000;
 
+/**
+ * 낙관적 메시지를 서버 응답과 짝짓기 위한 상관 ID를 만듭니다.
+ * 서버는 이 값을 그대로 되돌려주기만 하고 저장하지 않습니다.
+ */
+const createClientMessageId = () =>
+  typeof crypto !== "undefined" && crypto.randomUUID
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
 interface UseChatComposerOptions {
   roomId: number;
   currentUserId: number;
@@ -191,6 +200,7 @@ export const useChatComposer = ({
       .filter((url): url is string => Boolean(url));
 
     const tempId = -Date.now(); // 임시 ID (음수로 서버 ID와 충돌 방지)
+    const clientMessageId = createClientMessageId();
 
     // 낙관적 업데이트: 즉시 UI에 메시지 표시
     const optimisticMessage: ChatMessage = {
@@ -199,6 +209,7 @@ export const useChatComposer = ({
       isRead: false,
       type: imageUrls.length > 0 ? ChatMessageType.IMAGE : ChatMessageType.TEXT,
       metadata: imageUrls.length > 0 ? { imageUrls } : null,
+      clientMessageId,
       createdAt: new Date().toISOString(),
       sender: {
         id: currentUserId,
@@ -239,7 +250,7 @@ export const useChatComposer = ({
       .timeout(SEND_ACK_TIMEOUT_MS)
       .emit(
         "sendMessage",
-        { roomId, content: messageContent, imageUrls },
+        { roomId, content: messageContent, imageUrls, clientMessageId },
         (
           timeoutError: Error | null,
           response?: { status: string; error?: string },
