@@ -38,7 +38,11 @@ export const ChatWidget = () => {
         >
           {/* Clarity 세션 녹화에서 채팅 내용 마스킹 */}
           <Card className="h-full w-full flex flex-col shadow-2xl overflow-hidden" data-clarity-mask="true">
-            {activeChatRoomId ? <ChatRoom /> : <ChatList />}
+            {activeChatRoomId ? (
+              <ChatRoom roomId={activeChatRoomId} />
+            ) : (
+              <ChatList />
+            )}
           </Card>
         </motion.div>
       )}
