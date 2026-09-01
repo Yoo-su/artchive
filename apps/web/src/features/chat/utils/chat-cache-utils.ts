@@ -36,6 +36,28 @@ export const prependMessageToCache = (
 };
 
 /**
+ * 특정 메시지를 캐시에서 제거합니다.
+ * 전송에 실패한 낙관적 메시지를 되돌릴 때 사용합니다.
+ */
+export const removeMessageFromCache = (
+  queryClient: QueryClient,
+  roomId: number,
+  messageId: number,
+) => {
+  queryClient.setQueryData<InfiniteMessagesData>(
+    chatKeys.messages(roomId).queryKey,
+    (oldData) => {
+      if (!oldData) return oldData;
+      const newPages = oldData.pages.map((page) => ({
+        ...page,
+        messages: page.messages.filter((message) => message.id !== messageId),
+      }));
+      return { ...oldData, pages: newPages };
+    },
+  );
+};
+
+/**
  * 낙관적 메시지를 실제 서버 응답 메시지로 교체합니다.
  * 낙관적 메시지가 없으면 캐시 맨 앞에 새 메시지를 추가합니다.
  *
