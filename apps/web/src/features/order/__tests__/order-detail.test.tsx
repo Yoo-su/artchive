@@ -79,6 +79,10 @@ vi.mock("@/features/auth/stores/use-auth-store", () => ({
 }));
 
 vi.mock("@bookjeok/react-query", () => ({
+  useMarkRoomAsReadMutation: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
   useCancelSelectionMutation: () => ({ mutate: vi.fn(), isPending: false }),
   useConfirmPurchaseMutation: () => ({ mutate: vi.fn(), isPending: false }),
   useCancelOrderMutation: () => ({ mutate: vi.fn(), isPending: false }),

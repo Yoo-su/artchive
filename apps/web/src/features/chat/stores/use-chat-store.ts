@@ -1,6 +1,3 @@
-import { markMessagesAsRead } from "@bookjeok/api-client";
-import { chatKeys, ChatRoom } from "@bookjeok/core";
-import { QueryClient } from "@tanstack/react-query";
 import { create } from "zustand";
 
 interface ChatState {
@@ -12,11 +9,10 @@ interface ChatState {
   typingTimeouts: { [roomId: number]: NodeJS.Timeout };
 
   toggleChat: () => void;
-  openChatRoom: (roomId: number, queryClient?: QueryClient) => void;
+  openChatRoom: (roomId: number) => void;
   closeChatRoom: () => void;
   setTyping: (roomId: number, nickname: string) => void;
   setRoomInactive: (roomId: number, isInactive: boolean) => void;
-  markRoomAsRead: (roomId: number, queryClient: QueryClient) => void;
   setHasJoinedRooms: (hasJoined: boolean) => void;
 }
 
@@ -30,10 +26,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   toggleChat: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
 
-  openChatRoom: (roomId, queryClient) => {
-    if (queryClient) {
-      get().markRoomAsRead(roomId, queryClient);
-    }
+  /**
+   * 채팅방을 엽니다. 순수 UI 상태만 변경합니다.
+   * 읽음 처리까지 필요하면 `useOpenChatRoom` 훅을 사용하세요.
+   */
+  openChatRoom: (roomId) => {
     set({ activeChatRoomId: roomId, isChatOpen: true });
   },
 
@@ -83,27 +80,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
         [roomId]: isInactive,
       },
     }));
-  },
-
-  markRoomAsRead: async (roomId, queryClient) => {
-    queryClient.setQueryData<ChatRoom[]>(
-      chatKeys.rooms.queryKey,
-      (oldRooms) => {
-        if (!oldRooms) return [];
-        return oldRooms.map((room) =>
-          room.id === roomId ? { ...room, unreadCount: 0 } : room,
-        );
-      },
-    );
-
-    try {
-      await markMessagesAsRead(roomId);
-    } catch (error) {
-      console.error("Failed to mark messages as read on server:", error);
-      queryClient.invalidateQueries({
-        queryKey: chatKeys.rooms.queryKey,
-      });
-    }
   },
 
   setHasJoinedRooms: (hasJoined: boolean) => {
