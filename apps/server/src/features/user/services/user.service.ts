@@ -298,6 +298,8 @@ export class UserService implements OnModuleInit {
       'createdAt',
       'deletedAt',
       'isReadingLogPublic',
+      'isEmailVerified',
+      'lastActiveAt',
     ];
 
     // 1. 사용자 기본 정보 조회 (핸들 -> 닉네임 -> ID 순서로 시도)
@@ -363,6 +365,8 @@ export class UserService implements OnModuleInit {
       nickname: user.nickname,
       profileImageUrl: user.profileImageUrl,
       createdAt: user.createdAt,
+      isEmailVerified: user.isEmailVerified,
+      lastActiveAt: user.lastActiveAt ?? null,
       stats: {
         salesCount,
         reviewsCount,

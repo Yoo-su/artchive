@@ -12,6 +12,13 @@ import { useConfirm } from "@/features/confirm";
 import { BookIcon } from "@/shared/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/shadcn/avatar";
 import { Button } from "@/shared/components/shadcn/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/shared/components/shadcn/tooltip";
+import { Link } from "@/shared/config/i18n/routing";
+import { PATHS } from "@/shared/constants/paths";
 import { useSocketContext } from "@/shared/providers/socket-provider";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
@@ -21,6 +28,7 @@ interface ChatRoomHeaderProps {
   room: ChatRoom;
   opponentNickname?: string;
   opponentProfileImageUrl?: string | null;
+  opponentHandle?: string;
   typingNickname?: string;
 }
 
@@ -34,9 +42,11 @@ export const ChatRoomHeader = ({
   room,
   opponentNickname,
   opponentProfileImageUrl,
+  opponentHandle,
   typingNickname,
 }: ChatRoomHeaderProps) => {
   const t = useTranslations("chat");
+  const tCommon = useTranslations("common");
   const closeChatRoom = useChatStore((state) => state.closeChatRoom);
   const activeChatRoomId = useChatStore((state) => state.activeChatRoomId);
   const { socket } = useSocketContext();
@@ -134,22 +144,54 @@ export const ChatRoomHeader = ({
 
         {/* 대화 상대 정보 + 서브라인(도서 정보 or 입력중 인디케이터) */}
         <div className="min-w-0 flex-1 space-y-0.5">
-          {/* 1행: 상대방 프로필 & 닉네임 */}
-          <div className="flex items-center gap-1.5 min-w-0">
-            {opponentProfileImageUrl && (
-              <Avatar className="h-4.5 w-4.5 shrink-0 border border-stone-200/60 dark:border-stone-700">
-                <AvatarImage
-                  src={getProfileImageUrl(opponentProfileImageUrl)}
-                />
-                <AvatarFallback className="text-[10px]">
-                  {opponentNickname?.slice(0, 1)}
-                </AvatarFallback>
-              </Avatar>
-            )}
-            <p className="font-bold text-sm text-stone-900 dark:text-stone-100 truncate leading-tight">
-              {opponentNickname}
-            </p>
-          </div>
+          {/* 1행: 상대방 프로필 & 닉네임 (클릭 시 프로필 페이지로 이동) */}
+          {opponentHandle ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href={PATHS.USER_PROFILE(opponentHandle)}
+                  className="flex items-center gap-1.5 min-w-0 w-fit hover:opacity-70 transition-opacity"
+                  aria-label={t("aria.view_profile", {
+                    nickname: opponentNickname ?? "",
+                  })}
+                >
+                  {opponentProfileImageUrl && (
+                    <Avatar className="h-4.5 w-4.5 shrink-0 border border-stone-200/60 dark:border-stone-700">
+                      <AvatarImage
+                        src={getProfileImageUrl(opponentProfileImageUrl)}
+                      />
+                      <AvatarFallback className="text-[10px]">
+                        {opponentNickname?.slice(0, 1)}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                  <p className="font-bold text-sm text-stone-900 dark:text-stone-100 truncate leading-tight">
+                    {opponentNickname}
+                  </p>
+                </Link>
+              </TooltipTrigger>
+              {/* 채팅 위젯 패널이 z-999라 기본 z-50으로는 패널 뒤에 가려진다 */}
+              <TooltipContent side="top" align="center" className="z-1000">
+                {tCommon("actions.view_profile")}
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <div className="flex items-center gap-1.5 min-w-0">
+              {opponentProfileImageUrl && (
+                <Avatar className="h-4.5 w-4.5 shrink-0 border border-stone-200/60 dark:border-stone-700">
+                  <AvatarImage
+                    src={getProfileImageUrl(opponentProfileImageUrl)}
+                  />
+                  <AvatarFallback className="text-[10px]">
+                    {opponentNickname?.slice(0, 1)}
+                  </AvatarFallback>
+                </Avatar>
+              )}
+              <p className="font-bold text-sm text-stone-900 dark:text-stone-100 truncate leading-tight">
+                {opponentNickname}
+              </p>
+            </div>
+          )}
 
           {/* 2행: 평소에는 책 정보, 입력 중일 때는 타이핑 안내 표시 */}
           <div className="h-4 flex items-center overflow-hidden" aria-live="polite" aria-atomic="true">

@@ -1101,6 +1101,9 @@
     },
     "not_found": "존재하지 않거나 삭제된 사용자입니다.",
     "joined": "{date} 가입",
+    "email_verified": "이메일 인증 완료",
+    "email_verified_tooltip": "이메일 인증을 완료한 사용자입니다.",
+    "last_active": "{time} 접속",
     "reading_log_calendar_title": "{name}님의 독서 기록",
     "stats": {
       "sales_count": "판매 중인 도서",
@@ -1504,7 +1507,8 @@
     "aria": {
       "close_room": "채팅방 닫기",
       "leave_room": "채팅방 나가기",
-      "send_message": "메시지 전송"
+      "send_message": "메시지 전송",
+      "view_profile": "{nickname}님의 프로필 보기"
     },
     "trade": {
       "select_buyer_modal": {

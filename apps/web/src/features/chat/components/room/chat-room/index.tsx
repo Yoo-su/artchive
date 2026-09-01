@@ -125,6 +125,7 @@ export const ChatRoom = () => {
         room={room}
         opponentNickname={opponent.nickname}
         opponentProfileImageUrl={opponent.profileImageUrl}
+        opponentHandle={opponent.handle}
         typingNickname={typingNickname}
       />
 
