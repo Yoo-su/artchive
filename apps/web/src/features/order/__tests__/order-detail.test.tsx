@@ -1,4 +1,5 @@
 import { Order, OrderStatus } from "@bookjeok/core";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -139,9 +140,22 @@ vi.mock("@/features/confirm", () => ({
   useConfirm: () => vi.fn().mockResolvedValue(true),
 }));
 
+/**
+ * 채팅 열기 훅(useOpenChatRoom)이 안 읽음 배지를 캐시에서 바로 지우므로
+ * 이 카드들을 렌더링하려면 QueryClient가 필요합니다.
+ */
+const renderWithQueryClient = (ui: React.ReactElement) =>
+  render(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
+      {ui}
+    </QueryClientProvider>,
+  );
+
 describe("OrderStatusTimeline", () => {
   it("renders 5 order progress steps", () => {
-    render(<OrderStatusTimeline order={mockOrder} />);
+    renderWithQueryClient(<OrderStatusTimeline order={mockOrder} />);
 
     expect(screen.getByText("주문 진행 상태")).toBeInTheDocument();
     expect(screen.getByText("결제 대기")).toBeInTheDocument();
@@ -155,7 +169,7 @@ describe("OrderStatusTimeline", () => {
 describe("OrderDetailCard", () => {
   it("renders order details, book info, shipping snapshot, and payment breakdown", () => {
     mockCurrentUser = { id: 1, nickname: "TS장인" }; // Seller
-    render(<OrderDetailCard order={mockOrder} />);
+    renderWithQueryClient(<OrderDetailCard order={mockOrder} />);
 
     expect(screen.getByText("ORD-20260827-00101")).toBeInTheDocument();
     expect(screen.getByText("이펙티브 타입스크립트")).toBeInTheDocument();
@@ -182,7 +196,7 @@ describe("OrderDetailCard", () => {
       deliveredAt: "2026-08-27T04:00:00.000Z",
     };
 
-    render(<OrderDetailCard order={deliveredOrder} />);
+    renderWithQueryClient(<OrderDetailCard order={deliveredOrder} />);
 
     expect(screen.getByRole("button", { name: /구매확정/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /문제 신고/i })).toBeInTheDocument();

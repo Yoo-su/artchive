@@ -14,29 +14,18 @@ import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { useSocketContext } from "@/shared/providers/socket-provider";
 import { validateImageForUpload } from "@/shared/utils/compress-image";
 
+import { SEND_ACK_TIMEOUT_MS } from "../constants/socket";
 import { uploadChatImages } from "../services/chat-image-upload-service";
 import {
   prependMessageToCache,
-  removeMessageFromCache,
+  setMessageSendState,
 } from "../utils/chat-cache-utils";
 
 /** 첨부 대기 중인 이미지 (미리보기 URL + 원본 파일) */
 export interface PendingImage {
   previewUrl: string;
   file: File;
-  /**
-   * 업로드가 끝난 Blob URL.
-   * 전송이 실패해 재시도할 때 같은 파일을 다시 업로드하지 않기 위해 보관합니다.
-   */
-  uploadedUrl?: string;
 }
-
-/**
- * 전송 ack 대기 제한 시간.
- * 소켓이 끊기면 서버가 ack을 영영 호출하지 않아 낙관적 메시지가 남으므로,
- * 일정 시간이 지나면 실패로 처리해 첨부를 되돌려 줍니다.
- */
-const SEND_ACK_TIMEOUT_MS = 10_000;
 
 /**
  * 낙관적 메시지를 서버 응답과 짝짓기 위한 상관 ID를 만듭니다.
@@ -59,8 +48,12 @@ interface UseChatComposerOptions {
 /**
  * 채팅 입력 영역의 상태와 전송 로직을 담당합니다.
  *
- * 텍스트/첨부 이미지 관리, 이미지 업로드, 낙관적 업데이트, 소켓 전송과
- * 실패 시 복구까지를 한곳에서 처리하고, 컴포넌트에는 렌더링만 남깁니다.
+ * 텍스트/첨부 이미지 관리, 이미지 업로드, 낙관적 업데이트, 소켓 전송을 한곳에서
+ * 처리하고, 컴포넌트에는 렌더링만 남깁니다.
+ *
+ * 전송에 실패하면 메시지를 목록에서 지우지 않고 실패 상태로 남깁니다.
+ * 재전송에 필요한 값은 그 메시지가 모두 들고 있으므로(`useMessageRetry`),
+ * 입력창으로 되돌리다가 새로 입력한 내용과 충돌할 일이 없습니다.
  *
  * 첨부 목록은 `pendingImagesRef`를 기준으로 다루며 상태는 렌더링용으로만 씁니다.
  * 상태 갱신 함수 안에서 토스트 같은 부수효과가 일어나지 않도록 하기 위함입니다.
@@ -81,6 +74,8 @@ export const useChatComposer = ({
   const [text, setText] = useState("");
   const [pendingImages, setPendingImages] = useState<PendingImage[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  /** 업로드 진행률(0~100). 업로드 중이 아닐 때는 0입니다. */
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // 첨부 목록의 최신 값. 상태 반영 전에도 정확한 값을 읽기 위해 함께 갱신합니다.
   const pendingImagesRef = useRef<PendingImage[]>([]);
@@ -159,11 +154,9 @@ export const useChatComposer = ({
     // 텍스트도 이미지도 없으면 전송하지 않습니다.
     if (!messageContent && imagesToSend.length === 0) return;
 
-    // 전송 실패 후 재시도하는 경우, 이미 올라간 이미지는 다시 업로드하지 않습니다.
-    const notUploaded = imagesToSend.filter((image) => !image.uploadedUrl);
-    let sentImages = imagesToSend;
+    let imageUrls: string[] = [];
 
-    if (notUploaded.length > 0) {
+    if (imagesToSend.length > 0) {
       const { user, accessToken } = useAuthStore.getState();
       if (!user || !accessToken) {
         toast.error(t("toast.send_error", { error: "" }));
@@ -171,19 +164,14 @@ export const useChatComposer = ({
       }
 
       setIsUploading(true);
+      setUploadProgress(0);
       try {
-        const urls = await uploadChatImages(
-          notUploaded.map((image) => image.file),
+        imageUrls = await uploadChatImages(
+          imagesToSend.map((image) => image.file),
           { provider: user.provider, id: user.id },
           roomId,
           accessToken,
-        );
-
-        let uploadedIndex = 0;
-        sentImages = imagesToSend.map((image) =>
-          image.uploadedUrl
-            ? image
-            : { ...image, uploadedUrl: urls[uploadedIndex++] },
+          { onProgress: setUploadProgress },
         );
       } catch (error) {
         console.error("Chat image upload failed:", error);
@@ -192,12 +180,9 @@ export const useChatComposer = ({
         return;
       } finally {
         setIsUploading(false);
+        setUploadProgress(0);
       }
     }
-
-    const imageUrls = sentImages
-      .map((image) => image.uploadedUrl)
-      .filter((url): url is string => Boolean(url));
 
     const tempId = -Date.now(); // 임시 ID (음수로 서버 ID와 충돌 방지)
     const clientMessageId = createClientMessageId();
@@ -210,6 +195,7 @@ export const useChatComposer = ({
       type: imageUrls.length > 0 ? ChatMessageType.IMAGE : ChatMessageType.TEXT,
       metadata: imageUrls.length > 0 ? { imageUrls } : null,
       clientMessageId,
+      sendState: "sending",
       createdAt: new Date().toISOString(),
       sender: {
         id: currentUserId,
@@ -223,27 +209,11 @@ export const useChatComposer = ({
     prependMessageToCache(queryClient, roomId, optimisticMessage);
 
     // 입력 필드 및 첨부 목록 초기화 (UX 개선)
-    // 미리보기 URL은 전송이 확정된 뒤에 해제합니다. 실패 시 되살려야 하기 때문입니다.
+    // 말풍선은 업로드된 URL을 쓰므로 미리보기 object URL은 여기서 해제해도 됩니다.
     setText("");
     updatePendingImages([]);
+    imagesToSend.forEach((image) => URL.revokeObjectURL(image.previewUrl));
     cancelTyping();
-
-    /**
-     * 입력 내용과 첨부를 되살려 재전송할 수 있게 합니다.
-     * 업로드된 URL이 함께 보존되므로 재전송 시 재업로드는 일어나지 않습니다.
-     * 채팅방을 이미 닫았다면(언마운트) 복구는 화면에 반영되지 않습니다.
-     */
-    const restoreForRetry = () => {
-      // 대기 중 새로 입력한 내용이 있으면 덮어쓰지 않습니다.
-      setText((current) => current || messageContent);
-
-      const merged = [...sentImages, ...pendingImagesRef.current];
-      // 최대 첨부 개수를 넘는 항목은 버리고 미리보기 URL을 해제합니다.
-      merged
-        .slice(MAX_CHAT_IMAGES)
-        .forEach((image) => URL.revokeObjectURL(image.previewUrl));
-      updatePendingImages(merged.slice(0, MAX_CHAT_IMAGES));
-    };
 
     // 서버에 메시지 전송 (ack이 오지 않는 경우를 대비해 타임아웃을 겁니다)
     socket
@@ -255,13 +225,7 @@ export const useChatComposer = ({
           timeoutError: Error | null,
           response?: { status: string; error?: string },
         ) => {
-          if (!timeoutError && response?.status === "ok") {
-            // 전송이 확정된 뒤에만 미리보기 URL을 해제합니다.
-            sentImages.forEach((image) =>
-              URL.revokeObjectURL(image.previewUrl),
-            );
-            return;
-          }
+          if (!timeoutError && response?.status === "ok") return;
 
           console.error(
             "Message failed to send:",
@@ -273,8 +237,8 @@ export const useChatComposer = ({
               : t("toast.send_error", { error: response?.error || "" }),
           );
 
-          removeMessageFromCache(queryClient, roomId, tempId);
-          restoreForRetry();
+          // 목록에 실패 상태로 남겨 그 자리에서 재전송할 수 있게 합니다.
+          setMessageSendState(queryClient, roomId, clientMessageId, "failed");
         },
       );
   }, [
@@ -299,8 +263,10 @@ export const useChatComposer = ({
     attachFiles,
     removeImage,
     isUploading,
+    uploadProgress,
     sendMessage,
     canAttachMore: pendingImages.length < MAX_CHAT_IMAGES,
-    canSend: !isUploading && (text.trim().length > 0 || pendingImages.length > 0),
+    canSend:
+      !isUploading && (text.trim().length > 0 || pendingImages.length > 0),
   };
 };

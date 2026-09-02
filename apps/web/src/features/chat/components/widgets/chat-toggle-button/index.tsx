@@ -1,23 +1,29 @@
 "use client";
 
+import { ChatRoom } from "@bookjeok/core";
 import { useMyChatRoomsQuery } from "@bookjeok/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { MessagesSquare, X } from "lucide-react";
-import { useMemo } from "react";
+import { useCallback } from "react";
 
 import { Button } from "@/shared/components/shadcn/button";
 
 import { useChatStore } from "../../../stores/use-chat-store";
 
+/**
+ * 목록 캐시는 메시지가 올 때마다 새 배열로 교체되지만, 이 버튼에 필요한 값은
+ * 안 읽음 합계 하나뿐입니다. `select`로 숫자만 구독해 합계가 실제로 달라졌을
+ * 때만 다시 렌더링되게 합니다.
+ */
+const selectTotalUnreadCount = (rooms: ChatRoom[]) =>
+  rooms.reduce((acc, room) => acc + (room.unreadCount || 0), 0);
+
 export const ChatToggleButton = () => {
   const toggleChat = useChatStore((state) => state.toggleChat);
   const isChatOpen = useChatStore((state) => state.isChatOpen);
-  const { data: rooms } = useMyChatRoomsQuery();
 
-  const totalUnreadCount = useMemo(() => {
-    if (!rooms) return 0;
-    return rooms.reduce((acc, room) => acc + (room.unreadCount || 0), 0);
-  }, [rooms]);
+  const select = useCallback(selectTotalUnreadCount, []);
+  const { data: totalUnreadCount = 0 } = useMyChatRoomsQuery({ select });
 
   return (
     <div className="fixed bottom-4 right-6 z-50">

@@ -4,8 +4,10 @@
  * 입장에 실패하면 실시간 메시지를 전혀 받지 못하므로,
  * 재시도가 실제로 일어나는지와 끝내 실패했을 때 사용자에게 알리는지를 확인합니다.
  */
+import { chatKeys } from "@bookjeok/core";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
-import { act } from "react";
+import React, { act } from "react";
 import { toast } from "sonner";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -49,11 +51,23 @@ vi.mock("@/features/chat/components/widgets/chat-widget", () => ({
 }));
 
 const mockEmit = vi.fn();
-const mockOn = vi.fn();
-const mockOff = vi.fn();
+const socketListeners: Record<string, ((...args: unknown[]) => void)[]> = {};
+const mockOn = vi.fn((event: string, handler: (...args: unknown[]) => void) => {
+  (socketListeners[event] ??= []).push(handler);
+});
+const mockOff = vi.fn((event: string, handler: (...args: unknown[]) => void) => {
+  socketListeners[event] = (socketListeners[event] ?? []).filter(
+    (registered) => registered !== handler,
+  );
+});
+/** 소켓이 이벤트를 올려보내는 상황을 흉내 냅니다. */
+const emitSocketEvent = (event: string) => {
+  [...(socketListeners[event] ?? [])].forEach((handler) => handler());
+};
 // 실제 SocketProvider의 socket은 useState 값이라 렌더 간 동일한 참조입니다.
 const mockSocket = {
   timeout: () => ({ emit: mockEmit }),
+  connected: false,
   on: mockOn,
   off: mockOff,
 };
@@ -61,10 +75,25 @@ vi.mock("@/shared/providers/socket-provider", () => ({
   useSocketContext: () => ({ socket: mockSocket, isConnected: true }),
 }));
 
+let queryClient: QueryClient;
+
+/** ChatProvider는 캐시를 직접 다루므로 실제 QueryClient가 필요합니다. */
+const renderProvider = () =>
+  render(
+    <QueryClientProvider client={queryClient}>
+      <ChatProvider>{null}</ChatProvider>
+    </QueryClientProvider>,
+  );
+
 beforeEach(() => {
   vi.clearAllMocks();
   vi.useFakeTimers();
-  useChatStore.setState({ hasJoinedRooms: false });
+  Object.keys(socketListeners).forEach((key) => delete socketListeners[key]);
+  mockSocket.connected = false;
+  queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  useChatStore.setState({ hasJoinedRooms: false, activeChatRoomId: null });
 });
 
 afterEach(() => {
@@ -77,7 +106,7 @@ describe("ChatProvider joinRooms", () => {
       ack(null, { status: "ok", joinedRooms: [1, 2] });
     });
 
-    render(<ChatProvider>{null}</ChatProvider>);
+    renderProvider();
 
     expect(mockEmit).toHaveBeenCalledTimes(1);
     expect(mockEmit.mock.calls[0][1]).toEqual([1, 2]);
@@ -90,7 +119,7 @@ describe("ChatProvider joinRooms", () => {
       ack(null, { status: "error" });
     });
 
-    render(<ChatProvider>{null}</ChatProvider>);
+    renderProvider();
 
     // 1회차 실패 후 1초 뒤 재시도
     expect(mockEmit).toHaveBeenCalledTimes(1);
@@ -122,12 +151,104 @@ describe("ChatProvider joinRooms", () => {
       ack(new Error("operation has timed out"));
     });
 
-    render(<ChatProvider>{null}</ChatProvider>);
+    renderProvider();
     expect(mockEmit).toHaveBeenCalledTimes(1);
 
     act(() => {
       vi.advanceTimersByTime(1000);
     });
     expect(mockEmit).toHaveBeenCalledTimes(2);
+  });
+});
+
+/**
+ * 연결이 끊긴 동안 온 메시지는 소켓으로 받지 못하고, 메시지 캐시는
+ * staleTime이 무한이라 스스로 다시 받아오지 않습니다.
+ * 재연결 시점에 캐시를 서버와 다시 맞추는지 확인합니다.
+ */
+describe("ChatProvider 재연결 동기화", () => {
+  const ACTIVE_ROOM_ID = 1;
+  const OTHER_ROOM_ID = 2;
+
+  const seedMessageCaches = () => {
+    queryClient.setQueryData(chatKeys.messages(ACTIVE_ROOM_ID).queryKey, {
+      // 과거 페이지가 앞에, 첫 페이지가 뒤에 오는 실제 구조
+      pages: [{ messages: [{ id: 1 }] }, { messages: [{ id: 2 }] }],
+      pageParams: [10, undefined],
+    });
+    queryClient.setQueryData(chatKeys.messages(OTHER_ROOM_ID).queryKey, {
+      pages: [{ messages: [{ id: 3 }] }],
+      pageParams: [undefined],
+    });
+    queryClient.setQueryData(chatKeys.rooms.queryKey, mockRooms);
+  };
+
+  beforeEach(() => {
+    mockEmit.mockImplementation((_event, _roomIds, ack) => {
+      ack(null, { status: "ok", joinedRooms: [1, 2] });
+    });
+  });
+
+  it("첫 연결에서는 캐시를 건드리지 않는다", () => {
+    useChatStore.setState({ activeChatRoomId: ACTIVE_ROOM_ID });
+    renderProvider();
+    seedMessageCaches();
+
+    act(() => {
+      emitSocketEvent("connect");
+    });
+
+    expect(
+      queryClient.getQueryData(chatKeys.messages(ACTIVE_ROOM_ID).queryKey),
+    ).toMatchObject({ pages: [{ messages: [{ id: 1 }] }, { messages: [{ id: 2 }] }] });
+    expect(
+      queryClient.getQueryData(chatKeys.messages(OTHER_ROOM_ID).queryKey),
+    ).toBeDefined();
+  });
+
+  it("재연결되면 열린 방은 첫 페이지만 남기고 다른 방 캐시는 버린다", () => {
+    useChatStore.setState({ activeChatRoomId: ACTIVE_ROOM_ID });
+    renderProvider();
+    seedMessageCaches();
+
+    act(() => {
+      emitSocketEvent("connect"); // 최초 연결
+    });
+    act(() => {
+      emitSocketEvent("connect"); // 재연결
+    });
+
+    // 열려 있는 방: 커서 없는 첫 페이지만 남아 다시 받아올 수 있는 상태
+    expect(
+      queryClient.getQueryData(chatKeys.messages(ACTIVE_ROOM_ID).queryKey),
+    ).toMatchObject({
+      pages: [{ messages: [{ id: 2 }] }],
+      pageParams: [undefined],
+    });
+    // 닫혀 있는 방: 다음에 열 때 새로 받도록 캐시를 비운다
+    expect(
+      queryClient.getQueryData(chatKeys.messages(OTHER_ROOM_ID).queryKey),
+    ).toBeUndefined();
+    // 목록도 다시 받도록 무효화된다
+    expect(
+      queryClient.getQueryState(chatKeys.rooms.queryKey)?.isInvalidated,
+    ).toBe(true);
+  });
+
+  it("재연결되면 방 입장을 다시 시도한다", () => {
+    renderProvider();
+
+    act(() => {
+      emitSocketEvent("connect"); // 최초 연결
+    });
+    const joinCountBeforeReconnect = mockEmit.mock.calls.length;
+
+    act(() => {
+      emitSocketEvent("connect"); // 재연결
+    });
+
+    // 연결마다 소켓 룸에 다시 들어가야 실시간 메시지를 계속 받습니다.
+    expect(mockEmit.mock.calls.length).toBe(joinCountBeforeReconnect + 1);
+    expect(useChatStore.getState().hasJoinedRooms).toBe(true);
   });
 });

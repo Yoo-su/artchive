@@ -1,10 +1,14 @@
 /**
  * 이미지 첨부 메시지 전송의 실패 경로를 검증합니다.
  *
- * 1. 전송(ack) 실패 시 첨부와 입력 내용이 복구되어 재시도할 수 있는지
- * 2. 재시도할 때 이미 업로드된 이미지를 다시 업로드하지 않는지
- * 3. ack 타임아웃도 동일한 복구 경로를 타는지
- * 4. 업로드 도중 컴포넌트가 언마운트돼도 전송이 정상적으로 완료되는지
+ * 실패한 메시지는 목록에서 사라지지 않고 실패 상태로 남습니다.
+ * 재전송에 필요한 값(본문 · 업로드된 URL · 상관 ID)을 그 메시지가 들고 있어야
+ * 입력창 상태에 기대지 않고 그 자리에서 다시 보낼 수 있습니다(useMessageRetry).
+ *
+ * 1. 전송(ack) 실패 시 메시지가 실패 상태로 남고 재전송 재료를 보존하는지
+ * 2. ack 타임아웃도 같은 경로를 타는지
+ * 3. 업로드 도중 컴포넌트가 언마운트돼도 전송이 정상적으로 완료되는지
+ * 4. 미리보기 object URL이 새어 나가지 않는지
  */
 import { chatKeys, ChatMessage, MAX_CHAT_IMAGES } from "@bookjeok/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -122,7 +126,7 @@ beforeEach(() => {
 });
 
 describe("이미지 첨부 메시지 전송", () => {
-  it("ack 실패 시 첨부와 입력 내용이 복구되어 재시도할 수 있다", async () => {
+  it("ack 실패 시 메시지를 지우지 않고 실패 상태로 남긴다", async () => {
     const queryClient = createQueryClient();
     mockUploadChatImages.mockResolvedValue(["https://blob.test/uploaded.jpg"]);
     // 서버가 전송을 거부하는 상황 (예: 상대방 탈퇴)
@@ -142,23 +146,28 @@ describe("이미지 첨부 메시지 전송", () => {
 
     await waitFor(() => expect(mockEmit).toHaveBeenCalled());
 
-    // 낙관적 메시지는 롤백된다
-    expect(getCachedMessages(queryClient)).toHaveLength(0);
+    // 말풍선은 그 자리에 실패 상태로 남는다
+    const cached = getCachedMessages(queryClient);
+    expect(cached).toHaveLength(1);
+    expect(cached[0].sendState).toBe("failed");
 
-    // 첨부 미리보기와 입력 내용이 되살아난다
-    expect(
-      await screen.findByAltText("common.aria.preview_image"),
-    ).toBeInTheDocument();
-    expect(screen.getByLabelText("chat.input_placeholder")).toHaveValue(
-      "사진 보냅니다",
-    );
-    expect(screen.getByLabelText("chat.aria.send_message")).toBeEnabled();
+    // 재전송에 필요한 재료가 메시지에 모두 들어 있다
+    expect(cached[0].content).toBe("사진 보냅니다");
+    expect(cached[0].metadata).toMatchObject({
+      imageUrls: ["https://blob.test/uploaded.jpg"],
+    });
+    expect(cached[0].clientMessageId).toBeTruthy();
+
+    // 입력창으로 되돌리지 않는다 (대기 중 새로 입력한 내용과 충돌하지 않도록)
+    expect(screen.getByLabelText("chat.input_placeholder")).toHaveValue("");
+    expect(screen.queryByAltText("common.aria.preview_image")).toBeNull();
+    expect(toast.error).toHaveBeenCalled();
   });
 
-  it("재시도 시 이미 업로드된 이미지를 다시 업로드하지 않는다", async () => {
+  it("전송을 넘긴 뒤에는 미리보기 object URL을 해제한다", async () => {
     const queryClient = createQueryClient();
     mockUploadChatImages.mockResolvedValue(["https://blob.test/uploaded.jpg"]);
-    mockEmit.mockImplementationOnce((_event, _payload, ack) => {
+    mockEmit.mockImplementation((_event, _payload, ack) => {
       ack(null, { status: "error", error: "CHAT_PARTICIPANT_WITHDRAWN" });
     });
 
@@ -168,32 +177,13 @@ describe("이미지 첨부 메시지 전송", () => {
     await act(async () => {
       fireEvent.submit(container.querySelector("form")!);
     });
-    await waitFor(() => expect(mockEmit).toHaveBeenCalledTimes(1));
-    await screen.findByAltText("common.aria.preview_image");
+    await waitFor(() => expect(mockEmit).toHaveBeenCalled());
 
-    // 두 번째 시도는 성공
-    mockEmit.mockImplementation((_event, _payload, ack) => {
-      ack(null, { status: "ok" });
-    });
-
-    await act(async () => {
-      fireEvent.submit(container.querySelector("form")!);
-    });
-    await waitFor(() => expect(mockEmit).toHaveBeenCalledTimes(2));
-
-    // 업로드는 첫 시도에서 딱 한 번만 일어났다
-    expect(mockUploadChatImages).toHaveBeenCalledTimes(1);
-    // 재전송에도 같은 URL이 실려 나간다 (고아 Blob이 추가로 생기지 않음)
-    expect(mockEmit.mock.calls[1][1]).toMatchObject({
-      imageUrls: ["https://blob.test/uploaded.jpg"],
-    });
-    // 성공 후에는 첨부가 정리된다
-    await waitFor(() =>
-      expect(screen.queryByAltText("common.aria.preview_image")).toBeNull(),
-    );
+    // 말풍선은 업로드된 URL을 쓰므로 실패해도 미리보기 URL은 남길 필요가 없다
+    expect(global.URL.revokeObjectURL).toHaveBeenCalledWith("blob:preview-1");
   });
 
-  it("ack 타임아웃도 동일하게 복구 경로를 탄다", async () => {
+  it("ack 타임아웃도 동일하게 실패 상태로 남긴다", async () => {
     const queryClient = createQueryClient();
     mockUploadChatImages.mockResolvedValue(["https://blob.test/uploaded.jpg"]);
     // socket.io가 타임아웃을 알리는 형태: 첫 인자로 에러
@@ -212,11 +202,29 @@ describe("이미지 첨부 메시지 전송", () => {
 
     // 타임아웃 시간이 실제로 설정됐다
     expect(mockTimeout).toHaveBeenCalledWith(10_000);
-    // 낙관적 메시지가 남지 않고, 첨부는 복구된다
+    const cached = getCachedMessages(queryClient);
+    expect(cached).toHaveLength(1);
+    expect(cached[0].sendState).toBe("failed");
+  });
+
+  it("업로드에 실패하면 첨부를 남겨 바로 다시 시도할 수 있다", async () => {
+    const queryClient = createQueryClient();
+    mockUploadChatImages.mockRejectedValue(new Error("network"));
+
+    const { container } = renderInput(queryClient);
+    attachImage(container);
+
+    await act(async () => {
+      fireEvent.submit(container.querySelector("form")!);
+    });
+
+    // 아직 전송 자체를 시작하지 않았으므로 첨부는 그대로 둔다
+    expect(mockEmit).not.toHaveBeenCalled();
     expect(getCachedMessages(queryClient)).toHaveLength(0);
     expect(
       await screen.findByAltText("common.aria.preview_image"),
     ).toBeInTheDocument();
+    expect(toast.error).toHaveBeenCalledWith("chat.image.upload_error");
   });
 
   it("업로드 도중 컴포넌트가 언마운트돼도 전송은 정상 완료된다", async () => {

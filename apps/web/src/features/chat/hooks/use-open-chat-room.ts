@@ -1,25 +1,26 @@
 "use client";
 
-import { useMarkRoomAsReadMutation } from "@bookjeok/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 
 import { useChatStore } from "../stores/use-chat-store";
+import { markRoomReadInCache } from "../utils/chat-cache-utils";
 
 /**
- * 채팅방을 열면서 읽음 처리까지 함께 수행합니다.
+ * 채팅방을 열면서 안 읽음 배지를 즉시 지웁니다.
  *
- * 위젯 열기/활성 방 지정은 UI 상태(`useChatStore`)가, 읽음 처리는 뮤테이션이 담당합니다.
- * 두 관심사를 호출부에서 매번 조합하지 않도록 이 훅으로 묶었습니다.
+ * 서버 읽음 기록은 방이 실제로 보이는 동안 `ChatRoom`이 마지막 메시지 기준으로
+ * 한 번만 보냅니다. 여기서 따로 요청하면 방을 열 때마다 같은 처리가 두 번 나갑니다.
  */
 export const useOpenChatRoom = () => {
   const openChatRoom = useChatStore((state) => state.openChatRoom);
-  const { mutate: markRoomAsRead } = useMarkRoomAsReadMutation();
+  const queryClient = useQueryClient();
 
   return useCallback(
     (roomId: number) => {
-      markRoomAsRead(roomId);
+      markRoomReadInCache(queryClient, roomId);
       openChatRoom(roomId);
     },
-    [markRoomAsRead, openChatRoom],
+    [queryClient, openChatRoom],
   );
 };

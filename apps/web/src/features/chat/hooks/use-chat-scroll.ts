@@ -1,7 +1,7 @@
 "use client";
 
 import { ChatMessage } from "@bookjeok/core";
-import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 interface UseChatScrollProps {
   roomId?: number;
@@ -19,6 +19,7 @@ const BOTTOM_THRESHOLD_PX = 120;
  * - 새 메시지 수신 시: 사용자가 하단 근처에 머물고 있으면 최하단으로 부드럽게 스크롤합니다.
  * - 이전 메시지(과거 페이징) 로드 시: 현재 보고 있던 스크롤 상대 위치를 오차 없이 유지합니다.
  * - 거래 알림 카드/배너 등 비동기 레이아웃 변경 시: ResizeObserver를 통해 하단 고정을 안정적으로 유지합니다.
+ * - 위로 올라가 있는 동안 도착한 메시지 수를 세어, 아래로 내려갈 수 있는 단서를 제공합니다.
  */
 export const useChatScroll = ({
   roomId,
@@ -35,10 +36,20 @@ export const useChatScroll = ({
   const prevMessagesLengthRef = useRef<number>(0);
   const isNearBottomRef = useRef<boolean>(true);
 
+  // 하단 근접 여부는 스크롤 중 계속 바뀌므로 ref로 추적하고,
+  // "맨 아래로" 버튼 표시에 필요한 만큼만 상태로 승격시켜 리렌더를 줄입니다.
+  const [isAtBottom, setIsAtBottom] = useState(true);
+  /** 위로 올라가 있는 동안 도착한 새 메시지 수 */
+  const [missedMessageCount, setMissedMessageCount] = useState(0);
+
   // 스크롤을 최하단으로 이동
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
     const container = messageContainerRef.current;
     if (!container) return;
+
+    isNearBottomRef.current = true;
+    setIsAtBottom(true);
+    setMissedMessageCount(0);
 
     if (behavior === "smooth") {
       container.scrollTo({
@@ -58,7 +69,8 @@ export const useChatScroll = ({
     const isRoomChanged = prevRoomIdRef.current !== roomId;
     const isInitialLoad = prevMessagesLengthRef.current === 0;
     const isPagingPastMessages = Boolean(scrollRef.current);
-    const isNewMessage = messages.length > prevMessagesLengthRef.current;
+    const addedCount = messages.length - prevMessagesLengthRef.current;
+    const isNewMessage = addedCount > 0;
 
     prevRoomIdRef.current = roomId;
     prevMessagesLengthRef.current = messages.length;
@@ -75,6 +87,8 @@ export const useChatScroll = ({
     if (isRoomChanged || isInitialLoad) {
       container.scrollTop = container.scrollHeight;
       isNearBottomRef.current = true;
+      setIsAtBottom(true);
+      setMissedMessageCount(0);
       return;
     }
 
@@ -89,6 +103,9 @@ export const useChatScroll = ({
             scrollToBottom("smooth");
           }
         });
+      } else {
+        // 위쪽을 보고 있는 동안 쌓인 메시지를 알려 줍니다.
+        setMissedMessageCount((count) => count + addedCount);
       }
     }
   }, [roomId, messages, scrollToBottom]);
@@ -98,12 +115,34 @@ export const useChatScroll = ({
     const container = messageContainerRef.current;
     if (!container || typeof ResizeObserver === "undefined") return;
 
+    // 콜백마다 scrollHeight를 읽고 scrollTop을 쓰면 그때마다 레이아웃이 강제로
+    // 계산됩니다. 이미지가 하나씩 로드되는 동안 이 콜백이 연달아 터지면 강제
+    // 레이아웃이 그만큼 쌓이는데, 사파리에서 특히 눈에 띄게 끊깁니다.
+    // 한 프레임에 한 번만 처리하도록 묶습니다.
+    let isScrollPinScheduled = false;
+    let rafId: number | null = null;
+
+    const scheduleScrollPin = () => {
+      if (isScrollPinScheduled) return;
+      isScrollPinScheduled = true;
+
+      rafId = requestAnimationFrame(() => {
+        isScrollPinScheduled = false;
+        rafId = null;
+
+        // 프레임을 기다리는 사이에 상황이 바뀌었을 수 있어 다시 확인합니다.
+        if (scrollRef.current || !isNearBottomRef.current) return;
+        const element = messageContainerRef.current;
+        if (element) element.scrollTop = element.scrollHeight;
+      });
+    };
+
     const resizeObserver = new ResizeObserver(() => {
       // 과거 메시지 로드 중 위치 보정 시에는 리사이즈 옵저버 간섭 방지
       if (scrollRef.current) return;
 
       if (isNearBottomRef.current) {
-        container.scrollTop = container.scrollHeight;
+        scheduleScrollPin();
       }
     });
 
@@ -113,6 +152,7 @@ export const useChatScroll = ({
     }
 
     return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
       resizeObserver.disconnect();
     };
   }, [messages]);
@@ -124,7 +164,14 @@ export const useChatScroll = ({
 
     const distanceFromBottom =
       container.scrollHeight - container.scrollTop - container.clientHeight;
-    isNearBottomRef.current = distanceFromBottom <= BOTTOM_THRESHOLD_PX;
+    const nearBottom = distanceFromBottom <= BOTTOM_THRESHOLD_PX;
+
+    // 값이 실제로 바뀔 때만 상태를 갱신해 스크롤 중 리렌더가 쌓이지 않게 합니다.
+    if (nearBottom !== isNearBottomRef.current) {
+      setIsAtBottom(nearBottom);
+      if (nearBottom) setMissedMessageCount(0);
+    }
+    isNearBottomRef.current = nearBottom;
 
     if (
       container.scrollTop <= 10 &&
@@ -145,5 +192,7 @@ export const useChatScroll = ({
     contentRef,
     handleScroll,
     scrollToBottom,
+    isAtBottom,
+    missedMessageCount,
   };
 };

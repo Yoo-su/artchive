@@ -28,6 +28,7 @@ import { toast } from "sonner";
 
 import { EmailVerificationModal } from "@/features/auth/components/email-verification-alert";
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { useChatStore } from "@/features/chat/stores/use-chat-store";
 import { useConfirm } from "@/features/confirm";
 import {
   BoxIcon,
@@ -73,10 +74,14 @@ export const TradeStatusBanner = ({
     currentUser?.id && sellerId && currentUser.id !== sellerId,
   );
 
+  // 위젯은 닫혀도 언마운트되지 않습니다. 주문 쿼리는 5초마다 폴링하므로
+  // 보이지 않는 동안에도 계속 돌면 안 됩니다.
+  const isChatOpen = useChatStore((state) => state.isChatOpen);
+
   const { data: order, isLoading: isOrderLoading } = useActiveOrderByRoomQuery(
     room?.id,
     {
-      enabled: Boolean(room?.id) && isPaymentFeatureEnabled,
+      enabled: Boolean(room?.id) && isPaymentFeatureEnabled && isChatOpen,
     },
   );
 

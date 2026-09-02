@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -20,6 +21,11 @@ export enum ChatMessageType {
   IMAGE = 'IMAGE',
 }
 
+// 방별 최신순 조회(목록의 마지막 메시지, 커서 페이지네이션, 안 읽음 집계)가
+// 모든 채팅 쿼리의 기본 접근 경로라 복합 인덱스가 필요합니다.
+@Index('idx_chat_messages_room_created_at', ['chatRoom', 'createdAt'])
+// 안 읽음 집계는 "내가 보내지 않은 메시지"를 방 단위로 훑습니다.
+@Index('idx_chat_messages_room_sender', ['chatRoom', 'sender'])
 @Entity({ name: 'chat_messages' })
 export class ChatMessage {
   @PrimaryGeneratedColumn()

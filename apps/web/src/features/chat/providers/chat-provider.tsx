@@ -1,9 +1,11 @@
 "use client";
 
+import { chatKeys, ChatMessage } from "@bookjeok/core";
 import { useMyChatRoomsQuery } from "@bookjeok/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
@@ -22,6 +24,11 @@ const MAX_JOIN_ATTEMPTS = 3;
 /** joinRooms 재시도 기본 대기 시간 (시도마다 2배씩 증가) */
 const JOIN_RETRY_BASE_MS = 1_000;
 
+type InfiniteMessagesData = {
+  pages: { messages: ChatMessage[] }[];
+  pageParams: (number | undefined)[];
+};
+
 export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
 
@@ -38,10 +45,13 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
   const currentUser = mounted ? user : null;
   const { socket, isConnected } = useSocketContext();
+  const queryClient = useQueryClient();
   const t = useTranslations("chat");
   const tRef = useRef(t);
   tRef.current = t;
   const hasWarnedJoinFailureRef = useRef(false);
+  /** 이 소켓이 한 번이라도 연결된 적이 있는지 (재연결 판별용) */
+  const hasConnectedBeforeRef = useRef(false);
   const { registerChatEventListeners, unregisterChatEventListeners } =
     useChatEvents();
   const hasJoinedRooms = useChatStore((state) => state.hasJoinedRooms);
@@ -58,19 +68,46 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     .sort((a, b) => a - b)
     .join(",");
 
-  // Effect 1: 이벤트 리스너 생명주기 관리 및 재연결 리스너
+  /**
+   * 연결이 끊긴 동안 오간 메시지는 소켓으로 받지 못했고, 메시지 캐시는
+   * `staleTime: INFINITY`라 스스로 다시 받아오지 않습니다.
+   * 재연결 시점에 캐시를 서버 상태에 맞춰 다시 채웁니다.
+   */
+  const resyncChatCaches = useCallback(() => {
+    // 목록(마지막 메시지 · 안 읽음 수)은 통째로 다시 받습니다.
+    queryClient.invalidateQueries({ queryKey: chatKeys.rooms.queryKey });
+
+    const { activeChatRoomId } = useChatStore.getState();
+
+    // 열려 있지 않은 방의 메시지 캐시는 버려서 다음에 열 때 새로 받게 합니다.
+    queryClient.removeQueries({
+      queryKey: chatKeys.messages._def,
+      predicate: (query) => query.queryKey[2] !== activeChatRoomId,
+    });
+
+    if (activeChatRoomId === null) return;
+
+    const activeKey = chatKeys.messages(activeChatRoomId).queryKey;
+
+    // 열려 있는 방은 첫 페이지만 남기고 다시 받습니다.
+    // 과거 페이지는 커서가 고정되어 있어 그대로 다시 받으면 새 메시지와 겹치거나
+    // 사이가 비는 구간이 생기고, 첫 페이지만 남기면 화면을 비우지 않고 이어집니다.
+    queryClient.setQueryData<InfiniteMessagesData>(activeKey, (oldData) => {
+      if (!oldData || oldData.pages.length <= 1) return oldData;
+      return {
+        ...oldData,
+        pages: oldData.pages.slice(-1),
+        pageParams: oldData.pageParams.slice(-1),
+      };
+    });
+    queryClient.invalidateQueries({ queryKey: activeKey });
+  }, [queryClient]);
+
+  // Effect 1: 이벤트 리스너 생명주기 관리
   useEffect(() => {
     if (user && isConnected && socket) {
       registerChatEventListeners();
-
-      const handleReconnect = () => {
-        setHasJoinedRooms(false);
-      };
-
-      socket.on("connect", handleReconnect);
-
       return () => {
-        socket.off("connect", handleReconnect);
         unregisterChatEventListeners();
       };
     }
@@ -80,10 +117,36 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     socket,
     registerChatEventListeners,
     unregisterChatEventListeners,
-    setHasJoinedRooms,
   ]);
 
-  // Effect 2: 채팅방 입장 처리
+  // Effect 2: 재연결 처리
+  // 연결 상태(isConnected)로 가두면 끊긴 사이에 리스너가 떨어져 나가 재연결을
+  // 놓치므로, 소켓 인스턴스 수명 동안 계속 붙여 둡니다.
+  useEffect(() => {
+    if (!user || !socket) return;
+
+    // 이 이펙트가 붙기 전에 이미 연결됐다면 다음 connect는 재연결입니다.
+    if (socket.connected) {
+      hasConnectedBeforeRef.current = true;
+    }
+
+    const handleConnect = () => {
+      // 소켓 룸 참여는 연결마다 다시 해야 합니다.
+      setHasJoinedRooms(false);
+
+      if (hasConnectedBeforeRef.current) {
+        resyncChatCaches();
+      }
+      hasConnectedBeforeRef.current = true;
+    };
+
+    socket.on("connect", handleConnect);
+    return () => {
+      socket.off("connect", handleConnect);
+    };
+  }, [user, socket, setHasJoinedRooms, resyncChatCaches]);
+
+  // Effect 3: 채팅방 입장 처리
   // 입장에 실패하면 실시간 메시지를 전혀 받지 못하므로, 재시도하고 끝내 실패하면 알립니다.
   useEffect(() => {
     if (!isConnected || !socket || !isRoomsLoaded || hasJoinedRooms) {
@@ -156,10 +219,13 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     setHasJoinedRooms,
   ]);
 
-  // Effect 3: 로그아웃 초기화
+  // Effect 4: 로그아웃 / 연결 해제 시 참여 상태 초기화
   useEffect(() => {
     if (!user || !isConnected) {
       setHasJoinedRooms(false);
+    }
+    if (!user) {
+      hasConnectedBeforeRef.current = false;
     }
   }, [user, isConnected, setHasJoinedRooms]);
 
