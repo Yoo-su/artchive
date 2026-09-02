@@ -33,9 +33,13 @@ export default function robots(): MetadataRoute.Robots {
       //
       // robots.txt는 매칭되는 UA 그룹이 있으면 "*" 그룹을 무시하므로,
       // 아래 공통 비공개 경로를 여기에도 그대로 반복해야 한다.
+      //
+      // Allow를 함께 두면 안 된다. "Allow: /"와 "Disallow: /en"이 동시에 걸릴 때
+      // 구글은 더 구체적인 규칙(Disallow)을 따르지만 네이버는 Allow를 우선해
+      // 차단이 무효가 된다. 명시적으로 막지 않은 경로는 기본이 허용이므로
+      // Disallow만 남긴다.
       {
         userAgent: "Yeti",
-        allow: ["/"],
         disallow: [
           "/en",
           "/*/my-page",
