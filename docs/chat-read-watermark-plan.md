@@ -167,6 +167,25 @@ WHERE cp."userId" = sub."userId"
 > 로컬 리허설 완료. 285행 규모면 즉시 끝납니다.
 > 영수증이 없는 참여자는 `NULL`로 남고, 코드는 `COALESCE(..., 0)`으로 다룹니다.
 
+> **백필과 배포 사이의 틈**: 백필 이후 배포 전까지 구버전 코드는 여전히
+> `read_receipts`에만 기록합니다. 그 사이에 읽은 메시지는 워터마크에 반영되지
+> 않아 배포 직후 다시 안 읽음으로 보입니다. 백필을 배포 직전에 돌리면 틈이
+> 작아지고, 배포 직후 아래를 한 번 더 돌리면 완전히 메워집니다.
+> (`GREATEST`가 있어야 새 코드가 이미 올려둔 워터마크를 되돌리지 않습니다.)
+>
+> ```sql
+> UPDATE chat_participants cp
+> SET "lastReadMessageId" = GREATEST(COALESCE(cp."lastReadMessageId", 0), sub.watermark)
+> FROM (
+>   SELECT r."userId", m."chatRoomId", MAX(m.id) AS watermark
+>   FROM read_receipts r
+>   JOIN chat_messages m ON m.id = r."messageId"
+>   GROUP BY r."userId", m."chatRoomId"
+> ) sub
+> WHERE cp."userId" = sub."userId"
+>   AND cp."chatRoomId" = sub."chatRoomId";
+> ```
+
 ### 7-3. 검증 — 백필 전후 안 읽음 개수가 같아야 함
 
 ```sql
@@ -190,11 +209,14 @@ FROM (
 WHERE old_unread <> new_unread;
 ```
 
-### 7-4. 정리 (관찰 기간 후, 별도 배포)
+### 7-4. 정리 (관찰 기간 후)
 
 ```sql
 DROP TABLE read_receipts;
 ```
+
+코드에는 이미 `ReadReceipt`가 없으므로 **배포 없이 SQL만 실행하면 됩니다.**
+이 시점부터는 코드를 되돌려도 읽음 기록을 복구할 수 없습니다.
 
 ## 8. 롤아웃 순서
 
@@ -204,7 +226,7 @@ DROP TABLE read_receipts;
 2) 백필 (7-2) + 검증 (7-3)  — read_receipts는 그대로 둠
 3) 워터마크 코드 배포        — 읽기/쓰기 모두 워터마크로 (코드 준비 완료)
 4) 며칠 관찰                 — 문제 시 코드만 되돌리면 read_receipts가 살아 있어 복구 가능
-5) read_receipts 드롭 (7-4) — 되돌릴 수 없음. 확신 후에만
+5) read_receipts 드롭 (7-4) — SQL만. 되돌릴 수 없음. 확신 후에만
 ```
 
 **3단계까지는 `read_receipts`를 지우지 않는 것이 롤백 안전장치입니다.**
