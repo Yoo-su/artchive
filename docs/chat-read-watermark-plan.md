@@ -235,11 +235,58 @@ DROP TABLE read_receipts;
 코드를 되돌리면 그 사이에 읽은 메시지가 다시 안 읽음으로 보입니다.
 데이터가 깨지는 것은 아니고, 다시 읽으면 원래대로 돌아옵니다.
 
-## 9. 관찰할 것 (4단계)
+## 9. 관찰 (4단계) — 진행 중
 
-- 방 목록의 안 읽음 배지가 실제 안 읽은 메시지 수와 맞는지
-- 내가 보낸 메시지의 읽음 표시가 상대가 방을 열었을 때 갱신되는지
-- 배포 직후 "전부 안 읽음"으로 보이는 방이 없는지 (있으면 백필 누락 신호)
+**2026-09-02 배포 완료.** 배포 직후 확인한 것:
+
+| 확인 | 결과 |
+| --- | --- |
+| 이상값 (워터마크 > 방의 최대 메시지 ID) | `0` |
+| 워터마크 전진 (`advanced`) | 실 서비스 2계정 테스트에서 `1` |
+| 워터마크 역행 (`went_backward`) | `0` |
+| `read_receipts` 행 수 | 296에서 멈춤 (구버전 쓰기 경로 끊김) |
+
+배포 직전에 만든 비교 기준입니다. 관찰이 끝나면 `read_receipts`와 함께 지웁니다.
+
+```sql
+DROP TABLE IF EXISTS _wm_snapshot;
+CREATE TABLE _wm_snapshot AS
+SELECT id, "lastReadMessageId", (SELECT COUNT(*) FROM read_receipts) AS receipts_at_deploy
+FROM chat_participants;
+```
+
+### 며칠 동안 가끔 볼 것
+
+```sql
+-- (1) 구버전 경로가 끊겼는가: receipts_at_deploy에서 멈춰 있어야 함
+SELECT (SELECT COUNT(*) FROM read_receipts) AS now,
+       (SELECT MAX(receipts_at_deploy) FROM _wm_snapshot) AS at_deploy;
+
+-- (2) 워터마크가 전진하는가 / 역행하지 않는가
+--     advanced는 시간이 지나며 늘고, went_backward는 항상 0이어야 합니다.
+--     역행은 곧 "읽은 메시지가 안 읽음으로 되살아남"이라 즉시 원인을 찾아야 합니다.
+SELECT COUNT(*) FILTER (WHERE cp."lastReadMessageId" IS DISTINCT FROM s."lastReadMessageId") AS advanced,
+       COUNT(*) FILTER (WHERE cp."lastReadMessageId" < s."lastReadMessageId") AS went_backward
+FROM chat_participants cp JOIN _wm_snapshot s ON s.id = cp.id;
+
+-- (3) 말이 안 되는 값이 없는가: 0이어야 함
+SELECT COUNT(*) FROM chat_participants cp
+WHERE cp."lastReadMessageId" >
+      (SELECT COALESCE(MAX(m.id), 0) FROM chat_messages m WHERE m."chatRoomId" = cp."chatRoomId");
+```
+
+서버 로그에서는 `Failed to mark messages as read`만 보면 됩니다.
+게이트웨이가 읽음 처리 실패를 이 문구로 남깁니다.
+
+UI 확인은 본인 계정 2개로 충분합니다. 다른 사용자 계정은 필요 없습니다.
+방 하나에서 메시지를 주고받으며 안 읽음 배지가 사라지는지, 보낸 쪽에 읽음
+표시가 뜨는지 보면 됩니다.
+
+### 관찰이 끝나면
+
+1. `DROP TABLE read_receipts;` (7-4) — 배포 없이 SQL만. 되돌릴 수 없습니다.
+2. `DROP TABLE _wm_snapshot;`
+3. 이 문서 삭제. 설계 설명은 `apps/server/src/features/chat/README.md`에 있습니다.
 
 ## 10. 검증 명령
 
