@@ -66,6 +66,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ...baseMeta.openGraph,
       type: "article",
     },
+    // 비공개 리뷰는 본문이 마스킹되어 내려오므로 색인 대상에서 제외한다.
+    // 제목은 기존대로 노출한다.
+    ...(!review.isPublic && {
+      robots: {
+        index: false,
+        follow: false,
+      },
+    }),
   };
 }
 
