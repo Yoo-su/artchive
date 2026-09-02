@@ -7,7 +7,6 @@ import { AiChatWindow } from "@/features/book/components/book-search/ai-chat-win
 import { BookSearchInput } from "@/features/book/components/book-search/book-search-input";
 import { BookSearchResultList } from "@/features/book/components/book-search/book-search-result-list";
 import { PopularKeywords } from "@/features/book/components/book-search/popular-keywords";
-import { SearchHero } from "@/features/book/components/book-search/search-hero";
 import {
   SearchMode,
   SearchModeTabs,
@@ -50,9 +49,6 @@ export default function BookSearchView() {
       {searchMode === "KEYWORD" && (
         <StickyBookSearchBar isVisible={isStickyVisible} />
       )}
-
-      {/* Hero 영역 */}
-      <SearchHero />
 
       {/* 탭 메뉴: [ 키워드 검색 | AI 추천 검색 ] */}
       <SearchModeTabs

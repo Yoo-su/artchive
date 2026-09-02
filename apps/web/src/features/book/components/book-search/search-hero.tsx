@@ -9,7 +9,10 @@ import { cn } from "@/shared/utils/cn";
 export const SearchHero = () => {
   const t = useTranslations("book.search");
 
-  // 별 입자 생성 (Hydration 이슈 방지: mounted 체크 후 렌더링)
+  // 별 입자는 Math.random()으로 만들기 때문에 서버와 클라이언트의 값이 달라집니다.
+  // 예전에는 컴포넌트 전체를 mounted 이후에만 렌더링해 이를 피했지만, 그러면
+  // 제목/부제까지 서버 렌더링에서 빠져 검색엔진에 빈 페이지로 보였습니다.
+  // 이제는 장식용 입자에만 mounted 게이트를 걸고 본문은 항상 렌더링합니다.
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
@@ -19,18 +22,18 @@ export const SearchHero = () => {
   const PARTICLE_COUNT = 35; // 입자 개수
   const EDITORIAL_EASE = [0.16, 1, 0.3, 1] as const; // 애니메이션 이징
 
-  // 별 입자 데이터 생성
-  const particles = Array.from({ length: PARTICLE_COUNT }).map((_, i) => ({
-    id: i,
-    xStart: Math.random() * 800,
-    yStart: 80 + Math.random() * 60, // 강물 흐름 근처에 배치
-    r: Math.random() < 0.2 ? 2 : 1 + Math.random() * 0.5, // 가끔 큰 별 등장
-    opacity: 0.3 + Math.random() * 0.5,
-    duration: 15 + Math.random() * 20, // 흐르는 속도
-    delay: Math.random() * 5,
-  }));
-
-  if (!mounted) return <div className="h-[300px] w-full" />;
+  // 별 입자 데이터 생성 (클라이언트 마운트 이후에만)
+  const particles = mounted
+    ? Array.from({ length: PARTICLE_COUNT }).map((_, i) => ({
+        id: i,
+        xStart: Math.random() * 800,
+        yStart: 80 + Math.random() * 60, // 강물 흐름 근처에 배치
+        r: Math.random() < 0.2 ? 2 : 1 + Math.random() * 0.5, // 가끔 큰 별 등장
+        opacity: 0.3 + Math.random() * 0.5,
+        duration: 15 + Math.random() * 20, // 흐르는 속도
+        delay: Math.random() * 5,
+      }))
+    : [];
 
   return (
     <section className="relative w-full py-16 sm:py-18 flex flex-col items-center justify-center overflow-hidden bg-white select-none">

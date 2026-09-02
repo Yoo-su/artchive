@@ -3,10 +3,13 @@ import { reviewKeys } from "@bookjeok/core";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Suspense } from "react";
 
+import { ReviewHomeHero } from "@/features/review/components/review-home-hero";
+import { pickHeroImage } from "@/features/review/components/review-home-hero/hero-images";
 import { BreadcrumbJsonLd } from "@/shared/components/breadcrumb-json-ld";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
 import { ReviewHomeView } from "@/views/review-home-view";
+import { ReviewHomeViewWithParams } from "@/views/review-home-view/with-params";
 
 export async function generateMetadata({
   params,
@@ -48,8 +51,23 @@ export default async function Page({
   return (
     <ServerQueryBoundary queries={queries}>
       <BreadcrumbJsonLd items={breadcrumbs} />
-      <Suspense fallback={null}>
-        <ReviewHomeView />
+
+      {/* 히어로는 URL 파라미터와 무관하므로 Suspense 밖에서 서버 렌더링합니다. */}
+      <ReviewHomeHero imageSrc={pickHeroImage()} />
+
+      {/*
+        useSearchParams는 정적 렌더링 라우트에서 가장 가까운 Suspense 경계까지
+        서버 렌더링을 건너뛰게 만듭니다. 그래서 URL을 읽는 래퍼만 경계 안에 두고,
+        fallback으로는 스켈레톤 대신 "필터가 걸리지 않은 기본 화면"을 넘깁니다.
+        fallback은 서버에서 렌더링되므로, 크롤러와 JS를 실행하지 않는 클라이언트가
+        실제 리뷰 목록이 담긴 HTML을 받게 됩니다.
+      */}
+      <Suspense
+        fallback={
+          <ReviewHomeView category={null} searchQuery="" showAdBanner={false} />
+        }
+      >
+        <ReviewHomeViewWithParams />
       </Suspense>
     </ServerQueryBoundary>
   );
