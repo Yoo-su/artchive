@@ -1,9 +1,6 @@
 /**
  * 메시지 캐시 정합성 검증.
- *
- * 낙관적 메시지 교체는 상관 ID(clientMessageId)로 짝을 맞춥니다.
- * 다른 탭/기기에서 보낸 내 메시지가 도착해도 이 탭의 전송 중인 메시지를
- * 잘못 교체하지 않는지가 핵심입니다.
+ * 낙관적 메시지 교체가 상관 ID(clientMessageId)로만 짝을 맞추는지 확인한다.
  */
 import { chatKeys, ChatMessage } from "@bookjeok/core";
 import { QueryClient } from "@tanstack/react-query";

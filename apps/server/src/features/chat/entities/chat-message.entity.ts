@@ -19,11 +19,11 @@ export enum ChatMessageType {
   IMAGE = 'IMAGE',
 }
 
-// 방별 최신순 조회(목록의 마지막 메시지, 커서 페이지네이션, 안 읽음 집계)가
-// 모든 채팅 쿼리의 기본 접근 경로라 복합 인덱스가 필요합니다.
+// 방별 최신순 조회(마지막 메시지, 커서 페이지네이션, 안 읽음 집계)가
+// 모든 채팅 쿼리의 기본 접근 경로이므로 복합 인덱스 적용
 @Index('idx_chat_messages_room_created_at', ['chatRoom', 'createdAt'])
-// 안 읽음 집계는 "내가 보내지 않은 메시지"를 방 단위로 훑습니다.
-// (참여자의 lastReadMessageId 워터마크보다 뒤에 있는 메시지를 세는 경로입니다.)
+// 안 읽음 집계는 내가 보내지 않은 메시지를 방 단위로 스캔
+// (참여자의 lastReadMessageId 워터마크 이후 메시지를 세는 경로)
 @Index('idx_chat_messages_room_sender', ['chatRoom', 'sender'])
 @Entity({ name: 'chat_messages' })
 export class ChatMessage {

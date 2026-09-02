@@ -22,9 +22,8 @@ import { ChatMessage } from '../entities/chat-message.entity';
 const MAX_CLIENT_MESSAGE_ID_LENGTH = 64;
 
 /**
- * 클라이언트가 보낸 상관 ID가 그대로 되돌려 보내기에 적합한지 검사합니다.
- * 값을 저장하지는 않지만 채팅방 참여자 전원에게 브로드캐스트되므로,
- * 형식과 길이를 제한합니다.
+ * 클라이언트가 보낸 상관 ID의 유효성을 검사합니다.
+ * 저장하지는 않지만 참여자 전원에게 브로드캐스트되므로 형식과 길이를 제한합니다.
  */
 const isValidClientMessageId = (value: unknown): value is string =>
   typeof value === 'string' &&
@@ -157,8 +156,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         imageUrls,
       );
 
-      // 보낸 클라이언트가 자신의 낙관적 메시지를 정확히 짝지을 수 있도록
-      // 상관 ID를 그대로 돌려줍니다. 저장하지 않는 일회성 필드입니다.
+      // 낙관적 메시지 교체를 위해 상관 ID를 그대로 반환 (저장하지 않는 일회성 필드)
       const payload = isValidClientMessageId(clientMessageId)
         ? { ...message, clientMessageId }
         : message;
@@ -224,7 +222,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     const user = client.data.user as User;
-    // 수신 측이 어느 방의 입력인지 구분할 수 있도록 roomId를 함께 실어 보냅니다.
+    // 수신 측의 방 구분을 위해 roomId 동봉
     client.to(String(data.roomId)).emit('typing', {
       roomId: data.roomId,
       nickname: user.nickname,
@@ -255,8 +253,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       const result = await this.chatService.markMessagesAsRead(roomId, user.id);
 
-      // 새로 읽은 메시지가 있을 때만 알립니다.
-      // 상대방은 이 값으로 자신이 보낸 메시지의 읽음 표시를 갱신합니다.
+      // 새로 읽은 메시지가 있을 때만 브로드캐스트
+      // (상대방은 이 값으로 자신이 보낸 메시지의 읽음 표시를 갱신)
       if (result.updated > 0 && result.lastReadMessageId !== null) {
         this.server.to(String(roomId)).emit('messagesRead', {
           roomId,

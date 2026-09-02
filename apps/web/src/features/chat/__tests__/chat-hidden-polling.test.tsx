@@ -1,10 +1,7 @@
 /**
- * 위젯이 닫혀 있는 동안 주문 폴링이 멈추는지 검증합니다.
- *
- * 위젯을 언마운트하지 않게 바꾸면서(다시 열 때의 버벅임 방지) 생긴 가장 큰 위험은
- * "안 보이는데 계속 도는 작업"입니다. `useActiveOrderByRoomQuery`는
- * `refetchInterval: 5000`으로 5초마다 폴링하므로, 닫혀 있는 동안에도 돌면
- * 채팅을 한 번 열어본 사용자는 그 뒤로 계속 요청을 보내게 됩니다.
+ * 위젯이 닫힌 동안 주문 폴링이 멈추는지 검증.
+ * 위젯이 언마운트되지 않으므로 `useActiveOrderByRoomQuery`의 5초 폴링이
+ * 닫힌 상태에서도 계속 도는지 확인한다.
  */
 import { ChatRoom, SaleAuthor, SaleStatus, TradeMethod } from "@bookjeok/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -98,7 +95,7 @@ describe("숨겨진 위젯의 주문 폴링", () => {
       useChatStore.setState({ isChatOpen: true });
     });
 
-    // 열려 있을 때만 폴링합니다. (결제 기능이 꺼져 있으면 어차피 false)
+    // 열려 있을 때만 폴링 (결제 기능이 꺼져 있으면 항상 false)
     const expected = process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true";
     expect(lastEnabled()).toBe(expected);
   });

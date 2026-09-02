@@ -1,8 +1,6 @@
 /**
  * ChatProvider의 채팅방 입장(joinRooms) 처리 검증.
- *
- * 입장에 실패하면 실시간 메시지를 전혀 받지 못하므로,
- * 재시도가 실제로 일어나는지와 끝내 실패했을 때 사용자에게 알리는지를 확인합니다.
+ * 입장 실패 시 재시도가 수행되는지, 최종 실패 시 사용자에게 안내하는지 확인한다.
  */
 import { chatKeys } from "@bookjeok/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -25,7 +23,7 @@ vi.mock("next-intl", () => ({
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/ko" }));
 
-// 실제 쿼리 캐시처럼 렌더 간 동일한 배열 참조를 유지합니다.
+// 실제 쿼리 캐시처럼 렌더 간 동일한 배열 참조 유지
 const mockRooms = [{ id: 1 }, { id: 2 }];
 vi.mock("@bookjeok/react-query", () => ({
   useMyChatRoomsQuery: () => ({ data: mockRooms, isSuccess: true }),
@@ -60,11 +58,11 @@ const mockOff = vi.fn((event: string, handler: (...args: unknown[]) => void) => 
     (registered) => registered !== handler,
   );
 });
-/** 소켓이 이벤트를 올려보내는 상황을 흉내 냅니다. */
+/** 소켓 이벤트 발생 상황 모사 */
 const emitSocketEvent = (event: string) => {
   [...(socketListeners[event] ?? [])].forEach((handler) => handler());
 };
-// 실제 SocketProvider의 socket은 useState 값이라 렌더 간 동일한 참조입니다.
+// 실제 SocketProvider의 socket은 useState 값이라 렌더 간 참조가 동일
 const mockSocket = {
   timeout: () => ({ emit: mockEmit }),
   connected: false,
@@ -77,7 +75,7 @@ vi.mock("@/shared/providers/socket-provider", () => ({
 
 let queryClient: QueryClient;
 
-/** ChatProvider는 캐시를 직접 다루므로 실제 QueryClient가 필요합니다. */
+/** ChatProvider는 캐시를 직접 다루므로 실제 QueryClient 필요 */
 const renderProvider = () =>
   render(
     <QueryClientProvider client={queryClient}>
@@ -162,9 +160,8 @@ describe("ChatProvider joinRooms", () => {
 });
 
 /**
- * 연결이 끊긴 동안 온 메시지는 소켓으로 받지 못하고, 메시지 캐시는
- * staleTime이 무한이라 스스로 다시 받아오지 않습니다.
- * 재연결 시점에 캐시를 서버와 다시 맞추는지 확인합니다.
+ * 끊긴 동안 온 메시지는 소켓으로 받지 못하고 메시지 캐시도 staleTime이 무한이라
+ * 갱신되지 않으므로, 재연결 시점에 캐시를 서버와 다시 맞추는지 확인한다.
  */
 describe("ChatProvider 재연결 동기화", () => {
   const ACTIVE_ROOM_ID = 1;
@@ -247,7 +244,7 @@ describe("ChatProvider 재연결 동기화", () => {
       emitSocketEvent("connect"); // 재연결
     });
 
-    // 연결마다 소켓 룸에 다시 들어가야 실시간 메시지를 계속 받습니다.
+    // 연결마다 소켓 룸에 재입장해야 실시간 메시지 수신이 유지된다
     expect(mockEmit.mock.calls.length).toBe(joinCountBeforeReconnect + 1);
     expect(useChatStore.getState().hasJoinedRooms).toBe(true);
   });

@@ -27,15 +27,11 @@ export interface ChatMessage {
   type?: ChatMessageType;
   metadata?: Record<string, any> | null;
   /**
-   * 클라이언트가 전송 시 부여한 상관 ID.
-   * 낙관적 메시지를 서버 응답과 정확히 짝지어 교체하기 위해 사용하며,
-   * 저장되지 않고 전송한 클라이언트의 요청을 되돌려주는 용도로만 실립니다.
+   * 클라이언트가 전송 시 부여한 상관 ID (저장하지 않고 응답에만 포함).
+   * 낙관적 메시지를 서버 응답과 짝지어 교체하는 데 사용합니다.
    */
   clientMessageId?: string;
-  /**
-   * 아직 서버에 확정되지 않은 낙관적 메시지의 전송 상태.
-   * 서버에서 내려오는 메시지에는 존재하지 않는 클라이언트 전용 필드입니다.
-   */
+  /** 미확정 낙관적 메시지의 전송 상태 (클라이언트 전용) */
   sendState?: ChatMessageSendState;
   createdAt: string; // ISO 8601
   sender: SaleAuthor | null;
@@ -63,10 +59,7 @@ export interface GetChatMessagesResponse {
   messages: ChatMessage[];
   hasNextPage: boolean;
   nextCursor?: number;
-  /**
-   * 상대방이 읽은 마지막 메시지 ID (첫 페이지 응답에만 실립니다).
-   * 내가 보낸 메시지의 읽음 표시 초기 상태로 사용합니다.
-   */
+  /** 상대방이 읽은 마지막 메시지 ID (첫 페이지 응답에만 포함, 읽음 표시 초기값) */
   opponentLastReadMessageId?: number | null;
 }
 
@@ -76,9 +69,9 @@ export interface GetChatMessagesResponse {
 export interface SendMessagePayload {
   roomId: number;
   content: string;
-  /** 첨부 이미지 URL 목록. 비어있지 않으면 IMAGE 타입 메시지로 저장됩니다. */
+  /** 첨부 이미지 URL 목록 (비어있지 않으면 IMAGE 타입으로 저장) */
   imageUrls?: string[];
-  /** 낙관적 메시지 교체용 상관 ID. 서버가 그대로 되돌려줍니다. */
+  /** 낙관적 메시지 교체용 상관 ID (서버가 그대로 반환) */
   clientMessageId?: string;
 }
 
@@ -98,7 +91,7 @@ export interface MessagesReadEvent {
   roomId: number;
   /** 읽음 처리를 수행한 사용자 ID */
   userId: number;
-  /** 그 사용자가 읽은 마지막 메시지 ID */
+  /** 해당 사용자가 읽은 마지막 메시지 ID */
   lastReadMessageId: number;
 }
 

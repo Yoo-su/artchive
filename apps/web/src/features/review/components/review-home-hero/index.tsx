@@ -10,7 +10,7 @@ import { PATHS } from "@/shared/constants/paths";
 import { HERO_IMAGES } from "./hero-images";
 
 interface ReviewHomeHeroProps {
-  /** 배경 이미지 경로. 생략하면 첫 번째 이미지를 사용합니다. */
+  /** 배경 이미지 경로 (생략 시 첫 번째 이미지) */
   imageSrc?: string;
 }
 
@@ -21,9 +21,8 @@ export function ReviewHomeHero({ imageSrc }: ReviewHomeHeroProps) {
 
   const heroImage = imageSrc ?? HERO_IMAGES[0];
 
-  // 서버에서 렌더링된 이미지는 하이드레이션 시점에 이미 로드가 끝나 있는 경우가
-  // 많고, 그때는 onLoad가 발화하지 않아 제목/부제가 계속 숨겨진 채로 남습니다.
-  // 마운트 시 complete 여부를 직접 확인해 그 경합을 막습니다.
+  // 서버 렌더링된 이미지는 하이드레이션 시점에 이미 로드가 끝나 onLoad가 발화하지 않아
+  // 제목/부제가 숨겨진 채 남는다. 마운트 시 complete 여부를 직접 확인해 경합 방지
   const imageRef = useCallback((node: HTMLImageElement | null) => {
     if (node?.complete) {
       setIsImageLoaded(true);

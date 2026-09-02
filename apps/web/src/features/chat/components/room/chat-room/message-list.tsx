@@ -30,7 +30,7 @@ const SystemMessageBubble = ({ content }: { content: string }) => (
   </div>
 );
 
-/** 메시지 버블 내 첨부 이미지 그리드. 클릭 시 라이트박스를 엽니다. */
+/** 메시지 버블 내 첨부 이미지 그리드 (클릭 시 라이트박스) */
 const MessageImages = ({
   imageUrls,
   isSending,
@@ -79,8 +79,8 @@ const MessageImages = ({
 };
 
 /**
- * 메시지 본문. 줄바꿈을 그대로 보여주고 URL은 링크로 만듭니다.
- * 사용자가 입력한 텍스트만 다루므로 HTML을 주입하지 않고 조각으로 나눠 렌더링합니다.
+ * 메시지 본문. 줄바꿈을 유지하고 URL은 링크로 변환합니다.
+ * HTML 주입 없이 텍스트 조각 단위로 렌더링합니다.
  */
 const MessageText = ({
   content,
@@ -140,7 +140,7 @@ const SendingIndicator = () => (
 
 /**
  * 내 메시지 옆의 상태 표시.
- * 실패한 메시지는 지우지 않고 남겨 두고, 이 자리에서 재전송하거나 삭제합니다.
+ * 실패한 메시지는 이 자리에서 재전송하거나 삭제합니다.
  */
 const OwnMessageStatusColumn = ({
   status,
@@ -203,10 +203,7 @@ interface MessageBubbleProps {
   message: ChatMessage;
   isMine: boolean;
   currentUserId?: number;
-  /**
-   * 내 메시지 옆에 표시할 상태.
-   * 읽음 표시는 내 마지막 메시지에만 붙이므로 그 외에는 전달되지 않습니다.
-   */
+  /** 내 메시지 옆에 표시할 상태 (읽음 표시는 마지막 메시지에만 전달) */
   ownStatus?: OwnMessageStatus;
   onRetry?: (message: ChatMessage) => void;
   onDiscard?: (message: ChatMessage) => void;
@@ -286,8 +283,8 @@ const MessageBubbleComponent = ({
 };
 
 /**
- * 메시지가 늘어나면 목록 전체가 다시 렌더링되므로 말풍선 단위로 메모합니다.
- * 메시지 객체는 캐시에서 바뀐 것만 새 참조를 갖기 때문에 참조 비교로 충분합니다.
+ * 메시지 증가 시 목록 전체가 리렌더되므로 말풍선 단위로 메모이제이션합니다.
+ * 캐시에서 변경된 메시지만 새 참조를 가지므로 참조 비교로 충분합니다.
  */
 const MessageBubble = memo(MessageBubbleComponent);
 
@@ -323,8 +320,8 @@ export const MessageList = ({
   onRetryMessage,
   onDiscardMessage,
 }: MessageListProps) => {
-  // 읽음 표시는 내 마지막 메시지에만 붙입니다.
-  // 모든 메시지에 붙이면 읽음 이벤트마다 내 말풍선 전부가 다시 렌더링됩니다.
+  // 읽음 표시는 내 마지막 메시지에만 적용
+  // (전체에 적용하면 읽음 이벤트마다 내 말풍선 전부가 리렌더됨)
   const lastOwnMessageId = useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       const message = messages[i];
@@ -368,8 +365,8 @@ export const MessageList = ({
 
           return (
             <MessageBubble
-              // 상관 ID가 있으면 낙관적 → 확정 교체 후에도 같은 키를 유지해
-              // 말풍선(과 첨부 이미지)이 다시 마운트되지 않게 합니다.
+              // 상관 ID가 있으면 낙관적 → 확정 교체 후에도 키를 유지해
+              // 말풍선과 첨부 이미지의 재마운트 방지
               key={
                 message.clientMessageId
                   ? `cid:${message.clientMessageId}`

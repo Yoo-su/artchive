@@ -60,8 +60,8 @@ export const useChatEvents = () => {
       const { isChatOpen, activeChatRoomId } = useChatStore.getState();
       const isChatVisible = isChatOpen && activeChatRoomId === roomId;
 
-      // 읽음 처리는 ChatRoom이 "보이는 방의 마지막 메시지"를 기준으로 한 번만 보냅니다.
-      // 여기서 메시지마다 emit하면 내가 보낸 메시지까지 포함해 중복 요청이 쌓입니다.
+      // 읽음 처리는 ChatRoom이 보이는 방의 마지막 메시지 기준으로 한 번만 전송
+      // (여기서 메시지마다 emit하면 중복 요청 누적)
 
       // 내가 보낸 메시지인 경우, 낙관적 메시지를 실제 메시지로 교체
       const isMyMessage = newMessage.sender?.id === currentUserId;
@@ -114,8 +114,7 @@ export const useChatEvents = () => {
 
   const handleTyping = useCallback(
     ({ roomId, nickname, isTyping }: TypingEvent) => {
-      // 서버가 알려준 방에만 반영합니다.
-      // 열려 있는 방에 무조건 적용하면 다른 방의 입력이 잘못 표시됩니다.
+      // 서버가 지정한 방에만 반영 (열린 방에 일괄 적용 시 다른 방의 입력이 오표시됨)
       if (typeof roomId !== "number") return;
       setTyping(roomId, isTyping ? nickname : "");
     },
@@ -124,7 +123,7 @@ export const useChatEvents = () => {
 
   const handleMessagesRead = useCallback(
     ({ roomId, userId, lastReadMessageId }: MessagesReadEvent) => {
-      // 내가 읽은 기록은 내 메시지의 읽음 표시와 무관합니다.
+      // 내 읽음 기록은 내 메시지의 읽음 표시와 무관
       if (userId === useAuthStore.getState().user?.id) return;
       setOpponentLastReadMessageId(roomId, lastReadMessageId);
     },

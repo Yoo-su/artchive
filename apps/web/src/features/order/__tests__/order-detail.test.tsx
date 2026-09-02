@@ -140,10 +140,7 @@ vi.mock("@/features/confirm", () => ({
   useConfirm: () => vi.fn().mockResolvedValue(true),
 }));
 
-/**
- * 채팅 열기 훅(useOpenChatRoom)이 안 읽음 배지를 캐시에서 바로 지우므로
- * 이 카드들을 렌더링하려면 QueryClient가 필요합니다.
- */
+/** useOpenChatRoom이 캐시를 직접 다루므로 카드 렌더링에 QueryClient가 필요 */
 const renderWithQueryClient = (ui: React.ReactElement) =>
   render(
     <QueryClientProvider

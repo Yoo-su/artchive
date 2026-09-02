@@ -28,8 +28,8 @@ export interface PendingImage {
 }
 
 /**
- * 낙관적 메시지를 서버 응답과 짝짓기 위한 상관 ID를 만듭니다.
- * 서버는 이 값을 그대로 되돌려주기만 하고 저장하지 않습니다.
+ * 낙관적 메시지를 서버 응답과 짝짓기 위한 상관 ID를 생성합니다.
+ * 서버는 저장하지 않고 그대로 되돌려주기만 합니다.
  */
 const createClientMessageId = () =>
   typeof crypto !== "undefined" && crypto.randomUUID
@@ -47,16 +47,12 @@ interface UseChatComposerOptions {
 
 /**
  * 채팅 입력 영역의 상태와 전송 로직을 담당합니다.
+ * 텍스트/첨부 이미지 관리, 업로드, 낙관적 업데이트, 소켓 전송을 처리하고
+ * 컴포넌트에는 렌더링만 남깁니다.
  *
- * 텍스트/첨부 이미지 관리, 이미지 업로드, 낙관적 업데이트, 소켓 전송을 한곳에서
- * 처리하고, 컴포넌트에는 렌더링만 남깁니다.
- *
- * 전송에 실패하면 메시지를 목록에서 지우지 않고 실패 상태로 남깁니다.
- * 재전송에 필요한 값은 그 메시지가 모두 들고 있으므로(`useMessageRetry`),
- * 입력창으로 되돌리다가 새로 입력한 내용과 충돌할 일이 없습니다.
- *
- * 첨부 목록은 `pendingImagesRef`를 기준으로 다루며 상태는 렌더링용으로만 씁니다.
- * 상태 갱신 함수 안에서 토스트 같은 부수효과가 일어나지 않도록 하기 위함입니다.
+ * 전송 실패 시 메시지를 지우지 않고 실패 상태로 남깁니다. 재전송에 필요한 값은
+ * 메시지 자체가 들고 있으므로(`useMessageRetry`) 입력창 상태에 의존하지 않습니다.
+ * 첨부 목록은 `pendingImagesRef`가 기준이며 상태는 렌더링 용도로만 사용합니다.
  */
 export const useChatComposer = ({
   roomId,
@@ -74,10 +70,10 @@ export const useChatComposer = ({
   const [text, setText] = useState("");
   const [pendingImages, setPendingImages] = useState<PendingImage[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  /** 업로드 진행률(0~100). 업로드 중이 아닐 때는 0입니다. */
+  /** 업로드 진행률(0~100). 업로드 중이 아니면 0 */
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  // 첨부 목록의 최신 값. 상태 반영 전에도 정확한 값을 읽기 위해 함께 갱신합니다.
+  // 상태 반영 전에도 정확한 값을 읽기 위한 첨부 목록의 최신 값
   const pendingImagesRef = useRef<PendingImage[]>([]);
 
   const updatePendingImages = useCallback((next: PendingImage[]) => {
@@ -94,7 +90,7 @@ export const useChatComposer = ({
     };
   }, []);
 
-  /** 선택한 파일들을 검증해 첨부 목록에 추가합니다. */
+  /** 선택한 파일을 검증해 첨부 목록에 추가 */
   const attachFiles = useCallback(
     (files: File[]) => {
       if (files.length === 0) return;
@@ -134,7 +130,7 @@ export const useChatComposer = ({
     [t, tCommon, updatePendingImages],
   );
 
-  /** 첨부 목록에서 이미지를 제거합니다. */
+  /** 첨부 목록에서 이미지 제거 */
   const removeImage = useCallback(
     (index: number) => {
       const current = pendingImagesRef.current;
@@ -151,7 +147,7 @@ export const useChatComposer = ({
     const messageContent = text.trim();
     const imagesToSend = pendingImagesRef.current;
 
-    // 텍스트도 이미지도 없으면 전송하지 않습니다.
+    // 텍스트와 이미지가 모두 없으면 전송하지 않음
     if (!messageContent && imagesToSend.length === 0) return;
 
     let imageUrls: string[] = [];
@@ -176,7 +172,7 @@ export const useChatComposer = ({
       } catch (error) {
         console.error("Chat image upload failed:", error);
         toast.error(t("image.upload_error"));
-        // 첨부를 그대로 두어 바로 재시도할 수 있게 합니다.
+        // 바로 재시도할 수 있도록 첨부는 유지
         return;
       } finally {
         setIsUploading(false);
@@ -208,14 +204,14 @@ export const useChatComposer = ({
 
     prependMessageToCache(queryClient, roomId, optimisticMessage);
 
-    // 입력 필드 및 첨부 목록 초기화 (UX 개선)
-    // 말풍선은 업로드된 URL을 쓰므로 미리보기 object URL은 여기서 해제해도 됩니다.
+    // 입력 필드 및 첨부 목록 초기화
+    // 말풍선은 업로드된 URL을 사용하므로 미리보기 object URL은 여기서 해제
     setText("");
     updatePendingImages([]);
     imagesToSend.forEach((image) => URL.revokeObjectURL(image.previewUrl));
     cancelTyping();
 
-    // 서버에 메시지 전송 (ack이 오지 않는 경우를 대비해 타임아웃을 겁니다)
+    // 서버에 메시지 전송 (ack 미수신 대비 타임아웃 적용)
     socket
       .timeout(SEND_ACK_TIMEOUT_MS)
       .emit(
@@ -237,7 +233,7 @@ export const useChatComposer = ({
               : t("toast.send_error", { error: response?.error || "" }),
           );
 
-          // 목록에 실패 상태로 남겨 그 자리에서 재전송할 수 있게 합니다.
+          // 그 자리에서 재전송할 수 있도록 실패 상태로 유지
           setMessageSendState(queryClient, roomId, clientMessageId, "failed");
         },
       );

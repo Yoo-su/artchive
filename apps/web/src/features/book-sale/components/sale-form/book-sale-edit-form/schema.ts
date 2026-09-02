@@ -4,8 +4,6 @@ import { createSellFormSchema } from "../book-sale-form/schema";
 
 // 기존 sellFormSchema에서 images와 book 필드를 제거하고,
 // optional인 images 필드를 새로 정의하여 병합합니다.
-// 기존 sellFormSchema에서 images와 book 필드를 제거하고,
-// optional인 images 필드를 새로 정의하여 병합합니다.
 export const createEditFormSchema = (t: (key: string) => string) =>
   createSellFormSchema(t)
     .omit({ images: true, book: true })

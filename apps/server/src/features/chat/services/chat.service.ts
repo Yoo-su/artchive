@@ -282,8 +282,8 @@ export class ChatService {
     });
 
     // 3. 안 읽은 메시지 개수 일괄 조회 (내가 보낸 메시지 제외, 상대방 메시지 및 시스템/거래 메시지 포함)
-    //    내 참여자 행의 워터마크보다 ID가 큰 메시지가 곧 안 읽은 메시지입니다.
-    //    방마다 기준값이 다르므로 참여자 행을 조인해 방별 워터마크를 가져옵니다.
+    //    내 참여자 행의 워터마크보다 ID가 큰 메시지가 안 읽은 메시지
+    //    방마다 기준값이 다르므로 참여자 행을 조인해 방별 워터마크 조회
     const unreadCounts = await this.chatMessageRepository
       .createQueryBuilder('message')
       .leftJoin('message.sender', 'sender')
@@ -368,8 +368,7 @@ export class ChatService {
 
     const [messages, opponentLastReadMessageId] = await Promise.all([
       queryBuilder.getMany(),
-      // 내가 보낸 메시지에 읽음 표시를 하기 위한 초기 상태.
-      // 첫 페이지에서만 필요하므로 과거 페이지 요청에서는 조회하지 않습니다.
+      // 내 메시지의 읽음 표시 초기값 (첫 페이지에서만 필요)
       cursorId
         ? Promise.resolve(null)
         : this.getOpponentLastReadMessageId(roomId, userId),
@@ -466,19 +465,15 @@ export class ChatService {
 
   /**
    * 특정 채팅방을 "여기까지 읽음"으로 표시합니다.
-   *
-   * 읽은 메시지를 건별로 쌓지 않고 참여자 행의 워터마크(lastReadMessageId) 한 칸만
-   * 옮깁니다. 방을 열 때마다, 그리고 메시지가 도착할 때마다 호출되는 경로라
-   * 쓰기 비용이 메시지 수와 무관해야 합니다.
+   * 읽음 여부를 메시지 건별로 쌓지 않고 참여자 행의 워터마크(lastReadMessageId)만
+   * 갱신하여, 쓰기 비용이 메시지 수와 무관하도록 합니다.
    *
    * @param roomId 채팅방 ID
    * @param userId 유저 ID
-   * @returns `updated`는 워터마크가 실제로 올라갔는지 여부(0 또는 1)이고,
-   *          `lastReadMessageId`는 갱신 여부와 무관한 현재 읽음 지점입니다.
+   * @returns `updated`는 워터마크 갱신 여부(0 또는 1), `lastReadMessageId`는 현재 읽음 지점
    */
   async markMessagesAsRead(roomId: number, userId: number) {
-    // 1. 이 방에서 내가 보내지 않은(상대방 메시지 및 시스템/거래 메시지)
-    //    마지막 메시지 ID가 새 워터마크입니다.
+    // 1. 내가 보내지 않은(상대방·시스템·거래) 마지막 메시지 ID가 새 워터마크
     const raw = await this.chatMessageRepository
       .createQueryBuilder('message')
       .leftJoin('message.sender', 'sender')
@@ -498,9 +493,8 @@ export class ChatService {
       };
     }
 
-    // 2. 워터마크는 앞으로만 움직입니다.
-    //    동시 요청이나 뒤늦게 도착한 요청이 읽음 지점을 되돌리면
-    //    이미 읽은 메시지가 다시 안 읽음으로 살아나므로 조건으로 막습니다.
+    // 2. 워터마크는 전진만 허용
+    //    동시/지연 요청이 읽음 지점을 되돌려 안 읽음이 되살아나는 것을 조건으로 차단
     const result = await this.chatParticipantRepository
       .createQueryBuilder()
       .update(ChatParticipant)
@@ -516,16 +510,15 @@ export class ChatService {
     return {
       success: true,
       updated: result.affected ?? 0,
-      // 상대방에게 "여기까지 읽었다"고 알리기 위한 기준점입니다.
+      // 상대방에게 브로드캐스트할 읽음 기준점
       lastReadMessageId: watermark,
       message: 'Messages marked as read.',
     };
   }
 
   /**
-   * 특정 채팅방에서 "나 이외의 참여자"가 읽은 마지막 메시지 ID를 반환합니다.
-   * 내가 보낸 메시지에 읽음 표시를 하기 위한 초기 상태로 사용합니다.
-   * (1:1 채팅이므로 사실상 상대방의 마지막 읽음 지점입니다.)
+   * 나 이외의 참여자가 읽은 마지막 메시지 ID를 반환합니다.
+   * 내 메시지의 읽음 표시 초기값으로 사용합니다. (1:1 채팅이므로 상대방의 읽음 지점)
    */
   async getOpponentLastReadMessageId(
     roomId: number,

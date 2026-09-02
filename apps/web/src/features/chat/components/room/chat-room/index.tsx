@@ -27,7 +27,7 @@ import { MessageList } from "./message-list";
 import { ChatRoomSkeleton } from "./skeleton";
 
 interface ChatRoomProps {
-  /** 표시할 채팅방 ID. 열려 있는 방이 있을 때만 렌더링되므로 항상 존재합니다. */
+  /** 표시할 채팅방 ID */
   roomId: number;
 }
 
@@ -47,17 +47,16 @@ export const ChatRoom = ({ roomId }: ChatRoomProps) => {
   const opponentLastReadMessageId = useChatStore(
     (state) => state.opponentLastReadMessageId[roomId] ?? 0,
   );
-  // 위젯은 닫혀도 언마운트되지 않으므로(다시 열 때의 버벅임 방지),
-  // "화면에 보이는가"를 따로 봐야 합니다. 안 보이는 동안 온 메시지를
-  // 읽음 처리해 버리면 사용자가 보지도 않은 메시지가 읽음이 됩니다.
+  // 위젯은 닫혀도 언마운트되지 않으므로 노출 여부를 별도로 판단
+  // (안 보이는 동안 도착한 메시지가 읽음 처리되는 것을 방지)
   const isChatOpen = useChatStore((state) => state.isChatOpen);
   const setOpponentLastReadMessageId = useChatStore(
     (state) => state.setOpponentLastReadMessageId,
   );
   const currentUser = useAuthStore((state) => state.user);
 
-  // 방 목록 캐시는 어느 방에 메시지가 오든 새 배열로 교체됩니다.
-  // 필요한 방 하나만 골라 구독해 다른 방의 활동으로 리렌더되지 않게 합니다.
+  // 방 목록 캐시는 어느 방에 메시지가 오든 새 배열로 교체되므로
+  // 필요한 방 하나만 구독해 다른 방의 활동으로 인한 리렌더 차단
   const selectRoom = useCallback(
     (rooms: ChatRoomType[]) => rooms.find((r) => r.id === roomId),
     [roomId],
@@ -72,8 +71,8 @@ export const ChatRoom = ({ roomId }: ChatRoomProps) => {
     isLoading: isMessagesLoading,
   } = useInfiniteChatMessagesQuery(roomId);
 
-  // 페이지 배열은 과거 → 최신, 각 페이지 안은 최신 → 과거 순입니다.
-  // 페이지마다 뒤집어 이어 붙이면 전체가 시간순이 되므로 정렬이 필요 없습니다.
+  // 페이지 배열은 과거 → 최신, 페이지 내부는 최신 → 과거 순
+  // 페이지 단위로 뒤집어 이어 붙이면 전체가 시간순이 되므로 별도 정렬 불필요
   const messages = useMemo(
     () => flattenChatMessages(messagesData?.pages),
     [messagesData],
@@ -106,8 +105,8 @@ export const ChatRoom = ({ roomId }: ChatRoomProps) => {
     (p) => p.user.id !== currentUser?.id,
   )?.user;
 
-  // 읽음 처리 대상은 "내가 보내지 않은, 서버에 저장된 메시지"입니다.
-  // 이 값이 올라갈 때만 요청을 보내 같은 지점을 반복해서 읽음 처리하지 않습니다.
+  // 읽음 처리 대상: 내가 보내지 않은, 서버에 저장된 메시지
+  // 이 값이 올라갈 때만 요청을 보내 같은 지점의 중복 처리 방지
   const newestIncomingMessageId = useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       const message = messages[i];
@@ -118,7 +117,7 @@ export const ChatRoom = ({ roomId }: ChatRoomProps) => {
     return 0;
   }, [messages, currentUser?.id]);
 
-  // 캐시에 들어 있는 가장 최신 메시지. 아직 확정되지 않은 낙관적 메시지는 제외합니다.
+  // 캐시의 가장 최신 메시지 (미확정 낙관적 메시지 제외)
   const newestCachedMessageId = useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       if (messages[i].id > 0) return messages[i].id;
@@ -130,23 +129,20 @@ export const ChatRoom = ({ roomId }: ChatRoomProps) => {
   const roomLastMessageId = room?.lastMessage?.id ?? 0;
   const resyncedForRef = useRef({ roomId, messageId: 0 });
 
-  // 방 목록 쿼리는 창 포커스마다 갱신되지만 메시지 캐시는 그렇지 않습니다.
-  // 그래서 앱을 백그라운드에 두었다 돌아오면 "목록에는 새 메시지가 왔다고 뜨는데
-  // 방에 들어가면 그 메시지가 없는" 상태가 됩니다.
-  //
-  // 재연결 시 동기화는 소켓 connect 이벤트에 걸려 있어, 소켓이 끊긴 줄 모르거나
-  // 재연결이 늦으면 그 경로로는 낫지 않습니다. 목록이 아는 마지막 메시지가
-  // 방 캐시에 없다면 놓친 것이 확실하므로 여기서 직접 메꿉니다.
+  // 방 목록 쿼리는 창 포커스마다 갱신되지만 메시지 캐시는 갱신되지 않아,
+  // 앱 복귀 시 목록에만 새 메시지가 반영되고 방 안은 비는 문제가 있다.
+  // 소켓 connect 기반 동기화는 좀비 소켓/지연 재연결에서 동작하지 않으므로,
+  // 목록의 마지막 메시지가 방 캐시에 없으면 여기서 직접 보충
   useEffect(() => {
     if (resyncedForRef.current.roomId !== roomId) {
       resyncedForRef.current = { roomId, messageId: 0 };
     }
 
-    // 아직 첫 로딩이 끝나지 않았으면 비교할 기준이 없습니다.
+    // 첫 로딩 전에는 비교 기준 없음
     if (newestCachedMessageId === 0) return;
-    // 뒤처지지 않았습니다.
+    // 캐시가 뒤처지지 않은 경우
     if (roomLastMessageId <= newestCachedMessageId) return;
-    // 같은 지점에 대해 반복 요청하지 않습니다.
+    // 같은 지점에 대한 반복 요청 방지
     if (roomLastMessageId <= resyncedForRef.current.messageId) return;
 
     resyncedForRef.current = { roomId, messageId: roomLastMessageId };
@@ -160,8 +156,8 @@ export const ChatRoom = ({ roomId }: ChatRoomProps) => {
     if (lastMarkedRef.current.roomId !== roomId) {
       lastMarkedRef.current = { roomId, messageId: 0 };
     }
-    // 위젯이 닫혀 있는 동안 도착한 메시지는 읽음 처리하지 않습니다.
-    // 다시 열리면 이 이펙트가 그때의 마지막 메시지로 한 번에 처리합니다.
+    // 위젯이 닫힌 동안 도착한 메시지는 읽음 처리하지 않고,
+    // 다시 열릴 때 마지막 메시지 기준으로 일괄 처리
     if (!isChatOpen) return;
     if (newestIncomingMessageId <= lastMarkedRef.current.messageId) return;
 
@@ -169,7 +165,7 @@ export const ChatRoom = ({ roomId }: ChatRoomProps) => {
     markRoomAsRead(roomId);
   }, [roomId, isChatOpen, newestIncomingMessageId, markRoomAsRead]);
 
-  // 상대방의 읽음 지점 초기값. 서버는 첫 페이지 응답에만 실어 보냅니다.
+  // 상대방의 읽음 지점 초기값 (서버는 첫 페이지 응답에만 포함)
   const serverOpponentLastRead = useMemo(() => {
     let latest: number | null = null;
     for (const page of messagesData?.pages ?? []) {
@@ -246,7 +242,7 @@ export const ChatRoom = ({ roomId }: ChatRoomProps) => {
               "absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center justify-center gap-1.5 rounded-full bg-stone-900/85 text-xs font-medium text-white shadow-lg transition-colors hover:bg-stone-900",
               missedMessageCount > 0
                 ? "py-1.5 pl-3 pr-2.5"
-                : // 아이콘만 있을 때는 좌우 여백을 맞춰 정확히 가운데 정렬되도록 정사각 버튼으로 렌더링합니다.
+                : // 아이콘만 있을 때는 정사각 버튼으로 렌더링해 가운데 정렬
                   "size-7 p-0",
             )}
           >

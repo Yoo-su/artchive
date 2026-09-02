@@ -1,12 +1,7 @@
 /**
- * 위젯을 닫아도 DOM을 유지하는지 검증합니다.
- *
- * 예전에는 닫을 때마다 위젯을 언마운트해서 말풍선·첨부 이미지 DOM이 통째로
- * 사라졌다가 열 때 다시 만들어졌습니다. 웹킷은 디코딩한 이미지를 빨리 버리기
- * 때문에 사파리에서만 다시 여는 순간이 눈에 띄게 버벅였습니다.
- *
- * 마운트를 유지하는 대신, 안 보이는 동안 읽음 처리가 새어 나가면 안 됩니다.
- * 두 가지를 함께 확인합니다.
+ * 위젯을 닫아도 DOM이 유지되는지 검증.
+ * 언마운트 시 말풍선·첨부 이미지 DOM이 재생성되어 웹킷에서 재디코딩 버벅임이 발생한다.
+ * 마운트 유지와 함께, 안 보이는 동안 읽음 처리가 나가지 않는지도 확인한다.
  */
 import { act, render, screen } from "@testing-library/react";
 import React from "react";
@@ -73,7 +68,7 @@ describe("ChatWidget 마운트 유지", () => {
     expect(roomMountCount).toHaveBeenCalledTimes(1);
 
     closeChat();
-    // 사라지지 않는다 — 이게 다시 열 때의 재디코딩/재레이아웃을 없앤다
+    // 유지되어야 재오픈 시 재디코딩/재레이아웃이 발생하지 않는다
     expect(screen.getByTestId("chat-room")).toBeInTheDocument();
 
     openChat();

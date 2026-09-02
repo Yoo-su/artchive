@@ -1,9 +1,7 @@
 /**
  * 채팅 이미지 렌더링 검증.
- *
- * 메시지 썸네일은 208px 슬롯에 표시되므로 Next 이미지 최적화를 거쳐야 합니다.
- * unoptimized로 원본(최대 1920px)을 그대로 받으면 채팅방을 다시 열 때마다
- * 전부 재디코딩되어 위젯 열림이 눈에 띄게 버벅입니다.
+ * 208px 슬롯의 썸네일이 Next 이미지 최적화를 거치는지 확인한다.
+ * (unoptimized 원본은 채팅방 재진입마다 재디코딩되어 버벅임 유발)
  */
 import { ChatMessage } from "@bookjeok/core";
 import { render, screen } from "@testing-library/react";

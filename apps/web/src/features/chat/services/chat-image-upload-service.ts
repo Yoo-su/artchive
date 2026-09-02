@@ -8,8 +8,7 @@ interface UploadOptions {
 
 /**
  * 채팅 메시지에 첨부할 이미지를 압축하고 Vercel Blob에 업로드합니다.
- *
- * 업로드 경로는 `{provider}-{userId}/chat-images/{roomId}/{파일명}` 형태이며,
+ * 업로드 경로는 `{provider}-{userId}/chat-images/{roomId}/{파일명}` 형태이며
  * 서버(`/api/upload`)에서 접두사 소유권과 카테고리를 검증합니다.
  *
  * @param imageFiles 업로드할 이미지 파일 배열
@@ -28,7 +27,7 @@ export const uploadChatImages = async (
 ): Promise<string[]> => {
   if (imageFiles.length === 0) return [];
 
-  // 압축 시 UUID 파일명이 자동 생성되어 경로 충돌을 방지합니다.
+  // 압축 시 UUID 파일명이 자동 생성되어 경로 충돌 방지
   const compressedFiles = await compressImages(imageFiles);
 
   const totalFiles = compressedFiles.length;

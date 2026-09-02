@@ -1,14 +1,10 @@
 /**
- * 이미지 첨부 메시지 전송의 실패 경로를 검증합니다.
+ * 이미지 첨부 메시지 전송의 실패 경로 검증.
  *
- * 실패한 메시지는 목록에서 사라지지 않고 실패 상태로 남습니다.
- * 재전송에 필요한 값(본문 · 업로드된 URL · 상관 ID)을 그 메시지가 들고 있어야
- * 입력창 상태에 기대지 않고 그 자리에서 다시 보낼 수 있습니다(useMessageRetry).
- *
- * 1. 전송(ack) 실패 시 메시지가 실패 상태로 남고 재전송 재료를 보존하는지
- * 2. ack 타임아웃도 같은 경로를 타는지
- * 3. 업로드 도중 컴포넌트가 언마운트돼도 전송이 정상적으로 완료되는지
- * 4. 미리보기 object URL이 새어 나가지 않는지
+ * 1. ack 실패 시 메시지가 실패 상태로 남고 재전송 값(본문·URL·상관 ID)을 보존하는지
+ * 2. ack 타임아웃도 동일 경로를 타는지
+ * 3. 업로드 중 언마운트되어도 전송이 완료되는지
+ * 4. 미리보기 object URL이 누수되지 않는지
  */
 import { chatKeys, ChatMessage, MAX_CHAT_IMAGES } from "@bookjeok/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -97,7 +93,7 @@ const getCachedMessages = (queryClient: QueryClient): ChatMessage[] => {
   return data?.pages.flatMap((page) => page.messages) ?? [];
 };
 
-/** 파일 입력에 이미지를 첨부합니다. */
+/** 파일 입력에 이미지 첨부 */
 const attachImage = (container: HTMLElement, count = 1) => {
   const files = Array.from(
     { length: count },

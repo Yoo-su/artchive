@@ -1,9 +1,7 @@
 /**
- * 실패한 메시지의 재전송/삭제 동작을 검증합니다.
- *
- * 재전송에 필요한 값은 실패한 메시지 자체에 들어 있어야 합니다.
- * 그래야 입력창 상태와 무관하게, 이미 올라간 이미지를 다시 올리지 않고
- * 같은 상관 ID로 다시 보낼 수 있습니다.
+ * 실패한 메시지의 재전송/삭제 동작 검증.
+ * 재전송 값이 메시지 자체에 있어 입력창 상태와 무관하게, 이미지 재업로드 없이
+ * 동일한 상관 ID로 재전송되는지 확인한다.
  */
 import { chatKeys, ChatMessage } from "@bookjeok/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
