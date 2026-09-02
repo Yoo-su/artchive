@@ -1,12 +1,10 @@
-# 채팅 인덱스 운영 반영 안내
+# 운영 DDL 수동 적용 이력
 
-> 이 저장소에는 마이그레이션 도구가 없습니다. **운영 DB에 사람이 직접 실행한 DDL은
-> 이 문서가 유일한 기록입니다.** 앞으로도 운영에 SQL을 직접 돌렸다면 여기에 남기세요.
->
-> 현재까지 적용분: 인덱스 5개(아래) → 워터마크 컬럼 추가와 `read_receipts` 드롭
-> (맨 아래 "이후 변경"). 지금 운영에 남아 있는 채팅 인덱스는 4개입니다.
+**운영 DB(Supabase)에 사람이 직접 실행한 DDL의 유일한 기록입니다.**
+운영에 SQL을 직접 돌렸다면 반드시 여기에 남기세요. 안 남기면 다음 사람은
+스키마가 왜 그 모양인지 알아낼 방법이 없습니다.
 
-## 왜 수동 반영이 필요한가
+## 왜 수동 반영인가
 
 `apps/server/src/app/app.module.ts`의 TypeORM 설정은 `synchronize`를 **운영에서만 끕니다.**
 
@@ -14,10 +12,34 @@
 synchronize: configService.get<string>('NODE_ENV') !== 'production',
 ```
 
-마이그레이션 파일이 따로 없으므로, 개발 환경은 엔티티에 붙인 `@Index`가 자동 반영되지만
-운영 DB에는 반영되지 않습니다. 아래 SQL을 운영 DB에 직접 실행해야 합니다.
+마이그레이션 도구도, `migrations/` 디렉터리도, TypeORM CLI 설정도 없습니다.
+그래서 개발 환경은 엔티티 변경이 자동 반영되지만 **운영은 사람이 SQL을 직접 돌려야 합니다.**
 
-## 배경
+### 운영에 나갈 DDL을 추측하지 않고 뽑는 방법
+
+1. 로컬 DB 스키마를 다른 DB로 복제
+2. 그 사본을 "운영과 같은 형태"로 되돌림 (이번 변경으로 생길 것들을 제거)
+3. 그 사본을 향해 `dataSource.driver.createSchemaBuilder().log()` 실행
+4. 나온 `upQueries`가 곧 운영에 필요한 DDL 전부
+
+워터마크 전환 때 실제로 쓴 방법입니다. "이것 말고는 없다"를 추측이 아니라
+증명할 수 있습니다.
+
+## 적용 이력
+
+| 날짜 | 내용 | 관련 커밋 |
+| --- | --- | --- |
+| 2026-09-02 | 채팅 테이블 인덱스 5개 추가 | `e0eed214` |
+| 2026-09-02 | 읽음 워터마크 컬럼 추가·백필, `read_receipts` 드롭 | `778ef588` |
+
+현재 운영에 남아 있는 채팅 인덱스는 **4개**입니다
+(`idx_read_receipts_message`는 테이블과 함께 사라졌습니다).
+
+---
+
+## 1. 채팅 테이블 인덱스 5개 (2026-09-02)
+
+### 배경
 
 채팅 테이블에는 인덱스가 하나도 없었습니다. PostgreSQL은 외래 키 컬럼에 인덱스를
 자동으로 만들지 않으므로 `chatRoomId`, `senderId`, `messageId` 모두 인덱스가 없는 상태였고,
@@ -38,7 +60,7 @@ synchronize: configService.get<string>('NODE_ENV') !== 'production',
 > 아래에 나오는 `read_receipts`는 지금은 없는 테이블입니다. 당시 기록 그대로 둡니다.
 > 읽음 처리가 워터마크로 바뀌면서 테이블과 인덱스를 함께 드롭했습니다(아래 "이후 변경").
 
-## 실행할 SQL
+### 실행한 SQL
 
 인덱스 이름은 엔티티의 `@Index('...')`에 지정한 이름과 같습니다.
 이름과 컬럼이 일치하므로 개발 환경의 `synchronize`가 이 인덱스를 다시 만들거나 지우지 않습니다.
@@ -73,7 +95,7 @@ JOIN pg_index i ON i.indexrelid = c.oid
 WHERE c.relname LIKE 'idx_chat%' OR c.relname LIKE 'idx_read_receipts%';
 ```
 
-## 확인
+### 확인
 
 ```sql
 SELECT tablename, indexname
@@ -85,13 +107,15 @@ ORDER BY tablename, indexname;
 
 당시에는 5개 행이 나왔습니다. 지금은 아래 이유로 **4개 행**이 정상입니다.
 
-## 이후 변경 (읽음 워터마크 전환, 2026-09-02)
+## 2. 읽음 워터마크 전환 (2026-09-02)
 
 읽음 처리가 `chat_participants.lastReadMessageId` 워터마크로 바뀌면서
 `read_receipts` 테이블을 드롭했습니다. `idx_read_receipts_message`도 함께 사라졌고,
 남은 인덱스는 4개입니다.
 
-운영에 실제로 실행한 SQL은 아래 순서 그대로입니다.
+### 실행한 SQL
+
+아래 순서 그대로 실행했습니다.
 
 ```sql
 -- 1) 컬럼 추가 (코드 배포 전. 구버전 코드는 이 컬럼을 모르므로 무해)
