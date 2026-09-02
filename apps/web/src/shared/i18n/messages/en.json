@@ -1136,14 +1136,19 @@
         "title": "Used Market",
         "description": "Trade various used books and discover new stories."
       },
-      "title": "Books Finding New Readers",
-      "subtitle": "CIRCULATION",
-      "messages": {
-        "0": "Waiting for the next reader\nin someone's bookshelf",
-        "1": "A once-read book\nfound its way to someone new",
-        "2": "A book was passed along\nin a neighborhood nearby",
-        "3": "A book sitting on a shelf\nmet a new reader",
-        "4": "A finished book\nheads to another bookshelf"
+      "title_lead": "Sell the books you've read,",
+      "title_main": "buy the ones you haven't",
+      "description": "Meet a neighbor in person, or send it by parcel.\nNew listings are going up right now.",
+      "cta_sell": "Sell my book",
+      "feed": {
+        "title": "RECENTLY LISTED",
+        "price": "₩{price}",
+        "empty": "Be the first to list a book"
+      },
+      "stats": {
+        "new_listings": "Listed in 24h",
+        "regions": "Active areas",
+        "sellers": "Neighbors selling"
       }
     },
     "popular": {

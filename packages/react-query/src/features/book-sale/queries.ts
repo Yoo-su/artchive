@@ -13,9 +13,14 @@ import {
   bookSaleKeys,
   CACHE_TIME,
   SearchBookSalesParams,
+  UsedBookSale,
   UseInfiniteRelatedSalesQueryProps,
 } from "@bookjeok/core";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQuery,
+  type UseQueryOptions,
+} from "@tanstack/react-query";
 
 /**
  * 판매글 검색 (무한 스크롤)
@@ -123,11 +128,21 @@ export const useRelatedSalesQuery = ({
 
 /**
  * 최근 판매글 목록
+ *
+ * 전역 기본값은 staleTime: Infinity 이므로, 실시간성이 필요한 화면(마켓 히어로 등)은
+ * options로 staleTime/refetchInterval을 덮어써서 주기적으로 갱신할 수 있습니다.
  */
-export const useRecentBookSalesQuery = (limit: number = 25) => {
+export const useRecentBookSalesQuery = (
+  limit: number = 25,
+  options?: Pick<
+    UseQueryOptions<UsedBookSale[]>,
+    "staleTime" | "refetchInterval" | "refetchOnMount"
+  >,
+) => {
   return useQuery({
     queryKey: bookSaleKeys.recentSales(limit).queryKey,
     queryFn: () => getRecentBookSales(limit),
+    ...options,
   });
 };
 
