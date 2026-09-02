@@ -65,10 +65,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // isomorphic-dompurify는 내부적으로 jsdom을 쓰는데, jsdom은 런타임에 자신의
-  // default-stylesheet.css를 fs로 읽습니다. webpack이 번들링하면 이 파일이
-  // 함께 옮겨지지 않아 ENOENT로 서버 렌더링이 실패하므로 번들에서 제외합니다.
-  serverExternalPackages: ["isomorphic-dompurify"],
   transpilePackages: [
     "@bookjeok/react-query",
     "@bookjeok/core",
