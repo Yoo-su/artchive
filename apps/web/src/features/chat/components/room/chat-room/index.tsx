@@ -11,6 +11,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { cn } from "@/shared/utils/cn";
 
 import { useChatScroll } from "../../../hooks/use-chat-scroll";
 import { useMarkRoomAsRead } from "../../../hooks/use-mark-room-as-read";
@@ -241,7 +242,13 @@ export const ChatRoom = ({ roomId }: ChatRoomProps) => {
                 ? t("aria.new_messages", { count: missedMessageCount })
                 : t("aria.scroll_to_latest")
             }
-            className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-stone-900/85 py-1.5 pl-3 pr-2.5 text-xs font-medium text-white shadow-lg transition-colors hover:bg-stone-900"
+            className={cn(
+              "absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center justify-center gap-1.5 rounded-full bg-stone-900/85 text-xs font-medium text-white shadow-lg transition-colors hover:bg-stone-900",
+              missedMessageCount > 0
+                ? "py-1.5 pl-3 pr-2.5"
+                : // 아이콘만 있을 때는 좌우 여백을 맞춰 정확히 가운데 정렬되도록 정사각 버튼으로 렌더링합니다.
+                  "size-7 p-0",
+            )}
           >
             {missedMessageCount > 0 && (
               <span className="tabular-nums">
