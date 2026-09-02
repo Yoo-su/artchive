@@ -1,6 +1,10 @@
 "use client";
 
-import DOMPurify from "dompurify";
+// dompurify는 브라우저 DOM에 의존해 서버에서는 sanitize가 정의되지 않습니다.
+// 그대로 두면 서버 렌더링 중 예외가 나면서 리뷰 상세 본문이 통째로 비어
+// 검색엔진에 빈 페이지로 전달되므로, 서버/클라이언트 양쪽에서 동작하는
+// isomorphic-dompurify를 사용합니다.
+import DOMPurify from "isomorphic-dompurify";
 
 interface ReviewDetailContentProps {
   content: string;
