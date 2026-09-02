@@ -1,6 +1,7 @@
 import {
-  Column, // Column 추가
+  Column,
   Entity,
+  Index,
   ManyToOne,
   PrimaryGeneratedColumn,
   Unique,
@@ -11,6 +12,9 @@ import { User } from '@/features/user/entities/user.entity';
 import { ChatRoom } from './chat-room.entity';
 
 @Entity({ name: 'chat_participants' })
+// 방 기준 참여자 조회(메시지 전송 시 상대방 상태 확인)를 위한 인덱스.
+// 유저 기준 조회는 아래 @Unique가 만드는 (userId, chatRoomId) 인덱스로 커버됩니다.
+@Index('idx_chat_participants_room', ['chatRoom'])
 @Unique(['user', 'chatRoom'])
 export class ChatParticipant {
   @PrimaryGeneratedColumn()

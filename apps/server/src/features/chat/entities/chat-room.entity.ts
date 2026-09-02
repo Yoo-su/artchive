@@ -1,6 +1,7 @@
 import {
   CreateDateColumn,
   Entity,
+  Index,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -12,6 +13,8 @@ import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.
 import { ChatMessage } from './chat-message.entity';
 import { ChatParticipant } from './chat-participant.entity';
 
+// 판매글 단위 방 조회(방 찾기/생성, 다른 구매자 알림)에 쓰입니다.
+@Index('idx_chat_rooms_used_book_sale', ['usedBookSale'])
 @Entity({ name: 'chat_rooms' })
 export class ChatRoom {
   @PrimaryGeneratedColumn()
