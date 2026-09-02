@@ -4,14 +4,12 @@ import {
   Entity,
   Index,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
 import { User } from '@/features/user/entities/user.entity';
 
 import { ChatRoom } from './chat-room.entity';
-import { ReadReceipt } from './read-receipt.entity';
 
 export enum ChatMessageType {
   TEXT = 'TEXT',
@@ -25,6 +23,7 @@ export enum ChatMessageType {
 // 모든 채팅 쿼리의 기본 접근 경로라 복합 인덱스가 필요합니다.
 @Index('idx_chat_messages_room_created_at', ['chatRoom', 'createdAt'])
 // 안 읽음 집계는 "내가 보내지 않은 메시지"를 방 단위로 훑습니다.
+// (참여자의 lastReadMessageId 워터마크보다 뒤에 있는 메시지를 세는 경로입니다.)
 @Index('idx_chat_messages_room_sender', ['chatRoom', 'sender'])
 @Entity({ name: 'chat_messages' })
 export class ChatMessage {
@@ -54,7 +53,4 @@ export class ChatMessage {
     onDelete: 'CASCADE',
   })
   chatRoom: ChatRoom;
-
-  @OneToMany(() => ReadReceipt, (receipt) => receipt.message)
-  readReceipts: ReadReceipt[];
 }

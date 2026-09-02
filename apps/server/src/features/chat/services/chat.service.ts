@@ -16,11 +16,7 @@ import { BusinessException } from '@/shared/exceptions/business.exception';
 import { ChatMessage, ChatMessageType } from '../entities/chat-message.entity';
 import { ChatParticipant } from '../entities/chat-participant.entity';
 import { ChatRoom } from '../entities/chat-room.entity';
-import { ReadReceipt } from '../entities/read-receipt.entity';
 import { ChatGateway } from '../gateways/chat.gateway';
-
-/** 읽음 기록 벌크 INSERT 청크 크기 (드라이버 파라미터 상한 회피) */
-const READ_RECEIPT_INSERT_CHUNK = 500;
 
 @Injectable()
 export class ChatService {
@@ -34,8 +30,6 @@ export class ChatService {
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
     private readonly usedBookSaleService: UsedBookSaleService,
-    @InjectRepository(ReadReceipt)
-    private readonly readReceiptRepository: Repository<ReadReceipt>,
     @Inject(forwardRef(() => ChatGateway))
     private readonly chatGateway: ChatGateway,
     private readonly eventEmitter: EventEmitter2,
@@ -288,17 +282,22 @@ export class ChatService {
     });
 
     // 3. 안 읽은 메시지 개수 일괄 조회 (내가 보낸 메시지 제외, 상대방 메시지 및 시스템/거래 메시지 포함)
+    //    내 참여자 행의 워터마크보다 ID가 큰 메시지가 곧 안 읽은 메시지입니다.
+    //    방마다 기준값이 다르므로 참여자 행을 조인해 방별 워터마크를 가져옵니다.
     const unreadCounts = await this.chatMessageRepository
       .createQueryBuilder('message')
       .leftJoin('message.sender', 'sender')
-      .leftJoin('message.readReceipts', 'receipt', 'receipt.userId = :userId', {
-        userId,
-      })
+      .innerJoin(
+        ChatParticipant,
+        'participant',
+        'participant.chatRoomId = message.chatRoomId AND participant.userId = :userId',
+        { userId },
+      )
       .select('message.chatRoom.id', 'roomId')
       .addSelect('COUNT(message.id)', 'count')
       .where('message.chatRoom.id IN (:...roomIds)', { roomIds })
       .andWhere('(sender.id IS NULL OR sender.id != :userId)', { userId })
-      .andWhere('receipt.id IS NULL')
+      .andWhere('message.id > COALESCE(participant.lastReadMessageId, 0)')
       .groupBy('message.chatRoom.id')
       .getRawMany();
 
@@ -466,32 +465,31 @@ export class ChatService {
   }
 
   /**
-   * 특정 채팅방의 안 읽은 메시지를 모두 읽음으로 처리합니다.
+   * 특정 채팅방을 "여기까지 읽음"으로 표시합니다.
    *
-   * 메시지 엔티티를 통째로 로드하지 않고 ID만 조회한 뒤 한 번의 INSERT로 기록합니다.
-   * 방을 열 때마다, 그리고 메시지가 도착할 때마다 호출되는 경로라
-   * 엔티티 하이드레이션과 건당 INSERT 비용을 제거하는 것이 중요합니다.
+   * 읽은 메시지를 건별로 쌓지 않고 참여자 행의 워터마크(lastReadMessageId) 한 칸만
+   * 옮깁니다. 방을 열 때마다, 그리고 메시지가 도착할 때마다 호출되는 경로라
+   * 쓰기 비용이 메시지 수와 무관해야 합니다.
    *
    * @param roomId 채팅방 ID
    * @param userId 유저 ID
-   * @returns 처리 결과와 이번에 읽음 처리된 마지막 메시지 ID
+   * @returns `updated`는 워터마크가 실제로 올라갔는지 여부(0 또는 1)이고,
+   *          `lastReadMessageId`는 갱신 여부와 무관한 현재 읽음 지점입니다.
    */
   async markMessagesAsRead(roomId: number, userId: number) {
-    // 1. 이 방에서, 내가 보낸 메시지가 아니고(상대방 메시지 및 시스템/거래 메시지),
-    //    내가 아직 읽지 않은 메시지의 ID만 조회합니다.
-    const unreadRows = await this.chatMessageRepository
+    // 1. 이 방에서 내가 보내지 않은(상대방 메시지 및 시스템/거래 메시지)
+    //    마지막 메시지 ID가 새 워터마크입니다.
+    const raw = await this.chatMessageRepository
       .createQueryBuilder('message')
       .leftJoin('message.sender', 'sender')
-      .leftJoin('message.readReceipts', 'receipt', 'receipt.userId = :userId', {
-        userId,
-      })
-      .select('message.id', 'id')
+      .select('MAX(message.id)', 'watermark')
       .where('message.chatRoom.id = :roomId', { roomId })
       .andWhere('(sender.id IS NULL OR sender.id != :userId)', { userId })
-      .andWhere('receipt.id IS NULL')
-      .getRawMany<{ id: number }>();
+      .getRawOne<{ watermark: string | null }>();
 
-    if (unreadRows.length === 0) {
+    const watermark = raw?.watermark ? Number(raw.watermark) : null;
+
+    if (watermark === null) {
       return {
         success: true,
         updated: 0,
@@ -500,33 +498,26 @@ export class ChatService {
       };
     }
 
-    const messageIds = unreadRows.map((row) => Number(row.id));
-
-    // 2. 읽음 기록을 벌크 INSERT합니다.
-    //    동시 요청으로 같은 기록이 겹칠 수 있으므로 충돌은 무시합니다.
-    //    파라미터 상한에 걸리지 않도록 청크 단위로 나눠 보냅니다.
-    for (let i = 0; i < messageIds.length; i += READ_RECEIPT_INSERT_CHUNK) {
-      const chunk = messageIds.slice(i, i + READ_RECEIPT_INSERT_CHUNK);
-      await this.readReceiptRepository
-        .createQueryBuilder()
-        .insert()
-        .into(ReadReceipt)
-        .values(
-          chunk.map((messageId) => ({
-            user: { id: userId } as User,
-            message: { id: messageId } as ChatMessage,
-          })),
-        )
-        .orIgnore()
-        .execute();
-    }
+    // 2. 워터마크는 앞으로만 움직입니다.
+    //    동시 요청이나 뒤늦게 도착한 요청이 읽음 지점을 되돌리면
+    //    이미 읽은 메시지가 다시 안 읽음으로 살아나므로 조건으로 막습니다.
+    const result = await this.chatParticipantRepository
+      .createQueryBuilder()
+      .update(ChatParticipant)
+      .set({ lastReadMessageId: watermark })
+      .where('"chatRoomId" = :roomId', { roomId })
+      .andWhere('"userId" = :userId', { userId })
+      .andWhere(
+        '("lastReadMessageId" IS NULL OR "lastReadMessageId" < :watermark)',
+        { watermark },
+      )
+      .execute();
 
     return {
       success: true,
-      updated: messageIds.length,
+      updated: result.affected ?? 0,
       // 상대방에게 "여기까지 읽었다"고 알리기 위한 기준점입니다.
-      // 스프레드(Math.max(...ids))는 배열이 크면 호출 스택을 넘길 수 있어 순회로 구합니다.
-      lastReadMessageId: messageIds.reduce((max, id) => (id > max ? id : max), 0),
+      lastReadMessageId: watermark,
       message: 'Messages marked as read.',
     };
   }
@@ -540,12 +531,11 @@ export class ChatService {
     roomId: number,
     userId: number,
   ): Promise<number | null> {
-    const raw = await this.readReceiptRepository
-      .createQueryBuilder('receipt')
-      .innerJoin('receipt.message', 'message')
-      .select('MAX(message.id)', 'lastReadMessageId')
-      .where('message.chatRoom.id = :roomId', { roomId })
-      .andWhere('receipt.userId != :userId', { userId })
+    const raw = await this.chatParticipantRepository
+      .createQueryBuilder('participant')
+      .select('MAX(participant.lastReadMessageId)', 'lastReadMessageId')
+      .where('participant.chatRoomId = :roomId', { roomId })
+      .andWhere('participant.userId != :userId', { userId })
       .getRawOne<{ lastReadMessageId: string | null }>();
 
     return raw?.lastReadMessageId ? Number(raw.lastReadMessageId) : null;
