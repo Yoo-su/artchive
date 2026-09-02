@@ -1,5 +1,11 @@
 # 채팅 인덱스 운영 반영 안내
 
+> 이 저장소에는 마이그레이션 도구가 없습니다. **운영 DB에 사람이 직접 실행한 DDL은
+> 이 문서가 유일한 기록입니다.** 앞으로도 운영에 SQL을 직접 돌렸다면 여기에 남기세요.
+>
+> 현재까지 적용분: 인덱스 5개(아래) → 워터마크 컬럼 추가와 `read_receipts` 드롭
+> (맨 아래 "이후 변경"). 지금 운영에 남아 있는 채팅 인덱스는 4개입니다.
+
 ## 왜 수동 반영이 필요한가
 
 `apps/server/src/app/app.module.ts`의 TypeORM 설정은 `synchronize`를 **운영에서만 끕니다.**
@@ -84,6 +90,35 @@ ORDER BY tablename, indexname;
 읽음 처리가 `chat_participants.lastReadMessageId` 워터마크로 바뀌면서
 `read_receipts` 테이블을 드롭했습니다. `idx_read_receipts_message`도 함께 사라졌고,
 남은 인덱스는 4개입니다.
+
+운영에 실제로 실행한 SQL은 아래 순서 그대로입니다.
+
+```sql
+-- 1) 컬럼 추가 (코드 배포 전. 구버전 코드는 이 컬럼을 모르므로 무해)
+ALTER TABLE chat_participants
+  ADD COLUMN IF NOT EXISTS "lastReadMessageId" integer;
+
+-- 2) 백필: 영수증의 방별 최대 메시지 ID가 곧 워터마크
+--    GREATEST를 쓰면 여러 번 돌려도 워터마크가 뒤로 가지 않습니다.
+UPDATE chat_participants cp
+SET "lastReadMessageId" = GREATEST(COALESCE(cp."lastReadMessageId", 0), sub.watermark)
+FROM (
+  SELECT r."userId", m."chatRoomId", MAX(m.id) AS watermark
+  FROM read_receipts r
+  JOIN chat_messages m ON m.id = r."messageId"
+  GROUP BY r."userId", m."chatRoomId"
+) sub
+WHERE cp."userId" = sub."userId" AND cp."chatRoomId" = sub."chatRoomId";
+
+-- 3) 코드 배포 후, 관찰을 거쳐 정리
+DROP TABLE read_receipts;
+```
+
+백필 전에 "읽음 집합에 구멍이 없는지"를 먼저 확인했고(운영 결과 0),
+백필 후에는 두 방식의 안 읽음 개수가 모든 참여자에 대해 일치하는지 검증했습니다
+(결과 0). 검증 쿼리는 `perf(server): 읽음 처리를 참여자 워터마크로 전환` 커밋을
+되짚을 일이 있을 때 그 시점 문서(`docs/chat-read-watermark-plan.md`, 전환 완료 후 삭제)
+이력에서 찾을 수 있습니다.
 
 워터마크는 인덱스를 두지 않았습니다. 이 컬럼은 항상 `(userId, chatRoomId)`로 찾은
 행에서 읽고 쓰기만 하고 — 그 조합은 `@Unique`가 만든 인덱스가 커버합니다 —
