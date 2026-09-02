@@ -46,7 +46,7 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale });
-  return generateGlobalMetadata(t);
+  return generateGlobalMetadata(t, locale);
 }
 
 export function generateStaticParams() {
