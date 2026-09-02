@@ -1,18 +1,16 @@
 "use client";
 
-// dompurify는 브라우저 DOM에 의존해 서버에서는 sanitize가 정의되지 않습니다.
-// 그대로 두면 서버 렌더링 중 예외가 나면서 리뷰 상세 본문이 통째로 비어
-// 검색엔진에 빈 페이지로 전달되므로, 서버/클라이언트 양쪽에서 동작하는
-// isomorphic-dompurify를 사용합니다.
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizeReviewContent } from "@/shared/utils/sanitize-review-content";
 
 interface ReviewDetailContentProps {
   content: string;
 }
 
 export function ReviewDetailContent({ content }: ReviewDetailContentProps) {
-  // XSS 공격 방지를 위해 HTML 콘텐츠를 sanitize 처리
-  const sanitizedContent = DOMPurify.sanitize(content);
+  // XSS 공격 방지를 위해 HTML 콘텐츠를 sanitize 처리.
+  // sanitize-html은 DOM에 의존하지 않으므로 SSR(검색엔진에 내려가는 HTML)과
+  // 클라이언트 리페치 이후 렌더가 동일한 결과를 냅니다.
+  const sanitizedContent = sanitizeReviewContent(content);
 
   return (
     <div
