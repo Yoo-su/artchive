@@ -244,6 +244,33 @@ export const updateRoomLastMessage = (
 };
 
 /**
+ * 방의 메시지 캐시를 첫 페이지만 남기고 다시 받아오게 합니다.
+ *
+ * 끊긴 동안 놓친 메시지를 메꿀 때 씁니다. 과거 페이지는 커서가 고정되어 있어
+ * 그대로 다시 받으면 새로 들어온 메시지가 첫 페이지를 밀어내면서 페이지 사이에
+ * 빈 구간이 생깁니다. 커서 없는 첫 페이지만 남기면 최신부터 이어서 받습니다.
+ *
+ * 화면을 비우지 않도록 캐시를 지우지 않고 남겨 둔 채로 무효화합니다.
+ */
+export const resyncRoomMessages = (
+  queryClient: QueryClient,
+  roomId: number,
+): void => {
+  const queryKey = chatKeys.messages(roomId).queryKey;
+
+  queryClient.setQueryData<InfiniteMessagesData>(queryKey, (oldData) => {
+    if (!oldData || oldData.pages.length <= 1) return oldData;
+    return {
+      ...oldData,
+      pages: oldData.pages.slice(-1),
+      pageParams: oldData.pageParams.slice(-1),
+    };
+  });
+
+  queryClient.invalidateQueries({ queryKey });
+};
+
+/**
  * 채팅방 목록 캐시에서 해당 방의 안 읽음 배지를 즉시 0으로 만듭니다.
  * 서버 요청 없이 화면만 먼저 반영하는 낙관적 업데이트입니다.
  */

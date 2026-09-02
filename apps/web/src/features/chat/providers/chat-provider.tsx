@@ -1,6 +1,6 @@
 "use client";
 
-import { chatKeys, ChatMessage } from "@bookjeok/core";
+import { chatKeys } from "@bookjeok/core";
 import { useMyChatRoomsQuery } from "@bookjeok/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
@@ -16,6 +16,7 @@ import { useChatStore } from "@/features/chat/stores/use-chat-store";
 import { useSocketContext } from "@/shared/providers/socket-provider";
 
 import { HIDE_CHAT_WIDGET_ROUTES } from "../constants/routes";
+import { resyncRoomMessages } from "../utils/chat-cache-utils";
 
 /** joinRooms ack 대기 제한 시간 */
 const JOIN_ACK_TIMEOUT_MS = 10_000;
@@ -23,11 +24,6 @@ const JOIN_ACK_TIMEOUT_MS = 10_000;
 const MAX_JOIN_ATTEMPTS = 3;
 /** joinRooms 재시도 기본 대기 시간 (시도마다 2배씩 증가) */
 const JOIN_RETRY_BASE_MS = 1_000;
-
-type InfiniteMessagesData = {
-  pages: { messages: ChatMessage[] }[];
-  pageParams: (number | undefined)[];
-};
 
 export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -87,20 +83,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (activeChatRoomId === null) return;
 
-    const activeKey = chatKeys.messages(activeChatRoomId).queryKey;
-
     // 열려 있는 방은 첫 페이지만 남기고 다시 받습니다.
-    // 과거 페이지는 커서가 고정되어 있어 그대로 다시 받으면 새 메시지와 겹치거나
-    // 사이가 비는 구간이 생기고, 첫 페이지만 남기면 화면을 비우지 않고 이어집니다.
-    queryClient.setQueryData<InfiniteMessagesData>(activeKey, (oldData) => {
-      if (!oldData || oldData.pages.length <= 1) return oldData;
-      return {
-        ...oldData,
-        pages: oldData.pages.slice(-1),
-        pageParams: oldData.pageParams.slice(-1),
-      };
-    });
-    queryClient.invalidateQueries({ queryKey: activeKey });
+    resyncRoomMessages(queryClient, activeChatRoomId);
   }, [queryClient]);
 
   // Effect 1: 이벤트 리스너 생명주기 관리
