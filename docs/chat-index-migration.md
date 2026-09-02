@@ -29,6 +29,9 @@ synchronize: configService.get<string>('NODE_ENV') !== 'production',
 각각 `(userId, chatRoomId)`, `(userId, messageId)` 순서라 **선행 컬럼이 userId**입니다.
 방 기준·메시지 기준 조회는 그 인덱스를 쓸 수 없어 아래 인덱스를 따로 추가합니다.
 
+> 아래에 나오는 `read_receipts`는 지금은 없는 테이블입니다. 당시 기록 그대로 둡니다.
+> 읽음 처리가 워터마크로 바뀌면서 테이블과 인덱스를 함께 드롭했습니다(아래 "이후 변경").
+
 ## 실행할 SQL
 
 인덱스 이름은 엔티티의 `@Index('...')`에 지정한 이름과 같습니다.
@@ -74,13 +77,16 @@ WHERE tablename IN ('chat_messages', 'read_receipts', 'chat_participants', 'chat
 ORDER BY tablename, indexname;
 ```
 
-5개 행이 나오면 정상입니다.
+당시에는 5개 행이 나왔습니다. 지금은 아래 이유로 **4개 행**이 정상입니다.
 
-## 이후 변경 (읽음 워터마크 전환)
+## 이후 변경 (읽음 워터마크 전환, 2026-09-02)
 
-읽음 처리는 이후 `chat_participants.lastReadMessageId` 워터마크로 바뀌었습니다.
-`read_receipts` 테이블과 `idx_read_receipts_message` 인덱스는 관찰 기간이 끝나면
-테이블을 드롭하면서 함께 사라집니다. 절차와 남은 단계는
-`docs/chat-read-watermark-plan.md`를 보세요.
+읽음 처리가 `chat_participants.lastReadMessageId` 워터마크로 바뀌면서
+`read_receipts` 테이블을 드롭했습니다. `idx_read_receipts_message`도 함께 사라졌고,
+남은 인덱스는 4개입니다.
 
-그 시점 이후 위 "확인" 쿼리는 `read_receipts` 행이 빠져 **4개 행**이 정상입니다.
+워터마크는 인덱스를 두지 않았습니다. 이 컬럼은 항상 `(userId, chatRoomId)`로 찾은
+행에서 읽고 쓰기만 하고 — 그 조합은 `@Unique`가 만든 인덱스가 커버합니다 —
+조건으로 거는 쪽은 언제나 `chat_messages.id`입니다.
+
+설계 설명은 `apps/server/src/features/chat/README.md`의 "4. 읽음 처리: 워터마크"에 있습니다.
