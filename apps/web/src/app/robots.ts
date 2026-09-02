@@ -28,7 +28,23 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "Google-Extended",
         disallow: ["/"],
       }, */
-      // 일반 크롤러 허용 (Googlebot, Naver 등 포함)
+      // 네이버 크롤러(Yeti): 한국어 페이지만 수집하도록 /en을 차단한다.
+      // 구글은 이 그룹을 읽지 않으므로 /en의 구글 색인에는 영향이 없다.
+      //
+      // robots.txt는 매칭되는 UA 그룹이 있으면 "*" 그룹을 무시하므로,
+      // 아래 공통 비공개 경로를 여기에도 그대로 반복해야 한다.
+      {
+        userAgent: "Yeti",
+        allow: ["/"],
+        disallow: [
+          "/en",
+          "/*/my-page",
+          "/*/login",
+          "/*/signup",
+          "/*/callback",
+        ],
+      },
+      // 일반 크롤러 허용 (Googlebot 등 포함)
       {
         userAgent: "*",
         allow: ["/"],
