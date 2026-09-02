@@ -58,6 +58,8 @@ export default function UserPopover() {
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
+          hoverScale={1}
+          tapScale={1}
           className="relative w-10 h-10 rounded-full p-0"
         >
           <Avatar className="w-10 h-10" data-nosnippet>
@@ -72,7 +74,7 @@ export default function UserPopover() {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-48 p-0"
+        className="w-48 p-0 overflow-hidden"
         align="end"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
@@ -88,6 +90,8 @@ export default function UserPopover() {
         <div className="p-1">
           <Button
             variant="ghost"
+            hoverScale={1}
+            tapScale={1}
             className="justify-start w-full h-auto px-3 py-2"
             asChild
           >
@@ -96,6 +100,8 @@ export default function UserPopover() {
 
           <Button
             variant="ghost"
+            hoverScale={1}
+            tapScale={1}
             className="justify-start w-full h-auto px-3 py-2"
             asChild
           >
@@ -103,6 +109,8 @@ export default function UserPopover() {
           </Button>
           <Button
             variant="ghost"
+            hoverScale={1}
+            tapScale={1}
             className="justify-start w-full h-auto px-3 py-2"
             asChild
           >
@@ -110,6 +118,8 @@ export default function UserPopover() {
           </Button>
           <Button
             variant="ghost"
+            hoverScale={1}
+            tapScale={1}
             className="justify-start w-full h-auto px-3 py-2"
             onClick={handleLogout}
           >
