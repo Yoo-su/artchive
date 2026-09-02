@@ -2,7 +2,14 @@ import { Metadata } from "next";
 
 export const generateGlobalMetadata = (
   t: (key: string) => string,
+  locale: string = "ko",
 ): Metadata => {
+  // 한국어 외 로케일(/en)은 검색에 노출하지 않는다.
+  //
+  // robots.txt로 막지 않는 이유: 수집을 차단하면 크롤러가 이 noindex를 읽을 수
+  // 없어 이미 색인된 페이지가 그대로 남는다. 수집은 허용하고 noindex로
+  // 걷어내게 한다.
+  const isSearchExcludedLocale = locale !== "ko";
   return {
     metadataBase: new URL("https://bookjeok.com"),
     title: {
@@ -56,7 +63,7 @@ export const generateGlobalMetadata = (
       images: ["/logo-og-sketch.png"],
     },
     robots:
-      process.env.VERCEL_ENV === "preview"
+      process.env.VERCEL_ENV === "preview" || isSearchExcludedLocale
         ? { index: false, follow: false }
         : {
             index: true,
