@@ -224,9 +224,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     const user = client.data.user as User;
-    client
-      .to(String(data.roomId))
-      .emit('typing', { nickname: user.nickname, isTyping: true });
+    // 수신 측이 어느 방의 입력인지 구분할 수 있도록 roomId를 함께 실어 보냅니다.
+    client.to(String(data.roomId)).emit('typing', {
+      roomId: data.roomId,
+      nickname: user.nickname,
+      isTyping: true,
+    });
   }
 
   @SubscribeMessage('stopTyping')
@@ -235,9 +238,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     const user = client.data.user as User;
-    client
-      .to(String(data.roomId))
-      .emit('typing', { nickname: user.nickname, isTyping: false });
+    client.to(String(data.roomId)).emit('typing', {
+      roomId: data.roomId,
+      nickname: user.nickname,
+      isTyping: false,
+    });
   }
 
   @SubscribeMessage('markAsRead')
@@ -248,11 +253,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = client.data.user as User;
     const { roomId } = data;
     try {
-      await this.chatService.markMessagesAsRead(roomId, user.id);
+      const result = await this.chatService.markMessagesAsRead(roomId, user.id);
+
+      // 새로 읽은 메시지가 있을 때만 알립니다.
+      // 상대방은 이 값으로 자신이 보낸 메시지의 읽음 표시를 갱신합니다.
+      if (result.updated > 0 && result.lastReadMessageId !== null) {
+        this.server.to(String(roomId)).emit('messagesRead', {
+          roomId,
+          userId: user.id,
+          lastReadMessageId: result.lastReadMessageId,
+        });
+      }
+
+      return { status: 'ok', lastReadMessageId: result.lastReadMessageId };
     } catch (error) {
       this.logger.error(
         `Failed to mark messages as read for user ${user.id} in room ${roomId}: ${error.message}`,
       );
+      return { status: 'error', error: error.message };
     }
   }
 }
