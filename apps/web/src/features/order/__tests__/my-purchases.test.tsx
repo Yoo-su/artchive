@@ -1,4 +1,5 @@
 import { Order, OrderStatus } from "@bookjeok/core";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -192,9 +193,22 @@ vi.mock("@/features/confirm", () => ({
   useConfirm: () => vi.fn().mockResolvedValue(true),
 }));
 
+/**
+ * 채팅 열기 훅(useOpenChatRoom)이 안 읽음 배지를 캐시에서 바로 지우므로
+ * 이 카드들을 렌더링하려면 QueryClient가 필요합니다.
+ */
+const renderWithQueryClient = (ui: React.ReactElement) =>
+  render(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
+      {ui}
+    </QueryClientProvider>,
+  );
+
 describe("PurchaseOrderCard", () => {
   it("renders order information and status badge", () => {
-    render(<PurchaseOrderCard order={mockOrders[0]} />);
+    renderWithQueryClient(<PurchaseOrderCard order={mockOrders[0]} />);
 
     expect(screen.getByText("클린 코드 (Clean Code)")).toBeInTheDocument();
     expect(screen.getByText("ORD-20260827-0001")).toBeInTheDocument();
@@ -204,7 +218,7 @@ describe("PurchaseOrderCard", () => {
   });
 
   it("renders delivery info and confirm purchase button for delivered order", () => {
-    render(<PurchaseOrderCard order={mockOrders[1]} />);
+    renderWithQueryClient(<PurchaseOrderCard order={mockOrders[1]} />);
 
     expect(screen.getByText("도메인 주도 설계")).toBeInTheDocument();
     expect(screen.getByText("CJ대한통운 123456789012")).toBeInTheDocument();
@@ -215,7 +229,7 @@ describe("PurchaseOrderCard", () => {
 
 describe("MyPurchasesList", () => {
   it("renders filter tabs and orders list", () => {
-    render(<MyPurchasesList />);
+    renderWithQueryClient(<MyPurchasesList />);
 
     expect(screen.getByRole("button", { name: "전체" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "결제 대기" })).toBeInTheDocument();

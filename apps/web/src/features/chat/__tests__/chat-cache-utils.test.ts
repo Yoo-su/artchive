@@ -9,7 +9,11 @@ import { chatKeys, ChatMessage } from "@bookjeok/core";
 import { QueryClient } from "@tanstack/react-query";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { replaceOptimisticMessage } from "@/features/chat/utils/chat-cache-utils";
+import {
+  prependMessageToCache,
+  replaceOptimisticMessage,
+  setMessageSendState,
+} from "@/features/chat/utils/chat-cache-utils";
 
 const ROOM_ID = 7;
 
@@ -33,6 +37,13 @@ const createMessage = (
 });
 
 let queryClient: QueryClient;
+
+const seedPages = (pages: ChatMessage[][]) => {
+  queryClient.setQueryData<MessagesCache>(chatKeys.messages(ROOM_ID).queryKey, {
+    pages: pages.map((messages) => ({ messages })),
+    pageParams: pages.map((_, index) => (index === pages.length - 1 ? undefined : index)),
+  });
+};
 
 const seedCache = (messages: ChatMessage[]) => {
   queryClient.setQueryData<MessagesCache>(chatKeys.messages(ROOM_ID).queryKey, {
@@ -120,5 +131,72 @@ describe("replaceOptimisticMessage", () => {
     );
 
     expect(getMessages().map((m) => m.id)).toEqual([500, 10]);
+  });
+});
+
+/**
+ * 과거 메시지를 불러오면 TanStack이 새 페이지를 배열 **앞**에 붙입니다.
+ * 그래서 `pages[0]`은 가장 오래된 페이지가 되고, 새 메시지는 마지막 페이지에
+ * 들어가야 시간순이 유지됩니다.
+ */
+describe("페이지가 여러 개일 때", () => {
+  it("새 메시지를 가장 오래된 페이지가 아니라 최신 페이지에 넣는다", () => {
+    seedPages([
+      [createMessage(2, "과거2"), createMessage(1, "과거1")],
+      [createMessage(20, "최신20"), createMessage(10, "최신10")],
+    ]);
+
+    prependMessageToCache(queryClient, ROOM_ID, createMessage(30, "새 메시지"));
+
+    const cache = queryClient.getQueryData<MessagesCache>(
+      chatKeys.messages(ROOM_ID).queryKey,
+    )!;
+    expect(cache.pages[0].messages.map((m) => m.id)).toEqual([2, 1]);
+    expect(cache.pages[1].messages.map((m) => m.id)).toEqual([30, 20, 10]);
+  });
+
+  it("짝 없는 서버 메시지도 최신 페이지에 붙인다", () => {
+    seedPages([
+      [createMessage(2, "과거2")],
+      [createMessage(20, "최신20")],
+    ]);
+
+    replaceOptimisticMessage(
+      queryClient,
+      ROOM_ID,
+      createMessage(30, "다른 탭", "cid-other"),
+    );
+
+    const cache = queryClient.getQueryData<MessagesCache>(
+      chatKeys.messages(ROOM_ID).queryKey,
+    )!;
+    expect(cache.pages[1].messages.map((m) => m.id)).toEqual([30, 20]);
+  });
+});
+
+describe("setMessageSendState", () => {
+  it("상관 ID가 같은 낙관적 메시지의 상태만 바꾼다", () => {
+    seedCache([
+      createMessage(-2, "두 번째", "cid-2"),
+      createMessage(-1, "첫 번째", "cid-1"),
+    ]);
+
+    setMessageSendState(queryClient, ROOM_ID, "cid-1", "failed");
+
+    const messages = getMessages();
+    expect(messages.find((m) => m.clientMessageId === "cid-1")?.sendState).toBe(
+      "failed",
+    );
+    expect(
+      messages.find((m) => m.clientMessageId === "cid-2")?.sendState,
+    ).toBeUndefined();
+  });
+
+  it("이미 확정된 메시지는 건드리지 않는다", () => {
+    seedCache([createMessage(100, "확정됨", "cid-1")]);
+
+    setMessageSendState(queryClient, ROOM_ID, "cid-1", "failed");
+
+    expect(getMessages()[0].sendState).toBeUndefined();
   });
 });

@@ -6,7 +6,9 @@ import {
   ChatMessage,
   ChatMessageType,
   ChatRoom,
+  MessagesReadEvent,
   orderKeys,
+  TypingEvent,
 } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
@@ -26,6 +28,9 @@ export const useChatEvents = () => {
   const queryClient = useQueryClient();
   const setTyping = useChatStore((state) => state.setTyping);
   const setRoomInactive = useChatStore((state) => state.setRoomInactive);
+  const setOpponentLastReadMessageId = useChatStore(
+    (state) => state.setOpponentLastReadMessageId,
+  );
 
   const handleNewChatRoom = useCallback(
     (newRoom: ChatRoom) => {
@@ -55,10 +60,8 @@ export const useChatEvents = () => {
       const { isChatOpen, activeChatRoomId } = useChatStore.getState();
       const isChatVisible = isChatOpen && activeChatRoomId === roomId;
 
-      // 채팅방이 현재 열려 있고 활성화된 상태라면, 즉시 읽음 처리
-      if (isChatVisible) {
-        socket?.emit("markAsRead", { roomId });
-      }
+      // 읽음 처리는 ChatRoom이 "보이는 방의 마지막 메시지"를 기준으로 한 번만 보냅니다.
+      // 여기서 메시지마다 emit하면 내가 보낸 메시지까지 포함해 중복 요청이 쌓입니다.
 
       // 내가 보낸 메시지인 경우, 낙관적 메시지를 실제 메시지로 교체
       const isMyMessage = newMessage.sender?.id === currentUserId;
@@ -87,7 +90,7 @@ export const useChatEvents = () => {
         queryClient.invalidateQueries({ queryKey: chatKeys.rooms.queryKey });
       }
     },
-    [queryClient, socket],
+    [queryClient],
   );
 
   const handleUserLeft = useCallback(
@@ -110,13 +113,22 @@ export const useChatEvents = () => {
   );
 
   const handleTyping = useCallback(
-    ({ nickname, isTyping }: { nickname: string; isTyping: boolean }) => {
-      const { activeChatRoomId } = useChatStore.getState();
-      if (activeChatRoomId) {
-        setTyping(activeChatRoomId, isTyping ? nickname : "");
-      }
+    ({ roomId, nickname, isTyping }: TypingEvent) => {
+      // 서버가 알려준 방에만 반영합니다.
+      // 열려 있는 방에 무조건 적용하면 다른 방의 입력이 잘못 표시됩니다.
+      if (typeof roomId !== "number") return;
+      setTyping(roomId, isTyping ? nickname : "");
     },
     [setTyping],
+  );
+
+  const handleMessagesRead = useCallback(
+    ({ roomId, userId, lastReadMessageId }: MessagesReadEvent) => {
+      // 내가 읽은 기록은 내 메시지의 읽음 표시와 무관합니다.
+      if (userId === useAuthStore.getState().user?.id) return;
+      setOpponentLastReadMessageId(roomId, lastReadMessageId);
+    },
+    [setOpponentLastReadMessageId],
   );
 
   const registerChatEventListeners = useCallback(() => {
@@ -126,6 +138,7 @@ export const useChatEvents = () => {
     socket.on("userLeft", handleUserLeft);
     socket.on("userRejoined", handleUserRejoined);
     socket.on("typing", handleTyping);
+    socket.on("messagesRead", handleMessagesRead);
   }, [
     socket,
     handleNewChatRoom,
@@ -133,6 +146,7 @@ export const useChatEvents = () => {
     handleUserLeft,
     handleUserRejoined,
     handleTyping,
+    handleMessagesRead,
   ]);
 
   const unregisterChatEventListeners = useCallback(() => {
@@ -142,6 +156,7 @@ export const useChatEvents = () => {
     socket.off("userLeft", handleUserLeft);
     socket.off("userRejoined", handleUserRejoined);
     socket.off("typing", handleTyping);
+    socket.off("messagesRead", handleMessagesRead);
   }, [
     socket,
     handleNewChatRoom,
@@ -149,6 +164,7 @@ export const useChatEvents = () => {
     handleUserLeft,
     handleUserRejoined,
     handleTyping,
+    handleMessagesRead,
   ]);
 
   return { registerChatEventListeners, unregisterChatEventListeners };

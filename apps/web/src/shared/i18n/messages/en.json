@@ -1514,7 +1514,11 @@
       "leave_room": "Leave chat room",
       "send_message": "Send message",
       "view_profile": "View {nickname}'s profile",
-      "attach_image": "Attach image"
+      "attach_image": "Attach image",
+      "scroll_to_latest": "Jump to latest message",
+      "new_messages": "{count} new messages, jump to latest",
+      "retry_message": "Resend message",
+      "discard_message": "Delete unsent message"
     },
     "trade": {
       "select_buyer_modal": {
@@ -1596,8 +1600,12 @@
     "image": {
       "limit_exceeded": "You can attach up to {max} images.",
       "upload_error": "Failed to upload the image. Please try again.",
-      "last_message_preview": "Photo"
-    }
+      "last_message_preview": "Photo",
+      "uploading": "Uploading image"
+    },
+    "read": "Read",
+    "send_failed": "Failed to send. Tap to try again.",
+    "new_messages": "{count} new"
   },
   "order": {
     "payment": {

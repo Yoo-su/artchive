@@ -49,6 +49,9 @@ export const ChatRoomHeader = ({
   const tCommon = useTranslations("common");
   const closeChatRoom = useChatStore((state) => state.closeChatRoom);
   const activeChatRoomId = useChatStore((state) => state.activeChatRoomId);
+  // 위젯은 닫혀도 언마운트되지 않습니다. 주문 쿼리는 5초마다 폴링하므로
+  // 보이지 않는 동안에도 계속 돌면 안 됩니다.
+  const isChatOpen = useChatStore((state) => state.isChatOpen);
   const { socket } = useSocketContext();
   const queryClient = useQueryClient();
 
@@ -58,7 +61,7 @@ export const ChatRoomHeader = ({
   const { data: order } = useActiveOrderByRoomQuery(
     activeChatRoomId ?? undefined,
     {
-      enabled: Boolean(activeChatRoomId) && isPaymentFeatureEnabled,
+      enabled: Boolean(activeChatRoomId) && isPaymentFeatureEnabled && isChatOpen,
     },
   );
 
@@ -112,8 +115,11 @@ export const ChatRoomHeader = ({
     room.usedBookSale?.title || room.usedBookSale?.book?.title;
   const bookPrice = room.usedBookSale?.price;
 
+  // 헤더 배경은 불투명합니다. backdrop-blur는 불투명한 Card 안에서 시각적으로
+  // 아무 일도 하지 않으면서, 사파리에서는 위젯이 열리는 0.3초 내내 백드롭 레이어를
+  // 다시 래스터화하게 만들었습니다. 비용만 있고 효과가 없어 걷어냈습니다.
   return (
-    <div className="flex items-center justify-between p-3 sm:p-4 border-b border-stone-200 dark:border-stone-800 shrink-0 bg-white/95 dark:bg-stone-900/95 backdrop-blur-xs">
+    <div className="flex items-center justify-between p-3 sm:p-4 border-b border-stone-200 dark:border-stone-800 shrink-0 bg-white dark:bg-stone-900">
       <div className="flex items-center gap-3 min-w-0 flex-1">
         <Button
           variant="ghost"

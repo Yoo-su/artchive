@@ -7,6 +7,11 @@ interface ChatState {
   isRoomInactive: { [roomId: number]: boolean };
   hasJoinedRooms: boolean;
   typingTimeouts: { [roomId: number]: NodeJS.Timeout };
+  /**
+   * 방별로 상대방이 읽은 마지막 메시지 ID.
+   * 내가 보낸 메시지에 읽음 표시를 하기 위한 값입니다.
+   */
+  opponentLastReadMessageId: { [roomId: number]: number };
 
   toggleChat: () => void;
   openChatRoom: (roomId: number) => void;
@@ -14,6 +19,7 @@ interface ChatState {
   setTyping: (roomId: number, nickname: string) => void;
   setRoomInactive: (roomId: number, isInactive: boolean) => void;
   setHasJoinedRooms: (hasJoined: boolean) => void;
+  setOpponentLastReadMessageId: (roomId: number, messageId: number) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -23,6 +29,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isRoomInactive: {},
   hasJoinedRooms: false,
   typingTimeouts: {},
+  opponentLastReadMessageId: {},
 
   toggleChat: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
 
@@ -84,5 +91,21 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setHasJoinedRooms: (hasJoined: boolean) => {
     set({ hasJoinedRooms: hasJoined });
+  },
+
+  /**
+   * 상대방의 읽음 지점을 갱신합니다.
+   * 이벤트가 순서를 바꿔 도착해도 뒤로 밀리지 않도록 더 큰 값만 반영합니다.
+   */
+  setOpponentLastReadMessageId: (roomId, messageId) => {
+    const current = get().opponentLastReadMessageId[roomId] ?? 0;
+    if (messageId <= current) return;
+
+    set((state) => ({
+      opponentLastReadMessageId: {
+        ...state.opponentLastReadMessageId,
+        [roomId]: messageId,
+      },
+    }));
   },
 }));

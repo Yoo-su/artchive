@@ -1,9 +1,9 @@
 import { ChatMessage, ChatMessageType } from "@bookjeok/core";
 import { motion } from "framer-motion";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, RotateCcw, X } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { RefObject, useState } from "react";
+import { memo, RefObject, useMemo, useState } from "react";
 
 import {
   Avatar,
@@ -16,8 +16,12 @@ import { getProfileImageUrl } from "@/shared/utils/profile-image";
 import {
   getMessageImageUrls,
   hasMessageText,
+  splitTextWithLinks,
 } from "../../../utils/chat-message-utils";
 import { TradeMessageCard } from "../../trade/trade-message-card";
+
+/** 내 메시지의 전송/읽음 상태 */
+type OwnMessageStatus = "sending" | "failed" | "sent" | "read";
 
 /** 시스템 메시지 버블 */
 const SystemMessageBubble = ({ content }: { content: string }) => (
@@ -74,14 +78,149 @@ const MessageImages = ({
   );
 };
 
+/**
+ * 메시지 본문. 줄바꿈을 그대로 보여주고 URL은 링크로 만듭니다.
+ * 사용자가 입력한 텍스트만 다루므로 HTML을 주입하지 않고 조각으로 나눠 렌더링합니다.
+ */
+const MessageText = ({
+  content,
+  className,
+}: {
+  content: string;
+  className?: string;
+}) => {
+  const segments = useMemo(() => splitTextWithLinks(content), [content]);
+
+  return (
+    <p
+      className={`text-sm whitespace-pre-wrap break-words ${className ?? ""}`}
+      data-clarity-mask="true"
+    >
+      {segments.map((segment, index) =>
+        segment.type === "link" ? (
+          <a
+            key={index}
+            href={segment.href}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            onClick={(e) => e.stopPropagation()}
+            className="break-all underline underline-offset-2"
+          >
+            {segment.value}
+          </a>
+        ) : (
+          <span key={index}>{segment.value}</span>
+        ),
+      )}
+    </p>
+  );
+};
+
+/** 전송 중 표시(점 세 개) */
+const SendingIndicator = () => (
+  <motion.div
+    className="flex gap-0.5"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+  >
+    {[0, 1, 2].map((i) => (
+      <motion.span
+        key={i}
+        className="w-1 h-1 bg-gray-400 rounded-full"
+        animate={{ opacity: [0.3, 1, 0.3] }}
+        transition={{
+          duration: 0.8,
+          repeat: Infinity,
+          delay: i * 0.15,
+        }}
+      />
+    ))}
+  </motion.div>
+);
+
+/**
+ * 내 메시지 옆의 상태 표시.
+ * 실패한 메시지는 지우지 않고 남겨 두고, 이 자리에서 재전송하거나 삭제합니다.
+ */
+const OwnMessageStatusColumn = ({
+  status,
+  onRetry,
+  onDiscard,
+}: {
+  status: OwnMessageStatus;
+  onRetry?: () => void;
+  onDiscard?: () => void;
+}) => {
+  const t = useTranslations("chat");
+
+  if (status === "failed") {
+    return (
+      <div className="flex items-end gap-0.5 mb-1">
+        <button
+          type="button"
+          onClick={onDiscard}
+          aria-label={t("aria.discard_message")}
+          title={t("aria.discard_message")}
+          className="rounded-full p-1 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600"
+        >
+          <X className="h-3.5 w-3.5" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          onClick={onRetry}
+          aria-label={t("aria.retry_message")}
+          title={t("send_failed")}
+          className="rounded-full p-1 text-red-500 transition-colors hover:bg-red-50 hover:text-red-600"
+        >
+          <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-end mb-1">
+      {status === "sending" ? (
+        <SendingIndicator />
+      ) : status === "read" ? (
+        <span className="text-[10px] font-medium leading-none text-emerald-600">
+          {t("read")}
+        </span>
+      ) : (
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+        >
+          <Check className="w-3 h-3 text-emerald-600" />
+        </motion.div>
+      )}
+    </div>
+  );
+};
+
 interface MessageBubbleProps {
   message: ChatMessage;
   isMine: boolean;
   currentUserId?: number;
+  /**
+   * 내 메시지 옆에 표시할 상태.
+   * 읽음 표시는 내 마지막 메시지에만 붙이므로 그 외에는 전달되지 않습니다.
+   */
+  ownStatus?: OwnMessageStatus;
+  onRetry?: (message: ChatMessage) => void;
+  onDiscard?: (message: ChatMessage) => void;
 }
 
 /** 메시지 버블 */
-const MessageBubble = ({ message, isMine, currentUserId }: MessageBubbleProps) => {
+const MessageBubbleComponent = ({
+  message,
+  isMine,
+  currentUserId,
+  ownStatus,
+  onRetry,
+  onDiscard,
+}: MessageBubbleProps) => {
   // 거래 관련 시스템 카드 메시지
   if (
     message.type === ChatMessageType.TRADE_STATUS ||
@@ -95,8 +234,8 @@ const MessageBubble = ({ message, isMine, currentUserId }: MessageBubbleProps) =
     return <SystemMessageBubble content={message.content} />;
   }
 
-  // 음수 ID는 전송 중인 낙관적 메시지
-  const isSending = message.id < 0;
+  const isFailed = ownStatus === "failed";
+  const isSending = ownStatus === "sending";
   const imageUrls = getMessageImageUrls(message);
   const hasImages = imageUrls.length > 0;
   const hasText = hasMessageText(message);
@@ -115,70 +254,55 @@ const MessageBubble = ({ message, isMine, currentUserId }: MessageBubbleProps) =
           <AvatarFallback>{message.sender.nickname.slice(0, 1)}</AvatarFallback>
         </Avatar>
       )}
-      {/* 내 메시지일 때 전송 상태를 버블 왼쪽에 표시 */}
-      {isMine && (
-        <div className="flex items-end mb-1">
-          {isSending ? (
-            <motion.div
-              className="flex gap-0.5"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              {[0, 1, 2].map((i) => (
-                <motion.span
-                  key={i}
-                  className="w-1 h-1 bg-gray-400 rounded-full"
-                  animate={{ opacity: [0.3, 1, 0.3] }}
-                  transition={{
-                    duration: 0.8,
-                    repeat: Infinity,
-                    delay: i * 0.15,
-                  }}
-                />
-              ))}
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 500, damping: 30 }}
-            >
-              <Check className="w-3 h-3 text-emerald-600" />
-            </motion.div>
-          )}
-        </div>
+      {/* 내 메시지일 때 전송/읽음 상태를 버블 왼쪽에 표시 */}
+      {isMine && ownStatus && (
+        <OwnMessageStatusColumn
+          status={ownStatus}
+          onRetry={onRetry ? () => onRetry(message) : undefined}
+          onDiscard={onDiscard ? () => onDiscard(message) : undefined}
+        />
       )}
       <div
         className={`max-w-[70%] rounded-2xl ${hasImages ? "w-52 p-1.5" : "px-4 py-2"} ${
           isMine
             ? "bg-emerald-700 text-white rounded-br-none"
             : "bg-gray-100 text-gray-800 rounded-bl-none"
-        } ${isSending ? "opacity-70" : ""}`}
+        } ${isSending ? "opacity-70" : ""} ${
+          isFailed ? "opacity-60 ring-1 ring-red-300" : ""
+        }`}
       >
         {hasImages && (
           <MessageImages imageUrls={imageUrls} isSending={isSending} />
         )}
         {hasText && (
-          <p
-            className={`text-sm ${hasImages ? "px-2.5 pb-1 pt-2" : ""}`}
-            data-clarity-mask="true"
-          >
-            {message.content}
-          </p>
+          <MessageText
+            content={message.content}
+            className={hasImages ? "px-2.5 pb-1 pt-2" : ""}
+          />
         )}
       </div>
     </div>
   );
 };
 
+/**
+ * 메시지가 늘어나면 목록 전체가 다시 렌더링되므로 말풍선 단위로 메모합니다.
+ * 메시지 객체는 캐시에서 바뀐 것만 새 참조를 갖기 때문에 참조 비교로 충분합니다.
+ */
+const MessageBubble = memo(MessageBubbleComponent);
+
 interface MessageListProps {
   messages: ChatMessage[];
   currentUserId?: number;
+  /** 상대방이 읽은 마지막 메시지 ID */
+  opponentLastReadMessageId?: number;
   isFetchingPreviousPage: boolean;
   messagesEndRef: RefObject<HTMLDivElement | null>;
   messageContainerRef: RefObject<HTMLDivElement | null>;
   contentRef?: RefObject<HTMLDivElement | null>;
   onScroll: () => void;
+  onRetryMessage?: (message: ChatMessage) => void;
+  onDiscardMessage?: (message: ChatMessage) => void;
 }
 
 /**
@@ -190,12 +314,27 @@ interface MessageListProps {
 export const MessageList = ({
   messages,
   currentUserId,
+  opponentLastReadMessageId = 0,
   isFetchingPreviousPage,
   messagesEndRef,
   messageContainerRef,
   contentRef,
   onScroll,
+  onRetryMessage,
+  onDiscardMessage,
 }: MessageListProps) => {
+  // 읽음 표시는 내 마지막 메시지에만 붙입니다.
+  // 모든 메시지에 붙이면 읽음 이벤트마다 내 말풍선 전부가 다시 렌더링됩니다.
+  const lastOwnMessageId = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const message = messages[i];
+      if (message.sender?.id === currentUserId && message.id > 0) {
+        return message.id;
+      }
+    }
+    return 0;
+  }, [messages, currentUserId]);
+
   return (
     <div
       role="log"
@@ -211,14 +350,40 @@ export const MessageList = ({
             <Loader2 className="h-5 w-5 animate-spin mx-auto text-gray-400" />
           </div>
         )}
-        {messages.map((message) => (
-          <MessageBubble
-            key={message.id}
-            message={message}
-            isMine={message.sender?.id === currentUserId}
-            currentUserId={currentUserId}
-          />
-        ))}
+        {messages.map((message) => {
+          const isMine = message.sender?.id === currentUserId;
+
+          let ownStatus: OwnMessageStatus | undefined;
+          if (isMine) {
+            if (message.id < 0) {
+              // 아직 서버에 확정되지 않은 낙관적 메시지
+              ownStatus = message.sendState === "failed" ? "failed" : "sending";
+            } else if (message.id === lastOwnMessageId) {
+              ownStatus =
+                message.id <= opponentLastReadMessageId ? "read" : "sent";
+            } else {
+              ownStatus = "sent";
+            }
+          }
+
+          return (
+            <MessageBubble
+              // 상관 ID가 있으면 낙관적 → 확정 교체 후에도 같은 키를 유지해
+              // 말풍선(과 첨부 이미지)이 다시 마운트되지 않게 합니다.
+              key={
+                message.clientMessageId
+                  ? `cid:${message.clientMessageId}`
+                  : message.id
+              }
+              message={message}
+              isMine={isMine}
+              currentUserId={currentUserId}
+              ownStatus={ownStatus}
+              onRetry={onRetryMessage}
+              onDiscard={onDiscardMessage}
+            />
+          );
+        })}
         <div ref={messagesEndRef} className="h-2 shrink-0 pointer-events-none" />
       </div>
     </div>

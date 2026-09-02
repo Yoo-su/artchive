@@ -1,4 +1,5 @@
 import { Order, OrderStatus } from "@bookjeok/core";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -139,9 +140,22 @@ vi.mock("@/features/confirm", () => ({
   useConfirm: () => vi.fn().mockResolvedValue(true),
 }));
 
+/**
+ * 채팅 열기 훅(useOpenChatRoom)이 안 읽음 배지를 캐시에서 바로 지우므로
+ * 이 카드들을 렌더링하려면 QueryClient가 필요합니다.
+ */
+const renderWithQueryClient = (ui: React.ReactElement) =>
+  render(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
+      {ui}
+    </QueryClientProvider>,
+  );
+
 describe("SalesOrderCard", () => {
   it("renders sales order info, buyer info and register shipping button", () => {
-    render(<SalesOrderCard order={mockSalesOrders[0]} />);
+    renderWithQueryClient(<SalesOrderCard order={mockSalesOrders[0]} />);
 
     expect(screen.getByText("Real MySQL 8.0 1권")).toBeInTheDocument();
     expect(screen.getByText("ORD-20260827-0011")).toBeInTheDocument();
@@ -155,7 +169,7 @@ describe("SalesOrderCard", () => {
 
 describe("MySalesOrdersList", () => {
   it("renders filter tabs and sales order list", () => {
-    render(<MySalesOrdersList />);
+    renderWithQueryClient(<MySalesOrdersList />);
 
     expect(screen.getByRole("button", { name: "전체" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "발송 요청" })).toBeInTheDocument();

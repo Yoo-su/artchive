@@ -1514,7 +1514,11 @@
       "leave_room": "채팅방 나가기",
       "send_message": "메시지 전송",
       "view_profile": "{nickname}님의 프로필 보기",
-      "attach_image": "이미지 첨부"
+      "attach_image": "이미지 첨부",
+      "scroll_to_latest": "최신 메시지로 이동",
+      "new_messages": "새 메시지 {count}개, 최신 메시지로 이동",
+      "retry_message": "메시지 다시 보내기",
+      "discard_message": "보내지 못한 메시지 삭제"
     },
     "trade": {
       "select_buyer_modal": {
@@ -1596,8 +1600,12 @@
     "image": {
       "limit_exceeded": "이미지는 최대 {max}장까지 첨부할 수 있습니다.",
       "upload_error": "이미지 업로드에 실패했습니다. 잠시 후 다시 시도해 주세요.",
-      "last_message_preview": "사진"
-    }
+      "last_message_preview": "사진",
+      "uploading": "이미지 업로드 중"
+    },
+    "read": "읽음",
+    "send_failed": "전송에 실패했습니다. 다시 시도해 주세요.",
+    "new_messages": "새 메시지 {count}개"
   },
   "order": {
     "payment": {

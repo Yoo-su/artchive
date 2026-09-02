@@ -14,6 +14,7 @@ import { toast } from "sonner";
 
 import { EmailVerificationModal } from "@/features/auth/components/email-verification-alert";
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { useChatStore } from "@/features/chat/stores/use-chat-store";
 import {
   BoxIcon,
   CardPosIcon,
@@ -51,8 +52,12 @@ export const TradeMessageCard = ({
   const isPaymentFeatureEnabled =
     process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true";
 
+  // 위젯은 닫혀도 언마운트되지 않으므로, 보이지 않는 동안에는 조회를 멈춥니다.
+  // (폴링은 원래 꺼져 있지만 창 포커스마다 다시 받아오는 것까지 막습니다.)
+  const isChatOpen = useChatStore((state) => state.isChatOpen);
+
   const { data: orderDetail } = useOrderDetailQuery(orderId, {
-    enabled: Boolean(orderId) && isPaymentFeatureEnabled,
+    enabled: Boolean(orderId) && isPaymentFeatureEnabled && isChatOpen,
     refetchInterval: false,
   });
 
