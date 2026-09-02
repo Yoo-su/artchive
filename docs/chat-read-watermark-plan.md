@@ -1,7 +1,8 @@
 # 채팅 읽음 처리 워터마크 전환 계획
 
-> 이 문서는 **작업 인수인계용**입니다. 전환이 끝나면 삭제하고,
-> 남길 내용은 `docs/chat-index-migration.md`와 채팅 README로 옮기세요.
+> 이 문서는 **운영 절차서**입니다. 코드 전환은 끝났고, 아래 SQL 실행과
+> 관찰만 남았습니다. `read_receipts`를 드롭하고 나면 삭제하세요.
+> (설계 설명은 이미 `apps/server/src/features/chat/README.md`로 옮겼습니다.)
 
 ## 1. 목표와 배경
 
@@ -13,7 +14,15 @@
 행이 메시지 수에 비례해 무한히 늘고 읽을 때마다 그만큼 INSERT가 나가는 구조
 자체가 문제이고, **데이터가 적은 지금이 옮기기 가장 싼 시점**이라 진행합니다.
 
-## 2. 지금까지 된 것 (develop, 배포 전일 수 있음)
+## 2. 현재 상태
+
+- **코드 전환 완료** (아래 "3단계"). 서버는 워터마크만 읽고 씁니다.
+  `ReadReceipt` 엔티티는 코드에서 제거했지만, 운영 `synchronize`가 꺼져 있으므로
+  **운영의 `read_receipts` 테이블은 그대로 남습니다.** 롤백 안전장치가 유지됩니다.
+- **사전 점검(4장) 운영 결과 0 확인** — 읽음 집합에 구멍 없음.
+- 남은 일: 7-1 → 7-2 → 7-3 실행, 코드 배포, 관찰, 7-4 드롭. (8장 순서 참고)
+
+## 2-1. 그 전까지 된 것 (develop)
 
 ```
 59cd4455 fix(web): 앱 복귀 시 채팅방 메시지가 비는 문제 해결
@@ -73,35 +82,40 @@ FROM (
 WHERE receipt_count <> expected_count;
 ```
 
-> 로컬(dev)에서는 `0`을 확인했습니다. 운영에서도 `0`이어야 진행합니다.
+> **완료**: 로컬(dev)·운영 모두 `0` 확인. 구멍 없음.
 
-## 5. 변경 범위
+## 5. 무엇이 바뀌었나 (완료)
 
-### 서버 (8개 파일)
+### 서버
 
-| 파일 | 할 일 |
+| 파일 | 변경 |
 | --- | --- |
-| `chat/entities/chat-participant.entity.ts` | `lastReadMessageId: number \| null` 추가. 조회 패턴에 맞는 인덱스 검토 |
-| `chat/services/chat.service.ts` | `markMessagesAsRead` → UPDATE 한 번. `getOpponentLastReadMessageId` → participants에서 읽기. `getChatRooms` 안 읽음 집계 → `id > lastReadMessageId` 비교로 |
-| `chat/entities/read-receipt.entity.ts` | 최종 단계에서 삭제 |
-| `chat/entities/chat-message.entity.ts` | `readReceipts` 관계 제거 (+ 이번에 넣은 `idx_read_receipts_message` 정리) |
+| `chat/entities/chat-participant.entity.ts` | `lastReadMessageId: number \| null` 추가 (인덱스 없음: 항상 `(userId, chatRoomId)`로 찾은 행에서 읽고 쓰기만 함) |
+| `chat/services/chat.service.ts` | `markMessagesAsRead` → MAX 조회 + UPDATE 한 번. `getOpponentLastReadMessageId` → 참여자 행에서 읽기. 안 읽음 집계 → `message.id > COALESCE(participant.lastReadMessageId, 0)` |
+| `chat/entities/read-receipt.entity.ts` | 삭제 |
+| `chat/entities/chat-message.entity.ts` | `readReceipts` 관계 제거 |
 | `chat/chat.module.ts` | `ReadReceipt` 등록 제거 |
-| `chat/listeners/chat-cleanup.listener.ts` | 탈퇴 시 영수증 삭제 → 워터마크 초기화(또는 불필요) |
-| `user/entities/user.entity.ts` | `readReceipts` 관계 제거 |
-| `chat/services/chat.service.spec.ts` | 위에 맞춰 수정 |
-
-`user/README.md`에도 `readReceipts` 언급이 있으니 함께 정리하세요.
+| `chat/listeners/chat-cleanup.listener.ts` | 영수증 삭제 제거 (참여자 행 비활성화로 함께 정리됨) |
+| `user/entities/user.entity.ts`, `user/README.md` | `readReceipts` 관계 제거 |
+| `chat/services/chat.service.spec.ts` | 워터마크 테스트 추가 |
+| `chat/README.md` | "4. 읽음 처리: 워터마크" 절 추가 |
 
 ### 클라이언트 / packages: **0개**
 
-`grep -rn "ReadReceipt\|readReceipt" apps/web packages` → **0건**입니다.
+소켓 계약(`messagesRead { roomId, userId, lastReadMessageId }`,
+메시지 첫 페이지의 `opponentLastReadMessageId`)이 그대로라 손댄 곳이 없습니다.
 
-소켓 계약을 처음부터 워터마크 형태로 잡아둔 덕입니다. 클라이언트가 아는 것은
-`messagesRead { roomId, userId, lastReadMessageId }` 이벤트와 메시지 첫 페이지의
-`opponentLastReadMessageId` 뿐이고, 둘 다 **의미가 그대로**입니다.
+> **이 계약을 바꾸지 마세요.** 바꾸는 순간 서버 내부 교체가 전면 변경으로 커집니다.
 
-> **이 계약을 바꾸지 마세요.** 바꾸는 순간 이번 작업이 서버 내부 교체에서
-> 전면 변경으로 커집니다.
+### 실제 Postgres로 검증한 것
+
+로컬 DB에 스키마를 만들어 다음을 확인했습니다(검증용 스펙은 커밋하지 않음).
+
+- 3장 4번 방법(`createSchemaBuilder().log()`)으로 뽑은 운영 DDL이
+  **`ALTER TABLE "chat_participants" ADD "lastReadMessageId" integer` 한 줄뿐**.
+- 4장 사전 점검 → `0`, 7-2 백필 → 워터마크 정상, 7-3 검증 → `0`.
+- 백필 뒤 새 코드의 안 읽음 개수·상대 읽음 지점이 영수증 방식과 일치.
+- 워터마크 전진/정체(`updated` 0/1), 내가 보낸 메시지만 추가된 경우 등 경계 동작.
 
 ## 6. 깨면 안 되는 불변식
 
@@ -122,6 +136,9 @@ WHERE receipt_count <> expected_count;
    테스트: `chat-message-retry.test.tsx`, `chat-image-send.test.tsx`
 
 ## 7. 운영 SQL
+
+> 7-1 ~ 7-3은 **코드 배포 전에** 실행합니다. 백필 없이 새 코드가 뜨면
+> 모든 방이 잠깐 "전부 안 읽음"으로 보입니다.
 
 ### 7-1. 컬럼 추가 (코드 배포 전)
 
@@ -147,7 +164,27 @@ WHERE cp."userId" = sub."userId"
   AND cp."chatRoomId" = sub."chatRoomId";
 ```
 
-> 로컬에서 리허설 완료(4개 행 정상 갱신 후 ROLLBACK). 285행 규모면 즉시 끝납니다.
+> 로컬 리허설 완료. 285행 규모면 즉시 끝납니다.
+> 영수증이 없는 참여자는 `NULL`로 남고, 코드는 `COALESCE(..., 0)`으로 다룹니다.
+
+> **백필과 배포 사이의 틈**: 백필 이후 배포 전까지 구버전 코드는 여전히
+> `read_receipts`에만 기록합니다. 그 사이에 읽은 메시지는 워터마크에 반영되지
+> 않아 배포 직후 다시 안 읽음으로 보입니다. 백필을 배포 직전에 돌리면 틈이
+> 작아지고, 배포 직후 아래를 한 번 더 돌리면 완전히 메워집니다.
+> (`GREATEST`가 있어야 새 코드가 이미 올려둔 워터마크를 되돌리지 않습니다.)
+>
+> ```sql
+> UPDATE chat_participants cp
+> SET "lastReadMessageId" = GREATEST(COALESCE(cp."lastReadMessageId", 0), sub.watermark)
+> FROM (
+>   SELECT r."userId", m."chatRoomId", MAX(m.id) AS watermark
+>   FROM read_receipts r
+>   JOIN chat_messages m ON m.id = r."messageId"
+>   GROUP BY r."userId", m."chatRoomId"
+> ) sub
+> WHERE cp."userId" = sub."userId"
+>   AND cp."chatRoomId" = sub."chatRoomId";
+> ```
 
 ### 7-3. 검증 — 백필 전후 안 읽음 개수가 같아야 함
 
@@ -172,29 +209,50 @@ FROM (
 WHERE old_unread <> new_unread;
 ```
 
-### 7-4. 정리 (관찰 기간 후, 별도 배포)
+### 7-4. 정리 (관찰 기간 후)
 
 ```sql
 DROP TABLE read_receipts;
 ```
 
+코드에는 이미 `ReadReceipt`가 없으므로 **배포 없이 SQL만 실행하면 됩니다.**
+이 시점부터는 코드를 되돌려도 읽음 기록을 복구할 수 없습니다.
+
 ## 8. 롤아웃 순서
 
 ```
+0) 사전 점검 (4장)           — 완료. 결과 0
 1) 컬럼 추가 (7-1)          — 구버전 코드에 무해
 2) 백필 (7-2) + 검증 (7-3)  — read_receipts는 그대로 둠
-3) 워터마크 코드 배포        — 읽기/쓰기 모두 워터마크로
+3) 워터마크 코드 배포        — 읽기/쓰기 모두 워터마크로 (코드 준비 완료)
 4) 며칠 관찰                 — 문제 시 코드만 되돌리면 read_receipts가 살아 있어 복구 가능
-5) read_receipts 드롭 (7-4) — 되돌릴 수 없음. 확신 후에만
+5) read_receipts 드롭 (7-4) — SQL만. 되돌릴 수 없음. 확신 후에만
 ```
 
 **3단계까지는 `read_receipts`를 지우지 않는 것이 롤백 안전장치입니다.**
 
-## 9. 검증 명령
+되돌릴 때 주의: 배포 이후에 읽은 기록은 `read_receipts`에 쌓이지 않습니다.
+코드를 되돌리면 그 사이에 읽은 메시지가 다시 안 읽음으로 보입니다.
+데이터가 깨지는 것은 아니고, 다시 읽으면 원래대로 돌아옵니다.
+
+## 9. 관찰할 것 (4단계)
+
+- 방 목록의 안 읽음 배지가 실제 안 읽은 메시지 수와 맞는지
+- 내가 보낸 메시지의 읽음 표시가 상대가 방을 열었을 때 갱신되는지
+- 배포 직후 "전부 안 읽음"으로 보이는 방이 없는지 (있으면 백필 누락 신호)
+
+## 10. 검증 명령
+
+```bash
+cd apps/server && npx tsc --noEmit -p tsconfig.json && npx jest --silent && npx nest build
+npx eslint "src/features/chat/**/*.ts"
+```
+
+이번 전환은 서버만 바뀌므로 web/packages 빌드는 돌리지 않았습니다.
+다음에 web을 건드린다면 아래도 함께 돌리세요.
 
 ```bash
 pnpm --filter=@bookjeok/core build && pnpm --filter=@bookjeok/react-query build
-cd apps/server && npx tsc --noEmit -p tsconfig.json && npx jest --silent
 cd apps/web && npx tsc --noEmit -p tsconfig.json && npx vitest run
 npx turbo build --filter=@bookjeok/web --force
 ```

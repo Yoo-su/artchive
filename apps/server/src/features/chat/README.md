@@ -17,11 +17,12 @@
   - `getChatRoom`: 판매글 ID와 구매자 ID를 받아 기존 채팅방을 찾거나, 없으면 새로 생성하여 반환합니다.
   - `getChatRooms`: 특정 사용자가 참여 중인 모든 채팅방 목록과 각 방의 마지막 메시지, 안 읽은 메시지 수를 조회합니다.
   - `saveMessage`: 받은 메시지를 데이터베이스에 저장합니다.
-  - `markMessagesAsRead`: 특정 채팅방의 메시지를 읽음 처리합니다.
+  - `markMessagesAsRead`: 특정 채팅방을 읽음 처리합니다. 읽은 메시지를 건별로 기록하지 않고 `ChatParticipant.lastReadMessageId` 워터마크를 UPDATE 한 번으로 올립니다.
+  - `getOpponentLastReadMessageId`: 상대방 참여자의 워터마크를 반환합니다. 내가 보낸 메시지의 읽음 표시 초기값입니다.
 - **`guards/socket-auth.guard.ts`**: 웹소켓 연결 요청이 들어올 때, 클라이언트가 보낸 JWT를 검증하여 인가된 사용자인지 확인하는 가드입니다. 유효하지 않은 사용자의 연결은 차단합니다.
 - **`entities/`**: 채팅 관련 데이터베이스 테이블 스키마를 정의합니다.
   - `chat-room.entity.ts`: 채팅방 정보를 담는 엔티티. `UsedBookSale`과 관계를 맺습니다.
-  - `chat-participant.entity.ts`: 어떤 `User`가 어떤 `ChatRoom`에 참여하고 있는지 나타내는 중간 테이블 엔티티.
+  - `chat-participant.entity.ts`: 어떤 `User`가 어떤 `ChatRoom`에 참여하고 있는지 나타내는 중간 테이블 엔티티. 읽음 워터마크(`lastReadMessageId`)도 여기에 있습니다.
   - `chat-message.entity.ts`: 채팅 메시지의 내용, 보낸 사람, 보낸 시각 등을 담는 엔티티.
 
 ## 3. API 및 WebSocket 이벤트 명세
@@ -58,7 +59,25 @@
   | `typing` | `{ nickname: string, isTyping: boolean }` | 상대방의 입력 상태를 전달받습니다. |
   | `error` | `WsException` 객체 | 인증 실패 등 에러 발생 시 받습니다. |
 
-## 4. 핵심 로직 흐름
+## 4. 읽음 처리: 워터마크
+
+읽음 상태는 **참여자 1명당 한 칸**입니다. `chat_participants.lastReadMessageId`가
+"이 ID까지 읽었다"를 가리키고, 그보다 ID가 큰 메시지가 안 읽은 메시지입니다.
+
+- **쓰기**: `markMessagesAsRead`는 방에서 내가 보내지 않은 마지막 메시지 ID를 구해
+  UPDATE 한 번으로 워터마크를 옮깁니다. 비용이 메시지 수와 무관합니다.
+  워터마크는 **앞으로만** 움직입니다. 뒤늦게 도착한 요청이 값을 되돌리면
+  이미 읽은 메시지가 안 읽음으로 되살아나기 때문입니다.
+- **읽기**: 안 읽음 개수는 `message.id > COALESCE(participant.lastReadMessageId, 0)`
+  카운트이고, 상대 읽음 표시는 상대 참여자 행의 워터마크입니다.
+- **소켓 계약**: `messagesRead { roomId, userId, lastReadMessageId }`와
+  메시지 첫 페이지의 `opponentLastReadMessageId`. 클라이언트는 처음부터 이 형태만
+  알고 있으므로 저장 구조가 바뀌어도 그대로입니다.
+
+> 과거에는 메시지 1건당 `read_receipts` 1행을 쌓았습니다. 전환 경위와 운영 절차는
+> `docs/chat-read-watermark-plan.md`에 있습니다.
+
+## 5. 핵심 로직 흐름
 
 ### 채팅 메시지 송수신
 

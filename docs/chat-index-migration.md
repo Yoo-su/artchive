@@ -76,12 +76,11 @@ ORDER BY tablename, indexname;
 
 5개 행이 나오면 정상입니다.
 
-## 남은 과제
+## 이후 변경 (읽음 워터마크 전환)
 
-읽음 처리는 여전히 **메시지 1건당 `read_receipts` 1행**을 쌓는 구조입니다.
-`markMessagesAsRead`를 "ID만 조회 → 벌크 INSERT"로 바꿔 쿼리 비용은 크게 줄였지만,
-행이 계속 늘어나는 것 자체는 그대로입니다.
+읽음 처리는 이후 `chat_participants.lastReadMessageId` 워터마크로 바뀌었습니다.
+`read_receipts` 테이블과 `idx_read_receipts_message` 인덱스는 관찰 기간이 끝나면
+테이블을 드롭하면서 함께 사라집니다. 절차와 남은 단계는
+`docs/chat-read-watermark-plan.md`를 보세요.
 
-근본적으로는 `chat_participants.lastReadMessageId` 같은 포인터 한 칸으로 바꾸는 편이 낫습니다.
-다만 컬럼 추가와 기존 데이터 백필이 필요한데 이 저장소에는 마이그레이션 도구가 없어
-이번 작업에서는 진행하지 않았습니다. 마이그레이션 체계를 먼저 갖춘 뒤 다루는 것을 권합니다.
+그 시점 이후 위 "확인" 쿼리는 `read_receipts` 행이 빠져 **4개 행**이 정상입니다.

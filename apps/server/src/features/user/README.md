@@ -43,7 +43,6 @@
 
 - **`usedBookSales`**: `UsedBookSale` 엔티티와 1:N 관계. 한 명의 사용자는 여러 개의 중고 서적 판매글을 가질 수 있습니다.
 - **`chatParticipants`**: `ChatParticipant` 엔티티와 1:N 관계. 사용자가 참여하고 있는 채팅방 목록을 나타냅니다.
-- **`readReceipts`**: `ReadReceipt` 엔티티와 1:N 관계. 사용자가 읽은 메시지 기록을 나타냅니다.
 - **`wishlists`**: `Wishlist` 엔티티와 1:N 관계. 사용자의 찜 목록 정보를 나타냅니다.
 
 ## 4. 모듈 간의 상호작용

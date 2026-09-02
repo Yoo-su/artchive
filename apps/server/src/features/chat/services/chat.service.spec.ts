@@ -15,7 +15,6 @@ import { BusinessException } from '@/shared/exceptions/business.exception';
 import { ChatMessage } from '../entities/chat-message.entity';
 import { ChatParticipant } from '../entities/chat-participant.entity';
 import { ChatRoom } from '../entities/chat-room.entity';
-import { ReadReceipt } from '../entities/read-receipt.entity';
 import { ChatGateway } from '../gateways/chat.gateway';
 import { ChatService } from './chat.service';
 
@@ -28,6 +27,8 @@ describe('ChatService', () => {
   let chatMessageRepo: Partial<Repository<ChatMessage>>;
   let orderRepo: Partial<Repository<Order>>;
   let mockQueryBuilder: any;
+  let messageQueryBuilder: any;
+  let participantQueryBuilder: any;
 
   // Services
   let usedBookSaleService: any;
@@ -51,16 +52,37 @@ describe('ChatService', () => {
       save: jest.fn(),
     };
 
+    // 워터마크 읽음 처리에서 쓰는 쿼리 빌더들
+    participantQueryBuilder = {
+      update: jest.fn().mockReturnThis(),
+      set: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      execute: jest.fn(),
+      getRawOne: jest.fn(),
+    };
+
+    messageQueryBuilder = {
+      leftJoin: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      getRawOne: jest.fn(),
+    };
+
     chatParticipantRepo = {
       create: jest.fn(),
       findOne: jest.fn(),
       find: jest.fn(),
       save: jest.fn(),
+      createQueryBuilder: jest.fn().mockReturnValue(participantQueryBuilder),
     };
 
     chatMessageRepo = {
       create: jest.fn(),
       save: jest.fn(),
+      createQueryBuilder: jest.fn().mockReturnValue(messageQueryBuilder),
     };
 
     orderRepo = {
@@ -91,7 +113,6 @@ describe('ChatService', () => {
           provide: UsedBookSaleService,
           useValue: usedBookSaleService,
         },
-        { provide: getRepositoryToken(ReadReceipt), useValue: {} },
         { provide: ChatGateway, useValue: chatGateway },
         { provide: EventEmitter2, useValue: { emit: jest.fn() } },
       ],
@@ -283,6 +304,72 @@ describe('ChatService', () => {
       await expect(service.saveMessage('hi', 1, user)).rejects.toThrow(
         BusinessException,
       );
+    });
+  });
+
+  describe('markMessagesAsRead', () => {
+    it('읽을 메시지가 없으면 참여자 행을 건드리지 않아야 합니다', async () => {
+      messageQueryBuilder.getRawOne.mockResolvedValue({ watermark: null });
+
+      const result = await service.markMessagesAsRead(1, 1);
+
+      expect(result).toEqual(
+        expect.objectContaining({ updated: 0, lastReadMessageId: null }),
+      );
+      expect(chatParticipantRepo.createQueryBuilder).not.toHaveBeenCalled();
+    });
+
+    it('워터마크를 마지막 메시지 ID로 한 번의 UPDATE로 올려야 합니다', async () => {
+      messageQueryBuilder.getRawOne.mockResolvedValue({ watermark: '42' });
+      participantQueryBuilder.execute.mockResolvedValue({ affected: 1 });
+
+      const result = await service.markMessagesAsRead(1, 1);
+
+      expect(participantQueryBuilder.set).toHaveBeenCalledWith({
+        lastReadMessageId: 42,
+      });
+      expect(result).toEqual(
+        expect.objectContaining({ updated: 1, lastReadMessageId: 42 }),
+      );
+    });
+
+    it('워터마크는 뒤로 가지 않도록 조건을 걸어야 합니다', async () => {
+      messageQueryBuilder.getRawOne.mockResolvedValue({ watermark: '42' });
+      // 이미 42까지 읽은 상태라 UPDATE가 아무 행도 건드리지 못한 경우
+      participantQueryBuilder.execute.mockResolvedValue({ affected: 0 });
+
+      const result = await service.markMessagesAsRead(1, 1);
+
+      expect(participantQueryBuilder.andWhere).toHaveBeenCalledWith(
+        expect.stringContaining('"lastReadMessageId" < :watermark'),
+        { watermark: 42 },
+      );
+      // 갱신되지 않았어도 현재 읽음 지점은 그대로 알려줍니다.
+      expect(result).toEqual(
+        expect.objectContaining({ updated: 0, lastReadMessageId: 42 }),
+      );
+    });
+  });
+
+  describe('getOpponentLastReadMessageId', () => {
+    it('상대방 참여자의 워터마크를 숫자로 반환해야 합니다', async () => {
+      participantQueryBuilder.getRawOne.mockResolvedValue({
+        lastReadMessageId: '17',
+      });
+
+      await expect(service.getOpponentLastReadMessageId(1, 1)).resolves.toBe(
+        17,
+      );
+    });
+
+    it('상대방이 아직 읽은 적이 없으면 null을 반환해야 합니다', async () => {
+      participantQueryBuilder.getRawOne.mockResolvedValue({
+        lastReadMessageId: null,
+      });
+
+      await expect(
+        service.getOpponentLastReadMessageId(1, 1),
+      ).resolves.toBeNull();
     });
   });
 
