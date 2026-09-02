@@ -5,6 +5,7 @@ import {
   useInfiniteChatMessagesQuery,
   useMyChatRoomsQuery,
 } from "@bookjeok/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef } from "react";
@@ -16,6 +17,7 @@ import { useMarkRoomAsRead } from "../../../hooks/use-mark-room-as-read";
 import { useMessageRetry } from "../../../hooks/use-message-retry";
 import { useTypingIndicator } from "../../../hooks/use-typing-indicator";
 import { useChatStore } from "../../../stores/use-chat-store";
+import { resyncRoomMessages } from "../../../utils/chat-cache-utils";
 import { flattenChatMessages } from "../../../utils/chat-message-utils";
 import { TradeStatusBanner } from "../../trade/trade-status-banner";
 import { ChatRoomHeader } from "./header";
@@ -114,6 +116,41 @@ export const ChatRoom = ({ roomId }: ChatRoomProps) => {
     }
     return 0;
   }, [messages, currentUser?.id]);
+
+  // 캐시에 들어 있는 가장 최신 메시지. 아직 확정되지 않은 낙관적 메시지는 제외합니다.
+  const newestCachedMessageId = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].id > 0) return messages[i].id;
+    }
+    return 0;
+  }, [messages]);
+
+  const queryClient = useQueryClient();
+  const roomLastMessageId = room?.lastMessage?.id ?? 0;
+  const resyncedForRef = useRef({ roomId, messageId: 0 });
+
+  // 방 목록 쿼리는 창 포커스마다 갱신되지만 메시지 캐시는 그렇지 않습니다.
+  // 그래서 앱을 백그라운드에 두었다 돌아오면 "목록에는 새 메시지가 왔다고 뜨는데
+  // 방에 들어가면 그 메시지가 없는" 상태가 됩니다.
+  //
+  // 재연결 시 동기화는 소켓 connect 이벤트에 걸려 있어, 소켓이 끊긴 줄 모르거나
+  // 재연결이 늦으면 그 경로로는 낫지 않습니다. 목록이 아는 마지막 메시지가
+  // 방 캐시에 없다면 놓친 것이 확실하므로 여기서 직접 메꿉니다.
+  useEffect(() => {
+    if (resyncedForRef.current.roomId !== roomId) {
+      resyncedForRef.current = { roomId, messageId: 0 };
+    }
+
+    // 아직 첫 로딩이 끝나지 않았으면 비교할 기준이 없습니다.
+    if (newestCachedMessageId === 0) return;
+    // 뒤처지지 않았습니다.
+    if (roomLastMessageId <= newestCachedMessageId) return;
+    // 같은 지점에 대해 반복 요청하지 않습니다.
+    if (roomLastMessageId <= resyncedForRef.current.messageId) return;
+
+    resyncedForRef.current = { roomId, messageId: roomLastMessageId };
+    resyncRoomMessages(queryClient, roomId);
+  }, [roomId, roomLastMessageId, newestCachedMessageId, queryClient]);
 
   const markRoomAsRead = useMarkRoomAsRead();
   const lastMarkedRef = useRef({ roomId, messageId: 0 });
