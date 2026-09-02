@@ -52,8 +52,8 @@ export const TradeMessageCard = ({
   const isPaymentFeatureEnabled =
     process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true";
 
-  // 위젯은 닫혀도 언마운트되지 않으므로, 보이지 않는 동안에는 조회를 멈춥니다.
-  // (폴링은 원래 꺼져 있지만 창 포커스마다 다시 받아오는 것까지 막습니다.)
+  // 위젯은 닫혀도 언마운트되지 않으므로, 노출되지 않는 동안에는 조회 중단
+  // (폴링은 꺼져 있지만 창 포커스 시 재조회까지 차단)
   const isChatOpen = useChatStore((state) => state.isChatOpen);
 
   const { data: orderDetail } = useOrderDetailQuery(orderId, {

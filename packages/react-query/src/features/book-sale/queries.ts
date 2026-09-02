@@ -129,8 +129,8 @@ export const useRelatedSalesQuery = ({
 /**
  * 최근 판매글 목록
  *
- * 전역 기본값은 staleTime: Infinity 이므로, 실시간성이 필요한 화면(마켓 히어로 등)은
- * options로 staleTime/refetchInterval을 덮어써서 주기적으로 갱신할 수 있습니다.
+ * 전역 기본값이 staleTime: Infinity이므로, 실시간성이 필요한 화면(마켓 히어로 등)은
+ * options로 staleTime/refetchInterval을 덮어씁니다.
  */
 export const useRecentBookSalesQuery = (
   limit: number = 25,

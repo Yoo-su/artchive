@@ -1,16 +1,9 @@
 /**
- * 앱을 백그라운드에 두었다 돌아왔을 때 방 안의 메시지가 비는 문제 검증.
+ * 앱 복귀 시 방 안의 메시지가 비는 문제 검증. (증상: iOS 사파리)
  *
- * 실제 증상(iOS 사파리): 웹을 숨겼다가 돌아오면 방 목록에는 새 메시지가 왔다고
- * 표시되는데, 그 방에 들어가면 메시지가 없습니다. 새로고침해야 보입니다.
- *
- * 원인: 방 목록 쿼리는 refetchOnWindowFocus가 켜져 있어 복귀 시 갱신되지만,
- * 메시지 쿼리는 refetchOnWindowFocus가 꺼져 있고 staleTime이 무한이라
- * 스스로 다시 받아오지 않습니다. 소켓이 끊긴 동안 온 메시지는 영영 비어 있습니다.
- *
- * 재연결 시 동기화는 소켓 connect 이벤트에만 걸려 있어, 소켓이 끊긴 줄 모르거나
- * 재연결이 늦으면 이 경로로는 낫지 않습니다. 그래서 방 목록이 알고 있는
- * 마지막 메시지보다 방 캐시가 뒤처져 있으면 스스로 메꾸도록 합니다.
+ * 방 목록 쿼리는 refetchOnWindowFocus로 갱신되지만 메시지 쿼리는 갱신되지 않아
+ * 목록에만 새 메시지가 반영된다. 소켓 connect 기반 동기화는 좀비 소켓/지연 재연결에서
+ * 동작하지 않으므로, 방 캐시가 목록보다 뒤처지면 스스로 보충하는지 확인한다.
  */
 import { chatKeys, ChatMessage, ChatRoom as ChatRoomType } from "@bookjeok/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -47,8 +40,8 @@ vi.mock("@/features/chat/components/trade/trade-status-banner", () => ({
 }));
 
 vi.mock("@/shared/providers/socket-provider", () => ({
-  // 소켓은 살아 있다고 보고하지만 실제로는 메시지를 놓친 상태(좀비 소켓)를 흉내 냅니다.
-  // connect 이벤트는 발생하지 않습니다.
+  // 연결됐다고 보고하지만 실제로는 메시지를 놓친 좀비 소켓 상태 모사
+  // (connect 이벤트 미발생)
   useSocketContext: () => ({
     socket: { connected: true, emit: vi.fn() },
     isConnected: true,
@@ -99,7 +92,7 @@ vi.mock("@bookjeok/react-query", () => ({
     data: options?.select ? options.select([room]) : [room],
     isSuccess: true,
   }),
-  // 실제 캐시를 그대로 읽어 화면에 쓰이는 데이터를 흉내 냅니다.
+  // 실제 캐시를 그대로 읽어 화면에 쓰이는 데이터 모사
   useInfiniteChatMessagesQuery: () => ({
     data: queryClient.getQueryData(chatKeys.messages(ROOM_ID).queryKey),
     fetchPreviousPage: vi.fn(),
@@ -127,8 +120,7 @@ beforeEach(() => {
     defaultOptions: { queries: { retry: false } },
   });
 
-  // 과거 페이지를 한 번 불러온 상태.
-  // pages[0]이 오래된 페이지, 마지막이 커서 없는 첫 페이지입니다.
+  // 과거 페이지를 한 번 불러온 상태 (pages[0]이 오래된 페이지, 마지막이 첫 페이지)
   queryClient.setQueryData(messagesKey, {
     pages: [
       { messages: [message(50, YOU), message(40, YOU)] },
@@ -155,8 +147,8 @@ describe("방 캐시가 목록보다 뒤처졌을 때", () => {
   it("목록이 아는 마지막 메시지가 방 캐시에 없으면 다시 받아온다", () => {
     renderRoom();
 
-    // 커서 없는 첫 페이지만 남겨야 새 메시지까지 이어서 받아올 수 있습니다.
-    // 과거 페이지를 커서 그대로 다시 받으면 사이에 구간이 비어 버립니다.
+    // 커서 없는 첫 페이지만 남아야 새 메시지까지 이어서 받아온다
+    // (과거 페이지를 커서 그대로 다시 받으면 사이 구간이 빔)
     expect(getCache()?.pages).toHaveLength(1);
     expect(getCache()?.pageParams).toEqual([undefined]);
 

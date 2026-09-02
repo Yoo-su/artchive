@@ -9,10 +9,9 @@ import { cn } from "@/shared/utils/cn";
 export const SearchHero = () => {
   const t = useTranslations("book.search");
 
-  // 별 입자는 Math.random()으로 만들기 때문에 서버와 클라이언트의 값이 달라집니다.
-  // 예전에는 컴포넌트 전체를 mounted 이후에만 렌더링해 이를 피했지만, 그러면
-  // 제목/부제까지 서버 렌더링에서 빠져 검색엔진에 빈 페이지로 보였습니다.
-  // 이제는 장식용 입자에만 mounted 게이트를 걸고 본문은 항상 렌더링합니다.
+  // 별 입자는 Math.random() 기반이라 서버/클라이언트 값이 달라짐
+  // 컴포넌트 전체에 mounted 게이트를 걸면 제목/부제까지 서버 렌더링에서 빠져
+  // 검색엔진에 빈 페이지로 노출되므로, 장식용 입자에만 게이트 적용
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);

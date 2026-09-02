@@ -24,10 +24,7 @@ interface AuthenticatedUser {
   provider: string;
 }
 
-/**
- * 액세스 토큰으로 사용자를 식별합니다.
- * 토큰이 유효하지 않으면 예외를 던집니다.
- */
+/** 액세스 토큰으로 사용자를 식별합니다. 토큰이 유효하지 않으면 예외를 던집니다. */
 async function resolveUser(token: string): Promise<AuthenticatedUser> {
   // 서버 통신용 API_URL을 우선 적용하고, 없을 경우 NEXT_PUBLIC_API_URL로 폴백
   const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "";
@@ -51,8 +48,8 @@ async function resolveUser(token: string): Promise<AuthenticatedUser> {
 
 /**
  * 업로드 경로가 요청자 본인의 소유인지 검증합니다.
- * 클라이언트가 보낸 경로를 그대로 신뢰하면 다른 사용자의 디렉터리에
- * 업로드할 수 있으므로, 접두사와 카테고리를 서버에서 강제합니다.
+ * 클라이언트가 보낸 경로를 신뢰하면 타 사용자 디렉터리에 업로드할 수 있으므로
+ * 접두사와 카테고리를 서버에서 강제합니다.
  */
 function assertOwnedPathname(pathname: string, user: AuthenticatedUser): void {
   // 상위 경로 탈출 및 절대 경로 차단
@@ -87,7 +84,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     const jsonResponse = await handleUpload({
       body,
       request,
-      // 토큰 생성 전 실행: 요청자를 식별하고 업로드 경로 소유권을 검증합니다.
+      // 토큰 생성 전 실행: 요청자 식별 및 업로드 경로 소유권 검증
       onBeforeGenerateToken: async (pathname, clientPayload) => {
         const { token } = clientPayload ? JSON.parse(clientPayload) : {};
 
@@ -107,7 +104,7 @@ export async function POST(request: Request): Promise<NextResponse> {
           }),
         };
       },
-      // 업로드 완료 후 실행: 서버 로그를 남기거나 DB를 업데이트할 수 있습니다.
+      // 업로드 완료 후 실행: 서버 로그 기록 또는 DB 갱신 지점
       onUploadCompleted: async () => {
         // console.log("blob upload completed", blob, tokenPayload);
       },

@@ -14,20 +14,16 @@ type InfiniteMessagesData = {
 /**
  * 채팅 메시지 캐시 조작 유틸리티
  *
- * useChatEvents 훅에서 사용되는 캐시 갱신 로직을 추출하여
- * 단일 책임 원칙을 준수하고, 테스트 가능성을 높였습니다.
- *
- * 페이지 순서 규칙:
- * 과거 메시지는 `fetchPreviousPage`로 불러와 TanStack이 배열 **앞**에 붙입니다.
- * 따라서 `pages[0]`이 가장 오래된 페이지, `pages[pages.length - 1]`이 가장 최신
- * 페이지이며, 각 페이지 안에서는 최신 메시지가 먼저 옵니다(서버가 DESC로 내려줌).
- * 새 메시지는 반드시 **최신 페이지의 맨 앞**에 넣어야 시간순이 유지됩니다.
+ * 페이지 순서: `fetchPreviousPage`로 불러온 과거 페이지가 배열 앞에 붙으므로
+ * `pages[0]`이 가장 오래된 페이지, 마지막이 가장 최신 페이지입니다.
+ * 각 페이지 안에서는 서버가 DESC로 내려주어 최신 메시지가 먼저 옵니다.
+ * 따라서 새 메시지는 최신 페이지 맨 앞에 넣어야 시간순이 유지됩니다.
  */
 
 /** 가장 최신 메시지가 들어 있는 페이지의 인덱스 */
 const getNewestPageIndex = (data: InfiniteMessagesData) => data.pages.length - 1;
 
-/** 최신 페이지 맨 앞에 메시지를 끼워 넣은 새 pages 배열을 만듭니다. */
+/** 최신 페이지 맨 앞에 메시지를 끼워 넣은 새 pages 배열 생성 */
 const insertAsNewest = (
   data: InfiniteMessagesData,
   message: ChatMessage,
@@ -41,9 +37,7 @@ const insertAsNewest = (
   return newPages;
 };
 
-/**
- * 메시지를 특정 채팅방 메시지 캐시의 가장 최신 위치에 추가합니다.
- */
+/** 메시지를 특정 채팅방 메시지 캐시의 가장 최신 위치에 추가합니다. */
 export const prependMessageToCache = (
   queryClient: QueryClient,
   roomId: number,
@@ -81,10 +75,8 @@ export const removeMessageFromCache = (
 };
 
 /**
- * 낙관적 메시지의 전송 상태를 바꿉니다.
- *
- * 전송에 실패해도 메시지를 지우지 않고 실패 상태로 남겨,
- * 사용자가 같은 자리에서 재전송하거나 삭제할 수 있게 합니다.
+ * 낙관적 메시지의 전송 상태를 변경합니다.
+ * 실패해도 메시지를 지우지 않고 실패 상태로 남겨 재전송/삭제를 허용합니다.
  */
 export const setMessageSendState = (
   queryClient: QueryClient,
@@ -124,10 +116,7 @@ interface OptimisticMessageLocation {
 
 /**
  * 교체 대상 낙관적 메시지의 위치를 찾습니다.
- *
- * - 상관 ID가 있으면 정확히 일치하는 메시지만 대상으로 삼습니다.
- *   일치하는 것이 없다면 다른 탭/기기에서 보낸 메시지이므로 교체하지 않습니다.
- * - 상관 ID가 없으면(구버전 서버) 기존 방식대로 가장 오래된 낙관적 메시지를 대상으로 합니다.
+ * 상관 ID가 있으면 일치하는 메시지만, 없으면(구버전 서버) 가장 오래된 낙관적 메시지를 대상으로 합니다.
  */
 const findOptimisticTarget = (
   data: InfiniteMessagesData,
@@ -160,10 +149,8 @@ const findOptimisticTarget = (
 
 /**
  * 낙관적 메시지를 실제 서버 응답 메시지로 교체합니다.
- * 짝이 되는 낙관적 메시지가 없으면 캐시의 가장 최신 위치에 새 메시지를 추가합니다.
- *
- * 상관 ID(`clientMessageId`)로 짝을 맞추므로, 다른 탭이나 기기에서 보낸
- * 내 메시지가 도착해도 이 탭의 전송 중인 메시지를 잘못 교체하지 않습니다.
+ * 짝이 없으면 캐시의 가장 최신 위치에 추가합니다.
+ * 상관 ID(`clientMessageId`)로 짝을 맞춰 다른 탭/기기의 메시지가 잘못 교체되는 것을 방지합니다.
  */
 export const replaceOptimisticMessage = (
   queryClient: QueryClient,
@@ -175,8 +162,7 @@ export const replaceOptimisticMessage = (
     (oldData) => {
       if (!oldData || oldData.pages.length === 0) return oldData;
 
-      // 이미 반영된 메시지면 중복으로 넣지 않습니다.
-      // (전송 타임아웃 처리 후 서버 응답이 뒤늦게 도착하는 경우 등)
+      // 중복 반영 방지 (전송 타임아웃 처리 후 서버 응답이 뒤늦게 도착하는 경우 등)
       const alreadyExists = oldData.pages.some((page) =>
         page.messages.some((message) => message.id === newMessage.id),
       );
@@ -245,12 +231,10 @@ export const updateRoomLastMessage = (
 
 /**
  * 방의 메시지 캐시를 첫 페이지만 남기고 다시 받아오게 합니다.
+ * 연결이 끊긴 동안 놓친 메시지를 메꿀 때 사용합니다.
  *
- * 끊긴 동안 놓친 메시지를 메꿀 때 씁니다. 과거 페이지는 커서가 고정되어 있어
- * 그대로 다시 받으면 새로 들어온 메시지가 첫 페이지를 밀어내면서 페이지 사이에
- * 빈 구간이 생깁니다. 커서 없는 첫 페이지만 남기면 최신부터 이어서 받습니다.
- *
- * 화면을 비우지 않도록 캐시를 지우지 않고 남겨 둔 채로 무효화합니다.
+ * 과거 페이지는 커서가 고정되어 있어 그대로 다시 받으면 페이지 사이에 빈 구간이 생기므로,
+ * 커서 없는 첫 페이지만 남겨 최신부터 이어 받습니다. 화면이 비지 않도록 캐시는 지우지 않습니다.
  */
 export const resyncRoomMessages = (
   queryClient: QueryClient,
@@ -280,7 +264,7 @@ export const markRoomReadInCache = (
 ): void => {
   queryClient.setQueryData<ChatRoom[]>(chatKeys.rooms.queryKey, (oldRooms) => {
     if (!oldRooms) return oldRooms;
-    // 이미 0이면 배열 참조를 유지해 불필요한 리렌더를 막습니다.
+    // 이미 0이면 배열 참조를 유지해 불필요한 리렌더 방지
     if (!oldRooms.some((room) => room.id === roomId && room.unreadCount)) {
       return oldRooms;
     }

@@ -74,8 +74,8 @@ export const TradeStatusBanner = ({
     currentUser?.id && sellerId && currentUser.id !== sellerId,
   );
 
-  // 위젯은 닫혀도 언마운트되지 않습니다. 주문 쿼리는 5초마다 폴링하므로
-  // 보이지 않는 동안에도 계속 돌면 안 됩니다.
+  // 위젯은 닫혀도 언마운트되지 않으므로, 5초 주기 주문 폴링을 막기 위해
+  // 노출 여부를 조회 조건에 포함
   const isChatOpen = useChatStore((state) => state.isChatOpen);
 
   const { data: order, isLoading: isOrderLoading } = useActiveOrderByRoomQuery(

@@ -19,20 +19,17 @@ interface ReviewHomeViewProps {
   searchParamsString?: string;
   /**
    * 광고 배너 렌더링 여부.
-   *
-   * 프리렌더 fallback으로 쓰일 때는 false를 넘깁니다. fallback과 실제 트리가
-   * 모두 마운트되면서 AdSense가 같은 슬롯에 두 번 push되는 것을 막기 위함입니다.
+   * 프리렌더 fallback에서는 false를 전달합니다.
+   * (fallback과 실제 트리가 모두 마운트되어 AdSense가 같은 슬롯에 중복 push되는 것 방지)
    */
   showAdBanner?: boolean;
 }
 
 /**
  * 리뷰 홈 본문.
- *
- * useSearchParams를 직접 호출하지 않고 파싱된 값을 props로 받습니다.
- * 정적 렌더링 라우트에서 useSearchParams를 호출하면 가장 가까운 Suspense
- * 경계까지 서버 렌더링이 생략되어, 크롤러에게 빈 페이지가 전달됩니다.
- * URL을 읽는 책임은 ReviewHomeViewWithParams가 맡습니다.
+ * 정적 렌더링 라우트에서 useSearchParams를 호출하면 가장 가까운 Suspense 경계까지
+ * 서버 렌더링이 생략되어 크롤러에 빈 페이지가 전달되므로 파싱된 값을 props로 받습니다.
+ * URL 파싱은 ReviewHomeViewWithParams가 담당합니다.
  */
 export const ReviewHomeView = ({
   category,

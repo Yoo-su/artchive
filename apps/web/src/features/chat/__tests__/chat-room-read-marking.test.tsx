@@ -1,10 +1,7 @@
 /**
  * 읽음 처리 규칙 검증.
- *
- * 위젯을 닫아도 ChatRoom이 마운트된 채로 남기 때문에(다시 열 때의 버벅임 방지),
- * "안 보이는 동안 온 메시지를 읽음 처리해 버리는" 사고가 나기 쉽습니다.
- * 또 예전에는 방을 열 때 · 마운트할 때 · 메시지가 올 때마다 세 갈래로 같은 요청이
- * 나갔습니다. 지금은 한 경로만 남았습니다.
+ * 위젯을 닫아도 ChatRoom이 마운트 상태로 남으므로, 안 보이는 동안 도착한 메시지가
+ * 읽음 처리되지 않는지와 읽음 요청이 단일 경로로만 나가는지 확인한다.
  */
 import { ChatMessage, ChatRoom as ChatRoomType } from "@bookjeok/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -28,7 +25,7 @@ vi.mock("next-intl", () => ({
 }));
 vi.mock("@/features/confirm", () => ({ useConfirm: () => vi.fn() }));
 
-// 이 테스트의 관심사는 읽음 처리 이펙트뿐이라 무거운 자식들은 비워 둡니다.
+// 읽음 처리 이펙트만 검증하므로 무거운 자식 컴포넌트는 모킹
 vi.mock("@/features/chat/components/room/chat-room/header", () => ({
   ChatRoomHeader: () => null,
 }));

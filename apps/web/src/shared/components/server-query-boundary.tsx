@@ -1,10 +1,8 @@
-// publicApiClient/privateApiClient의 baseURL을 설정하는 사이드이펙트 임포트.
+// publicApiClient/privateApiClient의 baseURL을 설정하는 사이드이펙트 임포트
 //
-// 서버 프리패치는 이 모듈이 평가되는 시점에 baseURL이 잡혀 있어야 합니다.
-// 레이아웃도 같은 임포트를 갖고 있지만, 빌드 타임 프리렌더에서는 레이아웃 모듈이
-// 페이지 프리패치보다 먼저 평가된다는 보장이 없어 baseURL이 undefined인 채로
-// 요청이 실패하고, 아래 Promise.allSettled가 그 실패를 조용히 삼킵니다.
-// 프리패치를 수행하는 이 파일에서 직접 보장해 렌더 방식과 무관하게 동작시킵니다.
+// 빌드 타임 프리렌더에서는 레이아웃 모듈이 페이지 프리패치보다 먼저 평가된다는 보장이 없어
+// baseURL이 undefined인 채로 요청이 실패하고, 아래 allSettled가 이를 삼킨다.
+// 프리패치를 수행하는 이 파일에서 직접 임포트해 렌더 방식과 무관하게 보장
 import "@/shared/libs/axios";
 
 import { dehydrate, HydrationBoundary, QueryFunction } from "@tanstack/react-query";
@@ -39,8 +37,7 @@ export async function ServerQueryBoundary({
   const queryClient = externalQueryClient || getQueryClient();
 
   try {
-    // 개별 프리패치 요청이 실패하더라도 다른 쿼리 프리패칭을 중단하지 않도록
-    // Promise.allSettled를 사용하여 병렬로 처리합니다.
+    // 개별 프리패치 실패가 다른 쿼리를 중단시키지 않도록 allSettled로 병렬 처리
     if (queries.length > 0) {
       const results = await Promise.allSettled(
         queries.map((q) => {
@@ -58,8 +55,8 @@ export async function ServerQueryBoundary({
         }),
       );
 
-      // 실패한 프리패치는 해당 섹션이 서버 렌더링에서 비어버린다는 뜻이므로
-      // (검색엔진에는 빈 페이지로 보입니다) 조용히 넘기지 않고 남깁니다.
+      // 프리패치 실패는 해당 섹션이 서버 렌더링에서 비는 것을 의미하므로
+      // (검색엔진에 빈 페이지로 노출) 로그로 남긴다
       results.forEach((result, index) => {
         if (result.status === "rejected") {
           console.error(

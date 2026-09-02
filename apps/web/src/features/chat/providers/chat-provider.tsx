@@ -56,26 +56,25 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     enabled: !!user,
   });
 
-  // 방 목록 캐시는 메시지가 올 때마다 새 배열로 교체되고 정렬 순서도 바뀝니다.
-  // 배열 자체를 의존성으로 두면 입장 요청이 불필요하게 다시 나가므로,
-  // 참여할 방 ID 집합이 실제로 달라졌을 때만 재실행되도록 키로 비교합니다.
+  // 방 목록 캐시는 메시지 수신마다 새 배열로 교체되므로 배열 자체를 의존성으로 두면
+  // 입장 요청이 불필요하게 재실행된다. 방 ID 집합을 키로 만들어 비교
   const roomIdsKey = (rooms ?? [])
     .map((room) => room.id)
     .sort((a, b) => a - b)
     .join(",");
 
   /**
-   * 연결이 끊긴 동안 오간 메시지는 소켓으로 받지 못했고, 메시지 캐시는
-   * `staleTime: INFINITY`라 스스로 다시 받아오지 않습니다.
-   * 재연결 시점에 캐시를 서버 상태에 맞춰 다시 채웁니다.
+   * 재연결 시점에 채팅 캐시를 서버 상태에 맞춰 다시 채웁니다.
+   * 끊긴 동안 오간 메시지는 소켓으로 받지 못하고, 메시지 캐시는
+   * `staleTime: INFINITY`라 스스로 갱신되지 않습니다.
    */
   const resyncChatCaches = useCallback(() => {
-    // 목록(마지막 메시지 · 안 읽음 수)은 통째로 다시 받습니다.
+    // 목록(마지막 메시지 · 안 읽음 수)은 전체 재조회
     queryClient.invalidateQueries({ queryKey: chatKeys.rooms.queryKey });
 
     const { activeChatRoomId } = useChatStore.getState();
 
-    // 열려 있지 않은 방의 메시지 캐시는 버려서 다음에 열 때 새로 받게 합니다.
+    // 닫혀 있는 방의 메시지 캐시는 폐기 (다음에 열 때 새로 조회)
     queryClient.removeQueries({
       queryKey: chatKeys.messages._def,
       predicate: (query) => query.queryKey[2] !== activeChatRoomId,
@@ -83,7 +82,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (activeChatRoomId === null) return;
 
-    // 열려 있는 방은 첫 페이지만 남기고 다시 받습니다.
+    // 열려 있는 방은 첫 페이지만 남기고 재조회
     resyncRoomMessages(queryClient, activeChatRoomId);
   }, [queryClient]);
 
@@ -104,18 +103,18 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   ]);
 
   // Effect 2: 재연결 처리
-  // 연결 상태(isConnected)로 가두면 끊긴 사이에 리스너가 떨어져 나가 재연결을
-  // 놓치므로, 소켓 인스턴스 수명 동안 계속 붙여 둡니다.
+  // isConnected로 조건을 걸면 끊긴 사이 리스너가 해제되어 재연결을 놓치므로
+  // 소켓 인스턴스 수명 동안 유지
   useEffect(() => {
     if (!user || !socket) return;
 
-    // 이 이펙트가 붙기 전에 이미 연결됐다면 다음 connect는 재연결입니다.
+    // 리스너 등록 전에 이미 연결된 상태면 다음 connect는 재연결
     if (socket.connected) {
       hasConnectedBeforeRef.current = true;
     }
 
     const handleConnect = () => {
-      // 소켓 룸 참여는 연결마다 다시 해야 합니다.
+      // 소켓 룸 참여는 연결마다 재수행 필요
       setHasJoinedRooms(false);
 
       if (hasConnectedBeforeRef.current) {
@@ -131,7 +130,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   }, [user, socket, setHasJoinedRooms, resyncChatCaches]);
 
   // Effect 3: 채팅방 입장 처리
-  // 입장에 실패하면 실시간 메시지를 전혀 받지 못하므로, 재시도하고 끝내 실패하면 알립니다.
+  // 입장 실패 시 실시간 메시지를 전혀 받지 못하므로 재시도 후 최종 실패 시 안내
   useEffect(() => {
     if (!isConnected || !socket || !isRoomsLoaded || hasJoinedRooms) {
       return;
@@ -172,7 +171,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             );
 
             if (attempt >= MAX_JOIN_ATTEMPTS) {
-              // 같은 실패로 토스트가 반복되지 않도록 성공할 때까지 한 번만 알립니다.
+              // 성공할 때까지 토스트는 한 번만 노출
               if (!hasWarnedJoinFailureRef.current) {
                 hasWarnedJoinFailureRef.current = true;
                 toast.error(tRef.current("toast.join_failed"));

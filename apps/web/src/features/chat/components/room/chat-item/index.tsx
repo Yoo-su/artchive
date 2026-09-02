@@ -41,7 +41,7 @@ export const ChatItem = ({ room }: { room: ChatRoom }) => {
     (p) => p.user.id !== currentUser?.id,
   )?.user;
 
-  // 이미지만 있는 메시지는 content가 비어 있으므로 "사진"으로 표시합니다.
+  // 이미지만 있는 메시지는 content가 비어 있으므로 "사진"으로 표시
   const lastMessage = room.lastMessage;
   const lastMessageText = lastMessage?.content.trim();
   const lastMessagePreview =
