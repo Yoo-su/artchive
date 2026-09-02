@@ -34,14 +34,20 @@ export default function robots(): MetadataRoute.Robots {
       // robots.txt는 매칭되는 UA 그룹이 있으면 "*" 그룹을 무시하므로,
       // 아래 공통 비공개 경로를 여기에도 그대로 반복해야 한다.
       //
-      // Allow를 함께 두면 안 된다. "Allow: /"와 "Disallow: /en"이 동시에 걸릴 때
-      // 구글은 더 구체적인 규칙(Disallow)을 따르지만 네이버는 Allow를 우선해
-      // 차단이 무효가 된다. 명시적으로 막지 않은 경로는 기본이 허용이므로
-      // Disallow만 남긴다.
+      // Allow를 함께 두면 안 된다. 네이버는 Allow가 Disallow보다 우선하므로
+      // "Allow: /"가 있으면 아래 차단이 전부 무효가 된다. 명시적으로 막지 않은
+      // 경로는 기본이 허용이므로 Disallow만 남긴다.
+      //
+      // /en을 세 가지 형태로 적는 이유: 네이버는 차단 경로를 "/not-for-naver/"
+      // 처럼 슬래시로 끝나는 디렉터리 형태로 안내하며, 접두사만 적은 "/en"은
+      // 실제로 매칭되지 않는 것을 검증 도구로 확인했다. 와일드카드는
+      // "/*/my-page"가 정상 동작하는 것으로 지원이 확인되었다.
       {
         userAgent: "Yeti",
         disallow: [
           "/en",
+          "/en/",
+          "/en*",
           "/*/my-page",
           "/*/login",
           "/*/signup",
