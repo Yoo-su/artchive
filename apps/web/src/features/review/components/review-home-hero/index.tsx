@@ -1,37 +1,40 @@
+"use client";
+
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
-const HERO_IMAGES = [
-  "/images/review_home_covers/review_list_cover.jpg",
-  "/images/review_home_covers/review_list_cover2.jpg",
-  "/images/review_home_covers/review_list_cover3.jpg",
-  "/images/review_home_covers/review_list_cover4.jpg",
-];
+import { HERO_IMAGES } from "./hero-images";
+
+interface ReviewHomeHeroProps {
+  /** 배경 이미지 경로. 생략하면 첫 번째 이미지를 사용합니다. */
+  imageSrc?: string;
+}
 
 // 리뷰 홈 히어로 섹션
-export function ReviewHomeHero() {
+export function ReviewHomeHero({ imageSrc }: ReviewHomeHeroProps) {
   const t = useTranslations("review.hero");
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
-  // useMemo로 랜덤 이미지 선택 (컴포넌트 마운트 시 한 번만)
-  const heroImage = useMemo(() => {
-    const randomIndex = Math.floor(Math.random() * HERO_IMAGES.length);
-    return HERO_IMAGES[randomIndex];
-  }, []);
+  const heroImage = imageSrc ?? HERO_IMAGES[0];
 
-  // 클라이언트에서만 isImageLoaded 상태 활성화 (hydration mismatch 방지)
-  useEffect(() => {
-    setIsImageLoaded(false);
-  }, [heroImage]);
+  // 서버에서 렌더링된 이미지는 하이드레이션 시점에 이미 로드가 끝나 있는 경우가
+  // 많고, 그때는 onLoad가 발화하지 않아 제목/부제가 계속 숨겨진 채로 남습니다.
+  // 마운트 시 complete 여부를 직접 확인해 그 경합을 막습니다.
+  const imageRef = useCallback((node: HTMLImageElement | null) => {
+    if (node?.complete) {
+      setIsImageLoaded(true);
+    }
+  }, []);
 
   return (
     <section className="relative h-[420px] md:h-[520px] overflow-hidden mb-12 group">
       {/* 백그라운드 이미지 */}
       <Image
+        ref={imageRef}
         src={heroImage}
         alt={t("image_alt")}
         fill
