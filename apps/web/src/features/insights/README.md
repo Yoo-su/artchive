@@ -1,71 +1,43 @@
-# Frontend Feature: Insights
+# Frontend Feature: Insights (서비스 인사이트 대시보드)
 
-프론트엔드의 `insights` 기능은 bookjeok 서비스의 전체 통계와 인사이트 데이터를 시각적으로 표현하는 대시보드를 제공합니다.
+`/insights`에서 서비스 전체의 독서·거래 데이터를 시각화합니다. 개인 통계는 [`user`](../user/README.md) 기능입니다.
 
-## 1. 주요 파일 및 역할
+## 1. 폴더 구조
 
-- **`apis.ts`**: 백엔드 `/insights` 엔드포인트와 통신하는 API 함수들을 정의합니다.
-  - `getInsights`: 전체 인사이트 데이터 조회
-  - `getLocationSales`: 특정 지역 판매글 조회
-
-- **`queries.tsx`**: TanStack Query 쿼리 훅을 정의합니다.
-  - `useInsightsQuery`: 인사이트 데이터 조회 훅
-  - `useLocationSalesQuery`: 특정 지역의 판매글 목록 모달/팝업 호출 시 사용하는 훅
-
-- **`components/`**: **Context-Based Grouping**
-  - **`charts/`**: 다양한 시각화 차트 (`activity-trend-chart`, `category-chart`, `location-heatmap`, `price-histogram`, `reaction-donut-chart`)
-  - **`common/`**: 공통 UI 요소 (`insight-card`, `insights-header`)
-  - **`lists/`**: 데이터 리스트 (`popular-tags-list`, `insights-location-detail`)
-
-- **`types.ts`**: 인사이트 관련 TypeScript 타입 정의
-- **`constants.ts`**: 차트 색상, 레이블 등 상수 정의
-
-## 2. 주요 컴포넌트
-
-### 인사이트 헤더 (`insights-header.tsx`)
-
-서비스 전체 요약 통계를 카드 형태로 표시:
-
-- 전체 판매글 수
-- 전체 리뷰 수
-- 전체 리액션 수
-- 전체 태그 수
-
-### 지역별 거래 현황 지도 (`insights-map.tsx`)
-
-지역별 중고 거래 현황을 지도에 시각화:
-
-- 클러스터 마커로 지역별 거래량 표시
-- 클릭 시 해당 지역 판매글 목록 표시
-- 지도 API 연동 (네이버/카카오 맵)
-
-### 차트 컴포넌트들
-
-다양한 통계를 차트로 시각화:
-
-- **카테고리 차트**: 리뷰 카테고리별 분포 (파이 차트)
-- **가격 차트**: 가격대별 판매글 분포 (막대 차트)
-- **활동 추이 차트**: 최근 30일 일별 활동 (라인 차트)
-- **리액션 차트**: 리액션 타입별 분포 (도넛 차트)
-
-## 3. 데이터 흐름
-
-```mermaid
-graph TD
-    A[인사이트 페이지] --> B[useInsightsQuery]
-    B --> C[InsightsHeader]
-    B --> D[InsightsMap]
-    B --> E[차트 컴포넌트들]
-    D --> F[지역 클릭]
-    F --> G[getLocationSales API]
-    G --> H[InsightsLocationDetail]
+```
+insights/
+├── constants/ui.ts                   # 차트 색상·레이아웃 상수
+└── components/
+    ├── common/
+    │   ├── insights-header/
+    │   └── insight-card/             # 차트를 감싸는 공통 카드
+    ├── charts/
+    │   ├── location-heatmap/         # 지역별 중고 거래 분포
+    │   ├── price-histogram/          # 가격대 분포
+    │   ├── category-chart/           # 카테고리별 분포
+    │   ├── reaction-donut-chart/     # 리액션 비율
+    │   └── activity-trend-chart/     # 활동 추이
+    └── lists/
+        └── popular-tags-list/        # 인기 태그 순위
 ```
 
-## 4. 캐싱 전략
+## 2. 데이터
 
-인사이트 데이터는 빈번하게 변경되지 않으므로 긴 캐시 시간을 적용:
+| 컴포넌트 | 엔드포인트 |
+|---|---|
+| 대부분의 차트·목록 | `GET /insights` |
+| `location-heatmap` | `GET /insights/location-sales` |
 
-- `staleTime`: 5분
-- `cacheTime`: 30분
+`activity-trend-chart`는 최근 30일간의 일별 판매글 수·리뷰 수를 보여줍니다. 서버가 `used_book_sales`와 `reviews` 테이블에서 직접 집계합니다.
 
-이를 통해 불필요한 API 호출을 줄이고 빠른 페이지 로딩을 제공합니다.
+## 3. 차트 구현 메모
+
+- **ApexCharts**(`react-apexcharts`)를 사용합니다. **SSR을 지원하지 않으므로** 차트 컴포넌트는 클라이언트 전용으로 동적 로드하고 스켈레톤을 함께 둡니다.
+- 색상·간격은 `constants/ui.ts` 한 곳에서 관리합니다. 차트별로 색을 직접 박아 넣으면 다크 모드에서 어긋납니다.
+- 페이지는 ISR로 서빙되며, 관리자 포털의 캐시 제어 센터에서 온디맨드로 갱신할 수 있습니다.
+- 동일한 통계를 `apps/admin`의 대시보드도 소비합니다(`@bookjeok/core`의 `InsightsResponse` 공유).
+
+## 4. 관련
+
+- 서버: [`features/insights`](../../../../server/src/features/insights/README.md)
+- 뷰: `insights-view`

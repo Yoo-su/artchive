@@ -1,153 +1,108 @@
-# Book Sale Feature (중고책 판매)
+# Frontend Feature: Book Sale (중고책 장터)
 
-중고책 판매글 관리를 위한 프론트엔드 feature 모듈입니다.
+중고 도서 판매글의 등록·수정·탐색·상세를 담당합니다. 결제와 주문 관리는 [`order`](../order/README.md), 거래 채팅은 [`chat`](../chat/README.md)이 맡습니다.
 
-## 폴더 구조
+## 1. 폴더 구조
 
 ```
 book-sale/
-├── types.ts          # 타입 정의 (UsedBookSale, SaleStatus, DTOs)
-├── apis/index.ts       # API 함수 (CRUD, 검색)
-├── queries.tsx       # TanStack Query 훅
-├── mutations.tsx     # TanStack Mutation 훅
-├── constants.ts      # 상수 (가격 제한, 정렬 기본값, 유효값 검증용 Set)
-├── hooks/            # 커스텀 훅
-│   ├── use-book-sale-search-params.ts  # URL 파라미터 읽기/쓰기 통합 관리 (유효성 검증 포함)
-│   ├── use-user-location.ts            # 위치 권한 관리
-│   ├── use-book-sale-form.ts           # 등록 폼 로직 (Headless ImageHook 적용)
-│   └── use-book-sale-edit-form.ts      # 수정 폼 로직 (Headless ImageHook 적용)
-├── actions/          # Server Actions
-│   ├── upload-action.ts    # 이미지 업로드
-│   └── delete-action.ts    # 이미지 삭제
-└── components/       # Context-Based Grouping
-    ├── sale-market/           # 마켓 메인 (필터 + 그리드)
-    ├── sale-detail/           # 판매글 상세 페이지
-    ├── sale-form/             # 등록/수정 폼
-    ├── my-sales/              # 내 판매 내역
-    └── common/                # 공통 컴포넌트
+├── actions/
+│   ├── upload-action.ts              # Server Action — Vercel Blob 업로드
+│   └── delete-action.ts              # Server Action — Blob 삭제
+├── services/
+│   └── image-upload-service.ts       # 압축 → 업로드 → 진행률 오케스트레이션
+├── hooks/
+│   ├── use-book-sale-form.ts         # 등록 폼 (RHF + Zod)
+│   ├── use-book-sale-edit-form.ts    # 수정 폼
+│   ├── use-book-sale-search-params.ts# 필터 ↔ URL 동기화
+│   ├── use-user-location.ts          # 사용자 위치 확보 (거리순 정렬용)
+│   └── use-sale-view.ts              # 상세 조회수 기록
+├── mutations/
+├── __tests__/                        # queries / mutations
+└── components/
+    ├── sale-market/                  # 장터 메인
+    │   ├── market-hero/ (+ live-listing-feed)
+    │   ├── book-sale-filter/         # 지역·가격·거래방식·정렬 필터
+    │   ├── book-sale-grid/
+    │   ├── book-market/ (+ with-params, popular-book-sale-list)
+    │   └── recent-sale-slider/
+    ├── sale-detail/
+    │   ├── book-sale-detail/         # header · book-info-card · content
+    │   │                             #  · image-carousel · actions
+    │   │                             #  · sale-location-map (카카오 맵)
+    │   └── related-sales/
+    ├── sale-form/
+    │   ├── book-sale-form/ (+ schema.ts)
+    │   ├── book-sale-edit-form/ (+ schema.ts)
+    │   ├── book-sale-edit/
+    │   └── region-display-card.tsx
+    ├── my-sales/
+    │   └── book-sale-history-list/   # index · item · skeleton
+    └── common/
+        ├── book-sale-item/           # 합성 컴포넌트 (root/parts/context/skeleton)
+        ├── sale-status-badge.tsx     # FOR_SALE · RESERVED · SOLD · WITHDRAWN
+        ├── trade-method-badge.tsx    # DIRECT_ONLY · DELIVERY_ONLY · BOTH
+        ├── upload-progress-modal.tsx
+        └── book-sale-json-ld/        # Product 구조화 데이터
 ```
 
-## 핵심 타입
+## 2. 핵심 로직
 
-```typescript
-enum SaleStatus {
-  FOR_SALE = "FOR_SALE",
-  RESERVED = "RESERVED",
-  SOLD = "SOLD",
-}
+### 합성 컴포넌트 패턴 (`book-sale-item`)
 
-interface UsedBookSale {
-  id: number;
-  title: string;
-  price: number;
-  city: string;
-  district: string;
-  content: string;
-  imageUrls: string[];
-  status: SaleStatus;
-  user: SaleAuthor;
-  book: BookInfo;
-  viewCount: number;
-  latitude?: number;
-  longitude?: number;
-  placeName?: string;
-}
+목록·슬라이더·내 판매내역 등 노출 맥락마다 필요한 정보가 달라서, 하나의 고정 카드 대신 Context 기반 합성 컴포넌트로 만들었습니다.
+
+```tsx
+<BookSaleItem.Root sale={sale}>
+  <BookSaleItem.Thumbnail />
+  <BookSaleItem.Title />
+  <BookSaleItem.Price />
+  <BookSaleItem.StatusBadge />
+</BookSaleItem.Root>
 ```
 
-## 쿼리 훅
+`root.tsx`가 Context를 제공하고 `parts.tsx`가 조각을 노출합니다. 리뷰의 `review-card`도 같은 패턴입니다.
 
-| 훅                          | 용도                      |
-| --------------------------- | ------------------------- |
-| `useInfiniteBookSalesQuery` | 판매글 검색 (무한 스크롤) |
-| `useMyBookSalesQuery`       | 내 판매글 목록            |
-| `useBookSaleDetailQuery`    | 판매글 상세               |
-| `useInfiniteRelatedSalesQuery`| 관련 판매글 (무한 스크롤) |
-| `useRelatedSalesQuery`      | 관련 판매글               |
-| `useRecentBookSalesQuery`   | 최근 판매글               |
-| `usePopularBookSalesQuery`  | 인기 판매글               |
+### 이미지 업로드
 
-## 뮤테이션 훅
-
-| 훅                                | 용도        |
-| --------------------------------- | ----------- |
-| `useCreateBookSaleMutation`       | 판매글 등록 |
-| `useUpdateBookSaleMutation`       | 판매글 수정 |
-| `useUpdateBookSaleStatusMutation` | 상태 변경   |
-| `useDeleteBookSaleMutation`       | 판매글 삭제 |
-
-## 의존성
-
-- `@/features/book`: `BookInfo`, `Book` 타입, `useInfiniteBookSearch` 훅
-- `@/features/auth`: 사용자 인증 정보
-
-## API 엔드포인트
-
-모든 API는 `/book/...` 경로를 사용합니다 (백엔드 호환성 유지).
-
-## 데이터 흐름 및 핵심 로직
-
-### 중고 서적 판매글 생성 (이미지 업로드 포함)
-
-사용자가 판매글 폼을 작성하고 제출하면, 클라이언트(브라우저)에서 직접 이미지를 Vercel Blob에 업로드한 후, 반환된 이미지 URL을 포함하여 백엔드에 최종 데이터를 전송합니다.
-
-```mermaid
-sequenceDiagram
-    participant User as 사용자
-    participant Form as BookSaleForm
-    participant Mutation as useCreateBookSaleMutation
-    participant VercelBlob as Vercel Blob
-    participant Backend as bookjeok 백엔드
-
-    User->>Form: 1. 폼 데이터 입력 및 이미지 파일 선택
-    User->>Form: 2. '판매글 등록하기' 버튼 클릭
-    Form->>Mutation: 3. mutate({ imageFiles, payload }) 호출
-
-    Mutation->>VercelBlob: 4. (클라이언트) 이미지 파일 업로드
-    VercelBlob-->>Mutation: 5. 업로드된 이미지 URL 목록 반환
-
-    Mutation->>Backend: 6. POST /book/sale (텍스트 정보 + 이미지 URL)
-
-    Note over Backend: 판매글 DB에 저장
-
-    Backend-->>Mutation: 7. 생성된 판매글 데이터 응답
-
-    Mutation->>Mutation: 8. onSuccess 콜백 실행
-    Mutation->>User: 9. "등록 완료" 알림 표시 및 페이지 이동
+```
+파일 선택
+  │
+  ▼ browser-image-compression 으로 클라이언트 압축
+image-upload-service — 순차 업로드 + 진행률 계산
+  │
+  ▼ upload-action (Server Action)
+Vercel Blob 저장 → URL 반환
+  │
+  ▼
+upload-progress-modal 로 진행률 표시, 실패 시 개별 재시도
 ```
 
-> **💡 아키텍처 노트 (Headless Component)**: 
-> 폼 내부의 복잡한 이미지 상태 관리(파일 유효성 검사, URL 미리보기 생성, 개수 초과 관리 등)는 
-> 공용 UI(`ImageUploader`)와 결합되지 않고 순수 로직 훅인 `shared/hooks/use-image-upload.ts`로 
-> 완전 분리(Headless)되어 관리됩니다. 폼은 이 훅을 호출해 렌더링에 필요한 상태만 내려받아 사용합니다.
+판매글 삭제·이미지 교체 시 `delete-action`으로 더 이상 참조되지 않는 Blob을 정리합니다. Server Action을 쓰는 이유는 `BLOB_READ_WRITE_TOKEN`을 브라우저에 노출하지 않기 위해서입니다. 폼의 `bodySizeLimit`은 `next.config.ts`에서 10MB로 설정되어 있습니다.
 
-### 판매 상태 변경 (낙관적 업데이트)
+### 위치 기반 탐색
 
-사용자가 '나의 판매 내역' 페이지에서 판매 상태를 변경하면, 서버 응답을 기다리지 않고 즉시 UI를 업데이트하여 사용자 경험을 향상시킵니다.
+- `use-user-location`이 사용자 좌표를 확보하고, 거리순 정렬 시 `lat`/`lng`/`radius`를 쿼리에 실어 보냅니다.
+- 서버는 `cube`/`earthdistance` GiST 인덱스로 거리를 계산합니다(PostGIS 아님).
+- `sale-location-map`은 `react-kakao-maps-sdk`로 거래 희망 장소를 표시합니다 — `NEXT_PUBLIC_KAKAO_APP_KEY`가 필요합니다.
+- 목록은 **커서 페이지네이션**입니다. 응답의 `nextCursor`를 다음 요청에 그대로 전달합니다.
 
-```mermaid
-sequenceDiagram
-    participant User as 사용자
-    participant Page as 판매 내역 페이지
-    participant Mutation as useUpdateSaleStatusMutation
-    participant QueryClient as TanStack Query Client
-    participant Backend as bookjeok 백엔드
+### 폼 검증
 
-    User->>Page: 1. 판매 상태 변경 (e.g., '판매중' -> '예약중')
-    Page->>Mutation: 2. mutate({ saleId, status }) 호출
+`schema.ts`(Zod)를 React Hook Form의 resolver로 연결합니다. 등록과 수정은 허용 필드가 달라 스키마를 분리했습니다. 거래 방식(`tradeMethod`) 선택은 이후 주문·결제 가능 여부를 결정하므로 등록 폼에서 반드시 지정됩니다.
 
-    Mutation->>QueryClient: 3. onMutate 실행: 쿼리 취소
-    QueryClient->>QueryClient: 4. setQueryData: 캐시된 데이터를 새 상태로 미리 업데이트
+## 3. 상태 배지
 
-    Note right of Page: UI가 즉시 '예약중'으로 변경됨
+| SaleStatus | 표시 |
+|---|---|
+| `FOR_SALE` | 판매중 |
+| `RESERVED` | 예약중 (활성 주문 존재) |
+| `SOLD` | 판매완료 (구매확정) |
+| `WITHDRAWN` | 판매취소 |
 
-    Mutation->>Backend: 5. PATCH /book/sales/:id/status 요청
+`RESERVED`/`SOLD` 전이는 주문 상태에 의해 서버가 자동으로 수행합니다. 클라이언트에서 임의 변경하지 마세요.
 
-    alt 서버 요청 성공
-        Backend-->>Mutation: 6. 200 OK 응답
-        Mutation->>QueryClient: 7. onSettled 실행: 관련 쿼리 무효화 (데이터 동기화)
-    else 서버 요청 실패
-        Backend-->>Mutation: 6. 에러 응답
-        Mutation->>QueryClient: 7. onError 실행: onMutate에서 저장한 이전 데이터로 롤백
-        Note right of Page: UI가 다시 '판매중'으로 복원됨
-    end
-```
+## 4. 관련
+
+- 서버: [`features/used-book-sale`](../../../../server/src/features/used-book-sale/README.md), [`features/order`](../../../../server/src/features/order/README.md)
+- 뷰: `book-market-view`, `book-sale-detail-view`, `book-sale-form-view`, `book-sale-edit-view`, `book-sale-history-view`

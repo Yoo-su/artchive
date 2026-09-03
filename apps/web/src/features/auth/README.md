@@ -1,61 +1,80 @@
-# Frontend Feature: Auth
+# Frontend Feature: Auth (인증)
 
-프론트엔드의 `auth` 기능은 사용자 인증 상태를 관리하고, 인증 상태에 따라 특정 페이지에 대한 접근을 제어하는 역할을 합니다. 백엔드에서 발급받은 사용자 정보와 토큰을 클라이언트 측에서 안전하게 관리하고, 이를 기반으로 UI를 동적으로 변경합니다.
+로그인·회원가입·소셜 로그인 콜백·이메일 인증·라우트 보호를 담당합니다.
 
-## 1. 주요 파일 및 역할
+## 1. 폴더 구조
 
-- **`features/auth/stores/use-auth-store.ts`**: **Zustand**를 사용하여 인증 상태를 관리하는 스토어입니다.
-  - `user`: 로그인한 사용자 정보 객체.
-  - `accessToken`, `refreshToken`: 백엔드로부터 받은 JWT.
-  - `setUser`, `setTokens`, `setAuth`, `clearAuth`: 상태를 변경하는 액션 함수.
-  - `persist` 미들웨어를 사용하여 인증 상태를 `localStorage`에 저장하여 브라우저를 새로고침해도 로그인 상태가 유지되도록 합니다.
-- **`features/auth/apis/index.ts`**: 인증 관련 API를 호출하는 함수가 정의되어 있습니다. `getUserProfile` 함수는 저장된 Access Token을 이용해 현재 로그인된 사용자의 프로필 정보를 백엔드로부터 가져옵니다. 또한 `emailSignup` 및 `emailLogin` 함수를 통해 이메일 기반 회원가입 및 로그인도 지원합니다.
-- **`features/auth/components/`**: **Context-Based Grouping**
-  - **`forms/`**: 로그인/회원가입 폼 (`login-form`, `signup-form`)
-  - **`guards/`**: 라우트 가드 (`auth-guard`, `guest-guard`)
-- **`app/[locale]/(auth)/login/page.tsx`**: 로그인 UI를 보여주는 페이지입니다. `guest-guard`로 감싸져 있습니다.
-- **`app/[locale]/(auth)/callback/page.tsx`**: 소셜 로그인 후 백엔드 서버로부터 리다이렉트되는 콜백 페이지입니다. URL의 쿼리 파라미터로 전달된 `accessToken`, `refreshToken`, `user` 정보를 파싱하여 `useAuthStore`에 저장하고, 사용자를 홈 화면으로 이동시킵니다.
-
-## 2. 핵심 로직 흐름
-
-### 클라이언트 사이드 로그인 처리 흐름
-
-사용자가 소셜 로그인 버튼을 클릭한 시점부터 프론트엔드에서 로그인 상태가 확립되기까지의 과정입니다.
-
-```mermaid
-sequenceDiagram
-    participant User as 사용자
-    participant LoginPage as 로그인 페이지 (`/login`)
-    participant Backend as 백엔드 서버
-    participant CallbackPage as 콜백 페이지 (`/callback`)
-    participant AuthStore as Zustand 스토어
-    participant HomePage as 메인 페이지 (`/home`)
-
-    User->>LoginPage: 1. 소셜 로그인 버튼 클릭 (e.g., Kakao)
-    LoginPage->>Backend: 2. `window.location.href` 변경으로<br/>`GET /auth/kakao` 요청
-
-    Note over Backend: 서버 측 소셜 로그인 처리 (이전 문서 참고)
-
-    Backend-->>CallbackPage: 3. 토큰과 사용자 정보를 쿼리에 담아 리다이렉트
-
-    CallbackPage->>CallbackPage: 4. URL 쿼리 파라미터 파싱
-    CallbackPage->>AuthStore: 5. `setTokens()`, `setUser()` 호출하여 상태 저장
-
-    CallbackPage->>HomePage: 6. `router.replace('/home')`로 페이지 이동
-
-    User->>HomePage: 7. 인증이 필요한 페이지/컴포넌트 렌더링
-    HomePage->>AuthStore: 8. `useAuthStore`로 사용자 정보 조회
-    alt 사용자 정보 있음
-        HomePage-->>User: 9. 로그인된 상태의 UI 표시
-    else 사용자 정보 없음
-        HomePage->>LoginPage: 9. 로그인 페이지로 리다이렉트 (AuthGuard)
-    end
+```
+auth/
+├── schema.ts                              # Zod 로그인/회원가입 스키마
+├── stores/
+│   ├── use-auth-store.ts                  # 토큰·사용자 세션 (Zustand)
+│   └── __tests__/use-auth-store.test.ts
+├── utils/
+│   └── return-url.ts                      # 로그인 후 복귀 경로 저장/복원
+├── mutations/
+└── components/
+    ├── forms/
+    │   ├── login-form/
+    │   └── signup-form/
+    ├── guards/
+    │   ├── auth-guard/                    # 로그인 필요 라우트 보호
+    │   └── guest-guard/                   # 로그인 상태면 진입 차단
+    ├── email-verification-alert.tsx       # 미인증 회원 안내 + 재발송
+    └── __tests__/email-verification-alert.test.tsx
 ```
 
-1.  **로그인 시도**: 사용자가 로그인 페이지에서 '카카오 로그인' 버튼을 클릭합니다.
-2.  **백엔드 요청**: `handleSocialLogin` 함수가 실행되어 `window.location.href`를 백엔드의 소셜 로그인 API 주소로 변경합니다.
-3.  **콜백 처리**: 백엔드에서 모든 OAuth 인증 과정이 완료되면, Access/Refresh Token과 사용자 정보를 쿼리 스트링에 담아 프론트엔드의 `/callback` 페이지로 리다이렉트합니다.
-4.  **상태 저장**: `/callback` 페이지에서는 `useSearchParams` 훅을 사용해 쿼리 파라미터를 읽어옵니다.
-5.  **Zustand 스토어 업데이트**: 파싱한 토큰과 사용자 정보를 `useAuthStore`의 `setTokens`, `setUser` 액션을 호출하여 전역 상태 및 `localStorage`에 저장합니다.
-6.  **페이지 이동**: 모든 상태 저장이 완료되면 `router.replace('/home')`을 통해 사용자를 메인 페이지로 이동시킵니다.
-7.  **인증 기반 렌더링**: 이후 모든 페이지와 컴포넌트는 `useAuthStore`에서 사용자 정보를 가져와 로그인 여부를 판단하고, 그에 맞는 UI(e.g., 프로필 아이콘, 로그아웃 버튼)를 보여줍니다. `AuthGuard`로 보호되는 페이지는 접근이 가능해집니다.
+## 2. 인증 플로우
+
+### 소셜 로그인 — 1회용 티켓 교환
+
+JWT를 URL 쿼리스트링에 실어 보내면 브라우저 히스토리·리퍼러·서버 로그에 토큰이 남습니다. 그래서 콜백에는 **60초짜리 1회용 티켓**만 실립니다.
+
+```
+/login → 네이버·카카오 OAuth
+              │
+              ▼
+서버 콜백 → createAuthTicket() (UUID, 캐시에 60초 TTL)
+              │
+              ▼ redirect: /callback?ticket=xxx
+/[locale]/(auth)/callback  (callback 페이지)
+              │
+              ▼ POST /auth/exchange { ticket }
+        accessToken + 사용자 정보 수신 (티켓은 즉시 폐기)
+              │
+              ▼
+useAuthStore 저장 → return-url 로 복귀
+```
+
+### Silent Refresh
+
+Access Token 만료는 `@bookjeok/api-client`의 Axios 인터셉터가 처리합니다. 401을 감지하면 refresh를 시도하고 원래 요청을 재시도합니다. **프론트 코드에서 토큰 갱신을 직접 다루지 마세요.** refresh까지 실패하면 스토어를 비우고 로그인으로 보냅니다.
+
+서버는 `user.tokenVersion`을 올려 Refresh Token을 즉시 무효화할 수 있습니다(로그아웃·보안 이벤트).
+
+### 이메일 인증
+
+```
+회원가입 → POST /auth/send-verification-email (Resend 발송)
+                  │
+                  ▼ 메일의 링크
+/[locale]/(auth)/verify-email → POST /auth/verify-email
+```
+
+`email-verification-alert`는 미인증 회원에게 안내와 재발송 버튼을 노출합니다. **중고거래 진입(판매글 작성·거래 채팅·구매자 지정·결제)은 인증 완료 회원만 가능**하며, 최종 차단은 서버의 `EmailVerifiedGuard`가 수행합니다.
+
+## 3. 가드
+
+| 컴포넌트 | 동작 |
+|---|---|
+| `auth-guard` | 비로그인 시 로그인으로 리다이렉트 + 복귀 경로 저장 |
+| `guest-guard` | 이미 로그인했으면 로그인/회원가입 페이지 진입 차단 |
+
+공개 라우트 목록은 `shared/constants/public-routes.ts`에 있고, 라우트 상수는 `shared/constants/paths.ts`(`PATHS`)를 사용합니다. 경로 문자열을 하드코딩하지 마세요.
+
+전역 사용자 컨텍스트는 `shared/providers/user-provider.tsx`가 제공합니다.
+
+## 4. 관련
+
+- 서버: [`features/auth`](../../../../server/src/features/auth/README.md)
+- 뷰: `login-view`, `signup-view`, `verify-email-view`, `/[locale]/(auth)/callback`
