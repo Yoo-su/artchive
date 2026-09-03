@@ -7,13 +7,18 @@ import { routing } from "@/shared/config/i18n/routing";
 /**
  * ISR(Full Route Cache)을 즉시 파괴하는 서버 액션
  *
- * 판매글·리뷰가 걸린 페이지는 ISR로 5분~1시간 캐시된다. 쓰기 직후 이 캐시를
- * 비우지 않으면 새로고침한 본인, 다른 방문자, 크롤러가 재검증 시각까지 옛 HTML을 받는다.
- * 클라이언트 쿼리 캐시 무효화는 서버 캐시에 닿지 않으므로 함께 호출해야 한다.
+ * 클라이언트 쿼리 캐시 무효화는 서버 캐시에 닿지 않으므로, 다른 방문자와
+ * 크롤러가 받는 HTML을 갱신하려면 이쪽을 함께 호출해야 한다.
  *
- * ⚠️ 이 액션은 서버 캐시만 지운다. 브라우저가 들고 있는 Next.js Router Cache
- * (static 라우트 기본 5분)는 별개라, 호출한 쪽에서 `router.refresh()`도 함께 실행해야
- * 같은 세션에서의 SPA 재진입까지 최신 상태가 된다.
+ * ⚠️ 이 액션은 서버 캐시만 지운다. 브라우저 Router Cache는 별개라
+ * 호출한 쪽에서 `router.refresh()`도 함께 실행한다. (purgeRouteCache)
+ *
+ * 재검증 범위 규칙
+ * - 아이템 상세만 즉시 재검증한다. 그 페이지의 주제가 바뀐 것이므로.
+ * - 목록·홈 같은 집계는 시간 기반 revalidate에 위임한다. 쓰기마다 파기하면
+ *   트래픽이 늘수록 적중률이 0에 수렴해 ISR이 사실상 SSR로 퇴화한다.
+ *   상호작용 중인 사용자는 쿼리 무효화 + refetchOnMount로 이미 최신을 본다.
+ * - 삭제만 예외로 집계까지 비운다. 목록에 남은 링크가 404로 이어지기 때문.
  */
 
 /** 모든 로케일에 대해 같은 경로를 재검증 (localePrefix: "always") */
@@ -25,19 +30,22 @@ const revalidateAllLocales = (path: string) => {
 
 /**
  * 판매글 변경 시 재검증 대상
- * - 판매글 상세, 마켓 목록, 최근 판매글이 실린 홈
- * - isbn을 알면 연관 판매글이 붙는 도서 상세까지
+ * - 판매글 상세. 마켓·홈은 시간 기반에 위임
+ * - 도서 상세는 대상이 아니다. 연관 판매글이 클라이언트 전용이라 HTML에 안 실림
+ * @param deleted 삭제 여부. 마켓·홈에 남은 죽은 링크를 함께 비운다
  */
 export async function revalidateBookSale(params: {
   saleId?: number;
-  isbn?: string;
+  deleted?: boolean;
 }) {
-  const { saleId, isbn } = params;
+  const { saleId, deleted } = params;
 
   if (saleId) revalidateAllLocales(`/book/sales/${saleId}`);
-  if (isbn) revalidateAllLocales(`/book/${isbn}/detail`);
-  revalidateAllLocales("/book/market");
-  revalidateAllLocales("");
+
+  if (deleted) {
+    revalidateAllLocales("/book/market");
+    revalidateAllLocales("");
+  }
 }
 
 /**
@@ -54,12 +62,19 @@ export async function revalidateUserProfile(params: { handle: string }) {
 
 /**
  * 리뷰 변경 시 재검증 대상
- * - 리뷰 상세, 리뷰 목록, 최신 리뷰가 실린 홈
+ * - 리뷰 상세. 목록·홈은 시간 기반에 위임
+ * @param deleted 삭제 여부. 목록·홈에 남은 죽은 링크를 함께 비운다
  */
-export async function revalidateReview(params: { reviewId?: number }) {
-  const { reviewId } = params;
+export async function revalidateReview(params: {
+  reviewId?: number;
+  deleted?: boolean;
+}) {
+  const { reviewId, deleted } = params;
 
   if (reviewId) revalidateAllLocales(`/book/reviews/${reviewId}`);
-  revalidateAllLocales("/book/reviews");
-  revalidateAllLocales("");
+
+  if (deleted) {
+    revalidateAllLocales("/book/reviews");
+    revalidateAllLocales("");
+  }
 }

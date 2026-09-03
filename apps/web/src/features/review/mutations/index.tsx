@@ -23,13 +23,12 @@ export const useToggleReviewReactionMutation = (reviewId: number) => {
  */
 export const useCreateReviewMutation = () => {
   const t = useTranslations("review.toast");
-  const router = useRouter();
 
   return useSharedCreateReviewMutation({
+    // 재검증 대상이 없다. 상세는 아직 ISR에 없고, 목록·홈은 시간 기반에 위임한다.
+    // 작성자 본인은 쿼리 무효화 + refetchOnMount로 목록에서 바로 확인한다.
     onSuccess: () => {
       toast.success(t("create_success"));
-      // 새 리뷰가 실릴 목록 · 홈의 ISR 캐시와 브라우저 Router Cache를 함께 비운다.
-      void purgeRouteCache(revalidateReview({}), () => router.refresh());
     },
   });
 };
@@ -93,9 +92,9 @@ export const useDeleteReviewMutation = () => {
   return useSharedDeleteReviewMutation({
     onSuccess: (id: number) => {
       toast.success(t("delete_success"));
-      // 삭제된 리뷰의 상세 페이지가 ISR 캐시에 200으로 남아 있으면
-      // 다른 방문자와 크롤러에게 계속 노출된다.
-      void purgeRouteCache(revalidateReview({ reviewId: id }), () =>
+      // 상세가 ISR에 200으로 남으면 다른 방문자·크롤러에게 계속 노출되고,
+      // 목록·홈에 남은 링크는 404로 이어진다.
+      void purgeRouteCache(revalidateReview({ reviewId: id, deleted: true }), () =>
         router.refresh(),
       );
     },
