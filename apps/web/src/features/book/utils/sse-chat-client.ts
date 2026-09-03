@@ -1,6 +1,7 @@
 import { AiSearchBookItem, API_PATHS } from "@bookjeok/core";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { redirectToLogin } from "@/shared/utils/session";
 
 
 export interface StreamAiChatOptions {
@@ -84,7 +85,10 @@ export async function streamAiChat(
     }
 
     // Refresh Token도 만료되었거나 없으면 로그아웃 처리 후 예외 발생
+    // clearAuth만 하고 SPA에 머무르면 이전 사용자의 쿼리 캐시가 살아남아
+    // 같은 브라우저에서 다음 사용자가 로그인할 때 그대로 노출된다.
     useAuthStore.getState().clearAuth();
+    redirectToLogin();
     throw new Error("UNAUTHORIZED");
   }
 
