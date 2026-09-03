@@ -5,7 +5,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { fetchBookDetail } from "@/features/book/apis/server";
 import { BookJsonLd } from "@/features/book/components/common/book-json-ld";
-import { prefetchBookSummary, prefetchRelatedBooks } from "@/features/book/queries/prefetch";
+import { prefetchBookSummary } from "@/features/book/queries/prefetch";
 import { BreadcrumbJsonLd } from "@/shared/components/breadcrumb-json-ld";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
@@ -74,6 +74,10 @@ export default async function Page({ params }: Props) {
 
   const queryClient = getQueryClient();
 
+  // AI 요약은 isbn만 필요하므로 상세 조회와 병렬로 시작 (직렬로 두면 TTFB에 그대로 가산)
+  // prefetchQuery는 거부하지 않으므로 notFound()로 중단돼도 미처리 거부가 남지 않음
+  const summaryPrefetch = prefetchBookSummary(queryClient, isbn);
+
   // API 장애는 fetchBookDetail에서 throw → 에러 바운더리 (ISR 캐시 미저장)
   // 응답은 정상이고 결과만 없는 경우가 실제 404
   const data = await fetchBookDetail(isbn);
@@ -85,11 +89,7 @@ export default async function Page({ params }: Props) {
 
   queryClient.setQueryData(bookKeys.detail(isbn).queryKey, book);
 
-  // 저자 연관 도서 및 AI 요약 프리패칭 (실패해도 본문 렌더링 유지)
-  await Promise.allSettled([
-    book.author && prefetchRelatedBooks(queryClient, book.author),
-    prefetchBookSummary(queryClient, isbn),
-  ]);
+  await summaryPrefetch;
 
   const t = await getTranslations({ locale, namespace: "header" });
   const breadcrumbs = [
