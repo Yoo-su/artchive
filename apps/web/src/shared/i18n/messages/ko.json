@@ -1082,6 +1082,10 @@
         "sellers": "책 내놓은 이웃"
       }
     },
+    "videoHero": {
+      "title": "다 읽은 책, 새 주인을 만나요",
+      "subtitle": "이웃과 만나거나 택배로, 편하게 거래하세요"
+    },
     "popular": {
       "title": "🔥 지금 뜨는 중고책",
       "badge": "HOT"

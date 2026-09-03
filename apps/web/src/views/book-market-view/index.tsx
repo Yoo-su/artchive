@@ -5,13 +5,13 @@ import { Suspense } from "react";
 import { BookMarket } from "@/features/book-sale/components/sale-market/book-market";
 import { PopularBookSaleList } from "@/features/book-sale/components/sale-market/book-market/popular-book-sale-list";
 import { BookMarketWithParams } from "@/features/book-sale/components/sale-market/book-market/with-params";
-import { MarketHero } from "@/features/book-sale/components/sale-market/market-hero";
+import { VideoHero } from "@/features/book-sale/components/sale-market/video-hero";
 import { AdBanner } from "@/shared/components/ads/ad-banner";
 
 export const BookMarketView = () => {
   return (
     <div className="w-full py-8">
-      <MarketHero />
+      <VideoHero />
 
       {/* 광고 배너 */}
       <AdBanner
