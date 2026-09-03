@@ -1,14 +1,10 @@
 "use client";
 
-import {
-  useBookSaleRegionsQuery,
-  useRecentBookSalesQuery,
-} from "@bookjeok/react-query";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo } from "react";
 
+import { useMarketHeroStats } from "@/features/book-sale/hooks/use-market-hero-stats";
 import { GravityStarsBackground } from "@/shared/components/animateui/gravity-stars";
 import { AvatarCircles } from "@/shared/components/magicui/avatar-circles";
 import { Link } from "@/shared/config/i18n/routing";
@@ -17,65 +13,19 @@ import { usePrefersReducedMotion } from "@/shared/hooks/use-prefers-reduced-moti
 
 import { LiveListingFeed } from "./live-listing-feed";
 
-/** 홈 슬라이더와 캐시를 공유하기 위해 동일한 limit 사용 */
-const RECENT_LIMIT = 25;
-const DAY_IN_MS = 24 * 60 * 60 * 1000;
-/** 히어로는 실시간성이 중요하므로 전역 staleTime(1분)을 더 짧게 덮어쓴다. */
-const LIVE_REFRESH_MS = 60 * 1000;
-
 export const MarketHero = () => {
   const t = useTranslations("market.hero");
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  const { data: recentSales, isLoading } = useRecentBookSalesQuery(
-    RECENT_LIMIT,
-    {
-      staleTime: LIVE_REFRESH_MS,
-      refetchInterval: LIVE_REFRESH_MS,
-      refetchOnMount: true,
-    },
-  );
-  const { data: regions } = useBookSaleRegionsQuery();
-
-  const sales = useMemo(() => recentSales ?? [], [recentSales]);
-
-  /**
-   * 히어로에 노출하는 수치는 모두 실제 데이터에서 계산한다.
-   * 최근 목록을 limit개만 받아오므로, 전부 24시간 이내면 "N+"로 표기한다.
-   */
-  const { freshCount, newTodayLabel, regionCount, sellers } = useMemo(() => {
-    const now = Date.now();
-    const freshCount = sales.filter(
-      (sale) => now - new Date(sale.createdAt).getTime() < DAY_IN_MS,
-    ).length;
-
-    const uniqueSellers = new Map<
-      number,
-      { imageUrl: string | null; name: string }
-    >();
-    for (const sale of sales) {
-      if (!sale.user || uniqueSellers.has(sale.user.id)) continue;
-      uniqueSellers.set(sale.user.id, {
-        imageUrl: sale.user.profileImageUrl,
-        name: sale.user.nickname,
-      });
-    }
-
-    return {
-      freshCount,
-      newTodayLabel:
-        freshCount >= RECENT_LIMIT ? `${RECENT_LIMIT}+` : String(freshCount),
-      regionCount: regions
-        ? Object.values(regions).reduce(
-            (total, districts) => total + districts.length,
-            0,
-          )
-        : 0,
-      sellers: [...uniqueSellers.values()],
-    };
-  }, [sales, regions]);
-
-  const hasStats = freshCount > 0 || regionCount > 0 || sellers.length > 0;
+  const {
+    sales,
+    isLoading,
+    freshCount,
+    newTodayLabel,
+    regionCount,
+    sellers,
+    hasStats,
+  } = useMarketHeroStats();
 
   return (
     <section className="relative -mx-4 mb-10 overflow-hidden bg-[#0A0A0A] sm:-mx-6 md:mb-14">

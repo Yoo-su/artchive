@@ -1082,6 +1082,10 @@
         "sellers": "Neighbors selling"
       }
     },
+    "videoHero": {
+      "title": "Give Your Books a New Reader",
+      "subtitle": "Meet a neighbor, or simply send it by parcel"
+    },
     "popular": {
       "title": "🔥 Trending Used Books",
       "badge": "HOT"
