@@ -4,7 +4,6 @@ import { logout } from "@bookjeok/api-client";
 import { User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import {
@@ -19,9 +18,10 @@ import {
   PopoverTrigger,
 } from "@/shared/components/shadcn/popover";
 import { Separator } from "@/shared/components/shadcn/separator";
-import { Link, usePathname, useRouter } from "@/shared/config/i18n/routing";
+import { Link, usePathname } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
+import { hardRedirect, markSessionToast } from "@/shared/utils/session";
 
 export default function UserPopover() {
   const tAuth = useTranslations("header.auth");
@@ -30,7 +30,6 @@ export default function UserPopover() {
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
 
   useEffect(() => {
     setIsOpen(false);
@@ -44,8 +43,11 @@ export default function UserPopover() {
       console.warn("Server logout notification failed:", e);
     } finally {
       clearAuth();
-      router.push(PATHS.HOME);
-      toast.success(tAuth("logout_success"));
+      // 하드 내비게이션으로 브라우저 힙을 폐기한다.
+      // SPA 이동(router.push)은 이전 사용자의 쿼리 캐시 · Router Cache · 소켓을
+      // 그대로 남겨, 같은 브라우저에서 다음 사용자가 로그인할 때 노출된다.
+      markSessionToast(tAuth("logout_success"));
+      hardRedirect(PATHS.HOME);
     }
   };
 

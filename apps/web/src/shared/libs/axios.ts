@@ -7,6 +7,7 @@ import axios, {
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { config } from "@/shared/config/env";
+import { redirectToLogin } from "@/shared/utils/session";
 
 // 런타임 환경(서버/브라우저) 및 구동 방식(컨테이너/생로컬)에 따라 베이스 API 주소 동적 결정
 // - SSR/ISR (서버): 내부망 주소(API_URL) 우선 적용 ➔ 미지정 시 로컬 주소(NEXT_PUBLIC_API_URL)로 폴백
@@ -164,15 +165,6 @@ export const internalAxios = axios.create({
 
 publicApiClient.interceptors.response.use(commonResponseInterceptor);
 internalAxios.interceptors.response.use(commonResponseInterceptor);
-
-const redirectToLogin = () => {
-  if (typeof window !== "undefined") {
-    // URL에서 로케일 파싱 (예: /en/dashboard -> en)
-    const pathParts = window.location.pathname.split("/");
-    const currentLocale = pathParts[1] === "en" ? "en" : "ko";
-    window.location.href = `/${currentLocale}/login`;
-  }
-};
 
 // 💡 기존 래퍼들과의 코드 호환성 유지를 위해 publicAxios/privateAxios 명칭으로 re-export
 export { privateApiClient as privateAxios, publicApiClient as publicAxios };

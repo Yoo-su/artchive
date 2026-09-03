@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { saveReturnUrl } from "@/features/auth/utils/return-url";
@@ -17,6 +18,7 @@ import {
 import { Link, usePathname } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";
+import { consumeSessionToast } from "@/shared/utils/session";
 
 import { LanguageSwitcher } from "../common/language-switcher";
 import { Logo } from "../common/logo";
@@ -62,6 +64,9 @@ export const DefaultHeader = () => {
 
   useEffect(() => {
     setMounted(true);
+    // 하드 내비게이션으로 끝난 세션(로그아웃 등)의 토스트를 이어서 표시
+    const pendingMessage = consumeSessionToast();
+    if (pendingMessage) toast.success(pendingMessage);
   }, []);
 
   const currentUser = mounted ? user : null;

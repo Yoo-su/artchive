@@ -17,7 +17,12 @@ vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 vi.mock("@/shared/config/i18n/routing", () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+}));
+// ISR 재검증 서버 액션은 테스트 환경에서 실행할 수 없으므로 모킹
+vi.mock("@/shared/actions/revalidate", () => ({
+  revalidateBookSale: vi.fn().mockResolvedValue(undefined),
+  revalidateReview: vi.fn().mockResolvedValue(undefined),
 }));
 // AuthStore 모킹 (다른 훅들에서 접근할 수 있으므로)
 vi.mock("@/features/auth/stores/use-auth-store", () => ({

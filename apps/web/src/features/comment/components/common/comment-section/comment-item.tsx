@@ -64,9 +64,9 @@ export const CommentItem = ({
   const { mutate: toggleLike, isPending: isLikePending } =
     useToggleCommentLikeMutation(targetType, targetId, page);
   const { mutate: updateComment, isPending: isUpdatePending } =
-    useUpdateCommentMutation(targetType, targetId, page);
+    useUpdateCommentMutation(targetType, targetId);
   const { mutate: deleteComment, isPending: isDeletePending } =
-    useDeleteCommentMutation(targetType, targetId, page);
+    useDeleteCommentMutation(targetType, targetId);
   const confirm = useConfirm();
 
   const handleDeleteComment = async () => {

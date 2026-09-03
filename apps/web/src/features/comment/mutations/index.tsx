@@ -30,11 +30,10 @@ export const useCreateCommentMutation = (
 export const useUpdateCommentMutation = (
   targetType: CommentTargetType,
   targetId: string,
-  page: number,
 ) => {
   const t = useTranslations("comment.toast");
 
-  return useSharedUpdateCommentMutation(targetType, targetId, page, {
+  return useSharedUpdateCommentMutation(targetType, targetId, {
     onSuccess: () => {
       toast.success(t("update_success"));
     },
@@ -50,11 +49,10 @@ export const useUpdateCommentMutation = (
 export const useDeleteCommentMutation = (
   targetType: CommentTargetType,
   targetId: string,
-  page: number,
 ) => {
   const t = useTranslations("comment.toast");
 
-  return useSharedDeleteCommentMutation(targetType, targetId, page, {
+  return useSharedDeleteCommentMutation(targetType, targetId, {
     onSuccess: () => {
       toast.success(t("delete_success"));
     },

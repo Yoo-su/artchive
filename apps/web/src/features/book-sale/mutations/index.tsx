@@ -17,10 +17,12 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { revalidateBookSale } from "@/shared/actions/revalidate";
 import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { compressImages } from "@/shared/utils/compress-image";
 import { handleMutationError } from "@/shared/utils/error-handler";
+import { purgeRouteCache } from "@/shared/utils/purge-route-cache";
 
 import { deleteImages } from "../actions/delete-action";
 import { uploadImages } from "../actions/upload-action";
@@ -60,9 +62,13 @@ export const useCreateBookSaleMutation = () => {
   const queryClient = useQueryClient();
 
   const sharedMutation = useSharedCreateBookSaleMutation({
-    onSuccess: () => {
+    onSuccess: async (data: UsedBookSale) => {
       toast.success(t("create_success"));
       queryClient.invalidateQueries({ queryKey: bookSaleKeys._def });
+      await purgeRouteCache(
+        revalidateBookSale({ saleId: data.id, isbn: data.book?.isbn }),
+        () => router.refresh(),
+      );
       router.push(PATHS.MY_PAGE_SALES);
     },
     onError: (error: Error) => {
@@ -119,7 +125,18 @@ export const useCreateBookSaleMutation = () => {
  * 판매글 상태를 업데이트하는 뮤테이션 훅입니다.
  */
 export const useUpdateBookSaleStatusMutation = () => {
-  return useSharedUpdateBookSaleStatusMutation();
+  const router = useRouter();
+
+  return useSharedUpdateBookSaleStatusMutation({
+    // 판매 상태(판매중 · 예약중 · 판매완료)는 마켓 목록과 상세의 배지로 노출되므로
+    // 클라이언트 캐시(공유 훅의 onSettled)뿐 아니라 ISR 캐시도 함께 비운다.
+    onSuccess: (data: UsedBookSale) => {
+      void purgeRouteCache(
+        revalidateBookSale({ saleId: data.id, isbn: data.book?.isbn }),
+        () => router.refresh(),
+      );
+    },
+  });
 };
 
 /**
@@ -142,14 +159,16 @@ export const useUpdateBookSaleMutation = () => {
   const queryClient = useQueryClient();
 
   const sharedMutation = useSharedUpdateBookSaleMutation({
-    onSuccess: (data: UsedBookSale) => {
+    onSuccess: async (data: UsedBookSale) => {
       toast.success(t("update_success"));
-      queryClient.invalidateQueries({
-        queryKey: bookSaleKeys.mySales.queryKey,
-      });
-      queryClient.invalidateQueries({
-        queryKey: bookSaleKeys.saleDetail(String(data.id)).queryKey,
-      });
+      // 판매글 하나가 바뀌면 그 글이 실린 마켓 목록 · 인기 · 연관 · 최근 목록이
+      // 전부 낡는다. mySales/saleDetail만 지우면 나머지가 옛 가격·상태로 남으므로
+      // 도메인 루트 접두사로 일괄 무효화한다. (생성 · 삭제와 동일한 규칙)
+      queryClient.invalidateQueries({ queryKey: bookSaleKeys._def });
+      await purgeRouteCache(
+        revalidateBookSale({ saleId: data.id, isbn: data.book?.isbn }),
+        () => router.refresh(),
+      );
       router.push(PATHS.MY_PAGE_SALES);
     },
     onError: (error: Error) => {
@@ -236,7 +255,10 @@ export const useDeleteBookSaleMutation = () => {
         await deleteImages(imageUrls);
       }
       return sharedMutation.mutate(saleId, {
-        onSuccess: () => {
+        onSuccess: async () => {
+          await purgeRouteCache(revalidateBookSale({ saleId }), () =>
+            router.refresh(),
+          );
           if (
             typeof window !== "undefined" &&
             window.location.pathname.includes(PATHS.BOOK_SALES_DETAIL(saleId))
@@ -256,7 +278,10 @@ export const useDeleteBookSaleMutation = () => {
       if (imageUrls.length > 0) {
         await deleteImages(imageUrls);
       }
-      return sharedMutation.mutateAsync(saleId).then((res: void) => {
+      return sharedMutation.mutateAsync(saleId).then(async (res: void) => {
+        await purgeRouteCache(revalidateBookSale({ saleId }), () =>
+          router.refresh(),
+        );
         if (
           typeof window !== "undefined" &&
           window.location.pathname.includes(PATHS.BOOK_SALES_DETAIL(saleId))
