@@ -122,7 +122,7 @@ export default async function Page({ params }: Props) {
     <ServerQueryBoundary queryClient={queryClient}>
       <ReviewJsonLd review={review} locale={locale} />
       <BreadcrumbJsonLd items={breadcrumbs} />
-      <ReviewDetailView initialReview={review} />
+      <ReviewDetailView />
     </ServerQueryBoundary>
   );
 }

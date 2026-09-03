@@ -1,4 +1,5 @@
 import { getSavedBookSummary } from "@bookjeok/api-client";
+import { bookKeys } from "@bookjeok/core";
 import { QueryClient } from "@tanstack/react-query";
 
 /**
@@ -11,7 +12,7 @@ export const prefetchBookSummary = async (
   if (!isbn) return;
 
   return queryClient.prefetchQuery({
-    queryKey: ["bookSummary", isbn],
+    queryKey: bookKeys.summary(isbn).queryKey,
     queryFn: async () => {
       try {
         const result = await getSavedBookSummary(isbn);

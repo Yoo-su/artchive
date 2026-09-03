@@ -1,5 +1,5 @@
 import * as apis from "@bookjeok/api-client";
-import { Review, User } from "@bookjeok/core";
+import { Review, reviewKeys, User } from "@bookjeok/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import React from "react";
@@ -53,6 +53,12 @@ describe("useReviewWithAuth", () => {
     vi.clearAllMocks();
     vi.mocked(apis.getReview).mockResolvedValue(mockPrivateReview);
     useAuthStore.getState().clearAuth();
+
+    // 서버(ServerQueryBoundary)가 하이드레이트해 넣는 경로를 재현
+    queryClient.setQueryData(
+      reviewKeys.detail(10).queryKey,
+      mockPrivateReview,
+    );
   });
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -67,11 +73,8 @@ describe("useReviewWithAuth", () => {
       mockUnmaskedPrivateReview,
     );
 
-    // 2. 훅 렌더링 (초기 데이터는 마스킹된 비공개 리뷰)
-    const { result } = renderHook(
-      () => useReviewWithAuth(10, mockPrivateReview),
-      { wrapper },
-    );
+    // 2. 훅 렌더링 (하이드레이트된 데이터는 마스킹된 비공개 리뷰)
+    const { result } = renderHook(() => useReviewWithAuth(10), { wrapper });
 
     // 3. getReviewAuthenticated가 호출되었는지 확인
     await waitFor(() => {
@@ -92,10 +95,7 @@ describe("useReviewWithAuth", () => {
     // 1. 타인 유저 로그인 상태 (ID: 999)
     useAuthStore.getState().setUser(mockOtherUser);
 
-    const { result } = renderHook(
-      () => useReviewWithAuth(10, mockPrivateReview),
-      { wrapper },
-    );
+    const { result } = renderHook(() => useReviewWithAuth(10), { wrapper });
 
     expect(result.current.isAuthor).toBe(false);
     expect(result.current.isPrivateMasked).toBe(true);

@@ -64,13 +64,10 @@ export const usePopularReviewsQuery = (enabled: boolean = true) => {
 /**
  * 리뷰 상세 조회
  */
-export const useReviewDetailQuery = (id: number, initialData?: Review) => {
+export const useReviewDetailQuery = (id: number) => {
   return useQuery({
     queryKey: reviewKeys.detail(id).queryKey,
     queryFn: () => getReview(id),
-    initialData,
-    // initialData를 stale로 표기해 마운트 리페치 대상에 포함
-    initialDataUpdatedAt: initialData ? 0 : undefined,
   });
 };
 

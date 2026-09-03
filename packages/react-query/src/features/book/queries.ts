@@ -109,7 +109,7 @@ export const useBookSummaryQuery = (
   isbn: string,
 ) => {
   return useQuery({
-    queryKey: ["bookSummary", isbn],
+    queryKey: bookKeys.summary(isbn).queryKey,
     queryFn: async () => {
       try {
         const result = await getSavedBookSummary(isbn);

@@ -20,6 +20,9 @@ export const bookKeys = createQueryKeys("book", {
   search: (query: string) => ({
     queryKey: [query],
   }),
+  summary: (isbn: string) => ({
+    queryKey: [isbn],
+  }),
   popularBooks: null,
   popularKeywords: null,
 });
