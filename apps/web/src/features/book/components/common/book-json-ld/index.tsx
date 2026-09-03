@@ -1,5 +1,7 @@
 import { BookInfo } from "@bookjeok/core";
 
+import { JsonLd } from "@/shared/components/json-ld";
+
 interface BookJsonLdProps {
   book: BookInfo;
   locale: string;
@@ -26,10 +28,5 @@ export function BookJsonLd({ book, locale }: BookJsonLdProps) {
     url: `https://bookjeok.com/${locale}/book/${book.isbn}/detail`,
   };
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-    />
-  );
+  return <JsonLd data={jsonLd} />;
 }

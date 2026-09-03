@@ -1,4 +1,7 @@
 import { UsedBookSale } from "@bookjeok/core";
+
+import { JsonLd } from "@/shared/components/json-ld";
+
 interface BookSaleJsonLdProps {
   sale: UsedBookSale;
   locale?: string;
@@ -64,10 +67,5 @@ export function BookSaleJsonLd({ sale, locale = "ko" }: BookSaleJsonLdProps) {
     },
   };
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-    />
-  );
+  return <JsonLd data={jsonLd} />;
 }

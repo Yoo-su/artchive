@@ -1,5 +1,7 @@
 import { GetArtDetailResponse } from "@bookjeok/core";
 
+import { JsonLd } from "@/shared/components/json-ld";
+
 const getEventType = (genre: string) => {
   if (genre.includes("연극")) return "TheaterEvent";
   if (genre.includes("뮤지컬")) return "TheaterEvent"; // schema.org fallback
@@ -49,10 +51,5 @@ export function ArtJsonLd({ art, locale }: ArtJsonLdProps) {
     url: `https://bookjeok.com/${locale}/art/${art.mt20id}`,
   };
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-    />
-  );
+  return <JsonLd data={jsonLd} />;
 }

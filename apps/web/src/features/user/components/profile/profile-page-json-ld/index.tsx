@@ -1,5 +1,6 @@
 import { PublicUserProfile } from "@bookjeok/core";
 
+import { JsonLd } from "@/shared/components/json-ld";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 interface ProfilePageJsonLdProps {
@@ -40,10 +41,5 @@ export function ProfilePageJsonLd({ profile, locale }: ProfilePageJsonLdProps) {
     },
   };
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-    />
-  );
+  return <JsonLd data={jsonLd} />;
 }
