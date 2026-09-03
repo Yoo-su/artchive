@@ -20,7 +20,7 @@ import { LiveListingFeed } from "./live-listing-feed";
 /** 홈 슬라이더와 캐시를 공유하기 위해 동일한 limit 사용 */
 const RECENT_LIMIT = 25;
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
-/** 히어로는 실시간성이 중요하므로 전역 staleTime: Infinity를 덮어쓴다. */
+/** 히어로는 실시간성이 중요하므로 전역 staleTime(1분)을 더 짧게 덮어쓴다. */
 const LIVE_REFRESH_MS = 60 * 1000;
 
 export const MarketHero = () => {

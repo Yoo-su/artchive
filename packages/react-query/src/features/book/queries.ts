@@ -161,7 +161,6 @@ export const usePopularKeywordsQuery = (
     queryKey: bookKeys.popularKeywords.queryKey,
     queryFn: () => getPopularKeywords(),
     staleTime: staleTime,
-    refetchOnMount: true,
   });
 };
 

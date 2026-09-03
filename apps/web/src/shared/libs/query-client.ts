@@ -1,3 +1,4 @@
+import { CACHE_TIME } from "@bookjeok/core";
 import {
   defaultShouldDehydrateQuery,
   isServer,
@@ -8,13 +9,13 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        // 대부분의 데이터는 사용자 세션 동안 변경되지 않음
-        staleTime: Infinity,
-        // 캐시는 30분 동안 유지
-        gcTime: 30 * 60 * 1000,
+        // ISR HTML에 구워진 스냅샷은 최대 revalidate만큼 과거
+        staleTime: CACHE_TIME.ONE_MINUTE,
+        // 마운트 시 교정하지 않으면 그 시점에 세션 내내 고착
+        refetchOnMount: true,
+        gcTime: CACHE_TIME.THIRTY_MINUTES,
         retry: 1,
         refetchOnWindowFocus: false,
-        refetchOnMount: false,
       },
       dehydrate: {
         // dehydration 시 pending 상태인 쿼리도 포함합니다.

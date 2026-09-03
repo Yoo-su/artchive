@@ -61,11 +61,6 @@ export const useBookSaleDetailQuery = (
     queryKey: bookSaleKeys.saleDetail(saleId).queryKey,
     queryFn: () => getBookSaleDetail(saleId),
     enabled: !!saleId,
-    // ISR(5분) 캐시 HTML 교정용
-    // - 전역 기본값(staleTime: Infinity, refetchOnMount: false)이면 판매 상태가 영구 미갱신
-    // - refetchOnMount는 staleness와 무관한 절대 게이트라 staleTime 단독으로는 리페치 불가
-    staleTime: 0,
-    refetchOnMount: true,
   });
 };
 
@@ -134,7 +129,7 @@ export const useRelatedSalesQuery = ({
 /**
  * 최근 판매글 목록
  *
- * 전역 기본값이 staleTime: Infinity이므로, 실시간성이 필요한 화면(마켓 히어로 등)은
+ * 전역 기본값(1분)보다 짧은 주기가 필요한 화면(마켓 히어로 등)은
  * options로 staleTime/refetchInterval을 덮어씁니다.
  */
 export const useRecentBookSalesQuery = (

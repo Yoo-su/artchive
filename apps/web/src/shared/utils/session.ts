@@ -4,7 +4,7 @@ import { PATHS } from "@/shared/constants/paths";
  * 세션 종료(로그아웃 · 토큰 만료 · 인증 실패) 처리 유틸
  *
  * SPA 라우팅(router.push)으로 세션을 끝내면 브라우저 힙이 그대로 유지된다.
- * TanStack Query 캐시(전역 staleTime: Infinity), Next.js Router Cache(static 5분),
+ * TanStack Query 캐시, Next.js Router Cache(static 5분),
  * zustand 스토어, 소켓 연결, 진행 중인 요청이 모두 이전 사용자의 것으로 남고,
  * 같은 브라우저에서 다음 사용자가 로그인하면 그 데이터가 그대로 노출된다.
  *
