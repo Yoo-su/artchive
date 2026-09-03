@@ -75,6 +75,19 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
+  /**
+   * Next는 /_next/static에만 장기 캐시를 붙이고 public/은 max-age=0으로 내보낸다.
+   * 히어로 영상/포스터는 매 방문 재검증이 낭비라 30일 캐시를 명시한다.
+   * 파일명이 고정이라 immutable은 쓰지 않는다. (교체 시 갱신이 막힌다)
+   */
+  async headers() {
+    return [
+      {
+        source: "/videos/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=2592000" }],
+      },
+    ];
+  },
 };
 
 export default withAnalyzer(withNextIntl(nextConfig));
