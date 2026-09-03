@@ -65,9 +65,8 @@ export const useCreateBookSaleMutation = () => {
     onSuccess: async (data: UsedBookSale) => {
       toast.success(t("create_success"));
       queryClient.invalidateQueries({ queryKey: bookSaleKeys._def });
-      await purgeRouteCache(
-        revalidateBookSale({ saleId: data.id, isbn: data.book?.isbn }),
-        () => router.refresh(),
+      await purgeRouteCache(revalidateBookSale({ saleId: data.id }), () =>
+        router.refresh(),
       );
       router.push(PATHS.MY_PAGE_SALES);
     },
@@ -131,9 +130,8 @@ export const useUpdateBookSaleStatusMutation = () => {
     // 판매 상태(판매중 · 예약중 · 판매완료)는 마켓 목록과 상세의 배지로 노출되므로
     // 클라이언트 캐시(공유 훅의 onSettled)뿐 아니라 ISR 캐시도 함께 비운다.
     onSuccess: (data: UsedBookSale) => {
-      void purgeRouteCache(
-        revalidateBookSale({ saleId: data.id, isbn: data.book?.isbn }),
-        () => router.refresh(),
+      void purgeRouteCache(revalidateBookSale({ saleId: data.id }), () =>
+        router.refresh(),
       );
     },
   });
@@ -165,9 +163,8 @@ export const useUpdateBookSaleMutation = () => {
       // 전부 낡는다. mySales/saleDetail만 지우면 나머지가 옛 가격·상태로 남으므로
       // 도메인 루트 접두사로 일괄 무효화한다. (생성 · 삭제와 동일한 규칙)
       queryClient.invalidateQueries({ queryKey: bookSaleKeys._def });
-      await purgeRouteCache(
-        revalidateBookSale({ saleId: data.id, isbn: data.book?.isbn }),
-        () => router.refresh(),
+      await purgeRouteCache(revalidateBookSale({ saleId: data.id }), () =>
+        router.refresh(),
       );
       router.push(PATHS.MY_PAGE_SALES);
     },
@@ -256,7 +253,7 @@ export const useDeleteBookSaleMutation = () => {
       }
       return sharedMutation.mutate(saleId, {
         onSuccess: async () => {
-          await purgeRouteCache(revalidateBookSale({ saleId }), () =>
+          await purgeRouteCache(revalidateBookSale({ saleId, deleted: true }), () =>
             router.refresh(),
           );
           if (
@@ -279,7 +276,7 @@ export const useDeleteBookSaleMutation = () => {
         await deleteImages(imageUrls);
       }
       return sharedMutation.mutateAsync(saleId).then(async (res: void) => {
-        await purgeRouteCache(revalidateBookSale({ saleId }), () =>
+        await purgeRouteCache(revalidateBookSale({ saleId, deleted: true }), () =>
           router.refresh(),
         );
         if (

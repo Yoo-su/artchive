@@ -93,7 +93,7 @@ src/
 └── __tests__/setup.ts        # Vitest 셋업 (jest-dom 매처 등록)
 ```
 
-각 `features/*`에는 개별 README가 있습니다. 컴포넌트 폴더 구조 규칙은 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)를 참고하세요.
+각 `features/*`에는 개별 README가 있습니다. 컴포넌트 폴더 구조 규칙은 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), ISR·TanStack Query 캐시 구조는 [docs/CACHING.md](docs/CACHING.md)를 참고하세요.
 
 ---
 
@@ -129,7 +129,7 @@ ANALYZE=true pnpm build:web   # 번들 분석
 | `NEXT_PUBLIC_KAKAO_APP_KEY` | 카카오 맵 SDK (없으면 지도 미표시) |
 | `NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY` | 결제 위젯 |
 | `NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED` | 결제 UI 노출 플래그 (서버 플래그와 동일 값) |
-| `NEXT_PUBLIC_REVALIDATE_TOKEN` | 온디맨드 ISR 갱신 시크릿 |
+| `REVALIDATE_TOKEN` | 온디맨드 ISR 갱신 시크릿 (서버 전용, 미설정 시 503) |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob 업로드 (서버 사이드) |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` · `NEXT_PUBLIC_CLARITY_PROJECT_ID` · `NEXT_PUBLIC_GOOGLE_ADSENSE_ID` | 계측·광고 (선택) |
 

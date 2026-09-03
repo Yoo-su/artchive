@@ -424,7 +424,8 @@ bookjeok/
 │   │   │                         #   reading-log, review, user)
 │   │   ├── src/shared/           # 공용 컴포넌트·프로바이더·훅·유틸·i18n·analytics
 │   │   ├── src/layouts/          # DefaultLayout, Header, Navigation
-│   │   └── docs/ARCHITECTURE.md  # 컴포넌트 구조 & i18n 가이드
+│   │   ├── docs/ARCHITECTURE.md  # 컴포넌트 구조 & i18n 가이드
+│   │   └── docs/CACHING.md       # ISR · 쿼리 캐시 구조와 재검증 규칙
 │   │
 │   ├── admin/                    # Next.js 15 관리자 포털
 │   │   ├── src/app/dashboard/    # 운영 통계, 매물/리뷰 검수, ISR 캐시 제어
@@ -581,8 +582,8 @@ pnpm test
 | `NEXT_PUBLIC_KAKAO_APP_KEY` | ✅ | 카카오 맵 JS SDK 키 |
 | `NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY` | | 결제 위젯 클라이언트 키 |
 | `NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED` | | 웹 측 결제 기능 플래그 |
-| `NEXT_PUBLIC_USER_WEB_URL` | | 관리자 포털이 갱신할 사용자 웹 주소 |
-| `REVALIDATE_TOKEN` / `NEXT_PUBLIC_REVALIDATE_TOKEN` | | On-Demand ISR 갱신 시크릿 |
+| `USER_WEB_URL` | | 관리자 포털 서버가 갱신 요청을 보낼 사용자 웹 주소 (서버 전용) |
+| `REVALIDATE_TOKEN` | | On-Demand ISR 갱신 시크릿 (서버 전용, 폴백 없음) |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | | Google Analytics |
 | `NEXT_PUBLIC_CLARITY_PROJECT_ID` | | Microsoft Clarity |
 | `NEXT_PUBLIC_GOOGLE_ADSENSE_ID` | | Google AdSense |
@@ -597,6 +598,7 @@ pnpm test
 |---|---|
 | [apps/web/README.md](apps/web/README.md) | 웹 프론트엔드 개요 및 개발 원칙 |
 | [apps/web/docs/ARCHITECTURE.md](apps/web/docs/ARCHITECTURE.md) | 컴포넌트 문맥 기반 그룹화 규칙, i18n 구조 |
+| [apps/web/docs/CACHING.md](apps/web/docs/CACHING.md) | 캐시 4개 층의 책임, 서버 시드 쿼리 대장, 재검증 범위 규칙 |
 | [apps/server/README.md](apps/server/README.md) | 백엔드 개요, 모듈 구조, 개발 원칙 |
 | [apps/admin/README.md](apps/admin/README.md) | 관리자 포털 기능 |
 | [core](packages/core/README.md) · [api-client](packages/api-client/README.md) · [react-query](packages/react-query/README.md) | 공용 패키지 사용법 |

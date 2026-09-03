@@ -1,6 +1,5 @@
 import {
   AladinSearchResponse,
-  API_PATHS,
   BookInfo,
   cleanHtmlText,
   DEFAULT_DISPLAY,
@@ -14,8 +13,6 @@ import {
 } from "@bookjeok/core";
 import axios from "axios";
 import { cache } from "react";
-
-import { publicAxios } from "@/shared/libs/axios";
 
 // 서버 인메모리 캐시 (10분 유효)
 interface CacheEntry<T> {
@@ -175,13 +172,6 @@ export const fetchBookDetail = cache(async (isbn: string) => {
     };
 
     bookDetailCache.set(isbn, { data, timestamp: Date.now() });
-
-    // 백엔드 Postgres DB 도서 저장 및 조회수 동기화 (비동기 실행 - 실패 시 조용히 무시)
-    publicAxios
-      .post(API_PATHS.book.recordView(isbn), {}, { timeout: 4000 })
-      .catch(() => {
-        // 신규 도서(404) 또는 네트워크 타임아웃 시 조용히 무시 (클라이언트 훅 useBookView에서 처리됨)
-      });
 
     return data;
   } catch (error) {

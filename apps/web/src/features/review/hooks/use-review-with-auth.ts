@@ -14,18 +14,16 @@ import { useAuthStore } from "@/features/auth/stores/use-auth-store";
  * - 비공개 리뷰이며 본인이 작성한 경우, 인증된 요청으로 원본을 가져옵니다.
  * - 컴포넌트에서 인증 로직을 신경 쓰지 않고 데이터만 소비할 수 있게 합니다.
  *
+ * 초기 데이터는 ServerQueryBoundary의 하이드레이션으로 들어온다.
+ *
  * @param id 리뷰 ID
- * @param initialReview 서버에서 프리패치된 초기 데이터 (ISR)
  */
-export const useReviewWithAuth = (id: number, initialReview?: Review) => {
+export const useReviewWithAuth = (id: number) => {
   const user = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
   const [isFetchingAuth, setIsFetchingAuth] = useState(false);
 
-  const { data: review, isLoading } = useReviewDetailQuery(
-    id,
-    initialReview ?? undefined,
-  );
+  const { data: review, isLoading } = useReviewDetailQuery(id);
 
   // 비공개 상태 판별 (review가 있을 때만)
   const isPrivateMasked = review ? !review.isPublic && !review.content : false;

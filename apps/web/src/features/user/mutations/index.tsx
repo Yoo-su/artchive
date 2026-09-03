@@ -5,7 +5,10 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { revalidateUserProfile } from "@/shared/actions/revalidate";
+import { useRouter } from "@/shared/config/i18n/routing";
 import { handleMutationError } from "@/shared/utils/error-handler";
+import { purgeRouteCache } from "@/shared/utils/purge-route-cache";
 
 /**
  * 위시리스트 추가 뮤테이션 훅
@@ -42,9 +45,15 @@ export const useRemoveFromWishlistMutation = () => {
  */
 export const useUpdateUserMutation = () => {
   const t = useTranslations("user_profile.toast");
+  const router = useRouter();
+
   return useSharedUpdateUserMutation({
-    onSuccess: () => {
+    // 공개 프로필은 10분 ISR이라 쿼리 무효화만으로는 다른 방문자·크롤러에 닿지 않는다
+    onSuccess: (data) => {
       toast.success(t("update_success"));
+      void purgeRouteCache(revalidateUserProfile({ handle: data.handle }), () =>
+        router.refresh(),
+      );
     },
     onError: (error: unknown) => {
       handleMutationError(error, "회원 정보 수정");

@@ -1,4 +1,5 @@
 "use client";
+import { bookKeys } from "@bookjeok/core";
 import {
   useBookDetailQuery,
   useBookSummaryQuery,
@@ -61,7 +62,7 @@ export const BookDetail = ({ isbn }: BookDetailProps) => {
   } = useGenerateBookSummaryMutation({
     onSuccess: (data) => {
       // 캐시 갱신
-      queryClient.setQueryData(["bookSummary", isbn], data);
+      queryClient.setQueryData(bookKeys.summary(isbn).queryKey, data);
     },
   });
 

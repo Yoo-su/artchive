@@ -21,13 +21,12 @@ import { ReviewDetailSkeleton } from "./skeleton";
 
 interface ReviewDetailProps {
   id: number;
-  initialReview?: Review | null;
 }
 
-export const ReviewDetail = ({ id, initialReview }: ReviewDetailProps) => {
+export const ReviewDetail = ({ id }: ReviewDetailProps) => {
   const t = useTranslations("review.detail");
   const { review, isLoading, isAuthor, isPrivateMasked, isAuthenticating } =
-    useReviewWithAuth(id, initialReview ?? undefined);
+    useReviewWithAuth(id);
 
   // 로딩 중이거나, 본인 비공개 리뷰의 데이터를 가져오는 중이면 스켈레톤 표시
   if (isLoading || isAuthenticating) {

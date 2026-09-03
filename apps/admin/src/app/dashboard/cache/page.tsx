@@ -1,11 +1,11 @@
 "use client";
 
 import { getErrorMessage } from "@bookjeok/api-client";
-import axios from "axios";
 import { AlertTriangle, CheckCircle, Loader2, RefreshCw, Send } from "lucide-react";
 import { useState } from "react";
 
 import { AdminLayout } from "../../../layouts/admin-layout";
+import { requestRevalidate } from "../../../libs/revalidate";
 
 interface ISRPage {
   name: string;
@@ -18,9 +18,6 @@ export default function CacheControlPage() {
   const [customPath, setCustomPath] = useState("");
   const [loadingPath, setLoadingPath] = useState<string | null>(null);
   const [status, setStatus] = useState<{ path: string; success: boolean; msg: string } | null>(null);
-
-  const userWebUrl = process.env.NEXT_PUBLIC_USER_WEB_URL || "http://localhost:3000";
-  const revalidateToken = process.env.NEXT_PUBLIC_REVALIDATE_TOKEN || "yoosurevalidatetoken";
 
   const isrPages: ISRPage[] = [
     { name: "메인 홈 (ko)", path: "/ko", revalidateTime: "1시간", description: "베스트셀러, 실시간 인기 도서 노출" },
@@ -43,15 +40,13 @@ export default function CacheControlPage() {
 
     try {
       // 사용자용 웹 서비스의 Revalidation 웹훅 호출
-      const response = await axios.post(
-        `${userWebUrl}/api/revalidate?secret=${revalidateToken}&path=${encodeURIComponent(path)}`
-      );
+      const data = await requestRevalidate(path);
 
-      if (response.data.revalidated) {
+      if (data.revalidated) {
         setStatus({
           path,
           success: true,
-          msg: `성공적으로 캐시가 비워졌습니다. (발생 시각: ${new Date(response.data.now).toLocaleTimeString()})`,
+          msg: `성공적으로 캐시가 비워졌습니다. (발생 시각: ${new Date(data.now ?? Date.now()).toLocaleTimeString()})`,
         });
       } else {
         setStatus({
