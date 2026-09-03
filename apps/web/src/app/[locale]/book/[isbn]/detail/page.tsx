@@ -15,6 +15,14 @@ import { BookDetailView } from "@/views/book-detail-view";
 // 책 정보는 변경되지 않으므로 24시간 캐시
 export const revalidate = 86400; // 24시간 (60 * 60 * 24)
 
+// ISR 활성화용 빈 파라미터 목록
+// - generateStaticParams가 없으면 Next가 Dynamic으로 분류해 revalidate를 무시
+// - 빌드 타임 프리렌더 없이 첫 요청 시 생성 후 ISR 캐시에 등록 (dynamicParams 기본값 true)
+// - 실제 ISBN 목록 미사용: 빌드 시 ALADIN_TTB_KEY 미주입으로 404가 그대로 구워짐
+export function generateStaticParams() {
+  return [];
+}
+
 type Props = {
   params: Promise<{ locale: string; isbn: string }>;
 };
@@ -65,27 +73,23 @@ export default async function Page({ params }: Props) {
   setRequestLocale(locale);
 
   const queryClient = getQueryClient();
-  let book = null;
 
-  try {
-    const data = await fetchBookDetail(isbn);
-    if (data && data.items && data.items.length > 0) {
-      book = data.items[0];
-      queryClient.setQueryData(bookKeys.detail(isbn).queryKey, book);
-
-      // 저자 연관 도서 및 AI 요약 프리패칭
-      await Promise.allSettled([
-        book.author && prefetchRelatedBooks(queryClient, book.author),
-        prefetchBookSummary(queryClient, isbn),
-      ]);
-    }
-  } catch {
-    // API 호출 실패 시 조용한 처리
-  }
+  // API 장애는 fetchBookDetail에서 throw → 에러 바운더리 (ISR 캐시 미저장)
+  // 응답은 정상이고 결과만 없는 경우가 실제 404
+  const data = await fetchBookDetail(isbn);
+  const book = data?.items?.[0];
 
   if (!book) {
     notFound();
   }
+
+  queryClient.setQueryData(bookKeys.detail(isbn).queryKey, book);
+
+  // 저자 연관 도서 및 AI 요약 프리패칭 (실패해도 본문 렌더링 유지)
+  await Promise.allSettled([
+    book.author && prefetchRelatedBooks(queryClient, book.author),
+    prefetchBookSummary(queryClient, isbn),
+  ]);
 
   const t = await getTranslations({ locale, namespace: "header" });
   const breadcrumbs = [

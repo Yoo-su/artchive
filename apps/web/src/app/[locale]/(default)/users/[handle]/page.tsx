@@ -9,19 +9,33 @@ import { ProfilePageJsonLd } from "@/features/user/components/profile/profile-pa
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
 import { getQueryClient } from "@/shared/libs/query-client";
+import { isNotFoundError } from "@/shared/utils/api-error";
 import { UserProfileView } from "@/views/user-profile-view";
 
 interface UserProfilePageProps {
   params: Promise<{ locale: string; handle: string }>;
 }
 
+// 닉네임·통계 변경 반영을 위해 10분 캐시 (revalidate 누락 시 s-maxage 1년으로 고착)
+export const revalidate = 600;
+
+// ISR 활성화용 빈 파라미터 목록
+// - generateStaticParams가 없으면 Next가 Dynamic으로 분류해 revalidate를 무시
+// - 빌드 타임 프리렌더 없이 첫 요청 시 생성 후 ISR 캐시에 등록 (dynamicParams 기본값 true)
+export function generateStaticParams() {
+  return [];
+}
+
 // React.cache를 사용하여 metadata와 page 렌더링 간 중복 API 요청 방지
+// 부재(404)만 null 반환, 일시적 API 장애는 재던짐 (장애로 만든 404가 10분 캐시되는 것 방지)
 const getCachedPublicProfile = cache(async (handle: string) => {
   try {
     return await getPublicUserProfile(handle);
   } catch (error) {
-    console.error("유저 프로필 조회 실패:", error);
-    return null;
+    if (isNotFoundError(error)) {
+      return null;
+    }
+    throw error;
   }
 });
 

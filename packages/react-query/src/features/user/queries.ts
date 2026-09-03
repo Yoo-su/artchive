@@ -11,6 +11,10 @@ export const usePublicUserProfileQuery = (handle: string) => {
     queryKey: userKeys.publicProfile(handle).queryKey,
     queryFn: () => getPublicUserProfile(handle),
     enabled: !!handle,
+    // ISR(10분) 캐시 HTML 교정용
+    // - 전역 기본값(staleTime: Infinity, refetchOnMount: false)이면 프로필이 영구 미갱신
+    staleTime: 0,
+    refetchOnMount: true,
   });
 };
 
