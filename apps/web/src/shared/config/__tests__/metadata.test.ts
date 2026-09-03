@@ -26,9 +26,9 @@ describe("createPageMetadata (페이지별 메타데이터 생성 헬퍼)", () =
     // Alternates 검증
     expect(meta.alternates).toBeDefined();
     expect(meta.alternates?.canonical).toBe("/ko/test-path");
+    // /en은 레이아웃에서 noindex 처리하므로 hreflang alternate에서 제외
     expect(meta.alternates?.languages).toEqual({
       ko: "/ko/test-path",
-      en: "/en/test-path",
       "x-default": "/ko/test-path",
     });
   });

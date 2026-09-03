@@ -146,11 +146,12 @@ export const createPageMetadata = ({
   };
 
   if (path !== undefined) {
+    // /en은 레이아웃에서 noindex 처리하므로 hreflang alternate에서 제외
+    // (색인 제외 URL을 대체 언어판으로 제시하면 모순된 신호)
     metadata.alternates = {
       canonical: fullPath,
       languages: {
         ko: `/ko${cleanPath}`,
-        en: `/en${cleanPath}`,
         "x-default": `/ko${cleanPath}`,
       },
     };
