@@ -10,6 +10,14 @@ import { useToggleReviewReactionMutation } from "@/features/review/mutations";
 vi.mock("@bookjeok/api-client", () => ({
   toggleReviewReaction: vi.fn(),
 }));
+vi.mock("@/shared/config/i18n/routing", () => ({
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+}));
+// ISR 재검증 서버 액션은 테스트 환경에서 실행할 수 없으므로 모킹
+vi.mock("@/shared/actions/revalidate", () => ({
+  revalidateBookSale: vi.fn().mockResolvedValue(undefined),
+  revalidateReview: vi.fn().mockResolvedValue(undefined),
+}));
 
 const mockReviewId = 100;
 const mockReview = {

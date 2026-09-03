@@ -141,12 +141,17 @@ export const useUpdateReviewMutation = (options?: { onSuccess?: (data: Review) =
 /**
  * 리뷰를 삭제하는 뮤테이션 훅입니다.
  */
-export const useDeleteReviewMutation = (options?: { onSuccess?: () => void }) => {
+export const useDeleteReviewMutation = (options?: { onSuccess?: (id: number) => void }) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (id: number) => deleteReview(id),
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
+      // 삭제된 리뷰의 상세 캐시는 무효화가 아니라 폐기한다.
+      // 남겨두면 목록에서 이미 사라진 글을 캐시로 다시 그릴 수 있다.
+      queryClient.removeQueries({
+        queryKey: reviewKeys.detail(id).queryKey,
+      });
       queryClient.invalidateQueries({
         queryKey: reviewKeys.list._def,
       });
@@ -156,7 +161,7 @@ export const useDeleteReviewMutation = (options?: { onSuccess?: () => void }) =>
       queryClient.invalidateQueries({
         queryKey: reviewKeys.popular.queryKey,
       });
-      options?.onSuccess?.();
+      options?.onSuccess?.(id);
     },
   });
 };

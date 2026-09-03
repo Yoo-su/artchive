@@ -1,7 +1,24 @@
 "use client";
 import { createComment, deleteComment, toggleCommentLike, updateComment } from "@bookjeok/api-client";
 import { Comment, commentKeys, CommentTargetType, CreateCommentParams, UpdateCommentParams } from "@bookjeok/core";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
+
+/**
+ * 댓글이 추가·수정·삭제되면 해당 타겟의 댓글 목록 전체를 무효화합니다.
+ *
+ * 페이지 번호까지 키에 넣어 특정 페이지만 무효화하면, 목록이 한 칸씩 밀리면서
+ * 나머지 페이지가 낡은 채로 남습니다. 페이지 번호를 뺀 접두사로 매칭해
+ * 그 타겟의 모든 페이지를 한 번에 갱신합니다.
+ */
+const invalidateCommentList = (
+  queryClient: QueryClient,
+  targetType: CommentTargetType,
+  targetId: string,
+) => {
+  queryClient.invalidateQueries({
+    queryKey: [...commentKeys.list._def, targetType, targetId],
+  });
+};
 
 /**
  * 댓글 생성 뮤테이션 훅
@@ -17,9 +34,7 @@ export const useCreateCommentMutation = (
     mutationFn: ({ content, idempotencyKey }: { content: string, idempotencyKey?: string }) =>
       createComment({ content, targetType, targetId }, { idempotencyKey }),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: commentKeys.list(targetType, targetId, 1).queryKey,
-      });
+      invalidateCommentList(queryClient, targetType, targetId);
       options?.onSuccess?.(data);
     },
     onError: options?.onError,
@@ -32,7 +47,6 @@ export const useCreateCommentMutation = (
 export const useUpdateCommentMutation = (
   targetType: CommentTargetType,
   targetId: string,
-  page: number,
   options?: { onSuccess?: (data: Comment) => void; onError?: (error: unknown) => void }
 ) => {
   const queryClient = useQueryClient();
@@ -41,9 +55,7 @@ export const useUpdateCommentMutation = (
     mutationFn: ({ id, content }: { id: number; content: string }) =>
       updateComment(id, { content }),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: commentKeys.list(targetType, targetId, page).queryKey,
-      });
+      invalidateCommentList(queryClient, targetType, targetId);
       options?.onSuccess?.(data);
     },
     onError: options?.onError,
@@ -56,7 +68,6 @@ export const useUpdateCommentMutation = (
 export const useDeleteCommentMutation = (
   targetType: CommentTargetType,
   targetId: string,
-  page: number,
   options?: { onSuccess?: () => void; onError?: (error: unknown) => void }
 ) => {
   const queryClient = useQueryClient();
@@ -64,9 +75,7 @@ export const useDeleteCommentMutation = (
   return useMutation({
     mutationFn: (id: number) => deleteComment(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: commentKeys.list(targetType, targetId, page).queryKey,
-      });
+      invalidateCommentList(queryClient, targetType, targetId);
       options?.onSuccess?.();
     },
     onError: options?.onError,
