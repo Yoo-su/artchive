@@ -85,6 +85,10 @@ export const useUpdateUserMutation = (options?: { onSuccess?: (data: PublicUserP
         if (!old) return data;
         return { ...old, ...data };
       });
+      // 닉네임·프로필 이미지는 공개 프로필에도 실리므로 함께 무효화
+      queryClient.invalidateQueries({
+        queryKey: userKeys.publicProfile(data.handle).queryKey,
+      });
       options?.onSuccess?.(data);
     },
     onError: options?.onError,

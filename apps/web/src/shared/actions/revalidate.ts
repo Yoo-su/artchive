@@ -41,6 +41,18 @@ export async function revalidateBookSale(params: {
 }
 
 /**
+ * 프로필 변경 시 재검증 대상
+ * - 공개 프로필 페이지. 닉네임이 generateMetadata 타이틀에도 들어간다
+ * - 목록·홈에 실린 작성자 이름까지 좇지 않는다 (집계는 시간 기반 재검증에 위임)
+ */
+export async function revalidateUserProfile(params: { handle: string }) {
+  const { handle } = params;
+
+  if (!handle) return;
+  revalidateAllLocales(`/users/${handle}`);
+}
+
+/**
  * 리뷰 변경 시 재검증 대상
  * - 리뷰 상세, 리뷰 목록, 최신 리뷰가 실린 홈
  */
