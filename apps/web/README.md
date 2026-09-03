@@ -93,7 +93,7 @@ src/
 └── __tests__/setup.ts        # Vitest 셋업 (jest-dom 매처 등록)
 ```
 
-각 `features/*`에는 개별 README가 있습니다. 컴포넌트 폴더 구조 규칙은 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)를 참고하세요.
+각 `features/*`에는 개별 README가 있습니다. 컴포넌트 폴더 구조 규칙은 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), ISR·TanStack Query 캐시 구조는 [docs/CACHING.md](docs/CACHING.md)를 참고하세요.
 
 ---
 
