@@ -7,7 +7,7 @@
 ## 📦 구성 요소
 
 ### 1. 도메인 타입 (`src/features/*/types.ts`)
-- **14개 핵심 도메인 완비**: `art`, `auth`, `book`, `book-sale`, `chat`, `comment`, `insights`, `intro`, `llm`, `notification`, `order`, `reading-log`, `review`, `user`
+- **13개 핵심 도메인 완비**: `auth`, `book`, `book-sale`, `chat`, `comment`, `insights`, `intro`, `llm`, `notification`, `order`, `reading-log`, `review`, `user`
 - **단일 진실 공급원(SSOT)**: 모든 요청 파라미터(`Params`), 응답 구조(`Response`), 공용 엔티티 모양 정의
 
 ### 2. 상수 및 쿼리 키 (`src/shared/constants`, `src/features/*/constants.ts`)

@@ -111,30 +111,6 @@
       "confirm": "Confirm"
     }
   },
-  "art": {
-    "detail": {
-      "not_found": {
-        "title": "Cannot load performance information.",
-        "desc": "The information may have been deleted or is invalid."
-      },
-      "period": "Period",
-      "runtime": "Runtime",
-      "place": "Venue",
-      "ticket": "Ticket Info",
-      "age": "Age Rating",
-      "cast": "Cast",
-      "crew": "Crew",
-      "cast_crew": "Cast/Crew",
-      "scenes": "Scenes",
-      "synopsis": "Synopsis",
-      "booking": "Booking",
-      "default_booking": "Booking Site"
-    },
-    "metadata": {
-      "title": "Performance Info",
-      "description": "Check the latest performance information."
-    }
-  },
   "json_ld": {
     "name": "Bookjeok",
     "description": "Share honest book reviews, trade used books, and manage your reading log.",
@@ -314,51 +290,6 @@
         "title_prefix": "Recent",
         "title_suffix": "Book Reviews",
         "desc": "Check out the latest reviews from other readers."
-      },
-      "art": {
-        "spotlight": {
-          "badge": "CULTURE",
-          "title_prefix": "Current",
-          "title_suffix": "Performances & Arts",
-          "desc": "Check out ongoing cultural events."
-        },
-        "coming_soon": {
-          "badge": "UPCOMING",
-          "title_prefix": "Upcoming",
-          "title_suffix": "Performances & Arts",
-          "desc": "Preview cultural events that are opening soon."
-        },
-        "genres": {
-          "CCCA": "Western Music",
-          "CCCD": "Popular Music",
-          "BBBE": "Popular Dance",
-          "AAAA": "Theater",
-          "BBBC": "Western/Korean Dance"
-        },
-        "empty": {
-          "title": "No performances found",
-          "desc": "Try a different genre."
-        }
-      }
-    },
-    "art": {
-      "detail": {
-        "not_found": {
-          "title": "Cannot load performance information.",
-          "desc": "The information may have been deleted or is invalid."
-        },
-        "period": "Period",
-        "runtime": "Runtime",
-        "place": "Venue",
-        "ticket": "Ticket Info",
-        "age": "Age Rating",
-        "cast": "Cast",
-        "crew": "Crew",
-        "cast_crew": "Cast/Crew",
-        "scenes": "Scenes",
-        "synopsis": "Synopsis",
-        "booking": "Booking",
-        "default_booking": "Booking Site"
       }
     },
     "errors": {

@@ -47,12 +47,6 @@ export const API_PATHS = {
     record: "/search-keywords",
     popular: "/search-keywords/popular",
   },
-  art: {
-    list: "/art/external/list",
-    externalList: "/art/external/list",
-    detail: (artId: string) => `/art/external/detail/${artId}`,
-    externalDetail: (artId: string) => `/art/external/detail/${artId}`,
-  },
   llm: {
     summary: "/llm/book-summary",
     getSummary: (isbn: string) => `/llm/book-summary/${isbn}`,

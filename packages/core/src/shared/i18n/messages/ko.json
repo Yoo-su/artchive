@@ -14,30 +14,6 @@
       }
     }
   },
-  "art": {
-    "detail": {
-      "not_found": {
-        "title": "공연 정보를 불러올 수 없습니다.",
-        "desc": "삭제되었거나 유효하지 않은 정보일 수 있습니다."
-      },
-      "period": "공연 기간",
-      "runtime": "러닝타임",
-      "place": "장소",
-      "ticket": "티켓 정보",
-      "age": "관람 연령",
-      "cast": "출연",
-      "crew": "제작",
-      "cast_crew": "출연/제작",
-      "scenes": "공연 장면",
-      "synopsis": "줄거리",
-      "booking": "예매처",
-      "default_booking": "예매처"
-    },
-    "metadata": {
-      "title": "공연 정보",
-      "description": "최신 공연 정보를 확인하세요."
-    }
-  },
   "json_ld": {
     "name": "북적",
     "description": "북적에서 책과 사람을 잇다. 솔직한 도서 리뷰를 공유하고 중고책을 거래하며 새로운 독서 경험을 발견하세요.",
@@ -162,51 +138,6 @@
         "title_prefix": "방금 올라온",
         "title_suffix": "도서 리뷰",
         "desc": "다른 독자들의 감상평을 확인해보세요."
-      },
-      "art": {
-        "spotlight": {
-          "badge": "CULTURE",
-          "title_prefix": "현재 진행 중인",
-          "title_suffix": "공연 및 전시",
-          "desc": "지금 관람할 수 있는 문화 예술 정보입니다."
-        },
-        "coming_soon": {
-          "badge": "UPCOMING",
-          "title_prefix": "곧 시작될",
-          "title_suffix": "공연 및 전시",
-          "desc": "개막을 앞둔 문화 예술 정보를 미리 확인하세요."
-        },
-        "genres": {
-          "CCCA": "서양음악",
-          "CCCD": "대중음악",
-          "BBBE": "대중무용",
-          "AAAA": "연극",
-          "BBBC": "서양/한국 무용"
-        },
-        "empty": {
-          "title": "등록된 공연이 없습니다",
-          "desc": "다른 장르를 확인해보세요."
-        }
-      }
-    },
-    "art": {
-      "detail": {
-        "not_found": {
-          "title": "공연 정보를 불러올 수 없습니다.",
-          "desc": "삭제되었거나 유효하지 않은 정보일 수 있습니다."
-        },
-        "period": "공연 기간",
-        "runtime": "러닝타임",
-        "place": "장소",
-        "ticket": "티켓 정보",
-        "age": "관람 연령",
-        "cast": "출연",
-        "crew": "제작",
-        "cast_crew": "출연/제작",
-        "scenes": "공연 장면",
-        "synopsis": "줄거리",
-        "booking": "예매처",
-        "default_booking": "예매처"
       }
     },
     "errors": {

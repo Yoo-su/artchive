@@ -10,7 +10,6 @@ import { ClsPluginTransactional } from '@nestjs-cls/transactional';
 import { TransactionalAdapterTypeOrm } from '@nestjs-cls/transactional-adapter-typeorm';
 import { ClsModule } from 'nestjs-cls';
 
-import { ArtModule } from '@/features/art/art.module';
 import { AuthModule } from '@/features/auth/auth.module';
 import { BookModule } from '@/features/book/book.module';
 import { ChatModule } from '@/features/chat/chat.module';
@@ -109,7 +108,6 @@ import { MailModule } from '@/shared/mail/mail.module';
     OrderModule,
     ChatModule,
     LlmModule,
-    ArtModule,
     InsightsModule,
     SearchKeywordModule,
     SearchModule,
