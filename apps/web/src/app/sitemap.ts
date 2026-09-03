@@ -36,7 +36,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       alternates: {
         languages: {
           ko: `${baseUrl}/ko${path}`,
-          en: `${baseUrl}/en${path}`,
           "x-default": `${baseUrl}/ko${path}`,
         },
       },
@@ -48,7 +47,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 2. 동적 라우트: 리뷰
   try {
     const { reviews } = await getReviews({ page: 1, limit: 50 });
-    reviews?.forEach((review) => {
+    // 비공개 리뷰는 상세 페이지가 noindex이므로 사이트맵에서 제외
+    const publicReviews = reviews?.filter((review) => review.isPublic !== false);
+    publicReviews?.forEach((review) => {
       if (review.book?.isbn) {
         bookIsbns.add(review.book.isbn);
       }
@@ -60,7 +61,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         alternates: {
           languages: {
             ko: `${baseUrl}/ko/book/reviews/${review.id}`,
-            en: `${baseUrl}/en/book/reviews/${review.id}`,
             "x-default": `${baseUrl}/ko/book/reviews/${review.id}`,
           },
         },
@@ -85,7 +85,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         alternates: {
           languages: {
             ko: `${baseUrl}/ko/book/sales/${sale.id}`,
-            en: `${baseUrl}/en/book/sales/${sale.id}`,
             "x-default": `${baseUrl}/ko/book/sales/${sale.id}`,
           },
         },
@@ -104,7 +103,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       alternates: {
         languages: {
           ko: `${baseUrl}/ko/book/${isbn}/detail`,
-          en: `${baseUrl}/en/book/${isbn}/detail`,
           "x-default": `${baseUrl}/ko/book/${isbn}/detail`,
         },
       },

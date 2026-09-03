@@ -11,18 +11,34 @@ import { BreadcrumbJsonLd } from "@/shared/components/breadcrumb-json-ld";
 import { ServerQueryBoundary } from "@/shared/components/server-query-boundary";
 import { createPageMetadata } from "@/shared/config/metadata";
 import { getQueryClient } from "@/shared/libs/query-client";
+import { isNotFoundError } from "@/shared/utils/api-error";
 import { BookSaleDetailView } from "@/views/book-sale-detail-view";
 
 // 판매 상태 변경이 빠르게 반영되도록 5분 간격으로 재검증
 export const revalidate = 300;
+
+// ISR 활성화용 빈 파라미터 목록
+// - generateStaticParams가 없으면 Next가 Dynamic으로 분류해 revalidate를 무시
+// - 빌드 타임 프리렌더 없이 첫 요청 시 생성 후 ISR 캐시에 등록 (dynamicParams 기본값 true)
+export function generateStaticParams() {
+  return [];
+}
 
 type Props = {
   params: Promise<{ locale: string; id: string }>;
 };
 
 // React.cache를 사용하여 API 요청 중복 제거
+// 부재(404)만 null 반환, 일시적 API 장애는 재던짐 (장애로 만든 404가 5분 캐시되는 것 방지)
 const getCachedBookSale = cache(async (id: string) => {
-  return await getBookSaleDetail(id);
+  try {
+    return await getBookSaleDetail(id);
+  } catch (error) {
+    if (isNotFoundError(error)) {
+      return null;
+    }
+    throw error;
+  }
 });
 
 // 동적 메타데이터 생성
@@ -77,14 +93,8 @@ export default async function Page({ params }: Props) {
   setRequestLocale(locale);
   const queryClient = getQueryClient();
 
-  let sale = null;
-
-  try {
-    // 캐시된 API 호출
-    sale = await getCachedBookSale(id);
-  } catch (error) {
-    console.error("판매글 상세 정보 조회 중 오류 발생:", error);
-  }
+  // API 장애는 getCachedBookSale에서 throw → 에러 바운더리 (ISR 캐시 미저장)
+  const sale = await getCachedBookSale(id);
 
   if (!sale) {
     notFound();

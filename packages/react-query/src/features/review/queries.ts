@@ -70,6 +70,13 @@ export const useReviewDetailQuery = (id: number, initialData?: Review) => {
     queryKey: reviewKeys.detail(id).queryKey,
     queryFn: () => getReview(id),
     initialData,
+    // ISR(1시간) 캐시 HTML 교정용
+    // - 전역 기본값(staleTime: Infinity, refetchOnMount: false)이면 본문·반응 수가 영구 미갱신
+    // - refetchOnMount는 staleness와 무관한 절대 게이트라 staleTime 단독으로는 리페치 불가
+    // - initialDataUpdatedAt: 0으로 initialData를 stale 표기 (query-core가 `?? Date.now()`로 읽어 0이 유지됨)
+    initialDataUpdatedAt: initialData ? 0 : undefined,
+    staleTime: 30 * 1000,
+    refetchOnMount: true,
   });
 };
 

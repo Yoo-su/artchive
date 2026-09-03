@@ -144,7 +144,17 @@ export const fetchBookDetail = cache(async (isbn: string) => {
     );
 
     const aladinData = response.data;
-    const items: BookInfo[] = (aladinData.item || []).map((item) => ({
+
+    // 알라딘은 TTB 키 오류·쿼터 초과도 HTTP 200 + { errorCode, errorMessage }로 응답
+    // - item 배열 부재는 "책 없음"이 아닌 API 장애이므로 빈 결과로 흘리지 않음
+    // - 호출부가 notFound()로 처리하면 그 404가 ISR 캐시에 24시간 고착
+    if (!Array.isArray(aladinData.item)) {
+      throw new Error(
+        `알라딘 응답에 item이 없습니다: ${JSON.stringify(aladinData).slice(0, 200)}`,
+      );
+    }
+
+    const items: BookInfo[] = aladinData.item.map((item) => ({
       title: cleanHtmlText(item.title),
       author: cleanHtmlText(item.author),
       publisher: cleanHtmlText(item.publisher),

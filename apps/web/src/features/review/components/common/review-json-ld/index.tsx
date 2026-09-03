@@ -1,4 +1,7 @@
 import { Review } from "@bookjeok/core";
+
+import { JsonLd } from "@/shared/components/json-ld";
+
 interface ReviewJsonLdProps {
   review: Review;
   locale?: string;
@@ -60,10 +63,5 @@ export function ReviewJsonLd({ review, locale = "ko" }: ReviewJsonLdProps) {
     },
   };
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-    />
-  );
+  return <JsonLd data={jsonLd} />;
 }

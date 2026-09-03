@@ -19,6 +19,7 @@ import { FloatingMusicPill, GlobalMusicHost, MusicPlayerModal } from "@/features
 import { NotificationProvider } from "@/features/notification/providers/notification-provider";
 import GoogleAnalytics from "@/shared/components/analytics/google-analytics";
 import MicrosoftClarity from "@/shared/components/analytics/microsoft-clarity";
+import { JsonLd } from "@/shared/components/json-ld";
 import { Toaster } from "@/shared/components/shadcn/sonner";
 import { config } from "@/shared/config/env";
 import { Locale, routing } from "@/shared/config/i18n/routing";
@@ -117,10 +118,7 @@ export default async function Layout({
           <MusicPlayerModal />
           <FloatingMusicPill />
           <Toaster position="bottom-center" />
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
-          />
+          <JsonLd data={jsonLdData} />
           {config.NEXT_PUBLIC_GOOGLE_ADSENSE_ID && (
             <Script
               id="adsense-init"

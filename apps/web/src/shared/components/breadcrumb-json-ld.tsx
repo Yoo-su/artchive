@@ -1,3 +1,5 @@
+import { JsonLd } from "./json-ld";
+
 interface BreadcrumbItem {
   name: string;
   url: string; // e.g. "/ko/book/market"
@@ -24,10 +26,5 @@ export function BreadcrumbJsonLd({ items }: BreadcrumbJsonLdProps) {
     })),
   };
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-    />
-  );
+  return <JsonLd data={jsonLd} />;
 }

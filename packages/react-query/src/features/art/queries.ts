@@ -30,6 +30,10 @@ export const useArtDetailQuery = (artId: string) => {
       return result || null;
     },
     enabled: !!artId,
+    // ISR(24시간) 캐시 HTML 교정용
+    // - 전역 기본값(staleTime: Infinity, refetchOnMount: false)이면 공연 정보가 영구 미갱신
+    staleTime: 60 * 1000,
+    refetchOnMount: true,
   });
 };
 
