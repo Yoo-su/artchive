@@ -129,7 +129,7 @@ ANALYZE=true pnpm build:web   # 번들 분석
 | `NEXT_PUBLIC_KAKAO_APP_KEY` | 카카오 맵 SDK (없으면 지도 미표시) |
 | `NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY` | 결제 위젯 |
 | `NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED` | 결제 UI 노출 플래그 (서버 플래그와 동일 값) |
-| `NEXT_PUBLIC_REVALIDATE_TOKEN` | 온디맨드 ISR 갱신 시크릿 |
+| `REVALIDATE_TOKEN` | 온디맨드 ISR 갱신 시크릿 (서버 전용, 미설정 시 503) |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob 업로드 (서버 사이드) |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` · `NEXT_PUBLIC_CLARITY_PROJECT_ID` · `NEXT_PUBLIC_GOOGLE_ADSENSE_ID` | 계측·광고 (선택) |
 

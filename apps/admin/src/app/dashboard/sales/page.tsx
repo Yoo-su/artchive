@@ -1,12 +1,12 @@
 "use client";
 
 import { UsedBookSale } from "@bookjeok/core";
-import axios from "axios";
 import { Loader2, RefreshCw, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { AdminLayout } from "../../../layouts/admin-layout";
 import { api } from "../../../libs/api";
+import { requestRevalidate } from "../../../libs/revalidate";
 
 
 export default function SalesModerationPage() {
@@ -51,12 +51,10 @@ export default function SalesModerationPage() {
 
   const handleRevalidate = async (id: number) => {
     setRevalidatingId(id);
-    const userWebUrl = process.env.NEXT_PUBLIC_USER_WEB_URL || "http://localhost:3000";
-    const revalidateToken = process.env.NEXT_PUBLIC_REVALIDATE_TOKEN || "yoosurevalidatetoken";
     const path = `/ko/book/sales/${id}`;
 
     try {
-      await axios.post(`${userWebUrl}/api/revalidate?secret=${revalidateToken}&path=${encodeURIComponent(path)}`);
+      await requestRevalidate(path);
       alert(`[${path}] 캐시가 성공적으로 갱신되었습니다.`);
     } catch (err) {
       console.error("Revalidation failed", err);

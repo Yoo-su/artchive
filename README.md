@@ -581,8 +581,8 @@ pnpm test
 | `NEXT_PUBLIC_KAKAO_APP_KEY` | ✅ | 카카오 맵 JS SDK 키 |
 | `NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY` | | 결제 위젯 클라이언트 키 |
 | `NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED` | | 웹 측 결제 기능 플래그 |
-| `NEXT_PUBLIC_USER_WEB_URL` | | 관리자 포털이 갱신할 사용자 웹 주소 |
-| `REVALIDATE_TOKEN` / `NEXT_PUBLIC_REVALIDATE_TOKEN` | | On-Demand ISR 갱신 시크릿 |
+| `USER_WEB_URL` | | 관리자 포털 서버가 갱신 요청을 보낼 사용자 웹 주소 (서버 전용) |
+| `REVALIDATE_TOKEN` | | On-Demand ISR 갱신 시크릿 (서버 전용, 폴백 없음) |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | | Google Analytics |
 | `NEXT_PUBLIC_CLARITY_PROJECT_ID` | | Microsoft Clarity |
 | `NEXT_PUBLIC_GOOGLE_ADSENSE_ID` | | Google AdSense |
