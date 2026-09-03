@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
+import { motion, useScroll, useTransform, type Variants } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -12,6 +12,15 @@ import { PATHS } from "@/shared/constants/paths";
 import { usePrefersReducedMotion } from "@/shared/hooks/use-prefers-reduced-motion";
 
 const VIDEO_SRC = "/videos/bookjeok_market_video.mp4";
+/** 첫 프레임. 즉시 페인트되어 LCP를 잡고, 재생 시작 시 이어지듯 넘어간다. */
+const POSTER_SRC = "/videos/bookjeok_market_poster.jpg";
+
+/** 인트로는 세션당 한 번. 재방문에는 8MB를 다시 받지 않고 곧장 카피를 보여준다. */
+const SESSION_KEY = "bookjeok.market-hero.played";
+/** 메타데이터조차 못 읽는 상황까지 대비한 최후 안전망 */
+const HARD_REVEAL_TIMEOUT_MS = 15_000;
+/** 영상 길이 + 이만큼 지나도 ended가 오지 않으면 강제로 리빌 */
+const REVEAL_GRACE_MS = 3_000;
 
 /** 리빌 스크림 위에 얹는 미세한 필름 그레인. 이미지 에셋 없이 SVG 노이즈로 생성한다. */
 const GRAIN_SVG =
@@ -21,44 +30,132 @@ const GRAIN_SVG =
   '<rect width="100%" height="100%" filter="url(#grain)" /></svg>';
 const GRAIN_BACKGROUND_IMAGE = `url("data:image/svg+xml,${encodeURIComponent(GRAIN_SVG)}")`;
 
+interface ConnectionLike {
+  saveData?: boolean;
+  effectiveType?: string;
+}
+
 /**
- * 영상 재생 → 종료 → 어두운 안개 + 카피 노출 순서로 진행되는 상태 머신.
- * "error"는 영상 로드/재생이 실패했을 때 곧장 카피만 보여주기 위한 폴백.
+ * 인트로 영상을 아예 받지 않아야 하는 상황인지 판단한다.
+ * - 동작 줄이기: 10초 자동재생은 WCAG 2.2.2에 걸린다
+ * - 데이터 절약/느린 회선: 8MB는 셀룰러 사용자에게 그대로 청구할 비용이 아니다
+ * - 같은 세션 재방문: 마켓 탭을 다시 누를 때마다 10초를 보게 할 이유가 없다
  */
-type Phase = "loading" | "playing" | "revealed" | "error";
+const shouldSkipIntro = () => {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+    return true;
+
+  try {
+    if (window.sessionStorage.getItem(SESSION_KEY)) return true;
+  } catch {
+    // 프라이빗 모드 등 sessionStorage 접근 불가. 재생을 막을 이유는 아니다.
+  }
+
+  const connection = (navigator as Navigator & { connection?: ConnectionLike })
+    .connection;
+  if (!connection) return false;
+  if (connection.saveData) return true;
+  return ["slow-2g", "2g", "3g"].includes(connection.effectiveType ?? "");
+};
 
 export const VideoHero = () => {
   const t = useTranslations("market");
   const prefersReducedMotion = usePrefersReducedMotion();
+
+  const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [phase, setPhase] = useState<Phase>("loading");
-  const [progress, setProgress] = useState(0);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [revealed, setRevealed] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const { freshCount, newTodayLabel, regionCount, sellers, hasStats } =
     useMarketHeroStats();
 
+  const scheduleReveal = useCallback((ms: number) => {
+    if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
+    revealTimerRef.current = setTimeout(() => setRevealed(true), ms);
+  }, []);
+
+  const reveal = useCallback(() => {
+    if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
+    setRevealed(true);
+  }, []);
+
   useEffect(() => {
-    videoRef.current?.play().catch(() => {
-      setPhase("error");
-    });
-  }, []);
+    const video = videoRef.current;
 
-  const handleCanPlay = useCallback(() => {
-    setPhase((prev) => (prev === "loading" ? "playing" : prev));
-  }, []);
+    if (!video || shouldSkipIntro()) {
+      setRevealed(true);
+      return;
+    }
 
+    // SSR에서는 preload="none"으로 내보내고, 재생하기로 결정한 지금 깨운다.
+    video.preload = "auto";
+    video.play().then(
+      () => {
+        setIsPlaying(true);
+        // 재생이 실제로 시작된 뒤에 기록한다. 먼저 써두면 자동재생이 막혔을 때
+        // 보지도 못한 인트로를 "봤다"고 표시해 그 세션 내내 건너뛰게 된다.
+        try {
+          window.sessionStorage.setItem(SESSION_KEY, "1");
+        } catch {
+          // 저장 실패는 인트로를 한 번 더 보는 것 외에 영향이 없다.
+        }
+      },
+      () => {
+        // 자동재생이 막혔을 뿐 영상 자체는 멀쩡하다. 포스터를 배경 삼아 카피만 노출한다.
+        setRevealed(true);
+      },
+    );
+
+    scheduleReveal(HARD_REVEAL_TIMEOUT_MS);
+
+    return () => {
+      if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
+    };
+  }, [scheduleReveal]);
+
+  /**
+   * 브라우저는 백그라운드 탭의 재생을 멈춘다. 그대로 두면 ended가 영영 오지 않아
+   * 히어로가 카피 없이 굳는다. 돌아왔을 때 이어서 재생시킨다.
+   */
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    const resume = () => {
+      const video = videoRef.current;
+      if (!video || document.hidden || video.ended) return;
+      void video.play().catch(() => {});
+    };
+
+    document.addEventListener("visibilitychange", resume);
+    return () => document.removeEventListener("visibilitychange", resume);
+  }, [isPlaying]);
+
+  /** 길이를 알게 된 시점에 안전망을 실제 영상 길이에 맞춰 다시 잡는다. */
+  const handleLoadedMetadata = useCallback(() => {
+    const duration = videoRef.current?.duration;
+    if (!duration || !Number.isFinite(duration)) return;
+    scheduleReveal(duration * 1000 + REVEAL_GRACE_MS);
+  }, [scheduleReveal]);
+
+  /** 진행 바는 리렌더 없이 DOM을 직접 갱신한다. (timeupdate는 초당 여러 번 온다) */
   const handleTimeUpdate = useCallback(() => {
     const video = videoRef.current;
-    if (!video || !video.duration) return;
-    setProgress((video.currentTime / video.duration) * 100);
+    const bar = progressRef.current;
+    if (!video || !bar || !video.duration) return;
+    bar.style.transform = `scaleX(${video.currentTime / video.duration})`;
   }, []);
 
-  const handleEnded = useCallback(() => setPhase("revealed"), []);
-  const handleError = useCallback(() => setPhase("error"), []);
-
-  const showCopy = phase === "revealed" || phase === "error";
-  const showVideo = phase !== "error";
-  const isDimmed = phase === "revealed";
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+  const videoScale = useTransform(scrollYProgress, [0, 1], [1.02, 1.09]);
+  const copyY = useTransform(scrollYProgress, [0, 1], [0, -64]);
+  const copyOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
 
   const containerVariants: Variants = {
     hidden: {},
@@ -84,9 +181,10 @@ export const VideoHero = () => {
 
   /** 헤드라인/서브카피 전용: overflow-hidden 마스크 안에서 아래→위로 드러나는 리빌. */
   const textRevealVariants: Variants = {
-    hidden: { y: prefersReducedMotion ? "0%" : "100%" },
+    hidden: { y: prefersReducedMotion ? "0%" : "100%", opacity: 0 },
     visible: {
       y: "0%",
+      opacity: 1,
       transition: {
         duration: prefersReducedMotion ? 0.35 : 0.85,
         ease: [0.16, 1, 0.3, 1],
@@ -95,96 +193,109 @@ export const VideoHero = () => {
   };
 
   return (
-    <section className="relative -mx-4 mb-10 aspect-video w-[calc(100%+2rem)] min-h-[460px] overflow-hidden bg-neutral-950 sm:-mx-6 sm:w-[calc(100%+3rem)] sm:min-h-[520px] md:mb-14 md:min-h-[600px]">
-      {/* 로딩 중 빈 화면 대신 은은한 펄스로 대기 상태를 알려준다. */}
-      {phase === "loading" && (
-        <div
-          aria-hidden
-          className="absolute inset-0 flex items-center justify-center"
-        >
-          <div className="h-2 w-2 animate-pulse rounded-full bg-white/30" />
-        </div>
-      )}
-
-      {showVideo && (
-        <video
+    <div className="-mx-4 mb-10 sm:-mx-6 md:mb-14">
+      {/*
+        폭을 부모에서 확정(w-full)해야 aspect-video가 min-height로부터 폭을 역산하지 않는다.
+        (역산되면 좁은 화면에서 460 * 16/9 = 818px짜리 가로 오버플로가 생긴다)
+      */}
+      <section
+        ref={sectionRef}
+        className="relative aspect-video min-h-[460px] w-full overflow-hidden bg-neutral-950 sm:min-h-[520px] md:min-h-[600px]"
+      >
+        <motion.video
           ref={videoRef}
-          className={`absolute inset-0 h-full w-full object-cover transition-all duration-[1400ms] ease-out ${
-            phase === "loading" ? "opacity-0" : "opacity-100"
-          } ${isDimmed ? "scale-[1.03] brightness-[0.55] blur-[2px] saturate-[0.85]" : ""}`}
+          style={prefersReducedMotion ? undefined : { scale: videoScale }}
+          className={`absolute inset-0 h-full w-full scale-[1.02] object-cover transition-[filter] duration-[1200ms] ease-out ${
+            revealed ? "brightness-[0.55] blur-[1.5px] saturate-[0.85]" : ""
+          }`}
           src={VIDEO_SRC}
-          autoPlay
+          poster={POSTER_SRC}
+          preload="none"
           muted
           playsInline
-          preload="auto"
           disablePictureInPicture
           controls={false}
           aria-hidden="true"
-          onCanPlay={handleCanPlay}
+          onLoadedMetadata={handleLoadedMetadata}
           onTimeUpdate={handleTimeUpdate}
-          onEnded={handleEnded}
-          onError={handleError}
+          onEnded={reveal}
+          onError={reveal}
         />
-      )}
 
-      {/* 재생 진행률. 리빌이 시작되는 순간 함께 사라진다. */}
-      {showVideo && (
+        {/* 재생 진행률. 리빌이 시작되는 순간 함께 사라진다. */}
         <div
           aria-hidden
           className={`absolute inset-x-0 bottom-0 h-[2px] bg-white/10 transition-opacity duration-500 ${
-            showCopy ? "opacity-0" : "opacity-100"
+            isPlaying && !revealed ? "opacity-100" : "opacity-0"
           }`}
         >
           <div
-            className="h-full bg-white/70"
-            style={{ width: `${progress}%`, transition: "width 150ms linear" }}
+            ref={progressRef}
+            className="h-full origin-left scale-x-0 bg-white/70 transition-transform duration-150 ease-linear"
           />
         </div>
-      )}
 
-      {showCopy && (
-        <>
-          {/* 정지된 마지막 프레임 위로 안개처럼 서서히, 화면 전체가 고르게 어두워진다. */}
-          <motion.div
-            aria-hidden
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{
-              duration: prefersReducedMotion ? 0.4 : 1.2,
-              ease: "easeOut",
+        {/* 정지된 마지막 프레임 위로 안개처럼 서서히, 화면 전체가 고르게 어두워진다. */}
+        <motion.div
+          aria-hidden
+          initial={{ opacity: 0 }}
+          animate={{ opacity: revealed ? 1 : 0 }}
+          transition={{
+            duration: prefersReducedMotion ? 0.4 : 1.2,
+            ease: "easeOut",
+          }}
+          className="absolute inset-0"
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/45 to-black/20" />
+          {/* 비네트. 네 모서리를 옅게 떨어뜨려 시선을 가운데 카피로 모은다. */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(0,0,0,0.45)_100%)]" />
+          {/* 필름 그레인. overlay 블렌드로 아주 옅게, 평평한 디지털 톤을 깨준다. */}
+          <div
+            className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
+            style={{
+              backgroundImage: GRAIN_BACKGROUND_IMAGE,
+              backgroundSize: "160px 160px",
             }}
-            className="absolute inset-0"
-          >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/45 to-black/20" />
-            {/* 필름 그레인. overlay 블렌드로 아주 옅게, 평평한 디지털 톤을 깨준다. */}
-            <div
-              className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
-              style={{
-                backgroundImage: GRAIN_BACKGROUND_IMAGE,
-                backgroundSize: "160px 160px",
-              }}
-            />
-          </motion.div>
+          />
+        </motion.div>
 
+        {/*
+          카피는 항상 DOM에 둔다. 조건부 렌더로 감추면 h1이 서버 HTML에서 사라져
+          크롤러와 스크린리더가 페이지 주제어를 놓친다. 보이고 감추는 건 애니메이션으로만 제어.
+        */}
+        <motion.div
+          style={
+            prefersReducedMotion
+              ? undefined
+              : { y: copyY, opacity: copyOpacity }
+          }
+          className="absolute inset-0"
+        >
           <motion.div
             variants={containerVariants}
             initial="hidden"
-            animate="visible"
-            className="absolute inset-0 flex flex-col items-center justify-center gap-5 px-6 py-10 text-center sm:gap-6"
+            animate={revealed ? "visible" : "hidden"}
+            className={`flex h-full flex-col items-center justify-center px-6 py-10 text-center ${
+              revealed ? "" : "pointer-events-none"
+            }`}
           >
+            {/*
+              간격은 균일하게 두지 않는다. 헤드라인↔서브는 한 덩어리로 붙이고,
+              지표/CTA 앞에서 크게 벌려 "카피 / 근거 / 행동" 세 그룹으로 읽히게 한다.
+            */}
             <div className="overflow-hidden">
               <motion.h1
                 variants={textRevealVariants}
-                className="break-keep font-(family-name:--font-gowun-batang) text-[1.9rem] leading-[1.3] text-white sm:text-[2.5rem] md:text-[3.1rem]"
+                className="break-keep font-(family-name:--font-gowun-batang) text-[1.9rem] leading-[1.3] text-white sm:text-[2.5rem] md:text-[3.1rem] lg:text-[3.6rem]"
               >
                 {t("videoHero.title")}
               </motion.h1>
             </div>
 
-            <div className="overflow-hidden">
+            <div className="mt-3 overflow-hidden sm:mt-4">
               <motion.p
                 variants={textRevealVariants}
-                className="max-w-sm break-keep text-[13.5px] leading-relaxed text-neutral-200 sm:text-[15px]"
+                className="max-w-sm break-keep text-[13.5px] leading-relaxed text-neutral-200 sm:max-w-md sm:text-[15px] lg:text-[17px]"
               >
                 {t("videoHero.subtitle")}
               </motion.p>
@@ -193,7 +304,7 @@ export const VideoHero = () => {
             {hasStats && (
               <motion.div
                 variants={itemVariants}
-                className="flex w-full flex-wrap items-center justify-center gap-x-8 gap-y-4 pt-1"
+                className="mt-9 flex w-full max-w-lg flex-wrap items-center justify-center gap-x-8 gap-y-4 border-t border-white/15 pt-6 sm:mt-11"
               >
                 {freshCount > 0 && (
                   <StatCell
@@ -223,10 +334,12 @@ export const VideoHero = () => {
               </motion.div>
             )}
 
-            <motion.div variants={itemVariants}>
+            <motion.div variants={itemVariants} className="mt-8 sm:mt-9">
               <Link
                 href={PATHS.BOOK_SALES_REGISTER}
-                className="group pointer-events-auto inline-flex items-center gap-2.5 bg-white px-6 py-3.5 text-sm font-medium text-neutral-950 shadow-[0_8px_30px_rgba(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-neutral-100 hover:shadow-[0_10px_36px_rgba(0,0,0,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                // 리빌 전에는 보이지 않으므로 탭 순서에서도 빼둔다.
+                tabIndex={revealed ? undefined : -1}
+                className="group inline-flex items-center gap-2.5 bg-white px-6 py-3.5 text-sm font-medium text-neutral-950 shadow-[0_8px_30px_rgba(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-neutral-100 hover:shadow-[0_10px_36px_rgba(0,0,0,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
               >
                 {t("hero.cta_sell")}
                 <ArrowUpRight
@@ -236,9 +349,9 @@ export const VideoHero = () => {
               </Link>
             </motion.div>
           </motion.div>
-        </>
-      )}
-    </section>
+        </motion.div>
+      </section>
+    </div>
   );
 };
 
