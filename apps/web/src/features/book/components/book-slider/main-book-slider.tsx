@@ -463,7 +463,13 @@ export const MainBookSlider = () => {
       </div>
 
       {/* 레이아웃 준비 전이거나 데이터 로딩 중이면 스켈레톤 표시 */}
-      {(!isLayoutReady || isLoading) && <BookSliderSkeleton />}
+      {(!isLayoutReady || isLoading) && (
+        <BookSliderSkeleton
+          radius={radius}
+          cardWidth={cardWidth}
+          cardHeight={cardHeight}
+        />
+      )}
 
       {isLayoutReady && !isLoading && (isError || !books || books.length === 0) && (
         <div className="text-center py-20 text-stone-400">

@@ -4,13 +4,30 @@ import { useEffect, useState } from "react";
 
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 
-export const BookSliderSkeleton = () => {
+interface BookSliderSkeletonProps {
+  radius?: number;
+  cardWidth?: number;
+  cardHeight?: number;
+}
+
+export const BookSliderSkeleton = ({
+  radius: propRadius,
+  cardWidth: propCardWidth,
+  cardHeight: propCardHeight,
+}: BookSliderSkeletonProps = {}) => {
   // 화면 크기별 반응형 파라미터 (여백 최적화 및 간격 조정)
-  const [radius, setRadius] = useState(580);
-  const [cardWidth, setCardWidth] = useState(180);
-  const [cardHeight, setCardHeight] = useState(270);
+  const [radius, setRadius] = useState(propRadius ?? 580);
+  const [cardWidth, setCardWidth] = useState(propCardWidth ?? 180);
+  const [cardHeight, setCardHeight] = useState(propCardHeight ?? 270);
 
   useEffect(() => {
+    if (propRadius && propCardWidth && propCardHeight) {
+      setRadius(propRadius);
+      setCardWidth(propCardWidth);
+      setCardHeight(propCardHeight);
+      return;
+    }
+
     const handleResize = () => {
       const width = window.innerWidth;
       if (width > 1024) {
@@ -35,7 +52,15 @@ export const BookSliderSkeleton = () => {
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [propRadius, propCardWidth, propCardHeight]);
+
+  const activeRadius = propRadius ?? radius;
+  const activeCardWidth = propCardWidth ?? cardWidth;
+  const activeCardHeight = propCardHeight ?? cardHeight;
+
+  // MainBookSlider와 동일하게 18개 도서 기준 20도 각도로 배치
+  const CARD_COUNT = 18;
+  const ANGLE_STEP = 360 / CARD_COUNT; // 20도
 
   return (
     <div className="w-full flex flex-col items-center select-none pointer-events-none">
@@ -49,19 +74,19 @@ export const BookSliderSkeleton = () => {
         <div
           style={{
             transformStyle: "preserve-3d",
-            transform: `translateZ(-${radius}px)`, // 3D 원근법 확대 왜곡을 보정하기 위해 좌표축 공간을 뒤로 이동
-            width: cardWidth,
-            height: cardHeight,
+            transform: `translateZ(-${activeRadius}px)`, // 3D 원근법 확대 왜곡을 보정하기 위해 좌표축 공간을 뒤로 이동
+            width: activeCardWidth,
+            height: activeCardHeight,
           }}
           className="relative"
         >
-          {[...Array(15)].map((_, i) => {
-            const angle = i * 24; // 15개 카드 분할 각도
+          {[...Array(CARD_COUNT)].map((_, i) => {
+            const angle = i * ANGLE_STEP;
             const total = ((angle % 360) + 360) % 360;
             const relativeAngle = total > 180 ? total - 360 : total;
             const absAngle = Math.abs(relativeAngle);
 
-            // 실제 슬라이더와 정확히 일치하는 크기 및 투명도 계산 (블러 없음)
+            // 실제 슬라이더와 정확히 일치하는 크기 및 투명도 계산
             let scale = 0.65;
             let opacity = 0.15;
 
@@ -81,8 +106,11 @@ export const BookSliderSkeleton = () => {
 
             const zIndex = Math.round(200 - absAngle);
 
+            // 후면 카드(90도 초과)는 MainBookSlider와 동일하게 표시하지 않음
+            if (absAngle > 85) return null;
+
             return (
-              // 외곽 레이어: 정적 3D 실린더 배치 담당
+              // 외곽 레이어: 정적 3D 실린더 배치 담당 및 후면 숨김 처리
               <div
                 key={i}
                 style={{
@@ -92,19 +120,22 @@ export const BookSliderSkeleton = () => {
                   width: "100%",
                   height: "100%",
                   transformStyle: "preserve-3d",
-                  transform: `rotateY(${angle}deg) translateZ(${radius}px)`,
+                  transform: `rotateY(${angle}deg) translateZ(${activeRadius}px)`,
+                  backfaceVisibility: "hidden",
+                  WebkitBackfaceVisibility: "hidden",
                 }}
               >
-                {/* 내부 레이어: 동적 크기, 투명도 스타일링 (블러 없음) */}
+                {/* 내부 레이어: 동적 크기, 투명도 스타일링 */}
                 <div
                   style={{
                     width: "100%",
                     height: "100%",
-                    scale,
+                    transform: `scale(${scale})`,
+                    transformStyle: "preserve-3d",
                     opacity: Math.max(0, opacity),
                     zIndex,
                   }}
-                  className="rounded-2xl bg-stone-100/50 border border-stone-200/40 shadow-[0_12px_24px_-8px_rgba(0,0,0,0.15)] w-full h-full"
+                  className="rounded-2xl bg-stone-100/50 border border-stone-200/40 shadow-[0_12px_24px_-8px_rgba(0,0,0,0.15)] w-full h-full overflow-hidden"
                 >
                   <Skeleton className="w-full h-full bg-stone-200/50 rounded-2xl animate-pulse" />
                 </div>
@@ -114,13 +145,15 @@ export const BookSliderSkeleton = () => {
         </div>
 
         {/* 바닥 그림자 */}
-        <div className="absolute bottom-[-35px] left-1/2 -translate-x-1/2 w-[85%] h-[35px] bg-stone-900/5 rounded-full blur-2xl -z-10" />
+        <div className="absolute bottom-[-35px] left-1/2 -translate-x-1/2 w-[85%] h-[35px] bg-stone-900/10 rounded-full blur-2xl -z-10 pointer-events-none" />
       </div>
 
       {/* 활성 도서 정보 텍스트 영역 스켈레톤 */}
-      <div className="container mx-auto mt-16 flex flex-col items-center text-center space-y-2.5 h-[80px]">
-        <Skeleton className="h-7 md:h-9 w-48 md:w-64 bg-stone-200/60 rounded-lg animate-pulse" />
-        <Skeleton className="h-4 md:h-5 w-32 md:w-40 bg-stone-200/40 rounded-lg animate-pulse" />
+      <div className="container mx-auto mt-16 flex flex-col items-center text-center h-[80px]">
+        <div className="space-y-1.5 flex flex-col items-center">
+          <Skeleton className="h-[25px] md:h-[36px] w-48 md:w-64 bg-stone-200/60 rounded-lg animate-pulse" />
+          <Skeleton className="h-[20px] md:h-[24px] w-32 md:w-40 bg-stone-200/40 rounded-lg animate-pulse" />
+        </div>
       </div>
     </div>
   );
