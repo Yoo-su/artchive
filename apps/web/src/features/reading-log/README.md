@@ -1,73 +1,80 @@
-# Frontend Feature: Reading-Log
+# Frontend Feature: Reading Log (독서 기록 · 독서 라운지)
 
-프론트엔드의 `reading-log` 기능은 사용자의 독서 기록을 관리하고 시각화하는 역할을 담당합니다. 캘린더 뷰, 통계, 타임라인 등 다양한 UI를 제공합니다.
+개인 독서 기록(캘린더·통계·3D 덱)과 공개 피드인 독서 라운지를 담당합니다.
 
-## 1. 주요 파일 및 역할
+## 1. 폴더 구조
 
-- **`apis/index.ts`**: 백엔드 `/reading-logs` 엔드포인트와 통신하는 API 함수들을 정의합니다.
-
-- **`queries.tsx`**: TanStack Query 쿼리/뮤테이션 훅을 정의합니다.
-  - `useReadingLogsQuery`: 월별 독서 기록 조회
-  - `useReadingLogsInfiniteQuery`: 무한 스크롤 독서 기록 조회
-  - `useReadingLogsStatsQuery`: 독서 통계 조회
-  - `useReadingLogSettingsQuery`: 공개 설정 조회
-  - `useCreateReadingLogMutation`: 독서 기록 생성
-  - `useUpdateReadingLogMutation`: 독서 기록 수정
-  - `useDeleteReadingLogMutation`: 독서 기록 삭제
-  - `useUpdateReadingLogSettingsMutation`: 공개 설정 수정
-
-- **`components/`**: **Context-Based Grouping**
-  - **`calendar-view/`**: 캘린더 뷰 관련 컴포넌트 (`reading-log-calendar`)
-  - **`list-view/`**: 리스트 뷰 관련 컴포넌트 (`reading-log-list-view`)
-  - **`stats-view/`**: 통계 및 타임라인 (`reading-log-stats`, `reading-timeline`)
-  - **`common/`**: 공통 다이얼로그 및 히어로 섹션 (`reading-log-form-dialog`, `reading-log-hero`)
-
-- **`hooks/`**: 커스텀 훅
-  - `use-reading-log-calendar.ts`: 캘린더 날짜 네비게이션 로직
-
-- **`types.ts`**: 독서 기록 관련 TypeScript 타입 정의
-- **`constants.ts`**: 요일명, 월명 등 상수 정의
-
-## 2. 주요 컴포넌트
-
-### 캘린더 뷰 (`reading-log-calendar.tsx`)
-
-월별 독서 현황을 캘린더 형태로 시각화합니다:
-
-- 날짜별 독서 기록 표시
-- 클릭 시 해당 날짜 기록 상세 보기
-- 월 네비게이션 (이전/다음 달)
-
-### 타임라인 뷰 (`reading-log-timeline.tsx`)
-
-공개 프로필에서 사용되는 타임라인 형태의 독서 기록:
-
-- 최근 3개월 독서 기록 표시
-- 도서 표지, 제목, 날짜 표시
-
-### 독서 통계 (`reading-log-stats.tsx`)
-
-사용자의 독서 현황을 숫자로 표시:
-
-- 이번 달 읽은 책 수
-- 올해 읽은 책 수
-
-## 3. 데이터 흐름
-
-```mermaid
-graph TD
-    A[마이페이지] --> B[ReadingLogSection]
-    B --> C[useMonthlyReadingLogsQuery]
-    B --> D[useReadingLogsStatsQuery]
-    C --> E[ReadingLogCalendar]
-    D --> F[ReadingLogStats]
-    E --> G[날짜 클릭]
-    G --> H[ReadingLogForm 모달]
+```
+reading-log/
+├── hooks/
+│   ├── use-reading-log-prefetch.ts   # RSC 캐시 prefetch
+│   └── use-seasonal-theme.ts         # 계절별 캘린더 테마
+├── constants/ui.ts
+├── mutations/
+├── __tests__/                        # queries · day-details-dialog
+└── components/
+    ├── calendar-view/
+    │   ├── reading-log-calendar/     # 월별 캘린더 본체
+    │   ├── reading-log-day-cell/     # 날짜 셀 (완독 표시)
+    │   ├── reading-log-controls/     # 월/연 이동, 뷰 전환
+    │   └── reading-log-calendar-skeleton/
+    ├── deck-view/
+    │   └── reading-log-card-deck.tsx # 3D 카드 덱 뷰어
+    ├── list-view/
+    │   └── reading-log-list-view/
+    ├── stats-view/
+    │   ├── reading-log-stats/        # 독서 통계
+    │   └── reading-timeline/         # 연도별 타임라인
+    ├── lounge-feed/                  # 독서 라운지 (/lounge)
+    │   ├── lounge-feed-list/
+    │   ├── lounge-feed-card/ (+ stories)
+    │   ├── lounge-popular-banner/ (+ card, stories)
+    │   ├── lounge-active-readers/    # index · reader-row · skeleton
+    │   ├── lounge-book-detail-modal/
+    │   ├── lounge-home-widget/       # 홈에 얹는 축약 위젯
+    │   └── lounge-empty-state/
+    └── common/
+        ├── reading-log-hero/
+        ├── reading-log-form-dialog/  # 기록 작성·수정
+        └── day-details-dialog/       # 특정 날짜의 기록 상세
 ```
 
-## 4. 공개 설정
+## 2. 두 개의 축
 
-사용자는 자신의 독서 기록을 다른 사용자에게 공개할지 설정할 수 있습니다:
+이 기능은 성격이 다른 두 화면을 함께 담고 있습니다.
 
-- 공개: 프로필 페이지에서 최근 3개월 독서 기록이 타임라인으로 표시
-- 비공개: 본인만 열람 가능
+| | 개인 독서 기록 | 독서 라운지 |
+|---|---|---|
+| 라우트 | `/my-page/reading-log` | `/lounge` |
+| 접근 | 본인만 | 공개 |
+| 구성 | calendar-view · list-view · stats-view · deck-view | lounge-feed/* |
+| 데이터 | `/reading-logs`, `/reading-logs/stats` | `/reading-logs/lounge/*` |
+
+라운지 공개 여부는 `/reading-logs/settings`로 사용자가 직접 제어합니다.
+
+## 3. 핵심 로직
+
+### 캘린더
+
+`reading-log-calendar`가 월 단위로 기록을 조회해 `reading-log-day-cell`에 배치하고, 셀을 클릭하면 `day-details-dialog`가 그날의 완독 도서·한줄평·감상문을 보여줍니다. 작성·수정은 `reading-log-form-dialog`에서 처리합니다. `use-seasonal-theme`이 월에 따라 배색을 바꿉니다.
+
+### 3D 카드 덱 (`deck-view`)
+
+Framer Motion으로 완독 기록을 카드 덱처럼 넘겨보는 뷰입니다. `/share/deck/[handle]`(`share-deck-view`)로 공유 가능한 공개 페이지가 별도로 존재합니다.
+
+> 모션 부하가 큰 화면이라 `use-prefers-reduced-motion`을 존중하고, 카드 수가 많을 때 렌더 범위를 제한합니다.
+
+### 라운지 피드
+
+- `lounge-feed-list` — 다른 독자들의 최근 기록 무한 스크롤
+- `lounge-popular-banner` — 인기 도서 배너
+- `lounge-active-readers` — 활동 중인 독자
+- `lounge-book-detail-modal` — 피드에서 도서 상세를 페이지 이동 없이 확인
+- `lounge-home-widget` — 홈에서 라운지를 미리 보여주는 축약본
+
+라운지 페이지는 ISR로 정적 서빙되며, `use-reading-log-prefetch`가 RSC 단계에서 React Query 캐시를 채웁니다.
+
+## 4. 관련
+
+- 서버: [`features/reading-log`](../../../../server/src/features/reading-log/README.md) (`reading-log.controller` + `lounge.controller`)
+- 뷰: `reading-log-view`, `lounge-view`, `share-deck-view`

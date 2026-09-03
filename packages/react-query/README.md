@@ -45,6 +45,7 @@ export function BookListComponent() {
 ## 📂 패키지 구조
 
 - `src/features/*`: 도메인별 쿼리(`queries.ts`) 및 뮤테이션(`mutations.ts`) 훅
+  - `art`, `auth`, `book`, `book-sale`, `chat`, `comment`, `insights`, `llm`, `notification`, `order`, `reading-log`, `review`, `user`
 - `src/index.ts`: 루트 배럴 export
 
 ---
@@ -52,7 +53,9 @@ export function BookListComponent() {
 ## 🏗️ 개발 가이드 (Development)
 
 1. **상대 경로 사용**: 패키지 내 다른 모듈 참조 시 반드시 **상대 경로**를 사용하세요.
-2. **캐시 무효화 연계**: 뮤테이션 작성 시 연관된 쿼리 키(`@bookjeok/core`의 `bookKeys`, `reviewKeys` 등)를 `queryClient.invalidateQueries`로 무효화하도록 처리하세요.
-3. **새 훅 추가 시**:
+2. **캐시 무효화 연계**: 뮤테이션 작성 시 연관된 쿼리 키(`@bookjeok/core`의 `bookKeys`, `reviewKeys`, `orderKeys` 등)를 `queryClient.invalidateQueries`로 무효화하도록 처리하세요. 무효화 범위가 넓으면 불필요한 재요청이, 좁으면 낡은 캐시가 남습니다.
+3. **`"use client"` 선언 필수**: 모든 훅 파일 최상단에 선언해야 Next.js App Router의 서버 컴포넌트 경계에서 문제가 없습니다.
+4. **계정 전환 시 캐시 격리**: 로그인 사용자가 바뀌면 이전 사용자 캐시가 노출되지 않도록 소비 측(`apps/web`의 `QueryProvider`)에서 쿼리 클라이언트를 초기화합니다. 사용자별 데이터를 다루는 훅을 추가할 때 이 전제를 확인하세요.
+5. **새 훅 추가 시**:
    - `src/features/[feature]/`에 훅을 작성하고 `src/index.ts`에서 export합니다.
    - 변경 후 `pnpm --filter @bookjeok/react-query build` (또는 타입 체크)로 검증합니다.

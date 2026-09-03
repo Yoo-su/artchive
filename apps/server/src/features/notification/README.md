@@ -1,68 +1,98 @@
 # Notification Module (`features/notification`)
 
-`NotificationModule`은 사용자 알림 시스템을 제공합니다. 리뷰 리액션, 댓글 작성/좋아요 등의 이벤트 발생 시 실시간 알림을 생성하고 조회하는 기능을 담당합니다.
+사용자 알림의 생성·조회·읽음 처리와 Socket.IO 실시간 푸시를 담당합니다. 커뮤니티 활동과 중고거래 진행 상황을 합쳐 **14종** 알림을 다룹니다.
 
-## 1. 주요 파일 및 역할
+## 1. 폴더 구조
 
-- **`notification.controller.ts`**: `/notifications` 경로의 API 엔드포인트를 정의합니다.
-- **`notification.service.ts`**: 알림 생성, 조회, 읽음 처리 등 비즈니스 로직을 처리합니다.
-- **`notification.gateway.ts`**: Socket.IO를 이용해 실시간 알림 이벤트를 클라이언트로 전송합니다.
-- **`interceptors/`**: 알림 자동 발송을 위한 인터셉터 모듈입니다.
-  - **`notification.interceptor.ts`**: 데코레이터가 붙은 메서드의 성공 결과를 가로채 알림 발송을 위임합니다.
-- **`decorators/`**:
-  - **`notification.decorator.ts`**: 서비스 메서드에 알림 트리거를 설정하는 `@Notify` 데코레이터를 정의합니다.
-- **`types/`**: 알림 관련 타입 정의 모듈입니다.
-  - **`notification-strategy.type.ts`**: 알림 전략 패턴을 위한 공통 인터페이스를 정의합니다.
-- **`strategies/`**: 각 알림 유형별 데이터 가공 로직(=전략)을 담고 있습니다.
-  - **`notification-strategy.factory.ts`**: 알림 유형에 맞는 전략을 동적으로 선택합니다.
-- **`entities/notification.entity.ts`**: 알림 정보를 저장하는 TypeORM 엔티티입니다.
-- **`dto/`**: API 요청/응답에 사용되는 DTO 파일들입니다.
+```
+notification/
+├── notification.module.ts
+├── controllers/notification.controller.ts
+├── services/notification.service.ts
+├── gateways/
+│   ├── notification.gateway.ts        # Socket.IO 실시간 푸시
+│   └── notification.gateway.spec.ts
+├── entities/notification.entity.ts    # Notification, NotificationType
+├── listeners/notification-cleanup.listener.ts  # user.withdrawn
+└── dto/
+    ├── get-notifications-query.dto.ts
+    └── notification-response.dto.ts
+```
 
-## 2. AOP 기반 알림 시스템 (Architecture)
+## 2. 아키텍처 — 이벤트 기반 팬아웃
 
-본 모듈은 서비스 로직의 결합도를 낮추고 확장성을 높이기 위해 **Interceptor & Strategy 패턴**을 사용합니다.
+각 도메인 서비스는 알림을 직접 만들지 않고 **`EventEmitter` 이벤트만 발행**합니다. 각 도메인의 리스너가 이를 받아 `NotificationService.createNotification()`을 호출합니다.
 
-### 동작 원리
+```
+ReviewService      ──emit──▶ review.reacted   ──▶ ReviewNotificationListener  ─┐
+CommentService     ──emit──▶ comment.created  ──▶ CommentNotificationListener ─┤
+                   ──emit──▶ comment.liked                                     ├─▶ NotificationService
+OrderService       ──emit──▶ order.* (11종)   ──▶ OrderEventListener          ─┘        │
+OrderScheduler     ──emit──▶ order.*_warning                                            │
+                                                                                        ▼
+                                                              DB 저장 + NotificationGateway 푸시
+```
 
-1. **Trigger**: 서비스 메서드 위에 `@Notify(NotificationType.*)` 데코레이터를 붙입니다.
-2. **Intercept**: `NotificationInterceptor`가 해당 메서드의 실행이 성공적으로 끝날 때까지 기다립니다.
-3. **Resolve**: `NotificationStrategyFactory`를 통해 해당 알림 타입에 맞는 **전략(Strategy)** 객체를 찾아옵니다.
-4. **Process**: 전략 객체(`ReviewCommentStrategy` 등)가 메서드의 반환값(`return value`)을 분석하여 알림 수신자(Recipient)와 메타데이터를 추출합니다.
-5. **Dispatch**: 추출된 정보를 바탕으로 `NotificationService`가 DB에 알림을 저장하고, `SocketGateway`로 실시간 푸시를 보냅니다.
+알림 로직이 도메인 서비스에 섞이지 않고, 알림 정책을 바꿀 때 리스너만 고치면 됩니다.
 
-### 새로운 알림 추가 방법
+### 새 알림 추가 방법
 
-1. **전략 구현**: `strategies/` 폴더에 `NotificationStrategy`를 구현하는 새 클래스를 만듭니다. (페이로드 생성 로직 작성)
-2. **팩토리 등록**: `NotificationStrategyFactory`의 `strategies` 맵에 새 타입을 등록합니다.
-3. **데코레이터 적용**: 알림을 보내고 싶은 서비스 메서드 위에 `@Notify`를 붙입니다.
+1. `NotificationType` enum에 타입 추가
+2. `@bookjeok/core`의 알림 타입에도 동일하게 추가
+3. 발행 측 서비스에서 이벤트 emit
+4. 해당 도메인의 `*-notification.listener.ts`(또는 `*-event.listener.ts`)에 `@OnEvent` 핸들러 추가
+5. 웹의 `features/notification/utils/index.ts`에 문구·아이콘·이동 경로 매핑 추가
 
-## 2. API 엔드포인트
+> 5번을 빠뜨리면 알림은 도착하지만 문구와 링크가 비어 보입니다.
 
-| HTTP Method | 경로 (`/notifications/...`) | 설명                                  | 인증 필요 |
-| :---------- | :-------------------------- | :------------------------------------ | :-------- |
-| `GET`       | `/`                         | 내 알림 목록 조회 (커서 페이지네이션) | ✅        |
-| `GET`       | `/unread-count`             | 안 읽은 알림 수 조회                  | ✅        |
-| `PATCH`     | `/read-all`                 | 모든 알림 읽음 처리                   | ✅        |
-| `PATCH`     | `/:id/read`                 | 특정 알림 읽음 처리                   | ✅        |
+## 3. 알림 타입 (14종)
 
-## 3. 엔티티 스키마
+| 분류 | 타입 |
+|---|---|
+| 커뮤니티 | `REVIEW_REACTION`, `REVIEW_COMMENT`, `COMMENT_LIKE` |
+| 거래 진행 | `BUYER_SELECTED`, `OTHER_BUYER_TRADING`, `PAYMENT_COMPLETED`, `PAYMENT_EXPIRED` |
+| 배송 | `SHIPPING_STARTED`, `DELIVERY_COMPLETED`, `SHIPPING_DEADLINE_IMMINENT` |
+| 확정·취소 | `AUTO_CONFIRM_IMMINENT`, `PURCHASE_CONFIRMED`, `ORDER_CANCELLED` |
+| 후기 | `TRADE_REVIEW_RECEIVED` |
 
-### `Notification`
+## 4. API 엔드포인트
 
-| 컬럼명        | 타입      | 설명                                                      |
-| :------------ | :-------- | :-------------------------------------------------------- |
-| `id`          | `number`  | 알림 ID (PK)                                              |
-| `recipientId` | `number`  | 수신자 ID                                                 |
-| `actorId`     | `number`  | 알림 유발자 ID                                            |
-| `type`        | `enum`    | 알림 유형 (REVIEW_REACTION, REVIEW_COMMENT, COMMENT_LIKE) |
-| `metadata`    | `jsonb`   | 알림 구성에 필요한 동적 데이터 (책 제목, 리뷰 제목 등)    |
-| `isRead`      | `boolean` | 읽음 여부                                                 |
-| `createdAt`   | `Date`    | 생성일                                                    |
+전 구간 JWT 인증이 필요합니다.
 
-## 4. 실시간 알림 (Socket.IO)
+| 메서드 | 경로 | 설명 |
+|---|---|---|
+| GET | `/notifications` | 내 알림 목록 (커서 페이지네이션, 기본 20건) |
+| GET | `/notifications/unread-count` | 안 읽은 알림 수 |
+| PATCH | `/notifications/read-all` | 전체 읽음 처리 |
+| PATCH | `/notifications/:id/read` | 개별 읽음 처리 |
+| DELETE | `/notifications/:id` | 알림 삭제 |
 
-- **Namespace**: `/notification`
-- **Event**: `newNotification`
-- **Payload**: `Notification` 엔티티 객체
+## 5. 엔티티 — `Notification`
 
-클라이언트는 소켓 연결 후 `newNotification` 이벤트를 리스닝하여 실시간 알림을 수신할 수 있습니다.
+| 컬럼 | 타입 | 설명 |
+|---|---|---|
+| `id` | `number` | PK |
+| `recipientId` | `number` | 수신자 |
+| `actorId` | `number` | 알림 유발자 |
+| `type` | `enum` | `NotificationType` |
+| `metadata` | `jsonb` | 문구 구성에 필요한 동적 데이터 (책 제목, 주문번호 등) |
+| `isRead` | `boolean` | 읽음 여부 |
+| `createdAt` | `Date` | 생성일 |
+
+문구를 완성하는 데 필요한 값은 `metadata`에 **스냅샷으로** 담습니다. 원본 리소스가 삭제돼도 알림이 깨지지 않습니다.
+
+## 6. 실시간 푸시 (Socket.IO)
+
+| 항목 | 값 |
+|---|---|
+| Namespace | `notification` |
+| 룸 | `user:{userId}` — 연결 시 JWT로 식별해 자동 join |
+| 이벤트 | `newNotification` |
+| 페이로드 | 알림 응답 객체 |
+
+수신자 전용 룸으로만 emit하므로 다른 사용자에게 알림이 새지 않습니다. 인증되지 않은 소켓은 연결 단계에서 끊깁니다.
+
+## 7. 관련
+
+- 웹: [`features/notification`](../../../../web/src/features/notification/README.md)
+- 거래 알림 발행 지점: [`features/order`](../order/README.md#이벤트--알림-팬아웃)

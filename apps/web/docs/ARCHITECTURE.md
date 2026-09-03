@@ -78,6 +78,36 @@ src/features/reading-log/components/
 
 ---
 
+## 4. 뷰 레이어와의 관계 (Views vs Features)
+
+`src/views/`와 `src/features/`는 역할이 다릅니다.
+
+| 레이어 | 역할 |
+| :--- | :--- |
+| `app/` | 라우팅, 메타데이터, 데이터 prefetch |
+| `views/` | **페이지 단위 조립** — 어떤 feature 컴포넌트를 어떤 순서로 배치할지 |
+| `features/` | 도메인 단위 UI 조각과 상태 |
+| `shared/` | 도메인에 속하지 않는 공용 컴포넌트·훅·유틸 |
+
+### 규칙
+
+- 페이지 하나당 `views/[name]-view/` 하나를 둡니다.
+- **view는 여러 feature를 조합할 수 있지만, feature는 view를 import하지 않습니다.**
+- feature 간 직접 import는 최소화하고, 공유가 필요하면 `shared/`로 올립니다.
+- 데이터 페칭 훅은 feature 안에 두지 않고 `@bookjeok/react-query`를 사용합니다.
+
+```
+app/[locale]/(default)/insights/page.tsx
+        │
+        ▼
+views/insights-view/          ← 조립
+        │
+        ├── features/insights/components/charts/*
+        └── shared/components/*
+```
+
+---
+
 ## 5. 다국어 지원 (I18n Architecture)
 
 `next-intl` 라이브러리를 기반으로 다국어를 지원합니다.

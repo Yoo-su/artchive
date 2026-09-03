@@ -8,12 +8,16 @@
 
 ### 1. 캡슐화된 클라이언트 인스턴스 (`publicApiClient`, `privateApiClient`)
 - **`publicApiClient`**: 인증 헤더가 필요 없는 공개 API 호출용 (도서 검색, 인사이트 조회, 라운지 피드 등).
-- **`privateApiClient`**: JWT Access Token 인증이 필요한 보호된 API 호출용 (독서 기록, 중고책 등록, 리뷰 작성, 프로필 수정 등).
-- 토큰 만료 시 Refresh Token을 통한 **Silent Token Refresh 인터셉터**가 내장되어 있어 호출부에서 토큰 갱신을 신경 쓸 필요가 없습니다.
+- **`privateApiClient`**: JWT Access Token 인증이 필요한 보호된 API 호출용 (독서 기록, 중고책 등록, 리뷰 작성, 주문·결제, 프로필 수정 등).
+- 토큰 만료 시 Refresh Token을 통한 **Silent Token Refresh 인터셉터**가 내장되어 있어 호출부에서 토큰 갱신을 신경 쓸 필요가 없습니다. 갱신까지 실패하면 세션을 정리하고 로그인 플로우로 위임합니다.
+- 서버의 `GlobalExceptionFilter`가 내려주는 표준 에러 형태를 그대로 다루므로, 호출부는 `ERROR_CODES`의 `code` 값으로 분기할 수 있습니다.
 
 ### 2. 표준 API 함수 인터페이스
 - `@bookjeok/core`의 인터페이스를 준수하는 완전한 타입 안전성을 제공합니다.
 - 호출 시 Axios 인스턴스를 주입할 필요 없이 순수 파라미터만 전달하여 호출합니다.
+
+### 3. 도메인 커버리지
+`art`, `auth`, `book`, `book-sale`, `chat`, `comment`, `insights`, `llm`, `notification`, `order`, `reading-log`, `review`, `user` 13개 도메인의 API 함수를 제공합니다.
 
 ---
 

@@ -1,54 +1,39 @@
-# Frontend Feature: Comment
+# Frontend Feature: Comment (댓글)
 
-프론트엔드의 `comment` 기능은 도서와 리뷰에 대한 댓글 작성, 조회, 수정, 삭제 및 좋아요 기능을 담당합니다.
+리뷰에 달리는 댓글의 작성·목록·좋아요와 마이페이지의 "내가 쓴 댓글"을 담당합니다.
 
-## 1. 주요 파일 및 역할
+## 1. 폴더 구조
 
-- **`apis.ts`**: 백엔드 `/comments` 엔드포인트와 통신하는 API 함수들을 정의합니다.
-  - `getComments`: 특정 대상(도서/리뷰)의 댓글 목록 조회
-  - `getMyComments`: 내가 작성한 댓글 목록 조회 (페이지네이션)
-  - `createComment`: 댓글 작성
-  - `updateComment`: 댓글 수정
-  - `deleteComment`: 댓글 삭제
-  - `toggleCommentLike`: 댓글 좋아요 토글
-  - `getMyLikeStatus`: 내 좋아요 상태를 조회
-
-- **`queries.tsx`**: TanStack Query 쿼리 훅을 정의합니다.
-  - `useCommentsQuery`: 댓글 목록 조회 훅 (페이지네이션)
-  - `useMyCommentsInfiniteQuery`: 내가 작성한 댓글 목록 조회 훅 (무한 스크롤)
-
-- **`mutations.tsx`**: TanStack Query 뮤테이션 훅을 정의합니다.
-  - `useCreateCommentMutation`: 댓글 작성
-  - `useUpdateCommentMutation`: 댓글 수정
-  - `useDeleteCommentMutation`: 특정 대상의 일반 댓글 삭제
-  - `useDeleteMyCommentMutation`: 내 댓글 목록 전용 삭제 (마이페이지용)
-  - `useToggleCommentLikeMutation`: 댓글 좋아요 토글 (낙관적 업데이트 적용)
-
-- **`components/`**: **Context-Based Grouping**
-  - **`common/`**: 공통 댓글 컴포넌트 (`comment-section`, `comment-list`, `comment-item`)
-  - **`my-page/`**: 마이페이지용 댓글 목록 (`my-comment-list`)
-
-- **`types.ts`**: 댓글 관련 TypeScript 타입 정의
-- **`constants.ts`**: 댓글 관련 상수 (타겟 타입 등)
-
-## 2. 데이터 흐름
-
-```mermaid
-graph TD
-    A[도서/리뷰 상세 페이지] --> B[CommentSection]
-    B --> C[useCommentsQuery]
-    C --> D[CommentList]
-    D --> E[CommentItem]
-    E --> F[좋아요 버튼]
-    F --> G[useToggleCommentLikeMutation]
-    G --> H[낙관적 업데이트]
+```
+comment/
+├── constants/config.ts               # 길이 제한, 페이지 크기 등
+├── mutations/
+└── components/
+    ├── common/comment-section/
+    │   ├── index.tsx                 # 섹션 컨테이너 (폼 + 목록 조립)
+    │   ├── comment-form.tsx          # 작성/수정 입력
+    │   ├── comment-list.tsx          # 목록 + 더 보기
+    │   └── comment-item.tsx          # 개별 댓글 (좋아요, 수정, 삭제)
+    └── my-page/my-comment-list/      # /my-page/comments
 ```
 
-## 3. 낙관적 업데이트
+## 2. 사용법
 
-좋아요 토글 시 빠른 UI 반응을 위해 낙관적 업데이트를 적용했습니다:
+`comment-section`은 대상 리소스만 받아 어디서든 붙일 수 있는 단위입니다. 현재는 리뷰 상세에서 사용합니다.
 
-1. 사용자가 좋아요 버튼 클릭
-2. `onMutate`: 캐시된 댓글 데이터의 `isLiked`와 `likeCount` 즉시 업데이트
-3. 서버 요청 진행
-4. 성공/실패에 따라 데이터 동기화 또는 롤백
+```tsx
+<CommentSection reviewId={review.id} />
+```
+
+## 3. 핵심 로직
+
+- **좋아요 토글** — `POST /comments/:id/like`. 옵티미스틱 업데이트로 즉시 반영하고 실패 시 롤백합니다.
+- **권한** — 수정·삭제 버튼은 작성자에게만 노출되며, 실제 검증은 서버가 합니다.
+- **비로그인** — 작성·좋아요 시도 시 로그인으로 유도하고 복귀 경로를 저장합니다.
+- **알림 연동** — 댓글 작성은 서버에서 `comment.created`, 좋아요는 `comment.liked` 이벤트를 발행해 각각 `REVIEW_COMMENT` / `COMMENT_LIKE` 알림으로 이어집니다.
+- **입력 제한** — 길이 제한 등은 `constants/config.ts` 한 곳에서 관리합니다. 서버 DTO의 제약과 값을 맞춰야 합니다.
+
+## 4. 관련
+
+- 서버: [`features/comment`](../../../../server/src/features/comment/README.md)
+- 뷰: `my-comments-view`, `review-detail-view`

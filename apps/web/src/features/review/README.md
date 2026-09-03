@@ -1,121 +1,82 @@
-# Frontend Feature: Review
+# Frontend Feature: Review (도서 리뷰)
 
-프론트엔드의 `review` 기능은 도서 리뷰 작성, 조회, 수정, 삭제 및 리액션 기능을 담당합니다. 인기 리뷰 랭킹, 카테고리별 필터링 등 다양한 기능을 제공합니다.
+Tiptap 기반 리뷰 작성·수정·조회와 리액션 UI를 담당합니다.
 
-## 1. 주요 파일 및 역할
+## 1. 폴더 구조
 
-- **`apis/index.ts`**: 백엔드 `/reviews` 엔드포인트와 통신하는 API 함수들을 정의합니다.
-  - `getReviews`: 리뷰 목록 조회 (필터링/페이지네이션)
-  - `getReview`: 리뷰 상세 조회
-  - `getReviewAuthenticated`: 비공개 리뷰 포함 상세 조회 (본인 전용)
-  - `getReviewForEdit`: 리뷰 수정용 상세 조회
-  - `getPopularReviews`: 인기 리뷰 목록 조회
-  - `getReviewFeeds`: 카테고리별 리뷰 피드 조회
-  - `getRecommendedReviews`: 추천 리뷰 목록 조회
-  - `createReview`: 리뷰 작성
-  - `updateReview`: 리뷰 수정
-  - `deleteReview`: 리뷰 삭제
-  - `toggleReviewReaction`: 리액션 토글
-  - `getMyReviewReaction`: 내 리액션 상태 조회
-
-- **`queries.tsx`**: TanStack Query 쿼리 훅을 정의합니다.
-  - `useReviewDetailQuery`: 리뷰 상세 조회
-  - `useReviewForEditQuery`: 수정용 리뷰 상세 조회
-  - `useReviewsQuery`: 리뷰 목록 조회 (단일 페이지)
-  - `useReviewsInfiniteQuery`: 리뷰 목록 무한 스크롤 조회 (**커서 기반 페이지네이션**: `cursorId` 사용)
-  - `usePopularReviewsQuery`: 인기 리뷰 조회
-  - `useReviewFeedsQuery`: 카테고리별 피드 조회
-  - `useRecommendedReviewsQuery`: 추천 리뷰 조회
-  - `useMyReviewReactionQuery`: 내 리액션 상태 조회
-
-- **`mutations.tsx`**: TanStack Query 뮤테이션 훅을 정의합니다.
-  - `useCreateReviewMutation`: 리뷰 작성
-  - `useUpdateReviewMutation`: 리뷰 수정
-  - `useDeleteReviewMutation`: 리뷰 삭제
-  - `useToggleReviewReactionMutation`: 리액션 토글 (낙관적 업데이트)
-
-- **`components/`**: **Context-Based Grouping**
-  - **`review-list/`**: 리뷰 목록 (`review-list`, `review-card`)
-  - **`review-detail/`**: 리뷰 상세 (`review-detail`, `review-reaction-section`)
-  - **`review-form/`**: 리뷰 작성/수정 폼 공통 (`review-form`)
-  - **`review-write/`**: 리뷰 작성 페이지 (`review-write`)
-  - **`review-edit/`**: 리뷰 수정 페이지 (`review-edit`)
-  - **`recent-review-slider/`**: 최근 리뷰 슬라이더
-  - **`widgets/`**: 위젯 (`popular-review-list`)
-  - **`common/`**: 공통 컴포넌트
-
-- **`actions/`**: 서버 액션
-  - `revalidate-action.ts`: 리뷰 관련 캐시 무효화
-
-- **`server/`**: 서버 사이드 데이터 페칭
-- **`types.ts`**: 리뷰 관련 TypeScript 타입 정의
-- **`constants.ts`**: 리뷰 카테고리, 리액션 타입 등 상수 정의
-- **`schemas.ts`**: Zod 스키마 (폼 유효성 검사)
-
-## 2. 리뷰 작성 플로우
-
-```mermaid
-sequenceDiagram
-    participant User as 사용자
-    participant Form as ReviewForm
-    participant Editor as Tiptap Editor
-    participant Mutation as useCreateReviewMutation
-    participant ServerAction as revalidate-action
-
-    User->>Form: 리뷰 작성
-    Form->>Editor: 본문 입력 (Rich Text)
-    User->>Form: 제출
-    Form->>Mutation: mutate(reviewData)
-    Mutation->>ServerAction: revalidatePath 호출
-    ServerAction->>User: 리뷰 목록으로 이동
+```
+review/
+├── schemas.ts                        # Zod 검증 스키마
+├── constants/
+│   ├── ui.ts
+│   └── mutation-keys.ts
+├── hooks/
+│   ├── use-review-view.ts            # 상세 진입 시 조회수 기록
+│   └── use-review-with-auth.ts       # 로그인 필요 액션 게이트 (+ 테스트)
+├── mutations/
+├── __tests__/                        # mutations · use-review-with-auth
+└── components/
+    ├── review-write/                 # 작성 진입점
+    ├── review-edit/ (+ skeleton)     # 수정 진입점
+    ├── review-form/                  # 공용 폼 (RHF + Zod + Tiptap)
+    ├── review-viewer/                # 저장된 HTML 안전 렌더링
+    ├── review-detail/
+    │   ├── book-review-detail/       # header · content · actions
+    │   │                             #  · private-overlay · skeleton
+    │   ├── recommend-reviews/        # 서버 추천 리뷰
+    │   └── related-reviews/          # 같은 도서의 다른 리뷰
+    ├── review-list/
+    │   ├── review-feed-list/         # 피드형
+    │   ├── review-grid-list/         # 그리드형
+    │   ├── popular-review-list/ (+ item)
+    │   ├── my-review-list/
+    │   └── review-home-filters/      # 카테고리·정렬 필터
+    ├── recent-review-list/           # 홈 위젯 (index · review-row · skeleton)
+    ├── review-home-hero/ (+ hero-images.ts)
+    └── common/
+        ├── review-card/              # 합성 컴포넌트 (root/parts/context/skeleton/stories)
+        └── review-json-ld/           # Review 구조화 데이터
 ```
 
-## 3. 리액션 시스템
+## 2. 핵심 로직
 
-리뷰에는 다양한 리액션을 남길 수 있습니다:
+### 에디터와 렌더링
 
-- 👍 좋아요
-- 💡 유익해요
-- 💪 응원해요
-- 😢 공감해요
-- 🎉 축하해요
+작성/수정은 Tiptap 3 에디터(공용 `shared/components/editor`)를 사용하며, 본문은 **HTML 문자열**로 저장합니다. 마크다운이 아닙니다.
 
-각 리액션은 토글 방식으로 동작하며, 낙관적 업데이트를 적용하여 빠른 UI 반응성을 제공합니다.
+```
+review-form ──▶ Tiptap ──▶ HTML 문자열 ──▶ POST/PATCH /reviews
+                                              │
+                                              ▼
+review-viewer ◀── sanitize-review-content ◀── 저장된 HTML
+```
 
-## 4. 인기 리뷰 선정
+렌더링 시 `shared/utils/sanitize-review-content`(내부적으로 `sanitize-html`)로 반드시 정제합니다. **`dangerouslySetInnerHTML`을 정제 없이 직접 호출하지 마세요.**
 
-인기 리뷰는 다음 공식으로 계산됩니다:
+이미지는 `use-editor-image-handler`(shared hook)가 압축 후 Vercel Blob에 업로드하고, 본문에서 제거된 이미지는 서버의 `ReviewImageHelper`가 정리합니다.
 
-- 스코어 = (조회수 × 1) + (리액션 수 × 3)
+### 합성 컴포넌트 (`review-card`)
 
-홈페이지와 리뷰 목록 페이지에서 인기 리뷰 랭킹을 확인할 수 있습니다.
+피드·그리드·홈 위젯 등 맥락마다 노출 정보가 달라 Context 기반 합성 컴포넌트로 구성했습니다(`book-sale-item`과 동일한 패턴).
 
-## 5. Tiptap 에디터
+### 인증이 필요한 액션
 
-리뷰 본문 작성에 Tiptap 에디터를 사용합니다:
+`use-review-with-auth`가 리액션·작성 등 로그인 필요 동작을 감쌉니다. 비로그인 상태면 로그인으로 유도하고, 복귀 후 원래 위치로 돌아옵니다(`auth/utils/return-url`).
 
-- 서식 지정 (굵게, 기울임, 밑줄)
-- 제목 (H1, H2, H3)
-- 목록 (순서 있음/없음)
-- 인용구
+### 비공개 리뷰
 
-## 6. 비공개 리뷰 기능
+`isPublic: false`인 리뷰는 작성자 외에게 `private-overlay`로 가려집니다. 실제 차단은 서버에서 수행하며 오버레이는 표시용입니다.
 
-리뷰 작성 시 공개/비공개 설정이 가능합니다.
+### 리액션
 
-### 6.1 동작 방식
+공감 / 인사이트 / 응원 3종 토글이며 옵티미스틱 업데이트로 카운트를 즉시 반영합니다. 같은 타입을 다시 누르면 해제됩니다.
 
-| 접근자               | 응답 데이터              | UI                                     |
-| -------------------- | ------------------------ | -------------------------------------- |
-| 타인 (비로그인 포함) | `content` 마스킹 (빈 값) | `PrivateReviewOverlay` (자물쇠 아이콘) |
-| 작성자 본인          | 전체 원본 데이터         | `ReviewDetailContent` (정상 표시)      |
+## 3. SEO
 
-### 6.2 프론트엔드 구현
+`review-json-ld`가 리뷰 상세에 구조화 데이터를 삽입하고, 리뷰 피드는 `/rss.xml`에도 포함됩니다.
 
-- **`ReviewDetail`**: `useEffect`를 사용해 본인의 비공개 리뷰 접근 시 `getReviewAuthenticated` API를 호출하여 원본 데이터를 가져옵니다.
-- **`PrivateReviewOverlay`**: 접근 권한이 없는 사용자에게 표시되는 Glassmorphism 스타일의 오버레이 컴포넌트입니다.
+## 4. 관련
 
-### 6.3 백엔드 구현
-
-- **`ReviewService.findOne`**: 비공개 리뷰 조회 시 403 에러 대신 `content` 필드를 빈 값으로 마스킹하여 반환합니다.
-- 이를 통해 SSR 메타데이터(타이틀 등)는 정상적으로 생성되면서도 본문 내용은 보호됩니다.
+- 서버: [`features/review`](../../../../server/src/features/review/README.md), [`features/comment`](../../../../server/src/features/comment/README.md)
+- 뷰: `review-home-view`, `review-detail-view`, `review-write-view`, `review-edit-view`, `my-reviews-view`
+- 댓글 UI는 [`comment`](../comment/README.md) 기능에 있습니다.

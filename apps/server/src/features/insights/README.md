@@ -76,7 +76,13 @@
 - `salesCount`: 해당 날짜 판매글 수
 - `reviewsCount`: 해당 날짜 리뷰 수
 
-## 4. 쿼리 최적화
+## 4. 데이터 출처
+
+모든 통계는 **각 도메인 테이블에서 직접 집계**합니다. `activityTrend`는 `used_book_sales`와 `reviews`의 `createdAt`을 `ACTIVITY_TREND_DAYS`(30일) 범위에서 일별로 묶은 결과이며, `shared/activity`의 `activity_logs` 테이블은 사용하지 않습니다.
+
+동일한 `InsightsResponseDto`를 `apps/web`의 `/insights` 페이지와 `apps/admin`의 운영 대시보드가 함께 소비합니다. 응답 구조를 바꿀 때는 두 앱을 모두 확인하세요.
+
+## 5. 쿼리 최적화
 
 인사이트 모듈은 대량의 데이터를 집계하므로 다음과 같은 최적화를 적용했습니다:
 
@@ -84,3 +90,8 @@
 - **GROUP BY 최적화**: 지역/카테고리 통계는 GROUP BY로 한 번에 집계
 - **LIMIT 적용**: 인기 태그, 지역 통계 등에 TOP N 제한 적용
 - **WITHDRAWN 제외**: 판매 취소된 판매글은 통계에서 제외
+
+## 6. 관련
+
+- 웹: [`features/insights`](../../../../web/src/features/insights/README.md)
+- 판매 데이터: [`features/used-book-sale`](../used-book-sale/README.md) · 리뷰 데이터: [`features/review`](../review/README.md)

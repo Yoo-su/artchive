@@ -1,21 +1,22 @@
 # 📚 @bookjeok/web (Frontend)
 
 **Next.js 15 (App Router) & React 19** 기반의 북적 사용자 웹 서비스입니다.
-문화 예술 정보 탐색, 중고 서적 거래, 실시간 채팅, RAG 기반 AI 도서 추천 등 다양한 기능을 고성능 반응형 UI/UX로 제공합니다.
+도서 검색·AI 추천, 독서 기록, 중고책 거래와 에스크로 결제, 실시간 채팅·알림, 리뷰 커뮤니티를 다국어 반응형 UI로 제공합니다.
 
 ---
 
 ## 🚀 주요 기능 (Key Features)
 
-- **🎨 모던 UI/UX & 애니메이션**: Tailwind CSS v4, Radix UI, Framer Motion을 결합한 반응형 인터랙티브 인터페이스.
-- **⚡ 데이터 페칭 & 캐싱**: TanStack Query v5 기반 Optimistic Updates, 무한 스크롤, Server-side Prefetching.
-- **🤖 대화형 AI 도서 탐색 (SSE)**: EventSource / Fetch 스트림 기반의 실시간 AI 도서 추천 챗봇.
-- **🔒 크로스 도메인 보안 인증**:
-  - 소셜 로그인 시 1회용 인증 티켓(Ticket Exchange) 방식으로 안전한 JWT 수신
-  - Axios 인터셉터 기반 Silent Access Token Refresh
-  - 인증 만료 시 안전한 로그인 리다이렉트 및 라우트 보호 가드(`UserProvider`)
-- **💬 실시간 소통**: Socket.IO 기반 실시간 1:1 중고거래 채팅 및 타이핑 인디케이터.
-- **🌍 다국어 지원 & SEO**: `next-intl` (한국어/영어), dynamic canonical, hreflang alternates 및 표준 Sitemap.
+- **🤖 대화형 AI 도서 탐색 (SSE)** — `fetch` + `ReadableStream` 기반 커스텀 SSE 클라이언트로 추천 결과를 조각 단위 렌더링
+- **💳 에스크로 결제** — 토스페이먼츠 SDK 연동, 주문 상태 타임라인, 배송/분쟁/구매확정/거래 후기
+- **💬 실시간 소통** — Socket.IO 1:1 거래 채팅(타이핑 인디케이터·읽음 표시)과 전역 실시간 알림 14종
+- **📖 독서 기록 & 라운지** — 월별 캘린더, 통계, Framer Motion 3D 카드 덱, 공개 피드
+- **✍️ 리치 텍스트 리뷰** — Tiptap 3 에디터, 이미지 업로드·리사이즈, `sanitize-html` 정제 렌더링
+- **📊 인사이트 시각화** — ApexCharts 기반 지역·가격·태그·리액션 대시보드
+- **⚡ 데이터 페칭 & 캐싱** — TanStack Query v5 기반 옵티미스틱 업데이트, 무한 스크롤/커서 페이지네이션, RSC prefetch
+- **🔒 크로스 도메인 보안 인증** — 소셜 로그인 1회용 티켓 교환, Axios 인터셉터 Silent Refresh, 라우트 가드
+- **🌍 다국어 & SEO** — `next-intl`(ko/en), 동적 sitemap/robots/manifest, RSS 피드, JSON-LD, canonical/hreflang
+- **🎨 UI/UX** — Tailwind CSS v4 + Radix UI, 다크 모드(`next-themes`), 전역 확인 다이얼로그, 배경음악 플레이어
 
 ---
 
@@ -23,14 +24,25 @@
 
 | 구분 | 기술 스택 |
 | :--- | :--- |
-| **Framework** | Next.js 15 (App Router), React 19 |
-| **Language** | TypeScript |
-| **State & Data** | TanStack Query v5 (`@bookjeok/react-query`), Zustand v5 |
+| **Framework** | Next.js 15 (App Router, RSC, ISR, Route Handlers, Server Actions), React 19 |
+| **Language** | TypeScript 5 |
+| **Server State** | TanStack Query v5 (`@bookjeok/react-query`), `@lukemorales/query-key-factory` |
+| **Client State** | Zustand v5 |
 | **API Client** | `@bookjeok/api-client`, `@bookjeok/core` |
-| **Styling** | Tailwind CSS v4, Radix UI (Headless), Lucide React |
-| **Animation** | Framer Motion |
-| **Editor** | Tiptap (Rich Text Editor) |
-| **Realtime** | Socket.IO Client |
+| **Styling** | Tailwind CSS v4, `tailwind-merge`, `class-variance-authority`, `@tailwindcss/typography` |
+| **UI** | Radix UI (shadcn/ui 패턴), Lucide React, `sonner` |
+| **Animation** | Framer Motion / `motion`, GSAP, Swiper |
+| **Editor** | Tiptap 3 (Image+resize, Link, Highlight, TextAlign, Color, Underline, BubbleMenu) |
+| **Form** | React Hook Form + Zod 4 |
+| **Chart** | ApexCharts (`react-apexcharts`) |
+| **Map / Address** | `react-kakao-maps-sdk`, `react-daum-postcode` |
+| **Payment** | `@tosspayments/tosspayments-sdk` v2 |
+| **Realtime** | `socket.io-client`, 커스텀 SSE 클라이언트 |
+| **i18n / Theme** | `next-intl` 4, `next-themes` |
+| **Media** | `browser-image-compression`, `@vercel/blob` |
+| **Security** | `sanitize-html` |
+| **Analytics** | Vercel Analytics/Speed Insights, GA4, Microsoft Clarity, AdSense |
+| **Test / Docs** | Vitest 4 + Testing Library + jsdom, Storybook 8, `@next/bundle-analyzer` |
 
 ---
 
@@ -38,27 +50,87 @@
 
 ```
 src/
-├── app/                  # Next.js App Router (다국어 라우트 [locale], 메타데이터)
-├── views/                # 페이지 단위 조립 뷰 레이어 ([feature]-view/)
-├── features/             # 도메인별 기능 UI 컴포넌트 & 상태 관리
-│   ├── auth/             # 로그인, 회원가입, 소셜 콜백 처리
-│   ├── book/             # 도서 검색, 상세 정보, AI 추천 슬라이더
-│   ├── book-sale/        # 중고 도서 등록 폼, 마켓 목록
-│   ├── chat/             # 1:1 실시간 채팅방 컴포넌트
-│   ├── reading-log/      # 독서 캘린더, 라운지 피드, 3D 덱 뷰어
-│   ├── review/           # Tiptap 리뷰 에디터 및 리액션
-│   └── user/             # 프로필 관리, 위시리스트
-├── shared/               # 전역 공용 컴포넌트, 프로바이더, 유틸
-│   ├── components/       # Radix UI 기반 공용 UI
-│   ├── providers/        # QueryProvider, UserProvider, ChatProvider
-│   └── utils/            # 전역 유틸리티 (포맷터, 고유 파일명 생성 등)
-└── layouts/              # DefaultLayout, Header, Navigation
+├── app/                      # Next.js App Router
+│   ├── [locale]/             # 다국어 라우트
+│   │   ├── (auth)/           # login · signup · callback · verify-email
+│   │   ├── (default)/        # 홈 · lounge · insights · my-page · order · 약관
+│   │   ├── book/             # search · market · [isbn]/detail · sales · reviews
+│   │   ├── art/[id]/
+│   │   └── share/deck/[handle]/
+│   ├── api/                  # route handlers (upload, revalidate, art, book)
+│   ├── sitemap.ts · robots.ts · manifest.ts · rss.xml/
+│   ├── not-found.tsx · global-error.tsx
+├── views/                    # 페이지 단위 조립 뷰 ([feature]-view/)
+├── features/                 # 도메인별 기능 UI & 상태
+│   ├── auth/                 # 로그인·회원가입·티켓 교환·이메일 인증·가드
+│   ├── book/                 # 검색, 상세, AI 챗(SSE), 최근 본 책
+│   ├── book-sale/            # 판매글 등록/수정/탐색/상세, 지도, 이미지 업로드
+│   ├── order/                # 에스크로 결제, 주문 관리, 거래 후기
+│   ├── chat/                 # 1:1 실시간 채팅
+│   ├── notification/         # 실시간 알림 (벨 · 팝오버)
+│   ├── reading-log/          # 캘린더·통계·3D 덱·독서 라운지
+│   ├── review/               # Tiptap 리뷰 작성/조회/리액션
+│   ├── comment/              # 댓글 · 좋아요
+│   ├── user/                 # 프로필·통계·위시리스트·탈퇴
+│   ├── insights/             # 서비스 통계 차트
+│   ├── art/                  # KOPIS 공연·전시
+│   ├── intro/                # 홈 히어로 인트로
+│   ├── music/                # 전역 배경음악 플레이어
+│   └── confirm/              # 전역 확인 다이얼로그
+├── shared/
+│   ├── components/           # shadcn · common · editor · map · ads · analytics · icons
+│   ├── providers/            # QueryProvider · UserProvider · SocketProvider
+│   ├── hooks/                # 이미지 업로드, 오버레이, 스크롤, reduced-motion 등
+│   ├── config/               # env · metadata · json-ld · i18n(routing/request)
+│   ├── constants/            # PATHS · public-routes · cache
+│   ├── libs/                 # axios · query-client
+│   ├── utils/                # 포맷터, sanitize, 에러 핸들러, 캐시 퍼지 등
+│   ├── actions/              # revalidate server action
+│   └── i18n/messages/        # ko.json · en.json
+├── layouts/                  # DefaultLayout · Header · Navigation
+├── styles/
+├── middleware.ts             # next-intl 로케일 라우팅
+└── __tests__/setup.ts        # Vitest 셋업 (jest-dom 매처 등록)
 ```
+
+각 `features/*`에는 개별 README가 있습니다. 컴포넌트 폴더 구조 규칙은 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)를 참고하세요.
 
 ---
 
 ## 🏗️ 개발 원칙 (Development Rules)
 
-1. **로컬 중복 타입 금지**: 도메인 데이터 타입은 반드시 `@bookjeok/core`에서 직접 임포트합니다.
-2. **API 및 쿼리 훅 연동**: 데이터 통신은 `@bookjeok/react-query` 및 `@bookjeok/api-client`를 활용합니다.
-3. **컴포넌트 문맥화**: `src/features/[feature]/components/` 하위는 `list-view/`, `detail-view/`, `forms/`, `common/` 등 문맥 기반 폴더로 그룹화합니다.
+1. **로컬 중복 타입 금지** — 도메인 타입은 반드시 `@bookjeok/core`에서 임포트합니다.
+2. **데이터 통신 계층 준수** — 컴포넌트에서 axios를 직접 호출하지 않고 `@bookjeok/react-query` 훅을 사용합니다. 훅이 없으면 core → api-client → react-query 순으로 추가합니다.
+3. **경로 상수 사용** — `router.push("/...")` 하드코딩 금지, `shared/constants/paths.ts`의 `PATHS`를 사용합니다.
+4. **문맥 기반 그룹화** — `features/[feature]/components/` 하위는 `list-view/`, `detail-view/`, `forms/`, `widgets/`, `common/` 등 문맥 폴더로 묶습니다.
+5. **HTML 렌더링 정제** — 사용자 입력 HTML은 `sanitize-review-content`를 거쳐 렌더링합니다.
+6. **번역 키 사용** — 사용자에게 보이는 문구는 `next-intl` 번역 키로 관리하고 하드코딩하지 않습니다.
+7. **토큰 직접 관리 금지** — 토큰 갱신은 `@bookjeok/api-client` 인터셉터가 전담합니다.
+
+---
+
+## ⚙️ 실행
+
+```bash
+pnpm dev:web              # 웹 + 서버 + core 동시 실행 (http://localhost:3000)
+pnpm --filter @bookjeok/web test           # Vitest
+pnpm --filter @bookjeok/web test:watch
+pnpm storybook            # http://localhost:6006
+pnpm --filter @bookjeok/web exec tsc --noEmit
+
+ANALYZE=true pnpm build:web   # 번들 분석
+```
+
+### 필요한 환경 변수
+
+| 변수 | 설명 |
+|---|---|
+| `NEXT_PUBLIC_API_URL` | 백엔드 주소 |
+| `NEXT_PUBLIC_KAKAO_APP_KEY` | 카카오 맵 SDK (없으면 지도 미표시) |
+| `NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY` | 결제 위젯 |
+| `NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED` | 결제 UI 노출 플래그 (서버 플래그와 동일 값) |
+| `NEXT_PUBLIC_REVALIDATE_TOKEN` | 온디맨드 ISR 갱신 시크릿 |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Blob 업로드 (서버 사이드) |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` · `NEXT_PUBLIC_CLARITY_PROJECT_ID` · `NEXT_PUBLIC_GOOGLE_ADSENSE_ID` | 계측·광고 (선택) |
+
+전체 목록은 루트 [.env.example](../../.env.example)에 있습니다.

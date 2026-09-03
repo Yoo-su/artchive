@@ -1,89 +1,131 @@
 # Auth Module (`features/auth`)
 
-`AuthModule`은 사용자 인증 및 권한 부여와 관련된 모든 기능을 담당하는 핵심 모듈입니다. 소셜 로그인(네이버, 카카오) 처리, JWT(JSON Web Token) 기반의 인증 시스템, 라우트 보호를 위한 가드(Guard) 기능 등을 제공합니다.
+소셜/이메일 로그인, JWT 발급·갱신·무효화, 이메일 인증, 라우트 보호 가드를 담당합니다.
 
-## 1. 주요 파일 및 역할
+## 1. 폴더 구조
 
-- **`auth.controller.ts`**: HTTP 요청을 수신하는 컨트롤러입니다. 소셜 로그인 시작, 콜백 처리, 토큰 갱신 등 `/auth` 경로의 API 엔드포인트를 정의합니다.
-- **`auth.service.ts`**: 실제 비즈니스 로직을 수행하는 서비스입니다. 소셜 로그인으로 얻은 사용자 정보를 검증하고, 서비스 전용 Access Token과 Refresh Token을 발급하는 역할을 합니다.
-- **`strategies/`**: Passport.js의 인증 전략을 정의하는 파일들이 위치합니다.
-  - `naver.strategy.ts`: 네이버 OAuth 2.0 인증 로직을 처리합니다.
-  - `kakao.strategy.ts`: 카카오 OAuth 2.0 인증 로직을 처리합니다.
-  - `jwt.strategy.ts`: Access Token의 유효성을 검증하여 API 요청을 인가합니다.
-  - `jwt-refresh.strategy.ts`: Refresh Token의 유효성을 검증하여 새로운 Access Token을 발급하는 데 사용됩니다.
-- **`guards/`**: 요청을 처리하기 전에 특정 조건을 만족하는지 검사하는 가드입니다. (현재 파일은 없으나, `JwtAuthGuard` 등이 여기에 위치할 수 있습니다.)
-- **`decorators/`**: 컨트롤러에서 사용자 정의 데코레이터를 사용할 수 있도록 합니다. (e.g., `@CurrentUser`)
-- **`dtos/`**: 데이터 전송 계층(Data Transfer Objects)으로, 클라이언트와 서버 간 데이터 교환 형식을 정의합니다.
-- **`types/`**: 모듈 내에서 사용되는 타입 정의가 위치합니다. (e.g., `JwtPayload`)
+```
+auth/
+├── auth.module.ts
+├── auth.constants.ts
+├── controllers/auth.controller.ts
+├── services/auth.service.ts
+├── strategies/
+│   ├── naver.strategy.ts          # 네이버 OAuth 2.0
+│   ├── kakao.strategy.ts          # 카카오 OAuth 2.0
+│   ├── jwt.strategy.ts            # Access Token 검증
+│   └── jwt-refresh.strategy.ts    # Refresh Token 검증
+├── guards/
+│   ├── email-verified.guard.ts (+ spec)  # 이메일 인증 회원만 통과
+│   ├── admin.guard.ts                    # 관리자 전용
+│   └── optional-jwt-auth.guard.ts        # 로그인 시 사용자 주입, 아니면 통과
+├── decorators/social-auth.decorator.ts
+├── dtos/
+│   ├── login.dto.ts · register.dto.ts · social-login.dto.ts
+└── types/jwt-payload.type.ts
+```
 
 ## 2. API 엔드포인트
 
-| HTTP Method | 경로 (`/auth/...`) | 설명                                     | 인증 필요          |
-| :---------- | :----------------- | :--------------------------------------- | :----------------- |
-| `GET`       | `/naver`           | 네이버 소셜 로그인을 시작합니다.         | ❌                 |
-| `GET`       | `/naver/callback`  | 네이버 로그인 성공 후 콜백을 처리합니다. | ❌                 |
-| `GET`       | `/kakao`           | 카카오 소셜 로그인을 시작합니다.         | ❌                 |
-| `GET`       | `/kakao/callback`  | 카카오 로그인 성공 후 콜백을 처리합니다. | ❌                 |
-| `POST`      | `/refresh`         | Access Token을 재발급합니다.             | ✅ (Refresh Token) |
+| 메서드 | 경로 (`/auth/...`) | Rate Limit | 설명 |
+|---|---|---|---|
+| POST | `/signup` | 5회/분 | 이메일 회원가입 |
+| POST | `/login` | 5회/분 | 이메일 로그인 |
+| GET | `/naver` | - | 네이버 로그인 시작 |
+| GET | `/naver/callback` | - | 네이버 콜백 → 티켓 발급 후 리다이렉트 |
+| GET | `/kakao` | - | 카카오 로그인 시작 |
+| GET | `/kakao/callback` | - | 카카오 콜백 → 티켓 발급 후 리다이렉트 |
+| POST | `/exchange` | 20회/분 | 1회용 티켓 → 토큰 교환 |
+| POST | `/refresh` | 20회/분 | Access Token 재발급 (Refresh Token 필요) |
+| POST | `/logout` | - | 로그아웃 (`tokenVersion` 증가) |
+| POST | `/send-verification-email` | 3회/분 | 인증 메일 발송 (Resend) |
+| POST | `/verify-email` | 10회/분 | 인증 링크 토큰 검증 |
 
-## 3. 핵심 로직 흐름
+전역 Throttler(60초/120회) 위에 위 엔드포인트들은 개별 제한을 추가로 적용합니다.
 
-### 소셜 로그인 및 JWT 발급
+## 3. 소셜 로그인 — 1회용 티켓 교환
 
-bookjeok의 인증은 OAuth 2.0과 JWT를 결합한 방식입니다. 사용자는 소셜 플랫폼(네이버/카카오)을 통해 인증하고, bookjeok 서버는 이 정보를 바탕으로 자체적인 JWT를 발급하여 클라이언트에게 전달합니다.
+**토큰을 리다이렉트 URL에 실어 보내지 않습니다.** 쿼리스트링의 JWT는 브라우저 히스토리, 리퍼러 헤더, 중간 프록시·서버 로그에 그대로 남기 때문입니다. 대신 60초짜리 1회용 티켓만 노출합니다.
+
+```mermaid
+sequenceDiagram
+    participant C as 브라우저
+    participant S as bookjeok 서버
+    participant O as 네이버/카카오
+
+    C->>S: GET /auth/{provider}
+    S->>O: OAuth 인증 페이지로 리다이렉트
+    O-->>S: GET /auth/{provider}/callback (Authorization Code)
+    S->>O: Code → Access Token 교환
+    O-->>S: 소셜 프로필
+    S->>S: validateUser() — 기존 회원 조회 또는 신규 생성
+    S->>S: createAuthTicket() — UUID를 캐시에 60초 TTL로 저장
+    S-->>C: redirect /callback?ticket=xxx
+    C->>S: POST /auth/exchange { ticket }
+    S->>S: 티켓 조회 후 즉시 삭제 (1회용)
+    S-->>C: Access Token + 사용자 정보
+```
+
+티켓은 교환 즉시 폐기되며, 60초가 지나거나 이미 사용된 티켓은 `INVALID_OR_EXPIRED_TICKET`으로 거부됩니다.
+
+## 4. 토큰 수명주기
 
 ```mermaid
 sequenceDiagram
     participant C as 클라이언트
-    participant S as bookjeok 서버
-    participant OAuth as 소셜 플랫폼(Naver/Kakao)
+    participant S as 서버
 
-    C->>S: 1. GET /auth/{provider} (로그인 요청)
-    S->>OAuth: 2. 소셜 로그인 페이지로 리다이렉트
-    OAuth-->>C: 3. 사용자에게 로그인 및 정보 제공 동의 요청
-    C->>OAuth: 4. ID/PW 입력 및 동의
-
-    OAuth-->>S: 5. GET /auth/{provider}/callback (Authorization Code 전달)
-
-    S->>S: 6. Naver/Kakao Strategy 실행
-    S->>OAuth: 7. 받은 Code로 Access Token 요청
-    OAuth-->>S: 8. Access Token 응답
-    S->>OAuth: 9. Access Token으로 사용자 프로필 정보 요청
-    OAuth-->>S: 10. 프로필 정보 응답
-
-    S->>S: 11. [AuthService] validateUser() 호출: DB에 사용자가 있는지 확인하고, 없으면 새로 생성
-    S->>S: 12. [AuthService] getTokens() 호출: Access Token과 Refresh Token 생성
-
-    S-->>C: 13. 프론트엔드 콜백 URL로 토큰과 사용자 정보를 담아 리다이렉트
+    C->>S: API 요청 (만료된 Access Token)
+    S-->>C: 401 Unauthorized
+    C->>S: POST /auth/refresh (Refresh Token)
+    S->>S: JwtRefreshStrategy 검증 + tokenVersion 대조
+    S-->>C: 새 토큰 쌍
+    C->>S: 원래 요청 재시도
 ```
 
-1.  **로그인 시작**: 클라이언트가 `GET /auth/naver` 또는 `GET /auth/kakao`를 호출하여 로그인을 시작합니다.
-2.  **소셜 플랫폼 인증**: 서버는 사용자를 해당 소셜 플랫폼의 로그인 페이지로 리다이렉트하고, 사용자는 로그인을 완료합니다.
-3.  **콜백 처리**: 로그인이 성공하면 소셜 플랫폼은 지정된 콜백 URL(`GET /auth/{provider}/callback`)로 `Authorization Code`와 함께 리다이렉트합니다.
-4.  **사용자 검증 및 토큰 발급**:
-    - `NaverStrategy` 또는 `KakaoStrategy`가 실행되어 `Code`를 사용해 소셜 플랫폼으로부터 **Access Token**을 발급받습니다.
-    - 발급받은 토큰으로 사용자 프로필 정보를 조회합니다.
-    - `AuthService.validateUser()`가 호출되어 프로필 정보(provider, providerId)를 기준으로 우리 서비스 DB에 이미 가입된 사용자인지 확인하고, 없다면 새로 등록합니다.
-    - `AuthService.getTokens()`가 호출되어 bookjeok 서비스 전용 **Access Token**과 **Refresh Token**을 생성합니다.
-5.  **클라이언트 전달**: 서버는 발급된 토큰과 사용자 정보를 쿼리 파라미터에 담아 프론트엔드의 콜백 페이지로 리다이렉트합니다. 프론트엔드는 이 정보를 받아 저장하고 로그인 상태를 관리합니다.
+갱신은 클라이언트의 `@bookjeok/api-client` Axios 인터셉터가 자동으로 수행합니다.
 
-### Access Token 갱신
+### `tokenVersion` 기반 즉시 무효화
 
-Access Token은 수명이 짧아(예: 15분) 만료될 수 있습니다. 이 경우, 클라이언트는 만료되지 않은 Refresh Token을 사용하여 새로운 Access Token을 발급받을 수 있습니다.
+`User.tokenVersion` 값이 JWT payload에 포함됩니다. 로그아웃이나 보안 이벤트 시 DB의 `tokenVersion`을 증가시키면, 아직 만료되지 않은 기존 Refresh Token이 **전부 즉시 무효**가 됩니다. 토큰 블랙리스트를 따로 운영하지 않고 정수 하나로 세션을 끊는 방식입니다.
 
-```mermaid
-sequenceDiagram
-    participant C as 클라이언트
-    participant S as bookjeok 서버
+## 5. 이메일 인증
 
-    C->>S: 1. API 요청 (만료된 Access Token과 함께)
-    S-->>C: 2. 401 Unauthorized 에러 응답
-
-    C->>S: 3. POST /auth/refresh (Refresh Token 전달)
-    S->>S: 4. [JwtRefreshStrategy] 토큰 유효성 검증
-    S->>S: 5. [AuthService] refresh() 호출: 새 Access/Refresh Token 쌍 생성
-    S-->>C: 6. 새로운 토큰 쌍 응답
-
-    C->>S: 7. 새로운 Access Token으로 원래의 API 재요청
-    S-->>C: 8. 정상적인 API 응답
 ```
+POST /auth/send-verification-email  →  Resend로 인증 링크 발송
+                                          │
+                                          ▼
+                    웹 /verify-email  →  POST /auth/verify-email
+                                          │
+                                          ▼
+                                 User.isEmailVerified = true
+```
+
+`EmailVerifiedGuard`는 `isEmailVerified !== true`인 요청을 `EMAIL_NOT_VERIFIED` 403으로 차단합니다. 적용 대상은 **중고거래 진입 경로**입니다.
+
+| 적용 지점 | 모듈 |
+|---|---|
+| 판매글 작성 | `used-book-sale` |
+| 거래 채팅 개설 | `chat` |
+| 구매자 지정 · 결제 | `order` |
+
+사기·어뷰징 계정이 거래에 진입하지 못하게 하는 것이 목적입니다.
+
+## 6. 가드
+
+| 가드 | 용도 |
+|---|---|
+| `AuthGuard('jwt')` | 일반 인증 필요 라우트 |
+| `AuthGuard('jwt-refresh')` | `/auth/refresh` 전용 |
+| `EmailVerifiedGuard` | 이메일 인증 완료 회원만 |
+| `AdminGuard` | 관리자 포털 전용 API |
+| `OptionalJwtAuthGuard` | 비로그인도 허용하되 로그인 시 사용자 정보를 주입 (리뷰 상세의 "내 리액션" 등) |
+
+## 7. 관련 환경 변수
+
+`JWT_SECRET`, `JWT_REFRESH_SECRET`, `NAVER_CLIENT_ID/SECRET/CALLBACK_URL`, `KAKAO_CLIENT_ID/SECRET/CALLBACK_URL`, `CLIENT_DOMAIN`, `RESEND_API_KEY`
+
+## 8. 관련
+
+- 웹: [`features/auth`](../../../../web/src/features/auth/README.md)
+- 메일 발송: [`shared/mail`](../../shared/README.md#mail--resend-메일)
