@@ -53,7 +53,6 @@ src/
 │   ├── comment         # 도서/리뷰 댓글 시스템
 │   ├── user            # 사용자 프로필 & tokenVersion 관리
 │   ├── wishlist        # 위시리스트
-│   ├── art             # KOPIS 공연·전시 정보 프록시
 │   ├── insights        # 서비스 전체 누적 통계 집계
 │   └── health          # @nestjs/terminus 헬스체크
 └── shared/             # 횡단 관심사

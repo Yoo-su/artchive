@@ -8,7 +8,6 @@
 export * from "./client";
 
 // Features
-export * from "./features/art";
 export * from "./features/auth";
 export * from "./features/book";
 export * from "./features/book-sale";

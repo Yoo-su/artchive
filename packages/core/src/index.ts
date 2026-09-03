@@ -6,10 +6,6 @@
  */
 
 // Features
-// Features
-export * from "./features/art/constants";
-export { artKeys } from "./features/art/query-keys";
-export * from "./features/art/types";
 export { authKeys } from "./features/auth/query-keys";
 export * from "./features/auth/types";
 export * from "./features/book/constants";
