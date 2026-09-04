@@ -1071,6 +1071,7 @@
       "title_main": "buy the ones you haven't",
       "description": "Meet a neighbor in person, or send it by parcel.\nNew listings are going up right now.",
       "cta_sell": "Sell my book",
+      "cta_browse": "Browse books",
       "feed": {
         "title": "RECENTLY LISTED",
         "price": "₩{price}",
