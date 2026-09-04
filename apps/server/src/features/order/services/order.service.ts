@@ -1009,14 +1009,7 @@ export class OrderService {
         chatRoomId,
         status: In([...ACTIVE_ORDER_STATUSES]),
       },
-      relations: [
-        'sale',
-        'sale.book',
-        'buyer',
-        'seller',
-        'chatRoom',
-        'tradeReview',
-      ],
+      relations: ['sale', 'sale.book', 'buyer', 'seller', 'chatRoom'],
       order: { createdAt: 'DESC' },
     });
 
@@ -1048,7 +1041,7 @@ export class OrderService {
 
     const [orders, total] = await this.orderRepository.findAndCount({
       where,
-      relations: ['sale', 'sale.book', 'seller', 'tradeReview'],
+      relations: ['sale', 'sale.book', 'seller'],
       order: { createdAt: 'DESC' },
       skip,
       take: limit,
@@ -1074,7 +1067,7 @@ export class OrderService {
 
     const [orders, total] = await this.orderRepository.findAndCount({
       where,
-      relations: ['sale', 'sale.book', 'buyer', 'tradeReview'],
+      relations: ['sale', 'sale.book', 'buyer'],
       order: { createdAt: 'DESC' },
       skip,
       take: limit,
