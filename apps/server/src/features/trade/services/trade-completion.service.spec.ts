@@ -73,6 +73,16 @@ describe('TradeCompletionService', () => {
     user: { id: BUYER_ID, deletedAt: null },
   });
 
+  /** manager.findOne이 엔티티별로 다른 값을 돌려주도록 세팅 */
+  const stubManager = (opts: { sale?: unknown; completion?: unknown }) => {
+    manager.findOne.mockImplementation((entity: unknown) => {
+      if (entity === UsedBookSale) return Promise.resolve(opts.sale ?? null);
+      if (entity === TradeCompletion)
+        return Promise.resolve(opts.completion ?? null);
+      return Promise.resolve(null);
+    });
+  };
+
   beforeEach(async () => {
     manager = {
       findOne: jest.fn(),
@@ -197,14 +207,12 @@ describe('TradeCompletionService', () => {
 
   describe('completeDirectTrade', () => {
     it('예약 상대가 있으면 완료 기록을 남기고 판매완료로 바꾼다', async () => {
-      manager.findOne
-        .mockResolvedValueOnce(
-          mockSale({
-            status: SaleStatus.RESERVED,
-            reservedForUserId: BUYER_ID,
-          }),
-        )
-        .mockResolvedValueOnce(null); // 기존 완료 기록 없음
+      stubManager({
+        sale: mockSale({
+          status: SaleStatus.RESERVED,
+          reservedForUserId: BUYER_ID,
+        }),
+      });
       participantRepo.findOne.mockResolvedValue(mockActiveParticipant());
 
       const { sale, completion } = await service.completeDirectTrade(
@@ -230,7 +238,7 @@ describe('TradeCompletionService', () => {
     });
 
     it('거래 상대가 없으면 판매완료만 하고 완료 기록은 남기지 않는다', async () => {
-      manager.findOne.mockResolvedValue(mockSale());
+      stubManager({ sale: mockSale() });
 
       const { sale, completion } = await service.completeDirectTrade(
         SALE_ID,
@@ -245,55 +253,20 @@ describe('TradeCompletionService', () => {
       );
     });
 
-    it('같은 상대와 이미 완료 기록이 있으면 새로 만들지 않는다', async () => {
-      const existing = { id: 7, saleId: SALE_ID, buyerId: BUYER_ID };
-      manager.findOne
-        .mockResolvedValueOnce(
-          mockSale({
-            status: SaleStatus.RESERVED,
-            reservedForUserId: BUYER_ID,
-          }),
-        )
-        .mockResolvedValueOnce(existing);
-      participantRepo.findOne.mockResolvedValue(mockActiveParticipant());
+    it('이미 완료된 판매글은 다시 완료할 수 없다', async () => {
+      // 허용하면 한 거래를 여러 건으로 부풀리거나 중복 집계된다.
+      stubManager({
+        sale: mockSale({ status: SaleStatus.SOLD }),
+        completion: { id: 7, saleId: SALE_ID, buyerId: BUYER_ID },
+      });
 
-      const { completion } = await service.completeDirectTrade(
-        SALE_ID,
-        SELLER_ID,
-        undefined,
-        ROOM_ID,
-      );
-
-      expect(completion).toBe(existing);
-      expect(manager.create).not.toHaveBeenCalledWith(
-        TradeCompletion,
-        expect.anything(),
-      );
-    });
-
-    it('이미 완료된 거래를 다시 완료해도 이벤트는 한 번만 나간다', async () => {
-      // 기록은 멱등했지만 이벤트가 그렇지 않아 채팅 메시지와 알림이 중복됐다.
-      const existing = { id: 7, saleId: SALE_ID, buyerId: BUYER_ID };
-      manager.findOne
-        .mockResolvedValueOnce(
-          mockSale({
-            status: SaleStatus.RESERVED,
-            reservedForUserId: BUYER_ID,
-          }),
-        )
-        .mockResolvedValueOnce(existing);
-      participantRepo.findOne.mockResolvedValue(mockActiveParticipant());
-
-      await service.completeDirectTrade(SALE_ID, SELLER_ID, undefined, ROOM_ID);
-
-      expect(eventEmitter.emit).not.toHaveBeenCalledWith(
-        'trade.completed',
-        expect.anything(),
-      );
+      await expect(
+        service.completeDirectTrade(SALE_ID, SELLER_ID, BUYER_ID, ROOM_ID),
+      ).rejects.toThrow(BusinessException);
     });
 
     it('결제가 걸린 거래는 수동 완료 처리를 막는다', async () => {
-      manager.findOne.mockResolvedValue(mockSale());
+      stubManager({ sale: mockSale() });
       orderRepo.findOne.mockResolvedValue({ id: 'ORD-1' });
 
       await expect(
@@ -302,7 +275,7 @@ describe('TradeCompletionService', () => {
     });
 
     it('자기 자신을 거래 상대로 지정할 수 없다', async () => {
-      manager.findOne.mockResolvedValue(mockSale());
+      stubManager({ sale: mockSale() });
 
       await expect(
         service.completeDirectTrade(SALE_ID, SELLER_ID, SELLER_ID),

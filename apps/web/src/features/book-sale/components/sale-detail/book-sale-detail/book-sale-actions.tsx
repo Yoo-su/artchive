@@ -46,7 +46,10 @@ export const BookSaleActions: React.FC<BookSaleActionsProps> = ({ sale }) => {
   const confirm = useConfirm();
 
   // 수정·삭제를 막는 근거는 활성 주문이지 예약중 상태가 아니다.
-  const isLockedByOrder = sale.hasActiveOrder === true;
+  // 거래 기록이 있는 글도 잠근다. 판매글을 지우면 거기 달린 후기까지
+  // 사라져서 나쁜 후기를 지우는 통로가 된다.
+  const isLockedByOrder =
+    sale.hasActiveOrder === true || sale.hasTradeCompletion === true;
 
   const handleDeleteSale = async () => {
     const isConfirmed = await confirm({

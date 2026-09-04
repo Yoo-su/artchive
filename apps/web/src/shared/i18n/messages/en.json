@@ -1217,7 +1217,8 @@
         "login_required": "Login required to chat or wishlist.",
         "in_trade_cannot_modify": "Sales in trade cannot be modified or deleted.",
         "in_trade_status_auto": "Status is managed automatically during trade.",
-        "completed_status_locked": "This trade is on record and cannot be reverted."
+        "completed_status_locked": "This trade is on record and cannot be reverted.",
+        "completed_cannot_modify": "This trade is on record and cannot be edited or deleted."
       },
       "location": {
         "title": "Preferred Trade Location",

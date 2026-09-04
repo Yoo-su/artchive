@@ -43,7 +43,9 @@ export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
 
   // 잠금 근거는 상태가 아니라 활성 주문이다. 판매자가 직접 예약중으로 바꾼
   // 직거래 건은 잠그면 안 된다 (판매완료로 넘어갈 길이 막힌다).
-  const isLockedByOrder = sale.hasActiveOrder === true;
+  // 거래 기록이 남은 글은 삭제 시 후기까지 사라지므로 함께 잠근다.
+  const isLockedByOrder =
+    sale.hasActiveOrder === true || sale.hasTradeCompletion === true;
 
   const handleDelete = async (event: React.MouseEvent) => {
     event.stopPropagation();

@@ -142,6 +142,18 @@ export class TradeCompletionService {
       );
     }
 
+    // 이미 완료 기록이 있는 판매글은 다시 완료할 수 없다. 허용하면 한 거래를
+    // 여러 건으로 부풀리거나(다른 상대로 재완료) 같은 거래가 중복 집계된다.
+    const completedAlready = await manager.findOne(TradeCompletion, {
+      where: { saleId },
+    });
+    if (completedAlready) {
+      throw new BusinessException(
+        'SALE_ALREADY_COMPLETED',
+        HttpStatus.CONFLICT,
+      );
+    }
+
     const counterpartyId = buyerId ?? sale.reservedForUserId;
     const roomId = chatRoomId ?? null;
 
@@ -158,26 +170,20 @@ export class TradeCompletionService {
 
       await this.assertBuyerReachable(counterpartyId, roomId);
 
-      // 같은 상대와 같은 판매글로 두 번 완료 처리해도 기록은 하나만 남긴다.
-      const existing = await manager.findOne(TradeCompletion, {
-        where: { saleId, buyerId: counterpartyId },
-      });
-
-      isNewCompletion = !existing;
-      completion =
-        existing ??
-        (await manager.save(
-          TradeCompletion,
-          manager.create(TradeCompletion, {
-            saleId,
-            sellerId,
-            buyerId: counterpartyId,
-            chatRoomId: roomId,
-            method: TradeCompletionMethod.DIRECT,
-            orderId: null,
-            completedAt: new Date(),
-          }),
-        ));
+      // 위에서 판매글 단위 중복을 이미 막았으므로 여기서는 새로 만들기만 한다.
+      isNewCompletion = true;
+      completion = await manager.save(
+        TradeCompletion,
+        manager.create(TradeCompletion, {
+          saleId,
+          sellerId,
+          buyerId: counterpartyId,
+          chatRoomId: roomId,
+          method: TradeCompletionMethod.DIRECT,
+          orderId: null,
+          completedAt: new Date(),
+        }),
+      );
     }
 
     sale.status = SaleStatus.SOLD;

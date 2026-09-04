@@ -179,6 +179,38 @@ describe('UsedBookSaleService', () => {
     });
   });
 
+  describe('deleteUsedBookSale - 거래 기록 보호', () => {
+    it('거래 기록이 있는 판매글은 삭제할 수 없다', async () => {
+      // trade_completions가 판매글에 CASCADE로 물려 있어 삭제하면 받은 후기까지
+      // 사라진다. 나쁜 후기를 지우는 평판 세탁 경로가 된다.
+      mockUsedBookSaleRepository.findOne.mockResolvedValue({
+        id: 100,
+        user: { id: 1 },
+      } as never);
+      mockOrderRepository.findOne.mockResolvedValue(null);
+      mockTradeCompletionRepository.findOne.mockResolvedValue({ id: 5 });
+
+      await expect(service.deleteUsedBookSale(100, 1)).rejects.toThrow(
+        BusinessException,
+      );
+      expect(mockUsedBookSaleRepository.remove).not.toHaveBeenCalled();
+    });
+
+    it('운영자는 신고 처리를 위해 삭제할 수 있다', async () => {
+      mockUsedBookSaleRepository.findOne.mockResolvedValue({
+        id: 100,
+        user: { id: 1 },
+      } as never);
+      mockOrderRepository.findOne.mockResolvedValue(null);
+      mockTradeCompletionRepository.findOne.mockResolvedValue({ id: 5 });
+      mockUsedBookSaleRepository.remove.mockResolvedValue(undefined);
+
+      await service.deleteUsedBookSale(100, 999, 'ADMIN');
+
+      expect(mockUsedBookSaleRepository.remove).toHaveBeenCalled();
+    });
+  });
+
   describe('updateSaleStatus - 판매완료 되돌리기', () => {
     const seller = { id: 1 };
     const soldSale = () =>
