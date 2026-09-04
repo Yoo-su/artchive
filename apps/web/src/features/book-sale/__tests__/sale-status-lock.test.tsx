@@ -1,10 +1,11 @@
 import { SaleStatus, UsedBookSale } from "@bookjeok/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SaleStatusSelect } from "@/features/book-sale/components/common/sale-status-select";
+import { TradeCounterpartyModal } from "@/features/book-sale/components/common/trade-counterparty-modal";
 
 vi.mock("next-intl", () => ({
   useLocale: () => "ko",
@@ -12,8 +13,42 @@ vi.mock("next-intl", () => ({
     `${section ? `${section}.` : ""}${key}`,
 }));
 
+const mockUpdateStatus = vi.fn();
+
 vi.mock("@/features/book-sale/mutations", () => ({
-  useUpdateBookSaleStatusMutation: () => ({ mutate: vi.fn(), isPending: false }),
+  useUpdateBookSaleStatusMutation: () => ({
+    mutate: mockUpdateStatus,
+    isPending: false,
+  }),
+}));
+
+const mockReserve = vi.fn();
+const mockComplete = vi.fn();
+
+vi.mock("@bookjeok/react-query", () => ({
+  useCompleteDirectTradeMutation: () => ({
+    mutate: mockComplete,
+    isPending: false,
+  }),
+  useReserveSaleMutation: () => ({ mutate: mockReserve, isPending: false }),
+  useCancelSaleReservationMutation: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
+  useTradeCandidatesQuery: () => ({
+    data: [
+      {
+        user: {
+          id: 42,
+          handle: "buyer",
+          nickname: "구매희망자",
+          profileImageUrl: null,
+        },
+        chatRoomId: 7,
+      },
+    ],
+    isLoading: false,
+  }),
 }));
 
 const baseSale = {
@@ -57,5 +92,65 @@ describe("판매글 상태 변경 잠금", () => {
     renderSelect(baseSale);
 
     expect(screen.getByRole("combobox")).not.toBeDisabled();
+  });
+});
+
+describe("거래 상대 선택 모달", () => {
+  const openModal = (mode: "reserve" | "complete") =>
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <TradeCounterpartyModal
+          sale={baseSale}
+          mode={mode}
+          open
+          onOpenChange={vi.fn()}
+        />
+      </QueryClientProvider>,
+    );
+
+  beforeEach(() => {
+    mockReserve.mockClear();
+    mockComplete.mockClear();
+    mockUpdateStatus.mockClear();
+  });
+
+  it("예약 모드에서 상대를 고르면 예약 API를 부른다", async () => {
+    // 예약중은 다른 구매희망자에게 보내는 신호라 상대가 정해져야 한다.
+    openModal("reserve");
+
+    expect(screen.getByText("market.reserve_trade.title")).toBeInTheDocument();
+
+    fireEvent.click(await screen.findByText("구매희망자"));
+    fireEvent.click(screen.getByText("market.reserve_trade.confirm"));
+
+    expect(mockReserve).toHaveBeenCalledWith(
+      expect.objectContaining({ saleId: baseSale.id, buyerId: 42 }),
+    );
+    expect(mockUpdateStatus).not.toHaveBeenCalled();
+  });
+
+  it("예약 모드에서 건너뛰면 상태만 예약중으로 바꾼다", async () => {
+    openModal("reserve");
+
+    fireEvent.click(await screen.findByText("market.reserve_trade.skip"));
+
+    expect(mockReserve).not.toHaveBeenCalled();
+    expect(mockUpdateStatus).toHaveBeenCalledWith(
+      { saleId: baseSale.id, status: SaleStatus.RESERVED },
+      expect.anything(),
+    );
+  });
+
+  it("완료 모드에서 상대를 고르면 완료 API를 부른다", async () => {
+    openModal("complete");
+
+    expect(screen.getByText("market.complete_trade.title")).toBeInTheDocument();
+
+    fireEvent.click(await screen.findByText("구매희망자"));
+    fireEvent.click(screen.getByText("market.complete_trade.confirm"));
+
+    expect(mockComplete).toHaveBeenCalledWith(
+      expect.objectContaining({ saleId: baseSale.id, buyerId: 42 }),
+    );
   });
 });

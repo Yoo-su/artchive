@@ -1288,6 +1288,15 @@
       "confirm": "거래 완료",
       "success": "판매완료로 변경했습니다.",
       "success_with_review": "거래를 완료했습니다. 이제 후기를 남길 수 있어요."
+    },
+    "reserve_trade": {
+      "title": "누구와 거래하시나요?",
+      "description": "거래 상대를 지정하면 다른 구매희망자에게 거래 진행 중이라고 표시됩니다.",
+      "no_candidates": "이 판매글로 대화한 상대가 없습니다.",
+      "skip": "상대 없이 예약중으로",
+      "confirm": "이 분으로 예약",
+      "success": "예약중으로 변경했습니다.",
+      "success_with_review": "예약중으로 변경했습니다."
     }
   },
   "error_pages": {
@@ -1550,7 +1559,9 @@
         "btn_cancel_reservation": "예약 취소",
         "btn_complete_trade": "거래 완료",
         "direct_badge": "직거래",
-        "sold_hint": "판매 완료된 상품입니다."
+        "sold_hint": "판매 완료된 상품입니다.",
+        "reserved_no_counterparty_hint": "판매자가 예약중으로 표시했습니다.",
+        "seller_reserved_elsewhere": "다른 분과 예약이 잡혀 있습니다."
       },
       "message_card": {
         "title": {

@@ -360,6 +360,74 @@ describe("Phase 7 - Trade UI Components", () => {
       ).toBeInTheDocument();
     });
 
+    it("상대 없이 예약중이어도 판매자는 거래 완료 흐름에 접근할 수 있다", () => {
+      // 마이페이지에서 상대 지정 없이 예약중으로 바꾸면 reservedForUserId가
+      // 비어 있다. 이때 "다른 구매자와 거래 중" 분기에 판매자까지 걸리면
+      // 자기 판매글의 거래를 끝낼 방법이 사라진다.
+      const reservedRoom = directOnlyRoom({
+        status: SaleStatus.RESERVED,
+        reservedForUserId: null,
+      });
+
+      renderWithQuery(
+        <TradeStatusBanner
+          room={reservedRoom}
+          currentUser={mockSeller}
+          opponent={mockBuyer}
+        />,
+      );
+
+      expect(
+        screen.queryByText("chat.trade.status_banner.other_trading_hint"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByText("chat.trade.status_banner.btn_reserve_buyer"),
+      ).toBeInTheDocument();
+    });
+
+    it("상대 없는 예약중은 구매자에게 특정인을 암시하지 않는다", () => {
+      const reservedRoom = directOnlyRoom({
+        status: SaleStatus.RESERVED,
+        reservedForUserId: null,
+      });
+
+      renderWithQuery(
+        <TradeStatusBanner
+          room={reservedRoom}
+          currentUser={mockBuyer}
+          opponent={mockSeller}
+        />,
+      );
+
+      expect(
+        screen.getByText(
+          "chat.trade.status_banner.reserved_no_counterparty_hint",
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it("다른 분과 예약된 판매글에서는 판매자에게 지정 버튼을 숨긴다", () => {
+      const reservedRoom = directOnlyRoom({
+        status: SaleStatus.RESERVED,
+        reservedForUserId: 999,
+      });
+
+      renderWithQuery(
+        <TradeStatusBanner
+          room={reservedRoom}
+          currentUser={mockSeller}
+          opponent={mockBuyer}
+        />,
+      );
+
+      expect(
+        screen.getByText("chat.trade.status_banner.seller_reserved_elsewhere"),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText("chat.trade.status_banner.btn_reserve_buyer"),
+      ).not.toBeInTheDocument();
+    });
+
     it("결제 기능이 봉인돼 있어도 직거래 안내는 계속 렌더링한다", () => {
       // 결제 플래그로 배너 전체를 조기 return 하면 직거래 채팅방에서
       // 거래 안내가 통째로 사라진다. 직거래는 결제와 무관하게 동작해야 한다.

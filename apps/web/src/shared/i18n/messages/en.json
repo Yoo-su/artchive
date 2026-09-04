@@ -1288,6 +1288,15 @@
       "confirm": "Mark complete",
       "success": "Marked as sold.",
       "success_with_review": "Trade completed. You can leave a review now."
+    },
+    "reserve_trade": {
+      "title": "Who are you trading with?",
+      "description": "Picking a partner tells other interested buyers a trade is in progress.",
+      "no_candidates": "Nobody has chatted about this listing.",
+      "skip": "Reserve without picking",
+      "confirm": "Reserve for this buyer",
+      "success": "Marked as reserved.",
+      "success_with_review": "Marked as reserved."
     }
   },
   "error_pages": {
@@ -1550,7 +1559,9 @@
         "btn_cancel_reservation": "Cancel reservation",
         "btn_complete_trade": "Mark complete",
         "direct_badge": "In person",
-        "sold_hint": "This listing is sold."
+        "sold_hint": "This listing is sold.",
+        "reserved_no_counterparty_hint": "The seller marked this listing as reserved.",
+        "seller_reserved_elsewhere": "This listing is reserved for someone else."
       },
       "message_card": {
         "title": {

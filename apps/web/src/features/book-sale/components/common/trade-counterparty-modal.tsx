@@ -1,8 +1,9 @@
 "use client";
 
-import { UsedBookSale } from "@bookjeok/core";
+import { SaleStatus, UsedBookSale } from "@bookjeok/core";
 import {
   useCompleteDirectTradeMutation,
+  useReserveSaleMutation,
   useTradeCandidatesQuery,
 } from "@bookjeok/react-query";
 import { Check, Loader2 } from "lucide-react";
@@ -27,25 +28,37 @@ import {
 import { cn } from "@/shared/utils/cn";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
-interface CompleteTradeModalProps {
+import { useUpdateBookSaleStatusMutation } from "../../mutations";
+
+/** 예약중으로 바꿀 때인지, 판매완료로 바꿀 때인지 */
+export type TradeCounterpartyMode = "reserve" | "complete";
+
+interface TradeCounterpartyModalProps {
   sale: UsedBookSale;
+  mode: TradeCounterpartyMode;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 /**
- * 판매완료로 바꿀 때 "누구와 거래하셨나요?"를 묻는 모달.
+ * "누구와 거래하시나요?"를 묻는 모달.
  *
- * 상대를 고르면 거래 완료 기록이 남아 양쪽 모두 후기를 쓸 수 있고,
- * 건너뛰면 판매글 상태만 바뀝니다. 서비스 밖에서 알게 된 사람과 거래한
- * 경우를 막지 않기 위해 건너뛰기를 남겨둡니다.
+ * 예약중·판매완료 어느 쪽으로 바꾸든 거래 상대가 정해져야 다른 채팅방에
+ * 정확한 안내가 나가고 후기 상대가 결정됩니다. 상대는 가능한 한 빨리,
+ * 늦어도 완료 시점에 정해지도록 두 전환 모두에서 묻습니다.
+ *
+ * 서비스 밖에서 알게 된 사람과 거래한 경우를 막지 않기 위해 건너뛰기를
+ * 남겨두지만, 건너뛰면 거래 기록이 남지 않아 후기도 열리지 않습니다.
  */
-export const CompleteTradeModal = ({
+export const TradeCounterpartyModal = ({
   sale,
+  mode,
   open,
   onOpenChange,
-}: CompleteTradeModalProps) => {
-  const t = useTranslations("market.complete_trade");
+}: TradeCounterpartyModalProps) => {
+  const t = useTranslations(
+    mode === "reserve" ? "market.reserve_trade" : "market.complete_trade",
+  );
 
   const [selectedBuyerId, setSelectedBuyerId] = useState<number | null>(
     sale.reservedForUserId ?? null,
@@ -56,20 +69,60 @@ export const CompleteTradeModal = ({
     { enabled: open },
   );
 
+  const onError = (error: Error) => toast.error(error.message);
+
   const completeMutation = useCompleteDirectTradeMutation({
     onSuccess: ({ completion }) => {
       toast.success(completion ? t("success_with_review") : t("success"));
       onOpenChange(false);
     },
-    onError: (error) => toast.error(error.message),
+    onError,
   });
+
+  const reserveMutation = useReserveSaleMutation({
+    onSuccess: () => {
+      toast.success(t("success"));
+      onOpenChange(false);
+    },
+    onError,
+  });
+
+  const updateStatusMutation = useUpdateBookSaleStatusMutation();
+
+  const isPending =
+    completeMutation.isPending ||
+    reserveMutation.isPending ||
+    updateStatusMutation.isPending;
 
   const submit = (buyerId: number | null) => {
     const candidate = candidates.find((item) => item.user.id === buyerId);
 
-    completeMutation.mutate({
+    if (mode === "complete") {
+      completeMutation.mutate({
+        saleId: sale.id,
+        buyerId: buyerId ?? undefined,
+        chatRoomId: candidate?.chatRoomId,
+      });
+      return;
+    }
+
+    // 예약: 상대를 안 고르면 상태만 예약중으로 바꾼다.
+    if (buyerId === null) {
+      updateStatusMutation.mutate(
+        { saleId: sale.id, status: SaleStatus.RESERVED },
+        {
+          onSuccess: () => {
+            toast.success(t("success"));
+            onOpenChange(false);
+          },
+        },
+      );
+      return;
+    }
+
+    reserveMutation.mutate({
       saleId: sale.id,
-      buyerId: buyerId ?? undefined,
+      buyerId,
       chatRoomId: candidate?.chatRoomId,
     });
   };
@@ -113,9 +166,7 @@ export const CompleteTradeModal = ({
                   <span className="flex items-center gap-2.5 min-w-0">
                     <Avatar className="h-8 w-8 shrink-0">
                       <AvatarImage
-                        src={getProfileImageUrl(
-                          candidate.user.profileImageUrl,
-                        )}
+                        src={getProfileImageUrl(candidate.user.profileImageUrl)}
                         alt={candidate.user.nickname}
                       />
                       <AvatarFallback className="text-xs">
@@ -139,15 +190,15 @@ export const CompleteTradeModal = ({
           <Button
             variant="outline"
             onClick={() => submit(null)}
-            disabled={completeMutation.isPending}
+            disabled={isPending}
           >
             {t("skip")}
           </Button>
           <Button
             onClick={() => submit(selectedBuyerId)}
-            disabled={completeMutation.isPending || selectedBuyerId === null}
+            disabled={isPending || selectedBuyerId === null}
           >
-            {completeMutation.isPending ? (
+            {isPending ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : null}
             {t("confirm")}

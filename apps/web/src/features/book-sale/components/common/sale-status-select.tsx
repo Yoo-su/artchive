@@ -15,7 +15,10 @@ import {
 import { cn } from "@/shared/utils/cn";
 
 import { useUpdateBookSaleStatusMutation } from "../../mutations";
-import { CompleteTradeModal } from "./complete-trade-modal";
+import {
+  TradeCounterpartyModal,
+  TradeCounterpartyMode,
+} from "./trade-counterparty-modal";
 
 interface SaleStatusSelectProps {
   sale: UsedBookSale;
@@ -37,7 +40,10 @@ export const SaleStatusSelect = ({
   const tStatus = useTranslations("market.sale_status");
   const tActions = useTranslations("market.detail.actions");
 
-  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+  // 예약중·판매완료 모두 "누구와 거래하는지"를 물어야 다른 채팅방 안내가
+  // 정확해지고 후기 상대가 정해진다.
+  const [counterpartyMode, setCounterpartyMode] =
+    useState<TradeCounterpartyMode | null>(null);
 
   const { mutate: updateSaleStatus, isPending } =
     useUpdateBookSaleStatusMutation();
@@ -49,10 +55,13 @@ export const SaleStatusSelect = ({
   const handleChange = (next: string) => {
     const status = next as SaleStatus;
 
-    // 판매완료는 "누구와 거래했는지"를 물어야 후기를 열 수 있으므로
-    // 단순 상태 변경 대신 모달을 띄운다.
     if (status === SaleStatus.SOLD) {
-      setIsCompleteModalOpen(true);
+      setCounterpartyMode("complete");
+      return;
+    }
+
+    if (status === SaleStatus.RESERVED) {
+      setCounterpartyMode("reserve");
       return;
     }
 
@@ -95,11 +104,16 @@ export const SaleStatusSelect = ({
         </SelectContent>
       </Select>
 
-      <CompleteTradeModal
-        sale={sale}
-        open={isCompleteModalOpen}
-        onOpenChange={setIsCompleteModalOpen}
-      />
+      {counterpartyMode && (
+        <TradeCounterpartyModal
+          sale={sale}
+          mode={counterpartyMode}
+          open
+          onOpenChange={(next) => {
+            if (!next) setCounterpartyMode(null);
+          }}
+        />
+      )}
     </>
   );
 };

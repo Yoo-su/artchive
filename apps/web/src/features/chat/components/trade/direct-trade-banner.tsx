@@ -209,12 +209,20 @@ export const DirectTradeBanner = ({
     );
   }
 
-  // 3. 다른 구매자와 예약이 잡힌 경우
-  if (isReserved && !reservedForOpponent && !reservedForMe) {
+  // 3. 구매자 시점에서 이 판매글이 다른 데서 예약된 경우
+  //    판매자에게는 띄우지 않는다. 판매자가 자기 판매글의 거래 완료 버튼에
+  //    도달하지 못하게 막는 분기가 되기 때문이다.
+  if (!isSeller && isReserved && !reservedForMe) {
     return shell(
       <span className="flex items-center gap-1.5 font-medium">
         <AlertTriangle className="w-3.5 h-3.5 text-stone-500 shrink-0" />
-        {t("other_trading_hint")}
+        {/*
+          상대가 지정된 예약이면 "다른 구매자와 거래 중"이 사실이지만,
+          상대 없이 예약중으로만 바꾼 경우엔 특정인을 암시하면 안 된다.
+        */}
+        {sale.reservedForUserId
+          ? t("other_trading_hint")
+          : t("reserved_no_counterparty_hint")}
       </span>,
     );
   }
@@ -277,6 +285,18 @@ export const DirectTradeBanner = ({
       );
     }
 
+    // 다른 분과 예약이 잡혀 있으면 여기서 또 지정할 수 없다.
+    // (서버도 SALE_ALREADY_RESERVED_FOR_OTHER로 막는다)
+    if (isReserved && sale.reservedForUserId && !reservedForOpponent) {
+      return shell(
+        <span className="flex items-center gap-1.5 font-medium">
+          <AlertTriangle className="w-3.5 h-3.5 text-stone-500 shrink-0" />
+          {t("seller_reserved_elsewhere")}
+        </span>,
+      );
+    }
+
+    // 예약 상대가 없는 예약중이라면 여기서 이 분으로 지정할 수 있다.
     return (
       <>
         {shell(
