@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsPositive } from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, IsPositive } from 'class-validator';
 
 export class CompleteTradeDto {
   @ApiPropertyOptional({
@@ -17,4 +17,12 @@ export class CompleteTradeDto {
   @IsInt()
   @IsPositive()
   chatRoomId?: number;
+
+  @ApiPropertyOptional({
+    description:
+      '예약 상대가 있더라도 거래 상대를 지정하지 않고 완료할 때 true',
+  })
+  @IsOptional()
+  @IsBoolean()
+  withoutCounterparty?: boolean;
 }

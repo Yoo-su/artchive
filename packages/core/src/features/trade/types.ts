@@ -58,6 +58,8 @@ export interface CompleteTradeParams {
   /** 생략하면 예약 상대를 사용. 예약 상대도 없으면 후기가 열리지 않습니다 */
   buyerId?: number;
   chatRoomId?: number;
+  /** 예약 상대가 있더라도 상대를 지정하지 않고 완료할 때 true */
+  withoutCounterparty?: boolean;
 }
 
 /** 직거래 완료 처리 응답 */

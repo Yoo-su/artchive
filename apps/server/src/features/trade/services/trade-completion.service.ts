@@ -130,6 +130,7 @@ export class TradeCompletionService {
     sellerId: number,
     buyerId?: number | null,
     chatRoomId?: number | null,
+    withoutCounterparty?: boolean,
   ): Promise<{ sale: UsedBookSale; completion: TradeCompletion | null }> {
     const manager = this.txHost.tx;
     const sale = await this.loadSellerSale(saleId, sellerId);
@@ -154,7 +155,9 @@ export class TradeCompletionService {
       );
     }
 
-    const counterpartyId = buyerId ?? sale.reservedForUserId;
+    const counterpartyId = withoutCounterparty
+      ? null
+      : (buyerId ?? sale.reservedForUserId);
     const roomId = chatRoomId ?? null;
 
     let completion: TradeCompletion | null = null;

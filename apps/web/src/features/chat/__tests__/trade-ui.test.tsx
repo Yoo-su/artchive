@@ -536,5 +536,36 @@ describe("Phase 7 - Trade UI Components", () => {
         screen.getByText("chat.trade.status_banner.opponent_left_hint"),
       ).toBeInTheDocument();
     });
+
+    it("상대방이 채팅방을 나갔어도 예약된 상태라면 판매자에게 예약 취소 버튼을 노출한다", () => {
+      const leftReservedRoom: ChatRoom = {
+        ...directOnlyRoom({
+          status: SaleStatus.RESERVED,
+          reservedForUserId: mockBuyer.id,
+        }),
+        participants: [
+          { user: mockSeller, isActive: true },
+          { user: mockBuyer, isActive: false },
+        ],
+      };
+
+      renderWithQuery(
+        <TradeStatusBanner
+          room={leftReservedRoom}
+          currentUser={mockSeller}
+          opponent={mockBuyer}
+        />,
+      );
+
+      expect(
+        screen.getByText("chat.trade.status_banner.opponent_left_hint"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("chat.trade.status_banner.btn_cancel_reservation"),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText("chat.trade.status_banner.btn_complete_trade"),
+      ).not.toBeInTheDocument();
+    });
   });
 });

@@ -55,10 +55,11 @@ export const completeDirectTrade = async ({
   saleId,
   buyerId,
   chatRoomId,
+  withoutCounterparty,
 }: CompleteTradeParams): Promise<CompleteTradeResult> => {
   const { data } = await privateApiClient.post<CompleteTradeResult>(
     API_PATHS.trade.completion(saleId),
-    { buyerId, chatRoomId },
+    { buyerId, chatRoomId, withoutCounterparty },
   );
   return data;
 };

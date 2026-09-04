@@ -45,6 +45,7 @@ export enum TradeCompletionMethod {
 ])
 @Index('IDX_trade_completions_buyerId_completedAt', ['buyerId', 'completedAt'])
 @Unique('UQ_trade_completions_orderId', ['orderId'])
+@Unique('UQ_trade_completions_saleId', ['saleId'])
 export class TradeCompletion {
   @PrimaryGeneratedColumn()
   id: number;

@@ -1,21 +1,17 @@
 "use client";
 
-import { User as UserIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
 
-import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@/shared/components/shadcn/avatar";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/shared/components/shadcn/dropdown-menu";
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/shared/components/shadcn/tooltip";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils/cn";
@@ -23,7 +19,7 @@ import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 interface UserInfo {
   id: number;
-  handle: string;
+  handle?: string | null;
   nickname: string;
   profileImageUrl?: string | null;
 }
@@ -36,48 +32,34 @@ interface UserAvatarMenuProps {
   label?: string;
   /** 아바타 크기 */
   size?: "sm" | "md" | "lg";
-  /** 메뉴 표시 방향 */
+  /** 툴팁 표시 방향 */
+  tooltipSide?: "top" | "right" | "bottom" | "left";
+  /** 툴팁 정렬 */
+  tooltipAlign?: "start" | "center" | "end";
+  /** @deprecated tooltipSide 사용 권장 */
   menuSide?: "top" | "right" | "bottom" | "left";
-  /** 메뉴 정렬 */
+  /** @deprecated tooltipAlign 사용 권장 */
   menuAlign?: "start" | "center" | "end";
   className?: string;
 }
 
 /**
- * 사용자 아바타 및 프로필 메뉴 컴포넌트
- * - 로그인 상태: 아바타 클릭 시 프로필 보기 메뉴 노출
- * - 비로그인 상태: 아바타만 노출 (메뉴 없음)
+ * 사용자 아바타 컴포넌트
+ * - 호버 시: "프로필 보기" 툴팁 노출
+ * - 클릭 시: 해당 사용자의 프로필 페이지로 바로 이동
  */
 export function UserAvatarMenu({
   user,
   showNickname = false,
   label,
   size = "md",
+  tooltipSide,
+  tooltipAlign,
   menuSide = "bottom",
-  menuAlign = "end",
+  menuAlign = "center",
   className,
 }: UserAvatarMenuProps) {
   const t = useTranslations("common");
-  const currentUser = useAuthStore((state) => state.user);
-  const isLoggedIn = !!currentUser;
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  // 모바일 터치 환경에서 메뉴 닫힘 처리
-  useEffect(() => {
-    const handleTouchOutside = () => {
-      if (isMenuOpen) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    if (isMenuOpen) {
-      document.addEventListener("touchstart", handleTouchOutside);
-    }
-
-    return () => {
-      document.removeEventListener("touchstart", handleTouchOutside);
-    };
-  }, [isMenuOpen]);
 
   const sizeClasses = {
     sm: "h-6 w-6",
@@ -85,59 +67,63 @@ export function UserAvatarMenu({
     lg: "h-10 w-10",
   };
 
+  const side = tooltipSide ?? menuSide;
+  const align = tooltipAlign ?? menuAlign;
+
   const avatarContent = (
-    <div className={cn("flex items-center gap-2 cursor-pointer", className)}>
-      <Avatar className={cn(sizeClasses[size], "border border-stone-200")}>
+    <>
+      <Avatar
+        className={cn(sizeClasses[size], "border border-stone-200 shrink-0")}
+      >
         <AvatarImage
           src={getProfileImageUrl(user.profileImageUrl)}
           alt={user.nickname}
         />
         <AvatarFallback className="bg-stone-100 text-stone-600 text-xs">
-          {user.nickname.slice(0, 2).toUpperCase()}
+          {user.nickname?.slice(0, 2).toUpperCase()}
         </AvatarFallback>
       </Avatar>
       {showNickname && (
         <div className="flex flex-col text-left">
-          <span className="text-sm font-medium text-stone-800">
+          <span className="text-sm font-medium text-stone-800 dark:text-stone-200">
             {user.nickname}
           </span>
-          {label && <span className="text-xs text-stone-500">{label}</span>}
+          {label && (
+            <span className="text-xs text-stone-500 dark:text-stone-400">
+              {label}
+            </span>
+          )}
         </div>
       )}
-    </div>
+    </>
   );
 
-  // 비로그인 상태: 메뉴 없이 아바타만 표시
-  if (!isLoggedIn) {
-    return avatarContent;
+  // 핸들이 없는 경우 단순 뷰만 표시
+  if (!user?.handle) {
+    return (
+      <div className={cn("inline-flex items-center gap-2", className)}>
+        {avatarContent}
+      </div>
+    );
   }
 
-  // 로그인 상태: 드롭다운 메뉴
   return (
-    <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-      <DropdownMenuTrigger asChild>
-        <button
-          className="flex items-center focus:outline-none rounded-lg p-1 -m-1"
-          style={{ touchAction: "manipulation" }}
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Link
+          href={PATHS.USER_PROFILE(user.handle)}
+          className={cn(
+            "inline-flex items-center gap-2 focus:outline-none transition-opacity hover:opacity-80 rounded-full",
+            className,
+          )}
           aria-label={t("aria.user_profile_menu", { name: user.nickname })}
-          // 모바일에서 스크롤 시 pointerDown이 메뉴를 열지 않도록 방지
-          onPointerDown={(e) => e.preventDefault()}
-          onClick={() => setIsMenuOpen((prev: boolean) => !prev)}
         >
           {avatarContent}
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align={menuAlign} side={menuSide} className="w-40">
-        <DropdownMenuItem asChild>
-          <Link
-            href={PATHS.USER_PROFILE(user.handle)}
-            className="flex items-center gap-2"
-          >
-            <UserIcon className="w-4 h-4" />
-            <span>{t("actions.view_profile")}</span>
-          </Link>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </Link>
+      </TooltipTrigger>
+      <TooltipContent side={side} align={align}>
+        {t("actions.view_profile")}
+      </TooltipContent>
+    </Tooltip>
   );
 }
