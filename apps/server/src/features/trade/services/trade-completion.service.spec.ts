@@ -55,7 +55,7 @@ describe('TradeCompletionService', () => {
   };
   let reviewRepo: { find: jest.Mock };
   let saleRepo: { manager: unknown };
-  let participantRepo: { findOne: jest.Mock };
+  let participantRepo: { createQueryBuilder: jest.Mock };
   let orderRepo: { findOne: jest.Mock };
   let eventEmitter: { emit: jest.Mock };
 
@@ -68,10 +68,59 @@ describe('TradeCompletionService', () => {
       ...overrides,
     }) as UsedBookSale;
 
-  const mockActiveParticipant = () => ({
-    isActive: true,
-    user: { id: BUYER_ID, deletedAt: null },
-  });
+  /**
+   * 거래 상대 검증용 채팅 참여자 조회(QueryBuilder)를 흉내낸다.
+   *
+   * 판매글 범위와 방 지정이 실제로 필터로 걸리는지 확인할 수 있도록,
+   * where 파라미터를 모아 목록을 걸러 돌려준다.
+   */
+  const stubParticipants = (
+    rows: Array<{
+      roomId: number;
+      isActive?: boolean;
+      userId?: number;
+      deletedAt?: Date | null;
+    }>,
+  ) => {
+    const params: Record<string, number> = {};
+    const query: Record<string, jest.Mock> = {};
+
+    const collect = (_condition: string, values?: Record<string, number>) => {
+      Object.assign(params, values ?? {});
+      return query;
+    };
+
+    Object.assign(query, {
+      innerJoinAndSelect: jest.fn(() => query),
+      innerJoin: jest.fn(() => query),
+      select: jest.fn(() => query),
+      where: jest.fn(collect),
+      andWhere: jest.fn(collect),
+      orderBy: jest.fn(() => query),
+      addOrderBy: jest.fn(() => query),
+      getMany: jest.fn(() =>
+        Promise.resolve(
+          rows
+            .filter(
+              (row) => !params.chatRoomId || row.roomId === params.chatRoomId,
+            )
+            .filter((row) => (row.userId ?? BUYER_ID) === params.buyerId)
+            .map((row) => ({
+              id: row.roomId,
+              isActive: row.isActive ?? true,
+              chatRoom: { id: row.roomId },
+              user: {
+                id: row.userId ?? BUYER_ID,
+                deletedAt: row.deletedAt ?? null,
+              },
+            })),
+        ),
+      ),
+    });
+
+    participantRepo.createQueryBuilder.mockReturnValue(query);
+    return query;
+  };
 
   /** manager.findOne이 엔티티별로 다른 값을 돌려주도록 세팅 */
   const stubManager = (opts: { sale?: unknown; completion?: unknown }) => {
@@ -101,7 +150,8 @@ describe('TradeCompletionService', () => {
     };
     reviewRepo = { find: jest.fn().mockResolvedValue([]) };
     saleRepo = { manager };
-    participantRepo = { findOne: jest.fn() };
+    participantRepo = { createQueryBuilder: jest.fn() };
+    stubParticipants([{ roomId: ROOM_ID }]);
     orderRepo = { findOne: jest.fn().mockResolvedValue(null) };
     eventEmitter = { emit: jest.fn() };
 
@@ -130,7 +180,7 @@ describe('TradeCompletionService', () => {
   describe('reserveForBuyer', () => {
     it('거래 상대를 지정하면 예약중으로 바뀌고 상대가 기록된다', async () => {
       manager.findOne.mockResolvedValue(mockSale());
-      participantRepo.findOne.mockResolvedValue(mockActiveParticipant());
+      stubParticipants([{ roomId: ROOM_ID }]);
 
       const result = await service.reserveForBuyer(
         SALE_ID,
@@ -143,8 +193,42 @@ describe('TradeCompletionService', () => {
       expect(result.reservedForUserId).toBe(BUYER_ID);
       expect(eventEmitter.emit).toHaveBeenCalledWith(
         'trade.reserved',
-        expect.objectContaining({ saleId: SALE_ID, buyerId: BUYER_ID }),
+        expect.objectContaining({
+          saleId: SALE_ID,
+          buyerId: BUYER_ID,
+          chatRoomId: ROOM_ID,
+        }),
       );
+    });
+
+    it('이 판매글로 대화한 적 없는 상대는 거래 상대로 지정할 수 없다', async () => {
+      // 대화 이력을 요구하지 않으면 아무 사용자나 상대로 넣어 평판을 부풀리거나
+      // 모르는 사람에게 거래 알림을 보낼 수 있다.
+      manager.findOne.mockResolvedValue(mockSale());
+      stubParticipants([]);
+
+      await expect(
+        service.reserveForBuyer(SALE_ID, SELLER_ID, BUYER_ID),
+      ).rejects.toThrow(BusinessException);
+    });
+
+    it('이 판매글의 채팅방이 아니면 거절한다', async () => {
+      // 남의 방 ID를 넣어 거기에 거래 시스템 메시지를 심는 경로를 막는다.
+      manager.findOne.mockResolvedValue(mockSale());
+      stubParticipants([{ roomId: ROOM_ID }]);
+
+      await expect(
+        service.reserveForBuyer(SALE_ID, SELLER_ID, BUYER_ID, 999),
+      ).rejects.toThrow(BusinessException);
+    });
+
+    it('탈퇴한 상대는 거래 상대로 지정할 수 없다', async () => {
+      manager.findOne.mockResolvedValue(mockSale());
+      stubParticipants([{ roomId: ROOM_ID, deletedAt: new Date() }]);
+
+      await expect(
+        service.reserveForBuyer(SALE_ID, SELLER_ID, BUYER_ID, ROOM_ID),
+      ).rejects.toThrow(BusinessException);
     });
 
     it('이미 다른 구매자와 예약된 판매글은 거절한다', async () => {
@@ -169,10 +253,7 @@ describe('TradeCompletionService', () => {
 
     it('채팅방을 나간 상대는 거래 상대로 지정할 수 없다', async () => {
       manager.findOne.mockResolvedValue(mockSale());
-      participantRepo.findOne.mockResolvedValue({
-        isActive: false,
-        user: { id: BUYER_ID, deletedAt: null },
-      });
+      stubParticipants([{ roomId: ROOM_ID, isActive: false }]);
 
       await expect(
         service.reserveForBuyer(SALE_ID, SELLER_ID, BUYER_ID, ROOM_ID),
@@ -213,7 +294,7 @@ describe('TradeCompletionService', () => {
           reservedForUserId: BUYER_ID,
         }),
       });
-      participantRepo.findOne.mockResolvedValue(mockActiveParticipant());
+      stubParticipants([{ roomId: ROOM_ID }]);
 
       const { sale, completion } = await service.completeDirectTrade(
         SALE_ID,
@@ -306,6 +387,78 @@ describe('TradeCompletionService', () => {
         service.completeDirectTrade(SALE_ID, SELLER_ID, SELLER_ID),
       ).rejects.toThrow(BusinessException);
     });
+
+    it('채팅방 ID를 넘기지 않아도 이 판매글의 방을 찾아 기록에 남긴다', async () => {
+      stubManager({ sale: mockSale() });
+      stubParticipants([{ roomId: ROOM_ID }]);
+
+      const { completion } = await service.completeDirectTrade(
+        SALE_ID,
+        SELLER_ID,
+        BUYER_ID,
+      );
+
+      expect(completion).toMatchObject({ chatRoomId: ROOM_ID });
+    });
+
+    it('대화한 적 없는 상대와는 완료 기록을 만들 수 없다', async () => {
+      stubManager({ sale: mockSale() });
+      stubParticipants([]);
+
+      await expect(
+        service.completeDirectTrade(SALE_ID, SELLER_ID, BUYER_ID),
+      ).rejects.toThrow(BusinessException);
+    });
+
+    it('상대가 채팅방을 나갔어도 완료는 할 수 있다', async () => {
+      // 예약과 달리 완료는 이미 끝난 거래를 기록하는 것이라, 방을 나간 것만으로
+      // 막으면 실제로 거래한 상대에게 후기를 남길 길이 사라진다.
+      stubManager({ sale: mockSale() });
+      stubParticipants([{ roomId: ROOM_ID, isActive: false }]);
+
+      const { completion } = await service.completeDirectTrade(
+        SALE_ID,
+        SELLER_ID,
+        BUYER_ID,
+      );
+
+      expect(completion).toMatchObject({
+        buyerId: BUYER_ID,
+        chatRoomId: ROOM_ID,
+      });
+    });
+
+    it('탈퇴한 상대와는 완료 기록을 만들 수 없다', async () => {
+      stubManager({ sale: mockSale() });
+      stubParticipants([{ roomId: ROOM_ID, deletedAt: new Date() }]);
+
+      await expect(
+        service.completeDirectTrade(SALE_ID, SELLER_ID, BUYER_ID),
+      ).rejects.toThrow(BusinessException);
+    });
+
+    it('상대를 지정하지 않고 완료해도 다른 채팅방에 알릴 이벤트는 나간다', async () => {
+      // 예약 안내만 받은 구매희망자가 아무 소식 없이 남는 것을 막는다.
+      stubManager({
+        sale: mockSale({
+          status: SaleStatus.RESERVED,
+          reservedForUserId: BUYER_ID,
+        }),
+      });
+
+      await service.completeDirectTrade(
+        SALE_ID,
+        SELLER_ID,
+        undefined,
+        undefined,
+        true,
+      );
+
+      expect(eventEmitter.emit).toHaveBeenCalledWith(
+        'trade.sale_sold',
+        expect.objectContaining({ saleId: SALE_ID, chatRoomId: null }),
+      );
+    });
   });
 
   describe('findMyCompletions', () => {
@@ -378,7 +531,7 @@ describe('TradeCompletionService', () => {
 
   describe('recordDeliveryCompletion', () => {
     it('같은 주문으로 두 번 호출해도 기록은 하나만 남는다', async () => {
-      const existing = { id: 5, orderId: 'ORD-1' };
+      const existing = { id: 5, saleId: SALE_ID, orderId: 'ORD-1' };
       manager.findOne.mockResolvedValue(existing);
 
       const result = await service.recordDeliveryCompletion({
@@ -389,6 +542,26 @@ describe('TradeCompletionService', () => {
       });
 
       expect(result).toBe(existing);
+      expect(manager.save).not.toHaveBeenCalled();
+    });
+
+    it('같은 판매글의 다른 주문으로 완료 기록을 또 만들 수 없다', async () => {
+      // 판매글당 완료 기록은 하나뿐이라, 걸러내지 않으면 DB 유니크 위반이
+      // 에스크로 구매확정 호출 뒤에 500으로 터진다.
+      manager.findOne.mockResolvedValue({
+        id: 5,
+        saleId: SALE_ID,
+        orderId: 'ORD-1',
+      });
+
+      await expect(
+        service.recordDeliveryCompletion({
+          saleId: SALE_ID,
+          sellerId: SELLER_ID,
+          buyerId: BUYER_ID,
+          orderId: 'ORD-2',
+        }),
+      ).rejects.toThrow(BusinessException);
       expect(manager.save).not.toHaveBeenCalled();
     });
 

@@ -50,7 +50,7 @@
       "scroll_top": "Scroll to top",
       "close": "Close",
       "menu": "Menu",
-      "user_profile_menu": "{name}'s profile menu",
+      "view_user_profile": "View {name}'s profile",
       "rating_select": "Select rating",
       "share": "Share content",
       "share_kakao": "Share via KakaoTalk",
@@ -1581,6 +1581,7 @@
         "trade_title": {
           "RESERVED": "Reserved",
           "COMPLETED": "Trade completed",
+          "SOLD": "Sold",
           "OTHER_TRADING": "Another trade in progress",
           "BACK_ON_MARKET": "Back on sale"
         }

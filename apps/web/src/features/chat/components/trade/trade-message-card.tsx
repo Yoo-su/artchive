@@ -48,6 +48,7 @@ export const TradeMessageCard = ({
   const tradeStatus = metadata.tradeStatus as
     | "RESERVED"
     | "COMPLETED"
+    | "SOLD"
     | "OTHER_TRADING"
     | "BACK_ON_MARKET"
     | undefined;
@@ -115,11 +116,17 @@ export const TradeMessageCard = ({
           title: t("trade_title.RESERVED"),
           titleColor: "text-stone-900 dark:text-stone-100",
         };
-      case "OTHER_TRADING":
+      case "SOLD":
         return {
           icon: (
-            <AlertTriangle className="w-4 h-4 text-stone-500" />
+            <CheckCircle2 className="w-4 h-4 text-stone-500 dark:text-stone-400" />
           ),
+          title: t("trade_title.SOLD"),
+          titleColor: "text-stone-700 dark:text-stone-300",
+        };
+      case "OTHER_TRADING":
+        return {
+          icon: <AlertTriangle className="w-4 h-4 text-stone-500" />,
           title: t("trade_title.OTHER_TRADING"),
           titleColor: "text-stone-700 dark:text-stone-300",
         };

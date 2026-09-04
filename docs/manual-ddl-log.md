@@ -194,6 +194,15 @@ SELECT 'orders', COUNT(*) FROM orders;
 
 둘 다 0이 아니면 `trade_reviews`를 드롭하지 말고 마이그레이션 계획을 다시 세우세요.
 
+> **개발 DB 주의.** 개발 환경은 `synchronize: true`라 엔티티의
+> `UQ_trade_completions_saleId`를 자동으로 만들려 합니다. 판매글당 완료 기록이
+> 2건 이상 쌓여 있으면 제약 생성이 실패해 서버가 뜨지 않습니다. 아래로 확인하고
+> 중복이 있으면 오래된 행을 지운 뒤 띄우세요.
+>
+> ```sql
+> SELECT "saleId", COUNT(*) FROM trade_completions GROUP BY 1 HAVING COUNT(*) > 1;
+> ```
+
 ### 적용 체크리스트
 
 1. **위 사전 확인 쿼리를 돌려 두 값이 모두 0인지 확인한다.**

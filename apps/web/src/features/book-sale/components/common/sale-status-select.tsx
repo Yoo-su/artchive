@@ -96,12 +96,12 @@ export const SaleStatusSelect = ({
             className,
           )}
           title={
-          isCompleted
-            ? tActions("completed_status_locked")
-            : isLocked
-              ? tActions("in_trade_status_auto")
-              : undefined
-        }
+            isCompleted
+              ? tActions("completed_status_locked")
+              : isLocked
+                ? tActions("in_trade_status_auto")
+                : undefined
+          }
         >
           <SelectValue placeholder={t("change_status")} />
         </SelectTrigger>
