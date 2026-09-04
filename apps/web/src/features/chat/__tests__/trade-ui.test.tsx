@@ -142,6 +142,48 @@ describe("Phase 7 - Trade UI Components", () => {
   });
 
   describe("TradeMessageCard", () => {
+    const tradeMessage = (metadata: Record<string, unknown>): ChatMessage => ({
+      id: 9,
+      content: "거래가 완료되었습니다.",
+      isRead: true,
+      type: ChatMessageType.TRADE_ACTION,
+      metadata,
+      createdAt: "2026-09-04T00:00:00.000Z",
+      sender: null,
+      chatRoom: { id: 10 },
+    });
+
+    it("직거래 완료 메시지를 주문 취소로 표시하지 않는다", () => {
+      // metadata.status를 OrderStatus로만 해석하면 직거래 상태가 default
+      // 분기(CANCELLED)로 떨어져 "주문 취소"로 보인다.
+      renderWithQuery(
+        <TradeMessageCard
+          message={tradeMessage({ saleId: 1, completionId: 3, tradeStatus: "COMPLETED" })}
+          currentUserId={mockBuyer.id}
+        />,
+      );
+
+      expect(
+        screen.getByText("chat.trade.message_card.trade_title.COMPLETED"),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText("chat.trade.message_card.title.CANCELLED"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("직거래 예약 메시지도 전용 라벨로 표시한다", () => {
+      renderWithQuery(
+        <TradeMessageCard
+          message={tradeMessage({ saleId: 1, tradeStatus: "RESERVED" })}
+          currentUserId={mockBuyer.id}
+        />,
+      );
+
+      expect(
+        screen.getByText("chat.trade.message_card.trade_title.RESERVED"),
+      ).toBeInTheDocument();
+    });
+
     it("AWAITING_PAYMENT 카드에 결제 요청 정보와 링크가 포함된다", () => {
       const message: ChatMessage = {
         id: 1,

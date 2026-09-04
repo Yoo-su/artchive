@@ -7,6 +7,7 @@ import { DataSource, EntityManager, Repository } from 'typeorm';
 import { ChatParticipant } from '@/features/chat/entities/chat-participant.entity';
 import { Order, OrderStatus } from '@/features/order/entities/order.entity';
 import { Review } from '@/features/review/entities/review.entity';
+import { TradeCompletion } from '@/features/trade/entities/trade-completion.entity';
 import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { BusinessException } from '@/shared/exceptions/business.exception';
 import { MailService } from '@/shared/mail/mail.service';
@@ -59,6 +60,13 @@ describe('UserService', () => {
         { provide: getRepositoryToken(ChatParticipant), useValue: {} },
         { provide: getRepositoryToken(Review), useValue: {} },
         { provide: getRepositoryToken(Order), useValue: {} },
+        {
+          provide: getRepositoryToken(TradeCompletion),
+          useValue: {
+            find: jest.fn().mockResolvedValue([]),
+            findOne: jest.fn().mockResolvedValue(null),
+          },
+        },
         { provide: DataSource, useValue: { query: jest.fn() } },
         { provide: TransactionHost, useValue: mockTxHost },
         { provide: EventEmitter2, useValue: mockEventEmitter },

@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChatParticipant } from '../chat/entities/chat-participant.entity';
 import { Order } from '../order/entities/order.entity';
 import { Review } from '../review/entities/review.entity';
+import { TradeCompletion } from '../trade/entities/trade-completion.entity';
 import { UsedBookSale } from '../used-book-sale/entities/used-book-sale.entity';
 import { UserController } from './controllers/user.controller';
 import { User } from './entities/user.entity';
@@ -20,6 +21,7 @@ import { UserService } from './services/user.service';
       ChatParticipant,
       Review,
       Order,
+      TradeCompletion,
     ]),
   ],
   controllers: [UserController],

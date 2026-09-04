@@ -1216,7 +1216,8 @@
         "chat_error": "채팅방을 여는 데 실패했습니다. 다시 시도해주세요.",
         "login_required": "채팅 및 찜하기는 로그인 후 이용 가능합니다",
         "in_trade_cannot_modify": "거래가 진행 중인 판매글은 수정하거나 삭제할 수 없습니다.",
-        "in_trade_status_auto": "거래 진행 중에는 상태가 자동으로 관리됩니다."
+        "in_trade_status_auto": "거래 진행 중에는 상태가 자동으로 관리됩니다.",
+        "completed_status_locked": "거래 기록이 있어 상태를 되돌릴 수 없습니다."
       },
       "location": {
         "title": "거래 희망 장소",
@@ -1575,7 +1576,13 @@
         },
         "btn_pay_now": "결제하러 가기",
         "btn_view_detail": "주문 상세 보기",
-        "order_closed_toast": "이미 취소되거나 완료된 거래입니다."
+        "order_closed_toast": "이미 취소되거나 완료된 거래입니다.",
+        "trade_title": {
+          "RESERVED": "거래 예약",
+          "COMPLETED": "거래 완료",
+          "OTHER_TRADING": "다른 거래 진행 중",
+          "BACK_ON_MARKET": "다시 판매중"
+        }
       },
       "direct_trade_dialog": {
         "reserve_title": "거래 상대로 지정할까요?",
@@ -1834,7 +1841,8 @@
         "tag_summary_title": "받은 평가 요약",
         "badge_trust": "안전거래 {count}건 · 만족도 {rate}%",
         "badge_trust_direct": "직거래 {count}건 · 만족도 {rate}%",
-        "badge_trust_split": "직거래 {direct}건 · 안전결제 {delivery}건 · 만족도 {rate}%"
+        "badge_trust_split": "직거래 {direct}건 · 안전결제 {delivery}건 · 만족도 {rate}%",
+        "badge_trades_only": "거래 완료 {count}건"
       },
       "list": {
         "title": "거래 후기",

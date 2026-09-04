@@ -6,6 +6,8 @@ import {
   AlertTriangle,
   ArrowRight,
   CheckCircle2,
+  Handshake,
+  RotateCcw,
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
@@ -41,6 +43,14 @@ export const TradeMessageCard = ({
 
   const metadata = message.metadata || {};
   const status = metadata.status as OrderStatus | undefined;
+  // 직거래·판매글 상태 안내는 주문이 없다. 주문 카드로 렌더링하면
+  // 매칭되는 OrderStatus가 없어 "주문 취소"로 떨어진다.
+  const tradeStatus = metadata.tradeStatus as
+    | "RESERVED"
+    | "COMPLETED"
+    | "OTHER_TRADING"
+    | "BACK_ON_MARKET"
+    | undefined;
   const orderId = (metadata.orderId || metadata.orderNumber) as string | undefined;
   const amount = metadata.amount as number | undefined;
   const carrier = metadata.carrier as string | undefined;
@@ -87,7 +97,47 @@ export const TradeMessageCard = ({
     }
   };
 
+  const getTradeStatusDisplay = () => {
+    switch (tradeStatus) {
+      case "COMPLETED":
+        return {
+          icon: (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          ),
+          title: t("trade_title.COMPLETED"),
+          titleColor: "text-emerald-600 dark:text-emerald-400",
+        };
+      case "RESERVED":
+        return {
+          icon: (
+            <Handshake className="w-4 h-4 text-stone-700 dark:text-stone-300" />
+          ),
+          title: t("trade_title.RESERVED"),
+          titleColor: "text-stone-900 dark:text-stone-100",
+        };
+      case "OTHER_TRADING":
+        return {
+          icon: (
+            <AlertTriangle className="w-4 h-4 text-stone-500" />
+          ),
+          title: t("trade_title.OTHER_TRADING"),
+          titleColor: "text-stone-700 dark:text-stone-300",
+        };
+      case "BACK_ON_MARKET":
+      default:
+        return {
+          icon: (
+            <RotateCcw className="w-4 h-4 text-stone-700 dark:text-stone-300" />
+          ),
+          title: t("trade_title.BACK_ON_MARKET"),
+          titleColor: "text-stone-900 dark:text-stone-100",
+        };
+    }
+  };
+
   const getStatusDisplay = () => {
+    if (tradeStatus) return getTradeStatusDisplay();
+
     switch (status) {
       case OrderStatus.AWAITING_PAYMENT:
         return {

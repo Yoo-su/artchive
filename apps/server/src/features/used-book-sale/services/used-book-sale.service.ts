@@ -8,6 +8,7 @@ import { Book } from '@/features/book/entities/book.entity';
 import { BookService } from '@/features/book/services/book.service';
 import { ACTIVE_ORDER_STATUSES } from '@/features/order/constants';
 import { Order } from '@/features/order/entities/order.entity';
+import { TradeCompletion } from '@/features/trade/entities/trade-completion.entity';
 import { User } from '@/features/user/entities/user.entity';
 import { UserService } from '@/features/user/services/user.service';
 import { BusinessException } from '@/shared/exceptions';
@@ -38,6 +39,8 @@ export class UsedBookSaleService {
     private readonly usedBookSaleRepository: Repository<UsedBookSale>,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    @InjectRepository(TradeCompletion)
+    private readonly tradeCompletionRepository: Repository<TradeCompletion>,
     private readonly bookService: BookService,
     private readonly userService: UserService,
     private readonly dataSource: DataSource,
@@ -98,6 +101,20 @@ export class UsedBookSaleService {
       );
     }
 
+    // 거래 기록이 남은 판매완료는 종료 상태다. 되돌리면 후기와 신뢰 지표가
+    // 성사되지 않은 거래 위에 남는다. (기록 없이 상태만 판매완료인 글은
+    // 오조작일 수 있으므로 되돌릴 수 있게 둔다)
+    if (
+      sale.status === SaleStatus.SOLD &&
+      status !== SaleStatus.SOLD &&
+      (await this.hasTradeCompletion(saleId))
+    ) {
+      throw new BusinessException(
+        'SALE_COMPLETED_CANNOT_CHANGE_STATUS',
+        HttpStatus.CONFLICT,
+      );
+    }
+
     sale.status = status;
     sale.updatedAt = new Date();
     return await this.usedBookSaleRepository.save(sale);
@@ -108,6 +125,27 @@ export class UsedBookSaleService {
       where: { saleId, status: In([...ACTIVE_ORDER_STATUSES]) },
     });
     return !!activeOrder;
+  }
+
+  private async hasTradeCompletion(saleId: number): Promise<boolean> {
+    const completion = await this.tradeCompletionRepository.findOne({
+      where: { saleId },
+    });
+    return !!completion;
+  }
+
+  /**
+   * 주어진 판매글 중 거래 완료 기록이 있는 것들의 ID 집합을 반환합니다.
+   */
+  async findSaleIdsWithCompletion(saleIds: number[]): Promise<Set<number>> {
+    if (saleIds.length === 0) return new Set();
+
+    const completions = await this.tradeCompletionRepository.find({
+      where: { saleId: In(saleIds) },
+      select: ['saleId'],
+    });
+
+    return new Set(completions.map((completion) => completion.saleId));
   }
 
   /**
@@ -208,6 +246,7 @@ export class UsedBookSaleService {
     }
 
     sale.hasActiveOrder = await this.hasActiveOrder(id);
+    sale.hasTradeCompletion = await this.hasTradeCompletion(id);
     return sale;
   }
 

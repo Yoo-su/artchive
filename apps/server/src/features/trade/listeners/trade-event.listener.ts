@@ -5,7 +5,6 @@ import { ChatMessageType } from '@/features/chat/entities/chat-message.entity';
 import { ChatService } from '@/features/chat/services/chat.service';
 import { NotificationType } from '@/features/notification/entities/notification.entity';
 import { NotificationService } from '@/features/notification/services/notification.service';
-import { SaleStatus } from '@/features/used-book-sale/entities/used-book-sale.entity';
 
 import { TradeCompletionMethod } from '../entities/trade-completion.entity';
 
@@ -46,7 +45,7 @@ export class TradeEventListener {
           event.chatRoomId,
           '판매자가 거래 상대로 지정했습니다. 채팅으로 거래 장소와 시간을 정해보세요.',
           ChatMessageType.TRADE_ACTION,
-          { saleId: event.saleId, status: SaleStatus.RESERVED },
+          { saleId: event.saleId, tradeStatus: 'RESERVED' },
         );
       }
 
@@ -110,7 +109,7 @@ export class TradeEventListener {
           {
             saleId: event.saleId,
             completionId: event.completionId,
-            status: SaleStatus.SOLD,
+            tradeStatus: 'COMPLETED',
           },
         );
       }

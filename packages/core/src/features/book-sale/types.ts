@@ -67,6 +67,12 @@ export interface UsedBookSale {
    * 정할 수 있습니다. 상대 없이 예약중으로만 두는 것도 허용되므로 null일 수 있습니다.
    */
   reservedForUserId?: number | null;
+  /**
+   * 거래 완료 기록이 있는지. 기록이 있으면 후기와 신뢰 지표가 그 위에 얹히므로
+   * 판매완료를 되돌릴 수 없습니다. 기록 없이 상태만 판매완료인 글은 오조작일
+   * 수 있어 되돌리기를 허용합니다.
+   */
+  hasTradeCompletion?: boolean;
 }
 
 /**

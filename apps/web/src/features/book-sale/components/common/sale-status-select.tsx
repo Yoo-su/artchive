@@ -50,7 +50,11 @@ export const SaleStatusSelect = ({
   const { mutate: cancelReservation, isPending: isCancelling } =
     useCancelSaleReservationMutation();
 
-  const isLocked = sale.hasActiveOrder === true;
+  // 거래 기록이 남은 판매완료는 종료 상태다. 되돌리면 후기와 신뢰 지표가
+  // 성사되지 않은 거래 위에 남는다.
+  const isCompleted =
+    sale.status === SaleStatus.SOLD && sale.hasTradeCompletion === true;
+  const isLocked = sale.hasActiveOrder === true || isCompleted;
 
   const handleChange = (next: string) => {
     const status = next as SaleStatus;
@@ -91,7 +95,13 @@ export const SaleStatusSelect = ({
             "w-[105px] h-8 text-xs bg-white dark:bg-stone-800 border-stone-200 dark:border-stone-700 rounded-lg shadow-2xs disabled:opacity-60 disabled:cursor-not-allowed",
             className,
           )}
-          title={isLocked ? tActions("in_trade_status_auto") : undefined}
+          title={
+          isCompleted
+            ? tActions("completed_status_locked")
+            : isLocked
+              ? tActions("in_trade_status_auto")
+              : undefined
+        }
         >
           <SelectValue placeholder={t("change_status")} />
         </SelectTrigger>

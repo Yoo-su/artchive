@@ -88,6 +88,27 @@ describe("판매글 상태 변경 잠금", () => {
     expect(screen.getByRole("combobox")).toBeDisabled();
   });
 
+  it("거래 기록이 남은 판매완료는 상태를 되돌릴 수 없다", () => {
+    // 되돌리면 후기와 신뢰 지표가 성사되지 않은 거래 위에 남는다.
+    renderSelect({
+      ...baseSale,
+      status: SaleStatus.SOLD,
+      hasTradeCompletion: true,
+    });
+
+    expect(screen.getByRole("combobox")).toBeDisabled();
+  });
+
+  it("거래 기록 없는 판매완료는 오조작일 수 있으므로 되돌릴 수 있다", () => {
+    renderSelect({
+      ...baseSale,
+      status: SaleStatus.SOLD,
+      hasTradeCompletion: false,
+    });
+
+    expect(screen.getByRole("combobox")).not.toBeDisabled();
+  });
+
   it("잠금 정보가 없는 응답은 잠그지 않는다", () => {
     renderSelect(baseSale);
 

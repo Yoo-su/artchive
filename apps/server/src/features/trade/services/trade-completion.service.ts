@@ -146,6 +146,7 @@ export class TradeCompletionService {
     const roomId = chatRoomId ?? null;
 
     let completion: TradeCompletion | null = null;
+    let isNewCompletion = false;
 
     if (counterpartyId) {
       if (counterpartyId === sellerId) {
@@ -162,6 +163,7 @@ export class TradeCompletionService {
         where: { saleId, buyerId: counterpartyId },
       });
 
+      isNewCompletion = !existing;
       completion =
         existing ??
         (await manager.save(
@@ -182,7 +184,9 @@ export class TradeCompletionService {
     sale.reservedForUserId = null;
     const saved = await manager.save(UsedBookSale, sale);
 
-    if (completion) {
+    // 이미 완료된 거래를 다시 완료 처리해도 알림과 채팅 메시지는 한 번만
+    // 나가야 한다. 기록은 멱등하지만 이벤트는 그렇지 않았다.
+    if (completion && isNewCompletion) {
       this.eventEmitter.emit('trade.completed', {
         completionId: completion.id,
         saleId,

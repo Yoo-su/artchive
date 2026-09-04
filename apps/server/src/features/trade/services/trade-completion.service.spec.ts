@@ -271,6 +271,27 @@ describe('TradeCompletionService', () => {
       );
     });
 
+    it('이미 완료된 거래를 다시 완료해도 이벤트는 한 번만 나간다', async () => {
+      // 기록은 멱등했지만 이벤트가 그렇지 않아 채팅 메시지와 알림이 중복됐다.
+      const existing = { id: 7, saleId: SALE_ID, buyerId: BUYER_ID };
+      manager.findOne
+        .mockResolvedValueOnce(
+          mockSale({
+            status: SaleStatus.RESERVED,
+            reservedForUserId: BUYER_ID,
+          }),
+        )
+        .mockResolvedValueOnce(existing);
+      participantRepo.findOne.mockResolvedValue(mockActiveParticipant());
+
+      await service.completeDirectTrade(SALE_ID, SELLER_ID, undefined, ROOM_ID);
+
+      expect(eventEmitter.emit).not.toHaveBeenCalledWith(
+        'trade.completed',
+        expect.anything(),
+      );
+    });
+
     it('결제가 걸린 거래는 수동 완료 처리를 막는다', async () => {
       manager.findOne.mockResolvedValue(mockSale());
       orderRepo.findOne.mockResolvedValue({ id: 'ORD-1' });
