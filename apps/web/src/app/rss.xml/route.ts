@@ -45,14 +45,16 @@ export async function GET() {
 
   // 4. RSS Item XML 생성
   const xmlItems = feedItems
-    .map((item) => `
+    .map(
+      (item) => `
     <item>
       <title><![CDATA[${item.title}]]></title>
       <link>${item.link}</link>
       <description><![CDATA[${item.description}]]></description>
       <pubDate>${item.pubDate.toUTCString()}</pubDate>
       <guid isPermaLink="true">${item.link}</guid>
-    </item>`)
+    </item>`,
+    )
     .join("");
 
   // 5. 전체 RSS 2.0 XML 문서 조립

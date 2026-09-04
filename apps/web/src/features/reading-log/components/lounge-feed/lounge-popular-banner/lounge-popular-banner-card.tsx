@@ -10,7 +10,10 @@ interface LoungePopularBannerCardProps {
   index?: number;
 }
 
-export function LoungePopularBannerCard({ item, index = 0 }: LoungePopularBannerCardProps) {
+export function LoungePopularBannerCard({
+  item,
+  index = 0,
+}: LoungePopularBannerCardProps) {
   const t = useTranslations("lounge.popular");
 
   return (

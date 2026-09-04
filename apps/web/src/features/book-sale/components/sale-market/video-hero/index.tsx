@@ -433,9 +433,7 @@ export const VideoHero = () => {
                 className="group inline-flex items-center gap-2.5 rounded-full border border-transparent bg-white px-6 py-3.5 text-sm font-medium text-neutral-950 shadow-[0_8px_30px_rgba(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-neutral-100 hover:shadow-[0_10px_36px_rgba(0,0,0,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
               >
                 {t("hero.cta_sell")}
-                <ArrowUpRight
-                  className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                />
+                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
               </Link>
 
               <button
@@ -468,9 +466,7 @@ export const VideoHero = () => {
                 ease: "easeInOut",
               }}
             >
-              <ChevronDown
-                className="h-5 w-5 text-white/45"
-              />
+              <ChevronDown className="h-5 w-5 text-white/45" />
             </motion.div>
           </motion.div>
         </motion.div>

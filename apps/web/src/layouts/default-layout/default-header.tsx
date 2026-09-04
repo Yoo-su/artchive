@@ -123,7 +123,9 @@ export const DefaultHeader = () => {
           {/* 02. 독서 기록 */}
           <Link
             href={PATHS.READING_LOG}
-            onClick={!currentUser ? () => saveReturnUrl(PATHS.READING_LOG) : undefined}
+            onClick={
+              !currentUser ? () => saveReturnUrl(PATHS.READING_LOG) : undefined
+            }
             className={getLinkClass(PATHS.READING_LOG)}
           >
             <span className={getIndexNumClass(PATHS.READING_LOG)}>02</span>
@@ -174,7 +176,11 @@ export const DefaultHeader = () => {
                 <DropdownMenuItem asChild className={dropdownItemClass}>
                   <Link
                     href={PATHS.BOOK_SALES_REGISTER}
-                    onClick={!currentUser ? () => saveReturnUrl(PATHS.BOOK_SALES_REGISTER) : undefined}
+                    onClick={
+                      !currentUser
+                        ? () => saveReturnUrl(PATHS.BOOK_SALES_REGISTER)
+                        : undefined
+                    }
                     className={dropdownLinkClass}
                   >
                     <span>{t("nav.write_sales")}</span>
@@ -186,7 +192,11 @@ export const DefaultHeader = () => {
                 <DropdownMenuItem asChild className={dropdownItemClass}>
                   <Link
                     href={PATHS.MY_PAGE_SALES}
-                    onClick={!currentUser ? () => saveReturnUrl(PATHS.MY_PAGE_SALES) : undefined}
+                    onClick={
+                      !currentUser
+                        ? () => saveReturnUrl(PATHS.MY_PAGE_SALES)
+                        : undefined
+                    }
                     className={dropdownLinkClass}
                   >
                     <span>{t("nav.my_sales")}</span>
@@ -235,7 +245,11 @@ export const DefaultHeader = () => {
                 <DropdownMenuItem asChild className={dropdownItemClass}>
                   <Link
                     href={PATHS.REVIEW_WRITE}
-                    onClick={!currentUser ? () => saveReturnUrl(PATHS.REVIEW_WRITE) : undefined}
+                    onClick={
+                      !currentUser
+                        ? () => saveReturnUrl(PATHS.REVIEW_WRITE)
+                        : undefined
+                    }
                     className={dropdownLinkClass}
                   >
                     <span>{t("nav.write_review")}</span>
@@ -247,7 +261,11 @@ export const DefaultHeader = () => {
                 <DropdownMenuItem asChild className={dropdownItemClass}>
                   <Link
                     href={PATHS.MY_REVIEWS}
-                    onClick={!currentUser ? () => saveReturnUrl(PATHS.MY_REVIEWS) : undefined}
+                    onClick={
+                      !currentUser
+                        ? () => saveReturnUrl(PATHS.MY_REVIEWS)
+                        : undefined
+                    }
                     className={dropdownLinkClass}
                   >
                     <span>{t("nav.my_reviews")}</span>

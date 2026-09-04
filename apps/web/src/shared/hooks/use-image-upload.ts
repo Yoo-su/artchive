@@ -57,7 +57,10 @@ export const useImageUpload = ({
         const validationError = validateImageForUpload(file, {
           onlyImage: t("image.only_image_allowed"),
           sizeLimitExceeded: (sizeMB, maxSizeMB) =>
-            t("image.size_limit_exceeded", { size: sizeMB, maxSize: maxSizeMB }),
+            t("image.size_limit_exceeded", {
+              size: sizeMB,
+              maxSize: maxSizeMB,
+            }),
         });
         if (validationError) {
           toast.error(validationError);

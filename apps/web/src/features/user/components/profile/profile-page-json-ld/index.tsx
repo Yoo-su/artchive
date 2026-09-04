@@ -18,24 +18,24 @@ export function ProfilePageJsonLd({ profile, locale }: ProfilePageJsonLdProps) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ProfilePage",
-    "dateCreated": profile.createdAt,
-    "mainEntity": {
+    dateCreated: profile.createdAt,
+    mainEntity: {
       "@type": "Person",
-      "name": profile.nickname,
-      "alternateName": profile.handle,
-      "identifier": profile.handle,
-      "image": avatarUrl || undefined,
-      "url": `https://bookjeok.com/${locale}/users/${profile.handle}`,
-      "agentInteractionStatistic": [
+      name: profile.nickname,
+      alternateName: profile.handle,
+      identifier: profile.handle,
+      image: avatarUrl || undefined,
+      url: `https://bookjeok.com/${locale}/users/${profile.handle}`,
+      agentInteractionStatistic: [
         {
           "@type": "InteractionCounter",
-          "interactionType": "https://schema.org/WriteAction",
-          "userInteractionCount": profile.stats.reviewsCount,
+          interactionType: "https://schema.org/WriteAction",
+          userInteractionCount: profile.stats.reviewsCount,
         },
         {
           "@type": "InteractionCounter",
-          "interactionType": "https://schema.org/TradeAction",
-          "userInteractionCount": profile.stats.salesCount,
+          interactionType: "https://schema.org/TradeAction",
+          userInteractionCount: profile.stats.salesCount,
         },
       ],
     },

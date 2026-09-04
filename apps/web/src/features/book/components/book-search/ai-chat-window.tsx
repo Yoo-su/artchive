@@ -35,7 +35,8 @@ export const AiChatWindow = () => {
     handleClearChat,
   } = useAiChat();
 
-  const suggestionChips = (t.raw("suggestion_chips") as string[]) || AI_CHAT_SUGGESTION_CHIPS;
+  const suggestionChips =
+    (t.raw("suggestion_chips") as string[]) || AI_CHAT_SUGGESTION_CHIPS;
 
   return (
     <div className="relative w-full bg-white rounded-2xl border border-stone-200/80 shadow-xs flex flex-col h-[680px] overflow-hidden">
@@ -168,9 +169,7 @@ export const AiChatWindow = () => {
       {/* 3. 비로그인 안내 */}
       {!isLoggedIn && (
         <div className="relative z-10 mx-4 sm:mx-6 my-2 p-3 bg-stone-100 border border-stone-200 rounded-xl flex items-center justify-between gap-3 text-xs">
-          <span className="text-stone-600">
-            {t("login_notice")}
-          </span>
+          <span className="text-stone-600">{t("login_notice")}</span>
           <Link
             href={PATHS.LOGIN}
             className="px-3 py-1.5 bg-stone-800 text-white font-medium rounded-lg hover:bg-stone-900 transition-colors shrink-0"

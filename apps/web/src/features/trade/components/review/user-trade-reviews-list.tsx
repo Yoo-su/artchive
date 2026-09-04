@@ -7,7 +7,12 @@ import {
 import { useTranslations } from "next-intl";
 import React, { useState } from "react";
 
-import { ChevronLeft, ChevronRight, MessageSquareDashed, ShieldAlert } from "@/shared/components/icons/iconsax";
+import {
+  ChevronLeft,
+  ChevronRight,
+  MessageSquareDashed,
+  ShieldAlert,
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 
@@ -23,9 +28,12 @@ export const UserTradeReviewsList = ({ handle }: UserTradeReviewsListProps) => {
   const [page, setPage] = useState<number>(1);
   const limit = 10;
 
-  const { data: stats, isLoading: isStatsLoading } = useSellerStatsQuery(handle, {
-    enabled: !!handle,
-  });
+  const { data: stats, isLoading: isStatsLoading } = useSellerStatsQuery(
+    handle,
+    {
+      enabled: !!handle,
+    },
+  );
 
   const {
     data: reviewsData,
@@ -85,7 +93,12 @@ export const UserTradeReviewsList = ({ handle }: UserTradeReviewsListProps) => {
           <p className="text-xs text-stone-500">
             거래 후기를 불러오지 못했습니다.
           </p>
-          <Button onClick={() => refetch()} variant="outline" size="sm" className="border-stone-200 dark:border-stone-700">
+          <Button
+            onClick={() => refetch()}
+            variant="outline"
+            size="sm"
+            className="border-stone-200 dark:border-stone-700"
+          >
             다시 시도
           </Button>
         </div>

@@ -8,7 +8,12 @@ import React from "react";
 import { BookIcon, ShieldSecurityIcon } from "@/shared/components/icons";
 import { User } from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/shadcn/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/shadcn/card";
 import { Separator } from "@/shared/components/shadcn/separator";
 import { PriceDisplay } from "@/shared/components/ui/price-display";
 
@@ -85,7 +90,11 @@ export const PaymentSummary = ({ order }: PaymentSummaryProps) => {
         <div className="space-y-2 text-xs">
           <div className="flex justify-between text-stone-500 dark:text-stone-400">
             <span>{t("book_price")}</span>
-            <PriceDisplay value={order.amount} size="sm" className="text-stone-800 dark:text-stone-200 font-semibold tabular-nums" />
+            <PriceDisplay
+              value={order.amount}
+              size="sm"
+              className="text-stone-800 dark:text-stone-200 font-semibold tabular-nums"
+            />
           </div>
           <div className="flex justify-between text-stone-500 dark:text-stone-400">
             <span>{t("shipping_fee")}</span>
@@ -95,7 +104,9 @@ export const PaymentSummary = ({ order }: PaymentSummaryProps) => {
           </div>
           <Separator className="my-2 bg-stone-100 dark:bg-stone-800" />
           <div className="flex justify-between items-center text-sm font-bold pt-1">
-            <span className="text-stone-900 dark:text-stone-100">{t("total_amount")}</span>
+            <span className="text-stone-900 dark:text-stone-100">
+              {t("total_amount")}
+            </span>
             <PriceDisplay
               value={order.amount}
               size="lg"

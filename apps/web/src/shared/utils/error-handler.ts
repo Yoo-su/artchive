@@ -20,4 +20,3 @@ export const handleMutationError = (error: unknown, context?: string) => {
     onShowError: (message) => toast.error(message),
   });
 };
-

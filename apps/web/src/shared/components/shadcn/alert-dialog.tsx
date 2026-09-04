@@ -82,7 +82,7 @@ const AlertDialogOverlay = React.forwardRef<
       transition={{ duration: 0.2, ease: "easeOut" }}
       className={cn(
         "fixed inset-0 z-50 bg-black/70 backdrop-blur-xs",
-        className
+        className,
       )}
       {...props}
     />
@@ -111,7 +111,7 @@ const AlertDialogContent = React.forwardRef<
         transition={{ type: "spring", stiffness: 400, damping: 30 }}
         className={cn(
           "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-xl sm:rounded-xl",
-          className
+          className,
         )}
         {...props}
       />
@@ -128,7 +128,7 @@ const AlertDialogHeader = ({
     data-slot="alert-dialog-header"
     className={cn(
       "flex flex-col space-y-2 text-center sm:text-left",
-      className
+      className,
     )}
     {...props}
   />
@@ -143,7 +143,7 @@ const AlertDialogFooter = ({
     data-slot="alert-dialog-footer"
     className={cn(
       "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
-      className
+      className,
     )}
     {...props}
   />
@@ -200,7 +200,7 @@ const AlertDialogCancel = React.forwardRef<
     className={cn(
       buttonVariants({ variant: "outline" }),
       "mt-2 sm:mt-0",
-      className
+      className,
     )}
     {...props}
   />

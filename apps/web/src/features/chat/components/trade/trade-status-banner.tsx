@@ -169,7 +169,8 @@ export const TradeStatusBanner = ({
     room.usedBookSale.status === SaleStatus.RESERVED &&
     (!order ||
       order.status === OrderStatus.CANCELLED ||
-      (order.buyerId !== currentUser?.id && order.sellerId !== currentUser?.id));
+      (order.buyerId !== currentUser?.id &&
+        order.sellerId !== currentUser?.id));
 
   if (isOtherBuyerTrading) {
     return (
@@ -202,7 +203,11 @@ export const TradeStatusBanner = ({
       );
     }
 
-    if (isSeller && room.usedBookSale.status === SaleStatus.FOR_SALE && opponent) {
+    if (
+      isSeller &&
+      room.usedBookSale.status === SaleStatus.FOR_SALE &&
+      opponent
+    ) {
       return (
         <>
           <div className="flex items-center justify-between px-4 py-2.5 bg-stone-50/95 dark:bg-stone-900/95 border-b border-stone-200 dark:border-stone-800">
@@ -240,32 +245,44 @@ export const TradeStatusBanner = ({
     switch (order.status) {
       case OrderStatus.AWAITING_PAYMENT:
         return {
-          icon: <ClockIcon className="w-3.5 h-3.5 text-stone-700 dark:text-stone-300" />,
+          icon: (
+            <ClockIcon className="w-3.5 h-3.5 text-stone-700 dark:text-stone-300" />
+          ),
           titleColor: "text-stone-900 dark:text-stone-100",
         };
       case OrderStatus.PAID:
         return {
-          icon: <BoxIcon className="w-3.5 h-3.5 text-stone-700 dark:text-stone-300" />,
+          icon: (
+            <BoxIcon className="w-3.5 h-3.5 text-stone-700 dark:text-stone-300" />
+          ),
           titleColor: "text-stone-900 dark:text-stone-100",
         };
       case OrderStatus.SHIPPED:
         return {
-          icon: <TruckFastIcon className="w-3.5 h-3.5 text-stone-700 dark:text-stone-300" />,
+          icon: (
+            <TruckFastIcon className="w-3.5 h-3.5 text-stone-700 dark:text-stone-300" />
+          ),
           titleColor: "text-stone-900 dark:text-stone-100",
         };
       case OrderStatus.DELIVERED:
         return {
-          icon: <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />,
+          icon: (
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+          ),
           titleColor: "text-emerald-600 dark:text-emerald-400",
         };
       case OrderStatus.CONFIRMED:
         return {
-          icon: <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />,
+          icon: (
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+          ),
           titleColor: "text-emerald-600 dark:text-emerald-400",
         };
       case OrderStatus.DISPUTED:
         return {
-          icon: <AlertCircle className="w-3.5 h-3.5 text-stone-700 dark:text-stone-300" />,
+          icon: (
+            <AlertCircle className="w-3.5 h-3.5 text-stone-700 dark:text-stone-300" />
+          ),
           titleColor: "text-stone-800 dark:text-stone-200",
         };
       case OrderStatus.CANCELLED:
@@ -304,11 +321,16 @@ export const TradeStatusBanner = ({
           order.carrier &&
           order.trackingNumber ? (
             <span className="text-xs font-medium text-stone-500 dark:text-stone-400 truncate">
-              · {order.carrier} <span className="font-mono">{order.trackingNumber}</span>
+              · {order.carrier}{" "}
+              <span className="font-mono">{order.trackingNumber}</span>
             </span>
           ) : order.amount ? (
             <span className="text-xs font-medium text-stone-600 dark:text-stone-300 shrink-0">
-              · <span className="font-bold text-stone-900 dark:text-stone-100 tabular-nums">{order.amount.toLocaleString()}</span>원
+              ·{" "}
+              <span className="font-bold text-stone-900 dark:text-stone-100 tabular-nums">
+                {order.amount.toLocaleString()}
+              </span>
+              원
             </span>
           ) : null}
         </div>

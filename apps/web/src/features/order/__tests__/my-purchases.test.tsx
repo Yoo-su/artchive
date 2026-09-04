@@ -197,7 +197,9 @@ vi.mock("@/features/confirm", () => ({
 const renderWithQueryClient = (ui: React.ReactElement) =>
   render(
     <QueryClientProvider
-      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      client={
+        new QueryClient({ defaultOptions: { queries: { retry: false } } })
+      }
     >
       {ui}
     </QueryClientProvider>,
@@ -229,7 +231,9 @@ describe("MyPurchasesList", () => {
     renderWithQueryClient(<MyPurchasesList />);
 
     expect(screen.getByRole("button", { name: "전체" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "결제 대기" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "결제 대기" }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "배송 중" })).toBeInTheDocument();
     expect(screen.getByText("클린 코드 (Clean Code)")).toBeInTheDocument();
     expect(screen.getByText("도메인 주도 설계")).toBeInTheDocument();

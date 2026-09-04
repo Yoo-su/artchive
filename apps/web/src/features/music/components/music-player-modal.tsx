@@ -165,14 +165,24 @@ export function MusicPlayerModal() {
                 type="button"
                 onClick={togglePlay}
                 className="flex h-13 w-13 items-center justify-center rounded-full bg-stone-900 text-white shadow-md transition-colors hover:bg-stone-800"
-                aria-label={isPlaying ? t("controls.pause") : t("controls.play")}
+                aria-label={
+                  isPlaying ? t("controls.pause") : t("controls.play")
+                }
               >
                 <AnimatePresence mode="wait">
                   <motion.span
                     key={isPlaying ? "pause" : "play"}
-                    initial={{ scale: 0.5, rotate: isPlaying ? -45 : 45, opacity: 0 }}
+                    initial={{
+                      scale: 0.5,
+                      rotate: isPlaying ? -45 : 45,
+                      opacity: 0,
+                    }}
                     animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                    exit={{ scale: 0.5, rotate: isPlaying ? 45 : -45, opacity: 0 }}
+                    exit={{
+                      scale: 0.5,
+                      rotate: isPlaying ? 45 : -45,
+                      opacity: 0,
+                    }}
                     transition={{ duration: 0.16, ease: "easeOut" }}
                     className="flex items-center justify-center"
                   >
@@ -207,7 +217,9 @@ export function MusicPlayerModal() {
                 onClick={() => setVolume(volume > 0 ? 0 : 80)}
                 className="text-stone-400 transition-colors hover:text-stone-700 cursor-pointer"
                 title={volume === 0 ? t("controls.unmute") : t("controls.mute")}
-                aria-label={volume === 0 ? t("controls.unmute") : t("controls.mute")}
+                aria-label={
+                  volume === 0 ? t("controls.unmute") : t("controls.mute")
+                }
               >
                 {volume === 0 ? (
                   <VolumeX className="h-4 w-4" aria-hidden="true" />

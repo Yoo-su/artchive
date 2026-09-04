@@ -135,9 +135,7 @@ describe("Phase 7 - Trade UI Components", () => {
 
     it("BOTH 거래방식을 올바르게 표시한다", () => {
       render(<TradeMethodBadge tradeMethod={TradeMethod.BOTH} />);
-      expect(
-        screen.getByText("market.trade_method.BOTH"),
-      ).toBeInTheDocument();
+      expect(screen.getByText("market.trade_method.BOTH")).toBeInTheDocument();
     });
   });
 
@@ -158,7 +156,11 @@ describe("Phase 7 - Trade UI Components", () => {
       // 분기(CANCELLED)로 떨어져 "주문 취소"로 보인다.
       renderWithQuery(
         <TradeMessageCard
-          message={tradeMessage({ saleId: 1, completionId: 3, tradeStatus: "COMPLETED" })}
+          message={tradeMessage({
+            saleId: 1,
+            completionId: 3,
+            tradeStatus: "COMPLETED",
+          })}
           currentUserId={mockBuyer.id}
         />,
       );

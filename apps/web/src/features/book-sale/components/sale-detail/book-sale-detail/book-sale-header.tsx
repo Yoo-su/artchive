@@ -1,4 +1,4 @@
-import { formatPostDate ,  UsedBookSale } from "@bookjeok/core";
+import { formatPostDate, UsedBookSale } from "@bookjeok/core";
 import { useTranslations } from "next-intl";
 
 import { Clock, Eye, MapPin } from "@/shared/components/icons/iconsax";

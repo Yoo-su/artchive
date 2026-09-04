@@ -43,7 +43,7 @@ export const ImageArea = ({ className }: { className?: string }) => {
         </div>
       )}
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
-      
+
       {/* 비공개 표시 */}
       {!review.isPublic && (
         <div className="absolute top-2 left-2 text-[9px] text-white/90 bg-black/50 px-1.5 py-0.5">

@@ -26,13 +26,19 @@ export const savePendingOrderShipping = (
   try {
     sessionStorage.setItem(key, data);
   } catch (error) {
-    console.error("Failed to save pending order shipping to sessionStorage:", error);
+    console.error(
+      "Failed to save pending order shipping to sessionStorage:",
+      error,
+    );
   }
 
   try {
     localStorage.setItem(key, data);
   } catch (error) {
-    console.error("Failed to save pending order shipping to localStorage:", error);
+    console.error(
+      "Failed to save pending order shipping to localStorage:",
+      error,
+    );
   }
 };
 
@@ -56,7 +62,10 @@ export const getPendingOrderShipping = (
       }
     }
   } catch (error) {
-    console.error("Failed to get pending order shipping from sessionStorage:", error);
+    console.error(
+      "Failed to get pending order shipping from sessionStorage:",
+      error,
+    );
   }
 
   // 2. localStorage fallback 확인
@@ -71,7 +80,10 @@ export const getPendingOrderShipping = (
       }
     }
   } catch (error) {
-    console.error("Failed to get pending order shipping from localStorage:", error);
+    console.error(
+      "Failed to get pending order shipping from localStorage:",
+      error,
+    );
   }
 
   return null;
@@ -86,11 +98,17 @@ export const clearPendingOrderShipping = (orderId: string): void => {
   try {
     sessionStorage.removeItem(key);
   } catch (error) {
-    console.error("Failed to clear pending order shipping from sessionStorage:", error);
+    console.error(
+      "Failed to clear pending order shipping from sessionStorage:",
+      error,
+    );
   }
   try {
     localStorage.removeItem(key);
   } catch (error) {
-    console.error("Failed to clear pending order shipping from localStorage:", error);
+    console.error(
+      "Failed to clear pending order shipping from localStorage:",
+      error,
+    );
   }
 };

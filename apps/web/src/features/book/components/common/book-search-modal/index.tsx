@@ -139,9 +139,7 @@ export const BookSearchModal = ({
                 className="text-center py-20 text-destructive"
               >
                 <p className="font-medium">{t("error_title")}</p>
-                <p className="text-sm opacity-80 mt-1">
-                  {t("error_desc")}
-                </p>
+                <p className="text-sm opacity-80 mt-1">{t("error_desc")}</p>
               </motion.div>
             ) : !debouncedQuery ? (
               <motion.div

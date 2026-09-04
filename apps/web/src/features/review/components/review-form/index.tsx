@@ -1,6 +1,11 @@
 "use client";
 
-import { BOOK_DOMAINS, BookInfo, CATEGORY_MAP, ReviewFormValues } from "@bookjeok/core";
+import {
+  BOOK_DOMAINS,
+  BookInfo,
+  CATEGORY_MAP,
+  ReviewFormValues,
+} from "@bookjeok/core";
 import { zodResolver } from "@hookform/resolvers/zod";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -166,7 +171,6 @@ export const ReviewForm = ({
   };
 
   const isProcessing = isSubmitting || isUploading;
-
 
   const currentSubmitLabel =
     submitLabel ||

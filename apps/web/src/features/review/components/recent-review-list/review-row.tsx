@@ -29,7 +29,10 @@ export const ReviewRow = ({ review }: ReviewRowProps) => {
 
   // HTML 태그 제거 및 본문 텍스트 요약 가공
   const plainContent = review.content
-    ? review.content.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim()
+    ? review.content
+        .replace(/<[^>]*>/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
     : "";
 
   return (
@@ -66,7 +69,9 @@ export const ReviewRow = ({ review }: ReviewRowProps) => {
             </div>
           )}
           {review.rating > 0 && book?.title && (
-            <span className="text-[10px] text-stone-300 hidden sm:inline">|</span>
+            <span className="text-[10px] text-stone-300 hidden sm:inline">
+              |
+            </span>
           )}
           {book?.title && (
             <span className="text-[11px] text-stone-400 truncate max-w-[180px] sm:max-w-[300px] font-light">
@@ -91,10 +96,7 @@ export const ReviewRow = ({ review }: ReviewRowProps) => {
         {review.tags && review.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {review.tags.slice(0, 3).map((tag: string) => (
-              <span
-                key={tag}
-                className="text-[10px] text-stone-400 font-light"
-              >
+              <span key={tag} className="text-[10px] text-stone-400 font-light">
                 #{tag}
               </span>
             ))}

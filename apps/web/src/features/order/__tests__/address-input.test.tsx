@@ -30,7 +30,9 @@ vi.mock("next-intl", () => ({
 }));
 
 vi.mock("react-daum-postcode", () => ({
-  DaumPostcodeEmbed: () => <div data-testid="daum-postcode-embed">DaumPostcodeEmbed Mock</div>,
+  DaumPostcodeEmbed: () => (
+    <div data-testid="daum-postcode-embed">DaumPostcodeEmbed Mock</div>
+  ),
 }));
 
 describe("AddressInput component", () => {
@@ -50,7 +52,9 @@ describe("AddressInput component", () => {
     expect(screen.getByDisplayValue("홍길동")).toBeInTheDocument();
     expect(screen.getByDisplayValue("010-1234-5678")).toBeInTheDocument();
     expect(screen.getByDisplayValue("06234")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("서울특별시 강남구 테헤란로 123")).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue("서울특별시 강남구 테헤란로 123"),
+    ).toBeInTheDocument();
     expect(screen.getByDisplayValue("101동 1001호")).toBeInTheDocument();
     expect(screen.getByDisplayValue("문 앞에 놓아주세요")).toBeInTheDocument();
   });
@@ -101,8 +105,12 @@ describe("AddressInput component", () => {
     );
 
     expect(screen.getByText("수령인 이름을 입력해주세요.")).toBeInTheDocument();
-    expect(screen.getByText("올바른 연락처 형식이 아닙니다.")).toBeInTheDocument();
-    expect(screen.getByText("배송지 주소를 검색하여 입력해주세요.")).toBeInTheDocument();
+    expect(
+      screen.getByText("올바른 연락처 형식이 아닙니다."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("배송지 주소를 검색하여 입력해주세요."),
+    ).toBeInTheDocument();
     expect(screen.getByText("상세 주소를 입력해주세요.")).toBeInTheDocument();
   });
 

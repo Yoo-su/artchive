@@ -15,7 +15,7 @@ export const TermsView = () => {
             {t("title")}
           </h1>
         </header>
-        
+
         <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-stone-900/5 sm:p-10">
           <div className="text-stone-600 leading-relaxed space-y-8">
             {locale === "en" ? <TermsEn /> : <TermsKo />}

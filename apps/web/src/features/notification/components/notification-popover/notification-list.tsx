@@ -63,4 +63,3 @@ export const NotificationList = ({ onClose }: NotificationListProps) => {
     </ScrollArea>
   );
 };
-

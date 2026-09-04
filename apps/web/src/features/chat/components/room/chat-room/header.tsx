@@ -10,7 +10,11 @@ import { toast } from "sonner";
 import { useConfirm } from "@/features/confirm";
 import { BookIcon } from "@/shared/components/icons";
 import { ArrowLeft, LogOut } from "@/shared/components/icons/iconsax";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/shadcn/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/shared/components/shadcn/avatar";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Tooltip,
@@ -61,7 +65,8 @@ export const ChatRoomHeader = ({
   const { data: order } = useActiveOrderByRoomQuery(
     activeChatRoomId ?? undefined,
     {
-      enabled: Boolean(activeChatRoomId) && isPaymentFeatureEnabled && isChatOpen,
+      enabled:
+        Boolean(activeChatRoomId) && isPaymentFeatureEnabled && isChatOpen,
     },
   );
 
@@ -107,12 +112,19 @@ export const ChatRoomHeader = ({
         }
       },
     );
-  }, [socket, activeChatRoomId, isInTrade, confirm, queryClient, closeChatRoom, t]);
+  }, [
+    socket,
+    activeChatRoomId,
+    isInTrade,
+    confirm,
+    queryClient,
+    closeChatRoom,
+    t,
+  ]);
 
   const bookImage =
     room.usedBookSale?.imageUrls?.[0] || room.usedBookSale?.book?.image;
-  const bookTitle =
-    room.usedBookSale?.title || room.usedBookSale?.book?.title;
+  const bookTitle = room.usedBookSale?.title || room.usedBookSale?.book?.title;
   const bookPrice = room.usedBookSale?.price;
 
   // 헤더 배경이 불투명하므로 backdrop-blur는 시각적 효과가 없고,
@@ -199,7 +211,11 @@ export const ChatRoomHeader = ({
           )}
 
           {/* 2행: 평소에는 책 정보, 입력 중일 때는 타이핑 안내 표시 */}
-          <div className="h-4 flex items-center overflow-hidden" aria-live="polite" aria-atomic="true">
+          <div
+            className="h-4 flex items-center overflow-hidden"
+            aria-live="polite"
+            aria-atomic="true"
+          >
             <AnimatePresence mode="wait">
               {typingNickname ? (
                 <motion.p
@@ -225,9 +241,14 @@ export const ChatRoomHeader = ({
                   {bookTitle}
                   {bookPrice !== undefined && (
                     <>
-                      <span className="mx-1 text-stone-300 dark:text-stone-600">·</span>
+                      <span className="mx-1 text-stone-300 dark:text-stone-600">
+                        ·
+                      </span>
                       <span className="font-medium text-stone-700 dark:text-stone-300">
-                        <span className="tabular-nums">{bookPrice.toLocaleString()}</span>원
+                        <span className="tabular-nums">
+                          {bookPrice.toLocaleString()}
+                        </span>
+                        원
                       </span>
                     </>
                   )}
@@ -245,8 +266,12 @@ export const ChatRoomHeader = ({
         className="h-8 w-8 text-stone-400 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-500 dark:hover:text-stone-300 dark:hover:bg-stone-800 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
         onClick={handleLeaveRoom}
         disabled={isInTrade}
-        title={isInTrade ? t("cannot_leave_during_trade") : t("aria.leave_room")}
-        aria-label={isInTrade ? t("cannot_leave_during_trade") : t("aria.leave_room")}
+        title={
+          isInTrade ? t("cannot_leave_during_trade") : t("aria.leave_room")
+        }
+        aria-label={
+          isInTrade ? t("cannot_leave_during_trade") : t("aria.leave_room")
+        }
       >
         <LogOut size={18} />
       </Button>

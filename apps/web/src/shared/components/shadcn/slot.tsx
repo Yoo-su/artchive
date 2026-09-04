@@ -17,7 +17,6 @@ type WithAsChild<Base extends object> =
   | (Base & { asChild?: false | undefined });
 
 type SlotProps<T extends HTMLElement = HTMLElement> = {
-   
   children?: any;
 } & DOMMotionProps<T>;
 
@@ -57,14 +56,14 @@ function mergeRefs<T>(
 
 function mergeProps<T extends HTMLElement>(
   childProps: AnyProps,
-  slotProps: DOMMotionProps<T>
+  slotProps: DOMMotionProps<T>,
 ): AnyProps {
   const merged: AnyProps = { ...childProps, ...slotProps };
 
   if (childProps.className || slotProps.className) {
     merged.className = cn(
       childProps.className as string,
-      slotProps.className as string
+      slotProps.className as string,
     );
   }
 

@@ -33,7 +33,8 @@ export function MusicPlayer({
 }: MusicPlayerProps) {
   const t = useTranslations("music.controls");
   const [internalIsPlaying, setInternalIsPlaying] = useState(autoPlay);
-  const isPlaying = controlledIsPlaying !== undefined ? controlledIsPlaying : internalIsPlaying;
+  const isPlaying =
+    controlledIsPlaying !== undefined ? controlledIsPlaying : internalIsPlaying;
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -41,7 +42,7 @@ export function MusicPlayer({
   // Extract YouTube ID if it's a YouTube URL
   const getYoutubeId = (url: string) => {
     const match = url.match(
-      /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/
+      /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/,
     );
     return match ? match[1] : null;
   };
@@ -55,7 +56,7 @@ export function MusicPlayer({
       if (youtubeId && iframeRef.current?.contentWindow) {
         iframeRef.current.contentWindow.postMessage(
           JSON.stringify({ event: "command", func: "playVideo", args: [] }),
-          "*"
+          "*",
         );
       } else {
         audioRef.current?.play().catch(() => setInternalIsPlaying(false));
@@ -64,7 +65,7 @@ export function MusicPlayer({
       if (youtubeId && iframeRef.current?.contentWindow) {
         iframeRef.current.contentWindow.postMessage(
           JSON.stringify({ event: "command", func: "pauseVideo", args: [] }),
-          "*"
+          "*",
         );
       } else {
         audioRef.current?.pause();
@@ -152,7 +153,7 @@ export function MusicPlayer({
         {/* Record Disc */}
         <div
           className={cn(
-            "relative h-full w-full overflow-hidden rounded-full border-4 border-black/10 bg-black shadow-xl shadow-black/30 sm:border-8 dark:border-white/10"
+            "relative h-full w-full overflow-hidden rounded-full border-4 border-black/10 bg-black shadow-xl shadow-black/30 sm:border-8 dark:border-white/10",
           )}
           style={{
             animation: "spin 4s linear infinite",

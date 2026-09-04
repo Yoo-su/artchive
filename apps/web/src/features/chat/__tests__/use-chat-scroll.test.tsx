@@ -76,18 +76,14 @@ describe("useChatScroll", () => {
     isFetchingPreviousPage = false,
     fetchPreviousPage = vi.fn(),
   }: TestComponentProps) => {
-    const {
-      messageContainerRef,
-      contentRef,
-      messagesEndRef,
-      handleScroll,
-    } = useChatScroll({
-      roomId,
-      messages,
-      hasPreviousPage,
-      isFetchingPreviousPage,
-      fetchPreviousPage,
-    });
+    const { messageContainerRef, contentRef, messagesEndRef, handleScroll } =
+      useChatScroll({
+        roomId,
+        messages,
+        hasPreviousPage,
+        isFetchingPreviousPage,
+        fetchPreviousPage,
+      });
 
     return (
       <div
@@ -207,7 +203,11 @@ describe("useChatScroll", () => {
     setElementDimensions(container, 1500, 600);
     rerender(
       <TestChatComponent
-        messages={[createDummyMessage(1), createDummyMessage(2), ...initialMessages]}
+        messages={[
+          createDummyMessage(1),
+          createDummyMessage(2),
+          ...initialMessages,
+        ]}
         hasPreviousPage={true}
         fetchPreviousPage={fetchPreviousPage}
       />,

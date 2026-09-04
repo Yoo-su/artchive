@@ -29,7 +29,10 @@ vi.mock("next-intl", () => ({
   useLocale: () => "ko",
   useTranslations: (namespace: string) => (key: string) => {
     const map: Record<string, string> = {
-      title: namespace === "order.shipping_modal" ? "운송장 번호 등록" : "구매확정 거부 및 문제 신고",
+      title:
+        namespace === "order.shipping_modal"
+          ? "운송장 번호 등록"
+          : "구매확정 거부 및 문제 신고",
       desc: "설명 텍스트",
       carrier_label: "택배사",
       carrier_placeholder: "택배사를 선택하세요",
@@ -63,7 +66,13 @@ describe("ShippingFormModal", () => {
   });
 
   it("renders carrier selector and tracking input", () => {
-    render(<ShippingFormModal orderId={"ORD-123"} open={true} onOpenChange={vi.fn()} />);
+    render(
+      <ShippingFormModal
+        orderId={"ORD-123"}
+        open={true}
+        onOpenChange={vi.fn()}
+      />,
+    );
 
     expect(screen.getByText("운송장 번호 등록")).toBeInTheDocument();
     expect(screen.getByText("택배사")).toBeInTheDocument();
@@ -71,7 +80,13 @@ describe("ShippingFormModal", () => {
   });
 
   it("shows error when submitting empty form", () => {
-    render(<ShippingFormModal orderId={"ORD-123"} open={true} onOpenChange={vi.fn()} />);
+    render(
+      <ShippingFormModal
+        orderId={"ORD-123"}
+        open={true}
+        onOpenChange={vi.fn()}
+      />,
+    );
 
     const submitBtn = screen.getByRole("button", { name: "등록하기" });
     fireEvent.click(submitBtn);
@@ -88,15 +103,23 @@ describe("DisputeModal", () => {
   });
 
   it("renders dispute dialog and escrow warning", () => {
-    render(<DisputeModal orderId={"ORD-123"} open={true} onOpenChange={vi.fn()} />);
+    render(
+      <DisputeModal orderId={"ORD-123"} open={true} onOpenChange={vi.fn()} />,
+    );
 
     expect(screen.getByText("구매확정 거부 및 문제 신고")).toBeInTheDocument();
-    expect(screen.getByText("에스크로 대금 지급이 보류됩니다.")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("사유를 입력하세요")).toBeInTheDocument();
+    expect(
+      screen.getByText("에스크로 대금 지급이 보류됩니다."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText("사유를 입력하세요"),
+    ).toBeInTheDocument();
   });
 
   it("shows error when reason length is less than 5 characters", () => {
-    render(<DisputeModal orderId={"ORD-123"} open={true} onOpenChange={vi.fn()} />);
+    render(
+      <DisputeModal orderId={"ORD-123"} open={true} onOpenChange={vi.fn()} />,
+    );
 
     const textarea = screen.getByPlaceholderText("사유를 입력하세요");
     fireEvent.change(textarea, { target: { value: "파손" } });
@@ -104,7 +127,9 @@ describe("DisputeModal", () => {
     const submitBtn = screen.getByRole("button", { name: "등록하기" });
     fireEvent.click(submitBtn);
 
-    expect(screen.getByText("사유를 5자 이상 작성해주세요.")).toBeInTheDocument();
+    expect(
+      screen.getByText("사유를 5자 이상 작성해주세요."),
+    ).toBeInTheDocument();
     expect(mockDisputeOrderMutate).not.toHaveBeenCalled();
   });
 
@@ -120,7 +145,9 @@ describe("DisputeModal", () => {
     );
 
     const textarea = screen.getByPlaceholderText("사유를 입력하세요");
-    fireEvent.change(textarea, { target: { value: "도서 표지가 찢어져서 배송되었습니다." } });
+    fireEvent.change(textarea, {
+      target: { value: "도서 표지가 찢어져서 배송되었습니다." },
+    });
 
     const submitBtn = screen.getByRole("button", { name: "등록하기" });
     fireEvent.click(submitBtn);

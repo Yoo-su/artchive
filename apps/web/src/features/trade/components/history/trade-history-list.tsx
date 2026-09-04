@@ -5,7 +5,12 @@ import { useMyTradeCompletionsQuery } from "@bookjeok/react-query";
 import { useTranslations } from "next-intl";
 import React, { useState } from "react";
 
-import { AlertTriangle, ChevronLeft, ChevronRight, Handshake } from "@/shared/components/icons/iconsax";
+import {
+  AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
+  Handshake,
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";

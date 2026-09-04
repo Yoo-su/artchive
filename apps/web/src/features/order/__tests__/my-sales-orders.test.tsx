@@ -144,7 +144,9 @@ vi.mock("@/features/confirm", () => ({
 const renderWithQueryClient = (ui: React.ReactElement) =>
   render(
     <QueryClientProvider
-      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      client={
+        new QueryClient({ defaultOptions: { queries: { retry: false } } })
+      }
     >
       {ui}
     </QueryClientProvider>,
@@ -160,7 +162,6 @@ describe("SalesOrderCard", () => {
     expect(screen.getByText("발송 요청")).toBeInTheDocument();
     expect(screen.getAllByText(/이구매/).length).toBeGreaterThan(0);
     expect(screen.getByText("운송장 등록")).toBeInTheDocument();
-
   });
 });
 
@@ -169,7 +170,9 @@ describe("MySalesOrdersList", () => {
     renderWithQueryClient(<MySalesOrdersList />);
 
     expect(screen.getByRole("button", { name: "전체" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "발송 요청" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "발송 요청" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Real MySQL 8.0 1권")).toBeInTheDocument();
   });
 });

@@ -38,7 +38,9 @@ let queryClient: QueryClient;
 const seedPages = (pages: ChatMessage[][]) => {
   queryClient.setQueryData<MessagesCache>(chatKeys.messages(ROOM_ID).queryKey, {
     pages: pages.map((messages) => ({ messages })),
-    pageParams: pages.map((_, index) => (index === pages.length - 1 ? undefined : index)),
+    pageParams: pages.map((_, index) =>
+      index === pages.length - 1 ? undefined : index,
+    ),
   });
 };
 
@@ -153,10 +155,7 @@ describe("페이지가 여러 개일 때", () => {
   });
 
   it("짝 없는 서버 메시지도 최신 페이지에 붙인다", () => {
-    seedPages([
-      [createMessage(2, "과거2")],
-      [createMessage(20, "최신20")],
-    ]);
+    seedPages([[createMessage(2, "과거2")], [createMessage(20, "최신20")]]);
 
     replaceOptimisticMessage(
       queryClient,

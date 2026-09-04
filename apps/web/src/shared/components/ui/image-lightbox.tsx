@@ -4,7 +4,12 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
-import { ChevronLeft, ChevronRight, Loader2, X } from "@/shared/components/icons/iconsax";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  X,
+} from "@/shared/components/icons/iconsax";
 import {
   Dialog,
   DialogContent,

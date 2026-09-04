@@ -43,10 +43,7 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const contextValue = useMemo(
-    () => ({ mount, unmount }),
-    [mount, unmount],
-  );
+  const contextValue = useMemo(() => ({ mount, unmount }), [mount, unmount]);
 
   return (
     <OverlayContext.Provider value={contextValue}>

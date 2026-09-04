@@ -250,7 +250,7 @@ export const EditorToolbar = ({ editor, onImageAdd }: EditorToolbarProps) => {
                 onClick={btn.action}
                 className={cn(
                   "h-8 w-8 p-0",
-                  btn.isActive && "bg-muted text-primary"
+                  btn.isActive && "bg-muted text-primary",
                 )}
                 aria-label={btn.label}
               >
@@ -276,7 +276,7 @@ export const EditorToolbar = ({ editor, onImageAdd }: EditorToolbarProps) => {
                 onClick={btn.action}
                 className={cn(
                   "h-8 w-8 p-0",
-                  btn.isActive && "bg-muted text-primary"
+                  btn.isActive && "bg-muted text-primary",
                 )}
                 aria-label={btn.label}
               >
@@ -302,7 +302,7 @@ export const EditorToolbar = ({ editor, onImageAdd }: EditorToolbarProps) => {
                 onClick={btn.action}
                 className={cn(
                   "h-8 w-8 p-0",
-                  btn.isActive && "bg-muted text-primary"
+                  btn.isActive && "bg-muted text-primary",
                 )}
                 aria-label={btn.label}
               >
@@ -328,7 +328,7 @@ export const EditorToolbar = ({ editor, onImageAdd }: EditorToolbarProps) => {
                 onClick={btn.action}
                 className={cn(
                   "h-8 w-8 p-0",
-                  btn.isActive && "bg-muted text-primary"
+                  btn.isActive && "bg-muted text-primary",
                 )}
                 aria-label={btn.label}
               >
@@ -354,7 +354,7 @@ export const EditorToolbar = ({ editor, onImageAdd }: EditorToolbarProps) => {
                   size="sm"
                   className={cn(
                     "h-8 w-8 p-0",
-                    editor.isActive("textStyle") && "bg-muted"
+                    editor.isActive("textStyle") && "bg-muted",
                   )}
                 >
                   <Palette className="h-4 w-4" />
@@ -398,7 +398,7 @@ export const EditorToolbar = ({ editor, onImageAdd }: EditorToolbarProps) => {
                   size="sm"
                   className={cn(
                     "h-8 w-8 p-0",
-                    editor.isActive("highlight") && "bg-muted"
+                    editor.isActive("highlight") && "bg-muted",
                   )}
                 >
                   <Highlighter className="h-4 w-4" />
@@ -463,7 +463,7 @@ export const EditorToolbar = ({ editor, onImageAdd }: EditorToolbarProps) => {
               onClick={setLink}
               className={cn(
                 "h-8 w-8 p-0",
-                editor.isActive("link") && "bg-muted text-primary"
+                editor.isActive("link") && "bg-muted text-primary",
               )}
             >
               <LinkIcon className="h-4 w-4" />

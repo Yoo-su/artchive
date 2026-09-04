@@ -1,7 +1,10 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
-import { BookjeokTextLogo, LogoVariant } from "@/shared/components/icons/bookjeok-text-logo";
+import {
+  BookjeokTextLogo,
+  LogoVariant,
+} from "@/shared/components/icons/bookjeok-text-logo";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
@@ -16,11 +19,7 @@ export const Logo = ({ size = "md", variant = "ko" }: LogoProps) => {
   const isKorean = variant.startsWith("ko");
 
   return (
-    <Link
-      href={PATHS.HOME}
-      className="inline-block"
-      aria-label={t("go_home")}
-    >
+    <Link href={PATHS.HOME} className="inline-block" aria-label={t("go_home")}>
       <div className="group relative flex items-center cursor-pointer select-none">
         <Image
           src="/logo-square-sketch.svg"
@@ -48,4 +47,3 @@ export const Logo = ({ size = "md", variant = "ko" }: LogoProps) => {
     </Link>
   );
 };
-

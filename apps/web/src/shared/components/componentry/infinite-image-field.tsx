@@ -43,7 +43,7 @@ function drawRoundedRect(
   y: number,
   w: number,
   h: number,
-  r: number
+  r: number,
 ) {
   if (r <= 0) {
     ctx.beginPath();
@@ -327,11 +327,10 @@ export function InfiniteImageField({
       {...rest}
       className={cn(
         "relative w-full h-full overflow-hidden select-none",
-        className
+        className,
       )}
     >
       <canvas ref={canvasRef} className="block w-full h-full bg-transparent" />
     </div>
   );
 }
-

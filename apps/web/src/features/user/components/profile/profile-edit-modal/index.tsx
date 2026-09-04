@@ -244,9 +244,7 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
 
       // 이메일 변경/등록 (로컬 유저, 카카오 유저, 또는 이메일 미등록 유저)
       const isAllowedToChangeEmail =
-        user.provider === "local" ||
-        user.provider === "kakao" ||
-        !user.email;
+        user.provider === "local" || user.provider === "kakao" || !user.email;
       const isEmailChanged =
         isAllowedToChangeEmail && email && email !== user.email;
       if (isEmailChanged) {
@@ -260,8 +258,7 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
       }
 
       // 연령대 변경
-      const mappedAgeRange =
-        ageRange === "none" || !ageRange ? null : ageRange;
+      const mappedAgeRange = ageRange === "none" || !ageRange ? null : ageRange;
       if (mappedAgeRange !== (user.ageRange || null)) {
         updateData.ageRange = mappedAgeRange;
       }
@@ -416,7 +413,10 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
 
           {/* 닉네임 */}
           <div className="grid gap-1.5">
-            <Label htmlFor="nickname" className="text-xs font-semibold text-stone-700">
+            <Label
+              htmlFor="nickname"
+              className="text-xs font-semibold text-stone-700"
+            >
               {t("nickname_label")}
             </Label>
             <div className="relative">
@@ -457,7 +457,10 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
 
           {/* 이름 (실명) */}
           <div className="grid gap-1.5">
-            <Label htmlFor="name" className="text-xs font-semibold text-stone-700">
+            <Label
+              htmlFor="name"
+              className="text-xs font-semibold text-stone-700"
+            >
               {t("name_label")}
             </Label>
             <Input
@@ -473,7 +476,10 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
           {/* 이메일 */}
           <div className="grid gap-1.5">
             <div className="flex items-center justify-between">
-              <Label htmlFor="email" className="text-xs font-semibold text-stone-700">
+              <Label
+                htmlFor="email"
+                className="text-xs font-semibold text-stone-700"
+              >
                 {t("email_label")}
               </Label>
               {!isEmailEditable && (
@@ -514,9 +520,15 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="U">{tSignup("options.gender_none")}</SelectItem>
-                  <SelectItem value="M">{tSignup("options.gender_m")}</SelectItem>
-                  <SelectItem value="F">{tSignup("options.gender_f")}</SelectItem>
+                  <SelectItem value="U">
+                    {tSignup("options.gender_none")}
+                  </SelectItem>
+                  <SelectItem value="M">
+                    {tSignup("options.gender_m")}
+                  </SelectItem>
+                  <SelectItem value="F">
+                    {tSignup("options.gender_f")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -530,14 +542,30 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">{tSignup("options.age_none")}</SelectItem>
-                  <SelectItem value="0-9">{tSignup("options.age_0_9")}</SelectItem>
-                  <SelectItem value="10-19">{tSignup("options.age_10_19")}</SelectItem>
-                  <SelectItem value="20-29">{tSignup("options.age_20_29")}</SelectItem>
-                  <SelectItem value="30-39">{tSignup("options.age_30_39")}</SelectItem>
-                  <SelectItem value="40-49">{tSignup("options.age_40_49")}</SelectItem>
-                  <SelectItem value="50-59">{tSignup("options.age_50_59")}</SelectItem>
-                  <SelectItem value="60-">{tSignup("options.age_60_")}</SelectItem>
+                  <SelectItem value="none">
+                    {tSignup("options.age_none")}
+                  </SelectItem>
+                  <SelectItem value="0-9">
+                    {tSignup("options.age_0_9")}
+                  </SelectItem>
+                  <SelectItem value="10-19">
+                    {tSignup("options.age_10_19")}
+                  </SelectItem>
+                  <SelectItem value="20-29">
+                    {tSignup("options.age_20_29")}
+                  </SelectItem>
+                  <SelectItem value="30-39">
+                    {tSignup("options.age_30_39")}
+                  </SelectItem>
+                  <SelectItem value="40-49">
+                    {tSignup("options.age_40_49")}
+                  </SelectItem>
+                  <SelectItem value="50-59">
+                    {tSignup("options.age_50_59")}
+                  </SelectItem>
+                  <SelectItem value="60-">
+                    {tSignup("options.age_60_")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>

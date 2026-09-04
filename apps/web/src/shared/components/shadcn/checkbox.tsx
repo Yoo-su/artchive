@@ -1,7 +1,7 @@
 "use client";
 
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
-import { type HTMLMotionProps,motion } from "motion/react";
+import { type HTMLMotionProps, motion } from "motion/react";
 import * as React from "react";
 
 import { useControlledState } from "@/shared/hooks/use-controlled-state";
@@ -62,7 +62,7 @@ function Checkbox({
           transition={{ type: "spring", stiffness: 450, damping: 25 }}
           className={cn(
             "peer border-input dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-colors outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer inline-flex items-center justify-center",
-            className
+            className,
           )}
           {...props}
         >

@@ -7,7 +7,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import { cn } from "@/shared/utils";
 
-
 interface ReviewHomeFiltersProps {
   searchInput: string;
   setSearchInput: (value: string) => void;

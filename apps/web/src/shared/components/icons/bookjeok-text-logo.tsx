@@ -15,7 +15,10 @@ interface BookjeokTextLogoProps extends React.SVGProps<SVGSVGElement> {
 }
 
 // Vector paths extracted mathematically from typefaces (no external font dependency)
-const LOGO_PATHS: Record<LogoVariant, { d: string; transform: string; viewBox: string }> = {
+const LOGO_PATHS: Record<
+  LogoVariant,
+  { d: string; transform: string; viewBox: string }
+> = {
   en: {
     viewBox: "0 -10 278 102",
     transform: "translate(-10.0, 68.6)",

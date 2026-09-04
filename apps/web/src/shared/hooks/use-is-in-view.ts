@@ -9,7 +9,7 @@ interface UseIsInViewOptions {
 
 function useIsInView<T extends HTMLElement = HTMLElement>(
   ref: React.Ref<T>,
-  options: UseIsInViewOptions = {}
+  options: UseIsInViewOptions = {},
 ) {
   const { inView = false, inViewOnce = false, inViewMargin = "0px" } = options;
   const localRef = React.useRef<T>(null);
@@ -43,7 +43,7 @@ function useIsInView<T extends HTMLElement = HTMLElement>(
       },
       {
         rootMargin: typeof inViewMargin === "string" ? inViewMargin : undefined,
-      }
+      },
     );
 
     observer.observe(node);

@@ -1,7 +1,12 @@
 "use client";
 
 import { ReviewFormValues } from "@bookjeok/core";
-import { useCreateReviewMutation as useSharedCreateReviewMutation, useDeleteReviewMutation as useSharedDeleteReviewMutation, useToggleReviewReactionMutation as useSharedToggleReviewReactionMutation, useUpdateReviewMutation as useSharedUpdateReviewMutation } from "@bookjeok/react-query";
+import {
+  useCreateReviewMutation as useSharedCreateReviewMutation,
+  useDeleteReviewMutation as useSharedDeleteReviewMutation,
+  useToggleReviewReactionMutation as useSharedToggleReviewReactionMutation,
+  useUpdateReviewMutation as useSharedUpdateReviewMutation,
+} from "@bookjeok/react-query";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -94,8 +99,9 @@ export const useDeleteReviewMutation = () => {
       toast.success(t("delete_success"));
       // 상세가 ISR에 200으로 남으면 다른 방문자·크롤러에게 계속 노출되고,
       // 목록·홈에 남은 링크는 404로 이어진다.
-      void purgeRouteCache(revalidateReview({ reviewId: id, deleted: true }), () =>
-        router.refresh(),
+      void purgeRouteCache(
+        revalidateReview({ reviewId: id, deleted: true }),
+        () => router.refresh(),
       );
     },
   });

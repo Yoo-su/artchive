@@ -99,7 +99,11 @@ export function HeaderMusicButton() {
               {isPlaying ? (
                 <Pause variant="bold" className="h-2 w-2" aria-hidden="true" />
               ) : (
-                <Play variant="bold" className="ml-0.5 h-2 w-2" aria-hidden="true" />
+                <Play
+                  variant="bold"
+                  className="ml-0.5 h-2 w-2"
+                  aria-hidden="true"
+                />
               )}
             </motion.span>
           </AnimatePresence>

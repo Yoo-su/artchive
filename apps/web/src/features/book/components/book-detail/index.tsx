@@ -48,10 +48,8 @@ export const BookDetail = ({ isbn }: BookDetailProps) => {
   }, [isSuccess, book, addRecentBook]);
 
   // 1. 이미 저장된 요약 정보 조회 (비인증 GET)
-  const {
-    data: savedSummary,
-    isLoading: isSavedSummaryLoading,
-  } = useBookSummaryQuery(isbn);
+  const { data: savedSummary, isLoading: isSavedSummaryLoading } =
+    useBookSummaryQuery(isbn);
 
   // 2. AI 요약 정보 생성 요청 Mutation (인증 POST)
   const {
@@ -116,7 +114,9 @@ export const BookDetail = ({ isbn }: BookDetailProps) => {
         <>
           <Separator className="my-8" />
           <RelatedBooksSection
-            title={t("book.detail.related_publisher_books_title", { publisher: book.publisher })}
+            title={t("book.detail.related_publisher_books_title", {
+              publisher: book.publisher,
+            })}
             query={book.publisher}
             queryType="Publisher"
             currentIsbn={isbn}

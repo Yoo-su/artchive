@@ -5,7 +5,11 @@ import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
-import { AlertTriangle, MessageSquare, Plus } from "@/shared/components/icons/iconsax";
+import {
+  AlertTriangle,
+  MessageSquare,
+  Plus,
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
@@ -72,8 +76,15 @@ export function ReviewGridList({
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50/60 dark:bg-stone-900/60 p-10 text-center space-y-3">
         <AlertTriangle className="h-9 w-9 text-stone-400" />
-        <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{t("error")}</p>
-        <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="mt-2 border-stone-200 dark:border-stone-700">
+        <p className="text-sm font-bold text-stone-900 dark:text-stone-100">
+          {t("error")}
+        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.location.reload()}
+          className="mt-2 border-stone-200 dark:border-stone-700"
+        >
           {tCommon("actions.retry")}
         </Button>
       </div>
@@ -131,24 +142,28 @@ export function ReviewGridList({
       <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
         {reviews.map((review, index) => (
           <li key={review.id}>
-            <ReviewCard.Root
-              review={review}
-              priority={index < 4}
-            >
+            <ReviewCard.Root review={review} priority={index < 4}>
               <ReviewCard.Image />
               <ReviewCard.Content>
                 <ReviewCard.Meta />
                 <ReviewCard.Title />
                 <ReviewCard.Tags />
-                <ReviewCard.Action onEdit={onEditReview} onDelete={onDeleteReview} />
+                <ReviewCard.Action
+                  onEdit={onEditReview}
+                  onDelete={onDeleteReview}
+                />
               </ReviewCard.Content>
             </ReviewCard.Root>
           </li>
         ))}
         {isFetchingNextPage && (
           <>
-            <li><ReviewCardSkeleton /></li>
-            <li><ReviewCardSkeleton /></li>
+            <li>
+              <ReviewCardSkeleton />
+            </li>
+            <li>
+              <ReviewCardSkeleton />
+            </li>
           </>
         )}
       </ul>

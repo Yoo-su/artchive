@@ -24,7 +24,8 @@ export function FloatingMusicPill() {
     setMounted(true);
   }, []);
 
-  const isVisible = mounted && isPlaying && !isModalOpen && Boolean(currentTrack);
+  const isVisible =
+    mounted && isPlaying && !isModalOpen && Boolean(currentTrack);
 
   const trackTitle = currentTrack?.title || "";
   const trackArtist = currentTrack?.artist || "";

@@ -1,4 +1,8 @@
-import { useDeleteNotificationMutation as useSharedDeleteNotificationMutation, useMarkAllNotificationsAsReadMutation as useSharedMarkAllNotificationsAsReadMutation, useMarkNotificationAsReadMutation as useSharedMarkNotificationAsReadMutation } from "@bookjeok/react-query";
+import {
+  useDeleteNotificationMutation as useSharedDeleteNotificationMutation,
+  useMarkAllNotificationsAsReadMutation as useSharedMarkAllNotificationsAsReadMutation,
+  useMarkNotificationAsReadMutation as useSharedMarkNotificationAsReadMutation,
+} from "@bookjeok/react-query";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 

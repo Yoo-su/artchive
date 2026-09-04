@@ -84,7 +84,7 @@ function SheetOverlay({
         transition={{ duration: 0.2, ease: "easeOut" }}
         className={cn(
           "fixed inset-0 z-50 bg-black/60 backdrop-blur-xs",
-          className
+          className,
         )}
         {...props}
       />
@@ -144,7 +144,7 @@ function SheetContent({
               "inset-y-0 left-0 h-full w-3/4 border-r sm:max-w-sm",
             side === "top" && "inset-x-0 top-0 h-auto border-b",
             side === "bottom" && "inset-x-0 bottom-0 h-auto border-t",
-            className
+            className,
           )}
           {...props}
         >

@@ -53,11 +53,13 @@ const socketListeners: Record<string, ((...args: unknown[]) => void)[]> = {};
 const mockOn = vi.fn((event: string, handler: (...args: unknown[]) => void) => {
   (socketListeners[event] ??= []).push(handler);
 });
-const mockOff = vi.fn((event: string, handler: (...args: unknown[]) => void) => {
-  socketListeners[event] = (socketListeners[event] ?? []).filter(
-    (registered) => registered !== handler,
-  );
-});
+const mockOff = vi.fn(
+  (event: string, handler: (...args: unknown[]) => void) => {
+    socketListeners[event] = (socketListeners[event] ?? []).filter(
+      (registered) => registered !== handler,
+    );
+  },
+);
 /** 소켓 이벤트 발생 상황 모사 */
 const emitSocketEvent = (event: string) => {
   [...(socketListeners[event] ?? [])].forEach((handler) => handler());
@@ -197,7 +199,9 @@ describe("ChatProvider 재연결 동기화", () => {
 
     expect(
       queryClient.getQueryData(chatKeys.messages(ACTIVE_ROOM_ID).queryKey),
-    ).toMatchObject({ pages: [{ messages: [{ id: 1 }] }, { messages: [{ id: 2 }] }] });
+    ).toMatchObject({
+      pages: [{ messages: [{ id: 1 }] }, { messages: [{ id: 2 }] }],
+    });
     expect(
       queryClient.getQueryData(chatKeys.messages(OTHER_ROOM_ID).queryKey),
     ).toBeDefined();

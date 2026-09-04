@@ -65,9 +65,7 @@ vi.mock("next-intl", () => ({
 
 const DAY = 24 * 60 * 60 * 1000;
 
-const completion = (
-  overrides?: Partial<TradeCompletion>,
-): TradeCompletion =>
+const completion = (overrides?: Partial<TradeCompletion>): TradeCompletion =>
   ({
     id: 1,
     saleId: 100,

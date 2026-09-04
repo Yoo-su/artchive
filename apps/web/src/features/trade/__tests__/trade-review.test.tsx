@@ -16,7 +16,8 @@ import { UserTradeReviewsList } from "../components/review/user-trade-reviews-li
 
 const mockCreateTradeReviewMutate = vi.fn();
 let mockSellerStatsData: SellerTradeStats | null = null;
-let mockTradeReviewsData: { reviews: TradeReview[]; total: number } | null = null;
+let mockTradeReviewsData: { reviews: TradeReview[]; total: number } | null =
+  null;
 const mockIsStatsLoading = false;
 const mockIsReviewsLoading = false;
 
@@ -68,7 +69,8 @@ vi.mock("next-intl", () => ({
       success: "거래 후기가 성공적으로 등록되었습니다.",
       "errors.tag_required": "최소 1개 이상의 태그를 선택해주세요.",
       "errors.content_max": "후기는 500자 이하로 작성해주세요.",
-      title: namespace === "order.trade_review.stats" ? "거래 신뢰도" : "거래 후기",
+      title:
+        namespace === "order.trade_review.stats" ? "거래 신뢰도" : "거래 후기",
       "stats.title": "거래 신뢰도",
       positive_rate: `긍정 후기 ${values?.rate ?? 0}%`,
       "stats.positive_rate": `긍정 후기 ${values?.rate ?? 0}%`,
@@ -350,6 +352,8 @@ describe("UserTradeReviewsList", () => {
     render(<UserTradeReviewsList handle="user1" />);
 
     expect(screen.getByText("거래 후기가 없습니다")).toBeInTheDocument();
-    expect(screen.getByText("아직 작성된 거래 후기가 없습니다.")).toBeInTheDocument();
+    expect(
+      screen.getByText("아직 작성된 거래 후기가 없습니다."),
+    ).toBeInTheDocument();
   });
 });

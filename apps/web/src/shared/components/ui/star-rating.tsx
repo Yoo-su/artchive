@@ -28,7 +28,7 @@ export const StarRating = ({
 
   const handleMouseMove = (
     e: React.MouseEvent<HTMLDivElement>,
-    index: number
+    index: number,
   ) => {
     if (readonly || disabled) return;
 
@@ -80,7 +80,7 @@ export const StarRating = ({
       className={cn(
         "flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded-md p-1 -m-1",
         disabled && "opacity-50 cursor-not-allowed",
-        className
+        className,
       )}
       onMouseLeave={() => setHoverValue(null)}
     >
@@ -94,7 +94,7 @@ export const StarRating = ({
             className={cn(
               "relative transition-transform hover:scale-110",
               (readonly || disabled) && "cursor-default hover:scale-100",
-              !readonly && !disabled && "cursor-pointer"
+              !readonly && !disabled && "cursor-pointer",
             )}
             style={{ width: size, height: size }}
             onMouseMove={(e) => handleMouseMove(e, i)}
@@ -104,7 +104,7 @@ export const StarRating = ({
               variant={filled ? "bold" : "outline"}
               className={cn(
                 "absolute top-0 left-0 w-full h-full text-stone-200 transition-colors",
-                filled && "text-amber-400 drop-shadow-sm"
+                filled && "text-amber-400 drop-shadow-sm",
               )}
               aria-hidden="true"
             />

@@ -43,7 +43,11 @@ export function ReadingLogDayCell({
       aria-label={cellAriaLabel}
       onClick={isFuture ? undefined : onClick}
       onKeyDown={(e) => {
-        if ((e.key === "Enter" || e.key === " ") && !isFuture && isCurrentMonth) {
+        if (
+          (e.key === "Enter" || e.key === " ") &&
+          !isFuture &&
+          isCurrentMonth
+        ) {
           e.preventDefault();
           onClick();
         }
@@ -70,7 +74,8 @@ export function ReadingLogDayCell({
                 )
               : cn(
                   "text-stone-500 font-medium",
-                  !isFuture && "group-hover:scale-110 group-hover:bg-white group-hover:shadow-sm",
+                  !isFuture &&
+                    "group-hover:scale-110 group-hover:bg-white group-hover:shadow-sm",
                   !isFuture && `group-hover:${theme.activeText}`,
                 ),
           )}

@@ -33,7 +33,11 @@ export const ImageArea = ({ className }: { className?: string }) => {
       )}
     >
       <Image
-        src={sale.imageUrls[0] || sale.book?.image || "/images/placeholder-image.svg"}
+        src={
+          sale.imageUrls[0] ||
+          sale.book?.image ||
+          "/images/placeholder-image.svg"
+        }
         alt={sale.title}
         title={sale.title}
         fill
@@ -193,4 +197,3 @@ export const Effect = ({
 }) => {
   return null;
 };
-

@@ -66,12 +66,18 @@ export const BookActions = ({ isbn, link }: BookActionsProps) => {
               <Tooltip delayDuration={200}>
                 <TooltipTrigger asChild>
                   <div className="cursor-help hover:text-stone-600 transition-colors py-1">
-                    <span className="text-stone-900 font-semibold text-xs mr-1">{stats?.readingUserCount ?? 0}</span>
+                    <span className="text-stone-900 font-semibold text-xs mr-1">
+                      {stats?.readingUserCount ?? 0}
+                    </span>
                     {t("stats.readers")}
                   </div>
                 </TooltipTrigger>
                 <TooltipContent className="bg-stone-900 text-stone-50 border-stone-800 text-xs">
-                  <p>{t("stats.readers_tooltip", { count: stats?.readingUserCount ?? 0 })}</p>
+                  <p>
+                    {t("stats.readers_tooltip", {
+                      count: stats?.readingUserCount ?? 0,
+                    })}
+                  </p>
                 </TooltipContent>
               </Tooltip>
 
@@ -80,12 +86,18 @@ export const BookActions = ({ isbn, link }: BookActionsProps) => {
               <Tooltip delayDuration={200}>
                 <TooltipTrigger asChild>
                   <div className="cursor-help hover:text-stone-600 transition-colors py-1">
-                    <span className="text-stone-900 font-semibold text-xs mr-1">{stats?.wishlistUserCount ?? 0}</span>
+                    <span className="text-stone-900 font-semibold text-xs mr-1">
+                      {stats?.wishlistUserCount ?? 0}
+                    </span>
                     {t("stats.wishlisted")}
                   </div>
                 </TooltipTrigger>
                 <TooltipContent className="bg-stone-900 text-stone-50 border-stone-800 text-xs">
-                  <p>{t("stats.wishlist_tooltip", { count: stats?.wishlistUserCount ?? 0 })}</p>
+                  <p>
+                    {t("stats.wishlist_tooltip", {
+                      count: stats?.wishlistUserCount ?? 0,
+                    })}
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </>

@@ -106,12 +106,17 @@ export const DisputeModal = ({
           {/* 에스크로 안내 박스 */}
           <div className="flex items-start gap-2 rounded-xl bg-stone-50 dark:bg-stone-800/40 p-3.5 text-xs text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-800">
             <AlertCircle className="h-4 w-4 text-stone-500 shrink-0 mt-0.5" />
-            <p className="leading-relaxed text-[11px] text-stone-600 dark:text-stone-400">{t("escrow_warning")}</p>
+            <p className="leading-relaxed text-[11px] text-stone-600 dark:text-stone-400">
+              {t("escrow_warning")}
+            </p>
           </div>
 
           {/* 거부 사유 입력 */}
           <div className="space-y-1.5">
-            <Label htmlFor="dispute-reason" className="text-xs font-semibold text-stone-700 dark:text-stone-300">
+            <Label
+              htmlFor="dispute-reason"
+              className="text-xs font-semibold text-stone-700 dark:text-stone-300"
+            >
               {t("reason_label")}
             </Label>
             <Textarea

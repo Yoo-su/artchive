@@ -36,36 +36,34 @@ export const useMessageRetry = (roomId: number) => {
 
       setMessageSendState(queryClient, roomId, clientMessageId, "sending");
 
-      socket
-        .timeout(SEND_ACK_TIMEOUT_MS)
-        .emit(
-          "sendMessage",
-          {
-            roomId,
-            content: message.content,
-            imageUrls: getMessageImageUrls(message),
-            clientMessageId,
-          },
-          (
-            timeoutError: Error | null,
-            response?: { status: string; error?: string },
-          ) => {
-            if (!timeoutError && response?.status === "ok") return;
+      socket.timeout(SEND_ACK_TIMEOUT_MS).emit(
+        "sendMessage",
+        {
+          roomId,
+          content: message.content,
+          imageUrls: getMessageImageUrls(message),
+          clientMessageId,
+        },
+        (
+          timeoutError: Error | null,
+          response?: { status: string; error?: string },
+        ) => {
+          if (!timeoutError && response?.status === "ok") return;
 
-            console.error(
-              "Message retry failed:",
-              timeoutError ?? response?.error,
-            );
-            toast.error(
-              timeoutError
-                ? tRef.current("toast.send_timeout")
-                : tRef.current("toast.send_error", {
-                    error: response?.error || "",
-                  }),
-            );
-            setMessageSendState(queryClient, roomId, clientMessageId, "failed");
-          },
-        );
+          console.error(
+            "Message retry failed:",
+            timeoutError ?? response?.error,
+          );
+          toast.error(
+            timeoutError
+              ? tRef.current("toast.send_timeout")
+              : tRef.current("toast.send_error", {
+                  error: response?.error || "",
+                }),
+          );
+          setMessageSendState(queryClient, roomId, clientMessageId, "failed");
+        },
+      );
     },
     [socket, queryClient, roomId],
   );

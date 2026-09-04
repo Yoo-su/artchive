@@ -29,7 +29,9 @@ export function ShareDeckView({ handle, year }: ShareDeckViewProps) {
 
         <div className="flex flex-col items-center gap-4 relative z-10">
           <div className="w-12 h-12 border-4 border-stone-700 border-t-transparent rounded-full animate-spin" />
-          <p className="text-stone-500 text-xs font-serif animate-pulse">{t("deck.loading_message")}</p>
+          <p className="text-stone-500 text-xs font-serif animate-pulse">
+            {t("deck.loading_message")}
+          </p>
         </div>
       </div>
     );
@@ -43,7 +45,9 @@ export function ShareDeckView({ handle, year }: ShareDeckViewProps) {
             <BookOpen className="w-8 h-8" />
           </div>
           <div>
-            <h3 className="text-lg font-bold font-serif mb-2">{t("deck.error_title")}</h3>
+            <h3 className="text-lg font-bold font-serif mb-2">
+              {t("deck.error_title")}
+            </h3>
             <p className="text-stone-400 text-xs leading-relaxed break-keep">
               {t("deck.error_desc")}
             </p>
@@ -61,8 +65,11 @@ export function ShareDeckView({ handle, year }: ShareDeckViewProps) {
   // 연도가 지정되었으면 해당 연도의 독서 기록만 필터링, 없으면 전체 최신 기록 50개
   const displayLogs = profile.readingLogs
     ? (year
-        ? profile.readingLogs.filter((log) => new Date(log.date).getFullYear() === year)
-        : profile.readingLogs)
+        ? profile.readingLogs.filter(
+            (log) => new Date(log.date).getFullYear() === year,
+          )
+        : profile.readingLogs
+      )
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         .slice(0, 50)
     : [];

@@ -66,7 +66,9 @@ export const ShippingFormModal = ({
 
   const [carrier, setCarrier] = useState<string>("");
   const [trackingNumber, setTrackingNumber] = useState<string>("");
-  const [errors, setErrors] = useState<{ carrier?: string; tracking?: string }>({});
+  const [errors, setErrors] = useState<{ carrier?: string; tracking?: string }>(
+    {},
+  );
 
   const registerShippingMutation = useRegisterShippingMutation({
     onSuccess: () => {
@@ -130,14 +132,24 @@ export const ShippingFormModal = ({
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           {/* 택배사 선택 */}
           <div className="space-y-1.5">
-            <Label htmlFor="carrier-select" className="text-xs font-semibold text-stone-700 dark:text-stone-300">
+            <Label
+              htmlFor="carrier-select"
+              className="text-xs font-semibold text-stone-700 dark:text-stone-300"
+            >
               {t("carrier_label")}
             </Label>
-            <Select value={carrier} onValueChange={(val) => {
-              setCarrier(val);
-              if (errors.carrier) setErrors((prev) => ({ ...prev, carrier: undefined }));
-            }}>
-              <SelectTrigger id="carrier-select" className="w-full border-stone-200 dark:border-stone-700">
+            <Select
+              value={carrier}
+              onValueChange={(val) => {
+                setCarrier(val);
+                if (errors.carrier)
+                  setErrors((prev) => ({ ...prev, carrier: undefined }));
+              }}
+            >
+              <SelectTrigger
+                id="carrier-select"
+                className="w-full border-stone-200 dark:border-stone-700"
+              >
                 <SelectValue placeholder={t("carrier_placeholder")} />
               </SelectTrigger>
               <SelectContent>
@@ -155,7 +167,10 @@ export const ShippingFormModal = ({
 
           {/* 운송장 번호 */}
           <div className="space-y-1.5">
-            <Label htmlFor="tracking-number" className="text-xs font-semibold text-stone-700 dark:text-stone-300">
+            <Label
+              htmlFor="tracking-number"
+              className="text-xs font-semibold text-stone-700 dark:text-stone-300"
+            >
               {t("tracking_label")}
             </Label>
             <Input
@@ -165,7 +180,8 @@ export const ShippingFormModal = ({
               onChange={(e) => {
                 const val = e.target.value.replace(/[^0-9]/g, "");
                 setTrackingNumber(val);
-                if (errors.tracking) setErrors((prev) => ({ ...prev, tracking: undefined }));
+                if (errors.tracking)
+                  setErrors((prev) => ({ ...prev, tracking: undefined }));
               }}
               maxLength={20}
               className="font-mono text-sm border-stone-200 dark:border-stone-700"
@@ -191,7 +207,9 @@ export const ShippingFormModal = ({
               disabled={registerShippingMutation.isPending}
               className="sm:flex-1 font-semibold bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900"
             >
-              {registerShippingMutation.isPending ? t("submitting") : t("submit")}
+              {registerShippingMutation.isPending
+                ? t("submitting")
+                : t("submit")}
             </Button>
           </DialogFooter>
         </form>

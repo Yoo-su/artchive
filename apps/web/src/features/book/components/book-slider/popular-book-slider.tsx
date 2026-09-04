@@ -21,7 +21,9 @@ export const PopularBookSlider = () => {
   const t = useTranslations("home.sections.popular_books");
   const tSlider = useTranslations("book.slider");
   const { data: books, isLoading, isError } = usePopularBooksQuery();
-  const [hoveredBook, setHoveredBook] = useState<NonNullable<typeof books>[number] | null>(null);
+  const [hoveredBook, setHoveredBook] = useState<
+    NonNullable<typeof books>[number] | null
+  >(null);
 
   if (isLoading) {
     return <PopularBookSliderSkeleton />;
@@ -38,7 +40,10 @@ export const PopularBookSlider = () => {
   // 현재 스포트라이트에 표시될 도서 (호버 중인 도서 우선, 없으면 1위 도서)
   const activeBook = hoveredBook || topBook;
   const activeIndex = books.findIndex((b) => b.isbn === activeBook.isbn);
-  const activeRank = String(activeIndex >= 0 ? activeIndex + 1 : 1).padStart(2, "0");
+  const activeRank = String(activeIndex >= 0 ? activeIndex + 1 : 1).padStart(
+    2,
+    "0",
+  );
 
   return (
     <section className="w-full py-16 bg-white">
@@ -132,7 +137,11 @@ export const PopularBookSlider = () => {
 
                     <div className="mt-6 sm:mt-8 pt-3 sm:pt-4 border-t border-neutral-700/80 flex items-center justify-between text-xs text-neutral-400">
                       <span className="text-neutral-400 font-light truncate max-w-[60%]">
-                        {activeBook.author ? tSlider("author_suffix", { author: activeBook.author }) : ""}
+                        {activeBook.author
+                          ? tSlider("author_suffix", {
+                              author: activeBook.author,
+                            })
+                          : ""}
                       </span>
                       <span className="inline-flex items-center gap-1.5 text-neutral-300 group-hover:text-white font-medium shrink-0 ml-2">
                         {tSlider("view_detail")}{" "}
@@ -218,14 +227,20 @@ export const PopularBookSlider = () => {
                     <motion.div
                       key={book.isbn}
                       whileHover={{ x: 4 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 30,
+                      }}
                       onMouseEnter={() => setHoveredBook(book)}
                       onMouseLeave={() => setHoveredBook(null)}
                     >
                       <Link
                         href={PATHS.BOOK_DETAIL(book.isbn)}
                         className={`py-2.5 sm:py-3 flex items-center justify-between gap-3 group px-2 transition-all ${
-                          isSelected ? "bg-white text-neutral-950 font-medium" : ""
+                          isSelected
+                            ? "bg-white text-neutral-950 font-medium"
+                            : ""
                         }`}
                       >
                         <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
@@ -367,4 +382,3 @@ const PopularBookSliderSkeleton = () => {
     </section>
   );
 };
-

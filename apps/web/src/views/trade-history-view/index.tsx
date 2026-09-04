@@ -24,7 +24,9 @@ export const TradeHistoryView = () => {
         <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
           {t("title")}
         </h1>
-        <p className="text-xs sm:text-sm text-stone-500 mt-1">{t("subtitle")}</p>
+        <p className="text-xs sm:text-sm text-stone-500 mt-1">
+          {t("subtitle")}
+        </p>
       </div>
 
       <TradeHistoryList />

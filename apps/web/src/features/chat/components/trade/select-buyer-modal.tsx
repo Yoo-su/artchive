@@ -7,7 +7,11 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { ShoppingBagIcon } from "@/shared/components/icons";
-import { AlertCircle, CheckCircle2, Loader2 } from "@/shared/components/icons/iconsax";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,
@@ -86,13 +90,19 @@ export const SelectBuyerModal = ({
               />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-stone-400 font-medium">{t("book_title")}</p>
+              <p className="text-[11px] text-stone-400 font-medium">
+                {t("book_title")}
+              </p>
               <h4 className="font-semibold text-sm truncate text-stone-900 dark:text-stone-100">
                 {bookTitle}
               </h4>
               <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mt-0.5">
-                <span className="tabular-nums">{room.usedBookSale.price.toLocaleString()}</span>
-                <span className="text-xs font-medium ml-0.5">{tCommon("won")}</span>
+                <span className="tabular-nums">
+                  {room.usedBookSale.price.toLocaleString()}
+                </span>
+                <span className="text-xs font-medium ml-0.5">
+                  {tCommon("won")}
+                </span>
               </p>
             </div>
           </div>

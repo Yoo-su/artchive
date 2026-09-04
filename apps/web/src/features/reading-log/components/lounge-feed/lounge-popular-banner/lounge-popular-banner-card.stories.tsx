@@ -30,7 +30,8 @@ const defaultItemData: LoungePopularBook = {
     author: "헤르만 헤세",
     publisher: "민음사",
     description: "헤르만 헤세의 대표작",
-    image: "https://shopping-phinf.pstatic.net/main_3249079/32490791688.20221019151415.jpg",
+    image:
+      "https://shopping-phinf.pstatic.net/main_3249079/32490791688.20221019151415.jpg",
     link: "",
     discount: "7200",
     pubdate: "20000101",
@@ -119,7 +120,8 @@ export const VeryLongText: Story = {
       ...defaultItemData,
       book: {
         ...defaultItemData.book,
-        title: "세상에서 가장 길고 철학적인 제목을 가진 엄청난 두께의 베스트셀러",
+        title:
+          "세상에서 가장 길고 철학적인 제목을 가진 엄청난 두께의 베스트셀러",
         author: "아주 긴 이름을 가진 저자와 그 친구들 모임 지음",
       },
     },

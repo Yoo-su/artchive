@@ -104,7 +104,10 @@ export const MyPageView = () => {
   ];
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-8" data-clarity-mask="true">
+    <div
+      className="container mx-auto max-w-5xl px-4 py-8"
+      data-clarity-mask="true"
+    >
       {/* 상단 페이지 헤더 */}
       <div className="mb-6 border-b border-stone-200/80 pb-5">
         <h1 className="font-serif text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
@@ -184,7 +187,9 @@ export const MyPageView = () => {
                   </>
                 ) : (
                   <>
-                    <span className="text-stone-400">{t("profile.no_email")}</span>
+                    <span className="text-stone-400">
+                      {t("profile.no_email")}
+                    </span>
                     <span className="text-stone-300">·</span>
                     <ProfileEditModal
                       trigger={

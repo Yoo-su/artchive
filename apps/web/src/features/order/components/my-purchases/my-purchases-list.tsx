@@ -33,7 +33,8 @@ export const MyPurchasesList = () => {
   const [page, setPage] = useState<number>(1);
   const limit = 10;
 
-  const statusParam = activeTab === "ALL" ? undefined : (activeTab as OrderStatus);
+  const statusParam =
+    activeTab === "ALL" ? undefined : (activeTab as OrderStatus);
 
   const { data, isLoading, isError, refetch } = useMyPurchasesQuery({
     page,
@@ -92,11 +93,18 @@ export const MyPurchasesList = () => {
       {isError && (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50/60 dark:bg-stone-900/60 p-10 text-center space-y-3">
           <AlertTriangle className="h-9 w-9 text-stone-400" />
-          <h3 className="font-bold text-stone-900 dark:text-stone-100">주문 목록을 불러오지 못했습니다</h3>
+          <h3 className="font-bold text-stone-900 dark:text-stone-100">
+            주문 목록을 불러오지 못했습니다
+          </h3>
           <p className="text-xs text-stone-500">
             네트워크 연결을 확인한 후 다시 시도해주세요.
           </p>
-          <Button onClick={() => refetch()} variant="outline" size="sm" className="mt-2 border-stone-200 dark:border-stone-700">
+          <Button
+            onClick={() => refetch()}
+            variant="outline"
+            size="sm"
+            className="mt-2 border-stone-200 dark:border-stone-700"
+          >
             다시 시도
           </Button>
         </div>
@@ -112,11 +120,13 @@ export const MyPurchasesList = () => {
             <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">
               {t("empty_title")}
             </h3>
-            <p className="text-xs text-stone-400 max-w-sm">
-              {t("empty_desc")}
-            </p>
+            <p className="text-xs text-stone-400 max-w-sm">{t("empty_desc")}</p>
           </div>
-          <Button asChild size="sm" className="mt-2 bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900">
+          <Button
+            asChild
+            size="sm"
+            className="mt-2 bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900"
+          >
             <Link href={PATHS.BOOK_MARKET}>{t("btn_browse_market")}</Link>
           </Button>
         </div>

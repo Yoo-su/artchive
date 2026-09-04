@@ -62,7 +62,9 @@ export const ActivityTrendChart = ({ data }: ActivityTrendChartProps) => {
         enabled: false,
       },
       xaxis: {
-        categories: data.map((item) => formatDate(item.date, locale, "monthDay")),
+        categories: data.map((item) =>
+          formatDate(item.date, locale, "monthDay"),
+        ),
         labels: {
           style: {
             colors: "#6b7280",

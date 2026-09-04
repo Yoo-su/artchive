@@ -69,4 +69,3 @@ export default function UserProvider({ children }: UserProviderProps) {
   if (shouldBlock) return <FullScreenLoader />;
   return <>{children}</>;
 }
-

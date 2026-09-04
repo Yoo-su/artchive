@@ -25,7 +25,11 @@ const isDeliveryTradeEnabled =
 
 const OPTIONS = [
   { value: TradeMethod.BOTH, icon: BoxIcon, requiresDelivery: true },
-  { value: TradeMethod.DELIVERY_ONLY, icon: TruckFastIcon, requiresDelivery: true },
+  {
+    value: TradeMethod.DELIVERY_ONLY,
+    icon: TruckFastIcon,
+    requiresDelivery: true,
+  },
   { value: TradeMethod.DIRECT_ONLY, icon: Handshake, requiresDelivery: false },
 ] as const;
 
@@ -52,7 +56,8 @@ export const TradeMethodField = <T extends FieldValues>({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {OPTIONS.map((option) => {
                 const Icon = option.icon;
-                const isLocked = option.requiresDelivery && !isDeliveryTradeEnabled;
+                const isLocked =
+                  option.requiresDelivery && !isDeliveryTradeEnabled;
                 const isSelected = field.value === option.value;
 
                 return (

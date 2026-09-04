@@ -51,7 +51,6 @@ export default function UserPopover() {
     }
   };
 
-
   if (!user) return null;
 
   // 3. 로그인 상태일 때

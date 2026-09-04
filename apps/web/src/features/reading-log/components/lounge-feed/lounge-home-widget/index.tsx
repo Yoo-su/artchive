@@ -61,9 +61,7 @@ export function LoungeHomeWidget() {
               </p>
             </div>
             <div className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full border border-stone-300 group-hover:bg-stone-900 group-hover:border-stone-900 transition-all duration-500 ml-2 shrink-0">
-              <ArrowRight
-                className="w-5 h-5 text-stone-500 group-hover:text-white transition-colors duration-500 -rotate-45 group-hover:rotate-0"
-              />
+              <ArrowRight className="w-5 h-5 text-stone-500 group-hover:text-white transition-colors duration-500 -rotate-45 group-hover:rotate-0" />
             </div>
           </Link>
         </div>
@@ -75,63 +73,63 @@ export function LoungeHomeWidget() {
         spaceBetween={20}
         className="pb-4 pt-4 -mt-4 px-4! overflow-visible!"
       >
-          {data.items.slice(0, 6).map((item, index) => (
-            <SwiperSlide
-              key={item.isbn}
-              className="w-40! sm:w-44! select-none group"
+        {data.items.slice(0, 6).map((item, index) => (
+          <SwiperSlide
+            key={item.isbn}
+            className="w-40! sm:w-44! select-none group"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.08, duration: 0.4 }}
             >
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.08, duration: 0.4 }}
-              >
-                <Link href={PATHS.LOUNGE}>
-                  {/* 도서 표지 */}
-                  <div className="relative aspect-2/3 w-full overflow-hidden bg-stone-50 mb-3.5 shadow-sm transition-shadow duration-300 group-hover:shadow-lg">
-                    {item.book.image ? (
-                      <Image
-                        src={item.book.image}
-                        alt={item.book.title}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center p-3">
-                        <span className="text-xs text-stone-400 text-center font-medium">
-                          {item.book.title}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* 독자 수 뱃지 */}
-                    <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full font-medium">
-                      {t("readers_count", { count: item.readerCount })}
+              <Link href={PATHS.LOUNGE}>
+                {/* 도서 표지 */}
+                <div className="relative aspect-2/3 w-full overflow-hidden bg-stone-50 mb-3.5 shadow-sm transition-shadow duration-300 group-hover:shadow-lg">
+                  {item.book.image ? (
+                    <Image
+                      src={item.book.image}
+                      alt={item.book.title}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center p-3">
+                      <span className="text-xs text-stone-400 text-center font-medium">
+                        {item.book.title}
+                      </span>
                     </div>
+                  )}
+
+                  {/* 독자 수 뱃지 */}
+                  <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full font-medium">
+                    {t("readers_count", { count: item.readerCount })}
                   </div>
+                </div>
 
-                  {/* 도서 정보 */}
-                  <h3 className="text-sm font-semibold text-stone-900 line-clamp-2 leading-snug mb-1.5 group-hover:text-stone-600 transition-colors">
-                    {item.book.title}
-                  </h3>
+                {/* 도서 정보 */}
+                <h3 className="text-sm font-semibold text-stone-900 line-clamp-2 leading-snug mb-1.5 group-hover:text-stone-600 transition-colors">
+                  {item.book.title}
+                </h3>
 
-                  {/* Avatar Circles */}
-                  <AvatarCircles
-                    size="sm"
-                    avatars={item.recentReaders.map((r) => ({
-                      imageUrl: r.profileImageUrl,
-                      name: r.nickname,
-                    }))}
-                    extraCount={
-                      item.readerCount > item.recentReaders.length
-                        ? item.readerCount - item.recentReaders.length
-                        : 0
-                    }
-                  />
-                </Link>
-              </motion.div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+                {/* Avatar Circles */}
+                <AvatarCircles
+                  size="sm"
+                  avatars={item.recentReaders.map((r) => ({
+                    imageUrl: r.profileImageUrl,
+                    name: r.nickname,
+                  }))}
+                  extraCount={
+                    item.readerCount > item.recentReaders.length
+                      ? item.readerCount - item.recentReaders.length
+                      : 0
+                  }
+                />
+              </Link>
+            </motion.div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
     </section>
   );
 }

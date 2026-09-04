@@ -68,7 +68,11 @@ function assertOwnedPathname(pathname: string, user: AuthenticatedUser): void {
     throw new Error("Forbidden: Pathname does not belong to the current user");
   }
 
-  if (!ALLOWED_CATEGORIES.includes(category as (typeof ALLOWED_CATEGORIES)[number])) {
+  if (
+    !ALLOWED_CATEGORIES.includes(
+      category as (typeof ALLOWED_CATEGORIES)[number],
+    )
+  ) {
     throw new Error("Forbidden: Disallowed upload category");
   }
 

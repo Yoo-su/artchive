@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactionStat ,  ReviewReactionType } from "@bookjeok/core";
+import { ReactionStat, ReviewReactionType } from "@bookjeok/core";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";

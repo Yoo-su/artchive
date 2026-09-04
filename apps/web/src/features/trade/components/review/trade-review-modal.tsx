@@ -17,7 +17,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { QuoteUpCircleIcon } from "@/shared/components/icons";
-import { Check, MessageSquare, ThumbsDown, ThumbsUp } from "@/shared/components/icons/iconsax";
+import {
+  Check,
+  MessageSquare,
+  ThumbsDown,
+  ThumbsUp,
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,
@@ -212,7 +217,9 @@ export const TradeReviewModal = ({
                         : "bg-stone-50 dark:bg-stone-800/60 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-700 hover:text-stone-900"
                     }`}
                   >
-                    {isSelected && <Check className="h-3.5 w-3.5 text-emerald-600" />}
+                    {isSelected && (
+                      <Check className="h-3.5 w-3.5 text-emerald-600" />
+                    )}
                     {t(`tags.${tag}`)}
                   </button>
                 );
@@ -240,7 +247,9 @@ export const TradeReviewModal = ({
                         : "bg-stone-50 dark:bg-stone-800/60 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-700 hover:text-stone-900"
                     }`}
                   >
-                    {isSelected && <Check className="h-3.5 w-3.5 text-stone-700 dark:text-stone-300" />}
+                    {isSelected && (
+                      <Check className="h-3.5 w-3.5 text-stone-700 dark:text-stone-300" />
+                    )}
                     {t(`tags.${tag}`)}
                   </button>
                 );

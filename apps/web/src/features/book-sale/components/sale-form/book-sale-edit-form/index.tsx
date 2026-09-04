@@ -191,35 +191,33 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
                     }}
                   />
 
-                <RegionDisplayCard
-                  city={form.watch("city")}
-                  district={form.watch("district")}
-                  placeName={form.watch("placeName")}
-                  error={
-                    form.formState.errors.city?.message ||
-                    form.formState.errors.district?.message
-                  }
-                />
+                  <RegionDisplayCard
+                    city={form.watch("city")}
+                    district={form.watch("district")}
+                    placeName={form.watch("placeName")}
+                    error={
+                      form.formState.errors.city?.message ||
+                      form.formState.errors.district?.message
+                    }
+                  />
 
-                    <FormField
-                      control={form.control}
-                      name="placeName"
-                      render={({ field }) => (
-                        <FormItem className="md:col-span-2">
-                          <FormLabel>{t("fields.location_name")}</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder={t(
-                                "fields.location_name_placeholder",
-                              )}
-                              className="bg-background"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <FormField
+                    control={form.control}
+                    name="placeName"
+                    render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>{t("fields.location_name")}</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder={t("fields.location_name_placeholder")}
+                            className="bg-background"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
 
@@ -259,25 +257,30 @@ export const BookSaleEditForm = ({ sale }: BookSaleEditFormProps) => {
                     </div>
 
                     <div className="flex flex-wrap gap-1.5 pt-1">
-                      {((t.raw("suggested_tags") as string[]) || []).map((tag) => (
-                        <button
-                          key={tag}
-                          type="button"
-                          onClick={() => {
-                            const currentContent = form.getValues("content") || "";
-                            if (!currentContent.includes(tag)) {
-                              form.setValue(
-                                "content",
-                                currentContent ? `${currentContent}\n${tag}` : tag,
-                                { shouldValidate: true },
-                              );
-                            }
-                          }}
-                          className="text-xs px-2.5 py-1 rounded-md border border-stone-200 dark:border-stone-800 bg-stone-100/70 dark:bg-stone-800/50 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
-                        >
-                          + {tag}
-                        </button>
-                      ))}
+                      {((t.raw("suggested_tags") as string[]) || []).map(
+                        (tag) => (
+                          <button
+                            key={tag}
+                            type="button"
+                            onClick={() => {
+                              const currentContent =
+                                form.getValues("content") || "";
+                              if (!currentContent.includes(tag)) {
+                                form.setValue(
+                                  "content",
+                                  currentContent
+                                    ? `${currentContent}\n${tag}`
+                                    : tag,
+                                  { shouldValidate: true },
+                                );
+                              }
+                            }}
+                            className="text-xs px-2.5 py-1 rounded-md border border-stone-200 dark:border-stone-800 bg-stone-100/70 dark:bg-stone-800/50 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
+                          >
+                            + {tag}
+                          </button>
+                        ),
+                      )}
                     </div>
 
                     <FormControl>

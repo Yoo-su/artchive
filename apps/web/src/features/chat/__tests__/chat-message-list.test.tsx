@@ -88,7 +88,12 @@ describe("읽음 표시", () => {
     message({ id: 10 }),
     message({
       id: 11,
-      sender: { id: YOU, handle: "you", nickname: "상대", profileImageUrl: null },
+      sender: {
+        id: YOU,
+        handle: "you",
+        nickname: "상대",
+        profileImageUrl: null,
+      },
     }),
     message({ id: 12, content: "내 마지막 메시지" }),
   ];
@@ -118,7 +123,9 @@ describe("본문 렌더링", () => {
   });
 
   it("URL을 새 탭으로 여는 링크로 만든다", () => {
-    renderList([message({ id: 1, content: "여기 https://bookjeok.com 보세요" })]);
+    renderList([
+      message({ id: 1, content: "여기 https://bookjeok.com 보세요" }),
+    ]);
 
     const link = screen.getByRole("link", { name: "https://bookjeok.com" });
     expect(link).toHaveAttribute("href", "https://bookjeok.com");

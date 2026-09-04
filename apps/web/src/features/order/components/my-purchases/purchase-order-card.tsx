@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  Order,
-  OrderStatus,
-  TradeCompletionMethod,
-} from "@bookjeok/core";
+import { Order, OrderStatus, TradeCompletionMethod } from "@bookjeok/core";
 import { useConfirmPurchaseMutation } from "@bookjeok/react-query";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
@@ -65,7 +61,8 @@ export const PurchaseOrderCard = ({ order }: PurchaseOrderCardProps) => {
 
     const isConfirmed = await confirm({
       title: "구매확정",
-      description: "물품을 정상적으로 수령하셨다면 구매를 확정해주세요. 구매확정 후에는 취소가 불가합니다.",
+      description:
+        "물품을 정상적으로 수령하셨다면 구매를 확정해주세요. 구매확정 후에는 취소가 불가합니다.",
       confirmText: "구매확정",
     });
 
@@ -106,14 +103,20 @@ export const PurchaseOrderCard = ({ order }: PurchaseOrderCardProps) => {
         );
       case OrderStatus.CONFIRMED:
         return (
-          <Badge variant="outline" className="border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-200 gap-1 text-[11px] font-medium">
+          <Badge
+            variant="outline"
+            className="border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-200 gap-1 text-[11px] font-medium"
+          >
             <CheckCircle2 className="h-3 w-3 text-emerald-600" />
             구매 확정
           </Badge>
         );
       case OrderStatus.DISPUTED:
         return (
-          <Badge variant="outline" className="border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 gap-1 text-[11px] font-medium">
+          <Badge
+            variant="outline"
+            className="border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 gap-1 text-[11px] font-medium"
+          >
             <AlertCircle className="h-3 w-3 text-stone-500" />
             분쟁 중
           </Badge>
@@ -121,7 +124,10 @@ export const PurchaseOrderCard = ({ order }: PurchaseOrderCardProps) => {
       case OrderStatus.CANCELLED:
       default:
         return (
-          <Badge variant="secondary" className="gap-1 text-[11px] text-stone-400 bg-stone-100 dark:bg-stone-800 font-medium">
+          <Badge
+            variant="secondary"
+            className="gap-1 text-[11px] text-stone-400 bg-stone-100 dark:bg-stone-800 font-medium"
+          >
             <XCircle className="h-3 w-3" />
             주문 취소
           </Badge>
@@ -225,7 +231,11 @@ export const PurchaseOrderCard = ({ order }: PurchaseOrderCardProps) => {
           <div className="flex items-center gap-2 self-end sm:self-auto">
             {/* 결제하기 액션 */}
             {order.status === OrderStatus.AWAITING_PAYMENT && (
-              <Button asChild size="sm" className="h-8 text-xs font-bold bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 gap-1 shadow-2xs rounded-lg">
+              <Button
+                asChild
+                size="sm"
+                className="h-8 text-xs font-bold bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 gap-1 shadow-2xs rounded-lg"
+              >
                 <Link href={PATHS.ORDER_PAYMENT(order.id)}>
                   <CardPosIcon className="h-3.5 w-3.5" />
                   {t("btn_pay")}
@@ -280,7 +290,12 @@ export const PurchaseOrderCard = ({ order }: PurchaseOrderCardProps) => {
             )}
 
             {/* 주문 상세 이동 */}
-            <Button asChild variant="ghost" size="sm" className="h-8 text-xs px-2.5 text-stone-500 hover:text-stone-900 dark:hover:text-stone-100">
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="h-8 text-xs px-2.5 text-stone-500 hover:text-stone-900 dark:hover:text-stone-100"
+            >
               <Link href={PATHS.ORDER_DETAIL(order.id)}>
                 {t("view_detail")}
                 <ChevronRight className="h-3.5 w-3.5 ml-0.5" />

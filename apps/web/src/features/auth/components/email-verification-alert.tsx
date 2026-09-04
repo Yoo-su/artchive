@@ -6,7 +6,12 @@ import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { ShieldSecurityIcon } from "@/shared/components/icons";
-import { CheckCircle2, Loader2, Mail, ShieldAlert } from "@/shared/components/icons/iconsax";
+import {
+  CheckCircle2,
+  Loader2,
+  Mail,
+  ShieldAlert,
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,
@@ -97,7 +102,10 @@ export const EmailVerificationAlert: React.FC<EmailVerificationAlertProps> = ({
             </p>
             {user.email && (
               <p className="text-[11px] text-stone-400 dark:text-stone-500 font-mono pt-0.5">
-                등록된 계정: <span className="font-semibold text-stone-700 dark:text-stone-300">{user.email}</span>
+                등록된 계정:{" "}
+                <span className="font-semibold text-stone-700 dark:text-stone-300">
+                  {user.email}
+                </span>
               </p>
             )}
           </div>
@@ -169,7 +177,11 @@ export const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
             이메일 인증이 필요합니다
           </DialogTitle>
           <DialogDescription className="text-xs leading-relaxed text-stone-500 dark:text-stone-400">
-            안전하고 신뢰할 수 있는 중고거래를 위해, <span className="font-semibold text-stone-800 dark:text-stone-200">{actionName}</span>을(를) 이용하시려면 먼저 이메일 인증을 완료해주세요.
+            안전하고 신뢰할 수 있는 중고거래를 위해,{" "}
+            <span className="font-semibold text-stone-800 dark:text-stone-200">
+              {actionName}
+            </span>
+            을(를) 이용하시려면 먼저 이메일 인증을 완료해주세요.
           </DialogDescription>
         </DialogHeader>
 

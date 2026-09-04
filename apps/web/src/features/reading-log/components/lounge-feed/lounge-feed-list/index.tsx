@@ -144,9 +144,7 @@ export function LoungeFeedList({ onCardClick }: LoungeFeedListProps) {
           <p className="text-stone-300 text-xs font-light">{t("all_loaded")}</p>
         )}
         {isError && items.length > 0 && (
-          <p className="text-red-400 text-xs font-light">
-            {t("error")}
-          </p>
+          <p className="text-red-400 text-xs font-light">{t("error")}</p>
         )}
       </ImpressionArea>
     </section>

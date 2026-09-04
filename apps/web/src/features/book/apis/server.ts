@@ -20,7 +20,10 @@ interface CacheEntry<T> {
   timestamp: number;
 }
 const CACHE_TTL_MS = 10 * 60 * 1000;
-const bookDetailCache = new Map<string, CacheEntry<GetBookDetailResponseData>>();
+const bookDetailCache = new Map<
+  string,
+  CacheEntry<GetBookDetailResponseData>
+>();
 const bookListCache = new Map<string, CacheEntry<GetBookListSuccessResponse>>();
 
 /**

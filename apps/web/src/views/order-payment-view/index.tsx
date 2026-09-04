@@ -26,7 +26,12 @@ import {
 } from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/shadcn/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/shadcn/card";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { Link, useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
@@ -50,14 +55,16 @@ export const OrderPaymentView = ({ orderId }: OrderPaymentViewProps) => {
   const [timeLeft, setTimeLeft] = useState<string | null>(null);
   const [isExpired, setIsExpired] = useState(false);
 
-  const [addressValues, setAddressValues] = useState<ShippingAddressFormValues>({
-    recipientName: "",
-    recipientPhone: "",
-    zipCode: "",
-    address: "",
-    addressDetail: "",
-    deliveryMemo: "",
-  });
+  const [addressValues, setAddressValues] = useState<ShippingAddressFormValues>(
+    {
+      recipientName: "",
+      recipientPhone: "",
+      zipCode: "",
+      address: "",
+      addressDetail: "",
+      deliveryMemo: "",
+    },
+  );
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof ShippingAddressFormValues, string>>
@@ -102,7 +109,8 @@ export const OrderPaymentView = ({ orderId }: OrderPaymentViewProps) => {
   }, [order?.expiresAt]);
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<Record<keyof ShippingAddressFormValues, string>> = {};
+    const newErrors: Partial<Record<keyof ShippingAddressFormValues, string>> =
+      {};
 
     if (!addressValues.recipientName.trim()) {
       newErrors.recipientName = t("errors.required_recipient_name");
@@ -183,7 +191,10 @@ export const OrderPaymentView = ({ orderId }: OrderPaymentViewProps) => {
           successUrl,
           failUrl,
           customerName: addressValues.recipientName.trim(),
-          customerMobilePhone: addressValues.recipientPhone.replace(/[^0-9]/g, ""),
+          customerMobilePhone: addressValues.recipientPhone.replace(
+            /[^0-9]/g,
+            "",
+          ),
           card: {
             useEscrow: false,
           },
@@ -200,7 +211,10 @@ export const OrderPaymentView = ({ orderId }: OrderPaymentViewProps) => {
           successUrl,
           failUrl,
           customerName: addressValues.recipientName.trim(),
-          customerMobilePhone: addressValues.recipientPhone.replace(/[^0-9]/g, ""),
+          customerMobilePhone: addressValues.recipientPhone.replace(
+            /[^0-9]/g,
+            "",
+          ),
           transfer: {
             useEscrow: true,
           },
@@ -217,7 +231,10 @@ export const OrderPaymentView = ({ orderId }: OrderPaymentViewProps) => {
           successUrl,
           failUrl,
           customerName: addressValues.recipientName.trim(),
-          customerMobilePhone: addressValues.recipientPhone.replace(/[^0-9]/g, ""),
+          customerMobilePhone: addressValues.recipientPhone.replace(
+            /[^0-9]/g,
+            "",
+          ),
           virtualAccount: {
             useEscrow: true,
             validHours: 24,
@@ -261,12 +278,18 @@ export const OrderPaymentView = ({ orderId }: OrderPaymentViewProps) => {
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300">
           <AlertCircle className="h-7 w-7" />
         </div>
-        <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">{t("errors.order_not_found")}</h2>
+        <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">
+          {t("errors.order_not_found")}
+        </h2>
         <p className="text-sm text-stone-500">
           요청하신 주문을 찾을 수 없거나 접근 권한이 없습니다.
         </p>
         <div className="pt-2">
-          <Button asChild variant="outline" className="border-stone-200 dark:border-stone-700">
+          <Button
+            asChild
+            variant="outline"
+            className="border-stone-200 dark:border-stone-700"
+          >
             <Link href={PATHS.HOME}>홈으로 이동</Link>
           </Button>
         </div>
@@ -282,12 +305,18 @@ export const OrderPaymentView = ({ orderId }: OrderPaymentViewProps) => {
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300">
           <AlertCircle className="h-7 w-7" />
         </div>
-        <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">{t("not_buyer_notice")}</h2>
+        <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">
+          {t("not_buyer_notice")}
+        </h2>
         <p className="text-sm text-stone-500">
           지정된 구매자 계정으로 로그인 후 다시 시도해주세요.
         </p>
         <div className="pt-2">
-          <Button asChild variant="outline" className="border-stone-200 dark:border-stone-700">
+          <Button
+            asChild
+            variant="outline"
+            className="border-stone-200 dark:border-stone-700"
+          >
             <Link href={PATHS.HOME}>홈으로 이동</Link>
           </Button>
         </div>
@@ -302,15 +331,28 @@ export const OrderPaymentView = ({ orderId }: OrderPaymentViewProps) => {
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300">
           <AlertCircle className="h-7 w-7" />
         </div>
-        <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">{t("invalid_status_notice")}</h2>
+        <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">
+          {t("invalid_status_notice")}
+        </h2>
         <p className="text-sm text-stone-500">
-          현재 주문 상태: <Badge variant="secondary" className="bg-stone-200 dark:bg-stone-800">{order.status}</Badge>
+          현재 주문 상태:{" "}
+          <Badge variant="secondary" className="bg-stone-200 dark:bg-stone-800">
+            {order.status}
+          </Badge>
         </p>
         <div className="pt-2 flex justify-center gap-3">
-          <Button asChild variant="outline" className="border-stone-200 dark:border-stone-700">
+          <Button
+            asChild
+            variant="outline"
+            className="border-stone-200 dark:border-stone-700"
+          >
             <Link href={PATHS.ORDER_DETAIL(order.id)}>주문 상세 보기</Link>
           </Button>
-          <Button asChild variant="outline" className="border-stone-200 dark:border-stone-700">
+          <Button
+            asChild
+            variant="outline"
+            className="border-stone-200 dark:border-stone-700"
+          >
             <Link href={PATHS.HOME}>홈으로 이동</Link>
           </Button>
         </div>
@@ -325,12 +367,19 @@ export const OrderPaymentView = ({ orderId }: OrderPaymentViewProps) => {
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300">
           <ClockIcon className="h-7 w-7" />
         </div>
-        <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">{t("expired_notice")}</h2>
+        <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">
+          {t("expired_notice")}
+        </h2>
         <p className="text-sm text-stone-500">
-          24시간 결제 기한이 만료되어 주문이 자동으로 취소되었습니다. 판매자와 다시 채팅을 통해 거래를 진행해주세요.
+          24시간 결제 기한이 만료되어 주문이 자동으로 취소되었습니다. 판매자와
+          다시 채팅을 통해 거래를 진행해주세요.
         </p>
         <div className="pt-2">
-          <Button asChild variant="outline" className="border-stone-200 dark:border-stone-700">
+          <Button
+            asChild
+            variant="outline"
+            className="border-stone-200 dark:border-stone-700"
+          >
             <Link href={PATHS.HOME}>홈으로 이동</Link>
           </Button>
         </div>
@@ -477,7 +526,8 @@ export const OrderPaymentView = ({ orderId }: OrderPaymentViewProps) => {
           </Button>
 
           <p className="text-[11px] text-center text-stone-400 leading-relaxed px-2">
-            위 주문 내용을 확인하였으며, 토스페이먼츠 전자금융거래 이용약관 및 개인정보 제공에 동의합니다.
+            위 주문 내용을 확인하였으며, 토스페이먼츠 전자금융거래 이용약관 및
+            개인정보 제공에 동의합니다.
           </p>
         </div>
       </div>

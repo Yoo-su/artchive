@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  ChatMessage,
-  ChatMessageType,
-  MAX_CHAT_IMAGES,
-} from "@bookjeok/core";
+import { ChatMessage, ChatMessageType, MAX_CHAT_IMAGES } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";

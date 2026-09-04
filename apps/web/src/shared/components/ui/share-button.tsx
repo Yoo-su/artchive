@@ -6,7 +6,13 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { AnimatedCopyCheck } from "@/shared/components/icons/animated";
-import { Check, Link2, MessageCircle, Share2, X } from "@/shared/components/icons/iconsax";
+import {
+  Check,
+  Link2,
+  MessageCircle,
+  Share2,
+  X,
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Popover,
@@ -194,7 +200,10 @@ export const ShareButton = ({
               title={t("aria.share_kakao")}
               aria-label={t("aria.share_kakao")}
             >
-              <MessageCircle className="w-4 h-4 text-yellow-600" aria-hidden="true" />
+              <MessageCircle
+                className="w-4 h-4 text-yellow-600"
+                aria-hidden="true"
+              />
             </Button>
 
             {/* 트위터(X) */}
@@ -215,11 +224,15 @@ export const ShareButton = ({
               size="sm"
               className={cn(
                 "h-9 w-9 p-0 rounded-full transition-colors",
-                copied ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400" : "hover:bg-stone-100"
+                copied
+                  ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"
+                  : "hover:bg-stone-100",
               )}
               onClick={handleCopyLink}
               title={t("aria.copy_link")}
-              aria-label={copied ? t("aria.copy_link_done") : t("aria.copy_link")}
+              aria-label={
+                copied ? t("aria.copy_link_done") : t("aria.copy_link")
+              }
             >
               <AnimatedCopyCheck copied={copied} size={16} />
             </Button>

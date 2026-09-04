@@ -94,9 +94,7 @@ export const MyCommentList = () => {
           <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">
             {t("empty.title")}
           </h3>
-          <p className="text-xs text-stone-400 max-w-sm">
-            {t("empty.desc")}
-          </p>
+          <p className="text-xs text-stone-400 max-w-sm">{t("empty.desc")}</p>
         </div>
         <Button
           asChild
@@ -117,7 +115,10 @@ export const MyCommentList = () => {
       <div className="space-y-3">
         {allComments.map((comment) => {
           const isReview = comment.targetType === CommentTargetType.REVIEW;
-          const targetHref = getTargetLink(comment.targetType, comment.targetId);
+          const targetHref = getTargetLink(
+            comment.targetType,
+            comment.targetId,
+          );
 
           return (
             <Card

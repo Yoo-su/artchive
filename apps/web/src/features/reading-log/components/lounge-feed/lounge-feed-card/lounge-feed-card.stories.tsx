@@ -39,7 +39,8 @@ const mockBaseBook: LoungeBookCard["book"] = {
   author: "헤르만 헤세",
   publisher: "민음사",
   description: "헤르만 헤세의 대표작",
-  image: "https://shopping-phinf.pstatic.net/main_3249079/32490791688.20221019151415.jpg",
+  image:
+    "https://shopping-phinf.pstatic.net/main_3249079/32490791688.20221019151415.jpg",
   link: "",
   discount: "7200",
   pubdate: "20000101",
@@ -101,13 +102,13 @@ export const ManyReaders: Story = {
       readers: [
         ...mockGeneralReaders,
         {
-           userId: 4,
-           nickname: "네번째",
-           handle: "four",
-           profileImageUrl: "default_profile4",
-           date: mockDate,
-           memo: undefined,
-        }
+          userId: 4,
+          nickname: "네번째",
+          handle: "four",
+          profileImageUrl: "default_profile4",
+          date: mockDate,
+          memo: undefined,
+        },
       ],
       totalReaderCount: 42,
     },
@@ -156,8 +157,10 @@ export const LongText: Story = {
       ...defaultCardData,
       book: {
         ...mockBaseBook,
-        title: "아주 긴 제목의 책 테스트입니다. 이 제목은 두 줄, 세 줄 이상 길어질 수 있고, 모바일 화면에서는 말줄임 처리가 정확하게 이루어져야 합니다.",
-        author: "매우 긴 저자 이름을 가진 사람 1, 엄청 긴 이름을 가진 사람 2, 그리고 또 다른 지은이 외 10명 공저",
+        title:
+          "아주 긴 제목의 책 테스트입니다. 이 제목은 두 줄, 세 줄 이상 길어질 수 있고, 모바일 화면에서는 말줄임 처리가 정확하게 이루어져야 합니다.",
+        author:
+          "매우 긴 저자 이름을 가진 사람 1, 엄청 긴 이름을 가진 사람 2, 그리고 또 다른 지은이 외 10명 공저",
       },
     },
   },

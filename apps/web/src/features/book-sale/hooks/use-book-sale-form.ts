@@ -48,15 +48,18 @@ export const useBookSaleForm = () => {
     },
   });
 
-  const { newPreviews: imagePreviews, handleImagesAdd, handleNewImageRemove } =
-    useImageUpload({
-      maxFiles: 5,
-      onFilesChange: (files: File[]) => {
-        const dataTransfer = new DataTransfer();
-        files.forEach((file) => dataTransfer.items.add(file));
-        form.setValue("images", dataTransfer.files, { shouldValidate: true });
-      },
-    });
+  const {
+    newPreviews: imagePreviews,
+    handleImagesAdd,
+    handleNewImageRemove,
+  } = useImageUpload({
+    maxFiles: 5,
+    onFilesChange: (files: File[]) => {
+      const dataTransfer = new DataTransfer();
+      files.forEach((file) => dataTransfer.items.add(file));
+      form.setValue("images", dataTransfer.files, { shouldValidate: true });
+    },
+  });
 
   const selectedBook = form.watch("book");
 

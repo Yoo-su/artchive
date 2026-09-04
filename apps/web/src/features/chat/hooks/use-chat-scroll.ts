@@ -1,7 +1,13 @@
 "use client";
 
 import { ChatMessage } from "@bookjeok/core";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
 interface UseChatScrollProps {
   roomId?: number;
@@ -31,7 +37,9 @@ export const useChatScroll = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<{ scrollHeight: number; scrollTop: number } | null>(null);
+  const scrollRef = useRef<{ scrollHeight: number; scrollTop: number } | null>(
+    null,
+  );
   const prevRoomIdRef = useRef<number | undefined>(roomId);
   const prevMessagesLengthRef = useRef<number>(0);
   const isNearBottomRef = useRef<boolean>(true);
@@ -77,7 +85,8 @@ export const useChatScroll = ({
 
     // 1-1. 이전 메시지(상단 페이징) 로드 완료 시: 이전 스크롤 상대 위치 유지
     if (isPagingPastMessages && scrollRef.current) {
-      const heightDiff = container.scrollHeight - scrollRef.current.scrollHeight;
+      const heightDiff =
+        container.scrollHeight - scrollRef.current.scrollHeight;
       container.scrollTop = scrollRef.current.scrollTop + heightDiff;
       scrollRef.current = null;
       return;

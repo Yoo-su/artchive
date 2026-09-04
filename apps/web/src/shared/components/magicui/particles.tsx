@@ -49,7 +49,10 @@ export function Particles({
     window.addEventListener("resize", initCanvas);
 
     let observer: IntersectionObserver | null = null;
-    if (canvasContainerRef.current && typeof IntersectionObserver !== "undefined") {
+    if (
+      canvasContainerRef.current &&
+      typeof IntersectionObserver !== "undefined"
+    ) {
       observer = new IntersectionObserver(
         ([entry]) => {
           isInViewRef.current = entry.isIntersecting;
@@ -63,7 +66,7 @@ export function Particles({
             }
           }
         },
-        { threshold: 0 }
+        { threshold: 0 },
       );
       observer.observe(canvasContainerRef.current);
     } else {
@@ -253,7 +256,10 @@ export function Particles({
 
   return (
     <div
-      className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
+      className={cn(
+        "pointer-events-none absolute inset-0 overflow-hidden",
+        className,
+      )}
       ref={canvasContainerRef}
       aria-hidden="true"
     >

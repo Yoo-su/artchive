@@ -64,11 +64,11 @@ export function ReadingLogHero({ currentDate }: ReadingLogHeroProps) {
     if (!user) return;
     const year = currentDate.getFullYear();
     const shareUrl = `${window.location.origin}/share/deck/${user.handle}?year=${year}`;
-    
+
     // 공유 링크 클립보드 복증 복사
     navigator.clipboard.writeText(shareUrl);
     toast.success(tToast("share_deck_copied"));
-    
+
     // 새 탭으로 미리보기 페이지 열기
     window.open(shareUrl, "_blank");
   };

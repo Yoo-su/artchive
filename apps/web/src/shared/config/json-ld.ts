@@ -1,4 +1,7 @@
-export const getJsonLd = (t: (key: string) => string, locale: string = "ko") => {
+export const getJsonLd = (
+  t: (key: string) => string,
+  locale: string = "ko",
+) => {
   const siteUrl = `https://bookjeok.com/${locale}`;
   return {
     "@context": "https://schema.org",
@@ -11,8 +14,7 @@ export const getJsonLd = (t: (key: string) => string, locale: string = "ko") => 
         url: siteUrl,
         potentialAction: {
           "@type": "SearchAction",
-          target:
-            `https://bookjeok.com/${locale}/book/search?keyword={search_term_string}`,
+          target: `https://bookjeok.com/${locale}/book/search?keyword={search_term_string}`,
           "query-input": "required name=search_term_string",
         },
       },

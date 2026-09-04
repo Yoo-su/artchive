@@ -88,7 +88,11 @@ export function LoungeActiveReaders() {
                     open: {
                       opacity: 1,
                       y: 0,
-                      transition: { type: "spring", stiffness: 300, damping: 26 },
+                      transition: {
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 26,
+                      },
                     },
                     collapsed: {
                       opacity: 0,
@@ -97,10 +101,7 @@ export function LoungeActiveReaders() {
                     },
                   }}
                 >
-                  <ReaderRow
-                    item={item}
-                    rank={COLLAPSED_COUNT + idx + 1}
-                  />
+                  <ReaderRow item={item} rank={COLLAPSED_COUNT + idx + 1} />
                 </motion.div>
               ))}
             </div>
@@ -137,4 +138,3 @@ export function LoungeActiveReaders() {
     </section>
   );
 }
-

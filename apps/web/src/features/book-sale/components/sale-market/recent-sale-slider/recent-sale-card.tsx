@@ -29,7 +29,8 @@ export const RecentSaleCard = ({
 }: RecentSaleCardProps) => {
   const tCommon = useTranslations("common");
   const tMarket = useTranslations("market");
-  const displayImage = sale.imageUrls[0] || sale.book?.image || "/images/placeholder-image.svg";
+  const displayImage =
+    sale.imageUrls[0] || sale.book?.image || "/images/placeholder-image.svg";
 
   const originalPrice = Number(sale.book?.discount);
   const isDiscounted = originalPrice > 0 && sale.price < originalPrice;
@@ -80,11 +81,14 @@ export const RecentSaleCard = ({
           <div className="flex items-baseline gap-1.5 mt-2">
             <span className="text-sm font-semibold text-neutral-900">
               {sale.price.toLocaleString()}
-              <span className="text-xs font-medium ml-0.5">{tCommon("won")}</span>
+              <span className="text-xs font-medium ml-0.5">
+                {tCommon("won")}
+              </span>
             </span>
             {isDiscounted && (
               <span className="text-[10px] text-neutral-400 line-through font-light">
-                {originalPrice.toLocaleString()}{tCommon("won")}
+                {originalPrice.toLocaleString()}
+                {tCommon("won")}
               </span>
             )}
           </div>
@@ -93,7 +97,9 @@ export const RecentSaleCard = ({
           <div className="flex items-center justify-between pt-2 border-t border-neutral-100 text-xs">
             <div className="flex items-center gap-1.5 min-w-0">
               <Avatar className="h-3.5 w-3.5 shrink-0" data-nosnippet>
-                <AvatarImage src={getProfileImageUrl(sale.user?.profileImageUrl)} />
+                <AvatarImage
+                  src={getProfileImageUrl(sale.user?.profileImageUrl)}
+                />
                 <AvatarFallback className="text-[7px] bg-neutral-200 text-neutral-700">
                   {sale.user?.nickname?.slice(0, 1) || "U"}
                 </AvatarFallback>
@@ -111,4 +117,3 @@ export const RecentSaleCard = ({
     </Link>
   );
 };
-

@@ -40,11 +40,7 @@ function BookCardRoot({
 }: BookCardRootProps) {
   const linkHref = href || PATHS.BOOK_DETAIL(book.isbn);
 
-  const inner = (
-    <div className={cn("group block", className)}>
-      {children}
-    </div>
-  );
+  const inner = <div className={cn("group block", className)}>{children}</div>;
 
   return (
     <BookCardContext.Provider value={{ book }}>
@@ -95,11 +91,7 @@ interface BookCardMetaProps {
 }
 
 function BookCardMeta({ className, children }: BookCardMetaProps) {
-  return (
-    <div className={cn("mt-2.5 px-0.5", className)}>
-      {children}
-    </div>
-  );
+  return <div className={cn("mt-2.5 px-0.5", className)}>{children}</div>;
 }
 
 interface BookCardTitleProps {
@@ -187,12 +179,7 @@ export function BookCard({
   action,
 }: FlatBookCardProps) {
   return (
-    <BookCardRoot
-      book={book}
-      className={className}
-      href={href}
-      asLink={asLink}
-    >
+    <BookCardRoot book={book} className={className} href={href} asLink={asLink}>
       <BookCardCover />
       <BookCardMeta>
         <BookCardTitle />

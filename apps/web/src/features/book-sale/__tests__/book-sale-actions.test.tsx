@@ -57,7 +57,10 @@ vi.mock("@/shared/components/magicui/cool-mode", () => ({
 
 vi.mock("@/features/book-sale/mutations", () => ({
   useDeleteBookSaleMutation: () => ({ mutate: vi.fn(), isPending: false }),
-  useUpdateBookSaleStatusMutation: () => ({ mutate: vi.fn(), isPending: false }),
+  useUpdateBookSaleStatusMutation: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
 }));
 
 vi.mock("@bookjeok/react-query", () => ({
@@ -89,7 +92,12 @@ const baseSale = {
   status: SaleStatus.FOR_SALE,
   createdAt: "2026-09-01T00:00:00.000Z",
   updatedAt: "2026-09-01T00:00:00.000Z",
-  user: { id: 1, handle: "seller_handle", nickname: "작은콩", profileImageUrl: null },
+  user: {
+    id: 1,
+    handle: "seller_handle",
+    nickname: "작은콩",
+    profileImageUrl: null,
+  },
   viewCount: 0,
   hasActiveOrder: false,
   hasTradeCompletion: false,
@@ -116,7 +124,9 @@ describe("BookSaleActions UI 레이아웃 및 잠금 테스트", () => {
     expect(nicknameLink).toHaveAttribute("href", "/users/seller_handle");
 
     // 판매자 라벨
-    expect(screen.getByText("market.detail.actions.seller")).toBeInTheDocument();
+    expect(
+      screen.getByText("market.detail.actions.seller"),
+    ).toBeInTheDocument();
 
     // 신뢰 뱃지 (거래 완료 수)
     expect(

@@ -4,7 +4,13 @@ import { useTranslations } from "next-intl";
 import React, { useState } from "react";
 import { type Address, DaumPostcodeEmbed } from "react-daum-postcode";
 
-import { MapPin, Phone, Search, Truck, User } from "@/shared/components/icons/iconsax";
+import {
+  MapPin,
+  Phone,
+  Search,
+  Truck,
+  User,
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,
@@ -102,11 +108,15 @@ export const AddressInput = ({
           placeholder={t("recipient_name_placeholder")}
           disabled={disabled}
           className={`border-stone-200 dark:border-stone-800 ${
-            errors.recipientName ? "border-destructive focus-visible:ring-destructive" : ""
+            errors.recipientName
+              ? "border-destructive focus-visible:ring-destructive"
+              : ""
           }`}
         />
         {errors.recipientName && (
-          <p className="text-[11px] font-medium text-destructive">{errors.recipientName}</p>
+          <p className="text-[11px] font-medium text-destructive">
+            {errors.recipientName}
+          </p>
         )}
       </div>
 
@@ -130,11 +140,15 @@ export const AddressInput = ({
           maxLength={13}
           disabled={disabled}
           className={`border-stone-200 dark:border-stone-800 ${
-            errors.recipientPhone ? "border-destructive focus-visible:ring-destructive" : ""
+            errors.recipientPhone
+              ? "border-destructive focus-visible:ring-destructive"
+              : ""
           }`}
         />
         {errors.recipientPhone && (
-          <p className="text-[11px] font-medium text-destructive">{errors.recipientPhone}</p>
+          <p className="text-[11px] font-medium text-destructive">
+            {errors.recipientPhone}
+          </p>
         )}
       </div>
 
@@ -173,12 +187,16 @@ export const AddressInput = ({
           readOnly
           placeholder={t("address_placeholder")}
           className={`mt-1 bg-stone-50 dark:bg-stone-900 border-stone-200 dark:border-stone-800 text-sm ${
-            errors.address ? "border-destructive focus-visible:ring-destructive" : ""
+            errors.address
+              ? "border-destructive focus-visible:ring-destructive"
+              : ""
           }`}
           disabled={disabled}
         />
         {errors.address && (
-          <p className="text-[11px] font-medium text-destructive">{errors.address}</p>
+          <p className="text-[11px] font-medium text-destructive">
+            {errors.address}
+          </p>
         )}
       </div>
 
@@ -201,11 +219,15 @@ export const AddressInput = ({
           placeholder={t("address_detail_placeholder")}
           disabled={disabled}
           className={`border-stone-200 dark:border-stone-800 ${
-            errors.addressDetail ? "border-destructive focus-visible:ring-destructive" : ""
+            errors.addressDetail
+              ? "border-destructive focus-visible:ring-destructive"
+              : ""
           }`}
         />
         {errors.addressDetail && (
-          <p className="text-[11px] font-medium text-destructive">{errors.addressDetail}</p>
+          <p className="text-[11px] font-medium text-destructive">
+            {errors.addressDetail}
+          </p>
         )}
       </div>
 

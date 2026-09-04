@@ -4,7 +4,12 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { memo, RefObject, useMemo, useState } from "react";
 
-import { Check, Loader2, RotateCcw, X } from "@/shared/components/icons/iconsax";
+import {
+  Check,
+  Loader2,
+  RotateCcw,
+  X,
+} from "@/shared/components/icons/iconsax";
 import {
   Avatar,
   AvatarFallback,
@@ -381,7 +386,10 @@ export const MessageList = ({
             />
           );
         })}
-        <div ref={messagesEndRef} className="h-2 shrink-0 pointer-events-none" />
+        <div
+          ref={messagesEndRef}
+          className="h-2 shrink-0 pointer-events-none"
+        />
       </div>
     </div>
   );

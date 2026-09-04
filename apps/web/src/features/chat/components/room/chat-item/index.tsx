@@ -27,7 +27,8 @@ const YESTERDAY_TEXT: Record<string, string> = {
 const formatLastMessageTime = (date: string, locale: string) => {
   const messageDate = new Date(date);
   if (isToday(messageDate)) return formatDate(messageDate, locale, "time");
-  if (isYesterday(messageDate)) return YESTERDAY_TEXT[locale] ?? YESTERDAY_TEXT.en;
+  if (isYesterday(messageDate))
+    return YESTERDAY_TEXT[locale] ?? YESTERDAY_TEXT.en;
   return formatDate(messageDate, locale, "monthDayShort");
 };
 

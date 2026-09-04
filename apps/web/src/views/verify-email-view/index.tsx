@@ -7,7 +7,11 @@ import { useEffect, useRef, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { Logo } from "@/layouts/common/logo";
-import { AlertCircle, CheckCircle2, Loader2 } from "@/shared/components/icons/iconsax";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
@@ -71,7 +75,9 @@ export const VerifyEmailView = () => {
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
               {t("title")}
             </h1>
-            <p className="text-sm text-stone-500 dark:text-stone-400 break-keep">{t("verifying")}</p>
+            <p className="text-sm text-stone-500 dark:text-stone-400 break-keep">
+              {t("verifying")}
+            </p>
           </div>
         )}
 

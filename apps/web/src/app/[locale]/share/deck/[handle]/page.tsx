@@ -13,7 +13,10 @@ type Props = {
 // 유저 핸들과 연도 쿼리 파라미터를 동적으로 처리하기 위해 정적 빌드에서 제외하고 dynamic 온디맨드로 처리합니다.
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: Props): Promise<Metadata> {
   const { locale, handle } = await params;
   const { year } = await searchParams;
   const decodedHandle = decodeURIComponent(handle);
@@ -47,9 +50,6 @@ export default async function Page({ params, searchParams }: Props) {
   const displayYear = year ? parseInt(year) : undefined;
 
   return (
-    <ShareDeckView
-      handle={decodeURIComponent(handle)}
-      year={displayYear}
-    />
+    <ShareDeckView handle={decodeURIComponent(handle)} year={displayYear} />
   );
 }
