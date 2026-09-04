@@ -174,4 +174,21 @@ describe("거래 상대 선택 모달", () => {
       expect.objectContaining({ saleId: baseSale.id, buyerId: 42 }),
     );
   });
+
+  it("완료 모드에서 건너뛰면 withoutCounterparty: true 로 완료 API를 부른다", async () => {
+    openModal("complete");
+
+    expect(screen.getByText("market.complete_trade.title")).toBeInTheDocument();
+
+    fireEvent.click(await screen.findByText("market.complete_trade.skip"));
+
+    expect(mockComplete).toHaveBeenCalledWith(
+      expect.objectContaining({
+        saleId: baseSale.id,
+        buyerId: undefined,
+        withoutCounterparty: true,
+      }),
+    );
+  });
 });
+

@@ -98,16 +98,33 @@ export const BookSaleActions: React.FC<BookSaleActionsProps> = ({ sale }) => {
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-wrap items-center gap-2.5">
+      <div className="flex items-center gap-3 min-w-0">
         <UserAvatarMenu
           user={sale.user}
-          showNickname
-          label={t("actions.seller")}
           size="lg"
         />
-        {sale.user?.handle && (
-          <SellerTrustBadge handle={sale.user.handle} size="sm" />
-        )}
+        <div className="flex flex-col items-start justify-center gap-1 min-w-0">
+          <div className="flex items-center gap-1.5 min-w-0 max-w-full">
+            {sale.user?.handle ? (
+              <Link
+                href={PATHS.USER_PROFILE(sale.user.handle)}
+                className="text-sm font-semibold text-stone-900 dark:text-stone-100 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors truncate"
+              >
+                {sale.user.nickname}
+              </Link>
+            ) : (
+              <span className="text-sm font-semibold text-stone-900 dark:text-stone-100 truncate">
+                {sale.user?.nickname}
+              </span>
+            )}
+            <span className="inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 border border-stone-200/80 dark:border-stone-700/80 shrink-0">
+              {t("actions.seller")}
+            </span>
+          </div>
+          {sale.user?.handle && (
+            <SellerTrustBadge handle={sale.user.handle} size="sm" />
+          )}
+        </div>
       </div>
       {!mounted ? (
         <div className="flex gap-2 w-full sm:w-auto items-center justify-end animate-pulse">
@@ -127,28 +144,30 @@ export const BookSaleActions: React.FC<BookSaleActionsProps> = ({ sale }) => {
           <SaleStatusSelect sale={sale} className="h-9 w-full sm:w-[120px]" />
 
           <div className="flex items-center gap-2">
-            <Button
-              asChild={!isLockedByOrder}
-              variant="outline"
-              size="sm"
-              disabled={isLockedByOrder}
-              title={
-                isLockedByOrder ? t("actions.in_trade_cannot_modify") : undefined
-              }
-              className="h-9 flex-1 sm:flex-none"
-            >
-              {isLockedByOrder ? (
-                <span>
-                  <Edit className="w-4 h-4 mr-1.5" />
-                  {t("actions.edit")}
-                </span>
-              ) : (
+            {isLockedByOrder ? (
+              <Button
+                variant="outline"
+                size="sm"
+                disabled
+                title={t("actions.in_trade_cannot_modify")}
+                className="h-9 flex-1 sm:flex-none whitespace-nowrap"
+              >
+                <Edit className="w-4 h-4 mr-1.5 shrink-0" />
+                <span>{t("actions.edit")}</span>
+              </Button>
+            ) : (
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="h-9 flex-1 sm:flex-none whitespace-nowrap"
+              >
                 <Link href={PATHS.MY_PAGE_SALES_EDIT(String(sale.id))}>
-                  <Edit className="w-4 h-4 mr-1.5" />
-                  {t("actions.edit")}
+                  <Edit className="w-4 h-4 mr-1.5 shrink-0" />
+                  <span>{t("actions.edit")}</span>
                 </Link>
-              )}
-            </Button>
+              </Button>
+            )}
 
             {/*
              * 삭제는 평소엔 조용히 있다가 hover에서만 위험을 드러낸다.
@@ -162,10 +181,10 @@ export const BookSaleActions: React.FC<BookSaleActionsProps> = ({ sale }) => {
                 isLockedByOrder ? t("actions.in_trade_cannot_modify") : undefined
               }
               onClick={handleDeleteSale}
-              className="h-9 flex-1 border-stone-300 text-stone-600 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 dark:border-stone-700 dark:text-stone-300 dark:hover:border-red-800 dark:hover:bg-red-950/30 dark:hover:text-red-400 sm:flex-none"
+              className="h-9 flex-1 border-stone-300 text-stone-600 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 dark:border-stone-700 dark:text-stone-300 dark:hover:border-red-800 dark:hover:bg-red-950/30 dark:hover:text-red-400 sm:flex-none whitespace-nowrap"
             >
-              <Trash2 className="w-4 h-4 mr-1.5" />
-              {isDeleting ? t("actions.deleting") : t("actions.delete")}
+              <Trash2 className="w-4 h-4 mr-1.5 shrink-0" />
+              <span>{isDeleting ? t("actions.deleting") : t("actions.delete")}</span>
             </Button>
           </div>
         </div>

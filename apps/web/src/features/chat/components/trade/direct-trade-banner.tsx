@@ -52,6 +52,9 @@ export const DirectTradeBanner = ({
   const confirm = useConfirm();
   const authUser = useAuthStore((state) => state.user);
   const isChatOpen = useChatStore((state) => state.isChatOpen);
+  const isRoomInactive = useChatStore(
+    (state) => (room?.id ? state.isRoomInactive[room.id] || false : false),
+  );
 
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -233,9 +236,32 @@ export const DirectTradeBanner = ({
       (participant) => participant.user?.id === opponent?.id,
     );
     const isOpponentInactive =
-      opponentParticipant?.isActive === false || Boolean(opponent?.deletedAt);
+      isRoomInactive ||
+      opponentParticipant?.isActive === false ||
+      Boolean(opponent?.deletedAt);
 
     if (isOpponentInactive) {
+      if (isReserved && reservedForOpponent) {
+        return shell(
+          <>
+            <span className="flex items-center gap-1.5 font-medium min-w-0">
+              <AlertTriangle className="w-3.5 h-3.5 text-stone-500 shrink-0" />
+              <span className="truncate">{t("opponent_left_hint")}</span>
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 text-xs rounded-lg cursor-pointer shrink-0"
+              onClick={handleCancelReservation}
+              disabled={isPending}
+            >
+              <RotateCcw className="w-3 h-3 mr-1" />
+              {t("btn_cancel_reservation")}
+            </Button>
+          </>,
+        );
+      }
+
       return shell(
         <span className="flex items-center gap-1.5 font-medium">
           <AlertTriangle className="w-3.5 h-3.5 text-stone-500 shrink-0" />

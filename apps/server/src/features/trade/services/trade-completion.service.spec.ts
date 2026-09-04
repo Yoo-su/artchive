@@ -253,6 +253,31 @@ describe('TradeCompletionService', () => {
       );
     });
 
+    it('withoutCounterparty=true이면 예약 상대가 있어도 완료 기록을 남기지 않고 판매완료만 한다', async () => {
+      stubManager({
+        sale: mockSale({
+          status: SaleStatus.RESERVED,
+          reservedForUserId: BUYER_ID,
+        }),
+      });
+
+      const { sale, completion } = await service.completeDirectTrade(
+        SALE_ID,
+        SELLER_ID,
+        undefined,
+        undefined,
+        true,
+      );
+
+      expect(sale.status).toBe(SaleStatus.SOLD);
+      expect(sale.reservedForUserId).toBeNull();
+      expect(completion).toBeNull();
+      expect(eventEmitter.emit).not.toHaveBeenCalledWith(
+        'trade.completed',
+        expect.anything(),
+      );
+    });
+
     it('이미 완료된 판매글은 다시 완료할 수 없다', async () => {
       // 허용하면 한 거래를 여러 건으로 부풀리거나 중복 집계된다.
       stubManager({

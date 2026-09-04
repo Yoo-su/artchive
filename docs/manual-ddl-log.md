@@ -266,7 +266,8 @@ CREATE TABLE trade_completions (
   "createdAt"   timestamptz NOT NULL DEFAULT now(),
   "updatedAt"   timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT "PK_trade_completions_id" PRIMARY KEY (id),
-  CONSTRAINT "UQ_trade_completions_orderId" UNIQUE ("orderId")
+  CONSTRAINT "UQ_trade_completions_orderId" UNIQUE ("orderId"),
+  CONSTRAINT "UQ_trade_completions_saleId" UNIQUE ("saleId")
 );
 
 -- 신뢰 지표는 사용자별 완료 건수를 세므로 두 방향 모두 인덱스가 필요하다.

@@ -109,6 +109,7 @@ export class TradeCompletionController {
       user.id,
       dto.buyerId,
       dto.chatRoomId,
+      dto.withoutCounterparty,
     );
   }
 

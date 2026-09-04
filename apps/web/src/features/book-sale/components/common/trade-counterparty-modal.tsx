@@ -102,6 +102,7 @@ export const TradeCounterpartyModal = ({
         saleId: sale.id,
         buyerId: buyerId ?? undefined,
         chatRoomId: candidate?.chatRoomId,
+        withoutCounterparty: buyerId === null,
       });
       return;
     }

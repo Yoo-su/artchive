@@ -17,6 +17,8 @@ import {
 } from "@/shared/components/shadcn/dropdown-menu";
 import { Textarea } from "@/shared/components/shadcn/textarea";
 import { UserAvatarMenu } from "@/shared/components/ui/user-avatar-menu";
+import { Link } from "@/shared/config/i18n/routing";
+import { PATHS } from "@/shared/constants/paths";
 import { cn } from "@/shared/utils";
 import { formatRelativeTime } from "@/shared/utils/format-date";
 
@@ -120,8 +122,8 @@ export const CommentItem = ({
             user={comment.user}
             showNickname={false}
             size="sm"
-            menuSide="bottom"
-            menuAlign="start"
+            tooltipSide="bottom"
+            tooltipAlign="start"
             className={cn(
               "shrink-0",
               isOwner && "ring-1 ring-stone-200 rounded-full",
@@ -129,9 +131,18 @@ export const CommentItem = ({
           />
           <div className="flex flex-col justify-center">
             <div className="flex items-center gap-1.5">
-              <span className="font-serif font-medium text-[15px] tracking-tight text-stone-900">
-                {comment.user.nickname}
-              </span>
+              {comment.user?.handle ? (
+                <Link
+                  href={PATHS.USER_PROFILE(comment.user.handle)}
+                  className="font-serif font-medium text-[15px] tracking-tight text-stone-900 dark:text-stone-100 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
+                >
+                  {comment.user.nickname}
+                </Link>
+              ) : (
+                <span className="font-serif font-medium text-[15px] tracking-tight text-stone-900 dark:text-stone-100">
+                  {comment.user.nickname}
+                </span>
+              )}
               {isOwner && (
                 <span className="shrink-0 text-[10px] text-stone-600 bg-stone-100 px-1.5 py-0.5 rounded-[4px] font-medium border border-stone-200">
                   {t("me")}

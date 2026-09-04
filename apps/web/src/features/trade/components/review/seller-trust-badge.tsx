@@ -39,7 +39,7 @@ export const SellerTrustBadge = ({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-medium",
+        "inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-medium whitespace-nowrap",
         isSmall ? "px-2.5 py-0.5 text-[11px]" : "px-3 py-1 text-xs",
         className,
       )}
