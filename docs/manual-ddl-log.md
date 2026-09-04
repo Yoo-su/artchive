@@ -25,12 +25,19 @@ synchronize: configService.get<string>('NODE_ENV') !== 'production',
 워터마크 전환 때 실제로 쓴 방법입니다. "이것 말고는 없다"를 추측이 아니라
 증명할 수 있습니다.
 
+이 절차는 `apps/server/scripts/derive-ddl.ts`로 실행할 수 있습니다.
+
+```bash
+DDL_TARGET_DATABASE_URL=postgres://user:pass@localhost:5432/bookjeok_ddl   pnpm --filter @bookjeok/server exec ts-node -r tsconfig-paths/register scripts/derive-ddl.ts
+```
+
 ## 적용 이력
 
 | 날짜 | 내용 | 관련 커밋 |
 | --- | --- | --- |
 | 2026-09-02 | 채팅 테이블 인덱스 5개 추가 | `e0eed214` |
 | 2026-09-02 | 읽음 워터마크 컬럼 추가·백필, `read_receipts` 드롭 | `778ef588` |
+| (미적용) | 거래 완료(`trade_completions`) 도입, `trade_reviews` 재구성 | 아래 3번 |
 
 현재 운영에 남아 있는 채팅 인덱스는 **4개**입니다
 (`idx_read_receipts_message`는 테이블과 함께 사라졌습니다).
@@ -149,3 +156,167 @@ DROP TABLE read_receipts;
 조건으로 거는 쪽은 언제나 `chat_messages.id`입니다.
 
 설계 설명은 `apps/server/src/features/chat/README.md`의 "4. 읽음 처리: 워터마크"에 있습니다.
+
+---
+
+## 3. 거래 완료(`trade_completions`) 도입과 `trade_reviews` 재구성 (미적용)
+
+> **명명 규칙**: 운영 스키마는 손으로 붙인 이름(`IDX_{테이블}_{컬럼}`, `UQ_`, `PK_`,
+> `FK_`, 컬럼은 camelCase 유지)을 씁니다. 아래 DDL도 그 규칙을 따르고, 인덱스·유니크
+> 이름은 엔티티 데코레이터에도 같은 값으로 박아두어 개발(`synchronize`)과 어긋나지
+> 않게 했습니다. PK·FK 이름은 TypeORM 데코레이터로 지정할 수 없어 개발 환경과는
+> 다를 수 있습니다(기존 테이블도 이미 그런 상태입니다).
+>
+> **아직 운영에 적용하지 않았습니다.** 아래 SQL은 엔티티 정의에서 직접 옮겨 적은
+> 것으로, 위의 `derive-ddl.ts`로 검증하지 않았습니다(작성 시점에 로컬 Postgres를
+> 띄울 수 없었음). **실행 전에 반드시 스크립트로 한 번 뽑아 대조하세요.**
+> 특히 TypeORM이 만드는 인덱스·제약 이름은 해시 기반이라 손으로 맞히기 어렵습니다.
+
+### 배경
+
+거래 후기가 `orders`에 1:1로 매달려 있어서, 결제를 거치지 않는 직거래에서는
+후기를 남길 수 없었습니다. 결제(`Order`)는 거래의 한 가지 수단일 뿐인데 후기와
+신뢰 지표가 거기에만 붙어 있던 게 원인입니다.
+
+"거래가 성사됐다"는 사실을 `trade_completions`로 분리하고, 후기는 그쪽에 붙입니다.
+결제 거래도 구매확정 시점에 완료 기록을 하나 만들므로 두 경로가 하나로 합쳐집니다.
+
+### 사전 확인
+
+`trade_reviews`와 `orders`가 **비어 있어야** 아래 절차를 그대로 쓸 수 있습니다
+(결제 기능이 봉인되어 있어 운영 데이터가 없는 상태를 전제로 합니다).
+
+```sql
+SELECT 'trade_reviews' AS table_name, COUNT(*) AS rows FROM trade_reviews
+UNION ALL
+SELECT 'orders', COUNT(*) FROM orders;
+```
+
+둘 다 0이 아니면 `trade_reviews`를 드롭하지 말고 마이그레이션 계획을 다시 세우세요.
+
+### 적용 체크리스트
+
+1. **위 사전 확인 쿼리를 돌려 두 값이 모두 0인지 확인한다.**
+2. `derive-ddl.ts`로 DDL을 뽑아 아래 SQL과 대조하고, 차이가 있으면 **스크립트 결과를 따른다.**
+3. 0단계(알림 enum 값 추가)를 먼저 실행한다.
+4. 1단계 SQL을 한 트랜잭션으로 실행한다.
+5. 서버를 배포한다. (코드가 먼저 나가면 `trade_completions`가 없어 500이 난다 —
+   반드시 **DDL → 배포** 순서)
+6. 판매글 하나로 직거래 예약 → 완료 → 후기까지 한 바퀴 돌려본다.
+7. 이 문서의 이력 표에서 이 항목의 날짜와 커밋을 채운다.
+
+#### 0단계 — 알림 enum 값 추가 (트랜잭션 밖에서 먼저)
+
+`notifications.type`은 Postgres enum이라 값을 늘리려면 `ALTER TYPE`이 필요합니다.
+`ADD VALUE`는 추가한 값을 **같은 트랜잭션 안에서 쓸 수 없으므로** 아래 두 줄은
+본 트랜잭션과 분리해 먼저 실행합니다.
+
+```sql
+ALTER TYPE "notification_type_enum" ADD VALUE IF NOT EXISTS 'TRADE_RESERVED';
+ALTER TYPE "notification_type_enum" ADD VALUE IF NOT EXISTS 'TRADE_COMPLETED';
+```
+
+> **타입 이름이 테이블 이름과 다릅니다.** 테이블은 `notifications`(복수)인데 enum은
+> `notification_type_enum`(단수)입니다. Postgres는 테이블 이름을 바꿔도 enum 타입
+> 이름을 따라 바꾸지 않기 때문입니다. 같은 흔적으로 `used_book_posts_status_enum`이
+> 쓰이지 않는 채 남아 있습니다(`used_book_posts` → `used_book_sales` 개명).
+>
+> **그래서 enum 이름은 추측하지 말고 항상 조회해서 확인하세요.**
+
+```sql
+SELECT n.nspname AS schema,
+       t.typname AS enum_type,
+       string_agg(e.enumlabel, ', ' ORDER BY e.enumsortorder) AS values
+FROM pg_type t
+JOIN pg_enum e ON e.enumtypid = t.oid
+JOIN pg_namespace n ON n.oid = t.typnamespace
+WHERE n.nspname = 'public'
+GROUP BY 1, 2
+ORDER BY 2;
+```
+
+#### 1단계 — 본 DDL
+
+```sql
+BEGIN;
+
+-- 1) 예약 상대. 예약중은 다른 구매희망자에게 보내는 신호이므로
+--    "누구와 예약했는지"가 남아야 다른 채팅방에 안내를 띄울 수 있다.
+ALTER TABLE used_book_sales
+  ADD COLUMN IF NOT EXISTS "reservedForUserId" integer;
+
+ALTER TABLE used_book_sales
+  ADD CONSTRAINT "FK_used_book_sales_reservedForUserId"
+  FOREIGN KEY ("reservedForUserId") REFERENCES users(id) ON DELETE SET NULL;
+
+-- 2) 거래 완료 기록
+--    새로 만드는 테이블이라 TypeORM 규칙({테이블}_{컬럼}_enum)과 이름이 일치한다.
+--    개명 이력이 있는 기존 테이블과 달리 여기서는 추측이 아니다.
+CREATE TYPE "trade_completions_method_enum" AS ENUM ('DIRECT', 'DELIVERY');
+
+CREATE TABLE trade_completions (
+  id            SERIAL,
+  "saleId"      integer NOT NULL REFERENCES used_book_sales(id) ON DELETE CASCADE,
+  "sellerId"    integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  "buyerId"     integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  "chatRoomId"  integer NULL REFERENCES chat_rooms(id) ON DELETE SET NULL,
+  method        "trade_completions_method_enum" NOT NULL DEFAULT 'DIRECT',
+  "orderId"     varchar NULL,
+  "completedAt" timestamptz NOT NULL,
+  "createdAt"   timestamptz NOT NULL DEFAULT now(),
+  "updatedAt"   timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT "PK_trade_completions_id" PRIMARY KEY (id),
+  CONSTRAINT "UQ_trade_completions_orderId" UNIQUE ("orderId")
+);
+
+-- 신뢰 지표는 사용자별 완료 건수를 세므로 두 방향 모두 인덱스가 필요하다.
+CREATE INDEX "IDX_trade_completions_sellerId_completedAt"
+  ON trade_completions ("sellerId", "completedAt");
+CREATE INDEX "IDX_trade_completions_buyerId_completedAt"
+  ON trade_completions ("buyerId", "completedAt");
+
+-- 3) 후기를 주문이 아니라 완료 기록에 매단다.
+--    비어 있는 테이블이므로 재생성이 가장 깔끔하다.
+DROP TABLE trade_reviews;
+
+CREATE TABLE trade_reviews (
+  id             SERIAL,
+  "completionId" integer NOT NULL REFERENCES trade_completions(id) ON DELETE CASCADE,
+  "reviewerId"   integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  "targetUserId" integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  tags           text NOT NULL,
+  content        text NULL,
+  "createdAt"    timestamptz NOT NULL DEFAULT now(),
+  "updatedAt"    timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT "PK_trade_reviews_id" PRIMARY KEY (id),
+  -- 한 거래당 양쪽이 각각 한 건씩
+  CONSTRAINT "UQ_trade_reviews_completionId_reviewerId"
+    UNIQUE ("completionId", "reviewerId")
+);
+
+-- 드롭 전과 같은 이름으로 다시 만든다.
+CREATE INDEX "IDX_trade_reviews_targetUserId_createdAt"
+  ON trade_reviews ("targetUserId", "createdAt");
+
+COMMIT;
+```
+
+### 되돌리기
+
+```sql
+BEGIN;
+DROP TABLE IF EXISTS trade_reviews;
+DROP TABLE IF EXISTS trade_completions;
+DROP TYPE IF EXISTS "trade_completions_method_enum";
+ALTER TABLE used_book_sales DROP CONSTRAINT IF EXISTS "FK_used_book_sales_reservedForUserId";
+ALTER TABLE used_book_sales DROP COLUMN IF EXISTS "reservedForUserId";
+COMMIT;
+```
+
+되돌리면 후기 데이터가 사라집니다. 배포 후 후기가 쌓이기 시작했다면
+이 스크립트를 그대로 쓰지 마세요.
+
+`notifications_type_enum`에 추가한 값은 되돌리지 않습니다. Postgres는 enum 값
+삭제를 지원하지 않고, 남아 있어도 쓰지 않으면 해가 없습니다.
+
+설계 설명은 `apps/server/src/features/trade/README.md`에 있습니다.
