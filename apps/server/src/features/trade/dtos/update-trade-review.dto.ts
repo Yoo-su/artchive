@@ -1,3 +1,4 @@
+import { TradeReviewTag } from '@bookjeok/core';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   ArrayNotEmpty,
@@ -7,8 +8,6 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-
-import { TradeReviewTag } from '../entities/trade-review.entity';
 
 export class UpdateTradeReviewDto {
   @ApiPropertyOptional({

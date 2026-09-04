@@ -5,7 +5,6 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
   VersionColumn,
@@ -14,8 +13,6 @@ import {
 import { ChatRoom } from '@/features/chat/entities/chat-room.entity';
 import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { User } from '@/features/user/entities/user.entity';
-
-import { TradeReview } from './trade-review.entity';
 
 export enum OrderStatus {
   AWAITING_PAYMENT = 'AWAITING_PAYMENT',
@@ -135,8 +132,13 @@ export class Order {
   @Column({ nullable: true })
   chatRoomId: number | null;
 
-  @OneToOne(() => TradeReview, (tradeReview) => tradeReview.order)
-  tradeReview: TradeReview;
+  /**
+   * DB 컬럼이 아닌 응답 전용 필드.
+   *
+   * 구매확정으로 만들어진 거래 완료 기록의 ID. 후기는 주문이 아니라 완료
+   * 기록에 붙으므로, 주문 화면에서 후기를 쓰려면 이 값이 필요합니다.
+   */
+  completionId?: number | null;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;

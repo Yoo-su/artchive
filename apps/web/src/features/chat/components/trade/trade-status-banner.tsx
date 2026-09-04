@@ -41,6 +41,7 @@ import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { PATHS } from "@/shared/constants/paths";
 
+import { DirectTradeBanner } from "./direct-trade-banner";
 import { SelectBuyerModal } from "./select-buyer-modal";
 
 interface TradeStatusBannerProps {
@@ -139,25 +140,27 @@ export const TradeStatusBanner = ({
     setIsSelectModalOpen(true);
   };
 
-  if (!isPaymentFeatureEnabled || !room || !room.usedBookSale) {
+  if (!room || !room.usedBookSale) {
     return null;
   }
 
   // 1. 직거래 전용인 경우
+  // 결제 봉인 여부와 무관하게 노출한다. 직거래는 결제 없이 진행되는
+  // 거래이므로, 결제 플래그로 함께 가리면 채팅방에서 거래 안내가 통째로
+  // 사라진다.
   if (room.usedBookSale.tradeMethod === TradeMethod.DIRECT_ONLY) {
     return (
-      <div className="flex items-center justify-between px-4 py-2 bg-stone-50/90 dark:bg-stone-900/90 border-b border-stone-200 dark:border-stone-800 text-xs text-stone-600 dark:text-stone-400">
-        <span className="flex items-center gap-1.5 font-medium">
-          <Badge
-            variant="outline"
-            className="text-[10px] px-1.5 py-0 border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300"
-          >
-            직거래
-          </Badge>
-          {t("direct_only_hint")}
-        </span>
-      </div>
+      <DirectTradeBanner
+        room={room}
+        currentUser={currentUser}
+        opponent={opponent}
+      />
     );
+  }
+
+  // 여기부터는 주문(결제) 기반 화면이므로 결제 기능이 꺼져 있으면 노출하지 않는다.
+  if (!isPaymentFeatureEnabled) {
+    return null;
   }
 
   // 2. 다른 구매자와 거래 진행 중인 경우 (주문 정보 로딩 완료 후에만 안전하게 판단)

@@ -25,7 +25,8 @@ export const TradeReviewCard = ({ review }: TradeReviewCardProps) => {
 
   const reviewerAvatar = getProfileImageUrl(review.reviewer?.profileImageUrl);
   const reviewerNickname = review.reviewer?.nickname || "익명의 독자";
-  const bookTitle = review.order?.sale?.title || review.order?.sale?.book?.title;
+  const bookTitle =
+    review.completion?.sale?.title || review.completion?.sale?.book?.title;
 
   return (
     <Card className="rounded-2xl border border-stone-200 dark:border-stone-800 shadow-2xs hover:shadow-xs transition-shadow duration-200 bg-white dark:bg-stone-900/80">

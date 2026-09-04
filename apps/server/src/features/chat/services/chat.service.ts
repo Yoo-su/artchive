@@ -4,7 +4,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 
-import { Order, OrderStatus } from '@/features/order/entities/order.entity';
+import { ACTIVE_ORDER_STATUSES } from '@/features/order/constants';
+import { Order } from '@/features/order/entities/order.entity';
 import {
   SaleStatus,
   UsedBookSale,
@@ -546,13 +547,7 @@ export class ChatService {
       const activeOrder = await this.orderRepository.findOne({
         where: {
           chatRoomId: roomId,
-          status: In([
-            OrderStatus.AWAITING_PAYMENT,
-            OrderStatus.PAID,
-            OrderStatus.SHIPPED,
-            OrderStatus.DELIVERED,
-            OrderStatus.DISPUTED,
-          ]),
+          status: In([...ACTIVE_ORDER_STATUSES]),
         },
       });
 
@@ -658,6 +653,33 @@ export class ChatService {
           '판매자가 다른 구매자와 거래를 진행 중입니다.',
           ChatMessageType.TRADE_STATUS,
           { saleId, status: 'RESERVED' },
+        ),
+      ),
+    );
+  }
+
+  /**
+   * 예약이 취소되어 판매글이 다시 판매중으로 돌아왔음을 알립니다.
+   *
+   * 거래 진행 중 안내를 받았던 구매희망자들이 계속 기다리기만 하지 않도록,
+   * 예약이 풀린 사실도 같은 경로로 전달합니다.
+   */
+  async notifySaleBackOnMarket(saleId: number): Promise<void> {
+    const rooms = await this.chatRoomRepository
+      .createQueryBuilder('room')
+      .innerJoin('room.usedBookSale', 'sale')
+      .where('sale.id = :saleId', { saleId })
+      .getMany();
+
+    if (rooms.length === 0) return;
+
+    await Promise.allSettled(
+      rooms.map((room) =>
+        this.sendTradeMessage(
+          room.id,
+          '예약이 취소되어 다시 판매중입니다.',
+          ChatMessageType.TRADE_STATUS,
+          { saleId, status: 'FOR_SALE' },
         ),
       ),
     );

@@ -113,11 +113,22 @@ export const API_PATHS = {
     detail: (orderNumber: string) => `/orders/${orderNumber}`,
     byRoom: (roomId: number) => `/orders/by-room/${roomId}`,
   },
+  trade: {
+    reservation: (saleId: number) => `/trades/sales/${saleId}/reservation`,
+    completion: (saleId: number) => `/trades/sales/${saleId}/completion`,
+    candidates: (saleId: number) => `/trades/sales/${saleId}/candidates`,
+    myCompletions: "/trades/completions/my",
+    completionByRoom: (roomId: number) => `/trades/completions/by-room/${roomId}`,
+    completionDetail: (completionId: number) =>
+      `/trades/completions/${completionId}`,
+  },
   tradeReview: {
     base: "/trade-reviews",
     detail: (reviewId: number) => `/trade-reviews/${reviewId}`,
     userReviews: (handle: string) => `/trade-reviews/user/${handle}`,
     sellerStats: (handle: string) => `/trade-reviews/user/${handle}/stats`,
+    eligibility: (completionId: number) =>
+      `/trade-reviews/eligibility/${completionId}`,
   },
 };
 

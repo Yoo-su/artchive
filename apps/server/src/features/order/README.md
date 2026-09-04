@@ -1,6 +1,10 @@
-# Order Feature (에스크로 주문 · 결제 · 거래 후기)
+# Order Feature (에스크로 주문 · 결제 · 배송)
 
-토스페이먼츠 **에스크로** 기반 중고책 택배 거래를 담당하는 백엔드 모듈입니다. 주문 생성부터 결제 승인, 운송장 등록, 배송 추적, 구매확정, 분쟁, 자동 환불, 거래 후기까지의 전체 수명주기를 관리합니다.
+토스페이먼츠 **에스크로** 기반 중고책 택배 거래를 담당하는 백엔드 모듈입니다. 주문 생성부터 결제 승인, 운송장 등록, 배송 추적, 구매확정, 분쟁, 자동 환불까지의 전체 수명주기를 관리합니다.
+
+> **거래 후기는 이 모듈에 없습니다.** 후기는 결제가 아니라 "거래가 성사됐다"는
+> 사실(`TradeCompletion`)에 붙습니다 — [trade/README.md](../trade/README.md) 참고.
+> 구매확정 시 `OrderService`가 완료 기록을 하나 남기고, 그 뒤는 trade 모듈이 맡습니다.
 
 > 설계 배경·엣지 케이스 정책·단계별 실행 계획은 [docs/used-book-pay-implementation.md](../../../../../docs/used-book-pay-implementation.md)를 참고하세요.
 
@@ -12,18 +16,15 @@
 order/
 ├── order.module.ts
 ├── entities/
-│   ├── order.entity.ts              # Order, OrderStatus
-│   └── trade-review.entity.ts       # TradeReview, TradeReviewTag
+│   └── order.entity.ts              # Order, OrderStatus
 ├── controllers/
 │   ├── order.controller.ts          # 주문 수명주기 API
-│   ├── toss-webhook.controller.ts   # 토스 결제 상태 웹훅 수신
-│   └── trade-review.controller.ts   # 거래 후기 API
+│   └── toss-webhook.controller.ts   # 토스 결제 상태 웹훅 수신
 ├── services/
 │   ├── order.service.ts             # 주문 상태 전이 핵심 로직
 │   ├── toss-payments.service.ts     # 토스 REST API 연동 (승인/에스크로/취소)
 │   ├── delivery-tracker.service.ts  # 택배 배송 상태 조회
-│   ├── order-scheduler.service.ts   # Cron 기반 자동 만료/환불/확정
-│   └── trade-review.service.ts      # 거래 후기 CRUD & 판매자 통계
+│   └── order-scheduler.service.ts   # Cron 기반 자동 만료/환불/확정
 ├── listeners/
 │   └── order-event.listener.ts      # 주문 이벤트 → 알림 + 채팅 시스템 메시지
 ├── guards/
@@ -93,15 +94,6 @@ order/
 |---|---|---|
 | POST | `/orders/webhook/toss` | 토스 결제 상태 변경 웹훅 수신 및 주문 상태 동기화 |
 
-### 거래 후기 (`/trade-reviews`)
-
-| 메서드 | 경로 | 인증 | 설명 |
-|---|---|---|---|
-| POST | `/trade-reviews` | 🔒 | 구매확정 후 14일 이내 작성 |
-| PATCH | `/trade-reviews/:id` | 🔒 | 14일 이내 수정 (삭제 불가) |
-| GET | `/trade-reviews/user/:handle` | - | 특정 사용자가 받은 후기 목록 |
-| GET | `/trade-reviews/user/:handle/stats` | - | "거래 완료 N건 · 긍정 후기 N%" 통계 |
-
 ---
 
 ## 엔티티
@@ -121,19 +113,6 @@ order/
 인덱스: `(status, expiresAt)`, `(status, deliveredAt)`, `(status, disputedAt)`, `buyerId`, `sellerId` — 스케줄러 스캔 경로에 맞춰 구성했습니다.
 
 배송지는 **참조가 아니라 스냅샷**으로 저장합니다. 사용자가 나중에 주소를 바꿔도 과거 주문의 배송지가 흔들리지 않고, 모바일 결제 리디렉션 도중 입력값이 유실되지 않습니다.
-
-### `TradeReview` (`trade_reviews`)
-
-주문당 1건(`@OneToOne`), 구매자 → 판매자 **단방향**입니다. `tags`는 긍정 5종 / 부정 4종 프리셋 중 선택하고 `content`는 선택 입력입니다.
-
-```typescript
-enum TradeReviewTag {
-  // 긍정
-  GOOD_CONDITION, FAST_RESPONSE, FAST_SHIPPING, METICULOUS_PACKAGING, KIND_MANNER,
-  // 부정
-  BAD_CONDITION, SLOW_RESPONSE, LATE_SHIPPING, POOR_PACKAGING,
-}
-```
 
 ---
 

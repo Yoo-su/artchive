@@ -1,6 +1,10 @@
 "use client";
 
-import { Order, OrderStatus } from "@bookjeok/core";
+import {
+  Order,
+  OrderStatus,
+  TradeCompletionMethod,
+} from "@bookjeok/core";
 import { useConfirmPurchaseMutation } from "@bookjeok/react-query";
 import {
   AlertCircle,
@@ -17,6 +21,7 @@ import { toast } from "sonner";
 
 import { useOpenChatRoom } from "@/features/chat/hooks/use-open-chat-room";
 import { useConfirm } from "@/features/confirm";
+import { TradeReviewModal } from "@/features/trade/components/review/trade-review-modal";
 import {
   BookIcon,
   BoxIcon,
@@ -32,8 +37,6 @@ import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { formatDate } from "@/shared/utils/format-date";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
-
-import { TradeReviewModal } from "../modals/trade-review-modal";
 
 interface PurchaseOrderCardProps {
   order: Order;
@@ -288,12 +291,16 @@ export const PurchaseOrderCard = ({ order }: PurchaseOrderCardProps) => {
       </CardContent>
 
       {/* 거래 후기 작성 모달 */}
-      <TradeReviewModal
-        orderId={order.id}
-        targetUserNickname={order.seller?.nickname}
-        open={isReviewModalOpen}
-        onOpenChange={setIsReviewModalOpen}
-      />
+      {order.completionId && (
+        <TradeReviewModal
+          completionId={order.completionId}
+          targetRole="SELLER"
+          method={TradeCompletionMethod.DELIVERY}
+          targetUserNickname={order.seller?.nickname}
+          open={isReviewModalOpen}
+          onOpenChange={setIsReviewModalOpen}
+        />
+      )}
     </Card>
   );
 };

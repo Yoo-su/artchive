@@ -10,6 +10,7 @@ export const PATHS = {
   BOOK_SALES_REGISTER: "/book/sales/register",
   BOOK_SALES_DETAIL: (id: string | number) => `/book/sales/${id}`,
   MY_PAGE_SALES: "/my-page/sales",
+  MY_PAGE_TRADES: "/my-page/trades",
   MY_PAGE_SALES_EDIT: (id: string | number) => `/my-page/sales/${id}/edit`,
   REVIEWS: "/book/reviews",
   REVIEW_WRITE: "/book/reviews/write",

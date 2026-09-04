@@ -18,12 +18,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { SaleStatusBadge } from "@/features/book-sale/components/common/sale-status-badge";
-import {
-  SellerTrustBadge,
-  UserTradeReviewsList,
-} from "@/features/order";
 import { ReadingLogCalendar } from "@/features/reading-log/components/calendar-view/reading-log-calendar";
 import { ReadingLogListView } from "@/features/reading-log/components/list-view/reading-log-list-view";
+import { SellerTrustBadge, UserTradeReviewsList } from "@/features/trade";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import {
   Tooltip,
@@ -49,12 +46,10 @@ type ProfileTab = "READING" | "TRADE_REVIEWS";
 export const UserProfile = ({ handle }: UserProfileProps) => {
   const t = useTranslations("user_profile");
   const tReview = useTranslations("order.trade_review");
-  const isPaymentFeatureEnabled =
-    process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true";
-
   const { data: profile, isLoading, error } = usePublicUserProfileQuery(handle);
+  // 거래 후기는 결제와 무관하게 쌓이므로 결제 봉인 여부로 가리지 않는다.
   const { data: sellerStats } = useSellerStatsQuery(handle, {
-    enabled: Boolean(handle) && isPaymentFeatureEnabled,
+    enabled: Boolean(handle),
   });
   const [activeTab, setActiveTab] = useState<ProfileTab>("READING");
   const [currentDate, setCurrentDate] = useState<Date>(() => new Date());
@@ -70,41 +65,42 @@ export const UserProfile = ({ handle }: UserProfileProps) => {
   const reviewCount = sellerStats?.totalReviews ?? 0;
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-10" data-clarity-mask="true">
+    <div
+      className="container mx-auto max-w-5xl px-4 py-10"
+      data-clarity-mask="true"
+    >
       <UserProfileHeader profile={profile} />
       <UserProfileStats stats={profile.stats} />
 
       {/* 탭 네비게이션 (결제/리뷰 기능 활성화 시에만 탭 노출) */}
-      {isPaymentFeatureEnabled && (
-        <div className="mb-8 border-b border-stone-200/80">
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setActiveTab("READING")}
-              className={`pb-3 px-4 text-sm font-bold border-b-2 transition-all cursor-pointer ${
-                activeTab === "READING"
-                  ? "border-stone-900 text-stone-900"
-                  : "border-transparent text-stone-400 hover:text-stone-600"
-              }`}
-            >
-              {tReview("list.tab_reading")}
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("TRADE_REVIEWS")}
-              className={`pb-3 px-4 text-sm font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeTab === "TRADE_REVIEWS"
-                  ? "border-stone-900 text-stone-900"
-                  : "border-transparent text-stone-400 hover:text-stone-600"
-              }`}
-            >
-              <span>
-                {tReview("list.tab_trade_reviews", { count: reviewCount })}
-              </span>
-            </button>
-          </div>
+      <div className="mb-8 border-b border-stone-200/80">
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveTab("READING")}
+            className={`pb-3 px-4 text-sm font-bold border-b-2 transition-all cursor-pointer ${
+              activeTab === "READING"
+                ? "border-stone-900 text-stone-900"
+                : "border-transparent text-stone-400 hover:text-stone-600"
+            }`}
+          >
+            {tReview("list.tab_reading")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("TRADE_REVIEWS")}
+            className={`pb-3 px-4 text-sm font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === "TRADE_REVIEWS"
+                ? "border-stone-900 text-stone-900"
+                : "border-transparent text-stone-400 hover:text-stone-600"
+            }`}
+          >
+            <span>
+              {tReview("list.tab_trade_reviews", { count: reviewCount })}
+            </span>
+          </button>
         </div>
-      )}
+      </div>
 
       {/* 탭 콘텐츠: 독서 활동 */}
       {activeTab === "READING" && (
@@ -116,7 +112,9 @@ export const UserProfile = ({ handle }: UserProfileProps) => {
               <div className="hidden md:block rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs sm:p-8">
                 <div className="mb-6 flex items-center justify-between gap-3">
                   <h3 className="font-serif text-xl font-semibold text-stone-900 break-keep">
-                    {t("reading_log_calendar_title", { name: profile.nickname })}
+                    {t("reading_log_calendar_title", {
+                      name: profile.nickname,
+                    })}
                   </h3>
                   <span className="text-xs text-stone-400 font-serif shrink-0 whitespace-nowrap">
                     {t("sections.badge_calendar")}
@@ -134,13 +132,12 @@ export const UserProfile = ({ handle }: UserProfileProps) => {
               <div className="block md:hidden rounded-2xl border border-stone-200/80 bg-white p-4 sm:p-5 shadow-xs">
                 <div className="mb-4">
                   <h3 className="font-serif text-base sm:text-lg font-semibold text-stone-900 break-keep">
-                    {t("reading_log_calendar_title", { name: profile.nickname })}
+                    {t("reading_log_calendar_title", {
+                      name: profile.nickname,
+                    })}
                   </h3>
                 </div>
-                <ReadingLogListView
-                  logs={profile.readingLogs}
-                  readOnly
-                />
+                <ReadingLogListView logs={profile.readingLogs} readOnly />
               </div>
             </div>
           )}
@@ -259,7 +256,10 @@ const UserProfileHeader = ({ profile }: UserProfileHeaderProps) => {
 };
 
 /** 사용자 지정 SVG 아이콘 - 도서 */
-const BookIcon = ({ className = "h-4 w-4", ...props }: React.SVGProps<SVGSVGElement>) => (
+const BookIcon = ({
+  className = "h-4 w-4",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     viewBox="0 0 24 24"
     fill="currentColor"
@@ -273,7 +273,10 @@ const BookIcon = ({ className = "h-4 w-4", ...props }: React.SVGProps<SVGSVGElem
 );
 
 /** 사용자 지정 SVG 아이콘 - 리뷰/인용 */
-const QuoteUpCircleIcon = ({ className = "h-4 w-4", ...props }: React.SVGProps<SVGSVGElement>) => (
+const QuoteUpCircleIcon = ({
+  className = "h-4 w-4",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
@@ -386,7 +389,9 @@ const UserRecentReviews = ({ reviews }: UserRecentReviewsProps) => {
         <h2 className="text-base font-semibold text-stone-900">
           {t("recent_reviews")}
         </h2>
-        <span className="text-xs text-stone-400">{t("badge_recent_reviews")}</span>
+        <span className="text-xs text-stone-400">
+          {t("badge_recent_reviews")}
+        </span>
       </div>
       <div className="space-y-3">
         {reviews.map((review) => (
@@ -442,7 +447,9 @@ const UserRecentSales = ({ sales }: UserRecentSalesProps) => {
         <h2 className="text-base font-semibold text-stone-900">
           {t("recent_sales")}
         </h2>
-        <span className="text-xs text-stone-400">{t("badge_recent_sales")}</span>
+        <span className="text-xs text-stone-400">
+          {t("badge_recent_sales")}
+        </span>
       </div>
       <div className="space-y-3">
         {sales.map((sale) => (

@@ -5,11 +5,9 @@ import {
   cancelSelection,
   confirmPayment,
   confirmPurchase,
-  createTradeReview,
   disputeOrder,
   registerShipping,
   selectBuyer,
-  updateTradeReview,
 } from "@bookjeok/api-client";
 import {
   bookSaleKeys,
@@ -17,14 +15,11 @@ import {
   chatKeys,
   ConfirmPaymentParams,
   CreateOrderParams,
-  CreateTradeReviewParams,
   DisputeOrderParams,
   Order,
   orderKeys,
   RegisterShippingParams,
-  TradeReview,
   tradeReviewKeys,
-  UpdateTradeReviewParams,
 } from "@bookjeok/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -220,60 +215,6 @@ export const useCancelOrderMutation = (options?: {
       queryClient.invalidateQueries({ queryKey: orderKeys._def });
       queryClient.invalidateQueries({ queryKey: chatKeys._def });
       queryClient.invalidateQueries({ queryKey: bookSaleKeys._def });
-    },
-  });
-};
-
-/**
- * 거래 후기 작성 뮤테이션
- */
-export const useCreateTradeReviewMutation = (options?: {
-  onSuccess?: (data: TradeReview) => void;
-  onError?: (error: Error) => void;
-}) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (params: CreateTradeReviewParams) => createTradeReview(params),
-    onSuccess: (data) => {
-      options?.onSuccess?.(data);
-    },
-    onError: (error) => {
-      options?.onError?.(
-        error instanceof Error ? error : new Error(String(error)),
-      );
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: tradeReviewKeys._def });
-      queryClient.invalidateQueries({ queryKey: orderKeys._def });
-    },
-  });
-};
-
-/**
- * 거래 후기 수정 뮤테이션
- */
-export const useUpdateTradeReviewMutation = (options?: {
-  onSuccess?: (data: TradeReview) => void;
-  onError?: (error: Error) => void;
-}) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (params: {
-      reviewId: number;
-      payload: UpdateTradeReviewParams;
-    }) => updateTradeReview(params.reviewId, params.payload),
-    onSuccess: (data) => {
-      options?.onSuccess?.(data);
-    },
-    onError: (error) => {
-      options?.onError?.(
-        error instanceof Error ? error : new Error(String(error)),
-      );
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: tradeReviewKeys._def });
     },
   });
 };

@@ -14,39 +14,6 @@ export enum OrderStatus {
 }
 
 /**
- * 거래 후기 태그 Enum
- */
-export enum TradeReviewTag {
-  // 긍정 태그 (5종)
-  GOOD_CONDITION = "GOOD_CONDITION",           // 책 상태가 설명과 같아요
-  FAST_RESPONSE = "FAST_RESPONSE",             // 응답이 빨라요
-  FAST_SHIPPING = "FAST_SHIPPING",             // 배송이 빨라요
-  METICULOUS_PACKAGING = "METICULOUS_PACKAGING", // 포장이 꼼꼼해요
-  KIND_MANNER = "KIND_MANNER",                 // 친절하고 매너가 좋아요
-
-  // 부정 태그 (4종)
-  BAD_CONDITION = "BAD_CONDITION",             // 책 상태가 설명과 달라요
-  SLOW_RESPONSE = "SLOW_RESPONSE",             // 응답이 느려요
-  LATE_SHIPPING = "LATE_SHIPPING",             // 배송이 늦었어요
-  POOR_PACKAGING = "POOR_PACKAGING",           // 포장이 부실해요
-}
-
-export const POSITIVE_TRADE_REVIEW_TAGS: TradeReviewTag[] = [
-  TradeReviewTag.GOOD_CONDITION,
-  TradeReviewTag.FAST_RESPONSE,
-  TradeReviewTag.FAST_SHIPPING,
-  TradeReviewTag.METICULOUS_PACKAGING,
-  TradeReviewTag.KIND_MANNER,
-];
-
-export const NEGATIVE_TRADE_REVIEW_TAGS: TradeReviewTag[] = [
-  TradeReviewTag.BAD_CONDITION,
-  TradeReviewTag.SLOW_RESPONSE,
-  TradeReviewTag.LATE_SHIPPING,
-  TradeReviewTag.POOR_PACKAGING,
-];
-
-/**
  * 주문 데이터 구조
  */
 export interface Order {
@@ -89,34 +56,11 @@ export interface Order {
   sellerId: number;
   seller?: SaleAuthor;
   chatRoomId: number | null;
-  tradeReview?: TradeReview | null;
-}
-
-/**
- * 거래 후기 데이터 구조
- */
-export interface TradeReview {
-  id: number;
-  orderId: string;
-  reviewerId: number;
-  reviewer?: SaleAuthor;
-  targetUserId: number;
-  targetUser?: SaleAuthor;
-  tags: TradeReviewTag[];
-  content: string | null;
-  createdAt: string;
-  updatedAt: string;
-  order?: Order;
-}
-
-/**
- * 판매자 거래 통계 데이터 구조
- */
-export interface SellerTradeStats {
-  totalCompletedSales: number;
-  totalReviews: number;
-  positiveRate: number; // 0 ~ 100 (%)
-  tagCounts: Record<string, number>;
+  /**
+   * 구매확정으로 생성된 거래 완료 기록 ID.
+   * 후기는 완료 기록에 붙으므로 후기 작성 진입에 이 값을 씁니다.
+   */
+  completionId?: number | null;
 }
 
 /**
@@ -182,37 +126,6 @@ export interface GetOrdersResponse {
   limit: number;
 }
 
-/**
- * 거래 후기 작성 파라미터
- */
-export interface CreateTradeReviewParams {
-  orderId: string;
-  tags: TradeReviewTag[];
-  content?: string;
-}
 
-/**
- * 거래 후기 수정 파라미터
- */
-export interface UpdateTradeReviewParams {
-  tags?: TradeReviewTag[];
-  content?: string;
-}
 
-/**
- * 거래 후기 목록 조회 쿼리 파라미터
- */
-export interface QueryTradeReviewParams {
-  page?: number;
-  limit?: number;
-}
 
-/**
- * 거래 후기 목록 조회 응답
- */
-export interface GetTradeReviewsResponse {
-  reviews: TradeReview[];
-  total: number;
-  page: number;
-  limit: number;
-}

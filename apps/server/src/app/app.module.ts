@@ -23,6 +23,7 @@ import { ReadingLogModule } from '@/features/reading-log/reading-log.module';
 import { ReviewModule } from '@/features/review/review.module';
 import { SearchModule } from '@/features/search/search.module';
 import { SearchKeywordModule } from '@/features/search-keyword/search-keyword.module';
+import { TradeModule } from '@/features/trade/trade.module';
 import { UsedBookSaleModule } from '@/features/used-book-sale/used-book-sale.module';
 import { UserModule } from '@/features/user/user.module';
 import { WishlistModule } from '@/features/wishlist/wishlist.module';
@@ -106,6 +107,7 @@ import { MailModule } from '@/shared/mail/mail.module';
     WishlistModule,
     UsedBookSaleModule,
     OrderModule,
+    TradeModule,
     ChatModule,
     LlmModule,
     InsightsModule,

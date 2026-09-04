@@ -5,15 +5,10 @@ import {
   getMyPurchases,
   getMySales,
   getOrder,
-  getSellerStats,
-  getUserTradeReviews,
 } from "@bookjeok/api-client";
 import {
-  CACHE_TIME,
   orderKeys,
   QueryOrderParams,
-  QueryTradeReviewParams,
-  tradeReviewKeys,
 } from "@bookjeok/core";
 import { useQuery } from "@tanstack/react-query";
 
@@ -108,36 +103,5 @@ export const useActiveOrderByRoomQuery = (
     staleTime: 5 * 1000,
     refetchInterval:
       options?.refetchInterval !== undefined ? options.refetchInterval : 5000,
-  });
-};
-
-/**
- * 판매자 거래 후기 목록 조회
- */
-export const useUserTradeReviewsQuery = (
-  handle: string,
-  params?: QueryTradeReviewParams,
-  options?: { enabled?: boolean },
-) => {
-  return useQuery({
-    queryKey: tradeReviewKeys.userReviews(handle, params).queryKey,
-    queryFn: () => getUserTradeReviews(handle, params),
-    enabled: !!handle && (options?.enabled ?? true),
-    staleTime: CACHE_TIME.ONE_MINUTE,
-  });
-};
-
-/**
- * 판매자 거래 통계 및 신뢰 지표 조회 (5분 캐시)
- */
-export const useSellerStatsQuery = (
-  handle: string,
-  options?: { enabled?: boolean },
-) => {
-  return useQuery({
-    queryKey: tradeReviewKeys.sellerStats(handle).queryKey,
-    queryFn: () => getSellerStats(handle),
-    enabled: !!handle && (options?.enabled ?? true),
-    staleTime: CACHE_TIME.FIVE_MINUTES,
   });
 };

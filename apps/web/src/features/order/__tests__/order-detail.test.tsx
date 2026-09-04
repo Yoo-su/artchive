@@ -90,6 +90,7 @@ vi.mock("@bookjeok/react-query", () => ({
   useRegisterShippingMutation: () => ({ mutate: vi.fn(), isPending: false }),
   useDisputeOrderMutation: () => ({ mutate: vi.fn(), isPending: false }),
   useCreateTradeReviewMutation: () => ({ mutate: vi.fn(), isPending: false }),
+  useMyTradeReviewEligibilityQuery: () => ({ data: null, isLoading: false }),
 }));
 
 vi.mock("next-intl", () => ({
