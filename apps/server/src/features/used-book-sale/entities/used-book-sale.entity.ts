@@ -94,6 +94,23 @@ export class UsedBookSale {
   @JoinColumn({ name: 'isbn' }) // 외래 키 컬럼명을 'isbn'으로 명시
   book: Book;
 
+  /**
+   * 예약중일 때 거래 상대로 지정된 사용자.
+   *
+   * 예약중은 판매자의 내부 메모가 아니라 다른 구매희망자에게 "이 분과 얘기
+   * 중이니 기다려달라"고 보내는 신호다. 그 신호가 성립하려면 상대가 누구인지
+   * 남아 있어야 다른 채팅방에 안내를 띄우고, 완료 시 후기 상대를 정할 수 있다.
+   *
+   * 상대를 지정하지 않고 예약중으로만 바꾸는 것도 허용하므로 nullable이다.
+   * 이 경우 판매완료로 넘어가도 후기는 열리지 않는다.
+   */
+  @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'reservedForUserId' })
+  reservedForUser: User | null;
+
+  @Column({ nullable: true })
+  reservedForUserId: number | null;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
@@ -103,4 +120,14 @@ export class UsedBookSale {
   // 하나의 판매글은 여러개의 채팅방을 가질 수 있습니다.
   @OneToMany(() => ChatRoom, (chatRoom) => chatRoom.usedBookSale)
   chatRooms: ChatRoom[];
+
+  /**
+   * DB 컬럼이 아닌 응답 전용 필드.
+   *
+   * 활성 주문(결제~배송 단계)이 걸려 있어 수정·삭제·수동 상태 변경이
+   * 시스템에 의해 잠긴 판매글인지를 나타냅니다. 클라이언트는 이 값으로
+   * 잠금 여부를 판단해야 합니다. `status === RESERVED`로 대신 판단하면
+   * 판매자가 직접 예약중으로 바꾼 직거래 건까지 함께 잠깁니다.
+   */
+  hasActiveOrder?: boolean;
 }

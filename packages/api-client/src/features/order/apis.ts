@@ -3,17 +3,11 @@ import {
   CancelOrderParams,
   ConfirmPaymentParams,
   CreateOrderParams,
-  CreateTradeReviewParams,
   DisputeOrderParams,
   GetOrdersResponse,
-  GetTradeReviewsResponse,
   Order,
   QueryOrderParams,
-  QueryTradeReviewParams,
   RegisterShippingParams,
-  SellerTradeStats,
-  TradeReview,
-  UpdateTradeReviewParams,
 } from "@bookjeok/core";
 
 import { privateApiClient, publicApiClient } from "../../client";
@@ -156,59 +150,6 @@ export const getActiveOrderByRoom = async (
 ): Promise<Order | null> => {
   const { data } = await privateApiClient.get<Order | null>(
     API_PATHS.order.byRoom(roomId),
-  );
-  return data;
-};
-
-/**
- * 구매확정 완료된 주문에 대해 거래 후기를 작성합니다.
- */
-export const createTradeReview = async (
-  params: CreateTradeReviewParams,
-): Promise<TradeReview> => {
-  const { data } = await privateApiClient.post<TradeReview>(
-    API_PATHS.tradeReview.base,
-    params,
-  );
-  return data;
-};
-
-/**
- * 작성한 거래 후기를 수정합니다.
- */
-export const updateTradeReview = async (
-  reviewId: number,
-  params: UpdateTradeReviewParams,
-): Promise<TradeReview> => {
-  const { data } = await privateApiClient.patch<TradeReview>(
-    API_PATHS.tradeReview.detail(reviewId),
-    params,
-  );
-  return data;
-};
-
-/**
- * 특정 판매자가 받은 거래 후기 목록을 조회합니다.
- */
-export const getUserTradeReviews = async (
-  handle: string,
-  params?: QueryTradeReviewParams,
-): Promise<GetTradeReviewsResponse> => {
-  const { data } = await publicApiClient.get<GetTradeReviewsResponse>(
-    API_PATHS.tradeReview.userReviews(handle),
-    { params },
-  );
-  return data;
-};
-
-/**
- * 특정 판매자의 거래 통계 및 신뢰 지표를 조회합니다.
- */
-export const getSellerStats = async (
-  handle: string,
-): Promise<SellerTradeStats> => {
-  const { data } = await publicApiClient.get<SellerTradeStats>(
-    API_PATHS.tradeReview.sellerStats(handle),
   );
   return data;
 };

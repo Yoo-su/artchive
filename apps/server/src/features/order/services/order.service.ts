@@ -6,6 +6,7 @@ import { TransactionalAdapterTypeOrm } from '@nestjs-cls/transactional-adapter-t
 import { In, OptimisticLockVersionMismatchError, Repository } from 'typeorm';
 
 import { ChatParticipant } from '@/features/chat/entities/chat-participant.entity';
+import { TradeCompletionService } from '@/features/trade/services/trade-completion.service';
 import {
   SaleStatus,
   TradeMethod,
@@ -14,6 +15,7 @@ import {
 import { User } from '@/features/user/entities/user.entity';
 import { BusinessException } from '@/shared/exceptions/business.exception';
 
+import { ACTIVE_ORDER_STATUSES } from '../constants';
 import { CancelOrderDto } from '../dtos/cancel-order.dto';
 import { ConfirmPaymentDto } from '../dtos/confirm-payment.dto';
 import { CreateOrderDto } from '../dtos/create-order.dto';
@@ -34,6 +36,7 @@ export class OrderService {
     private readonly saleRepository: Repository<UsedBookSale>,
     private readonly txHost: TransactionHost<TransactionalAdapterTypeOrm>,
     private readonly tossPaymentsService: TossPaymentsService,
+    private readonly tradeCompletionService: TradeCompletionService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -126,13 +129,7 @@ export class OrderService {
     const activeOrder = await manager.findOne(Order, {
       where: {
         saleId,
-        status: In([
-          OrderStatus.AWAITING_PAYMENT,
-          OrderStatus.PAID,
-          OrderStatus.SHIPPED,
-          OrderStatus.DELIVERED,
-          OrderStatus.DISPUTED,
-        ]),
+        status: In([...ACTIVE_ORDER_STATUSES]),
       },
     });
 
@@ -511,8 +508,11 @@ export class OrderService {
       const savedOrder = await manager.save(Order, order);
       if (order.sale) {
         order.sale.status = SaleStatus.SOLD;
+        order.sale.reservedForUserId = null;
         await manager.save(UsedBookSale, order.sale);
       }
+
+      await this.recordCompletion(savedOrder);
 
       this.eventEmitter.emit('order.confirmed', {
         orderId: savedOrder.id,
@@ -793,8 +793,12 @@ export class OrderService {
       const savedOrder = await manager.save(Order, order);
       if (order.sale) {
         order.sale.status = SaleStatus.SOLD;
+        order.sale.reservedForUserId = null;
         await manager.save(UsedBookSale, order.sale);
       }
+
+      await this.recordCompletion(savedOrder);
+
       return savedOrder;
     } catch (error) {
       if (error instanceof OptimisticLockVersionMismatchError) {
@@ -808,19 +812,28 @@ export class OrderService {
   }
 
   /**
+   * 구매확정된 주문의 거래 완료 기록을 남깁니다.
+   *
+   * 후기와 신뢰 지표는 결제 여부와 무관하게 완료 기록 하나만 바라보므로,
+   * 택배 거래도 반드시 여기서 완료 기록을 만들어야 직거래와 같은 경로를 탑니다.
+   */
+  private async recordCompletion(order: Order): Promise<void> {
+    await this.tradeCompletionService.recordDeliveryCompletion({
+      saleId: order.saleId,
+      sellerId: order.sellerId,
+      buyerId: order.buyerId,
+      chatRoomId: order.chatRoomId,
+      orderId: order.id,
+    });
+  }
+
+  /**
    * 주문 상세 정보를 조회합니다. (구매자 또는 판매자만 조회 가능)
    */
   async getOrder(orderId: string, userId: number): Promise<Order> {
     const order = await this.orderRepository.findOne({
       where: { id: orderId },
-      relations: [
-        'sale',
-        'sale.book',
-        'buyer',
-        'seller',
-        'chatRoom',
-        'tradeReview',
-      ],
+      relations: ['sale', 'sale.book', 'buyer', 'seller', 'chatRoom'],
     });
 
     if (!order) {
@@ -830,6 +843,13 @@ export class OrderService {
     if (order.buyerId !== userId && order.sellerId !== userId) {
       throw new BusinessException('ORDER_FORBIDDEN', HttpStatus.FORBIDDEN);
     }
+
+    // 후기는 주문이 아니라 거래 완료 기록에 붙으므로, 후기 작성 진입에
+    // 필요한 완료 기록 ID를 함께 실어준다.
+    const completion = await this.tradeCompletionService.findByOrderId(
+      order.id,
+    );
+    order.completionId = completion?.id ?? null;
 
     return order;
   }
@@ -844,13 +864,7 @@ export class OrderService {
     const order = await this.orderRepository.findOne({
       where: {
         chatRoomId,
-        status: In([
-          OrderStatus.AWAITING_PAYMENT,
-          OrderStatus.PAID,
-          OrderStatus.SHIPPED,
-          OrderStatus.DELIVERED,
-          OrderStatus.DISPUTED,
-        ]),
+        status: In([...ACTIVE_ORDER_STATUSES]),
       },
       relations: [
         'sale',

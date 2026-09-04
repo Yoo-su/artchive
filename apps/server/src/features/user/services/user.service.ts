@@ -7,7 +7,8 @@ import { DataSource, In, MoreThanOrEqual, Repository } from 'typeorm';
 
 import { SocialLoginDto } from '@/features/auth/dtos/social-login.dto';
 import { ChatParticipant } from '@/features/chat/entities/chat-participant.entity';
-import { Order, OrderStatus } from '@/features/order/entities/order.entity';
+import { ACTIVE_ORDER_STATUSES } from '@/features/order/constants';
+import { Order } from '@/features/order/entities/order.entity';
 import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
 import { Review } from '@/features/review/entities/review.entity';
 import {
@@ -415,10 +416,28 @@ export class UserService implements OnModuleInit {
    * @returns 사용자의 판매글 목록
    */
   async findMySales(userId: number): Promise<UsedBookSale[]> {
-    return await this.usedBookSaleRepository.find({
+    const sales = await this.usedBookSaleRepository.find({
       where: { user: { id: userId } },
       relations: ['book', 'user'],
       order: { createdAt: 'DESC' },
+    });
+
+    if (sales.length === 0) return sales;
+
+    // 판매글 관리 화면이 수정·삭제·상태변경 잠금 여부를 판단할 근거.
+    // 판매글마다 조회하지 않도록 활성 주문을 한 번에 모아 표시한다.
+    const activeOrders = await this.orderRepository.find({
+      where: {
+        saleId: In(sales.map((sale) => sale.id)),
+        status: In([...ACTIVE_ORDER_STATUSES]),
+      },
+      select: ['saleId'],
+    });
+    const lockedSaleIds = new Set(activeOrders.map((order) => order.saleId));
+
+    return sales.map((sale) => {
+      sale.hasActiveOrder = lockedSaleIds.has(sale.id);
+      return sale;
     });
   }
 
@@ -472,26 +491,8 @@ export class UserService implements OnModuleInit {
     // 0. 활성 거래 여부 검증 (자신이 판매자 또는 구매자로 참여 중인 활성 주문이 있는 경우 탈퇴 불가)
     const activeOrder = await manager.findOne(Order, {
       where: [
-        {
-          buyerId: userId,
-          status: In([
-            OrderStatus.AWAITING_PAYMENT,
-            OrderStatus.PAID,
-            OrderStatus.SHIPPED,
-            OrderStatus.DELIVERED,
-            OrderStatus.DISPUTED,
-          ]),
-        },
-        {
-          sellerId: userId,
-          status: In([
-            OrderStatus.AWAITING_PAYMENT,
-            OrderStatus.PAID,
-            OrderStatus.SHIPPED,
-            OrderStatus.DELIVERED,
-            OrderStatus.DISPUTED,
-          ]),
-        },
+        { buyerId: userId, status: In([...ACTIVE_ORDER_STATUSES]) },
+        { sellerId: userId, status: In([...ACTIVE_ORDER_STATUSES]) },
       ],
     });
 

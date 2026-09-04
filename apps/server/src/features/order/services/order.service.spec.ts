@@ -4,6 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { TransactionHost } from '@nestjs-cls/transactional';
 import { EntityManager, Repository } from 'typeorm';
 
+import { TradeCompletionService } from '@/features/trade/services/trade-completion.service';
 import {
   SaleStatus,
   TradeMethod,
@@ -37,6 +38,10 @@ describe('OrderService', () => {
   let mockTxHost: { tx: Partial<EntityManager> };
   let mockManager: Partial<EntityManager>;
   let mockTossPaymentsService: Partial<TossPaymentsService>;
+  let mockTradeCompletionService: {
+    recordDeliveryCompletion: jest.Mock;
+    findByOrderId: jest.Mock;
+  };
   let orderRepo: Partial<Repository<Order>>;
   let saleRepo: Partial<Repository<UsedBookSale>>;
 
@@ -103,6 +108,11 @@ describe('OrderService', () => {
       cancelPayment: jest.fn().mockResolvedValue({ status: 'CANCELED' }),
     };
 
+    mockTradeCompletionService = {
+      recordDeliveryCompletion: jest.fn().mockResolvedValue({ id: 1 }),
+      findByOrderId: jest.fn().mockResolvedValue(null),
+    };
+
     orderRepo = {
       findOne: jest.fn(),
       findAndCount: jest.fn(),
@@ -130,6 +140,10 @@ describe('OrderService', () => {
         {
           provide: TossPaymentsService,
           useValue: mockTossPaymentsService,
+        },
+        {
+          provide: TradeCompletionService,
+          useValue: mockTradeCompletionService,
         },
         {
           provide: EventEmitter2,

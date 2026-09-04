@@ -26,7 +26,7 @@ export * from "./features/intro"; // 특수 피처
 export * from "./features/llm";   // 특수 피처
 export { notificationKeys } from "./features/notification/query-keys";
 export * from "./features/notification/types";
-export { orderKeys, tradeReviewKeys } from "./features/order/query-keys";
+export { orderKeys } from "./features/order/query-keys";
 export * from "./features/order/types";
 export * from "./features/reading-log/constants";
 export { readingLogKeys } from "./features/reading-log/query-keys";
@@ -35,6 +35,9 @@ export * from "./features/review/constants";
 export { reviewMutationKeys } from "./features/review/mutation-keys";
 export { reviewKeys } from "./features/review/query-keys";
 export * from "./features/review/types";
+export { tradeKeys, tradeReviewKeys } from "./features/trade/query-keys";
+export * from "./features/trade/review-tags";
+export * from "./features/trade/types";
 export { userKeys } from "./features/user/query-keys";
 export * from "./features/user/types";
 

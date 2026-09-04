@@ -254,6 +254,30 @@ export const ERROR_CODES = {
   },
 
   // ============================================
+  // 거래 완료 관련 에러 (TRADE)
+  // ============================================
+  TRADE_COMPLETION_NOT_FOUND: {
+    code: 'TRADE_001',
+    message: '거래 완료 기록을 찾을 수 없습니다.',
+  },
+  TRADE_COMPLETION_FORBIDDEN: {
+    code: 'TRADE_002',
+    message: '해당 거래의 당사자가 아닙니다.',
+  },
+  TRADE_BUYER_CANNOT_BE_SELLER: {
+    code: 'TRADE_003',
+    message: '자기 자신을 거래 상대로 지정할 수 없습니다.',
+  },
+  SALE_ALREADY_RESERVED_FOR_OTHER: {
+    code: 'TRADE_004',
+    message: '이미 다른 구매자와 예약된 판매글입니다.',
+  },
+  SALE_NOT_RESERVED: {
+    code: 'TRADE_005',
+    message: '예약중인 판매글이 아닙니다.',
+  },
+
+  // ============================================
   // 거래 후기 관련 에러 (TRADE_REVIEW)
   // ============================================
   TRADE_REVIEW_ALREADY_EXISTS: {
@@ -271,6 +295,10 @@ export const ERROR_CODES = {
   TRADE_REVIEW_NOT_FOUND: {
     code: 'TRADE_REVIEW_004',
     message: '거래 후기를 찾을 수 없습니다.',
+  },
+  TRADE_REVIEW_TAG_NOT_ALLOWED: {
+    code: 'TRADE_REVIEW_005',
+    message: '이 거래에 사용할 수 없는 후기 태그가 포함되어 있습니다.',
   },
 
   // ============================================

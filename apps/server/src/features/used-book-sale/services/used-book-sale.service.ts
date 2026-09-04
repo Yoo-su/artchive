@@ -6,7 +6,8 @@ import { DataSource, In, Repository } from 'typeorm';
 
 import { Book } from '@/features/book/entities/book.entity';
 import { BookService } from '@/features/book/services/book.service';
-import { Order, OrderStatus } from '@/features/order/entities/order.entity';
+import { ACTIVE_ORDER_STATUSES } from '@/features/order/constants';
+import { Order } from '@/features/order/entities/order.entity';
 import { User } from '@/features/user/entities/user.entity';
 import { UserService } from '@/features/user/services/user.service';
 import { BusinessException } from '@/shared/exceptions';
@@ -104,18 +105,24 @@ export class UsedBookSaleService {
 
   private async hasActiveOrder(saleId: number): Promise<boolean> {
     const activeOrder = await this.orderRepository.findOne({
-      where: {
-        saleId,
-        status: In([
-          OrderStatus.AWAITING_PAYMENT,
-          OrderStatus.PAID,
-          OrderStatus.SHIPPED,
-          OrderStatus.DELIVERED,
-          OrderStatus.DISPUTED,
-        ]),
-      },
+      where: { saleId, status: In([...ACTIVE_ORDER_STATUSES]) },
     });
     return !!activeOrder;
+  }
+
+  /**
+   * 주어진 판매글 중 활성 주문이 걸려 있는 것들의 ID 집합을 반환합니다.
+   * 목록 응답에 잠금 여부를 붙일 때 N+1 없이 한 번에 조회하는 용도입니다.
+   */
+  async findSaleIdsWithActiveOrder(saleIds: number[]): Promise<Set<number>> {
+    if (saleIds.length === 0) return new Set();
+
+    const activeOrders = await this.orderRepository.find({
+      where: { saleId: In(saleIds), status: In([...ACTIVE_ORDER_STATUSES]) },
+      select: ['saleId'],
+    });
+
+    return new Set(activeOrders.map((order) => order.saleId));
   }
 
   /**
@@ -199,6 +206,8 @@ export class UsedBookSaleService {
     if (!sale) {
       throw new BusinessException('SALE_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
+
+    sale.hasActiveOrder = await this.hasActiveOrder(id);
     return sale;
   }
 
