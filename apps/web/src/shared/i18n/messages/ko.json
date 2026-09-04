@@ -1071,6 +1071,7 @@
       "title_main": "읽을 책을 삽니다",
       "description": "이웃과 직접 만나거나 택배로 주고받습니다.\n지금도 새 책이 계속 올라오고 있습니다.",
       "cta_sell": "내 책 팔기",
+      "cta_browse": "책 둘러보기",
       "feed": {
         "title": "최근 등록된 책",
         "price": "{price}원",

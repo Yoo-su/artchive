@@ -1,7 +1,14 @@
 "use client";
 
-import { motion, useScroll, useTransform, type Variants } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import {
+  motion,
+  useMotionValue,
+  useScroll,
+  useSpring,
+  useTransform,
+  type Variants,
+} from "framer-motion";
+import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -19,8 +26,17 @@ const POSTER_SRC = "/videos/bookjeok_market_poster.jpg";
 const SESSION_KEY = "bookjeok.market-hero.played";
 /** 메타데이터조차 못 읽는 상황까지 대비한 최후 안전망 */
 const HARD_REVEAL_TIMEOUT_MS = 15_000;
-/** 영상 길이 + 이만큼 지나도 ended가 오지 않으면 강제로 리빌 */
+/** 리빌 지점을 이만큼 지나도 timeupdate가 오지 않으면 강제로 리빌 */
 const REVEAL_GRACE_MS = 3_000;
+
+/** 카피 리빌이 시작되는 재생 지점 */
+const COPY_REVEAL_AT = 0.65;
+/** 스크림이 덮이기 시작/완료되는 재생 지점 */
+const SCRIM_FADE_FROM = 0.55;
+const SCRIM_FADE_TO = 0.8;
+
+/** "책 둘러보기"의 스크롤 목적지. book-market-view가 이 id를 단다. */
+export const MARKET_LISTINGS_ANCHOR_ID = "market-listings";
 
 /** 리빌 스크림 위에 얹는 미세한 필름 그레인. 이미지 에셋 없이 SVG 노이즈로 생성한다. */
 const GRAIN_SVG =
@@ -67,55 +83,105 @@ export const VideoHero = () => {
   const progressRef = useRef<HTMLDivElement>(null);
   const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  /** timeupdate는 setState가 반영되기 전에 재진입한다. revealed 상태만으로는 중복을 막지 못한다. */
+  const revealedRef = useRef(false);
+
   const [revealed, setRevealed] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+
+  /** 재생 진행률(0~1). 스크림 농도가 여기에 연동된다. timeupdate가 초당 4회라 스프링으로 보간한다. */
+  const playProgress = useMotionValue(0);
+  const scrimTarget = useTransform(
+    playProgress,
+    [SCRIM_FADE_FROM, SCRIM_FADE_TO],
+    [0, 1],
+  );
+  const scrimOpacity = useSpring(scrimTarget, { stiffness: 80, damping: 24 });
 
   const { freshCount, newTodayLabel, regionCount, sellers, hasStats } =
     useMarketHeroStats();
 
-  const scheduleReveal = useCallback((ms: number) => {
-    if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
-    revealTimerRef.current = setTimeout(() => setRevealed(true), ms);
-  }, []);
+  /**
+   * 리빌 공통 처리. fillScrim은 스크림을 즉시 채울지 여부.
+   * 재생 중에는 timeupdate가 스크림을 올리므로 false로 호출해야 한다.
+   */
+  const markRevealed = useCallback(
+    (fillScrim: boolean) => {
+      if (revealedRef.current) return;
+      revealedRef.current = true;
+      if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
+      if (fillScrim) playProgress.set(1);
+      setRevealed(true);
+    },
+    [playProgress],
+  );
 
-  const reveal = useCallback(() => {
-    if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
-    setRevealed(true);
-  }, []);
+  /** 재생이 없거나 끝난 경로(스킵·자동재생 차단·에러·안전망·ended)용 */
+  const reveal = useCallback(() => markRevealed(true), [markRevealed]);
+
+  const scheduleReveal = useCallback(
+    (ms: number) => {
+      if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
+      revealTimerRef.current = setTimeout(reveal, ms);
+    },
+    [reveal],
+  );
 
   useEffect(() => {
     const video = videoRef.current;
 
     if (!video || shouldSkipIntro()) {
-      setRevealed(true);
+      reveal();
       return;
     }
 
-    // SSR에서는 preload="none"으로 내보내고, 재생하기로 결정한 지금 깨운다.
-    video.preload = "auto";
-    video.play().then(
-      () => {
-        setIsPlaying(true);
-        // 재생이 실제로 시작된 뒤에 기록한다. 먼저 써두면 자동재생이 막혔을 때
-        // 보지도 못한 인트로를 "봤다"고 표시해 그 세션 내내 건너뛰게 된다.
-        try {
-          window.sessionStorage.setItem(SESSION_KEY, "1");
-        } catch {
-          // 저장 실패는 인트로를 한 번 더 보는 것 외에 영향이 없다.
-        }
-      },
-      () => {
-        // 자동재생이 막혔을 뿐 영상 자체는 멀쩡하다. 포스터를 배경 삼아 카피만 노출한다.
-        setRevealed(true);
-      },
-    );
+    let cancelled = false;
 
-    scheduleReveal(HARD_REVEAL_TIMEOUT_MS);
+    const startIntro = () => {
+      if (cancelled) return;
+
+      // SSR에서는 preload="none"으로 내보내고, 재생하기로 결정한 지금 깨운다.
+      video.preload = "auto";
+      video.play().then(
+        () => {
+          setIsPlaying(true);
+          // 재생이 실제로 시작된 뒤에 기록한다. 먼저 써두면 자동재생이 막혔을 때
+          // 보지도 못한 인트로를 "봤다"고 표시해 그 세션 내내 건너뛰게 된다.
+          try {
+            window.sessionStorage.setItem(SESSION_KEY, "1");
+          } catch {
+            // 저장 실패는 인트로를 한 번 더 보는 것 외에 영향이 없다.
+          }
+        },
+        () => {
+          // 자동재생이 막혔을 뿐 영상 자체는 멀쩡하다. 포스터를 배경 삼아 카피만 노출한다.
+          reveal();
+        },
+      );
+
+      scheduleReveal(HARD_REVEAL_TIMEOUT_MS);
+    };
+
+    /**
+     * 한 번도 보인 적 없는 탭에서는 재생이 시작되지 않고 play()가 resolve도 reject도 되지 않는다.
+     * 이때 안전망 타이머는 백그라운드 스로틀에 걸려 리빌 경로가 전부 멈춘다.
+     */
+    const onVisible = () => {
+      if (document.hidden) return;
+      document.removeEventListener("visibilitychange", onVisible);
+      startIntro();
+    };
+
+    if (document.hidden)
+      document.addEventListener("visibilitychange", onVisible);
+    else startIntro();
 
     return () => {
+      cancelled = true;
+      document.removeEventListener("visibilitychange", onVisible);
       if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
     };
-  }, [scheduleReveal]);
+  }, [reveal, scheduleReveal]);
 
   /**
    * 브라우저는 백그라운드 탭의 재생을 멈춘다. 그대로 두면 ended가 영영 오지 않아
@@ -126,28 +192,50 @@ export const VideoHero = () => {
 
     const resume = () => {
       const video = videoRef.current;
-      if (!video || document.hidden || video.ended) return;
+      if (!video || document.hidden || video.ended || revealed) return;
       void video.play().catch(() => {});
     };
 
     document.addEventListener("visibilitychange", resume);
     return () => document.removeEventListener("visibilitychange", resume);
-  }, [isPlaying]);
+  }, [isPlaying, revealed]);
 
-  /** 길이를 알게 된 시점에 안전망을 실제 영상 길이에 맞춰 다시 잡는다. */
-  const handleLoadedMetadata = useCallback(() => {
-    const duration = videoRef.current?.duration;
+  /**
+   * loadedmetadata 시점의 duration은 실제 재생 시작 시각을 반영하지 못한다.
+   * 버퍼링으로 재생이 밀리면 리빌 지점보다 타이머가 먼저 만료된다.
+   */
+  const rearmReveal = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const { duration, currentTime } = video;
     if (!duration || !Number.isFinite(duration)) return;
-    scheduleReveal(duration * 1000 + REVEAL_GRACE_MS);
+    const untilReveal = Math.max(0, duration * COPY_REVEAL_AT - currentTime);
+    scheduleReveal(untilReveal * 1000 + REVEAL_GRACE_MS);
   }, [scheduleReveal]);
 
-  /** 진행 바는 리렌더 없이 DOM을 직접 갱신한다. (timeupdate는 초당 여러 번 온다) */
+  /** 진행 바와 스크림은 리렌더 없이 갱신한다. (timeupdate는 초당 여러 번 온다) */
   const handleTimeUpdate = useCallback(() => {
     const video = videoRef.current;
+    if (!video || !video.duration) return;
+
+    const progress = video.currentTime / video.duration;
+    playProgress.set(progress);
+
     const bar = progressRef.current;
-    if (!video || !bar || !video.duration) return;
-    bar.style.transform = `scaleX(${video.currentTime / video.duration})`;
-  }, []);
+    // Tailwind v4의 scale-* 유틸은 CSS scale 프로퍼티라 transform과 곱해진다. transform만 쓴다.
+    if (bar) bar.style.transform = `scaleX(${progress})`;
+
+    // 영상은 계속 재생하고 카피만 먼저 올린다.
+    if (progress >= COPY_REVEAL_AT) markRevealed(false);
+    else rearmReveal();
+  }, [markRevealed, playProgress, rearmReveal]);
+
+  const scrollToListings = useCallback(() => {
+    document.getElementById(MARKET_LISTINGS_ANCHOR_ID)?.scrollIntoView({
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  }, [prefersReducedMotion]);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -192,8 +280,9 @@ export const VideoHero = () => {
     },
   };
 
+  // 풀블리드 히어로. 음수 마진은 main의 p-4/p-6 + 뷰의 py-8 합이라 둘이 바뀌면 같이 바뀐다.
   return (
-    <div className="-mx-4 mb-10 sm:-mx-6 md:mb-14">
+    <div className="-mx-4 -mt-12 mb-10 sm:-mx-6 sm:-mt-14 md:mb-14">
       {/*
         폭을 부모에서 확정(w-full)해야 aspect-video가 min-height로부터 폭을 역산하지 않는다.
         (역산되면 좁은 화면에서 460 * 16/9 = 818px짜리 가로 오버플로가 생긴다)
@@ -204,8 +293,9 @@ export const VideoHero = () => {
       >
         <motion.video
           ref={videoRef}
-          style={prefersReducedMotion ? undefined : { scale: videoScale }}
-          className={`absolute inset-0 h-full w-full scale-[1.02] object-cover transition-[filter] duration-[1200ms] ease-out ${
+          // scale-* 유틸(CSS scale)을 함께 쓰면 이 값과 곱해진다.
+          style={{ scale: prefersReducedMotion ? 1.02 : videoScale }}
+          className={`absolute inset-0 h-full w-full object-cover transition-[filter] duration-[1200ms] ease-out ${
             revealed ? "brightness-[0.55] blur-[1.5px] saturate-[0.85]" : ""
           }`}
           src={VIDEO_SRC}
@@ -216,34 +306,31 @@ export const VideoHero = () => {
           disablePictureInPicture
           controls={false}
           aria-hidden="true"
-          onLoadedMetadata={handleLoadedMetadata}
+          onLoadedMetadata={rearmReveal}
+          onPlaying={rearmReveal}
           onTimeUpdate={handleTimeUpdate}
           onEnded={reveal}
           onError={reveal}
         />
 
-        {/* 재생 진행률. 리빌이 시작되는 순간 함께 사라진다. */}
+        {/* 재생 진행률. 리빌과 함께 사라진다. */}
         <div
           aria-hidden
-          className={`absolute inset-x-0 bottom-0 h-[2px] bg-white/10 transition-opacity duration-500 ${
+          className={`absolute inset-x-0 bottom-0 h-px transition-opacity duration-500 ${
             isPlaying && !revealed ? "opacity-100" : "opacity-0"
           }`}
         >
           <div
             ref={progressRef}
-            className="h-full origin-left scale-x-0 bg-white/70 transition-transform duration-150 ease-linear"
+            style={{ transform: "scaleX(0)" }}
+            className="h-full origin-left bg-white/40 transition-transform duration-150 ease-linear"
           />
         </div>
 
-        {/* 정지된 마지막 프레임 위로 안개처럼 서서히, 화면 전체가 고르게 어두워진다. */}
+        {/* 재생 진행률에 연동해 화면 전체가 고르게 어두워진다. */}
         <motion.div
           aria-hidden
-          initial={{ opacity: 0 }}
-          animate={{ opacity: revealed ? 1 : 0 }}
-          transition={{
-            duration: prefersReducedMotion ? 0.4 : 1.2,
-            ease: "easeOut",
-          }}
+          style={{ opacity: scrimOpacity }}
           className="absolute inset-0"
         >
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/45 to-black/20" />
@@ -286,7 +373,7 @@ export const VideoHero = () => {
             <div className="overflow-hidden">
               <motion.h1
                 variants={textRevealVariants}
-                className="break-keep font-(family-name:--font-gowun-batang) text-[1.9rem] leading-[1.3] text-white sm:text-[2.5rem] md:text-[3.1rem] lg:text-[3.6rem]"
+                className="break-keep font-(family-name:--font-gowun-batang) text-[1.9rem] leading-[1.18] text-white sm:text-[2.5rem] md:text-[3.1rem] lg:text-[3.6rem]"
               >
                 {t("videoHero.title")}
               </motion.h1>
@@ -295,7 +382,7 @@ export const VideoHero = () => {
             <div className="mt-3 overflow-hidden sm:mt-4">
               <motion.p
                 variants={textRevealVariants}
-                className="max-w-sm break-keep text-[13.5px] leading-relaxed text-neutral-200 sm:max-w-md sm:text-[15px] lg:text-[17px]"
+                className="max-w-sm break-keep text-[15px] leading-relaxed text-neutral-200 sm:max-w-md sm:text-[16px] lg:text-[17px]"
               >
                 {t("videoHero.subtitle")}
               </motion.p>
@@ -334,12 +421,16 @@ export const VideoHero = () => {
               </motion.div>
             )}
 
-            <motion.div variants={itemVariants} className="mt-8 sm:mt-9">
+            <motion.div
+              variants={itemVariants}
+              className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:mt-9"
+            >
               <Link
                 href={PATHS.BOOK_SALES_REGISTER}
                 // 리빌 전에는 보이지 않으므로 탭 순서에서도 빼둔다.
                 tabIndex={revealed ? undefined : -1}
-                className="group inline-flex items-center gap-2.5 bg-white px-6 py-3.5 text-sm font-medium text-neutral-950 shadow-[0_8px_30px_rgba(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-neutral-100 hover:shadow-[0_10px_36px_rgba(0,0,0,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                // 투명 테두리가 없으면 고스트 버튼보다 2px 낮다.
+                className="group inline-flex items-center gap-2.5 rounded-full border border-transparent bg-white px-6 py-3.5 text-sm font-medium text-neutral-950 shadow-[0_8px_30px_rgba(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-neutral-100 hover:shadow-[0_10px_36px_rgba(0,0,0,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
               >
                 {t("hero.cta_sell")}
                 <ArrowUpRight
@@ -347,6 +438,41 @@ export const VideoHero = () => {
                   strokeWidth={1.5}
                 />
               </Link>
+
+              <button
+                type="button"
+                onClick={scrollToListings}
+                tabIndex={revealed ? undefined : -1}
+                className="inline-flex items-center rounded-full border border-white/35 px-6 py-3.5 text-sm font-medium text-white backdrop-blur-[2px] transition-all duration-300 hover:-translate-y-0.5 hover:border-white/60 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+              >
+                {t("hero.cta_browse")}
+              </button>
+            </motion.div>
+          </motion.div>
+
+          {/* 스크롤 신호. 리빌 후 노출되고 스크롤하면 카피와 함께 사라진다. */}
+          <motion.div
+            aria-hidden
+            initial={{ opacity: 0 }}
+            animate={{ opacity: revealed ? 1 : 0 }}
+            transition={{
+              duration: 0.6,
+              delay: revealed && !prefersReducedMotion ? 1.6 : 0,
+            }}
+            className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center"
+          >
+            <motion.div
+              animate={prefersReducedMotion ? undefined : { y: [0, 6, 0] }}
+              transition={{
+                duration: 2.2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              <ChevronDown
+                className="h-5 w-5 text-white/45"
+                strokeWidth={1.5}
+              />
             </motion.div>
           </motion.div>
         </motion.div>
@@ -357,7 +483,11 @@ export const VideoHero = () => {
 
 const StatCell = ({ value, label }: { value: string; label: string }) => (
   <div>
-    <span className="block font-(family-name:--font-gowun-batang) text-xl leading-none tabular-nums text-white sm:text-2xl">
+    {/* 지난 하루 등록 수는 Date.now() 기준이라 ISR 생성 시각과 조회 시각이 다르면 어긋난다. */}
+    <span
+      suppressHydrationWarning
+      className="block font-(family-name:--font-gowun-batang) text-xl leading-none tabular-nums text-white sm:text-2xl"
+    >
       {value}
     </span>
     <span className="mt-2 block text-[11px] tracking-tight text-neutral-300">

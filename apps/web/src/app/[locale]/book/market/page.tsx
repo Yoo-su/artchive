@@ -1,4 +1,9 @@
-import { getBookSales, getPopularBookSales } from "@bookjeok/api-client";
+import {
+  getAvailableRegions,
+  getBookSales,
+  getPopularBookSales,
+  getRecentBookSales,
+} from "@bookjeok/api-client";
 import { bookSaleKeys } from "@bookjeok/core";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
@@ -42,10 +47,25 @@ export default async function Page({
     { name: t("nav.menu_market"), url: `/${locale}/book/market` },
   ];
 
+  /** useMarketHeroStats의 RECENT_LIMIT과 같아야 캐시가 맞는다. */
+  const HERO_RECENT_LIMIT = 25;
+
   const queries = [
     {
       queryKey: bookSaleKeys.popularSales.queryKey,
       queryFn: getPopularBookSales,
+    },
+    /*
+      히어로 지표(useMarketHeroStats)용. 이 두 쿼리가 캐시에 없으면 인트로를 건너뛴
+      방문자에게 지표 행이 리빌 뒤에 나타나며 CTA를 아래로 밀어낸다.
+    */
+    {
+      queryKey: bookSaleKeys.recentSales(HERO_RECENT_LIMIT).queryKey,
+      queryFn: () => getRecentBookSales(HERO_RECENT_LIMIT),
+    },
+    {
+      queryKey: bookSaleKeys.availableRegions.queryKey,
+      queryFn: getAvailableRegions,
     },
     {
       type: "infinite" as const,
