@@ -1,9 +1,9 @@
 "use client";
 
-import { AlertTriangle, ArrowLeft, Home } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
+import { AlertTriangle, ArrowLeft, Home } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";

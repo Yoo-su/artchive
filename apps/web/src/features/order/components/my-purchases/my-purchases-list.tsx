@@ -2,15 +2,15 @@
 
 import { OrderStatus } from "@bookjeok/core";
 import { useMyPurchasesQuery } from "@bookjeok/react-query";
-import {
-  AlertTriangle,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
 import { useTranslations } from "next-intl";
 import React, { useState } from "react";
 
 import { ShoppingBagIcon } from "@/shared/components/icons";
+import {
+  AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";

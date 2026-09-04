@@ -5,14 +5,14 @@ import {
   SellerTradeStats,
   TradeReviewTag,
 } from "@bookjeok/core";
-import {
-  ThumbsDown,
-  ThumbsUp,
-} from "lucide-react";
 import { useTranslations } from "next-intl";
 import React from "react";
 
 import { ShieldSecurityIcon } from "@/shared/components/icons";
+import {
+  ThumbsDown,
+  ThumbsUp,
+} from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/shadcn/card";
 

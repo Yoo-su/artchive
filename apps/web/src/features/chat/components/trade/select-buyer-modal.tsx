@@ -2,12 +2,12 @@
 
 import { ChatRoom, SaleAuthor } from "@bookjeok/core";
 import { useSelectBuyerMutation } from "@bookjeok/react-query";
-import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { ShoppingBagIcon } from "@/shared/components/icons";
+import { AlertCircle, CheckCircle2, Loader2 } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,

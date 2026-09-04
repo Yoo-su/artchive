@@ -1,5 +1,4 @@
-import { MessageCircle } from "lucide-react";
-
+import { MessageCircle } from "@/shared/components/icons/iconsax";
 import {
   Card,
   CardContent,

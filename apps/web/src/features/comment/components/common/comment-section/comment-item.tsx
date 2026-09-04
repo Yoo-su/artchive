@@ -1,13 +1,19 @@
 "use client";
 
 import { Comment, CommentTargetType, MAX_COMMENT_LENGTH } from "@bookjeok/core";
-import { Heart, Loader2, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { useConfirm } from "@/features/confirm";
 import { AnimatedHeart } from "@/shared/components/icons/animated";
+import {
+  Heart,
+  Loader2,
+  MoreVertical,
+  Pencil,
+  Trash2,
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   DropdownMenu,
@@ -274,7 +280,7 @@ export const CommentItem = ({
                   "flex items-center justify-center p-1.5 rounded-[12px] transition-all duration-300",
                   comment.isLiked
                     ? "bg-stone-900 text-white shadow-sm"
-                    : "bg-stone-50 text-stone-400 group-hover/like:bg-stone-100"
+                    : "bg-stone-50 text-stone-400 group-hover/like:bg-stone-100",
                 )}
               >
                 <AnimatedHeart
@@ -283,7 +289,7 @@ export const CommentItem = ({
                   animateOnHover
                   className={cn(
                     "transition-colors duration-200",
-                    comment.isLiked && "fill-current"
+                    comment.isLiked && "fill-current",
                   )}
                   aria-hidden="true"
                 />

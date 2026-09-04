@@ -1,10 +1,10 @@
 "use client";
 
 import { useBookStatsQuery } from "@bookjeok/react-query";
-import { ExternalLink } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { WishlistButton } from "@/features/user/components/wishlist/wishlist-button";
+import { ExternalLink } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Tooltip,

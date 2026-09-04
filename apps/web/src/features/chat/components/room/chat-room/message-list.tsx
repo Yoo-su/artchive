@@ -1,10 +1,10 @@
 import { ChatMessage, ChatMessageType } from "@bookjeok/core";
 import { motion } from "framer-motion";
-import { Check, Loader2, RotateCcw, X } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { memo, RefObject, useMemo, useState } from "react";
 
+import { Check, Loader2, RotateCcw, X } from "@/shared/components/icons/iconsax";
 import {
   Avatar,
   AvatarFallback,

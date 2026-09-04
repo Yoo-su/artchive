@@ -3,13 +3,13 @@
 import { ReviewFormValues } from "@bookjeok/core";
 import { useReviewForEditQuery } from "@bookjeok/react-query";
 import { AxiosError } from "axios";
-import { AlertTriangle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
 import { ReviewForm } from "@/features/review/components/review-form";
 import { useUpdateReviewMutation } from "@/features/review/mutations";
+import { AlertTriangle } from "@/shared/components/icons/iconsax";
 import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 

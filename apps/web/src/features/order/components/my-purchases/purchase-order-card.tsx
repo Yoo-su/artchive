@@ -6,14 +6,6 @@ import {
   TradeCompletionMethod,
 } from "@bookjeok/core";
 import { useConfirmPurchaseMutation } from "@bookjeok/react-query";
-import {
-  AlertCircle,
-  CheckCircle2,
-  ChevronRight,
-  MessageSquare,
-  User,
-  XCircle,
-} from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import React, { useState } from "react";
@@ -30,6 +22,14 @@ import {
   QuoteUpCircleIcon,
   TruckFastIcon,
 } from "@/shared/components/icons";
+import {
+  AlertCircle,
+  CheckCircle2,
+  ChevronRight,
+  MessageSquare,
+  User,
+  XCircle,
+} from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";

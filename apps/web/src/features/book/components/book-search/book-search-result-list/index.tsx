@@ -3,12 +3,12 @@
 import { BookInfo } from "@bookjeok/core";
 import { useInfiniteBookSearch } from "@bookjeok/react-query";
 import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
+import { Loader2 } from "@/shared/components/icons/iconsax";
 import { cn } from "@/shared/utils/cn";
 
 import { BookCard } from "../../common/book-card";

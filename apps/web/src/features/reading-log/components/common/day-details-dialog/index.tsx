@@ -1,13 +1,6 @@
 import { BookInfo ,  ReadingLog } from "@bookjeok/core";
 import { useReadingLogsQuery } from "@bookjeok/react-query";
 import { format } from "date-fns";
-import {
-  Calendar as CalendarIcon,
-  Pencil,
-  Plus,
-  StickyNote,
-  Trash2,
-} from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
@@ -15,6 +8,13 @@ import { toast } from "sonner";
 
 import { BookSearchModal } from "@/features/book/components/common/book-search-modal";
 import { useConfirm } from "@/features/confirm";
+import {
+  Calendar as CalendarIcon,
+  Pencil,
+  Plus,
+  StickyNote,
+  Trash2,
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,

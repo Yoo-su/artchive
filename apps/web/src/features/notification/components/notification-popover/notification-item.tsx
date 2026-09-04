@@ -1,7 +1,7 @@
 import { Notification } from "@bookjeok/core";
-import { Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { Trash2 } from "@/shared/components/icons/iconsax";
 import {
   Avatar,
   AvatarFallback,

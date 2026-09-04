@@ -2,7 +2,6 @@
 
 import { BookInfo } from "@bookjeok/core";
 import { useWishlistStatusQuery } from "@bookjeok/react-query";
-import { Heart } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -13,6 +12,7 @@ import {
   useRemoveFromWishlistMutation,
 } from "@/features/user/mutations";
 import { AnimatedHeart } from "@/shared/components/icons/animated";
+import { Heart } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { cn } from "@/shared/utils";
 

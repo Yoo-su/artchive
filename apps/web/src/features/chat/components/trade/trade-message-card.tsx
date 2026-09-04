@@ -2,14 +2,6 @@
 
 import { ChatMessage, OrderStatus } from "@bookjeok/core";
 import { useOrderDetailQuery } from "@bookjeok/react-query";
-import {
-  AlertTriangle,
-  ArrowRight,
-  CheckCircle2,
-  Handshake,
-  RotateCcw,
-  XCircle,
-} from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -23,6 +15,14 @@ import {
   ClockIcon,
   TruckFastIcon,
 } from "@/shared/components/icons";
+import {
+  AlertTriangle,
+  ArrowRight,
+  CheckCircle2,
+  Handshake,
+  RotateCcw,
+  XCircle,
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { PATHS } from "@/shared/constants/paths";
 

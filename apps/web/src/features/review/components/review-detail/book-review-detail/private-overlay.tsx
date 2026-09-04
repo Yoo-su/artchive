@@ -1,7 +1,8 @@
 "use client";
 
-import { Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+import { Lock } from "@/shared/components/icons/iconsax";
 
 /**
  * 비공개 리뷰 안내 오버레이 컴포넌트

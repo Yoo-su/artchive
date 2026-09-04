@@ -1,9 +1,9 @@
 "use client";
 
 import { useReviewsQuery } from "@bookjeok/react-query";
-import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { ArrowLeft } from "@/shared/components/icons/iconsax";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
@@ -33,7 +33,6 @@ export const RecentReviewList = () => {
         <div className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full border border-stone-300 group-hover:bg-stone-900 group-hover:border-stone-900 transition-all duration-500 shrink-0">
           <ArrowLeft
             className="w-5 h-5 text-stone-500 group-hover:text-white transition-colors duration-500 rotate-45 group-hover:rotate-0"
-            strokeWidth={1.5}
           />
         </div>
         <div className="pl-4">

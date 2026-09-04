@@ -13,14 +13,6 @@ import {
   useConfirmPurchaseMutation,
 } from "@bookjeok/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  AlertCircle,
-  AlertTriangle,
-  CheckCircle2,
-  ChevronRight,
-  RotateCcw,
-  XCircle,
-} from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -37,6 +29,14 @@ import {
   ShoppingBagIcon,
   TruckFastIcon,
 } from "@/shared/components/icons";
+import {
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle2,
+  ChevronRight,
+  RotateCcw,
+  XCircle,
+} from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { PATHS } from "@/shared/constants/paths";

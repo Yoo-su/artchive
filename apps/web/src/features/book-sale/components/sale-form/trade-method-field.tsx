@@ -1,11 +1,11 @@
 "use client";
 
 import { TradeMethod } from "@bookjeok/core";
-import { Handshake, Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Control, FieldValues, Path } from "react-hook-form";
 
 import { BoxIcon, TruckFastIcon } from "@/shared/components/icons";
+import { Handshake, Lock } from "@/shared/components/icons/iconsax";
 import {
   FormControl,
   FormField,

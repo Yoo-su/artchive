@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactionStat ,  ReviewReactionType } from "@bookjeok/core";
-import { Heart } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
@@ -12,6 +11,7 @@ import {
 } from "@/features/insights/components/common/insight-card";
 import { REACTION_COLORS } from "@/features/insights/constants/ui";
 import { REACTION_CONFIG } from "@/features/review/constants/ui";
+import { Heart } from "@/shared/components/icons/iconsax";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,

@@ -1,9 +1,9 @@
 import "@/styles/globals.css";
 
-import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { ArrowLeft } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { pretendard, song_myung } from "@/styles/fonts";
 

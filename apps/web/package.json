@@ -7,11 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "format": "prettier --write \"src/**/*.{ts,tsx,json,css}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,json,css}\"",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "icons:gen": "node scripts/iconsax/generate.mjs"
   },
   "engines": {
     "node": "22.x"
@@ -65,7 +68,6 @@
     "framer-motion": "^12.23.12",
     "gsap": "^3.15.0",
     "lodash": "^4.17.21",
-    "lucide-react": "^0.536.0",
     "motion": "^12.23.24",
     "next": "^15.5.9",
     "next-intl": "^4.7.0",
@@ -112,6 +114,7 @@
     "eslint-config-next": "^15.5.9",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-simple-import-sort": "^12.1.1",
+    "iconsax": "0.1.1",
     "jsdom": "^28.1.0",
     "prettier": "^3.6.2",
     "storybook": "^8",

@@ -2,11 +2,11 @@
 
 import { useBookSaleForEditQuery } from "@bookjeok/react-query";
 import { AxiosError } from "axios";
-import { AlertTriangle, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
+import { AlertTriangle, Loader2 } from "@/shared/components/icons/iconsax";
 import { useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 

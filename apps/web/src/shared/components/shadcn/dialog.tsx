@@ -1,10 +1,10 @@
 "use client";
 
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
 import { AnimatePresence, type HTMLMotionProps, motion } from "motion/react";
 import * as React from "react";
 
+import { X } from "@/shared/components/icons/iconsax";
 import { useControlledState } from "@/shared/hooks/use-controlled-state";
 import { cn, getStrictContext } from "@/shared/utils/index";
 

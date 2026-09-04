@@ -84,12 +84,12 @@ export function ReviewDetailActions({
                   )}
                 >
                   <Icon
-                    className={cn(
-                      "w-6 h-6",
-                      isActive &&
-                        type === ReviewReactionType.LIKE &&
-                        "fill-current",
-                    )}
+                    variant={
+                      isActive && type === ReviewReactionType.LIKE
+                        ? "bold"
+                        : "outline"
+                    }
+                    className="w-6 h-6"
                   />
                 </div>
                 <div className="flex flex-col items-center">

@@ -1,17 +1,17 @@
 "use client";
 
 import { Order, OrderStatus } from "@bookjeok/core";
+import { useLocale, useTranslations } from "next-intl";
+import React from "react";
+
+import { BoxIcon, ClockIcon, TruckFastIcon } from "@/shared/components/icons";
 import {
   AlertCircle,
   AlertTriangle,
   Check,
   CheckCircle2,
   XCircle,
-} from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
-import React from "react";
-
-import { BoxIcon, ClockIcon, TruckFastIcon } from "@/shared/components/icons";
+} from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
 import { formatDate } from "@/shared/utils/format-date";

@@ -1,10 +1,10 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import React from "react";
 
 import { MyPurchasesList } from "@/features/order";
+import { ArrowLeft } from "@/shared/components/icons/iconsax";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 

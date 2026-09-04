@@ -2,12 +2,12 @@
 
 import { BookInfo, HOME_PUBLISHERS } from "@bookjeok/core";
 import { useBookListQuery } from "@bookjeok/react-query";
-import { BookOpen } from "lucide-react";
 import { animate, motion, MotionValue, PanInfo, useMotionValue, useTransform } from "motion/react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 
+import { BookOpen } from "@/shared/components/icons/iconsax";
 import { TextAnimate } from "@/shared/components/magicui/text-animate";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";

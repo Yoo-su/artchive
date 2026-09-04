@@ -3,10 +3,10 @@
 import { ChatRoom } from "@bookjeok/core";
 import { isToday, isYesterday } from "date-fns";
 import { motion } from "framer-motion";
-import { MessageSquareText } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { MessageSquareText } from "@/shared/components/icons/iconsax";
 import {
   Avatar,
   AvatarFallback,

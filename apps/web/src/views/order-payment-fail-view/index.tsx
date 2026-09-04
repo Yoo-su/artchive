@@ -1,10 +1,10 @@
 "use client";
 
-import { AlertCircle, Home, RefreshCw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import React from "react";
 
+import { AlertCircle, Home, RefreshCw } from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/shadcn/card";

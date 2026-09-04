@@ -2,11 +2,11 @@
 
 import { usePopularBooksQuery } from "@bookjeok/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { ArrowRight, ChevronRight } from "@/shared/components/icons/iconsax";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";

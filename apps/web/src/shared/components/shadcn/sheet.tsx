@@ -1,10 +1,10 @@
 "use client";
 
 import * as SheetPrimitive from "@radix-ui/react-dialog";
-import { XIcon } from "lucide-react";
 import { AnimatePresence, type HTMLMotionProps, motion } from "motion/react";
 import * as React from "react";
 
+import { XIcon } from "@/shared/components/icons/iconsax";
 import { useControlledState } from "@/shared/hooks/use-controlled-state";
 import { cn, getStrictContext } from "@/shared/utils/index";
 

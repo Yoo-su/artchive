@@ -1,8 +1,8 @@
 "use client";
 
-import { Check, Languages } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { Check, Languages } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   DropdownMenu,

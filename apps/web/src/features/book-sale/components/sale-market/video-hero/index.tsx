@@ -8,11 +8,11 @@ import {
   useTransform,
   type Variants,
 } from "framer-motion";
-import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useMarketHeroStats } from "@/features/book-sale/hooks/use-market-hero-stats";
+import { ArrowUpRight, ChevronDown } from "@/shared/components/icons/iconsax";
 import { AvatarCircles } from "@/shared/components/magicui/avatar-circles";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
@@ -435,7 +435,6 @@ export const VideoHero = () => {
                 {t("hero.cta_sell")}
                 <ArrowUpRight
                   className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                  strokeWidth={1.5}
                 />
               </Link>
 
@@ -471,7 +470,6 @@ export const VideoHero = () => {
             >
               <ChevronDown
                 className="h-5 w-5 text-white/45"
-                strokeWidth={1.5}
               />
             </motion.div>
           </motion.div>

@@ -1,10 +1,10 @@
 "use client";
 
-import { History } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import React, { useEffect, useState } from "react";
 
+import { History } from "@/shared/components/icons/iconsax";
 import {
   Sheet,
   SheetContent,

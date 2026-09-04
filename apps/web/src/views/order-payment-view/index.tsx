@@ -3,13 +3,6 @@
 import { OrderStatus } from "@bookjeok/core";
 import { useOrderDetailQuery } from "@bookjeok/react-query";
 import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
-import {
-  AlertCircle,
-  ArrowLeft,
-  Lock,
-  RefreshCw,
-  Wallet,
-} from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -24,6 +17,13 @@ import {
   ShippingAddressFormValues,
 } from "@/features/order";
 import { CardPosIcon, ClockIcon } from "@/shared/components/icons";
+import {
+  AlertCircle,
+  ArrowLeft,
+  Lock,
+  RefreshCw,
+  Wallet,
+} from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/shadcn/card";

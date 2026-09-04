@@ -1,6 +1,9 @@
 "use client";
 
 import { type Editor } from "@tiptap/react";
+import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
+
 import {
   AlignCenter,
   AlignLeft,
@@ -21,10 +24,7 @@ import {
   Quote,
   Strikethrough,
   Underline,
-} from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
-
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Popover,

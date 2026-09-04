@@ -1,10 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
+import { ArrowUp } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 
 export const ScrollTopButton = () => {

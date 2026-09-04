@@ -12,12 +12,12 @@ import {
   useCreateTradeReviewMutation,
   useUpdateTradeReviewMutation,
 } from "@bookjeok/react-query";
-import { Check, MessageSquare, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { QuoteUpCircleIcon } from "@/shared/components/icons";
+import { Check, MessageSquare, ThumbsDown, ThumbsUp } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,

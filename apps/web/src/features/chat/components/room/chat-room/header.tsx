@@ -2,7 +2,6 @@ import { chatKeys, ChatRoom, OrderStatus } from "@bookjeok/core";
 import { useActiveOrderByRoomQuery } from "@bookjeok/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, LogOut } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useCallback } from "react";
@@ -10,6 +9,7 @@ import { toast } from "sonner";
 
 import { useConfirm } from "@/features/confirm";
 import { BookIcon } from "@/shared/components/icons";
+import { ArrowLeft, LogOut } from "@/shared/components/icons/iconsax";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/shadcn/avatar";
 import { Button } from "@/shared/components/shadcn/button";
 import {

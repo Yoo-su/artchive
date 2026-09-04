@@ -1,6 +1,5 @@
 "use client";
 
-import { Loader2, MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   CustomOverlayMap,
@@ -9,6 +8,7 @@ import {
   useKakaoLoader,
 } from "react-kakao-maps-sdk";
 
+import { Loader2, MapPin } from "@/shared/components/icons/iconsax";
 import { config } from "@/shared/config/env";
 
 interface SaleLocationMapProps {
@@ -71,7 +71,7 @@ export const SaleLocationMap = ({
           >
             <div className="relative mb-8 transform transition-all hover:scale-105">
               <div className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-bold text-gray-900 shadow-lg ring-1 ring-black/5">
-                <MapPin className="h-4 w-4 text-emerald-600 fill-emerald-600" />
+                <MapPin variant="bold" className="h-4 w-4 text-emerald-600" />
                 <span>{placeName || t("marker_default")}</span>
               </div>
               {/* 말풍선 꼬리 (선택적 디자인) */}

@@ -2,11 +2,11 @@
 
 import { useLoungePopularQuery } from "@bookjeok/react-query";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Swiper, SwiperSlide } from "swiper/react";
 
+import { ArrowRight } from "@/shared/components/icons/iconsax";
 import { AvatarCircles } from "@/shared/components/magicui/avatar-circles";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { Link } from "@/shared/config/i18n/routing";
@@ -63,7 +63,6 @@ export function LoungeHomeWidget() {
             <div className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full border border-stone-300 group-hover:bg-stone-900 group-hover:border-stone-900 transition-all duration-500 ml-2 shrink-0">
               <ArrowRight
                 className="w-5 h-5 text-stone-500 group-hover:text-white transition-colors duration-500 -rotate-45 group-hover:rotate-0"
-                strokeWidth={1.5}
               />
             </div>
           </Link>

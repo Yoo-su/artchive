@@ -1,11 +1,11 @@
 "use client";
 
 import { usePublicUserProfileQuery } from "@bookjeok/react-query";
-import { BookOpen, User } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 import { ReadingLogCardDeck } from "@/features/reading-log/components/deck-view/reading-log-card-deck";
+import { BookOpen, User } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";

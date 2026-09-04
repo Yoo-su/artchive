@@ -1,12 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { RotateCcw, Send } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import remarkGfm from "remark-gfm";
 
+import { RotateCcw, Send } from "@/shared/components/icons/iconsax";
 import { Particles } from "@/shared/components/magicui/particles";
 import { Input } from "@/shared/components/shadcn/input";
 import { Spinner } from "@/shared/components/shadcn/spinner";

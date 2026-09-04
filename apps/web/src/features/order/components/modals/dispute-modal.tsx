@@ -1,11 +1,11 @@
 "use client";
 
 import { useDisputeOrderMutation } from "@bookjeok/react-query";
-import { AlertCircle, AlertTriangle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import React, { useState } from "react";
 import { toast } from "sonner";
 
+import { AlertCircle, AlertTriangle } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,

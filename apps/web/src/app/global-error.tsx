@@ -1,8 +1,8 @@
 "use client";
 
-import { AlertTriangle, Home, RefreshCw } from "lucide-react";
 import { useEffect } from "react";
 
+import { AlertTriangle, Home, RefreshCw } from "@/shared/components/icons/iconsax";
 import { config } from "@/shared/config/env";
 
 interface GlobalErrorProps {

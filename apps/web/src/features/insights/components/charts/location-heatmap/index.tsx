@@ -2,7 +2,6 @@
 
 import { getLocationSales } from "@bookjeok/api-client";
 import { LocationSales, LocationStat } from "@bookjeok/core";
-import { Loader2, MapPin, Navigation } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CustomOverlayMap, Map, useKakaoLoader } from "react-kakao-maps-sdk";
@@ -12,6 +11,7 @@ import {
   InsightCard,
 } from "@/features/insights/components/common/insight-card";
 import { COLORS } from "@/features/insights/constants/ui";
+import { Loader2, MapPin, Navigation } from "@/shared/components/icons/iconsax";
 import { config } from "@/shared/config/env";
 
 // 서울 기본 좌표

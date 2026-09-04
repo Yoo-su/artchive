@@ -3,14 +3,6 @@
 import { getErrorMessage } from "@bookjeok/api-client";
 import { Order } from "@bookjeok/core";
 import { useConfirmPaymentMutation } from "@bookjeok/react-query";
-import {
-  AlertCircle,
-  ArrowRight,
-  CheckCircle2,
-  Home,
-  Loader2,
-  Lock,
-} from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import React, { useEffect, useRef, useState } from "react";
@@ -21,6 +13,14 @@ import {
   getPendingOrderShipping,
 } from "@/features/order";
 import { BoxIcon, ShieldSecurityIcon, TruckFastIcon } from "@/shared/components/icons";
+import {
+  AlertCircle,
+  ArrowRight,
+  CheckCircle2,
+  Home,
+  Loader2,
+  Lock,
+} from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/shadcn/card";

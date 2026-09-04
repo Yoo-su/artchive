@@ -4,10 +4,10 @@ import {
   useSellerStatsQuery,
   useUserTradeReviewsQuery,
 } from "@bookjeok/react-query";
-import { ChevronLeft, ChevronRight, MessageSquareDashed, ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 import React, { useState } from "react";
 
+import { ChevronLeft, ChevronRight, MessageSquareDashed, ShieldAlert } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 

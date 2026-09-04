@@ -1,6 +1,14 @@
 "use client";
 
 import { useSendVerificationEmailMutation } from "@bookjeok/react-query";
+import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
+import { toast } from "sonner";
+
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { UserStatsDashboard } from "@/features/user/components/dashboard/user-stats-dashboard";
+import { ProfileEditModal } from "@/features/user/components/profile/profile-edit-modal";
+import { WithdrawalModal } from "@/features/user/components/profile/withdrawal-modal";
 import {
   ArrowRight,
   BookOpen,
@@ -17,15 +25,7 @@ import {
   ShoppingBag,
   Truck,
   User,
-} from "lucide-react";
-import Image from "next/image";
-import { useLocale, useTranslations } from "next-intl";
-import { toast } from "sonner";
-
-import { useAuthStore } from "@/features/auth/stores/use-auth-store";
-import { UserStatsDashboard } from "@/features/user/components/dashboard/user-stats-dashboard";
-import { ProfileEditModal } from "@/features/user/components/profile/profile-edit-modal";
-import { WithdrawalModal } from "@/features/user/components/profile/withdrawal-modal";
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";

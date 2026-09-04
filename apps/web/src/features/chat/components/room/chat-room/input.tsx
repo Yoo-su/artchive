@@ -1,5 +1,4 @@
 import { MAX_CHAT_IMAGES } from "@bookjeok/core";
-import { ImagePlus, Loader2, X } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
@@ -12,6 +11,7 @@ import {
 } from "react";
 
 import { AnimatedSend } from "@/shared/components/icons/animated";
+import { ImagePlus, Loader2, X } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Textarea } from "@/shared/components/shadcn/textarea";
 

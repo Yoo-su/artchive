@@ -1,11 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useMarketHeroStats } from "@/features/book-sale/hooks/use-market-hero-stats";
 import { GravityStarsBackground } from "@/shared/components/animateui/gravity-stars";
+import { ArrowUpRight } from "@/shared/components/icons/iconsax";
 import { AvatarCircles } from "@/shared/components/magicui/avatar-circles";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
@@ -74,7 +74,6 @@ export const MarketHero = () => {
             {t("cta_sell")}
             <ArrowUpRight
               className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-              strokeWidth={1.5}
             />
           </Link>
 

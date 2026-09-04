@@ -3,7 +3,6 @@
 import { ReadingLog } from "@bookjeok/core";
 import { useReadingLogsQuery } from "@bookjeok/react-query";
 import { format } from "date-fns";
-import { BookOpen, Quote, Share2 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -14,6 +13,7 @@ import {
   DraggableCardBody,
   DraggableCardContainer,
 } from "@/shared/components/aceternityui/draggable-card";
+import { BookOpen, Quote, Share2 } from "@/shared/components/icons/iconsax";
 
 interface ReadingLogCardDeckProps {
   logs?: ReadingLog[];

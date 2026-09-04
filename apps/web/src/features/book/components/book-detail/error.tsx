@@ -1,5 +1,6 @@
-import { BookOpen } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+import { BookOpen } from "@/shared/components/icons/iconsax";
 
 export const BookDetailError = () => {
   const t = useTranslations("book.detail_error");

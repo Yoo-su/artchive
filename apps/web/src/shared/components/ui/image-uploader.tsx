@@ -1,10 +1,10 @@
 "use client";
 
-import { ImagePlus, X } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { ChangeEvent, useRef } from "react";
 
+import { ImagePlus, X } from "@/shared/components/icons/iconsax";
 import { Input } from "@/shared/components/shadcn/input";
 import { cn } from "@/shared/utils/cn";
 

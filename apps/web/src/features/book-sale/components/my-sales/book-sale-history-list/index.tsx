@@ -2,11 +2,11 @@
 
 import { SaleStatus } from "@bookjeok/core";
 import { useMyBookSalesQuery } from "@bookjeok/react-query";
-import { AlertTriangle, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { ShoppingBagIcon } from "@/shared/components/icons";
+import { AlertTriangle, Plus } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";

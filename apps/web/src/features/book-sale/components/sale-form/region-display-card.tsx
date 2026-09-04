@@ -1,8 +1,9 @@
 "use client";
 
-import { MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
 import React from "react";
+
+import { MapPin } from "@/shared/components/icons/iconsax";
 
 interface RegionDisplayCardProps {
   city?: string;

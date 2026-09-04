@@ -1,5 +1,4 @@
 import { TradeMethod } from "@bookjeok/core";
-import { Handshake, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -10,6 +9,7 @@ import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { BookSearchModal } from "@/features/book/components/common/book-search-modal";
 import { StatefulButton } from "@/shared/components/aceternityui/stateful-button";
 import { BookIcon, BoxIcon, TruckFastIcon } from "@/shared/components/icons";
+import { Handshake, Loader2 } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Card,

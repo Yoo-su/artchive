@@ -11,15 +11,6 @@ import {
   useConfirmPurchaseMutation,
   useMyTradeReviewEligibilityQuery,
 } from "@bookjeok/react-query";
-import {
-  AlertCircle,
-  CheckCircle2,
-  ExternalLink,
-  MessageSquare,
-  RotateCcw,
-  User,
-  XCircle,
-} from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import React, { useEffect, useState } from "react";
@@ -40,6 +31,15 @@ import {
   ShieldSecurityIcon,
   TruckFastIcon,
 } from "@/shared/components/icons";
+import {
+  AlertCircle,
+  CheckCircle2,
+  ExternalLink,
+  MessageSquare,
+  RotateCcw,
+  User,
+  XCircle,
+} from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import {

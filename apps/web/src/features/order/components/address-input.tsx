@@ -1,10 +1,10 @@
 "use client";
 
-import { MapPin, Phone, Search, Truck, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import React, { useState } from "react";
 import { type Address, DaumPostcodeEmbed } from "react-daum-postcode";
 
+import { MapPin, Phone, Search, Truck, User } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,

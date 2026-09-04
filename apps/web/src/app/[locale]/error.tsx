@@ -1,10 +1,10 @@
 "use client";
 
-import { RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
 import { Logo } from "@/layouts/common/logo";
+import { RefreshCw } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { config } from "@/shared/config/env";
 import { Link } from "@/shared/config/i18n/routing";

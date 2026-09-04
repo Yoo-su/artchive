@@ -1,13 +1,13 @@
 "use client";
 
 import { SaleStatus, WishlistItem as WishlistItemType } from "@bookjeok/core";
-import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 
 import { SaleStatusBadge } from "@/features/book-sale/components/common/sale-status-badge";
 import { TradeMethodBadge } from "@/features/book-sale/components/common/trade-method-badge";
 import { BookIcon, ShoppingBagIcon } from "@/shared/components/icons";
+import { ChevronRight } from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";

@@ -2,6 +2,12 @@
 
 import { CommentTargetType } from "@bookjeok/core";
 import { useMyCommentsInfiniteQuery } from "@bookjeok/react-query";
+import { useLocale, useTranslations } from "next-intl";
+import { useCallback } from "react";
+
+import { useDeleteMyCommentMutation } from "@/features/comment/mutations";
+import { useConfirm } from "@/features/confirm";
+import { BookIcon, QuoteUpCircleIcon } from "@/shared/components/icons";
 import {
   ChevronRight,
   Heart,
@@ -9,13 +15,7 @@ import {
   MessageSquare,
   Search,
   Trash2,
-} from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
-import { useCallback } from "react";
-
-import { useDeleteMyCommentMutation } from "@/features/comment/mutations";
-import { useConfirm } from "@/features/confirm";
-import { BookIcon, QuoteUpCircleIcon } from "@/shared/components/icons";
+} from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
@@ -200,10 +200,8 @@ export const MyCommentList = () => {
                     )}
                   >
                     <Heart
-                      className={cn(
-                        "w-3.5 h-3.5",
-                        comment.likeCount > 0 && "fill-current",
-                      )}
+                      variant={comment.likeCount > 0 ? "bold" : "outline"}
+                      className="w-3.5 h-3.5"
                     />
                     <span>
                       {comment.likeCount > 0

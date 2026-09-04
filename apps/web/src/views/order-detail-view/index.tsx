@@ -1,11 +1,11 @@
 "use client";
 
 import { useOrderDetailQuery } from "@bookjeok/react-query";
-import { AlertCircle, ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import React from "react";
 
 import { OrderDetailCard } from "@/features/order";
+import { AlertCircle, ArrowLeft } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { Link, useRouter } from "@/shared/config/i18n/routing";

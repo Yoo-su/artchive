@@ -1,6 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslations } from "next-intl";
+
+import { MusicPlayer } from "@/shared/components/componentry/music-player";
 import {
   Disc3,
   Pause,
@@ -11,10 +14,7 @@ import {
   SkipForward,
   Volume2,
   VolumeX,
-} from "lucide-react";
-import { useTranslations } from "next-intl";
-
-import { MusicPlayer } from "@/shared/components/componentry/music-player";
+} from "@/shared/components/icons/iconsax";
 import {
   Dialog,
   DialogContent,
@@ -154,7 +154,7 @@ export function MusicPlayerModal() {
                 title={t("controls.prev")}
                 aria-label={t("controls.prev")}
               >
-                <SkipBack className="h-5 w-5 fill-current" />
+                <SkipBack variant="bold" className="h-5 w-5" />
               </motion.button>
 
               {/* 재생 / 일시정지 메인 버튼 with 아이콘 모핑 & 스프링 탭 */}
@@ -177,9 +177,9 @@ export function MusicPlayerModal() {
                     className="flex items-center justify-center"
                   >
                     {isPlaying ? (
-                      <Pause className="h-6 w-6 fill-current" />
+                      <Pause variant="bold" className="h-6 w-6" />
                     ) : (
-                      <Play className="ml-0.5 h-6 w-6 fill-current" />
+                      <Play variant="bold" className="ml-0.5 h-6 w-6" />
                     )}
                   </motion.span>
                 </AnimatePresence>
@@ -195,7 +195,7 @@ export function MusicPlayerModal() {
                 title={t("controls.next")}
                 aria-label={t("controls.next")}
               >
-                <SkipForward className="h-5 w-5 fill-current" />
+                <SkipForward variant="bold" className="h-5 w-5" />
               </motion.button>
             </div>
 

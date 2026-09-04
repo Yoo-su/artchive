@@ -3,11 +3,11 @@
 import { ReadingLog } from "@bookjeok/core";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { ChevronLeft, ChevronRight } from "@/shared/components/icons/iconsax";
 import { Card } from "@/shared/components/shadcn/card";
 import { formatDate } from "@/shared/utils/format-date";
 

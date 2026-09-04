@@ -1,12 +1,12 @@
 "use client";
 
 import { Order } from "@bookjeok/core";
-import { User } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import React from "react";
 
 import { BookIcon, ShieldSecurityIcon } from "@/shared/components/icons";
+import { User } from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/shadcn/card";
 import { Separator } from "@/shared/components/shadcn/separator";

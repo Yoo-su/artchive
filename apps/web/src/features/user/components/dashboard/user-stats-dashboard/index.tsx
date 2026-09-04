@@ -1,10 +1,10 @@
 "use client";
 
 import { useMyStatsQuery } from "@bookjeok/react-query";
-import { ArrowUpRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useChatStore } from "@/features/chat/stores/use-chat-store";
+import { ArrowUpRight } from "@/shared/components/icons/iconsax";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";

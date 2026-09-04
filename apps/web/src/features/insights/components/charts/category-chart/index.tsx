@@ -1,7 +1,6 @@
 "use client";
 
 import { CategoryStat } from "@bookjeok/core";
-import { BarChart3 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
@@ -11,6 +10,7 @@ import {
   InsightCard,
 } from "@/features/insights/components/common/insight-card";
 import { BAR_CHART_COLORS } from "@/features/insights/constants/ui";
+import { BarChart3 } from "@/shared/components/icons/iconsax";
 
 // ApexCharts는 SSR을 지원하지 않으므로 dynamic import
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {

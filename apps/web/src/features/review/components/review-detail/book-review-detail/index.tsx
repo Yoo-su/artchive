@@ -1,10 +1,10 @@
 import { CommentTargetType ,  Review } from "@bookjeok/core";
-import { Edit } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { CommentSection } from "@/features/comment/components/common/comment-section";
 import { useReviewWithAuth } from "@/features/review/hooks/use-review-with-auth";
 import { AdBanner } from "@/shared/components/ads/ad-banner";
+import { Edit } from "@/shared/components/icons/iconsax";
 import { ScrollProgress } from "@/shared/components/magicui/scroll-progress";
 import { Button } from "@/shared/components/shadcn/button";
 import { NotFoundRedirect } from "@/shared/components/ui/not-found-redirect";

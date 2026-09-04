@@ -1,12 +1,12 @@
 "use client";
 
-import { Check, Link2, MessageCircle, Share2, X } from "lucide-react";
 import Script from "next/script";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { AnimatedCopyCheck } from "@/shared/components/icons/animated";
+import { Check, Link2, MessageCircle, Share2, X } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Popover,

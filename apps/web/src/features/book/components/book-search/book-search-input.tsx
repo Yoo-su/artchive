@@ -1,8 +1,8 @@
 "use client";
 
-import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { Search } from "@/shared/components/icons/iconsax";
 import { Input } from "@/shared/components/shadcn/input";
 
 import { useBookSearchParams } from "../../hooks/use-book-search-params";

@@ -1,12 +1,12 @@
 import { checkNickname, updateProfile } from "@bookjeok/api-client";
 import { upload } from "@vercel/blob/client";
-import { Camera, Loader2, Lock } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { Camera, Loader2, Lock } from "@/shared/components/icons/iconsax";
 import {
   Avatar,
   AvatarFallback,

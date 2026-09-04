@@ -1,7 +1,6 @@
 import { useEmailLoginMutation } from "@bookjeok/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -10,6 +9,7 @@ import { createLoginSchema, LoginSchemaType } from "@/features/auth/schema"; // 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { consumeReturnUrl } from "@/features/auth/utils/return-url";
 import { Logo } from "@/layouts/common/logo";
+import { Loader2 } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Form,

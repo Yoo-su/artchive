@@ -1,10 +1,10 @@
 "use client";
 
 import { TradeMethod } from "@bookjeok/core";
-import { Handshake } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { BoxIcon, TruckFastIcon } from "@/shared/components/icons";
+import { Handshake } from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { cn } from "@/shared/utils/cn";
 
