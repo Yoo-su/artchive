@@ -6,6 +6,7 @@ import { DataSource, EntityManager } from 'typeorm';
 
 import { BookService } from '@/features/book/services/book.service';
 import { Order, OrderStatus } from '@/features/order/entities/order.entity';
+import { TradeCompletion } from '@/features/trade/entities/trade-completion.entity';
 import { UserService } from '@/features/user/services/user.service';
 import { BusinessException } from '@/shared/exceptions/business.exception';
 
@@ -29,6 +30,11 @@ describe('UsedBookSaleService', () => {
 
   const mockOrderRepository = {
     findOne: jest.fn(),
+  };
+
+  const mockTradeCompletionRepository = {
+    find: jest.fn().mockResolvedValue([]),
+    findOne: jest.fn().mockResolvedValue(null),
   };
 
   const mockBookService = {
@@ -63,6 +69,10 @@ describe('UsedBookSaleService', () => {
         {
           provide: getRepositoryToken(Order),
           useValue: mockOrderRepository,
+        },
+        {
+          provide: getRepositoryToken(TradeCompletion),
+          useValue: mockTradeCompletionRepository,
         },
         { provide: BookService, useValue: mockBookService },
         { provide: UserService, useValue: mockUserService },
@@ -166,6 +176,43 @@ describe('UsedBookSaleService', () => {
       await expect(service.deleteUsedBookSale(10, 1)).rejects.toThrow(
         BusinessException,
       );
+    });
+  });
+
+  describe('updateSaleStatus - 판매완료 되돌리기', () => {
+    const seller = { id: 1 };
+    const soldSale = () =>
+      ({
+        id: 100,
+        status: SaleStatus.SOLD,
+        user: seller,
+      }) as never;
+
+    beforeEach(() => {
+      mockOrderRepository.findOne.mockResolvedValue(null);
+      mockUsedBookSaleRepository.save.mockImplementation((v: unknown) => v);
+    });
+
+    it('거래 기록이 있으면 판매중으로 되돌릴 수 없다', async () => {
+      mockUsedBookSaleRepository.findOne.mockResolvedValue(soldSale());
+      mockTradeCompletionRepository.findOne.mockResolvedValue({ id: 5 });
+
+      await expect(
+        service.updateSaleStatus(100, seller.id, SaleStatus.FOR_SALE),
+      ).rejects.toThrow(BusinessException);
+    });
+
+    it('거래 기록이 없으면 되돌릴 수 있다', async () => {
+      mockUsedBookSaleRepository.findOne.mockResolvedValue(soldSale());
+      mockTradeCompletionRepository.findOne.mockResolvedValue(null);
+
+      const result = await service.updateSaleStatus(
+        100,
+        seller.id,
+        SaleStatus.FOR_SALE,
+      );
+
+      expect(result.status).toBe(SaleStatus.FOR_SALE);
     });
   });
 });

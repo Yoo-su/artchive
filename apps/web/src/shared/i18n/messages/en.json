@@ -1216,7 +1216,8 @@
         "chat_error": "Failed to open chat. Please try again.",
         "login_required": "Login required to chat or wishlist.",
         "in_trade_cannot_modify": "Sales in trade cannot be modified or deleted.",
-        "in_trade_status_auto": "Status is managed automatically during trade."
+        "in_trade_status_auto": "Status is managed automatically during trade.",
+        "completed_status_locked": "This trade is on record and cannot be reverted."
       },
       "location": {
         "title": "Preferred Trade Location",
@@ -1575,7 +1576,13 @@
         },
         "btn_pay_now": "Proceed to Payment",
         "btn_view_detail": "View Order Details",
-        "order_closed_toast": "This trade has already been cancelled or completed."
+        "order_closed_toast": "This trade has already been cancelled or completed.",
+        "trade_title": {
+          "RESERVED": "Reserved",
+          "COMPLETED": "Trade completed",
+          "OTHER_TRADING": "Another trade in progress",
+          "BACK_ON_MARKET": "Back on sale"
+        }
       },
       "direct_trade_dialog": {
         "reserve_title": "Pick this buyer as your trading partner?",
@@ -1834,7 +1841,8 @@
         "tag_summary_title": "Feedback Summary",
         "badge_trust": "{count} trades · {rate}% positive",
         "badge_trust_direct": "{count} in-person trades · {rate}% positive",
-        "badge_trust_split": "{direct} in-person · {delivery} escrow · {rate}% positive"
+        "badge_trust_split": "{direct} in-person · {delivery} escrow · {rate}% positive",
+        "badge_trades_only": "{count} completed trades"
       },
       "list": {
         "title": "Trade Reviews",

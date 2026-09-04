@@ -114,51 +114,57 @@ export const BookSaleActions: React.FC<BookSaleActionsProps> = ({ sale }) => {
           <div className="w-32 h-11 bg-stone-200/80 rounded-md" />
         </div>
       ) : isOwner ? (
-        <div className="flex flex-wrap items-center gap-2">
+        /*
+         * 모바일에서는 상태 셀렉트가 한 줄, 수정·삭제가 그 아래 한 줄로 떨어지게
+         * 두고, sm 이상에서만 한 줄에 나란히 놓는다. 셋을 무조건 한 줄에 밀어
+         * 넣으면 좁은 화면에서 삭제 버튼만 어정쩡하게 튕겨 나간다.
+         */
+        <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
           {/* 상태 변경은 마이페이지까지 가지 않아도 되도록 상세에서도 노출한다 */}
-          <SaleStatusSelect sale={sale} />
-          {isLockedByOrder ? (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled
-                title={t("actions.in_trade_cannot_modify")}
-                className="disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Edit className="w-4 h-4 mr-2" />
-                {t("actions.edit")}
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                disabled
-                title={t("actions.in_trade_cannot_modify")}
-                className="disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                {t("actions.delete")}
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button asChild variant="outline" size="sm">
+          <SaleStatusSelect sale={sale} className="h-9 w-full sm:w-[120px]" />
+
+          <div className="flex items-center gap-2">
+            <Button
+              asChild={!isLockedByOrder}
+              variant="outline"
+              size="sm"
+              disabled={isLockedByOrder}
+              title={
+                isLockedByOrder ? t("actions.in_trade_cannot_modify") : undefined
+              }
+              className="h-9 flex-1 sm:flex-none"
+            >
+              {isLockedByOrder ? (
+                <span>
+                  <Edit className="w-4 h-4 mr-1.5" />
+                  {t("actions.edit")}
+                </span>
+              ) : (
                 <Link href={PATHS.MY_PAGE_SALES_EDIT(String(sale.id))}>
-                  <Edit className="w-4 h-4 mr-2" />
+                  <Edit className="w-4 h-4 mr-1.5" />
                   {t("actions.edit")}
                 </Link>
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                disabled={isDeleting}
-                onClick={handleDeleteSale}
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                {isDeleting ? t("actions.deleting") : t("actions.delete")}
-              </Button>
-            </>
-          )}
+              )}
+            </Button>
+
+            {/*
+             * 삭제는 평소엔 조용히 있다가 hover에서만 위험을 드러낸다.
+             * 회원 탈퇴 버튼과 같은 패턴.
+             */}
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isLockedByOrder || isDeleting}
+              title={
+                isLockedByOrder ? t("actions.in_trade_cannot_modify") : undefined
+              }
+              onClick={handleDeleteSale}
+              className="h-9 flex-1 border-stone-300 text-stone-600 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 dark:border-stone-700 dark:text-stone-300 dark:hover:border-red-800 dark:hover:bg-red-950/30 dark:hover:text-red-400 sm:flex-none"
+            >
+              <Trash2 className="w-4 h-4 mr-1.5" />
+              {isDeleting ? t("actions.deleting") : t("actions.delete")}
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="flex flex-col gap-2 w-full sm:w-auto">

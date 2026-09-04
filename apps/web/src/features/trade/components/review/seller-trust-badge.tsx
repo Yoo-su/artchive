@@ -55,16 +55,24 @@ export const SellerTrustBadge = ({
           직거래 완료는 판매자 자기신고, 택배 거래는 에스크로 구매확정을 거친
           기록이라 신뢰도가 다르다. 합산만 보여주면 그 차이가 가려지므로 나눠 쓴다.
         */}
-        {stats.deliveryCompletedSales > 0
-          ? t("badge_trust_split", {
-              direct: stats.directCompletedSales,
-              delivery: stats.deliveryCompletedSales,
-              rate: stats.positiveRate,
+        {/*
+          만족도는 "이 사람이 받은 후기"의 비율이다. 받은 후기가 없는데 100%를
+          띄우면 본인이 남긴 후기가 자기 평가처럼 읽힌다. 후기가 있을 때만 쓴다.
+        */}
+        {stats.totalReviews === 0
+          ? t("badge_trades_only", {
+              count: stats.totalCompletedSales,
             })
-          : t("badge_trust_direct", {
-              count: stats.directCompletedSales,
-              rate: stats.positiveRate,
-            })}
+          : stats.deliveryCompletedSales > 0
+            ? t("badge_trust_split", {
+                direct: stats.directCompletedSales,
+                delivery: stats.deliveryCompletedSales,
+                rate: stats.positiveRate,
+              })
+            : t("badge_trust_direct", {
+                count: stats.directCompletedSales,
+                rate: stats.positiveRate,
+              })}
       </span>
     </div>
   );

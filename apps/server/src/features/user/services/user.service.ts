@@ -11,6 +11,7 @@ import { ACTIVE_ORDER_STATUSES } from '@/features/order/constants';
 import { Order } from '@/features/order/entities/order.entity';
 import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
 import { Review } from '@/features/review/entities/review.entity';
+import { TradeCompletion } from '@/features/trade/entities/trade-completion.entity';
 import {
   SaleStatus,
   UsedBookSale,
@@ -33,6 +34,8 @@ export class UserService implements OnModuleInit {
     private readonly reviewRepository: Repository<Review>,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    @InjectRepository(TradeCompletion)
+    private readonly tradeCompletionRepository: Repository<TradeCompletion>,
     private readonly dataSource: DataSource,
     private readonly txHost: TransactionHost<TransactionalAdapterTypeOrm>,
     private readonly eventEmitter: EventEmitter2,
@@ -435,8 +438,18 @@ export class UserService implements OnModuleInit {
     });
     const lockedSaleIds = new Set(activeOrders.map((order) => order.saleId));
 
+    // 거래 기록이 있는 판매완료 글은 상태를 되돌릴 수 없다.
+    const completions = await this.tradeCompletionRepository.find({
+      where: { saleId: In(sales.map((sale) => sale.id)) },
+      select: ['saleId'],
+    });
+    const completedSaleIds = new Set(
+      completions.map((completion) => completion.saleId),
+    );
+
     return sales.map((sale) => {
       sale.hasActiveOrder = lockedSaleIds.has(sale.id);
+      sale.hasTradeCompletion = completedSaleIds.has(sale.id);
       return sale;
     });
   }

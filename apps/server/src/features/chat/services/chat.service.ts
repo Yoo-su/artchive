@@ -652,7 +652,7 @@ export class ChatService {
           room.id,
           '판매자가 다른 구매자와 거래를 진행 중입니다.',
           ChatMessageType.TRADE_STATUS,
-          { saleId, status: 'RESERVED' },
+          { saleId, tradeStatus: 'OTHER_TRADING' },
         ),
       ),
     );
@@ -679,7 +679,7 @@ export class ChatService {
           room.id,
           '예약이 취소되어 다시 판매중입니다.',
           ChatMessageType.TRADE_STATUS,
-          { saleId, status: 'FOR_SALE' },
+          { saleId, tradeStatus: 'BACK_ON_MARKET' },
         ),
       ),
     );

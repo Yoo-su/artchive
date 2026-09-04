@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm';
 
 import { BookModule } from '../book/book.module';
 import { Order } from '../order/entities/order.entity';
+import { TradeCompletion } from '../trade/entities/trade-completion.entity';
 import { UserModule } from '../user/user.module';
 import { UsedBookSaleController } from './controllers/used-book-sale.controller';
 import { UsedBookSale } from './entities/used-book-sale.entity';
@@ -13,7 +14,7 @@ import { UsedBookSaleService } from './services/used-book-sale.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UsedBookSale, Order]),
+    TypeOrmModule.forFeature([UsedBookSale, Order, TradeCompletion]),
     BookModule, // Book 엔티티와 BookService 사용
     UserModule,
   ],

@@ -272,6 +272,10 @@ export const ERROR_CODES = {
     code: 'TRADE_004',
     message: '이미 다른 구매자와 예약된 판매글입니다.',
   },
+  SALE_COMPLETED_CANNOT_CHANGE_STATUS: {
+    code: 'TRADE_006',
+    message: '거래 기록이 있는 판매완료 글은 상태를 되돌릴 수 없습니다.',
+  },
   SALE_NOT_RESERVED: {
     code: 'TRADE_005',
     message: '예약중인 판매글이 아닙니다.',
