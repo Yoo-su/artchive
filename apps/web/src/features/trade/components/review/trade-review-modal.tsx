@@ -1,14 +1,20 @@
 "use client";
 
 import {
-  NEGATIVE_TRADE_REVIEW_TAGS,
-  POSITIVE_TRADE_REVIEW_TAGS,
+  getAvailableTradeReviewTags,
+  TRADE_REVIEW_TAG_SPECS,
+  TradeCompletionMethod,
+  TradeReview,
   TradeReviewTag,
+  TradeReviewTargetRole,
 } from "@bookjeok/core";
-import { useCreateTradeReviewMutation } from "@bookjeok/react-query";
+import {
+  useCreateTradeReviewMutation,
+  useUpdateTradeReviewMutation,
+} from "@bookjeok/react-query";
 import { Check, MessageSquare, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useTranslations } from "next-intl";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { QuoteUpCircleIcon } from "@/shared/components/icons";
@@ -25,37 +31,90 @@ import { Label } from "@/shared/components/shadcn/label";
 import { Textarea } from "@/shared/components/shadcn/textarea";
 
 interface TradeReviewModalProps {
-  orderId: string;
+  /** 후기를 남길 거래 완료 기록 */
+  completionId: number;
+  /** 상대의 역할. 내가 구매자면 상대는 SELLER */
+  targetRole: TradeReviewTargetRole;
+  /** 이 거래가 직거래였는지 택배 거래였는지 */
+  method: TradeCompletionMethod;
   targetUserNickname?: string;
+  /**
+   * 이미 쓴 후기. 넘기면 수정 모드로 열립니다.
+   * 후기는 삭제할 수 없고 작성 후 14일 이내에만 고칠 수 있습니다.
+   */
+  existingReview?: TradeReview | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }
 
 export const TradeReviewModal = ({
-  orderId,
+  completionId,
+  targetRole,
+  method,
   targetUserNickname,
+  existingReview,
   open,
   onOpenChange,
   onSuccess,
 }: TradeReviewModalProps) => {
   const t = useTranslations("order.trade_review");
 
+  // 직거래에 배송·포장 태그를, 구매자에게 "책 상태" 태그를 보여주면
+  // 고를 수 없거나 뜻이 통하지 않는 항목이 된다. 거래 방식과 상대 역할에
+  // 맞는 태그만 노출한다.
+  const { positiveTags, negativeTags } = useMemo(() => {
+    const available = getAvailableTradeReviewTags(targetRole, method);
+    return {
+      positiveTags: available.filter(
+        (tag) => TRADE_REVIEW_TAG_SPECS[tag].sentiment === "POSITIVE",
+      ),
+      negativeTags: available.filter(
+        (tag) => TRADE_REVIEW_TAG_SPECS[tag].sentiment === "NEGATIVE",
+      ),
+    };
+  }, [targetRole, method]);
+
+  const isEditMode = Boolean(existingReview);
+
   const [selectedTags, setSelectedTags] = useState<TradeReviewTag[]>([]);
   const [content, setContent] = useState<string>("");
   const [validationError, setValidationError] = useState<string | null>(null);
 
+  // 수정 모드로 열릴 때 기존 값을 채운다. 모달이 닫혀 있는 동안 후기가
+  // 갱신될 수 있으므로 열리는 시점을 기준으로 동기화한다.
+  useEffect(() => {
+    if (!open) return;
+
+    setSelectedTags((existingReview?.tags as TradeReviewTag[]) ?? []);
+    setContent(existingReview?.content ?? "");
+    setValidationError(null);
+  }, [open, existingReview]);
+
+  const handleMutationSuccess = () => {
+    toast.success(isEditMode ? t("update_success") : t("success"));
+    onOpenChange(false);
+    resetForm();
+    onSuccess?.();
+  };
+
+  const handleMutationError = (err: Error) => {
+    toast.error(err.message || "거래 후기 처리 중 오류가 발생했습니다.");
+  };
+
   const createReviewMutation = useCreateTradeReviewMutation({
-    onSuccess: () => {
-      toast.success(t("success"));
-      onOpenChange(false);
-      resetForm();
-      onSuccess?.();
-    },
-    onError: (err) => {
-      toast.error(err.message || "거래 후기 등록 중 오류가 발생했습니다.");
-    },
+    onSuccess: handleMutationSuccess,
+    onError: handleMutationError,
   });
+
+  const updateReviewMutation = useUpdateTradeReviewMutation({
+    onSuccess: handleMutationSuccess,
+    onError: handleMutationError,
+  });
+
+  const activeMutation = isEditMode
+    ? updateReviewMutation
+    : createReviewMutation;
 
   const resetForm = () => {
     setSelectedTags([]);
@@ -85,8 +144,19 @@ export const TradeReviewModal = ({
       return;
     }
 
+    if (isEditMode && existingReview) {
+      updateReviewMutation.mutate({
+        reviewId: existingReview.id,
+        payload: {
+          tags: selectedTags,
+          content: content.trim(),
+        },
+      });
+      return;
+    }
+
     createReviewMutation.mutate({
-      orderId,
+      completionId,
       tags: selectedTags,
       content: content.trim() || undefined,
     });
@@ -109,13 +179,15 @@ export const TradeReviewModal = ({
               <QuoteUpCircleIcon className="h-5 w-5" />
             </div>
             <DialogTitle className="text-lg font-bold text-stone-900 dark:text-stone-100">
-              {t("modal_title")}
+              {isEditMode ? t("modal_title_edit") : t("modal_title")}
             </DialogTitle>
           </div>
           <DialogDescription className="text-xs text-stone-500 pt-1">
-            {targetUserNickname
-              ? `${targetUserNickname}님과의 ${t("modal_desc")}`
-              : t("modal_desc")}
+            {isEditMode
+              ? t("modal_desc_edit")
+              : targetUserNickname
+                ? `${targetUserNickname}님과의 ${t("modal_desc")}`
+                : t("modal_desc")}
           </DialogDescription>
         </DialogHeader>
 
@@ -127,7 +199,7 @@ export const TradeReviewModal = ({
               {t("positive_tags_title")}
             </Label>
             <div className="flex flex-wrap gap-2">
-              {POSITIVE_TRADE_REVIEW_TAGS.map((tag) => {
+              {positiveTags.map((tag) => {
                 const isSelected = selectedTags.includes(tag);
                 return (
                   <button
@@ -155,7 +227,7 @@ export const TradeReviewModal = ({
               {t("negative_tags_title")}
             </Label>
             <div className="flex flex-wrap gap-2">
-              {NEGATIVE_TRADE_REVIEW_TAGS.map((tag) => {
+              {negativeTags.map((tag) => {
                 const isSelected = selectedTags.includes(tag);
                 return (
                   <button
@@ -210,7 +282,7 @@ export const TradeReviewModal = ({
               variant="outline"
               size="sm"
               onClick={() => onOpenChange(false)}
-              disabled={createReviewMutation.isPending}
+              disabled={activeMutation.isPending}
               className="border-stone-200 dark:border-stone-700"
             >
               취소
@@ -218,10 +290,14 @@ export const TradeReviewModal = ({
             <Button
               type="submit"
               size="sm"
-              disabled={createReviewMutation.isPending}
+              disabled={activeMutation.isPending}
               className="font-bold bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 shadow-2xs"
             >
-              {createReviewMutation.isPending ? t("submitting") : t("submit")}
+              {activeMutation.isPending
+                ? t("submitting")
+                : isEditMode
+                  ? t("submit_edit")
+                  : t("submit")}
             </Button>
           </DialogFooter>
         </form>

@@ -1,6 +1,6 @@
 "use client";
 
-import { SaleStatus, UsedBookSale } from "@bookjeok/core";
+import { UsedBookSale } from "@bookjeok/core";
 import { ChevronRight, Edit, MoreVertical, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
@@ -16,22 +16,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/shadcn/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/shadcn/select";
 import { Link, useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 import { formatDate } from "@/shared/utils/format-date";
 
-import {
-  useDeleteBookSaleMutation,
-  useUpdateBookSaleStatusMutation,
-} from "../../../mutations";
+import { useDeleteBookSaleMutation } from "../../../mutations";
 import { SaleStatusBadge } from "../../common/sale-status-badge";
+import { SaleStatusSelect } from "../../common/sale-status-select";
 import { TradeMethodBadge } from "../../common/trade-method-badge";
 
 interface BookSaleHistoryItemProps {
@@ -40,21 +31,19 @@ interface BookSaleHistoryItemProps {
 
 export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
   const t = useTranslations("market.history");
-  const tStatus = useTranslations("market.sale_status");
   const tActions = useTranslations("market.detail.actions");
   const tCommon = useTranslations("common");
   const router = useRouter();
   const locale = useLocale();
 
-  const { mutate: updateSaleStatus } = useUpdateBookSaleStatusMutation();
   const { mutate: deleteSale, isPending: isDeleting } =
     useDeleteBookSaleMutation();
 
-  const handleStatusChange = (newStatus: SaleStatus) => {
-    updateSaleStatus({ saleId: sale.id, status: newStatus });
-  };
-
   const confirm = useConfirm();
+
+  // 잠금 근거는 상태가 아니라 활성 주문이다. 판매자가 직접 예약중으로 바꾼
+  // 직거래 건은 잠그면 안 된다 (판매완료로 넘어갈 길이 막힌다).
+  const isLockedByOrder = sale.hasActiveOrder === true;
 
   const handleDelete = async (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -161,29 +150,7 @@ export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
           <div className="flex items-center gap-2 self-end sm:self-auto">
             {/* 상태 변경 Select */}
             <div onClick={handleDropdownClick}>
-              <Select
-                value={sale.status}
-                onValueChange={handleStatusChange}
-                disabled={sale.status === SaleStatus.RESERVED}
-              >
-                <SelectTrigger
-                  className="w-[105px] h-8 text-xs bg-white dark:bg-stone-800 border-stone-200 dark:border-stone-700 rounded-lg shadow-2xs disabled:opacity-60 disabled:cursor-not-allowed"
-                  title={
-                    sale.status === SaleStatus.RESERVED
-                      ? tActions("in_trade_status_auto")
-                      : undefined
-                  }
-                >
-                  <SelectValue placeholder={t("change_status")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(SaleStatus).map((status) => (
-                    <SelectItem key={status} value={status} className="text-xs">
-                      {tStatus(status)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SaleStatusSelect sale={sale} />
             </div>
 
             {/* 수정 / 삭제 드롭다운 */}
@@ -199,7 +166,7 @@ export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-32 rounded-xl">
-                  {sale.status === SaleStatus.RESERVED ? (
+                  {isLockedByOrder ? (
                     <DropdownMenuItem
                       disabled
                       className="text-xs text-stone-400"

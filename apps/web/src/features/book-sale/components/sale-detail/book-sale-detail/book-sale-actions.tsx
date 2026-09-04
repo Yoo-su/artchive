@@ -10,7 +10,7 @@ import { EmailVerificationModal } from "@/features/auth/components/email-verific
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { useOpenChatRoom } from "@/features/chat/hooks/use-open-chat-room";
 import { useConfirm } from "@/features/confirm";
-import { SellerTrustBadge } from "@/features/order";
+import { SellerTrustBadge } from "@/features/trade";
 import { WishlistButton } from "@/features/user/components/wishlist/wishlist-button";
 import { CoolMode } from "@/shared/components/magicui/cool-mode";
 import { Button } from "@/shared/components/shadcn/button";
@@ -20,6 +20,7 @@ import { PATHS } from "@/shared/constants/paths";
 import { useSocketContext } from "@/shared/providers/socket-provider";
 
 import { useDeleteBookSaleMutation } from "../../../mutations";
+import { SaleStatusSelect } from "../../common/sale-status-select";
 
 interface BookSaleActionsProps {
   sale: UsedBookSale;
@@ -43,6 +44,9 @@ export const BookSaleActions: React.FC<BookSaleActionsProps> = ({ sale }) => {
   const { mutate: deleteSale, isPending: isDeleting } =
     useDeleteBookSaleMutation();
   const confirm = useConfirm();
+
+  // 수정·삭제를 막는 근거는 활성 주문이지 예약중 상태가 아니다.
+  const isLockedByOrder = sale.hasActiveOrder === true;
 
   const handleDeleteSale = async () => {
     const isConfirmed = await confirm({
@@ -110,8 +114,10 @@ export const BookSaleActions: React.FC<BookSaleActionsProps> = ({ sale }) => {
           <div className="w-32 h-11 bg-stone-200/80 rounded-md" />
         </div>
       ) : isOwner ? (
-        <div className="flex gap-2">
-          {sale.status === "RESERVED" ? (
+        <div className="flex flex-wrap items-center gap-2">
+          {/* 상태 변경은 마이페이지까지 가지 않아도 되도록 상세에서도 노출한다 */}
+          <SaleStatusSelect sale={sale} />
+          {isLockedByOrder ? (
             <>
               <Button
                 variant="outline"

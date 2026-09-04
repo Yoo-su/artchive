@@ -109,6 +109,20 @@ export const getNotificationMessageParams = (
           actorName,
         },
       };
+    case NotificationType.TRADE_RESERVED:
+      return {
+        key: "trade_reserved",
+        params: {
+          actorName,
+        },
+      };
+    case NotificationType.TRADE_COMPLETED:
+      return {
+        key: "trade_completed",
+        params: {
+          actorName,
+        },
+      };
     default:
       return {
         key: "default",
@@ -150,6 +164,13 @@ export const getNotificationLink = (notification: Notification): string => {
         : PATHS.MY_PAGE_PURCHASES;
     case NotificationType.TRADE_REVIEW_RECEIVED:
       return PATHS.MY_REVIEWS;
+    case NotificationType.TRADE_RESERVED:
+      return metadata.saleId
+        ? PATHS.BOOK_SALES_DETAIL(metadata.saleId as number)
+        : PATHS.MY_PAGE_TRADES;
+    // 완료 알림의 목적은 후기 유도이므로 거래 내역으로 보낸다.
+    case NotificationType.TRADE_COMPLETED:
+      return PATHS.MY_PAGE_TRADES;
     case NotificationType.OTHER_BUYER_TRADING:
       return PATHS.LOUNGE;
     default:

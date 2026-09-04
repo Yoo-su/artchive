@@ -19,14 +19,14 @@ export const SellerTrustBadge = ({
   className,
 }: SellerTrustBadgeProps) => {
   const t = useTranslations("order.trade_review.stats");
-  const isPaymentFeatureEnabled =
-    process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED === "true";
 
+  // 신뢰 지표는 거래 완료 기록에서 나오고 완료는 결제 없이도 생기므로,
+  // 결제 봉인 여부와 무관하게 노출한다.
   const { data: stats, isLoading } = useSellerStatsQuery(handle, {
-    enabled: Boolean(handle) && isPaymentFeatureEnabled,
+    enabled: Boolean(handle),
   });
 
-  if (!isPaymentFeatureEnabled || isLoading || !stats) {
+  if (isLoading || !stats) {
     return null;
   }
 
@@ -51,10 +51,20 @@ export const SellerTrustBadge = ({
         )}
       />
       <span>
-        {t("badge_trust", {
-          count: stats.totalCompletedSales,
-          rate: stats.positiveRate,
-        })}
+        {/*
+          직거래 완료는 판매자 자기신고, 택배 거래는 에스크로 구매확정을 거친
+          기록이라 신뢰도가 다르다. 합산만 보여주면 그 차이가 가려지므로 나눠 쓴다.
+        */}
+        {stats.deliveryCompletedSales > 0
+          ? t("badge_trust_split", {
+              direct: stats.directCompletedSales,
+              delivery: stats.deliveryCompletedSales,
+              rate: stats.positiveRate,
+            })
+          : t("badge_trust_direct", {
+              count: stats.directCompletedSales,
+              rate: stats.positiveRate,
+            })}
       </span>
     </div>
   );

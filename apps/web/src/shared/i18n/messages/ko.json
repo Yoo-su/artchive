@@ -162,7 +162,9 @@
       "read_all_success": "모든 알림을 읽음 처리했습니다.",
       "delete_success": "알림이 삭제되었습니다."
     },
-    "delete": "삭제"
+    "delete": "삭제",
+    "trade_reserved": "{actorName}님이 거래 상대로 지정했습니다.",
+    "trade_completed": "{actorName}님과의 거래가 완료되었습니다. 후기를 남겨보세요."
   },
   "auth": {
     "login": {
@@ -866,6 +868,14 @@
           "title": "판매 주문 관리",
           "description": "내 판매 도서의 주문 및 배송 관리 내역입니다."
         }
+      },
+      "trades": {
+        "label": "거래 내역",
+        "desc": "완료된 거래와 후기",
+        "metadata": {
+          "title": "거래 내역",
+          "description": "완료된 중고책 거래 내역과 거래 후기를 확인합니다."
+        }
       }
     },
     "profile": {
@@ -1236,7 +1246,8 @@
       "BOTH": "직거래 · 택배 모두",
       "DIRECT_ONLY_desc": "직접 만나서 거래해요",
       "DELIVERY_ONLY_desc": "안전결제 및 택배 배송으로 거래해요",
-      "BOTH_desc": "직거래와 택배거래 모두 가능해요"
+      "BOTH_desc": "직거래와 택배거래 모두 가능해요",
+      "delivery_preparing": "택배거래는 준비 중이에요"
     },
     "history": {
       "title": "내 중고책 판매글",
@@ -1268,7 +1279,16 @@
       "stage3_create": "3단계: 게시글 생성 및 DB 저장 중",
       "stage4": "4단계: 완결! 잠시 후 이동합니다."
     },
-    "won": "원"
+    "won": "원",
+    "complete_trade": {
+      "title": "누구와 거래하셨나요?",
+      "description": "거래 상대를 선택하면 양쪽 모두 거래 후기를 남길 수 있습니다.",
+      "no_candidates": "이 판매글로 대화한 상대가 없습니다.",
+      "skip": "선택 없이 판매완료",
+      "confirm": "거래 완료",
+      "success": "판매완료로 변경했습니다.",
+      "success_with_review": "거래를 완료했습니다. 이제 후기를 남길 수 있어요."
+    }
   },
   "error_pages": {
     "not_found": {
@@ -1521,7 +1541,16 @@
         "btn_view_order": "주문 상세",
         "btn_confirm_purchase": "구매확정",
         "btn_write_review": "거래 후기 작성",
-        "carrier_tracking": "{carrier} {trackingNumber}"
+        "carrier_tracking": "{carrier} {trackingNumber}",
+        "direct_seller_prompt": "이 분과 거래하시겠어요?",
+        "direct_reserved_seller": "이 분과 예약중입니다. 거래를 마치면 완료 처리해주세요.",
+        "direct_reserved_buyer": "판매자가 회원님을 거래 상대로 지정했습니다.",
+        "direct_completed": "거래가 완료되었습니다. 서로에게 후기를 남겨보세요.",
+        "btn_reserve_buyer": "이 분과 거래하기",
+        "btn_cancel_reservation": "예약 취소",
+        "btn_complete_trade": "거래 완료",
+        "direct_badge": "직거래",
+        "sold_hint": "판매 완료된 상품입니다."
       },
       "message_card": {
         "title": {
@@ -1536,6 +1565,20 @@
         "btn_pay_now": "결제하러 가기",
         "btn_view_detail": "주문 상세 보기",
         "order_closed_toast": "이미 취소되거나 완료된 거래입니다."
+      },
+      "direct_trade_dialog": {
+        "reserve_title": "거래 상대로 지정할까요?",
+        "reserve_desc": "판매글이 예약중으로 바뀌고, 다른 구매희망자에게는 거래 진행 중이라고 표시됩니다.",
+        "reserve_confirm": "지정하기",
+        "reserve_success": "거래 상대로 지정했습니다.",
+        "cancel_title": "예약을 취소할까요?",
+        "cancel_desc": "판매글이 다시 판매중으로 돌아갑니다.",
+        "cancel_confirm": "예약 취소",
+        "cancel_success": "예약을 취소했습니다.",
+        "complete_title": "거래를 완료할까요?",
+        "complete_desc": "판매글이 판매완료로 바뀝니다. 완료 후에는 양측 모두 거래 후기를 남길 수 있습니다.",
+        "complete_confirm": "거래 완료",
+        "complete_success": "거래를 완료했습니다."
       }
     },
     "image": {
@@ -1746,15 +1789,21 @@
       "positive_tags_title": "어떤 점이 좋았나요?",
       "negative_tags_title": "어떤 점이 아쉬웠나요?",
       "tags": {
-        "GOOD_CONDITION": "책 상태가 설명과 같아요",
+        "KIND_MANNER": "친절하고 매너가 좋아요",
         "FAST_RESPONSE": "응답이 빨라요",
+        "ON_TIME": "약속을 잘 지켜요",
+        "RUDE_MANNER": "불친절해요",
+        "SLOW_RESPONSE": "응답이 느려요",
+        "BROKE_PROMISE": "약속을 지키지 않았어요",
+        "GOOD_CONDITION": "책 상태가 설명과 같아요",
+        "BAD_CONDITION": "책 상태가 설명과 달라요",
         "FAST_SHIPPING": "배송이 빨라요",
         "METICULOUS_PACKAGING": "포장이 꼼꼼해요",
-        "KIND_MANNER": "친절하고 매너가 좋아요",
-        "BAD_CONDITION": "책 상태가 설명과 달라요",
-        "SLOW_RESPONSE": "응답이 느려요",
         "LATE_SHIPPING": "배송이 늦었어요",
-        "POOR_PACKAGING": "포장이 부실해요"
+        "POOR_PACKAGING": "포장이 부실해요",
+        "SMOOTH_TRADE": "거래가 매끄러웠어요",
+        "EXCESSIVE_HAGGLING": "과도한 흥정을 했어요",
+        "NO_SHOW": "약속 장소에 나오지 않았어요"
       },
       "content_label": "상세 후기 (선택)",
       "content_placeholder": "따뜻한 거래 경험이나 도서에 대한 추가 의견을 자유롭게 적어주세요. (최대 500자)",
@@ -1772,7 +1821,9 @@
         "total_reviews": "총 {count}개의 후기",
         "no_reviews": "아직 등록된 거래 후기가 없습니다.",
         "tag_summary_title": "받은 평가 요약",
-        "badge_trust": "안전거래 {count}건 · 만족도 {rate}%"
+        "badge_trust": "안전거래 {count}건 · 만족도 {rate}%",
+        "badge_trust_direct": "직거래 {count}건 · 만족도 {rate}%",
+        "badge_trust_split": "직거래 {direct}건 · 안전결제 {delivery}건 · 만족도 {rate}%"
       },
       "list": {
         "title": "거래 후기",
@@ -1780,7 +1831,39 @@
         "tab_trade_reviews": "거래 후기 ({count})",
         "empty_title": "거래 후기가 없습니다",
         "empty_desc": "아직 작성된 거래 후기가 없습니다."
-      }
+      },
+      "modal_title_edit": "거래 후기 수정",
+      "modal_desc_edit": "작성한 후기를 고칠 수 있습니다. (거래 완료 후 14일 이내)",
+      "submit_edit": "후기 수정하기",
+      "update_success": "후기를 수정했습니다."
+    }
+  },
+  "trade": {
+    "history": {
+      "title": "거래 내역",
+      "subtitle": "직거래와 안전결제 거래를 한자리에서 확인하고 후기를 남겨보세요.",
+      "tabs": {
+        "all": "전체",
+        "bought": "구매",
+        "sold": "판매"
+      },
+      "method_direct": "직거래",
+      "method_delivery": "안전결제",
+      "role_buyer": "구매",
+      "role_seller": "판매",
+      "counterparty_seller": "판매자",
+      "counterparty_buyer": "구매자",
+      "price": "거래가격:",
+      "btn_write_review": "후기 남기기",
+      "btn_edit_review": "수정",
+      "review_written": "후기 작성 완료",
+      "review_expired": "후기 기간 종료",
+      "empty_title": "아직 완료된 거래가 없습니다",
+      "empty_desc": "중고마켓에서 마음에 드는 책을 찾아보세요.",
+      "btn_browse_market": "중고마켓 둘러보기",
+      "error_title": "거래 내역을 불러오지 못했습니다",
+      "error_desc": "네트워크 연결을 확인한 후 다시 시도해주세요.",
+      "btn_retry": "다시 시도"
     }
   }
 }

@@ -1,10 +1,15 @@
 "use client";
 
-import { Order, OrderStatus } from "@bookjeok/core";
+import {
+  Order,
+  OrderStatus,
+  TradeCompletionMethod,
+} from "@bookjeok/core";
 import {
   useCancelOrderMutation,
   useCancelSelectionMutation,
   useConfirmPurchaseMutation,
+  useMyTradeReviewEligibilityQuery,
 } from "@bookjeok/react-query";
 import {
   AlertCircle,
@@ -23,6 +28,7 @@ import { toast } from "sonner";
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { useOpenChatRoom } from "@/features/chat/hooks/use-open-chat-room";
 import { useConfirm } from "@/features/confirm";
+import { TradeReviewModal } from "@/features/trade/components/review/trade-review-modal";
 import {
   BookIcon,
   BoxIcon,
@@ -50,7 +56,6 @@ import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 import { DisputeModal } from "../modals/dispute-modal";
 import { ShippingFormModal } from "../modals/shipping-form-modal";
-import { TradeReviewModal } from "../modals/trade-review-modal";
 import { OrderStatusTimeline } from "./order-status-timeline";
 
 interface OrderDetailCardProps {
@@ -67,6 +72,13 @@ export const OrderDetailCard = ({ order }: OrderDetailCardProps) => {
   const [isShippingModalOpen, setIsShippingModalOpen] = useState(false);
   const [isDisputeModalOpen, setIsDisputeModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+
+  // 후기는 주문이 아니라 거래 완료 기록에 붙으므로, 작성 여부도 거기서 읽는다.
+  const { data: reviewEligibility } = useMyTradeReviewEligibilityQuery(
+    order.completionId ?? undefined,
+    { enabled: Boolean(order.completionId) },
+  );
+  const hasWrittenReview = Boolean(reviewEligibility?.myReview);
   const [hasCopiedTracking, setHasCopiedTracking] = useState(false);
   const [timeLeft, setTimeLeft] = useState<string | null>(null);
 
@@ -547,7 +559,7 @@ export const OrderDetailCard = ({ order }: OrderDetailCardProps) => {
 
             {/* 구매자: 구매확정 완료 -> 거래 후기 작성 / 작성 완료 표시 */}
             {isBuyer && order.status === OrderStatus.CONFIRMED && (
-              !order.tradeReview ? (
+              !hasWrittenReview ? (
                 <Button
                   size="lg"
                   className="w-full font-bold h-11 rounded-xl bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs cursor-pointer"
@@ -611,12 +623,16 @@ export const OrderDetailCard = ({ order }: OrderDetailCardProps) => {
       />
 
       {/* 거래 후기 작성 모달 */}
-      <TradeReviewModal
-        orderId={order.id}
-        targetUserNickname={order.seller?.nickname}
-        open={isReviewModalOpen}
-        onOpenChange={setIsReviewModalOpen}
-      />
+      {order.completionId && (
+        <TradeReviewModal
+          completionId={order.completionId}
+          targetRole="SELLER"
+          method={TradeCompletionMethod.DELIVERY}
+          targetUserNickname={order.seller?.nickname}
+          open={isReviewModalOpen}
+          onOpenChange={setIsReviewModalOpen}
+        />
+      )}
     </div>
   );
 };

@@ -7,6 +7,7 @@ import {
   Calendar,
   CalendarDays,
   CheckCircle2,
+  Handshake,
   Heart,
   Loader2,
   Mail,
@@ -73,6 +74,14 @@ export const MyPageView = () => {
       label: t("menu.sales.label"),
       description: t("menu.sales.desc"),
       href: PATHS.MY_PAGE_SALES,
+    },
+    // 직거래는 주문 기록이 없어 구매내역에 잡히지 않으므로
+    // 결제 봉인 여부와 무관하게 항상 노출한다.
+    {
+      icon: Handshake,
+      label: t("menu.trades.label"),
+      description: t("menu.trades.desc"),
+      href: PATHS.MY_PAGE_TRADES,
     },
     {
       icon: BookOpen,

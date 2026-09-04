@@ -162,7 +162,9 @@
       "read_all_success": "Marked all notifications as read.",
       "delete_success": "Notification deleted."
     },
-    "delete": "Delete"
+    "delete": "Delete",
+    "trade_reserved": "{actorName} picked you as the trading partner.",
+    "trade_completed": "Your trade with {actorName} is complete. Leave a review."
   },
   "auth": {
     "login": {
@@ -866,6 +868,14 @@
           "title": "Sales Orders",
           "description": "Manage orders and shipping for your book sales."
         }
+      },
+      "trades": {
+        "label": "Trade history",
+        "desc": "Completed trades and reviews",
+        "metadata": {
+          "title": "Trade history",
+          "description": "Your completed used-book trades and reviews."
+        }
       }
     },
     "profile": {
@@ -1236,7 +1246,8 @@
       "BOTH": "Both Direct & Delivery",
       "DIRECT_ONLY_desc": "Trade in person",
       "DELIVERY_ONLY_desc": "Secure payment and parcel delivery",
-      "BOTH_desc": "Both direct and delivery trades available"
+      "BOTH_desc": "Both direct and delivery trades available",
+      "delivery_preparing": "Delivery trade is coming soon"
     },
     "history": {
       "title": "My Used Book Sales",
@@ -1268,7 +1279,16 @@
       "stage3_create": "Step 3: Creating post and saving to DB",
       "stage4": "Step 4: Completed! Redirecting shortly."
     },
-    "won": "₩"
+    "won": "₩",
+    "complete_trade": {
+      "title": "Who did you trade with?",
+      "description": "Pick your trading partner so both of you can leave a review.",
+      "no_candidates": "Nobody has chatted about this listing.",
+      "skip": "Mark sold without picking",
+      "confirm": "Mark complete",
+      "success": "Marked as sold.",
+      "success_with_review": "Trade completed. You can leave a review now."
+    }
   },
   "error_pages": {
     "not_found": {
@@ -1521,7 +1541,16 @@
         "btn_view_order": "Order Details",
         "btn_confirm_purchase": "Confirm Purchase",
         "btn_write_review": "Write Review",
-        "carrier_tracking": "{carrier} {trackingNumber}"
+        "carrier_tracking": "{carrier} {trackingNumber}",
+        "direct_seller_prompt": "Trade with this buyer?",
+        "direct_reserved_seller": "Reserved for this buyer. Mark it complete once the trade is done.",
+        "direct_reserved_buyer": "The seller picked you as the trading partner.",
+        "direct_completed": "Trade completed. Leave each other a review.",
+        "btn_reserve_buyer": "Pick this buyer",
+        "btn_cancel_reservation": "Cancel reservation",
+        "btn_complete_trade": "Mark complete",
+        "direct_badge": "In person",
+        "sold_hint": "This listing is sold."
       },
       "message_card": {
         "title": {
@@ -1536,6 +1565,20 @@
         "btn_pay_now": "Proceed to Payment",
         "btn_view_detail": "View Order Details",
         "order_closed_toast": "This trade has already been cancelled or completed."
+      },
+      "direct_trade_dialog": {
+        "reserve_title": "Pick this buyer as your trading partner?",
+        "reserve_desc": "The listing becomes reserved, and other interested buyers will see that a trade is in progress.",
+        "reserve_confirm": "Pick buyer",
+        "reserve_success": "Trading partner selected.",
+        "cancel_title": "Cancel the reservation?",
+        "cancel_desc": "The listing goes back on sale.",
+        "cancel_confirm": "Cancel reservation",
+        "cancel_success": "Reservation cancelled.",
+        "complete_title": "Mark this trade complete?",
+        "complete_desc": "The listing becomes sold. Both sides can leave a trade review afterwards.",
+        "complete_confirm": "Mark complete",
+        "complete_success": "Trade completed."
       }
     },
     "image": {
@@ -1746,15 +1789,21 @@
       "positive_tags_title": "What went well?",
       "negative_tags_title": "What could be improved?",
       "tags": {
-        "GOOD_CONDITION": "Condition matches description",
-        "FAST_RESPONSE": "Fast communication",
-        "FAST_SHIPPING": "Fast shipping",
-        "METICULOUS_PACKAGING": "Careful packaging",
-        "KIND_MANNER": "Kind & friendly manner",
-        "BAD_CONDITION": "Condition differs from description",
-        "SLOW_RESPONSE": "Slow response",
-        "LATE_SHIPPING": "Late shipping",
-        "POOR_PACKAGING": "Poor packaging"
+        "KIND_MANNER": "Kind and courteous",
+        "FAST_RESPONSE": "Responds quickly",
+        "ON_TIME": "Keeps appointments",
+        "RUDE_MANNER": "Discourteous",
+        "SLOW_RESPONSE": "Slow to respond",
+        "BROKE_PROMISE": "Did not keep the appointment",
+        "GOOD_CONDITION": "Book matched the description",
+        "BAD_CONDITION": "Book did not match the description",
+        "FAST_SHIPPING": "Shipped quickly",
+        "METICULOUS_PACKAGING": "Carefully packaged",
+        "LATE_SHIPPING": "Shipped late",
+        "POOR_PACKAGING": "Poorly packaged",
+        "SMOOTH_TRADE": "Smooth trade",
+        "EXCESSIVE_HAGGLING": "Haggled excessively",
+        "NO_SHOW": "Did not show up"
       },
       "content_label": "Detailed Review (Optional)",
       "content_placeholder": "Share any additional thoughts about your experience or book condition (up to 500 characters).",
@@ -1772,7 +1821,9 @@
         "total_reviews": "{count} Total Reviews",
         "no_reviews": "No trade reviews yet.",
         "tag_summary_title": "Feedback Summary",
-        "badge_trust": "{count} trades · {rate}% positive"
+        "badge_trust": "{count} trades · {rate}% positive",
+        "badge_trust_direct": "{count} in-person trades · {rate}% positive",
+        "badge_trust_split": "{direct} in-person · {delivery} escrow · {rate}% positive"
       },
       "list": {
         "title": "Trade Reviews",
@@ -1780,7 +1831,39 @@
         "tab_trade_reviews": "Trade Reviews ({count})",
         "empty_title": "No trade reviews yet",
         "empty_desc": "This user has not received any trade reviews yet."
-      }
+      },
+      "modal_title_edit": "Edit your review",
+      "modal_desc_edit": "You can edit your review within 14 days of the trade.",
+      "submit_edit": "Save changes",
+      "update_success": "Review updated."
+    }
+  },
+  "trade": {
+    "history": {
+      "title": "Trade history",
+      "subtitle": "See your in-person and escrow trades in one place, and leave reviews.",
+      "tabs": {
+        "all": "All",
+        "bought": "Bought",
+        "sold": "Sold"
+      },
+      "method_direct": "In person",
+      "method_delivery": "Escrow",
+      "role_buyer": "Buyer",
+      "role_seller": "Seller",
+      "counterparty_seller": "Seller",
+      "counterparty_buyer": "Buyer",
+      "price": "Price:",
+      "btn_write_review": "Leave a review",
+      "btn_edit_review": "Edit",
+      "review_written": "Review submitted",
+      "review_expired": "Review window closed",
+      "empty_title": "No completed trades yet",
+      "empty_desc": "Find a book you like in the marketplace.",
+      "btn_browse_market": "Browse marketplace",
+      "error_title": "Could not load your trade history",
+      "error_desc": "Check your connection and try again.",
+      "btn_retry": "Retry"
     }
   }
 }
