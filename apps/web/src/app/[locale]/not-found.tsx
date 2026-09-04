@@ -1,7 +1,7 @@
-import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Logo } from "@/layouts/common/logo";
+import { ArrowLeft } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";

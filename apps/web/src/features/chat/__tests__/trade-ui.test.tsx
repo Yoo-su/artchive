@@ -135,9 +135,7 @@ describe("Phase 7 - Trade UI Components", () => {
 
     it("BOTH 거래방식을 올바르게 표시한다", () => {
       render(<TradeMethodBadge tradeMethod={TradeMethod.BOTH} />);
-      expect(
-        screen.getByText("market.trade_method.BOTH"),
-      ).toBeInTheDocument();
+      expect(screen.getByText("market.trade_method.BOTH")).toBeInTheDocument();
     });
   });
 
@@ -158,7 +156,11 @@ describe("Phase 7 - Trade UI Components", () => {
       // 분기(CANCELLED)로 떨어져 "주문 취소"로 보인다.
       renderWithQuery(
         <TradeMessageCard
-          message={tradeMessage({ saleId: 1, completionId: 3, tradeStatus: "COMPLETED" })}
+          message={tradeMessage({
+            saleId: 1,
+            completionId: 3,
+            tradeStatus: "COMPLETED",
+          })}
           currentUserId={mockBuyer.id}
         />,
       );
@@ -182,6 +184,25 @@ describe("Phase 7 - Trade UI Components", () => {
       expect(
         screen.getByText("chat.trade.message_card.trade_title.RESERVED"),
       ).toBeInTheDocument();
+    });
+
+    it("판매완료 안내도 전용 라벨로 표시한다", () => {
+      // 상대를 지정하지 않고 완료했을 때 다른 채팅방에 나가는 안내다.
+      renderWithQuery(
+        <TradeMessageCard
+          message={tradeMessage({ saleId: 1, tradeStatus: "SOLD" })}
+          currentUserId={mockBuyer.id}
+        />,
+      );
+
+      expect(
+        screen.getByText("chat.trade.message_card.trade_title.SOLD"),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText(
+          "chat.trade.message_card.trade_title.BACK_ON_MARKET",
+        ),
+      ).not.toBeInTheDocument();
     });
 
     it("AWAITING_PAYMENT 카드에 결제 요청 정보와 링크가 포함된다", () => {

@@ -4,12 +4,12 @@ import { BookInfo } from "@bookjeok/core";
 import { useInfiniteBookSearch } from "@bookjeok/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import debounce from "lodash/debounce";
-import { Loader2, Search } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { useInView } from "react-intersection-observer";
 
+import { Loader2, Search } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,
@@ -139,9 +139,7 @@ export const BookSearchModal = ({
                 className="text-center py-20 text-destructive"
               >
                 <p className="font-medium">{t("error_title")}</p>
-                <p className="text-sm opacity-80 mt-1">
-                  {t("error_desc")}
-                </p>
+                <p className="text-sm opacity-80 mt-1">{t("error_desc")}</p>
               </motion.div>
             ) : !debouncedQuery ? (
               <motion.div

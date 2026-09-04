@@ -5,7 +5,11 @@
 // 프리패치를 수행하는 이 파일에서 직접 임포트해 렌더 방식과 무관하게 보장
 import "@/shared/libs/axios";
 
-import { dehydrate, HydrationBoundary, QueryFunction } from "@tanstack/react-query";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryFunction,
+} from "@tanstack/react-query";
 import { ReactNode } from "react";
 
 import { getQueryClient } from "@/shared/libs/query-client";

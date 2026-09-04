@@ -1,7 +1,6 @@
 "use client";
 
 import { ActivityTrendStat } from "@bookjeok/core";
-import { TrendingUp } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo } from "react";
@@ -11,6 +10,7 @@ import {
   InsightCard,
 } from "@/features/insights/components/common/insight-card";
 import { TREND_COLORS } from "@/features/insights/constants/ui";
+import { TrendingUp } from "@/shared/components/icons/iconsax";
 import { formatDate } from "@/shared/utils/format-date";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -62,7 +62,9 @@ export const ActivityTrendChart = ({ data }: ActivityTrendChartProps) => {
         enabled: false,
       },
       xaxis: {
-        categories: data.map((item) => formatDate(item.date, locale, "monthDay")),
+        categories: data.map((item) =>
+          formatDate(item.date, locale, "monthDay"),
+        ),
         labels: {
           style: {
             colors: "#6b7280",

@@ -81,6 +81,8 @@ describe("EmailVerificationAlert", () => {
     render(<EmailVerificationAlert />);
     expect(screen.getByText("이메일 인증이 필요합니다")).toBeInTheDocument();
     expect(screen.getByText(/unverified@example.com/)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /인증 메일 발송/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /인증 메일 발송/i }),
+    ).toBeInTheDocument();
   });
 });

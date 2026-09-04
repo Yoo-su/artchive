@@ -2,16 +2,6 @@
 
 import { Order, OrderStatus } from "@bookjeok/core";
 import { useCancelSelectionMutation } from "@bookjeok/react-query";
-import {
-  AlertCircle,
-  CheckCircle2,
-  ChevronRight,
-  MapPin,
-  MessageSquare,
-  RotateCcw,
-  User,
-  XCircle,
-} from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import React, { useState } from "react";
@@ -25,6 +15,16 @@ import {
   ClockIcon,
   TruckFastIcon,
 } from "@/shared/components/icons";
+import {
+  AlertCircle,
+  CheckCircle2,
+  ChevronRight,
+  MapPin,
+  MessageSquare,
+  RotateCcw,
+  User,
+  XCircle,
+} from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
@@ -62,7 +62,8 @@ export const SalesOrderCard = ({ order }: SalesOrderCardProps) => {
 
     const isConfirmed = await confirm({
       title: "구매자 지정 취소",
-      description: "구매자 지정을 취소하시겠습니까? 판매글이 다시 판매중 상태로 변경됩니다.",
+      description:
+        "구매자 지정을 취소하시겠습니까? 판매글이 다시 판매중 상태로 변경됩니다.",
       confirmText: "지정 취소",
       variant: "destructive",
     });
@@ -104,14 +105,20 @@ export const SalesOrderCard = ({ order }: SalesOrderCardProps) => {
         );
       case OrderStatus.CONFIRMED:
         return (
-          <Badge variant="outline" className="border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-200 gap-1 text-[11px] font-medium">
+          <Badge
+            variant="outline"
+            className="border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-200 gap-1 text-[11px] font-medium"
+          >
             <CheckCircle2 className="h-3 w-3 text-emerald-600" />
             거래 완료
           </Badge>
         );
       case OrderStatus.DISPUTED:
         return (
-          <Badge variant="outline" className="border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 gap-1 text-[11px] font-medium">
+          <Badge
+            variant="outline"
+            className="border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 gap-1 text-[11px] font-medium"
+          >
             <AlertCircle className="h-3 w-3 text-stone-500" />
             분쟁 중
           </Badge>
@@ -119,7 +126,10 @@ export const SalesOrderCard = ({ order }: SalesOrderCardProps) => {
       case OrderStatus.CANCELLED:
       default:
         return (
-          <Badge variant="secondary" className="gap-1 text-[11px] text-stone-400 bg-stone-100 dark:bg-stone-800 font-medium">
+          <Badge
+            variant="secondary"
+            className="gap-1 text-[11px] text-stone-400 bg-stone-100 dark:bg-stone-800 font-medium"
+          >
             <XCircle className="h-3 w-3" />
             취소됨
           </Badge>
@@ -208,7 +218,8 @@ export const SalesOrderCard = ({ order }: SalesOrderCardProps) => {
                 <div className="flex items-center gap-1 text-[11px] text-stone-500 pt-0.5 line-clamp-1">
                   <MapPin className="h-3 w-3 text-stone-400 shrink-0" />
                   <span className="truncate">
-                    {order.recipientName} · {order.address} {order.addressDetail || ""}
+                    {order.recipientName} · {order.address}{" "}
+                    {order.addressDetail || ""}
                   </span>
                 </div>
               )}
@@ -280,7 +291,12 @@ export const SalesOrderCard = ({ order }: SalesOrderCardProps) => {
               )}
 
               {/* 주문 상세 이동 */}
-              <Button asChild variant="ghost" size="sm" className="h-8 text-xs px-2.5 text-stone-500 hover:text-stone-900 dark:hover:text-stone-100">
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="h-8 text-xs px-2.5 text-stone-500 hover:text-stone-900 dark:hover:text-stone-100"
+              >
                 <Link href={PATHS.ORDER_DETAIL(order.id)}>
                   {t("view_detail")}
                   <ChevronRight className="h-3.5 w-3.5 ml-0.5" />

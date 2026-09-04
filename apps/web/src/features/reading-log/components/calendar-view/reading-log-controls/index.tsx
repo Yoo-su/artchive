@@ -2,9 +2,9 @@
 
 import { setMonth, setYear } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { ChevronLeft, ChevronRight } from "@/shared/components/icons/iconsax";
 import {
   Select,
   SelectContent,

@@ -1,11 +1,11 @@
 "use client";
 
 import { useUserProfileQuery } from "@bookjeok/react-query";
-import { BookOpen, LogIn, PenLine } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { saveReturnUrl } from "@/features/auth/utils/return-url";
+import { BookOpen, LogIn, PenLine } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Link, usePathname } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";

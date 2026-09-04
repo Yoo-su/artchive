@@ -53,7 +53,11 @@ export function ReadingLogCalendar({
   const theme = useSeasonalTheme(currentDate);
 
   // 인접한 월 데이터 prefetch - readOnly가 아닐 때만
-  useReadingLogPrefetch(currentDate.getFullYear(), currentDate.getMonth() + 1, !readOnly);
+  useReadingLogPrefetch(
+    currentDate.getFullYear(),
+    currentDate.getMonth() + 1,
+    !readOnly,
+  );
 
   // API 호출 - 캘린더 모드일 때만 월별 기록 조회
   const {
@@ -62,7 +66,7 @@ export function ReadingLogCalendar({
     isFetching: isMonthlyFetching,
   } = useReadingLogsQuery(
     { year: currentDate.getFullYear(), month: currentDate.getMonth() + 1 },
-    { enabled: viewMode === "calendar" && !readOnly }
+    { enabled: viewMode === "calendar" && !readOnly },
   );
 
   const logs: ReadingLog[] = readOnly ? initialLogs : fetchedMonthlyLogs;

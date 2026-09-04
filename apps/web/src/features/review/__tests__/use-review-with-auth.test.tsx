@@ -55,10 +55,7 @@ describe("useReviewWithAuth", () => {
     useAuthStore.getState().clearAuth();
 
     // 서버(ServerQueryBoundary)가 하이드레이트해 넣는 경로를 재현
-    queryClient.setQueryData(
-      reviewKeys.detail(10).queryKey,
-      mockPrivateReview,
-    );
+    queryClient.setQueryData(reviewKeys.detail(10).queryKey, mockPrivateReview);
   });
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (

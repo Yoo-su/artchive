@@ -25,6 +25,26 @@ const eslintConfig = tseslint.config(
     },
   },
   ...sharedConfig,
+  // 3. 아이콘은 iconsax 세트만 사용한다.
+  //    components.json의 iconLibrary가 "lucide"라 shadcn CLI로 컴포넌트를 추가하면
+  //    lucide-react import가 다시 생성되는데, 여기서 잡아 되돌아오는 것을 막는다.
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "lucide-react",
+              message:
+                "아이콘은 @/shared/components/icons/iconsax를 사용하세요. 필요한 아이콘이 없으면 scripts/iconsax/mapping.mjs에 추가하고 pnpm --filter @bookjeok/web icons:gen을 실행하세요.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 );
 
 export default eslintConfig;

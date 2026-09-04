@@ -9,8 +9,6 @@ export interface ChatMessage {
   statusMessage?: string;
 }
 
-
-
 export const CHAT_STORAGE_KEY = "bookjeok_ai_chat_history";
 
 export const INITIAL_WELCOME_MESSAGE: ChatMessage = {

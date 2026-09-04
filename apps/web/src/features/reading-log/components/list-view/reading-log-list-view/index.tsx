@@ -3,12 +3,12 @@
 import { ReadingLog } from "@bookjeok/core";
 import { useReadingLogsInfiniteQuery } from "@bookjeok/react-query";
 import { format, parseISO } from "date-fns";
-import { BookOpen } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 
+import { BookOpen } from "@/shared/components/icons/iconsax";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { cn } from "@/shared/utils";
 import { getDateLocale } from "@/shared/utils/format-date";

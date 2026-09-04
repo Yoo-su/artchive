@@ -38,9 +38,7 @@ export const RecommendReviews = ({ id, category }: RecommendReviewsProps) => {
         ref={ref}
         className="w-full py-12 border-t border-stone-100 mt-12"
       >
-        <div className="text-center text-red-500 py-8">
-          {t("error")}
-        </div>
+        <div className="text-center text-red-500 py-8">{t("error")}</div>
       </section>
     );
   }
@@ -53,12 +51,8 @@ export const RecommendReviews = ({ id, category }: RecommendReviewsProps) => {
       >
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-xl font-bold text-stone-800">
-              {t("title")}
-            </h2>
-            <p className="text-sm text-stone-500 mt-1">
-              {t("subtitle")}
-            </p>
+            <h2 className="text-xl font-bold text-stone-800">{t("title")}</h2>
+            <p className="text-sm text-stone-500 mt-1">{t("subtitle")}</p>
           </div>
         </div>
         <div className="text-center py-12 bg-stone-50 rounded-xl text-stone-500">
@@ -72,12 +66,8 @@ export const RecommendReviews = ({ id, category }: RecommendReviewsProps) => {
     <section ref={ref} className="w-full py-12 border-t border-stone-100 mt-12">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold text-stone-800">
-            {t("title")}
-          </h2>
-          <p className="text-sm text-stone-500 mt-1">
-            {t("subtitle")}
-          </p>
+          <h2 className="text-xl font-bold text-stone-800">{t("title")}</h2>
+          <p className="text-sm text-stone-500 mt-1">{t("subtitle")}</p>
         </div>
       </div>
 

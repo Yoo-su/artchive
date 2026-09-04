@@ -116,6 +116,14 @@ export class UsedBookSaleService {
     }
 
     sale.status = status;
+
+    // 예약중을 벗어나면 거래 상대 지정도 함께 풀어야 한다. 남겨두면 판매중인
+    // 글인데도 다른 채팅방에 "다른 구매자와 거래 중" 안내가 계속 뜬다.
+    // (화면은 예약 취소 API로 우회하지만, 이 엔드포인트를 직접 부를 수 있다)
+    if (status !== SaleStatus.RESERVED) {
+      sale.reservedForUserId = null;
+    }
+
     sale.updatedAt = new Date();
     return await this.usedBookSaleRepository.save(sale);
   }
@@ -433,6 +441,16 @@ export class UsedBookSaleService {
     if (await this.hasActiveOrder(saleId)) {
       throw new BusinessException(
         'SALE_IN_TRADE_CANNOT_UPDATE',
+        HttpStatus.CONFLICT,
+      );
+    }
+
+    // 거래 기록이 있는 판매글은 수정도 막는다. 후기는 이 판매글에 매달려
+    // 있어서, 나쁜 후기를 받은 글의 내용을 바꿔치기하면 삭제를 막아둔 것과
+    // 같은 평판 세탁이 된다. (화면도 수정 버튼을 잠그지만 API는 직접 호출된다)
+    if (await this.hasTradeCompletion(saleId)) {
+      throw new BusinessException(
+        'SALE_COMPLETED_CANNOT_UPDATE',
         HttpStatus.CONFLICT,
       );
     }

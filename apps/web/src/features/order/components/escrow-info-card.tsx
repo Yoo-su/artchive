@@ -1,9 +1,9 @@
 "use client";
 
-import { CheckCircle2, Lock } from "lucide-react";
 import React from "react";
 
 import { BoxIcon, TruckFastIcon } from "@/shared/components/icons";
+import { CheckCircle2, Lock } from "@/shared/components/icons/iconsax";
 
 export const EscrowInfoCard = () => {
   const steps = [

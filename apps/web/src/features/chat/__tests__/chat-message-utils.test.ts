@@ -36,7 +36,9 @@ describe("flattenChatMessages", () => {
       { messages: [message(-100), message(5)] },
     ];
 
-    expect(flattenChatMessages(pages).map((m) => m.id)).toEqual([1, 2, 5, -100]);
+    expect(flattenChatMessages(pages).map((m) => m.id)).toEqual([
+      1, 2, 5, -100,
+    ]);
   });
 
   it("데이터가 없으면 빈 배열을 준다", () => {
@@ -53,17 +55,17 @@ describe("splitTextWithLinks", () => {
   });
 
   it("문장 속 URL을 링크 조각으로 나눈다", () => {
-    expect(splitTextWithLinks("여기 보세요 https://bookjeok.com/a 좋죠?")).toEqual(
-      [
-        { type: "text", value: "여기 보세요 " },
-        {
-          type: "link",
-          value: "https://bookjeok.com/a",
-          href: "https://bookjeok.com/a",
-        },
-        { type: "text", value: " 좋죠?" },
-      ],
-    );
+    expect(
+      splitTextWithLinks("여기 보세요 https://bookjeok.com/a 좋죠?"),
+    ).toEqual([
+      { type: "text", value: "여기 보세요 " },
+      {
+        type: "link",
+        value: "https://bookjeok.com/a",
+        href: "https://bookjeok.com/a",
+      },
+      { type: "text", value: " 좋죠?" },
+    ]);
   });
 
   it("www로 시작하면 https를 붙여 연결한다", () => {

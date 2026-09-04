@@ -1,5 +1,4 @@
 import { MAX_CHAT_IMAGES } from "@bookjeok/core";
-import { ImagePlus, Loader2, X } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
@@ -12,6 +11,7 @@ import {
 } from "react";
 
 import { AnimatedSend } from "@/shared/components/icons/animated";
+import { ImagePlus, Loader2, X } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Textarea } from "@/shared/components/shadcn/textarea";
 
@@ -81,7 +81,8 @@ export const ChatInput = ({
     const element = textareaRef.current;
     if (!element) return;
 
-    const { borderTopWidth, borderBottomWidth } = window.getComputedStyle(element);
+    const { borderTopWidth, borderBottomWidth } =
+      window.getComputedStyle(element);
     const borderHeight =
       (parseFloat(borderTopWidth) || 0) + (parseFloat(borderBottomWidth) || 0);
 
@@ -162,7 +163,9 @@ export const ChatInput = ({
                   type="button"
                   onClick={() => removeImage(index)}
                   disabled={isUploading}
-                  aria-label={tCommon("aria.delete_image", { index: index + 1 })}
+                  aria-label={tCommon("aria.delete_image", {
+                    index: index + 1,
+                  })}
                   className="absolute -right-1.5 -top-1.5 rounded-full bg-stone-800 p-0.5 text-white shadow-sm transition-colors hover:bg-stone-900 disabled:opacity-50"
                 >
                   <X className="h-3 w-3" aria-hidden="true" />

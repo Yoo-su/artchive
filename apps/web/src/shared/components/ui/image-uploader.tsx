@@ -1,10 +1,10 @@
 "use client";
 
-import { ImagePlus, X } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { ChangeEvent, useRef } from "react";
 
+import { ImagePlus, X } from "@/shared/components/icons/iconsax";
 import { Input } from "@/shared/components/shadcn/input";
 import { cn } from "@/shared/utils/cn";
 
@@ -123,7 +123,10 @@ export const ImageUploader = ({
             onKeyDown={handleKeyDown}
             className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed rounded-lg cursor-pointer border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-500 focus-visible:ring-offset-2"
           >
-            <ImagePlus className="w-8 h-8 text-gray-400 mb-1" aria-hidden="true" />
+            <ImagePlus
+              className="w-8 h-8 text-gray-400 mb-1"
+              aria-hidden="true"
+            />
             <span className="text-xs text-gray-500 font-medium">
               {t("image.add")}
             </span>

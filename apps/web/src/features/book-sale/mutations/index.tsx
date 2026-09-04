@@ -41,7 +41,9 @@ interface CreateSaleVariables {
 /**
  * 이미지 업로드 전 만료된 AccessToken을 미리 Refresh하는 헬퍼 함수
  */
-const ensureFreshAuthToken = async (loginRequiredMsg = "로그인이 필요한 서비스입니다.") => {
+const ensureFreshAuthToken = async (
+  loginRequiredMsg = "로그인이 필요한 서비스입니다.",
+) => {
   await privateApiClient.get(API_PATHS.user.profile);
   const authState = useAuthStore.getState();
   if (!authState.user || !authState.accessToken) {
@@ -92,7 +94,10 @@ export const useCreateBookSaleMutation = () => {
       {
         onCompressProgress: () => onProgressState?.("compressing", 20),
         onProgress: (percent) =>
-          onProgressState?.("uploading", Math.min(85, 25 + Math.round(percent * 0.6))),
+          onProgressState?.(
+            "uploading",
+            Math.min(85, 25 + Math.round(percent * 0.6)),
+          ),
       },
     );
 
@@ -196,7 +201,10 @@ export const useUpdateBookSaleMutation = () => {
         accessToken,
         {
           onProgress: (p) =>
-            onProgressState?.("uploading", Math.min(85, 30 + Math.round(p * 0.55))),
+            onProgressState?.(
+              "uploading",
+              Math.min(85, 30 + Math.round(p * 0.55)),
+            ),
         },
       );
     }
@@ -253,8 +261,9 @@ export const useDeleteBookSaleMutation = () => {
       }
       return sharedMutation.mutate(saleId, {
         onSuccess: async () => {
-          await purgeRouteCache(revalidateBookSale({ saleId, deleted: true }), () =>
-            router.refresh(),
+          await purgeRouteCache(
+            revalidateBookSale({ saleId, deleted: true }),
+            () => router.refresh(),
           );
           if (
             typeof window !== "undefined" &&
@@ -276,8 +285,9 @@ export const useDeleteBookSaleMutation = () => {
         await deleteImages(imageUrls);
       }
       return sharedMutation.mutateAsync(saleId).then(async (res: void) => {
-        await purgeRouteCache(revalidateBookSale({ saleId, deleted: true }), () =>
-          router.refresh(),
+        await purgeRouteCache(
+          revalidateBookSale({ saleId, deleted: true }),
+          () => router.refresh(),
         );
         if (
           typeof window !== "undefined" &&

@@ -9,9 +9,9 @@ const mockBook: BookInfo = {
   title: "데미안",
   author: "헤르만 헤세",
   publisher: "민음사",
-  description:
-    "헤르만 헤세의 대표작 데미안. 자아를 찾아가는 성장 소설의 꽃.",
-  image: "https://shopping-phinf.pstatic.net/main_3249079/32490791688.20221019151415.jpg",
+  description: "헤르만 헤세의 대표작 데미안. 자아를 찾아가는 성장 소설의 꽃.",
+  image:
+    "https://shopping-phinf.pstatic.net/main_3249079/32490791688.20221019151415.jpg",
   link: "https://book.naver.com/bookdb/book_detail.nhn?bid=1234",
   discount: "7200",
   pubdate: "20000101",

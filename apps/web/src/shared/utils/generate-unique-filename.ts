@@ -24,7 +24,7 @@ function getFileExtension(filename: string): string {
  */
 export function generateUniqueFilename(
   originalFilename: string,
-  overrideExtension?: string
+  overrideExtension?: string,
 ): string {
   const timestamp = Date.now();
   const uuid = crypto.randomUUID();

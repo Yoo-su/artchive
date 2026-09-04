@@ -1,9 +1,9 @@
 "use client";
 
-import { Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 import React from "react";
 
+import { Star } from "@/shared/components/icons/iconsax";
 import { cn } from "@/shared/utils";
 
 interface StarRatingProps {
@@ -28,7 +28,7 @@ export const StarRating = ({
 
   const handleMouseMove = (
     e: React.MouseEvent<HTMLDivElement>,
-    index: number
+    index: number,
   ) => {
     if (readonly || disabled) return;
 
@@ -80,7 +80,7 @@ export const StarRating = ({
       className={cn(
         "flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded-md p-1 -m-1",
         disabled && "opacity-50 cursor-not-allowed",
-        className
+        className,
       )}
       onMouseLeave={() => setHoverValue(null)}
     >
@@ -94,25 +94,25 @@ export const StarRating = ({
             className={cn(
               "relative transition-transform hover:scale-110",
               (readonly || disabled) && "cursor-default hover:scale-100",
-              !readonly && !disabled && "cursor-pointer"
+              !readonly && !disabled && "cursor-pointer",
             )}
             style={{ width: size, height: size }}
             onMouseMove={(e) => handleMouseMove(e, i)}
             onClick={handleClick}
           >
             <Star
+              variant={filled ? "bold" : "outline"}
               className={cn(
                 "absolute top-0 left-0 w-full h-full text-stone-200 transition-colors",
-                filled && "text-amber-400 fill-amber-400 drop-shadow-sm"
+                filled && "text-amber-400 drop-shadow-sm",
               )}
-              strokeWidth={1.5}
               aria-hidden="true"
             />
             {half && (
               <div className="absolute top-0 left-0 w-1/2 h-full overflow-hidden">
                 <Star
-                  className="w-full h-full text-amber-400 fill-amber-400 drop-shadow-sm"
-                  strokeWidth={1.5}
+                  variant="bold"
+                  className="w-full h-full text-amber-400 drop-shadow-sm"
                   style={{ width: size, height: size }}
                   aria-hidden="true"
                 />

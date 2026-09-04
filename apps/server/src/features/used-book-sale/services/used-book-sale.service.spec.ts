@@ -247,4 +247,69 @@ describe('UsedBookSaleService', () => {
       expect(result.status).toBe(SaleStatus.FOR_SALE);
     });
   });
+
+  describe('updateSaleStatus - 예약 상대 정리', () => {
+    const seller = { id: 1 };
+
+    beforeEach(() => {
+      mockOrderRepository.findOne.mockResolvedValue(null);
+      mockTradeCompletionRepository.findOne.mockResolvedValue(null);
+      mockUsedBookSaleRepository.save.mockImplementation((v: unknown) => v);
+    });
+
+    it('예약중을 벗어나면 거래 상대 지정도 함께 풀린다', async () => {
+      // 남겨두면 판매중인 글인데도 다른 채팅방에 "다른 구매자와 거래 중"
+      // 안내가 계속 뜬다.
+      mockUsedBookSaleRepository.findOne.mockResolvedValue({
+        id: 100,
+        status: SaleStatus.RESERVED,
+        reservedForUserId: 42,
+        user: seller,
+      } as never);
+
+      const result = await service.updateSaleStatus(
+        100,
+        seller.id,
+        SaleStatus.FOR_SALE,
+      );
+
+      expect(result.status).toBe(SaleStatus.FOR_SALE);
+      expect(result.reservedForUserId).toBeNull();
+    });
+
+    it('예약중으로 두면 거래 상대 지정은 유지된다', async () => {
+      mockUsedBookSaleRepository.findOne.mockResolvedValue({
+        id: 100,
+        status: SaleStatus.RESERVED,
+        reservedForUserId: 42,
+        user: seller,
+      } as never);
+
+      const result = await service.updateSaleStatus(
+        100,
+        seller.id,
+        SaleStatus.RESERVED,
+      );
+
+      expect(result.reservedForUserId).toBe(42);
+    });
+  });
+
+  describe('updateUsedBookSale - 거래 기록 보호', () => {
+    it('거래 기록이 있는 판매글은 수정할 수 없다', async () => {
+      // 후기가 이 판매글에 매달려 있어서, 내용을 바꿔치기하면 삭제를 막아둔
+      // 것과 같은 평판 세탁이 된다.
+      mockUsedBookSaleRepository.findOne.mockResolvedValue({
+        id: 100,
+        user: { id: 1 },
+      } as never);
+      mockOrderRepository.findOne.mockResolvedValue(null);
+      mockTradeCompletionRepository.findOne.mockResolvedValue({ id: 5 });
+
+      await expect(
+        service.updateUsedBookSale(100, 1, { title: '바뀐 제목' }),
+      ).rejects.toThrow(BusinessException);
+      expect(mockUsedBookSaleRepository.save).not.toHaveBeenCalled();
+    });
+  });
 });

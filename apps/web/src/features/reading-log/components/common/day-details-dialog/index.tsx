@@ -1,13 +1,6 @@
-import { BookInfo ,  ReadingLog } from "@bookjeok/core";
+import { BookInfo, ReadingLog } from "@bookjeok/core";
 import { useReadingLogsQuery } from "@bookjeok/react-query";
 import { format } from "date-fns";
-import {
-  Calendar as CalendarIcon,
-  Pencil,
-  Plus,
-  StickyNote,
-  Trash2,
-} from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
@@ -15,6 +8,13 @@ import { toast } from "sonner";
 
 import { BookSearchModal } from "@/features/book/components/common/book-search-modal";
 import { useConfirm } from "@/features/confirm";
+import {
+  Calendar as CalendarIcon,
+  Pencil,
+  Plus,
+  StickyNote,
+  Trash2,
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Dialog,
@@ -69,9 +69,7 @@ export function DayDetailsDialog({
 
   // readOnly가 아닐 때는 TanStack Query로부터 해당 월의 실시간 기록 목록을 직접 구독
   const { data: monthlyLogs = [] } = useReadingLogsQuery(
-    date
-      ? { year: date.getFullYear(), month: date.getMonth() + 1 }
-      : undefined,
+    date ? { year: date.getFullYear(), month: date.getMonth() + 1 } : undefined,
     { enabled: !readOnly && !!date },
   );
 

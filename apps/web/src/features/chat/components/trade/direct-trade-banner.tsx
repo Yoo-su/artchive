@@ -13,7 +13,6 @@ import {
   useReserveSaleMutation,
   useTradeCompletionByRoomQuery,
 } from "@bookjeok/react-query";
-import { AlertTriangle, CheckCircle2, Handshake, RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -24,6 +23,12 @@ import { useChatStore } from "@/features/chat/stores/use-chat-store";
 import { useConfirm } from "@/features/confirm";
 import { TradeReviewModal } from "@/features/trade/components/review/trade-review-modal";
 import { ShoppingBagIcon } from "@/shared/components/icons";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Handshake,
+  RotateCcw,
+} from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 
@@ -52,8 +57,8 @@ export const DirectTradeBanner = ({
   const confirm = useConfirm();
   const authUser = useAuthStore((state) => state.user);
   const isChatOpen = useChatStore((state) => state.isChatOpen);
-  const isRoomInactive = useChatStore(
-    (state) => (room?.id ? state.isRoomInactive[room.id] || false : false),
+  const isRoomInactive = useChatStore((state) =>
+    room?.id ? state.isRoomInactive[room.id] || false : false,
   );
 
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);

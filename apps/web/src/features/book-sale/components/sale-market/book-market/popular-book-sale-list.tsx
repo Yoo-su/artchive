@@ -74,7 +74,11 @@ export function PopularBookSaleList() {
       >
         {sales.map((sale, index) => (
           <SwiperSlide key={sale.id} className="select-none">
-            <UsedBookSale.Root sale={sale} rank={index + 1} priority={index < 4}>
+            <UsedBookSale.Root
+              sale={sale}
+              rank={index + 1}
+              priority={index < 4}
+            >
               <UsedBookSale.Image />
               <UsedBookSale.Content>
                 <UsedBookSale.Title />
@@ -89,4 +93,3 @@ export function PopularBookSaleList() {
     </section>
   );
 }
-

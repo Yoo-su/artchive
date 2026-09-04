@@ -57,6 +57,23 @@ enum SaleStatus {
 
 `RESERVED` / `SOLD` 전이는 [`order`](../order/README.md) 모듈이 주문 상태에 따라 자동으로 수행합니다. 활성 주문이 있는 판매글은 사용자가 임의로 상태를 바꾸거나 삭제할 수 없습니다.
 
+`WITHDRAWN`은 회원 탈퇴 시 시스템이 판매글을 숨기려고 쓰는 값이라 사용자 입력으로는 받지 않습니다 (`UpdateSaleStatusDto`의 `USER_SETTABLE_SALE_STATUSES`).
+
+### 판매글 잠금 규칙
+
+수정·삭제·상태 변경을 막는 근거는 두 가지입니다. **화면에서만 잠그지 않고 서비스에서도 같은 규칙을 강제합니다.** (버튼이 비활성이어도 API는 직접 호출됩니다.)
+
+| 조건 | 수정 | 삭제 | 상태 변경 | 에러 |
+| --- | --- | --- | --- | --- |
+| 활성 주문 존재 | ✗ | ✗ | ✗ | `SALE_IN_TRADE_CANNOT_*` |
+| 거래 완료 기록 존재 | ✗ | ✗ (운영자 예외) | 판매완료 되돌리기만 ✗ | `SALE_COMPLETED_CANNOT_*` |
+
+거래 완료 기록이 있는 글을 잠그는 이유는 [`trade` 모듈 문서](../trade/README.md)에 있습니다. 요약하면 후기가 판매글에 CASCADE로 매달려 있어서, 글을 지우거나 내용을 바꿔치기하면 받은 후기가 사라지거나 다른 물건의 후기가 됩니다.
+
+`isbn`은 수정 입력에서 제외합니다(`UpdateBookSaleDto`). 판매글이 어떤 책인지는 등록 시점의 사실이고, 바꿀 수 있으면 후기가 달린 판매글의 책을 통째로 갈아끼울 수 있습니다.
+
+예약중을 벗어나는 상태 변경은 `reservedForUserId`도 함께 지웁니다. 남겨두면 판매중인 글인데도 다른 채팅방에 "다른 구매자와 거래 중" 안내가 계속 뜹니다.
+
 ## TradeMethod Enum
 
 ```typescript
@@ -107,6 +124,7 @@ enum TradeMethod {
 - `BookModule`: 책 정보 조회/생성 (`BookResolvePipe`)
 - `UserModule`: 작성자 정보 조회
 - `Order` 엔티티: 활성 주문 확인 (수정·삭제·상태 변경 차단 판정)
+- `TradeCompletion` 엔티티: 거래 완료 기록 확인 (같은 판정 + 판매완료 되돌리기 차단)
 
 ## 관련
 

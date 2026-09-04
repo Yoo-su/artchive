@@ -1,9 +1,9 @@
 "use client";
 
-import { Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
+import { Search, X } from "@/shared/components/icons/iconsax";
 import { Input } from "@/shared/components/shadcn/input";
 import { cn } from "@/shared/utils/cn";
 

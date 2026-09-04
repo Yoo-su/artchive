@@ -1,9 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Disc3, Pause, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+
+import { Disc3, Pause, Play } from "@/shared/components/icons/iconsax";
 
 import { useMusicStore } from "../stores/use-music-store";
 
@@ -96,9 +97,13 @@ export function HeaderMusicButton() {
               className="flex items-center justify-center"
             >
               {isPlaying ? (
-                <Pause className="h-2 w-2 fill-current" aria-hidden="true" />
+                <Pause variant="bold" className="h-2 w-2" aria-hidden="true" />
               ) : (
-                <Play className="ml-0.5 h-2 w-2 fill-current" aria-hidden="true" />
+                <Play
+                  variant="bold"
+                  className="ml-0.5 h-2 w-2"
+                  aria-hidden="true"
+                />
               )}
             </motion.span>
           </AnimatePresence>

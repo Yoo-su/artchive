@@ -14,7 +14,9 @@ interface UseBookSearchParamsProps {
  * - 검색 실행 및 검색어 로그 전송(Mutation) 관리
  * - 클라이언트 컴포넌트 간 일관성 유지
  */
-export const useBookSearchParams = ({ paramName = "q" }: UseBookSearchParamsProps = {}) => {
+export const useBookSearchParams = ({
+  paramName = "q",
+}: UseBookSearchParamsProps = {}) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

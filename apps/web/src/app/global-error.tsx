@@ -1,8 +1,12 @@
 "use client";
 
-import { AlertTriangle, Home, RefreshCw } from "lucide-react";
 import { useEffect } from "react";
 
+import {
+  AlertTriangle,
+  Home,
+  RefreshCw,
+} from "@/shared/components/icons/iconsax";
 import { config } from "@/shared/config/env";
 
 interface GlobalErrorProps {
@@ -45,7 +49,8 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
             {/* 설명 */}
             <p className="text-sm text-stone-600 leading-relaxed mb-8">
               페이지를 불러오는 도중 예기치 못한 문제가 발생했습니다.
-              <br className="hidden sm:inline" /> 아래 버튼을 눌러 다시 시도해주세요.
+              <br className="hidden sm:inline" /> 아래 버튼을 눌러 다시
+              시도해주세요.
             </p>
 
             {/* 액션 버튼 */}
@@ -82,7 +87,9 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                     {error.name}: {error.message}
                   </p>
                   {error.digest && (
-                    <p className="text-stone-400 mt-1">Digest: {error.digest}</p>
+                    <p className="text-stone-400 mt-1">
+                      Digest: {error.digest}
+                    </p>
                   )}
                   {error.stack && (
                     <p className="text-stone-500 mt-2 text-[10px]">

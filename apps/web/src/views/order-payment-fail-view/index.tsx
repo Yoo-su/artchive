@@ -1,13 +1,22 @@
 "use client";
 
-import { AlertCircle, Home, RefreshCw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import React from "react";
 
+import {
+  AlertCircle,
+  Home,
+  RefreshCw,
+} from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/shadcn/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/shadcn/card";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
@@ -42,7 +51,10 @@ export const OrderPaymentFailView = () => {
             <CardTitle className="text-xs font-bold text-stone-700 dark:text-stone-300">
               오류 정보
             </CardTitle>
-            <Badge variant="outline" className="font-mono text-[11px] border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400">
+            <Badge
+              variant="outline"
+              className="font-mono text-[11px] border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400"
+            >
               {code}
             </Badge>
           </div>
@@ -60,21 +72,34 @@ export const OrderPaymentFailView = () => {
       {/* 액션 버튼 */}
       <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
         {orderId ? (
-          <Button asChild size="lg" className="flex-1 font-bold h-12 rounded-xl bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs cursor-pointer">
+          <Button
+            asChild
+            size="lg"
+            className="flex-1 font-bold h-12 rounded-xl bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs cursor-pointer"
+          >
             <Link href={PATHS.ORDER_PAYMENT(orderId)}>
               <RefreshCw className="h-4 w-4 mr-1.5" />
               {t("btn_retry")}
             </Link>
           </Button>
         ) : (
-          <Button asChild size="lg" className="flex-1 font-bold h-12 rounded-xl bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs cursor-pointer">
+          <Button
+            asChild
+            size="lg"
+            className="flex-1 font-bold h-12 rounded-xl bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs cursor-pointer"
+          >
             <Link href={PATHS.HOME}>
               <Home className="h-4 w-4 mr-1.5" />
               {t("btn_go_home")}
             </Link>
           </Button>
         )}
-        <Button asChild variant="outline" size="lg" className="sm:w-36 h-12 rounded-xl border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300">
+        <Button
+          asChild
+          variant="outline"
+          size="lg"
+          className="sm:w-36 h-12 rounded-xl border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300"
+        >
           <Link href={PATHS.HOME}>
             <Home className="h-4 w-4 mr-1.5" />
             {t("btn_go_home")}

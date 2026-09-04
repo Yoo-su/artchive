@@ -116,7 +116,7 @@ export function UserAvatarMenu({
             "inline-flex items-center gap-2 focus:outline-none transition-opacity hover:opacity-80 rounded-full",
             className,
           )}
-          aria-label={t("aria.user_profile_menu", { name: user.nickname })}
+          aria-label={t("aria.view_user_profile", { name: user.nickname })}
         >
           {avatarContent}
         </Link>

@@ -1,8 +1,9 @@
 "use client";
 
 import { useMyChatRoomsQuery } from "@bookjeok/react-query";
-import { MessageSquareX } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+import { MessageSquareX } from "@/shared/components/icons/iconsax";
 
 import { ChatItem } from "../../room/chat-item";
 import { ChatListSkeleton } from "./skeleton";

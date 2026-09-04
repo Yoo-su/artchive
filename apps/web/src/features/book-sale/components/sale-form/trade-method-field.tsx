@@ -1,11 +1,11 @@
 "use client";
 
 import { TradeMethod } from "@bookjeok/core";
-import { Handshake, Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Control, FieldValues, Path } from "react-hook-form";
 
 import { BoxIcon, TruckFastIcon } from "@/shared/components/icons";
+import { Handshake, Lock } from "@/shared/components/icons/iconsax";
 import {
   FormControl,
   FormField,
@@ -25,7 +25,11 @@ const isDeliveryTradeEnabled =
 
 const OPTIONS = [
   { value: TradeMethod.BOTH, icon: BoxIcon, requiresDelivery: true },
-  { value: TradeMethod.DELIVERY_ONLY, icon: TruckFastIcon, requiresDelivery: true },
+  {
+    value: TradeMethod.DELIVERY_ONLY,
+    icon: TruckFastIcon,
+    requiresDelivery: true,
+  },
   { value: TradeMethod.DIRECT_ONLY, icon: Handshake, requiresDelivery: false },
 ] as const;
 
@@ -52,7 +56,8 @@ export const TradeMethodField = <T extends FieldValues>({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {OPTIONS.map((option) => {
                 const Icon = option.icon;
-                const isLocked = option.requiresDelivery && !isDeliveryTradeEnabled;
+                const isLocked =
+                  option.requiresDelivery && !isDeliveryTradeEnabled;
                 const isSelected = field.value === option.value;
 
                 return (

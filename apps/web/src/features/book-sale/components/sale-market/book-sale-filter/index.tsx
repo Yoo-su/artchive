@@ -12,11 +12,11 @@ import {
   SortOption,
 } from "@bookjeok/core";
 import { useBookSaleRegionsQuery } from "@bookjeok/react-query";
-import { RefreshCw, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
+import { RefreshCw, Search } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Input } from "@/shared/components/shadcn/input";
 import { Label } from "@/shared/components/shadcn/label";

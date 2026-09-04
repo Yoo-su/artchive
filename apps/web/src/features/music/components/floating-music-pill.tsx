@@ -1,9 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Disc3, Pause } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+
+import { Disc3, Pause } from "@/shared/components/icons/iconsax";
 
 import { useMusicStore } from "../stores/use-music-store";
 
@@ -23,7 +24,8 @@ export function FloatingMusicPill() {
     setMounted(true);
   }, []);
 
-  const isVisible = mounted && isPlaying && !isModalOpen && Boolean(currentTrack);
+  const isVisible =
+    mounted && isPlaying && !isModalOpen && Boolean(currentTrack);
 
   const trackTitle = currentTrack?.title || "";
   const trackArtist = currentTrack?.artist || "";
@@ -79,7 +81,7 @@ export function FloatingMusicPill() {
             title={t("controls.pause")}
             aria-label={t("controls.pause")}
           >
-            <Pause className="h-3 w-3 fill-current" aria-hidden="true" />
+            <Pause variant="bold" className="h-3 w-3" aria-hidden="true" />
           </motion.button>
         </motion.aside>
       )}

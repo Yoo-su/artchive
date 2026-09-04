@@ -1,5 +1,12 @@
-import { BarChart3, BookOpen, Heart, ShoppingBag, Tag } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+import {
+  BarChart3,
+  BookOpen,
+  Heart,
+  ShoppingBag,
+  Tag,
+} from "@/shared/components/icons/iconsax";
 
 interface InsightsHeaderProps {
   summary: {

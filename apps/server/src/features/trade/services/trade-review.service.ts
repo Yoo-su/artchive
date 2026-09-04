@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { User } from '@/features/user/entities/user.entity';
 import { BusinessException } from '@/shared/exceptions/business.exception';
 
+import { REVIEW_EXPIRATION_MS } from '../constants';
 import { CreateTradeReviewDto } from '../dtos/create-trade-review.dto';
 import { QueryTradeReviewDto } from '../dtos/query-trade-review.dto';
 import { UpdateTradeReviewDto } from '../dtos/update-trade-review.dto';
@@ -29,9 +30,6 @@ export interface SellerTradeStats {
   positiveRate: number;
   tagCounts: Record<string, number>;
 }
-
-const REVIEW_EXPIRATION_DAYS = 14;
-const REVIEW_EXPIRATION_MS = REVIEW_EXPIRATION_DAYS * 24 * 60 * 60 * 1000;
 
 const POSITIVE_TAGS = new Set<string>(
   Object.entries(TRADE_REVIEW_TAG_SPECS)

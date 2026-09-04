@@ -6,11 +6,11 @@ import {
   useReserveSaleMutation,
   useTradeCandidatesQuery,
 } from "@bookjeok/react-query";
-import { Check, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { Check, Loader2 } from "@/shared/components/icons/iconsax";
 import {
   Avatar,
   AvatarFallback,

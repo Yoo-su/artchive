@@ -167,10 +167,14 @@ export const MapLocationSelector = ({
 
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setFocusedIndex((prev) => (prev < searchResults.length - 1 ? prev + 1 : 0));
+      setFocusedIndex((prev) =>
+        prev < searchResults.length - 1 ? prev + 1 : 0,
+      );
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setFocusedIndex((prev) => (prev > 0 ? prev - 1 : searchResults.length - 1));
+      setFocusedIndex((prev) =>
+        prev > 0 ? prev - 1 : searchResults.length - 1,
+      );
     } else if (e.key === "Enter") {
       e.preventDefault();
       if (focusedIndex >= 0 && focusedIndex < searchResults.length) {
@@ -333,7 +337,8 @@ export const MapLocationSelector = ({
           )}
           <div>{selectedPlaceInfo?.address || t("address_loading")}</div>
           <div className="text-[10px] opacity-70">
-            {t("lat")}: {position.lat.toFixed(6)}, {t("lng")}: {position.lng.toFixed(6)}
+            {t("lat")}: {position.lat.toFixed(6)}, {t("lng")}:{" "}
+            {position.lng.toFixed(6)}
           </div>
         </div>
       )}

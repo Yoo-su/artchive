@@ -3,6 +3,14 @@ import {
   usePublicUserProfileQuery,
   useSellerStatsQuery,
 } from "@bookjeok/react-query";
+import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
+import { useState } from "react";
+
+import { SaleStatusBadge } from "@/features/book-sale/components/common/sale-status-badge";
+import { ReadingLogCalendar } from "@/features/reading-log/components/calendar-view/reading-log-calendar";
+import { ReadingLogListView } from "@/features/reading-log/components/list-view/reading-log-list-view";
+import { SellerTrustBadge, UserTradeReviewsList } from "@/features/trade";
 import {
   ArrowRight,
   BookOpen,
@@ -12,15 +20,7 @@ import {
   MessageSquare,
   ShoppingBag,
   User,
-} from "lucide-react";
-import Image from "next/image";
-import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
-
-import { SaleStatusBadge } from "@/features/book-sale/components/common/sale-status-badge";
-import { ReadingLogCalendar } from "@/features/reading-log/components/calendar-view/reading-log-calendar";
-import { ReadingLogListView } from "@/features/reading-log/components/list-view/reading-log-list-view";
-import { SellerTrustBadge, UserTradeReviewsList } from "@/features/trade";
+} from "@/shared/components/icons/iconsax";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import {
   Tooltip,

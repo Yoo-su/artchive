@@ -3,7 +3,6 @@
 import { ReadingLog } from "@bookjeok/core";
 import { useReadingLogsQuery } from "@bookjeok/react-query";
 import { format } from "date-fns";
-import { BookOpen, Quote, Share2 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -14,6 +13,7 @@ import {
   DraggableCardBody,
   DraggableCardContainer,
 } from "@/shared/components/aceternityui/draggable-card";
+import { BookOpen, Quote, Share2 } from "@/shared/components/icons/iconsax";
 
 interface ReadingLogCardDeckProps {
   logs?: ReadingLog[];
@@ -37,10 +37,8 @@ export function ReadingLogCardDeck({
   const [isMobile, setIsMobile] = useState(false);
 
   // logs prop이 전달되지 않은 경우 자체적으로 최근 독서기록 50개 조회
-  const { data: fetchedLogs = [], isLoading: isQueryLoading } = useReadingLogsQuery(
-    { limit: 50 },
-    { enabled: !readOnly && !logs }
-  );
+  const { data: fetchedLogs = [], isLoading: isQueryLoading } =
+    useReadingLogsQuery({ limit: 50 }, { enabled: !readOnly && !logs });
 
   const effectiveLogs = logs || fetchedLogs;
   const effectiveLoading = isLoading || (!logs && isQueryLoading);
@@ -182,7 +180,9 @@ export function ReadingLogCardDeck({
                 {/* PC 전용: 폴라로이드 스탬프 & 독서 완료 일자 */}
                 <div className="hidden sm:flex items-center justify-between pt-2 mt-1 border-t border-stone-100 text-[10px] font-mono text-stone-400 uppercase tracking-widest shrink-0">
                   <span>{format(new Date(log.date), "yyyy.MM.dd")}</span>
-                  <span className="font-semibold text-stone-300">INSTAX • BOOKJEOK</span>
+                  <span className="font-semibold text-stone-300">
+                    INSTAX • BOOKJEOK
+                  </span>
                 </div>
               </div>
             </DraggableCardBody>

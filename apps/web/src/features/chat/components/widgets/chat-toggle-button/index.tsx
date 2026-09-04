@@ -3,9 +3,9 @@
 import { ChatRoom } from "@bookjeok/core";
 import { useMyChatRoomsQuery } from "@bookjeok/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { MessagesSquare, X } from "lucide-react";
 import { useCallback } from "react";
 
+import { MessagesSquare, X } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 
 import { useChatStore } from "../../../stores/use-chat-store";

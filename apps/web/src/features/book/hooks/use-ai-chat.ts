@@ -151,26 +151,24 @@ export const useAiChat = () => {
   // 대화 변경 시 sessionStorage 동기화 (단, 스트리밍 중인 플래그는 제거 후 저장)
   useEffect(() => {
     if (typeof window !== "undefined" && !loading) {
-      const cleanMessages = messages.map(
-        ({ isStreaming, books, ...rest }) => ({
-          ...rest,
-          // sessionStorage 용량 절약: 도서 목록은 표시에 필요한 최소 정보만 보존
-          ...(books && books.length > 0
-            ? {
-                books: books.map((b) => ({
-                  isbn: b.isbn,
-                  title: b.title,
-                  author: b.author,
-                  image: b.image,
-                  publisher: b.publisher,
-                  reason: b.reason,
-                  description: "",
-                  similarity: 0,
-                })),
-              }
-            : {}),
-        }),
-      );
+      const cleanMessages = messages.map(({ isStreaming, books, ...rest }) => ({
+        ...rest,
+        // sessionStorage 용량 절약: 도서 목록은 표시에 필요한 최소 정보만 보존
+        ...(books && books.length > 0
+          ? {
+              books: books.map((b) => ({
+                isbn: b.isbn,
+                title: b.title,
+                author: b.author,
+                image: b.image,
+                publisher: b.publisher,
+                reason: b.reason,
+                description: "",
+                similarity: 0,
+              })),
+            }
+          : {}),
+      }));
       sessionStorage.setItem(userStorageKey, JSON.stringify(cleanMessages));
     }
   }, [messages, userStorageKey, loading]);
@@ -182,9 +180,7 @@ export const useAiChat = () => {
 
     // 사용자가 위로 스크롤해서 이전 대화를 보고 있는 경우 강제 스크롤 방지
     const isNearBottom =
-      container.scrollHeight -
-        container.scrollTop -
-        container.clientHeight <=
+      container.scrollHeight - container.scrollTop - container.clientHeight <=
       180;
 
     if (smooth) {
@@ -356,7 +352,8 @@ export const useAiChat = () => {
           (typeof error === "object" &&
             error !== null &&
             "response" in error &&
-            (error as { response?: { status?: number } }).response?.status === 401);
+            (error as { response?: { status?: number } }).response?.status ===
+              401);
         const errorContent = isUnauthorized
           ? "AI 도서 추천 기능은 로그인 후 이용하실 수 있는 회원 전용 서비스입니다."
           : "죄송합니다, 대화를 처리하는 중 일시적인 오류가 발생했습니다. 다시 말씀해 주시겠어요?";

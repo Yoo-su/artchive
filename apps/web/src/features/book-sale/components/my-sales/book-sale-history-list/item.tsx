@@ -1,13 +1,18 @@
 "use client";
 
 import { UsedBookSale } from "@bookjeok/core";
-import { ChevronRight, Edit, MoreVertical, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import React from "react";
 
 import { useConfirm } from "@/features/confirm";
 import { BookIcon } from "@/shared/components/icons";
+import {
+  ChevronRight,
+  Edit,
+  MoreVertical,
+  Trash2,
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
 import {
@@ -66,8 +71,7 @@ export const BookSaleHistoryItem = ({ sale }: BookSaleHistoryItemProps) => {
     event.stopPropagation();
   };
 
-  const bookCover =
-    (sale.imageUrls && sale.imageUrls[0]) || sale.book?.image;
+  const bookCover = (sale.imageUrls && sale.imageUrls[0]) || sale.book?.image;
 
   return (
     <Card className="rounded-2xl border border-stone-200 dark:border-stone-800 shadow-2xs hover:shadow-xs transition-all duration-200 bg-white dark:bg-stone-900/80 overflow-hidden">

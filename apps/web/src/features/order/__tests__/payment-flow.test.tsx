@@ -23,7 +23,8 @@ vi.mock("next-intl", () => ({
       shipping_free: "무료배송",
       total_amount: "최종 결제 금액",
       escrow_protection: "토스페이먼츠 에스크로 안전결제",
-      escrow_desc: "구매자가 물품을 수령하고 구매를 확정할 때까지 결제 대금이 안전하게 보관됩니다.",
+      escrow_desc:
+        "구매자가 물품을 수령하고 구매를 확정할 때까지 결제 대금이 안전하게 보관됩니다.",
       "currency.unit": "원",
     };
     return map[key] || key;
@@ -148,7 +149,9 @@ describe("PaymentSummary Component", () => {
     expect(screen.getByText("클린코드판매자")).toBeInTheDocument();
     expect(screen.getByText("ORD-20260827-00101")).toBeInTheDocument();
     expect(screen.getByText("무료배송")).toBeInTheDocument();
-    expect(screen.getByText("토스페이먼츠 에스크로 안전결제")).toBeInTheDocument();
+    expect(
+      screen.getByText("토스페이먼츠 에스크로 안전결제"),
+    ).toBeInTheDocument();
   });
 });
 

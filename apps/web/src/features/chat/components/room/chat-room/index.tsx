@@ -6,11 +6,11 @@ import {
   useMyChatRoomsQuery,
 } from "@bookjeok/react-query";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { ArrowDown } from "@/shared/components/icons/iconsax";
 import { cn } from "@/shared/utils/cn";
 
 import { useChatScroll } from "../../../hooks/use-chat-scroll";

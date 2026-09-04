@@ -3,12 +3,12 @@
 import { useEmailSignupMutation } from "@bookjeok/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createSignupSchema, SignupSchemaType } from "@/features/auth/schema";
+import { Loader2 } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import {
   Form,
@@ -131,7 +131,8 @@ export const SignupForm = () => {
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormLabel className="text-gray-700 font-medium">
-                      {t("labels.password")} <span className="text-rose-500">*</span>
+                      {t("labels.password")}{" "}
+                      <span className="text-rose-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -153,7 +154,8 @@ export const SignupForm = () => {
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormLabel className="text-gray-700 font-medium">
-                      {t("labels.password_confirm")} <span className="text-rose-500">*</span>
+                      {t("labels.password_confirm")}{" "}
+                      <span className="text-rose-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -178,7 +180,8 @@ export const SignupForm = () => {
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormLabel className="text-gray-700 font-medium">
-                      {t("labels.name")} <span className="text-rose-500">*</span>
+                      {t("labels.name")}{" "}
+                      <span className="text-rose-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -200,7 +203,8 @@ export const SignupForm = () => {
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormLabel className="text-gray-700 font-medium">
-                      {t("labels.nickname")} <span className="text-rose-500">*</span>
+                      {t("labels.nickname")}{" "}
+                      <span className="text-rose-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -232,13 +236,21 @@ export const SignupForm = () => {
                     >
                       <FormControl>
                         <SelectTrigger className="h-11 w-full bg-gray-50 border-gray-200 focus:bg-white text-stone-900">
-                          <SelectValue placeholder={t("placeholders.gender_placeholder")} />
+                          <SelectValue
+                            placeholder={t("placeholders.gender_placeholder")}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="U">{t("options.gender_none")}</SelectItem>
-                        <SelectItem value="M">{t("options.gender_m")}</SelectItem>
-                        <SelectItem value="F">{t("options.gender_f")}</SelectItem>
+                        <SelectItem value="U">
+                          {t("options.gender_none")}
+                        </SelectItem>
+                        <SelectItem value="M">
+                          {t("options.gender_m")}
+                        </SelectItem>
+                        <SelectItem value="F">
+                          {t("options.gender_f")}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <div className="min-h-[20px]">
@@ -262,18 +274,38 @@ export const SignupForm = () => {
                     >
                       <FormControl>
                         <SelectTrigger className="h-11 w-full bg-gray-50 border-gray-200 focus:bg-white text-stone-900">
-                          <SelectValue placeholder={t("placeholders.age_range_placeholder")} />
+                          <SelectValue
+                            placeholder={t(
+                              "placeholders.age_range_placeholder",
+                            )}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="none">{t("options.age_none")}</SelectItem>
-                        <SelectItem value="0-9">{t("options.age_0_9")}</SelectItem>
-                        <SelectItem value="10-19">{t("options.age_10_19")}</SelectItem>
-                        <SelectItem value="20-29">{t("options.age_20_29")}</SelectItem>
-                        <SelectItem value="30-39">{t("options.age_30_39")}</SelectItem>
-                        <SelectItem value="40-49">{t("options.age_40_49")}</SelectItem>
-                        <SelectItem value="50-59">{t("options.age_50_59")}</SelectItem>
-                        <SelectItem value="60-">{t("options.age_60_")}</SelectItem>
+                        <SelectItem value="none">
+                          {t("options.age_none")}
+                        </SelectItem>
+                        <SelectItem value="0-9">
+                          {t("options.age_0_9")}
+                        </SelectItem>
+                        <SelectItem value="10-19">
+                          {t("options.age_10_19")}
+                        </SelectItem>
+                        <SelectItem value="20-29">
+                          {t("options.age_20_29")}
+                        </SelectItem>
+                        <SelectItem value="30-39">
+                          {t("options.age_30_39")}
+                        </SelectItem>
+                        <SelectItem value="40-49">
+                          {t("options.age_40_49")}
+                        </SelectItem>
+                        <SelectItem value="50-59">
+                          {t("options.age_50_59")}
+                        </SelectItem>
+                        <SelectItem value="60-">
+                          {t("options.age_60_")}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <div className="min-h-[20px]">

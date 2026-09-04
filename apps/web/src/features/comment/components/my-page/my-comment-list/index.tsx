@@ -2,6 +2,12 @@
 
 import { CommentTargetType } from "@bookjeok/core";
 import { useMyCommentsInfiniteQuery } from "@bookjeok/react-query";
+import { useLocale, useTranslations } from "next-intl";
+import { useCallback } from "react";
+
+import { useDeleteMyCommentMutation } from "@/features/comment/mutations";
+import { useConfirm } from "@/features/confirm";
+import { BookIcon, QuoteUpCircleIcon } from "@/shared/components/icons";
 import {
   ChevronRight,
   Heart,
@@ -9,13 +15,7 @@ import {
   MessageSquare,
   Search,
   Trash2,
-} from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
-import { useCallback } from "react";
-
-import { useDeleteMyCommentMutation } from "@/features/comment/mutations";
-import { useConfirm } from "@/features/confirm";
-import { BookIcon, QuoteUpCircleIcon } from "@/shared/components/icons";
+} from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
@@ -94,9 +94,7 @@ export const MyCommentList = () => {
           <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">
             {t("empty.title")}
           </h3>
-          <p className="text-xs text-stone-400 max-w-sm">
-            {t("empty.desc")}
-          </p>
+          <p className="text-xs text-stone-400 max-w-sm">{t("empty.desc")}</p>
         </div>
         <Button
           asChild
@@ -117,7 +115,10 @@ export const MyCommentList = () => {
       <div className="space-y-3">
         {allComments.map((comment) => {
           const isReview = comment.targetType === CommentTargetType.REVIEW;
-          const targetHref = getTargetLink(comment.targetType, comment.targetId);
+          const targetHref = getTargetLink(
+            comment.targetType,
+            comment.targetId,
+          );
 
           return (
             <Card
@@ -200,10 +201,8 @@ export const MyCommentList = () => {
                     )}
                   >
                     <Heart
-                      className={cn(
-                        "w-3.5 h-3.5",
-                        comment.likeCount > 0 && "fill-current",
-                      )}
+                      variant={comment.likeCount > 0 ? "bold" : "outline"}
+                      className="w-3.5 h-3.5"
                     />
                     <span>
                       {comment.likeCount > 0

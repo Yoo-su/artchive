@@ -5,12 +5,12 @@ import {
   TradeReview,
   TradeReviewTag,
 } from "@bookjeok/core";
-import { ThumbsDown, ThumbsUp, User } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import React from "react";
 
 import { BookIcon } from "@/shared/components/icons";
+import { ThumbsDown, ThumbsUp, User } from "@/shared/components/icons/iconsax";
 import { Card, CardContent } from "@/shared/components/shadcn/card";
 import { formatDate } from "@/shared/utils/format-date";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";

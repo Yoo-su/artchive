@@ -1,7 +1,6 @@
 import { findOrCreateRoom } from "@bookjeok/api-client";
 import { chatKeys, UsedBookSale } from "@bookjeok/core";
 import { useQueryClient } from "@tanstack/react-query";
-import { Edit, Loader2, MessageCircle, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -12,6 +11,12 @@ import { useOpenChatRoom } from "@/features/chat/hooks/use-open-chat-room";
 import { useConfirm } from "@/features/confirm";
 import { SellerTrustBadge } from "@/features/trade";
 import { WishlistButton } from "@/features/user/components/wishlist/wishlist-button";
+import {
+  Edit,
+  Loader2,
+  MessageCircle,
+  Trash2,
+} from "@/shared/components/icons/iconsax";
 import { CoolMode } from "@/shared/components/magicui/cool-mode";
 import { Button } from "@/shared/components/shadcn/button";
 import { UserAvatarMenu } from "@/shared/components/ui/user-avatar-menu";
@@ -99,10 +104,7 @@ export const BookSaleActions: React.FC<BookSaleActionsProps> = ({ sale }) => {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3 min-w-0">
-        <UserAvatarMenu
-          user={sale.user}
-          size="lg"
-        />
+        <UserAvatarMenu user={sale.user} size="lg" />
         <div className="flex flex-col items-start justify-center gap-1 min-w-0">
           <div className="flex items-center gap-1.5 min-w-0 max-w-full">
             {sale.user?.handle ? (
@@ -178,13 +180,17 @@ export const BookSaleActions: React.FC<BookSaleActionsProps> = ({ sale }) => {
               size="sm"
               disabled={isLockedByOrder || isDeleting}
               title={
-                isLockedByOrder ? t("actions.in_trade_cannot_modify") : undefined
+                isLockedByOrder
+                  ? t("actions.in_trade_cannot_modify")
+                  : undefined
               }
               onClick={handleDeleteSale}
               className="h-9 flex-1 border-stone-300 text-stone-600 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 dark:border-stone-700 dark:text-stone-300 dark:hover:border-red-800 dark:hover:bg-red-950/30 dark:hover:text-red-400 sm:flex-none whitespace-nowrap"
             >
               <Trash2 className="w-4 h-4 mr-1.5 shrink-0" />
-              <span>{isDeleting ? t("actions.deleting") : t("actions.delete")}</span>
+              <span>
+                {isDeleting ? t("actions.deleting") : t("actions.delete")}
+              </span>
             </Button>
           </div>
         </div>

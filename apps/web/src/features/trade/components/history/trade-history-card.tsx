@@ -1,12 +1,12 @@
 "use client";
 
 import { TradeCompletion, TradeCompletionMethod } from "@bookjeok/core";
-import { Handshake, Pencil } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { BookIcon, TruckFastIcon } from "@/shared/components/icons";
+import { Handshake, Pencil } from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { Card, CardContent } from "@/shared/components/shadcn/card";

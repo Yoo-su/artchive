@@ -25,6 +25,27 @@ import { RegisterShippingDto } from '../dtos/register-shipping.dto';
 import { Order, OrderStatus } from '../entities/order.entity';
 import { TossPaymentsService } from './toss-payments.service';
 
+/**
+ * 커밋된 뒤에 발행할 이벤트.
+ *
+ * 트랜잭션 안에서 발행하면 (1) 롤백된 주문에 대한 알림과 채팅 메시지가 남고,
+ * (2) 소켓 브로드캐스트를 받은 화면이 아직 커밋되지 않은 주문을 다시 읽어간다.
+ * 리스너는 트랜잭션 밖 레포지토리로 쓰기 때문에 롤백에 따라오지 않는다.
+ *
+ * 그래서 상태 변경은 `persist*` 프라이빗 메서드가 트랜잭션 안에서 하고,
+ * 발행은 공개 메서드가 그 결과를 받아 커밋 뒤에 한다.
+ */
+interface PendingOrderEvent {
+  name: string;
+  payload: Record<string, unknown>;
+}
+
+/** 트랜잭션 안에서 처리한 주문과, 커밋 뒤에 발행할 이벤트 */
+interface PersistedOrder {
+  order: Order;
+  event: PendingOrderEvent;
+}
+
 @Injectable()
 export class OrderService {
   private readonly logger = new Logger(OrderService.name);
@@ -44,11 +65,23 @@ export class OrderService {
    * 판매자가 특정 구매자를 선택하여 주문을 생성합니다.
    * 판매글 상태를 RESERVED로 변경하고 24시간 결제 만료 시각을 설정합니다.
    */
-  @Transactional()
   async selectBuyer(
     createOrderDto: CreateOrderDto,
     sellerId: number,
   ): Promise<Order> {
+    const { order, event } = await this.persistSelectBuyer(
+      createOrderDto,
+      sellerId,
+    );
+    this.eventEmitter.emit(event.name, event.payload);
+    return order;
+  }
+
+  @Transactional()
+  private async persistSelectBuyer(
+    createOrderDto: CreateOrderDto,
+    sellerId: number,
+  ): Promise<PersistedOrder> {
     const manager = this.txHost.tx;
     const { saleId, buyerId, chatRoomId } = createOrderDto;
 
@@ -156,16 +189,19 @@ export class OrderService {
       sale.status = SaleStatus.RESERVED;
       await manager.save(UsedBookSale, sale);
 
-      this.eventEmitter.emit('order.buyer_selected', {
-        orderId: savedOrder.id,
-        saleId: savedOrder.saleId,
-        buyerId: savedOrder.buyerId,
-        sellerId: savedOrder.sellerId,
-        amount: savedOrder.amount,
-        chatRoomId: savedOrder.chatRoomId,
-      });
+      const event: PendingOrderEvent = {
+        name: 'order.buyer_selected',
+        payload: {
+          orderId: savedOrder.id,
+          saleId: savedOrder.saleId,
+          buyerId: savedOrder.buyerId,
+          sellerId: savedOrder.sellerId,
+          amount: savedOrder.amount,
+          chatRoomId: savedOrder.chatRoomId,
+        },
+      };
 
-      return savedOrder;
+      return { order: savedOrder, event };
     } catch (error) {
       if (error instanceof OptimisticLockVersionMismatchError) {
         throw new BusinessException(
@@ -181,8 +217,20 @@ export class OrderService {
    * 결제 전 단계에서 판매자가 구매자 선택을 취소합니다.
    * 주문을 CANCELLED로 변경하고 판매글 상태를 FOR_SALE로 복구합니다.
    */
-  @Transactional()
   async cancelSelection(orderId: string, sellerId: number): Promise<Order> {
+    const { order, event } = await this.persistCancelSelection(
+      orderId,
+      sellerId,
+    );
+    this.eventEmitter.emit(event.name, event.payload);
+    return order;
+  }
+
+  @Transactional()
+  private async persistCancelSelection(
+    orderId: string,
+    sellerId: number,
+  ): Promise<PersistedOrder> {
     const manager = this.txHost.tx;
 
     const order = await manager.findOne(Order, {
@@ -216,16 +264,19 @@ export class OrderService {
         await manager.save(UsedBookSale, order.sale);
       }
 
-      this.eventEmitter.emit('order.cancelled', {
-        orderId: savedOrder.id,
-        saleId: order.saleId,
-        buyerId: order.buyerId,
-        sellerId: order.sellerId,
-        chatRoomId: order.chatRoomId,
-        reason: '판매자 선택 취소',
-      });
+      const event: PendingOrderEvent = {
+        name: 'order.cancelled',
+        payload: {
+          orderId: savedOrder.id,
+          saleId: order.saleId,
+          buyerId: order.buyerId,
+          sellerId: order.sellerId,
+          chatRoomId: order.chatRoomId,
+          reason: '판매자 선택 취소',
+        },
+      };
 
-      return savedOrder;
+      return { order: savedOrder, event };
     } catch (error) {
       if (error instanceof OptimisticLockVersionMismatchError) {
         throw new BusinessException(
@@ -241,12 +292,26 @@ export class OrderService {
    * 결제 완료 및 배송지 스냅샷을 저장합니다.
    * 금액 위변조 및 만료 여부를 검증하고 토스페이먼츠 승인 후 PAID 상태로 전이합니다.
    */
-  @Transactional()
   async confirmPayment(
     orderId: string,
     buyerId: number,
     dto: ConfirmPaymentDto,
   ): Promise<Order> {
+    const { order, event } = await this.persistConfirmPayment(
+      orderId,
+      buyerId,
+      dto,
+    );
+    this.eventEmitter.emit(event.name, event.payload);
+    return order;
+  }
+
+  @Transactional()
+  private async persistConfirmPayment(
+    orderId: string,
+    buyerId: number,
+    dto: ConfirmPaymentDto,
+  ): Promise<PersistedOrder> {
     const manager = this.txHost.tx;
 
     const order = await manager.findOne(Order, {
@@ -311,16 +376,19 @@ export class OrderService {
     try {
       const savedOrder = await manager.save(Order, order);
 
-      this.eventEmitter.emit('order.payment_completed', {
-        orderId: savedOrder.id,
-        saleId: order.saleId,
-        buyerId: order.buyerId,
-        sellerId: order.sellerId,
-        amount: savedOrder.amount,
-        chatRoomId: order.chatRoomId,
-      });
+      const event: PendingOrderEvent = {
+        name: 'order.payment_completed',
+        payload: {
+          orderId: savedOrder.id,
+          saleId: order.saleId,
+          buyerId: order.buyerId,
+          sellerId: order.sellerId,
+          amount: savedOrder.amount,
+          chatRoomId: order.chatRoomId,
+        },
+      };
 
-      return savedOrder;
+      return { order: savedOrder, event };
     } catch (error) {
       // DB 저장 실패 시 이미 승인된 토스 결제에 대해 자동 환불(보상 트랜잭션) 수행
       try {
@@ -351,12 +419,26 @@ export class OrderService {
   /**
    * 판매자가 운송장 번호를 등록하여 배송을 시작합니다. (PAID -> SHIPPED)
    */
-  @Transactional()
   async registerShipping(
     orderId: string,
     sellerId: number,
     dto: RegisterShippingDto,
   ): Promise<Order> {
+    const { order, event } = await this.persistRegisterShipping(
+      orderId,
+      sellerId,
+      dto,
+    );
+    this.eventEmitter.emit(event.name, event.payload);
+    return order;
+  }
+
+  @Transactional()
+  private async persistRegisterShipping(
+    orderId: string,
+    sellerId: number,
+    dto: RegisterShippingDto,
+  ): Promise<PersistedOrder> {
     const manager = this.txHost.tx;
 
     const order = await manager.findOne(Order, {
@@ -395,17 +477,20 @@ export class OrderService {
     try {
       const savedOrder = await manager.save(Order, order);
 
-      this.eventEmitter.emit('order.shipping_started', {
-        orderId: savedOrder.id,
-        saleId: order.saleId,
-        buyerId: order.buyerId,
-        sellerId: order.sellerId,
-        carrier: savedOrder.carrier,
-        trackingNumber: savedOrder.trackingNumber,
-        chatRoomId: order.chatRoomId,
-      });
+      const event: PendingOrderEvent = {
+        name: 'order.shipping_started',
+        payload: {
+          orderId: savedOrder.id,
+          saleId: order.saleId,
+          buyerId: order.buyerId,
+          sellerId: order.sellerId,
+          carrier: savedOrder.carrier,
+          trackingNumber: savedOrder.trackingNumber,
+          chatRoomId: order.chatRoomId,
+        },
+      };
 
-      return savedOrder;
+      return { order: savedOrder, event };
     } catch (error) {
       if (error instanceof OptimisticLockVersionMismatchError) {
         throw new BusinessException(
@@ -420,8 +505,14 @@ export class OrderService {
   /**
    * 배송 완료를 기록합니다. (SHIPPED -> DELIVERED)
    */
-  @Transactional()
   async markDelivered(orderId: string): Promise<Order> {
+    const { order, event } = await this.persistMarkDelivered(orderId);
+    this.eventEmitter.emit(event.name, event.payload);
+    return order;
+  }
+
+  @Transactional()
+  private async persistMarkDelivered(orderId: string): Promise<PersistedOrder> {
     const manager = this.txHost.tx;
 
     const order = await manager.findOne(Order, {
@@ -445,15 +536,18 @@ export class OrderService {
     try {
       const savedOrder = await manager.save(Order, order);
 
-      this.eventEmitter.emit('order.delivery_completed', {
-        orderId: savedOrder.id,
-        saleId: order.saleId,
-        buyerId: order.buyerId,
-        sellerId: order.sellerId,
-        chatRoomId: order.chatRoomId,
-      });
+      const event: PendingOrderEvent = {
+        name: 'order.delivery_completed',
+        payload: {
+          orderId: savedOrder.id,
+          saleId: order.saleId,
+          buyerId: order.buyerId,
+          sellerId: order.sellerId,
+          chatRoomId: order.chatRoomId,
+        },
+      };
 
-      return savedOrder;
+      return { order: savedOrder, event };
     } catch (error) {
       if (error instanceof OptimisticLockVersionMismatchError) {
         throw new BusinessException(
@@ -469,8 +563,20 @@ export class OrderService {
    * 구매자가 구매를 확정합니다. (DELIVERED/DISPUTED -> CONFIRMED)
    * 판매글 상태를 SOLD로 변경하고 토스 에스크로 구매확정을 요청합니다.
    */
-  @Transactional()
   async confirmPurchase(orderId: string, buyerId: number): Promise<Order> {
+    const { order, event } = await this.persistConfirmPurchase(
+      orderId,
+      buyerId,
+    );
+    this.eventEmitter.emit(event.name, event.payload);
+    return order;
+  }
+
+  @Transactional()
+  private async persistConfirmPurchase(
+    orderId: string,
+    buyerId: number,
+  ): Promise<PersistedOrder> {
     const manager = this.txHost.tx;
 
     const order = await manager.findOne(Order, {
@@ -514,15 +620,18 @@ export class OrderService {
 
       await this.recordCompletion(savedOrder);
 
-      this.eventEmitter.emit('order.confirmed', {
-        orderId: savedOrder.id,
-        saleId: order.saleId,
-        buyerId: order.buyerId,
-        sellerId: order.sellerId,
-        chatRoomId: order.chatRoomId,
-      });
+      const event: PendingOrderEvent = {
+        name: 'order.confirmed',
+        payload: {
+          orderId: savedOrder.id,
+          saleId: order.saleId,
+          buyerId: order.buyerId,
+          sellerId: order.sellerId,
+          chatRoomId: order.chatRoomId,
+        },
+      };
 
-      return savedOrder;
+      return { order: savedOrder, event };
     } catch (error) {
       if (error instanceof OptimisticLockVersionMismatchError) {
         throw new BusinessException(
@@ -537,12 +646,26 @@ export class OrderService {
   /**
    * 구매자가 배송 완료 후 구매확정을 거부하고 분쟁을 제기합니다. (DELIVERED -> DISPUTED)
    */
-  @Transactional()
   async disputeOrder(
     orderId: string,
     buyerId: number,
     dto: DisputeOrderDto,
   ): Promise<Order> {
+    const { order, event } = await this.persistDisputeOrder(
+      orderId,
+      buyerId,
+      dto,
+    );
+    this.eventEmitter.emit(event.name, event.payload);
+    return order;
+  }
+
+  @Transactional()
+  private async persistDisputeOrder(
+    orderId: string,
+    buyerId: number,
+    dto: DisputeOrderDto,
+  ): Promise<PersistedOrder> {
     const manager = this.txHost.tx;
 
     const order = await manager.findOne(Order, {
@@ -579,16 +702,19 @@ export class OrderService {
     try {
       const savedOrder = await manager.save(Order, order);
 
-      this.eventEmitter.emit('order.disputed', {
-        orderId: savedOrder.id,
-        saleId: order.saleId,
-        buyerId: order.buyerId,
-        sellerId: order.sellerId,
-        chatRoomId: order.chatRoomId,
-        disputeReason: savedOrder.disputeReason,
-      });
+      const event: PendingOrderEvent = {
+        name: 'order.disputed',
+        payload: {
+          orderId: savedOrder.id,
+          saleId: order.saleId,
+          buyerId: order.buyerId,
+          sellerId: order.sellerId,
+          chatRoomId: order.chatRoomId,
+          disputeReason: savedOrder.disputeReason,
+        },
+      };
 
-      return savedOrder;
+      return { order: savedOrder, event };
     } catch (error) {
       if (error instanceof OptimisticLockVersionMismatchError) {
         throw new BusinessException(
@@ -606,12 +732,26 @@ export class OrderService {
    * 배송 중(SHIPPED)에는 취소가 불가능합니다.
    * 결제 완료 상태인 경우 토스페이먼츠 결제 취소 API를 호출합니다.
    */
-  @Transactional()
   async cancelOrder(
     orderId: string,
     userId: number,
     dto?: CancelOrderDto,
   ): Promise<Order> {
+    const { order, event } = await this.persistCancelOrder(
+      orderId,
+      userId,
+      dto,
+    );
+    this.eventEmitter.emit(event.name, event.payload);
+    return order;
+  }
+
+  @Transactional()
+  private async persistCancelOrder(
+    orderId: string,
+    userId: number,
+    dto?: CancelOrderDto,
+  ): Promise<PersistedOrder> {
     const manager = this.txHost.tx;
 
     const order = await manager.findOne(Order, {
@@ -668,16 +808,19 @@ export class OrderService {
         await manager.save(UsedBookSale, order.sale);
       }
 
-      this.eventEmitter.emit('order.cancelled', {
-        orderId: savedOrder.id,
-        saleId: order.saleId,
-        buyerId: order.buyerId,
-        sellerId: order.sellerId,
-        chatRoomId: order.chatRoomId,
-        reason: savedOrder.cancelReason,
-      });
+      const event: PendingOrderEvent = {
+        name: 'order.cancelled',
+        payload: {
+          orderId: savedOrder.id,
+          saleId: order.saleId,
+          buyerId: order.buyerId,
+          sellerId: order.sellerId,
+          chatRoomId: order.chatRoomId,
+          reason: savedOrder.cancelReason,
+        },
+      };
 
-      return savedOrder;
+      return { order: savedOrder, event };
     } catch (error) {
       if (error instanceof OptimisticLockVersionMismatchError) {
         throw new BusinessException(

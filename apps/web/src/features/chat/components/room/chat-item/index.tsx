@@ -3,10 +3,10 @@
 import { ChatRoom } from "@bookjeok/core";
 import { isToday, isYesterday } from "date-fns";
 import { motion } from "framer-motion";
-import { MessageSquareText } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { MessageSquareText } from "@/shared/components/icons/iconsax";
 import {
   Avatar,
   AvatarFallback,
@@ -27,7 +27,8 @@ const YESTERDAY_TEXT: Record<string, string> = {
 const formatLastMessageTime = (date: string, locale: string) => {
   const messageDate = new Date(date);
   if (isToday(messageDate)) return formatDate(messageDate, locale, "time");
-  if (isYesterday(messageDate)) return YESTERDAY_TEXT[locale] ?? YESTERDAY_TEXT.en;
+  if (isYesterday(messageDate))
+    return YESTERDAY_TEXT[locale] ?? YESTERDAY_TEXT.en;
   return formatDate(messageDate, locale, "monthDayShort");
 };
 

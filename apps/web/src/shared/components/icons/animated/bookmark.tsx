@@ -85,4 +85,8 @@ function AnimatedBookmark(props: BookmarkProps) {
   return <IconWrapper icon={IconComponent} {...props} />;
 }
 
-export { AnimatedBookmark, AnimatedBookmark as BookmarkIcon, type BookmarkProps };
+export {
+  AnimatedBookmark,
+  AnimatedBookmark as BookmarkIcon,
+  type BookmarkProps,
+};

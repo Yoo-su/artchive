@@ -25,7 +25,7 @@ export function AnimatedCopyCheck({
     <span
       className={cn(
         "relative inline-flex items-center justify-center shrink-0",
-        className
+        className,
       )}
       style={{ width: size, height: size }}
     >

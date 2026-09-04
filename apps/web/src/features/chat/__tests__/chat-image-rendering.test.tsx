@@ -65,8 +65,9 @@ describe("채팅 메시지 이미지", () => {
     // sizes가 있어야 브라우저가 208px 슬롯에 맞는 후보를 고를 수 있다
     expect(img.getAttribute("sizes")).toBe("208px");
 
-    const widths = [...(img.getAttribute("srcset") ?? "").matchAll(/[?&]w=(\d+)/g)]
-      .map((m) => Number(m[1]));
+    const widths = [
+      ...(img.getAttribute("srcset") ?? "").matchAll(/[?&]w=(\d+)/g),
+    ].map((m) => Number(m[1]));
     expect(widths.length).toBeGreaterThan(0);
     // 고배율 화면(DPR 2, 416px)에서도 640px 이하 후보가 선택 가능해야 한다
     expect(Math.min(...widths)).toBeLessThanOrEqual(640);

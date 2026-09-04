@@ -23,12 +23,14 @@ export function GlobalMusicHost() {
   // Extract YouTube ID if it's a YouTube URL
   const getYoutubeId = (url: string) => {
     const match = url.match(
-      /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/
+      /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/,
     );
     return match ? match[1] : null;
   };
 
-  const currentYoutubeId = currentTrack?.src ? getYoutubeId(currentTrack.src) : null;
+  const currentYoutubeId = currentTrack?.src
+    ? getYoutubeId(currentTrack.src)
+    : null;
 
   // Helper to send command to YouTube iframe safely
   const sendYoutubeCommand = useCallback(
@@ -36,11 +38,11 @@ export function GlobalMusicHost() {
       if (iframeRef.current?.contentWindow) {
         iframeRef.current.contentWindow.postMessage(
           JSON.stringify({ event: "command", func, args }),
-          "*"
+          "*",
         );
       }
     },
-    []
+    [],
   );
 
   // Apply volume and unmute state to YouTube / Audio
@@ -58,7 +60,7 @@ export function GlobalMusicHost() {
         audioRef.current.muted = vol === 0;
       }
     },
-    [currentYoutubeId, sendYoutubeCommand]
+    [currentYoutubeId, sendYoutubeCommand],
   );
 
   // Initialize YouTube iframe message listener
@@ -93,7 +95,14 @@ export function GlobalMusicHost() {
 
     window.addEventListener("message", handleWindowMessage);
     return () => window.removeEventListener("message", handleWindowMessage);
-  }, [repeatMode, playNext, volume, isPlaying, applyVolume, sendYoutubeCommand]);
+  }, [
+    repeatMode,
+    playNext,
+    volume,
+    isPlaying,
+    applyVolume,
+    sendYoutubeCommand,
+  ]);
 
   // Handle Track Changes (switch video without recreating iframe DOM node)
   useEffect(() => {
@@ -138,7 +147,14 @@ export function GlobalMusicHost() {
         audioRef.current.pause();
       }
     }
-  }, [isPlaying, currentYoutubeId, volume, setIsPlaying, sendYoutubeCommand, applyVolume]);
+  }, [
+    isPlaying,
+    currentYoutubeId,
+    volume,
+    setIsPlaying,
+    sendYoutubeCommand,
+    applyVolume,
+  ]);
 
   // Handle Volume change
   useEffect(() => {

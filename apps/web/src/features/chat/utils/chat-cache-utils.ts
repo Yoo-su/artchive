@@ -21,7 +21,8 @@ type InfiniteMessagesData = {
  */
 
 /** 가장 최신 메시지가 들어 있는 페이지의 인덱스 */
-const getNewestPageIndex = (data: InfiniteMessagesData) => data.pages.length - 1;
+const getNewestPageIndex = (data: InfiniteMessagesData) =>
+  data.pages.length - 1;
 
 /** 최신 페이지 맨 앞에 메시지를 끼워 넣은 새 pages 배열 생성 */
 const insertAsNewest = (

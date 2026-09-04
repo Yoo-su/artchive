@@ -32,12 +32,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: ["/"],
-        disallow: [
-          "/*/my-page",
-          "/*/login",
-          "/*/signup",
-          "/*/callback",
-        ],
+        disallow: ["/*/my-page", "/*/login", "/*/signup", "/*/callback"],
       },
     ],
     sitemap: "https://bookjeok.com/sitemap.xml",

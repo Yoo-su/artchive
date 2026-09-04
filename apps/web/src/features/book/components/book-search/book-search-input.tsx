@@ -1,8 +1,8 @@
 "use client";
 
-import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { Search } from "@/shared/components/icons/iconsax";
 import { Input } from "@/shared/components/shadcn/input";
 
 import { useBookSearchParams } from "../../hooks/use-book-search-params";
@@ -24,13 +24,9 @@ export const BookSearchInput = ({
   placeholder,
 }: BookSearchInputProps) => {
   const t = useTranslations("book.search");
-  
-  const {
-    inputValue,
-    setInputValue,
-    executeSearch,
-    handleKeyDown,
-  } = useBookSearchParams({ paramName });
+
+  const { inputValue, setInputValue, executeSearch, handleKeyDown } =
+    useBookSearchParams({ paramName });
 
   // 입력값 변경 핸들러
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

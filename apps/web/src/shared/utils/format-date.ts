@@ -81,7 +81,10 @@ export function formatDate(
  * @param date - 날짜 객체 또는 ISO 문자열
  * @param locale - 로케일 문자열 ("ko" | "en")
  */
-export function formatRelativeTime(date: Date | string, locale: string): string {
+export function formatRelativeTime(
+  date: Date | string,
+  locale: string,
+): string {
   if (!date) return "";
   const dateObj = typeof date === "string" ? new Date(date) : date;
   if (isNaN(dateObj.getTime())) return "";

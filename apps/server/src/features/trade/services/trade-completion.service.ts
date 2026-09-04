@@ -42,14 +42,41 @@ export class TradeCompletionService {
   /**
    * 판매자가 특정 구매희망자를 거래 상대로 지정하고 판매글을 예약중으로 바꿉니다.
    * 결제 없이 진행되는 직거래 전용 흐름입니다.
+   *
+   * 상태 변경은 트랜잭션 안에서, 이벤트 발행은 커밋된 뒤에 합니다. 커밋 전에
+   * 발행하면 롤백된 거래에 대한 알림과 채팅 메시지가 남고, 소켓 브로드캐스트를
+   * 받은 화면이 아직 커밋되지 않은 판매글을 다시 읽어갑니다.
    */
-  @Transactional()
   async reserveForBuyer(
     saleId: number,
     sellerId: number,
     buyerId: number,
     chatRoomId?: number | null,
   ): Promise<UsedBookSale> {
+    const { sale, roomId } = await this.persistReservation(
+      saleId,
+      sellerId,
+      buyerId,
+      chatRoomId,
+    );
+
+    this.eventEmitter.emit('trade.reserved', {
+      saleId,
+      sellerId,
+      buyerId,
+      chatRoomId: roomId,
+    });
+
+    return sale;
+  }
+
+  @Transactional()
+  private async persistReservation(
+    saleId: number,
+    sellerId: number,
+    buyerId: number,
+    chatRoomId?: number | null,
+  ): Promise<{ sale: UsedBookSale; roomId: number }> {
     const manager = this.txHost.tx;
     const sale = await this.loadSellerSale(saleId, sellerId);
 
@@ -71,30 +98,50 @@ export class TradeCompletionService {
       );
     }
 
-    await this.assertBuyerReachable(buyerId, chatRoomId);
+    // 예약은 "지금부터 이 분과 이야기한다"는 선언이므로, 방에 남아 있는
+    // 상대만 지정할 수 있다.
+    const roomId = await this.resolveCounterpartyRoom(
+      saleId,
+      buyerId,
+      chatRoomId,
+      {
+        requireActive: true,
+      },
+    );
 
     sale.status = SaleStatus.RESERVED;
     sale.reservedForUserId = buyerId;
     const saved = await manager.save(UsedBookSale, sale);
 
-    this.eventEmitter.emit('trade.reserved', {
-      saleId,
-      sellerId,
-      buyerId,
-      chatRoomId: chatRoomId ?? null,
-    });
-
-    return saved;
+    return { sale: saved, roomId };
   }
 
   /**
    * 예약을 취소하고 판매글을 다시 판매중으로 되돌립니다.
    */
-  @Transactional()
   async cancelReservation(
     saleId: number,
     sellerId: number,
   ): Promise<UsedBookSale> {
+    const { sale, previousBuyerId } = await this.persistReservationCancel(
+      saleId,
+      sellerId,
+    );
+
+    this.eventEmitter.emit('trade.reservation_cancelled', {
+      saleId,
+      sellerId,
+      buyerId: previousBuyerId,
+    });
+
+    return sale;
+  }
+
+  @Transactional()
+  private async persistReservationCancel(
+    saleId: number,
+    sellerId: number,
+  ): Promise<{ sale: UsedBookSale; previousBuyerId: number | null }> {
     const manager = this.txHost.tx;
     const sale = await this.loadSellerSale(saleId, sellerId);
 
@@ -108,24 +155,58 @@ export class TradeCompletionService {
     sale.reservedForUserId = null;
     const saved = await manager.save(UsedBookSale, sale);
 
-    this.eventEmitter.emit('trade.reservation_cancelled', {
-      saleId,
-      sellerId,
-      buyerId: previousBuyerId,
-    });
-
-    return saved;
+    return { sale: saved, previousBuyerId };
   }
 
   /**
    * 직거래를 완료 처리합니다.
    *
    * 거래 상대를 넘기면 완료 기록이 남아 양쪽 모두 후기를 쓸 수 있고,
-   * 넘기지 않으면 판매글만 판매완료로 바뀝니다. 서비스 밖에서 알게 된
-   * 사람과 거래한 경우까지 막지 않기 위한 선택지입니다.
+   * 넘기지 않으면(`withoutCounterparty`) 판매글만 판매완료로 바뀝니다.
+   * 서비스 밖에서 알게 된 사람과 거래한 경우까지 막지 않기 위한 선택지입니다.
    */
-  @Transactional()
   async completeDirectTrade(
+    saleId: number,
+    sellerId: number,
+    buyerId?: number | null,
+    chatRoomId?: number | null,
+    withoutCounterparty?: boolean,
+  ): Promise<{ sale: UsedBookSale; completion: TradeCompletion | null }> {
+    const { sale, completion } = await this.persistDirectCompletion(
+      saleId,
+      sellerId,
+      buyerId,
+      chatRoomId,
+      withoutCounterparty,
+    );
+
+    // 완료 기록은 판매글당 하나뿐이라(UQ_trade_completions_saleId) 이 지점에
+    // 도달했다면 방금 만들어진 기록이다. 알림과 채팅 메시지도 한 번만 나간다.
+    if (completion) {
+      this.eventEmitter.emit('trade.completed', {
+        completionId: completion.id,
+        saleId,
+        sellerId,
+        buyerId: completion.buyerId,
+        chatRoomId: completion.chatRoomId,
+        method: TradeCompletionMethod.DIRECT,
+      });
+    }
+
+    // 완료 기록 유무와 무관하게, 이 판매글로 대화하던 다른 방들도 판매가
+    // 끝났다는 사실은 알아야 한다. 특히 상대를 지정하지 않고 완료한 경우
+    // 예약 안내만 받고 방치되는 구매희망자가 생긴다.
+    this.eventEmitter.emit('trade.sale_sold', {
+      saleId,
+      sellerId,
+      chatRoomId: completion?.chatRoomId ?? null,
+    });
+
+    return { sale, completion };
+  }
+
+  @Transactional()
+  private async persistDirectCompletion(
     saleId: number,
     sellerId: number,
     buyerId?: number | null,
@@ -158,10 +239,8 @@ export class TradeCompletionService {
     const counterpartyId = withoutCounterparty
       ? null
       : (buyerId ?? sale.reservedForUserId);
-    const roomId = chatRoomId ?? null;
 
     let completion: TradeCompletion | null = null;
-    let isNewCompletion = false;
 
     if (counterpartyId) {
       if (counterpartyId === sellerId) {
@@ -171,10 +250,16 @@ export class TradeCompletionService {
         );
       }
 
-      await this.assertBuyerReachable(counterpartyId, roomId);
+      // 완료 시점엔 상대가 이미 채팅방을 나갔을 수 있다. 거래 자체는 있었을
+      // 수 있으므로 나간 것만으로 막지는 않되, 이 판매글로 대화한 적은
+      // 있어야 한다.
+      const roomId = await this.resolveCounterpartyRoom(
+        saleId,
+        counterpartyId,
+        chatRoomId,
+        { requireActive: false },
+      );
 
-      // 위에서 판매글 단위 중복을 이미 막았으므로 여기서는 새로 만들기만 한다.
-      isNewCompletion = true;
       completion = await manager.save(
         TradeCompletion,
         manager.create(TradeCompletion, {
@@ -192,19 +277,6 @@ export class TradeCompletionService {
     sale.status = SaleStatus.SOLD;
     sale.reservedForUserId = null;
     const saved = await manager.save(UsedBookSale, sale);
-
-    // 이미 완료된 거래를 다시 완료 처리해도 알림과 채팅 메시지는 한 번만
-    // 나가야 한다. 기록은 멱등하지만 이벤트는 그렇지 않았다.
-    if (completion && isNewCompletion) {
-      this.eventEmitter.emit('trade.completed', {
-        completionId: completion.id,
-        saleId,
-        sellerId,
-        buyerId: completion.buyerId,
-        chatRoomId: completion.chatRoomId,
-        method: TradeCompletionMethod.DIRECT,
-      });
-    }
 
     return { sale: saved, completion };
   }
@@ -224,10 +296,21 @@ export class TradeCompletionService {
   }): Promise<TradeCompletion> {
     const manager = this.txHost.tx ?? this.tradeCompletionRepository.manager;
 
+    // 판매글당 완료 기록은 하나다(UQ_trade_completions_saleId). orderId로만
+    // 멱등 처리하면 같은 판매글의 다른 주문이 들어왔을 때 DB 유니크 위반이
+    // 그대로 터진다. 구매확정은 토스 에스크로 확정을 이미 호출한 뒤라,
+    // 여기서 나는 500은 "정산은 됐는데 주문은 미확정"으로 남는다.
     const existing = await manager.findOne(TradeCompletion, {
-      where: { orderId: params.orderId },
+      where: { saleId: params.saleId },
     });
-    if (existing) return existing;
+    if (existing) {
+      if (existing.orderId === params.orderId) return existing;
+
+      throw new BusinessException(
+        'SALE_ALREADY_COMPLETED',
+        HttpStatus.CONFLICT,
+      );
+    }
 
     return await manager.save(
       TradeCompletion,
@@ -447,35 +530,79 @@ export class TradeCompletionService {
   }
 
   /**
-   * 거래 상대로 지정하려는 사용자가 실제로 대화가 가능한 상대인지 확인합니다.
+   * 거래 상대로 지정하려는 사용자가 이 판매글로 실제 대화한 상대인지 확인하고,
+   * 기록에 남길 채팅방 ID를 돌려줍니다.
    *
-   * 완료 기록은 후기와 신뢰 지표의 근거가 되므로, 아무나 상대로 넣어
-   * 평판을 부풀리지 못하도록 같은 채팅방의 활성 참여자로 제한합니다.
+   * 완료 기록은 후기와 신뢰 지표의 근거이자 알림의 발송처이므로, 아무나 상대로
+   * 넣어 평판을 부풀리거나 모르는 사람에게 거래 알림을 보내지 못하도록
+   * **이 판매글의 채팅방 참여자**로 제한합니다.
+   *
+   * 호출자가 넘긴 `chatRoomId`도 그대로 믿지 않고 이 판매글의 방인지 확인합니다.
+   * 믿으면 남의 채팅방 ID를 넣어 거기에 거래 시스템 메시지를 심을 수 있습니다.
+   * 넘기지 않았다면 이 판매글의 방 중에서 직접 찾아 채웁니다.
+   *
+   * @param options.requireActive 방에 남아 있는 상대만 허용할지. 예약은 앞으로
+   *   대화할 상대를 고르는 것이라 `true`, 완료는 이미 끝난 거래를 기록하는
+   *   것이라 나간 상대도 허용하도록 `false`를 씁니다.
    */
-  private async assertBuyerReachable(
+  private async resolveCounterpartyRoom(
+    saleId: number,
     buyerId: number,
-    chatRoomId?: number | null,
-  ): Promise<void> {
-    if (!chatRoomId) return;
+    chatRoomId: number | null | undefined,
+    options: { requireActive: boolean },
+  ): Promise<number> {
+    const query = this.chatParticipantRepository
+      .createQueryBuilder('participant')
+      .innerJoinAndSelect('participant.user', 'user')
+      .innerJoinAndSelect('participant.chatRoom', 'room')
+      .innerJoin('room.usedBookSale', 'sale')
+      .select([
+        'participant.id',
+        'participant.isActive',
+        'room.id',
+        'user.id',
+        'user.deletedAt',
+      ])
+      .where('sale.id = :saleId', { saleId })
+      .andWhere('user.id = :buyerId', { buyerId })
+      // 여러 방이 걸리면 남아 있는 방을, 그중에서도 최근 방을 고른다.
+      .orderBy('participant.isActive', 'DESC')
+      .addOrderBy('room.id', 'DESC');
 
-    const participant = await this.chatParticipantRepository.findOne({
-      where: { chatRoom: { id: chatRoomId }, user: { id: buyerId } },
-      relations: ['user'],
-    });
+    if (chatRoomId) {
+      query.andWhere('room.id = :chatRoomId', { chatRoomId });
+    }
 
-    if (!participant || !participant.isActive) {
+    const participants = await query.getMany();
+
+    if (participants.length === 0) {
+      // 방을 지정했는데 없다면 그 방이 이 판매글의 방이 아니거나 상대가 그 방에
+      // 없는 것이고, 지정하지 않았다면 대화 이력 자체가 없는 것이다.
+      throw new BusinessException(
+        chatRoomId
+          ? 'TRADE_CHAT_ROOM_MISMATCH'
+          : 'TRADE_COUNTERPARTY_NOT_IN_CHAT',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (participants.some((participant) => participant.user?.deletedAt)) {
+      throw new BusinessException(
+        'CHAT_PARTICIPANT_WITHDRAWN',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const active = participants.find((participant) => participant.isActive);
+
+    if (options.requireActive && !active) {
       throw new BusinessException(
         'CHAT_PARTICIPANT_INACTIVE',
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    if (participant.user?.deletedAt) {
-      throw new BusinessException(
-        'CHAT_PARTICIPANT_WITHDRAWN',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    return (active ?? participants[0]).chatRoom.id;
   }
 
   private async hasActiveOrder(saleId: number): Promise<boolean> {

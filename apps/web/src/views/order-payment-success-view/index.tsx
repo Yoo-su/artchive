@@ -3,14 +3,6 @@
 import { getErrorMessage } from "@bookjeok/api-client";
 import { Order } from "@bookjeok/core";
 import { useConfirmPaymentMutation } from "@bookjeok/react-query";
-import {
-  AlertCircle,
-  ArrowRight,
-  CheckCircle2,
-  Home,
-  Loader2,
-  Lock,
-} from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import React, { useEffect, useRef, useState } from "react";
@@ -20,10 +12,27 @@ import {
   clearPendingOrderShipping,
   getPendingOrderShipping,
 } from "@/features/order";
-import { BoxIcon, ShieldSecurityIcon, TruckFastIcon } from "@/shared/components/icons";
+import {
+  BoxIcon,
+  ShieldSecurityIcon,
+  TruckFastIcon,
+} from "@/shared/components/icons";
+import {
+  AlertCircle,
+  ArrowRight,
+  CheckCircle2,
+  Home,
+  Loader2,
+  Lock,
+} from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/shadcn/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/shadcn/card";
 import { Separator } from "@/shared/components/shadcn/separator";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
@@ -51,7 +60,10 @@ export const OrderPaymentSuccessView = () => {
     },
     onError: (error) => {
       console.error("Payment confirmation failed:", error);
-      const msg = getErrorMessage(error, "결제 승인 처리 중 오류가 발생했습니다.");
+      const msg = getErrorMessage(
+        error,
+        "결제 승인 처리 중 오류가 발생했습니다.",
+      );
       setErrorMessage(msg);
     },
   });
@@ -94,12 +106,18 @@ export const OrderPaymentSuccessView = () => {
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300">
           <AlertCircle className="h-7 w-7" />
         </div>
-        <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">잘못된 접근입니다</h2>
+        <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">
+          잘못된 접근입니다
+        </h2>
         <p className="text-sm text-stone-500">
           결제 승인 정보가 올바르지 않습니다.
         </p>
         <div className="pt-2">
-          <Button asChild variant="outline" className="border-stone-200 dark:border-stone-700">
+          <Button
+            asChild
+            variant="outline"
+            className="border-stone-200 dark:border-stone-700"
+          >
             <Link href={PATHS.HOME}>{t("btn_go_home")}</Link>
           </Button>
         </div>
@@ -136,17 +154,29 @@ export const OrderPaymentSuccessView = () => {
           <AlertCircle className="h-7 w-7" />
         </div>
         <div className="space-y-1.5">
-          <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">결제 승인 실패</h2>
-          <p className="text-sm text-stone-600 dark:text-stone-300">{errorMessage}</p>
+          <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">
+            결제 승인 실패
+          </h2>
+          <p className="text-sm text-stone-600 dark:text-stone-300">
+            {errorMessage}
+          </p>
         </div>
         <p className="text-xs text-stone-400">
-          결제 승인 과정에서 문제가 발생했습니다. 지속될 경우 고객센터로 문의해주세요.
+          결제 승인 과정에서 문제가 발생했습니다. 지속될 경우 고객센터로
+          문의해주세요.
         </p>
         <div className="pt-2 flex justify-center gap-3">
-          <Button onClick={handleConfirm} className="bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900">
+          <Button
+            onClick={handleConfirm}
+            className="bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900"
+          >
             승인 재시도
           </Button>
-          <Button asChild variant="outline" className="border-stone-200 dark:border-stone-700">
+          <Button
+            asChild
+            variant="outline"
+            className="border-stone-200 dark:border-stone-700"
+          >
             <Link href={PATHS.HOME}>{t("btn_go_home")}</Link>
           </Button>
         </div>
@@ -181,7 +211,9 @@ export const OrderPaymentSuccessView = () => {
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 font-bold shadow-2xs">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
-              <span className="font-bold text-stone-900 dark:text-stone-100">{t("steps.step1")}</span>
+              <span className="font-bold text-stone-900 dark:text-stone-100">
+                {t("steps.step1")}
+              </span>
             </div>
             <div className="flex flex-col items-center gap-1.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-200 text-stone-600 dark:bg-stone-800 dark:text-stone-400">
@@ -213,7 +245,10 @@ export const OrderPaymentSuccessView = () => {
               {t("order_summary")}
             </CardTitle>
             {displayOrder?.id && (
-              <Badge variant="outline" className="font-mono text-[11px] border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-400">
+              <Badge
+                variant="outline"
+                className="font-mono text-[11px] border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-400"
+              >
                 {displayOrder.id}
               </Badge>
             )}
@@ -257,20 +292,31 @@ export const OrderPaymentSuccessView = () => {
           {/* 에스크로 안내 */}
           <div className="flex items-start gap-2.5 rounded-xl bg-stone-50 dark:bg-stone-800/40 p-3 text-xs text-stone-600 dark:text-stone-300 border border-stone-200/80 dark:border-stone-800">
             <ShieldSecurityIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-            <p className="leading-relaxed text-[11px] text-stone-500 dark:text-stone-400">{t("escrow_guide")}</p>
+            <p className="leading-relaxed text-[11px] text-stone-500 dark:text-stone-400">
+              {t("escrow_guide")}
+            </p>
           </div>
         </CardContent>
       </Card>
 
       {/* 액션 버튼 */}
       <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-        <Button asChild size="lg" className="flex-1 font-bold h-12 rounded-xl bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 shadow-xs cursor-pointer">
+        <Button
+          asChild
+          size="lg"
+          className="flex-1 font-bold h-12 rounded-xl bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 shadow-xs cursor-pointer"
+        >
           <Link href={PATHS.ORDER_DETAIL(targetOrderId)}>
             {t("btn_order_detail")}
             <ArrowRight className="h-4 w-4 ml-1.5" />
           </Link>
         </Button>
-        <Button asChild variant="outline" size="lg" className="sm:w-36 h-12 rounded-xl border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300">
+        <Button
+          asChild
+          variant="outline"
+          size="lg"
+          className="sm:w-36 h-12 rounded-xl border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300"
+        >
           <Link href={PATHS.HOME}>
             <Home className="h-4 w-4 mr-1.5" />
             {t("btn_go_home")}

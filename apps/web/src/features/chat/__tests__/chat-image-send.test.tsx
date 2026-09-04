@@ -8,7 +8,13 @@
  */
 import { chatKeys, ChatMessage, MAX_CHAT_IMAGES } from "@bookjeok/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import React from "react";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -87,9 +93,9 @@ const createQueryClient = () => {
 };
 
 const getCachedMessages = (queryClient: QueryClient): ChatMessage[] => {
-  const data = queryClient.getQueryData<{ pages: { messages: ChatMessage[] }[] }>(
-    chatKeys.messages(ROOM_ID).queryKey,
-  );
+  const data = queryClient.getQueryData<{
+    pages: { messages: ChatMessage[] }[];
+  }>(chatKeys.messages(ROOM_ID).queryKey);
   return data?.pages.flatMap((page) => page.messages) ?? [];
 };
 
@@ -227,9 +233,10 @@ describe("이미지 첨부 메시지 전송", () => {
     const queryClient = createQueryClient();
     let resolveUpload: (urls: string[]) => void = () => {};
     mockUploadChatImages.mockImplementation(
-      () => new Promise<string[]>((resolve) => {
-        resolveUpload = resolve;
-      }),
+      () =>
+        new Promise<string[]>((resolve) => {
+          resolveUpload = resolve;
+        }),
     );
     mockEmit.mockImplementation((_event, _payload, ack) => {
       ack(null, { status: "ok" });
@@ -265,7 +272,6 @@ describe("이미지 첨부 메시지 전송", () => {
     // 낙관적 메시지도 전역 캐시에 정상 반영됐다
     expect(getCachedMessages(queryClient)).toHaveLength(1);
   });
-
 });
 
 describe("이미지 첨부", () => {
@@ -274,9 +280,9 @@ describe("이미지 첨부", () => {
 
     attachImage(container, MAX_CHAT_IMAGES + 2);
 
-    expect(await screen.findAllByAltText("common.aria.preview_image")).toHaveLength(
-      MAX_CHAT_IMAGES,
-    );
+    expect(
+      await screen.findAllByAltText("common.aria.preview_image"),
+    ).toHaveLength(MAX_CHAT_IMAGES);
     expect(toast.error).toHaveBeenCalledWith("chat.image.limit_exceeded");
   });
 
@@ -284,13 +290,15 @@ describe("이미지 첨부", () => {
     const { container } = renderInput(createQueryClient());
 
     attachImage(container, 2);
-    expect(await screen.findAllByAltText("common.aria.preview_image")).toHaveLength(2);
+    expect(
+      await screen.findAllByAltText("common.aria.preview_image"),
+    ).toHaveLength(2);
 
     // 두 번째 배치: 남은 자리는 1개뿐
     attachImage(container, 2);
-    expect(await screen.findAllByAltText("common.aria.preview_image")).toHaveLength(
-      MAX_CHAT_IMAGES,
-    );
+    expect(
+      await screen.findAllByAltText("common.aria.preview_image"),
+    ).toHaveLength(MAX_CHAT_IMAGES);
     expect(toast.error).toHaveBeenCalledWith("chat.image.limit_exceeded");
 
     // 가득 찬 상태에서는 첨부 버튼이 비활성화된다
@@ -306,10 +314,14 @@ describe("이미지 첨부", () => {
     fireEvent.click(screen.getAllByLabelText("common.aria.delete_image")[0]);
 
     await waitFor(() =>
-      expect(screen.getAllByAltText("common.aria.preview_image")).toHaveLength(1),
+      expect(screen.getAllByAltText("common.aria.preview_image")).toHaveLength(
+        1,
+      ),
     );
     expect(global.URL.revokeObjectURL).toHaveBeenCalledWith("blob:preview-1");
     // 남은 이미지의 URL은 해제되지 않는다
-    expect(global.URL.revokeObjectURL).not.toHaveBeenCalledWith("blob:preview-2");
+    expect(global.URL.revokeObjectURL).not.toHaveBeenCalledWith(
+      "blob:preview-2",
+    );
   });
 });

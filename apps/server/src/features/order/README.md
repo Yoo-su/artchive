@@ -145,6 +145,8 @@ order.auto_confirmed            order.shipping_deadline_warning
 order.disputed                  trade_review.created
 ```
 
+**이벤트는 트랜잭션이 커밋된 뒤에 발행합니다.** 상태 변경은 `persist*` 프라이빗 메서드에 `@Transactional()`로 묶고, 같은 이름의 공개 메서드가 그 결과(`PersistedOrder`)를 받아 `emit`합니다. 커밋 전에 발행하면 (1) 롤백된 주문에 대한 알림과 채팅 메시지가 남고, (2) 소켓 브로드캐스트를 받은 화면이 아직 커밋되지 않은 주문을 다시 읽어갑니다. 리스너는 트랜잭션 밖 레포지토리로 쓰기 때문에 롤백에 따라오지 않습니다.
+
 ---
 
 ## 안전장치
@@ -155,6 +157,8 @@ order.disputed                  trade_review.created
 | 요청 재시도로 인한 이중 과금 | `x-idempotency-key` 헤더 → `IdempotencyInterceptor` |
 | 클라이언트 금액 위변조 | 승인 금액을 서버에서 `UsedBookSale.price`와 대조 |
 | 토스 승인 성공 후 DB 저장 실패 | 보상 트랜잭션으로 즉시 자동 환불 |
+| 구매확정 시 완료 기록 중복 | 판매글당 완료 기록 하나(`SALE_ALREADY_COMPLETED`). DB 유니크 위반이 에스크로 확정 뒤에 500으로 터지는 것을 막습니다 |
+| 롤백된 주문의 알림 잔존 | 이벤트는 커밋 후 발행 (위 참고) |
 | 미인증 계정 어뷰징 | `EmailVerifiedGuard` (구매자 지정 · 결제) |
 | PG 심사 전 노출 | `PaymentFeatureGuard` + `FEATURE_PAYMENT_ENABLED` |
 | 거래 중 이탈 | 활성 주문이 있는 채팅방 나가기 차단 (`CHAT_CANNOT_LEAVE_DURING_TRADE`) |

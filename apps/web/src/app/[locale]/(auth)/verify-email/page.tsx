@@ -28,7 +28,11 @@ export async function generateMetadata({
 export default function VerifyEmailPage() {
   return (
     <DefaultLayout>
-      <Suspense fallback={<div className="min-h-[70vh] flex items-center justify-center" />}>
+      <Suspense
+        fallback={
+          <div className="min-h-[70vh] flex items-center justify-center" />
+        }
+      >
         <VerifyEmailView />
       </Suspense>
     </DefaultLayout>

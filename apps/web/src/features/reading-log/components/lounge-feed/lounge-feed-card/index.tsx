@@ -1,12 +1,12 @@
 "use client";
 
 import { LoungeBookCard } from "@bookjeok/core";
-import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { memo } from "react";
 
 import { BookIcon, QuoteUpIcon } from "@/shared/components/icons";
+import { ChevronRight } from "@/shared/components/icons/iconsax";
 import { AvatarCircles } from "@/shared/components/magicui/avatar-circles";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Card, CardContent } from "@/shared/components/shadcn/card";

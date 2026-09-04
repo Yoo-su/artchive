@@ -51,10 +51,7 @@ export default function BookSearchView() {
       )}
 
       {/* 탭 메뉴: [ 키워드 검색 | AI 추천 검색 ] */}
-      <SearchModeTabs
-        activeMode={searchMode}
-        onModeChange={handleModeChange}
-      />
+      <SearchModeTabs activeMode={searchMode} onModeChange={handleModeChange} />
 
       {/* 모드별 뷰 스위칭 */}
       {searchMode === "KEYWORD" ? (

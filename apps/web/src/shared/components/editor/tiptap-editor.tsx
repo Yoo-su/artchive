@@ -10,12 +10,12 @@ import { TextStyle } from "@tiptap/extension-text-style";
 import Underline from "@tiptap/extension-underline";
 import { Editor, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { Bold, Heading2, Italic } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ImageResize from "tiptap-extension-resize-image";
 
+import { Bold, Heading2, Italic } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { cn } from "@/shared/utils/cn";
 
@@ -36,7 +36,9 @@ export const TiptapEditor = ({
 }: TiptapEditorProps) => {
   const t = useTranslations("common.editor");
   const effectivePlaceholder = placeholder ?? t("placeholder");
-  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(
+    null,
+  );
 
   const updateMenuPosition = useCallback((editor: Editor) => {
     const { view, state } = editor;
@@ -54,7 +56,10 @@ export const TiptapEditor = ({
     const editorRect = view.dom.getBoundingClientRect();
     const padding = 75; // 퀵 툴바 절반 너비만큼의 세이프 마진
     const rawLeft = (start.left + end.left) / 2 - editorRect.left;
-    const left = Math.max(padding, Math.min(editorRect.width - padding, rawLeft));
+    const left = Math.max(
+      padding,
+      Math.min(editorRect.width - padding, rawLeft),
+    );
     const top = start.top - editorRect.top - 55; // 기존 -45에서 -55로 벌려 텍스트와의 미세 간격 확보
 
     setMenuPos({ top, left });
@@ -173,7 +178,7 @@ export const TiptapEditor = ({
         fileInputRef.current.value = "";
       }
     },
-    [editor, onImageAdd]
+    [editor, onImageAdd],
   );
 
   if (!editor) {
@@ -196,7 +201,12 @@ export const TiptapEditor = ({
         {editor && menuPos && (
           <motion.div
             animate={{ x: menuPos.left, y: menuPos.top, scale: 1, opacity: 1 }}
-            initial={{ x: menuPos.left, y: menuPos.top, scale: 0.85, opacity: 0 }}
+            initial={{
+              x: menuPos.left,
+              y: menuPos.top,
+              scale: 0.85,
+              opacity: 0,
+            }}
             exit={{ scale: 0.85, opacity: 0 }}
             transition={{ type: "spring", stiffness: 450, damping: 30 }}
             onMouseDown={(e) => e.preventDefault()}
@@ -211,7 +221,7 @@ export const TiptapEditor = ({
               onClick={() => editor.chain().focus().toggleBold().run()}
               className={cn(
                 "h-8 w-8 p-0",
-                editor.isActive("bold") && "bg-muted text-primary"
+                editor.isActive("bold") && "bg-muted text-primary",
               )}
             >
               <Bold className="w-4 h-4" />
@@ -223,7 +233,7 @@ export const TiptapEditor = ({
               onClick={() => editor.chain().focus().toggleItalic().run()}
               className={cn(
                 "h-8 w-8 p-0",
-                editor.isActive("italic") && "bg-muted text-primary"
+                editor.isActive("italic") && "bg-muted text-primary",
               )}
             >
               <Italic className="w-4 h-4" />
@@ -238,7 +248,7 @@ export const TiptapEditor = ({
               className={cn(
                 "h-8 w-8 p-0",
                 editor.isActive("heading", { level: 2 }) &&
-                  "bg-muted text-primary"
+                  "bg-muted text-primary",
               )}
             >
               <Heading2 className="w-4 h-4" />

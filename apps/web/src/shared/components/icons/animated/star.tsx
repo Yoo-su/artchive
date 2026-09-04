@@ -44,7 +44,12 @@ const animations = {
   } satisfies Record<string, Variants>,
 } as const;
 
-function IconComponent({ size = 24, filled = false, half = false, ...props }: StarProps) {
+function IconComponent({
+  size = 24,
+  filled = false,
+  half = false,
+  ...props
+}: StarProps) {
   const { controls } = useAnimateIconContext();
   const variants = getVariants(animations);
 

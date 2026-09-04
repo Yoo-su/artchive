@@ -1,10 +1,10 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import React from "react";
 
 import { TradeHistoryList } from "@/features/trade";
+import { ArrowLeft } from "@/shared/components/icons/iconsax";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
@@ -24,7 +24,9 @@ export const TradeHistoryView = () => {
         <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
           {t("title")}
         </h1>
-        <p className="text-xs sm:text-sm text-stone-500 mt-1">{t("subtitle")}</p>
+        <p className="text-xs sm:text-sm text-stone-500 mt-1">
+          {t("subtitle")}
+        </p>
       </div>
 
       <TradeHistoryList />

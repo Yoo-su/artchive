@@ -5,7 +5,11 @@
  * 목록에만 새 메시지가 반영된다. 소켓 connect 기반 동기화는 좀비 소켓/지연 재연결에서
  * 동작하지 않으므로, 방 캐시가 목록보다 뒤처지면 스스로 보충하는지 확인한다.
  */
-import { chatKeys, ChatMessage, ChatRoom as ChatRoomType } from "@bookjeok/core";
+import {
+  chatKeys,
+  ChatMessage,
+  ChatRoom as ChatRoomType,
+} from "@bookjeok/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
 import React from "react";

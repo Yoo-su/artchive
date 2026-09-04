@@ -659,6 +659,44 @@ export class ChatService {
   }
 
   /**
+   * 판매가 끝났음을 이 판매글의 다른 채팅방들에 알립니다.
+   *
+   * 거래가 성사된 방에는 완료 안내가 따로 나가므로 제외합니다. 나머지 방들은
+   * "다른 구매자와 거래 진행 중" 안내만 받은 채 남는데, 특히 판매자가 상대를
+   * 지정하지 않고 완료한 경우에는 예약 취소 안내조차 오지 않아 계속 기다리게
+   * 됩니다.
+   */
+  async notifySaleSold(
+    saleId: number,
+    completedChatRoomId?: number | null,
+  ): Promise<void> {
+    const queryBuilder = this.chatRoomRepository
+      .createQueryBuilder('room')
+      .innerJoin('room.usedBookSale', 'sale')
+      .where('sale.id = :saleId', { saleId });
+
+    if (completedChatRoomId) {
+      queryBuilder.andWhere('room.id != :completedChatRoomId', {
+        completedChatRoomId,
+      });
+    }
+
+    const rooms = await queryBuilder.getMany();
+    if (rooms.length === 0) return;
+
+    await Promise.allSettled(
+      rooms.map((room) =>
+        this.sendTradeMessage(
+          room.id,
+          '판매자가 판매완료로 표시했습니다.',
+          ChatMessageType.TRADE_STATUS,
+          { saleId, tradeStatus: 'SOLD' },
+        ),
+      ),
+    );
+  }
+
+  /**
    * 예약이 취소되어 판매글이 다시 판매중으로 돌아왔음을 알립니다.
    *
    * 거래 진행 중 안내를 받았던 구매희망자들이 계속 기다리기만 하지 않도록,

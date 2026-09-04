@@ -62,7 +62,7 @@ function TabsList({
       data-slot="tabs-list"
       className={cn(
         "bg-muted text-muted-foreground relative inline-flex h-9 w-fit items-center justify-center rounded-lg p-1 select-none",
-        className
+        className,
       )}
       {...props}
     >
@@ -104,7 +104,7 @@ function TabsTrigger({
         isActive
           ? "text-foreground font-semibold"
           : "text-muted-foreground hover:text-foreground",
-        className
+        className,
       )}
       {...props}
     >

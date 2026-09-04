@@ -283,7 +283,7 @@ export const CrowdCanvas = ({
               gsap.ticker.remove(render);
             }
           },
-          { threshold: 0 }
+          { threshold: 0 },
         );
         observer.observe(canvas);
       } else {

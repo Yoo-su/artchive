@@ -2,11 +2,11 @@
 
 import { SaleStatus } from "@bookjeok/core";
 import { useMyBookSalesQuery } from "@bookjeok/react-query";
-import { AlertTriangle, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { ShoppingBagIcon } from "@/shared/components/icons";
+import { AlertTriangle, Plus } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
@@ -45,9 +45,14 @@ export const BookSaleHistoryList = () => {
     }
     return {
       ALL: sales.length,
-      [SaleStatus.FOR_SALE]: sales.filter((s) => s.status === SaleStatus.FOR_SALE).length,
-      [SaleStatus.RESERVED]: sales.filter((s) => s.status === SaleStatus.RESERVED).length,
-      [SaleStatus.SOLD]: sales.filter((s) => s.status === SaleStatus.SOLD).length,
+      [SaleStatus.FOR_SALE]: sales.filter(
+        (s) => s.status === SaleStatus.FOR_SALE,
+      ).length,
+      [SaleStatus.RESERVED]: sales.filter(
+        (s) => s.status === SaleStatus.RESERVED,
+      ).length,
+      [SaleStatus.SOLD]: sales.filter((s) => s.status === SaleStatus.SOLD)
+        .length,
     };
   }, [sales]);
 
@@ -59,11 +64,16 @@ export const BookSaleHistoryList = () => {
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50/60 dark:bg-stone-900/60 p-10 text-center space-y-3">
         <AlertTriangle className="h-9 w-9 text-stone-400" />
-        <h3 className="font-bold text-stone-900 dark:text-stone-100">{t("error_title")}</h3>
-        <p className="text-xs text-stone-500 max-w-sm">
-          {t("error_desc")}
-        </p>
-        <Button onClick={() => refetch()} variant="outline" size="sm" className="mt-2 border-stone-200 dark:border-stone-700">
+        <h3 className="font-bold text-stone-900 dark:text-stone-100">
+          {t("error_title")}
+        </h3>
+        <p className="text-xs text-stone-500 max-w-sm">{t("error_desc")}</p>
+        <Button
+          onClick={() => refetch()}
+          variant="outline"
+          size="sm"
+          className="mt-2 border-stone-200 dark:border-stone-700"
+        >
           다시 시도
         </Button>
       </div>
@@ -91,7 +101,9 @@ export const BookSaleHistoryList = () => {
               >
                 {tab.label}
                 {count !== undefined && count > 0 && (
-                  <span className={`ml-1 text-[11px] ${isActive ? "opacity-90 font-mono" : "text-stone-400 font-mono"}`}>
+                  <span
+                    className={`ml-1 text-[11px] ${isActive ? "opacity-90 font-mono" : "text-stone-400 font-mono"}`}
+                  >
                     ({count})
                   </span>
                 )}
@@ -111,11 +123,13 @@ export const BookSaleHistoryList = () => {
             <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">
               {t("empty_title")}
             </h3>
-            <p className="text-xs text-stone-400 max-w-sm">
-              {t("empty_desc")}
-            </p>
+            <p className="text-xs text-stone-400 max-w-sm">{t("empty_desc")}</p>
           </div>
-          <Button asChild size="sm" className="mt-2 bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 gap-1.5 shadow-2xs rounded-lg cursor-pointer">
+          <Button
+            asChild
+            size="sm"
+            className="mt-2 bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 gap-1.5 shadow-2xs rounded-lg cursor-pointer"
+          >
             <Link href={PATHS.BOOK_SALES_REGISTER}>
               <Plus className="h-3.5 w-3.5" />
               {t("btn_register_sale")}

@@ -1,8 +1,8 @@
 import { useUnreadCountQuery } from "@bookjeok/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bell } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { Bell } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { cn } from "@/shared/utils";
 

@@ -2,12 +2,19 @@
 
 import { BookInfo, HOME_PUBLISHERS } from "@bookjeok/core";
 import { useBookListQuery } from "@bookjeok/react-query";
-import { BookOpen } from "lucide-react";
-import { animate, motion, MotionValue, PanInfo, useMotionValue, useTransform } from "motion/react";
+import {
+  animate,
+  motion,
+  MotionValue,
+  PanInfo,
+  useMotionValue,
+  useTransform,
+} from "motion/react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 
+import { BookOpen } from "@/shared/components/icons/iconsax";
 import { TextAnimate } from "@/shared/components/magicui/text-animate";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
@@ -15,179 +22,185 @@ import { PATHS } from "@/shared/constants/paths";
 import { BookSliderSkeleton } from "./skeleton";
 
 // 3D 실린더 카드 컴포넌트
-const BookCard = memo(({
-  book,
-  index,
-  rotationY,
-  angleStep,
-  radius,
-  onCardClick,
-}: {
-  book: BookInfo;
-  index: number;
-  rotationY: MotionValue<number>;
-  angleStep: number;
-  radius: number;
-  onCardClick: (e: React.MouseEvent) => void;
-}) => {
-  const cardAngle = index * angleStep;
+const BookCard = memo(
+  ({
+    book,
+    index,
+    rotationY,
+    angleStep,
+    radius,
+    onCardClick,
+  }: {
+    book: BookInfo;
+    index: number;
+    rotationY: MotionValue<number>;
+    angleStep: number;
+    radius: number;
+    onCardClick: (e: React.MouseEvent) => void;
+  }) => {
+    const cardAngle = index * angleStep;
 
-  // 중앙 전면과의 상대 각도 계산
-  const relativeAngle = useTransform(rotationY, (r: number) => {
-    const total = (((cardAngle + r) % 360) + 360) % 360;
-    return total > 180 ? total - 360 : total;
-  });
+    // 중앙 전면과의 상대 각도 계산
+    const relativeAngle = useTransform(rotationY, (r: number) => {
+      const total = (((cardAngle + r) % 360) + 360) % 360;
+      return total > 180 ? total - 360 : total;
+    });
 
-  // 전면 상대 각도 기준 동적 스타일 매핑 (360도 전체 범위)
-  const scale = useTransform(
-    relativeAngle,
-    [-180, -120, -60, 0, 60, 120, 180],
-    [0.65, 0.75, 0.9, 1.05, 0.9, 0.75, 0.65]
-  );
+    // 전면 상대 각도 기준 동적 스타일 매핑 (360도 전체 범위)
+    const scale = useTransform(
+      relativeAngle,
+      [-180, -120, -60, 0, 60, 120, 180],
+      [0.65, 0.75, 0.9, 1.05, 0.9, 0.75, 0.65],
+    );
 
-  const opacity = useTransform(
-    relativeAngle,
-    [-180, -120, -60, 0, 60, 120, 180],
-    [0.15, 0.25, 0.6, 1, 0.6, 0.25, 0.15]
-  );
+    const opacity = useTransform(
+      relativeAngle,
+      [-180, -120, -60, 0, 60, 120, 180],
+      [0.15, 0.25, 0.6, 1, 0.6, 0.25, 0.15],
+    );
 
-  const zIndex = useTransform(relativeAngle, (a: number) => Math.round(200 - Math.abs(a)));
+    const zIndex = useTransform(relativeAngle, (a: number) =>
+      Math.round(200 - Math.abs(a)),
+    );
 
-  const overlayOpacity = useTransform(
-    relativeAngle,
-    [-180, -120, -60, 0, 60, 120, 180],
-    [0.7, 0.55, 0.3, 0, 0.3, 0.55, 0.7]
-  );
+    const overlayOpacity = useTransform(
+      relativeAngle,
+      [-180, -120, -60, 0, 60, 120, 180],
+      [0.7, 0.55, 0.3, 0, 0.3, 0.55, 0.7],
+    );
 
-  // 3D 회전 시 뒤편(후면)에 위치한 카드의 포인터 이벤트 차단
-  const pointerEvents = useTransform(relativeAngle, (a: number) =>
-    Math.abs(a) > 85 ? "none" : "auto"
-  );
+    // 3D 회전 시 뒤편(후면)에 위치한 카드의 포인터 이벤트 차단
+    const pointerEvents = useTransform(relativeAngle, (a: number) =>
+      Math.abs(a) > 85 ? "none" : "auto",
+    );
 
-  return (
-    // 1. 외곽 레이어: 정적 3D 실린더 배치 및 3D 후면 숨김 처리
-    <motion.div
-      style={{
-        position: "absolute",
-        left: 0,
-        top: 0,
-        width: "100%",
-        height: "100%",
-        transformStyle: "preserve-3d",
-        transform: `rotateY(${cardAngle}deg) translateZ(${radius}px)`,
-        backfaceVisibility: "hidden",
-        WebkitBackfaceVisibility: "hidden",
-        pointerEvents,
-      }}
-      className="cursor-pointer"
-    >
-      {/* 2. 중간 레이어: 동적 크기, 투명도, z-index 정렬 및 고정 호버 영역 감지 담당 */}
+    return (
+      // 1. 외곽 레이어: 정적 3D 실린더 배치 및 3D 후면 숨김 처리
       <motion.div
-        initial="rest"
-        whileHover="hover"
-        animate="rest"
         style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
           width: "100%",
           height: "100%",
           transformStyle: "preserve-3d",
-          scale,
-          opacity,
-          zIndex,
+          transform: `rotateY(${cardAngle}deg) translateZ(${radius}px)`,
+          backfaceVisibility: "hidden",
+          WebkitBackfaceVisibility: "hidden",
+          pointerEvents,
         }}
-        className="w-full h-full cursor-pointer"
+        className="cursor-pointer"
       >
-        {/* 3. 내부 레이어: 마우스 호버 애니메이션 담당 */}
+        {/* 2. 중간 레이어: 동적 크기, 투명도, z-index 정렬 및 고정 호버 영역 감지 담당 */}
         <motion.div
-          variants={{
-            rest: { scale: 1, y: 0 },
-            hover: { scale: 1.06, y: -12 },
+          initial="rest"
+          whileHover="hover"
+          animate="rest"
+          style={{
+            width: "100%",
+            height: "100%",
+            transformStyle: "preserve-3d",
+            scale,
+            opacity,
+            zIndex,
           }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="w-full h-full rounded-2xl cursor-pointer"
+          className="w-full h-full cursor-pointer"
         >
-          <Link
-            href={PATHS.BOOK_DETAIL(book.isbn)}
-            passHref
-            onClick={onCardClick}
-            onDragStart={(e) => e.preventDefault()} // 드래그 제스처 방해 방지를 위해 브라우저 기본 링크 드래그 차단
-            className="block w-full h-full group pointer-events-auto cursor-pointer"
+          {/* 3. 내부 레이어: 마우스 호버 애니메이션 담당 */}
+          <motion.div
+            variants={{
+              rest: { scale: 1, y: 0 },
+              hover: { scale: 1.06, y: -12 },
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="w-full h-full rounded-2xl cursor-pointer"
           >
-            <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-[0_12px_24px_-8px_rgba(0,0,0,0.35)] group-hover:shadow-[0_28px_40px_-10px_rgba(0,0,0,0.45)] transition-shadow duration-700 ease-out border border-stone-200/40 cursor-pointer">
-              <Image
-                src={book.image || "/images/placeholder-book.svg"}
-                alt={book.title}
-                fill
-                priority={true}
-                unoptimized={true}
-                draggable={false} // 마우스 먹통 방지를 위해 브라우저 기본 이미지 드래그 차단
-                sizes="(max-width: 768px) 130px, 230px"
-                className="object-cover transition-transform duration-1000 group-hover:scale-102 cursor-pointer"
-              />
-              {/* 입체적인 조명 효과를 위한 베벨 링 */}
-              <div className="absolute inset-0 ring-1 ring-inset ring-white/20 rounded-2xl pointer-events-none" />
+            <Link
+              href={PATHS.BOOK_DETAIL(book.isbn)}
+              passHref
+              onClick={onCardClick}
+              onDragStart={(e) => e.preventDefault()} // 드래그 제스처 방해 방지를 위해 브라우저 기본 링크 드래그 차단
+              className="block w-full h-full group pointer-events-auto cursor-pointer"
+            >
+              <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-[0_12px_24px_-8px_rgba(0,0,0,0.35)] group-hover:shadow-[0_28px_40px_-10px_rgba(0,0,0,0.45)] transition-shadow duration-700 ease-out border border-stone-200/40 cursor-pointer">
+                <Image
+                  src={book.image || "/images/placeholder-book.svg"}
+                  alt={book.title}
+                  fill
+                  priority={true}
+                  unoptimized={true}
+                  draggable={false} // 마우스 먹통 방지를 위해 브라우저 기본 이미지 드래그 차단
+                  sizes="(max-width: 768px) 130px, 230px"
+                  className="object-cover transition-transform duration-1000 group-hover:scale-102 cursor-pointer"
+                />
+                {/* 입체적인 조명 효과를 위한 베벨 링 */}
+                <div className="absolute inset-0 ring-1 ring-inset ring-white/20 rounded-2xl pointer-events-none" />
 
-              {/* 카드가 측면으로 회전할 때 어두워지는 그림자 오버레이 */}
-              <motion.div
-                style={{ opacity: overlayOpacity }}
-                className="absolute inset-0 bg-stone-950/90 pointer-events-none transition-opacity duration-300"
-              />
+                {/* 카드가 측면으로 회전할 때 어두워지는 그림자 오버레이 */}
+                <motion.div
+                  style={{ opacity: overlayOpacity }}
+                  className="absolute inset-0 bg-stone-950/90 pointer-events-none transition-opacity duration-300"
+                />
 
-              {/* 마우스 호버 시 밝아지는 하이라이트 오버레이 */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500 pointer-events-none" />
-            </div>
-          </Link>
+                {/* 마우스 호버 시 밝아지는 하이라이트 오버레이 */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500 pointer-events-none" />
+              </div>
+            </Link>
+          </motion.div>
         </motion.div>
       </motion.div>
-    </motion.div>
-  );
-});
+    );
+  },
+);
 
 BookCard.displayName = "BookCard";
 
 // 활성 도서 정보 텍스트 컴포넌트 (부모 전체의 불필요한 리렌더링 방지를 위해 격리)
-const ActiveBookInfo = memo(({
-  rotationY,
-  books,
-  angleStep,
-}: {
-  rotationY: MotionValue<number>;
-  books: BookInfo[];
-  angleStep: number;
-}) => {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const N = books.length;
+const ActiveBookInfo = memo(
+  ({
+    rotationY,
+    books,
+    angleStep,
+  }: {
+    rotationY: MotionValue<number>;
+    books: BookInfo[];
+    angleStep: number;
+  }) => {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const N = books.length;
 
-  useEffect(() => {
-    if (N === 0) return;
-    const unsubscribe = rotationY.on("change", (latest: number) => {
-      const approxIndex = Math.round(-latest / angleStep);
-      const normIndex = ((approxIndex % N) + N) % N;
-      setActiveIndex(normIndex);
-    });
-    return () => unsubscribe();
-  }, [rotationY, angleStep, N]);
+    useEffect(() => {
+      if (N === 0) return;
+      const unsubscribe = rotationY.on("change", (latest: number) => {
+        const approxIndex = Math.round(-latest / angleStep);
+        const normIndex = ((approxIndex % N) + N) % N;
+        setActiveIndex(normIndex);
+      });
+      return () => unsubscribe();
+    }, [rotationY, angleStep, N]);
 
-  const activeBook = books[activeIndex];
+    const activeBook = books[activeIndex];
 
-  return (
-    <div className="container mx-auto mt-16 flex flex-col items-center text-center h-[80px]">
-      <motion.div
-        key={activeIndex}
-        initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
-        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-        transition={{ duration: 0.35, ease: "easeOut" }}
-        className="space-y-1.5 select-none pointer-events-none"
-      >
-        <h3 className="text-stone-900 font-bold text-xl md:text-3xl leading-tight px-4 max-w-2xl line-clamp-1">
-          {activeBook?.title}
-        </h3>
-        <p className="text-stone-500 text-sm md:text-base font-medium tracking-wide">
-          {activeBook?.author}
-        </p>
-      </motion.div>
-    </div>
-  );
-});
+    return (
+      <div className="container mx-auto mt-16 flex flex-col items-center text-center h-[80px]">
+        <motion.div
+          key={activeIndex}
+          initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          className="space-y-1.5 select-none pointer-events-none"
+        >
+          <h3 className="text-stone-900 font-bold text-xl md:text-3xl leading-tight px-4 max-w-2xl line-clamp-1">
+            {activeBook?.title}
+          </h3>
+          <p className="text-stone-500 text-sm md:text-base font-medium tracking-wide">
+            {activeBook?.author}
+          </p>
+        </motion.div>
+      </div>
+    );
+  },
+);
 
 ActiveBookInfo.displayName = "ActiveBookInfo";
 
@@ -372,21 +385,29 @@ export const MainBookSlider = () => {
     stopAutoplay();
   };
 
-  const handlePan = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handlePan = (
+    _event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+  ) => {
     dragDistanceRef.current += Math.abs(info.delta.x);
-    const screenWidth = typeof window !== "undefined" ? window.innerWidth : 1200;
+    const screenWidth =
+      typeof window !== "undefined" ? window.innerWidth : 1200;
     // 모바일 기기는 터치 드래그 반응성을 높이기 위해 더 높은 민감도 적용
     const sensitivity = screenWidth < 768 ? 0.22 : 0.12;
     rotationY.set(rotationY.get() + info.delta.x * sensitivity);
   };
 
-  const handlePanEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handlePanEnd = (
+    _event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+  ) => {
     setIsDragging(false);
 
     const velocity = info.velocity.x;
     const current = rotationY.get();
 
-    const screenWidth = typeof window !== "undefined" ? window.innerWidth : 1200;
+    const screenWidth =
+      typeof window !== "undefined" ? window.innerWidth : 1200;
     const sensitivity = screenWidth < 768 ? 0.22 : 0.12;
 
     // 마우스 튕기는 속도 관성에 따른 예상 회전 안착각 계산
@@ -471,12 +492,14 @@ export const MainBookSlider = () => {
         />
       )}
 
-      {isLayoutReady && !isLoading && (isError || !books || books.length === 0) && (
-        <div className="text-center py-20 text-stone-400">
-          <BookOpen className="mx-auto h-10 w-10 opacity-20" />
-          <p className="mt-4 font-light">{tError("load_books")}</p>
-        </div>
-      )}
+      {isLayoutReady &&
+        !isLoading &&
+        (isError || !books || books.length === 0) && (
+          <div className="text-center py-20 text-stone-400">
+            <BookOpen className="mx-auto h-10 w-10 opacity-20" />
+            <p className="mt-4 font-light">{tError("load_books")}</p>
+          </div>
+        )}
 
       {isLayoutReady && !isLoading && books && books.length > 0 && (
         <motion.div
@@ -532,7 +555,12 @@ export const MainBookSlider = () => {
           </motion.div>
 
           {/* 활성 도서 정보 텍스트 (격리된 리렌더링 서브 컴포넌트) */}
-          <ActiveBookInfo key={activePublisher} rotationY={rotationY} books={displayBooks} angleStep={angleStep} />
+          <ActiveBookInfo
+            key={activePublisher}
+            rotationY={rotationY}
+            books={displayBooks}
+            angleStep={angleStep}
+          />
         </motion.div>
       )}
     </div>

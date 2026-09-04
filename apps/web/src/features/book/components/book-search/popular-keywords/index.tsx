@@ -2,10 +2,10 @@
 
 import { usePopularKeywordsQuery } from "@bookjeok/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
+import { ChevronDown } from "@/shared/components/icons/iconsax";
 import { usePathname, useRouter } from "@/shared/config/i18n/routing";
 import { cn } from "@/shared/utils";
 

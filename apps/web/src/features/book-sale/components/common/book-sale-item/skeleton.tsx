@@ -25,4 +25,3 @@ export const BookSaleSkeleton = () => {
     </div>
   );
 };
-

@@ -1,6 +1,7 @@
-import { formatPostDate ,  UsedBookSale } from "@bookjeok/core";
-import { Clock, Eye, MapPin } from "lucide-react";
+import { formatPostDate, UsedBookSale } from "@bookjeok/core";
 import { useTranslations } from "next-intl";
+
+import { Clock, Eye, MapPin } from "@/shared/components/icons/iconsax";
 
 import { SaleStatusBadge } from "../../common/sale-status-badge";
 import { TradeMethodBadge } from "../../common/trade-method-badge";

@@ -70,9 +70,7 @@ export function AvatarCircles({
         );
       })}
       {extraCount > 0 && (
-        <span
-          className="ml-1.5 text-xs font-medium text-stone-500 tracking-tight"
-        >
+        <span className="ml-1.5 text-xs font-medium text-stone-500 tracking-tight">
           +{extraCount}
         </span>
       )}

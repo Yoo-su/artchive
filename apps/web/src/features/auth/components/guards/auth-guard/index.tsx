@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect } from "react";
 
-import { usePathname,useRouter } from "@/shared/config/i18n/routing";
+import { usePathname, useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
 
 import { useAuthStore } from "../../../stores/use-auth-store";

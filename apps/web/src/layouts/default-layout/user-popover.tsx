@@ -1,11 +1,11 @@
 "use client";
 
 import { logout } from "@bookjeok/api-client";
-import { User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { User } from "@/shared/components/icons/iconsax";
 import {
   Avatar,
   AvatarFallback,
@@ -50,7 +50,6 @@ export default function UserPopover() {
       hardRedirect(PATHS.HOME);
     }
   };
-
 
   if (!user) return null;
 

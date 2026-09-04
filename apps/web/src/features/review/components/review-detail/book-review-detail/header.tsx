@@ -1,10 +1,15 @@
 "use client";
 
-import { BookInfo ,  Review } from "@bookjeok/core";
-import { BookOpen, Calendar, Eye, Share2 } from "lucide-react";
+import { BookInfo, Review } from "@bookjeok/core";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 
+import {
+  BookOpen,
+  Calendar,
+  Eye,
+  Share2,
+} from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { Separator } from "@/shared/components/shadcn/separator";

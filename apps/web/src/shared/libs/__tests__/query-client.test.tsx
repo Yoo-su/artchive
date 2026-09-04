@@ -68,9 +68,7 @@ describe("전역 QueryClient 기본값", () => {
       wrapper,
     });
 
-    await waitFor(() =>
-      expect(result.current.data).toEqual(["최신 판매글"]),
-    );
+    await waitFor(() => expect(result.current.data).toEqual(["최신 판매글"]));
     expect(queryFn).toHaveBeenCalledTimes(1);
   });
 

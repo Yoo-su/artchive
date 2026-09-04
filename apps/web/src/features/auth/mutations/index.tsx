@@ -1,4 +1,7 @@
-import { useEmailLoginMutation as useBaseEmailLoginMutation, useEmailSignupMutation as useBaseEmailSignupMutation } from "@bookjeok/react-query";
+import {
+  useEmailLoginMutation as useBaseEmailLoginMutation,
+  useEmailSignupMutation as useBaseEmailSignupMutation,
+} from "@bookjeok/react-query";
 import { toast } from "sonner";
 
 /**
@@ -10,7 +13,9 @@ export const useEmailLoginMutation = () =>
       toast.success("성공적으로 로그인되었습니다.");
     },
     onError: () => {
-      toast.error("로그인에 실패했습니다. 이메일 또는 비밀번호를 확인해주세요.");
+      toast.error(
+        "로그인에 실패했습니다. 이메일 또는 비밀번호를 확인해주세요.",
+      );
     },
   });
 

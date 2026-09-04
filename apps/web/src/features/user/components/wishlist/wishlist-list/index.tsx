@@ -1,10 +1,14 @@
 "use client";
 
 import { useMyWishlistQuery } from "@bookjeok/react-query";
-import { AlertTriangle, Heart, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import {
+  AlertTriangle,
+  Heart,
+  Search,
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
@@ -176,4 +180,3 @@ export const WishlistList = () => {
     </div>
   );
 };
-

@@ -2,14 +2,6 @@
 
 import { ChatMessage, OrderStatus } from "@bookjeok/core";
 import { useOrderDetailQuery } from "@bookjeok/react-query";
-import {
-  AlertTriangle,
-  ArrowRight,
-  CheckCircle2,
-  Handshake,
-  RotateCcw,
-  XCircle,
-} from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -23,6 +15,14 @@ import {
   ClockIcon,
   TruckFastIcon,
 } from "@/shared/components/icons";
+import {
+  AlertTriangle,
+  ArrowRight,
+  CheckCircle2,
+  Handshake,
+  RotateCcw,
+  XCircle,
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { PATHS } from "@/shared/constants/paths";
 
@@ -48,10 +48,13 @@ export const TradeMessageCard = ({
   const tradeStatus = metadata.tradeStatus as
     | "RESERVED"
     | "COMPLETED"
+    | "SOLD"
     | "OTHER_TRADING"
     | "BACK_ON_MARKET"
     | undefined;
-  const orderId = (metadata.orderId || metadata.orderNumber) as string | undefined;
+  const orderId = (metadata.orderId || metadata.orderNumber) as
+    | string
+    | undefined;
   const amount = metadata.amount as number | undefined;
   const carrier = metadata.carrier as string | undefined;
   const trackingNumber = metadata.trackingNumber as string | undefined;
@@ -115,11 +118,17 @@ export const TradeMessageCard = ({
           title: t("trade_title.RESERVED"),
           titleColor: "text-stone-900 dark:text-stone-100",
         };
-      case "OTHER_TRADING":
+      case "SOLD":
         return {
           icon: (
-            <AlertTriangle className="w-4 h-4 text-stone-500" />
+            <CheckCircle2 className="w-4 h-4 text-stone-500 dark:text-stone-400" />
           ),
+          title: t("trade_title.SOLD"),
+          titleColor: "text-stone-700 dark:text-stone-300",
+        };
+      case "OTHER_TRADING":
+        return {
+          icon: <AlertTriangle className="w-4 h-4 text-stone-500" />,
           title: t("trade_title.OTHER_TRADING"),
           titleColor: "text-stone-700 dark:text-stone-300",
         };
@@ -141,19 +150,25 @@ export const TradeMessageCard = ({
     switch (status) {
       case OrderStatus.AWAITING_PAYMENT:
         return {
-          icon: <ClockIcon className="w-4 h-4 text-stone-700 dark:text-stone-300" />,
+          icon: (
+            <ClockIcon className="w-4 h-4 text-stone-700 dark:text-stone-300" />
+          ),
           title: t("title.AWAITING_PAYMENT"),
           titleColor: "text-stone-900 dark:text-stone-100",
         };
       case OrderStatus.PAID:
         return {
-          icon: <BoxIcon className="w-4 h-4 text-stone-700 dark:text-stone-300" />,
+          icon: (
+            <BoxIcon className="w-4 h-4 text-stone-700 dark:text-stone-300" />
+          ),
           title: t("title.PAID"),
           titleColor: "text-stone-900 dark:text-stone-100",
         };
       case OrderStatus.SHIPPED:
         return {
-          icon: <TruckFastIcon className="w-4 h-4 text-stone-700 dark:text-stone-300" />,
+          icon: (
+            <TruckFastIcon className="w-4 h-4 text-stone-700 dark:text-stone-300" />
+          ),
           title: t("title.SHIPPED"),
           titleColor: "text-stone-900 dark:text-stone-100",
         };
@@ -202,7 +217,9 @@ export const TradeMessageCard = ({
             <div className="flex items-center justify-center shrink-0">
               {display.icon}
             </div>
-            <span className={`text-xs font-bold leading-none ${display.titleColor}`}>
+            <span
+              className={`text-xs font-bold leading-none ${display.titleColor}`}
+            >
               {display.title}
             </span>
           </div>
@@ -219,8 +236,12 @@ export const TradeMessageCard = ({
               <div className="flex justify-between items-center">
                 <span>결제 금액</span>
                 <span className="font-bold text-stone-900 dark:text-stone-100 text-sm">
-                  <span className="tabular-nums">{amount.toLocaleString()}</span>
-                  <span className="ml-0.5 font-medium text-xs">{tCommon("won")}</span>
+                  <span className="tabular-nums">
+                    {amount.toLocaleString()}
+                  </span>
+                  <span className="ml-0.5 font-medium text-xs">
+                    {tCommon("won")}
+                  </span>
                 </span>
               </div>
             )}
@@ -246,8 +267,9 @@ export const TradeMessageCard = ({
         {/* 버튼 액션 */}
         {isPaymentFeatureEnabled && orderId && (
           <div className="mt-3 pt-2 border-t border-stone-100 dark:border-stone-800 flex items-center gap-2">
-            {status === OrderStatus.AWAITING_PAYMENT && !isSeller && (
-              isOrderInactive ? (
+            {status === OrderStatus.AWAITING_PAYMENT &&
+              !isSeller &&
+              (isOrderInactive ? (
                 <Button
                   size="sm"
                   variant="outline"
@@ -269,8 +291,7 @@ export const TradeMessageCard = ({
                     {t("btn_pay_now")}
                   </Link>
                 </Button>
-              )
-            )}
+              ))}
             <Button
               asChild
               variant="outline"

@@ -82,6 +82,27 @@ export class TradeEventListener {
   }
 
   /**
+   * 판매글이 판매완료로 바뀌었을 때 (상대 지정 여부와 무관)
+   *
+   * 거래가 성사된 방에는 아래 `trade.completed`가 완료 안내를 보내므로,
+   * 여기서는 나머지 방들만 챙깁니다.
+   */
+  @OnEvent('trade.sale_sold')
+  async handleSaleSold(event: {
+    saleId: number;
+    sellerId: number;
+    chatRoomId?: number | null;
+  }) {
+    try {
+      await this.chatService.notifySaleSold(event.saleId, event.chatRoomId);
+    } catch (error) {
+      this.logger.error(
+        `trade.sale_sold 이벤트 처리 실패: ${(error as Error).message}`,
+      );
+    }
+  }
+
+  /**
    * 직거래가 완료됐을 때
    */
   @OnEvent('trade.completed')

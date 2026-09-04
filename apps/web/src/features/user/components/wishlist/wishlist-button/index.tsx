@@ -2,7 +2,6 @@
 
 import { BookInfo } from "@bookjeok/core";
 import { useWishlistStatusQuery } from "@bookjeok/react-query";
-import { Heart } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -13,6 +12,7 @@ import {
   useRemoveFromWishlistMutation,
 } from "@/features/user/mutations";
 import { AnimatedHeart } from "@/shared/components/icons/animated";
+import { Heart } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { cn } from "@/shared/utils";
 
@@ -40,14 +40,12 @@ export const WishlistButton = ({
   // initialIsWishlisted가 주어지면 쿼리를 실행하지 않음 (이미 상태를 알고 있음)
   const shouldFetch = !!currentUser && initialIsWishlisted === undefined;
 
-  const { data: statusData, isLoading } = useWishlistStatusQuery(
-    type,
-    id,
-    { enabled: shouldFetch }
-  );
+  const { data: statusData, isLoading } = useWishlistStatusQuery(type, id, {
+    enabled: shouldFetch,
+  });
 
   const [isWishlisted, setIsWishlisted] = useState(
-    initialIsWishlisted ?? false
+    initialIsWishlisted ?? false,
   );
 
   const addToWishlistMutation = useAddToWishlistMutation();
@@ -79,7 +77,7 @@ export const WishlistButton = ({
         { type, id },
         {
           onError: () => setIsWishlisted(true), // Rollback
-        }
+        },
       );
     } else {
       setIsWishlisted(true);
@@ -87,7 +85,7 @@ export const WishlistButton = ({
         { type, id },
         {
           onError: () => setIsWishlisted(false), // 롤백
-        }
+        },
       );
     }
   };
@@ -126,7 +124,7 @@ export const WishlistButton = ({
           "transition-colors duration-200",
           isWishlisted
             ? "fill-red-500 text-red-500"
-            : "text-gray-400 hover:text-red-500"
+            : "text-gray-400 hover:text-red-500",
         )}
         aria-hidden="true"
       />

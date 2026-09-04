@@ -138,9 +138,9 @@ export const WithActions: Story = {
         <ReviewCard.Meta />
         <ReviewCard.Title />
         <ReviewCard.Tags />
-        <ReviewCard.Action 
-          onEdit={() => alert("수정 클릭")} 
-          onDelete={() => alert("삭제 클릭")} 
+        <ReviewCard.Action
+          onEdit={() => alert("수정 클릭")}
+          onDelete={() => alert("삭제 클릭")}
         />
       </ReviewCard.Content>
     </ReviewCard.Root>

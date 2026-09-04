@@ -1,9 +1,9 @@
 "use client";
 
-import { ArrowLeft, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { WishlistList } from "@/features/user/components/wishlist/wishlist-list";
+import { ArrowLeft, Search } from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
@@ -49,4 +49,3 @@ export const WishlistView = () => {
     </div>
   );
 };
-

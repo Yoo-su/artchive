@@ -1,4 +1,8 @@
-import { SaleStatus, TradeMethod, WishlistItem as WishlistItemType } from "@bookjeok/core";
+import {
+  SaleStatus,
+  TradeMethod,
+  WishlistItem as WishlistItemType,
+} from "@bookjeok/core";
 import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -161,7 +165,9 @@ describe("WishlistList", () => {
 
     expect(screen.getByRole("button", { name: /전체/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /도서/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /중고거래/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /중고거래/ }),
+    ).toBeInTheDocument();
 
     expect(screen.getByText("Clean Code")).toBeInTheDocument();
     expect(screen.getByText("리팩터링 2판 중고 판매")).toBeInTheDocument();
@@ -174,7 +180,9 @@ describe("WishlistList", () => {
     fireEvent.click(bookTab);
 
     expect(screen.getByText("Clean Code")).toBeInTheDocument();
-    expect(screen.queryByText("리팩터링 2판 중고 판매")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("리팩터링 2판 중고 판매"),
+    ).not.toBeInTheDocument();
   });
 
   it("filters items by sale tab", () => {
@@ -213,7 +221,7 @@ describe("WishlistList", () => {
     render(<WishlistList />);
 
     expect(
-      screen.getByText("위시리스트를 불러오지 못했습니다")
+      screen.getByText("위시리스트를 불러오지 못했습니다"),
     ).toBeInTheDocument();
 
     const retryBtn = screen.getByText("다시 시도");
@@ -225,6 +233,8 @@ describe("WishlistList", () => {
 describe("WishlistSkeleton", () => {
   it("renders skeleton cards", () => {
     const { container } = render(<WishlistSkeleton />);
-    expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
+    expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(
+      0,
+    );
   });
 });

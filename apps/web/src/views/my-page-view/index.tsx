@@ -1,6 +1,14 @@
 "use client";
 
 import { useSendVerificationEmailMutation } from "@bookjeok/react-query";
+import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
+import { toast } from "sonner";
+
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { UserStatsDashboard } from "@/features/user/components/dashboard/user-stats-dashboard";
+import { ProfileEditModal } from "@/features/user/components/profile/profile-edit-modal";
+import { WithdrawalModal } from "@/features/user/components/profile/withdrawal-modal";
 import {
   ArrowRight,
   BookOpen,
@@ -17,15 +25,7 @@ import {
   ShoppingBag,
   Truck,
   User,
-} from "lucide-react";
-import Image from "next/image";
-import { useLocale, useTranslations } from "next-intl";
-import { toast } from "sonner";
-
-import { useAuthStore } from "@/features/auth/stores/use-auth-store";
-import { UserStatsDashboard } from "@/features/user/components/dashboard/user-stats-dashboard";
-import { ProfileEditModal } from "@/features/user/components/profile/profile-edit-modal";
-import { WithdrawalModal } from "@/features/user/components/profile/withdrawal-modal";
+} from "@/shared/components/icons/iconsax";
 import { Button } from "@/shared/components/shadcn/button";
 import { Link } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
@@ -104,7 +104,10 @@ export const MyPageView = () => {
   ];
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-8" data-clarity-mask="true">
+    <div
+      className="container mx-auto max-w-5xl px-4 py-8"
+      data-clarity-mask="true"
+    >
       {/* 상단 페이지 헤더 */}
       <div className="mb-6 border-b border-stone-200/80 pb-5">
         <h1 className="font-serif text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
@@ -184,7 +187,9 @@ export const MyPageView = () => {
                   </>
                 ) : (
                   <>
-                    <span className="text-stone-400">{t("profile.no_email")}</span>
+                    <span className="text-stone-400">
+                      {t("profile.no_email")}
+                    </span>
                     <span className="text-stone-300">·</span>
                     <ProfileEditModal
                       trigger={

@@ -76,7 +76,6 @@ function CallbackContent() {
   return null;
 }
 
-
 export default function Page() {
   return (
     <Suspense fallback={null}>

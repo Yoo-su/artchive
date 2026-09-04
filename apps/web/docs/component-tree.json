@@ -596,7 +596,7 @@
                 "path": "src/app/[locale]/error.tsx",
                 "type": "Error",
                 "imports": [
-                  "lucide-react",
+                  "@/shared/components/icons/iconsax",
                   "react",
                   "@/shared/components/shadcn/button",
                   "@/shared/config/env"
@@ -994,7 +994,7 @@
                             "type": "Component",
                             "imports": [
                               "@hookform/resolvers/zod",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next-intl",
                               "react",
                               "react-hook-form",
@@ -1024,7 +1024,7 @@
                             "type": "Component",
                             "imports": [
                               "@hookform/resolvers/zod",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next-intl",
                               "react",
                               "react-hook-form",
@@ -1194,7 +1194,7 @@
                         "path": "src/features/book/components/book-detail/ai-summary.tsx",
                         "type": "ComponentFile",
                         "imports": [
-                          "lucide-react",
+                          "@/shared/components/icons/iconsax",
                           "next-intl",
                           "@/features/auth/stores/use-auth-store",
                           "@/shared/components/shadcn/badge",
@@ -1251,7 +1251,7 @@
                         "path": "src/features/book/components/book-detail/error.tsx",
                         "type": "Error",
                         "imports": [
-                          "lucide-react"
+                          "@/shared/components/icons/iconsax"
                         ],
                         "componentName": "BookDetailError"
                       },
@@ -1313,7 +1313,7 @@
                         "path": "src/features/book/components/book-search/book-search-input.tsx",
                         "type": "ComponentFile",
                         "imports": [
-                          "lucide-react",
+                          "@/shared/components/icons/iconsax",
                           "next/navigation",
                           "next-intl",
                           "react",
@@ -1333,7 +1333,7 @@
                             "type": "Component",
                             "imports": [
                               "framer-motion",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next/navigation",
                               "next-intl",
                               "react",
@@ -1366,7 +1366,7 @@
                             "type": "Component",
                             "imports": [
                               "framer-motion",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next/navigation",
                               "next-intl",
                               "react",
@@ -1394,7 +1394,7 @@
                         "path": "src/features/book/components/book-search/sticky-book-search-bar.tsx",
                         "type": "ComponentFile",
                         "imports": [
-                          "lucide-react",
+                          "@/shared/components/icons/iconsax",
                           "next/navigation",
                           "next-intl",
                           "react",
@@ -1416,7 +1416,7 @@
                         "path": "src/features/book/components/book-slider/main-book-slider.tsx",
                         "type": "ComponentFile",
                         "imports": [
-                          "lucide-react",
+                          "@/shared/components/icons/iconsax",
                           "next/image",
                           "next-intl",
                           "react",
@@ -1437,7 +1437,7 @@
                         "path": "src/features/book/components/book-slider/popular-book-slider.tsx",
                         "type": "ComponentFile",
                         "imports": [
-                          "lucide-react",
+                          "@/shared/components/icons/iconsax",
                           "next/image",
                           "next-intl",
                           "swiper/modules",
@@ -1490,7 +1490,7 @@
                             "imports": [
                               "framer-motion",
                               "lodash",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next/image",
                               "react",
                               "react-intersection-observer",
@@ -1517,7 +1517,7 @@
                         "path": "src/features/book/components/recent-books/recent-books-drawer.tsx",
                         "type": "ComponentFile",
                         "imports": [
-                          "lucide-react",
+                          "@/shared/components/icons/iconsax",
                           "next/image",
                           "react",
                           "@/shared/components/shadcn/sheet",
@@ -1733,7 +1733,7 @@
                             "path": "src/features/book-sale/components/common/book-sale-item/parts.tsx",
                             "type": "ComponentFile",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons",
                               "next/image",
                               "react",
                               "@/shared/components/magicui/border-beam",
@@ -1818,7 +1818,7 @@
                             "path": "src/features/book-sale/components/my-sales/book-sale-history-list/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next-intl",
                               "../../../queries",
                               "./item",
@@ -1831,7 +1831,7 @@
                             "path": "src/features/book-sale/components/my-sales/book-sale-history-list/item.tsx",
                             "type": "ComponentFile",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next/image",
                               "next-intl",
                               "@/shared/components/shadcn/button",
@@ -1889,7 +1889,7 @@
                             "type": "ComponentFile",
                             "imports": [
                               "@tanstack/react-query",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next-intl",
                               "react",
                               "sonner",
@@ -1919,7 +1919,7 @@
                             "path": "src/features/book-sale/components/sale-detail/book-sale-detail/book-sale-image-carousel.tsx",
                             "type": "ComponentFile",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next/image",
                               "react",
                               "swiper/modules",
@@ -1962,7 +1962,7 @@
                             "path": "src/features/book-sale/components/sale-detail/book-sale-detail/sale-location-map.tsx",
                             "type": "ComponentFile",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next-intl",
                               "react-kakao-maps-sdk",
                               "@/shared/config/env"
@@ -2033,7 +2033,7 @@
                             "type": "Component",
                             "imports": [
                               "axios",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "react",
                               "sonner",
                               "@/shared/config/i18n/routing",
@@ -2055,7 +2055,7 @@
                             "path": "src/features/book-sale/components/sale-form/book-sale-edit-form/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next/image",
                               "next-intl",
                               "@/shared/components/map/map-location-selector",
@@ -2092,7 +2092,7 @@
                             "path": "src/features/book-sale/components/sale-form/book-sale-form/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next/image",
                               "next-intl",
                               "sonner",
@@ -2172,7 +2172,7 @@
                             "path": "src/features/book-sale/components/sale-market/book-sale-filter/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next-intl",
                               "react",
                               "react-hook-form",
@@ -2254,7 +2254,7 @@
                             "path": "src/features/book-sale/components/sale-market/recent-sale-slider/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next-intl",
                               "react",
                               "swiper/modules",
@@ -2272,7 +2272,7 @@
                             "path": "src/features/book-sale/components/sale-market/recent-sale-slider/recent-sale-card.tsx",
                             "type": "ComponentFile",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons",
                               "next/image",
                               "next-intl",
                               "@/features/book-sale/types",
@@ -2460,7 +2460,7 @@
                             "path": "src/features/chat/components/list/chat-list/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "../../../queries",
                               "../../room/chat-item",
                               "./skeleton"
@@ -2499,7 +2499,7 @@
                               "date-fns",
                               "date-fns/locale",
                               "framer-motion",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "@/features/auth/stores/use-auth-store",
                               "@/shared/components/shadcn/avatar",
                               "@/shared/utils/profile-image",
@@ -2522,7 +2522,7 @@
                             "imports": [
                               "@tanstack/react-query",
                               "framer-motion",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "react",
                               "sonner",
                               "@/features/chat",
@@ -2560,7 +2560,7 @@
                             "type": "ComponentFile",
                             "imports": [
                               "@tanstack/react-query",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "react",
                               "sonner",
                               "@/features/chat",
@@ -2577,7 +2577,7 @@
                             "type": "ComponentFile",
                             "imports": [
                               "framer-motion",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "react",
                               "@/shared/components/shadcn/avatar",
                               "@/shared/utils/profile-image",
@@ -2614,7 +2614,7 @@
                             "type": "Component",
                             "imports": [
                               "framer-motion",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "react",
                               "@/shared/components/shadcn/button",
                               "../../../queries",
@@ -2839,7 +2839,7 @@
                             "imports": [
                               "date-fns",
                               "date-fns/locale",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "react",
                               "@/features/auth/stores/use-auth-store",
                               "@/shared/components/shadcn/alert-dialog",
@@ -2902,7 +2902,7 @@
                             "imports": [
                               "date-fns",
                               "date-fns/locale",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next-intl",
                               "react",
                               "@/features/comment/mutations",
@@ -3027,7 +3027,7 @@
                             "path": "src/features/insights/components/charts/activity-trend-chart/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next/dynamic",
                               "next-intl",
                               "react",
@@ -3049,7 +3049,7 @@
                             "path": "src/features/insights/components/charts/category-chart/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next/dynamic",
                               "next-intl",
                               "react",
@@ -3071,7 +3071,7 @@
                             "path": "src/features/insights/components/charts/location-heatmap/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next-intl",
                               "react",
                               "react-kakao-maps-sdk",
@@ -3094,7 +3094,7 @@
                             "path": "src/features/insights/components/charts/price-histogram/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next/dynamic",
                               "next-intl",
                               "react",
@@ -3116,7 +3116,7 @@
                             "path": "src/features/insights/components/charts/reaction-donut-chart/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next/dynamic",
                               "next-intl",
                               "react",
@@ -3163,7 +3163,7 @@
                             "path": "src/features/insights/components/common/insights-header/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next-intl"
                             ],
                             "componentName": "InsightsHeader"
@@ -3187,7 +3187,7 @@
                             "path": "src/features/insights/components/lists/popular-tags-list/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next-intl",
                               "@/features/insights/components/common/insight-card",
                               "@/features/insights/types"
@@ -3470,7 +3470,7 @@
                         "type": "ComponentFile",
                         "imports": [
                           "framer-motion",
-                          "lucide-react",
+                          "@/shared/components/icons/iconsax",
                           "next-intl",
                           "@/shared/components/shadcn/button",
                           "@/shared/utils",
@@ -3662,7 +3662,7 @@
                             "path": "src/features/reading-log/components/calendar-view/reading-log-calendar-skeleton/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "@/shared/components/shadcn/button",
                               "@/shared/components/shadcn/skeleton"
                             ],
@@ -3681,7 +3681,7 @@
                             "type": "Component",
                             "imports": [
                               "date-fns",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next-intl",
                               "@/shared/components/shadcn/button",
                               "@/shared/components/shadcn/select",
@@ -3729,7 +3729,7 @@
                             "imports": [
                               "date-fns",
                               "date-fns/locale",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next/image",
                               "react",
                               "sonner",
@@ -3847,7 +3847,7 @@
                             "type": "Component",
                             "imports": [
                               "framer-motion",
-                              "lucide-react",
+                              "@/shared/components/icons",
                               "next-intl",
                               "@/shared/components/shadcn/skeleton",
                               "@/shared/utils",
@@ -4174,7 +4174,7 @@
                             "type": "Component",
                             "imports": [
                               "date-fns",
-                              "lucide-react",
+                              "@/shared/components/icons",
                               "next/image",
                               "@/features/review/types",
                               "@/shared/components/shadcn/avatar",
@@ -4307,7 +4307,7 @@
                             "type": "ComponentFile",
                             "imports": [
                               "date-fns",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next/image",
                               "next-intl",
                               "@/features/book/types",
@@ -4329,7 +4329,7 @@
                             "type": "Component",
                             "imports": [
                               "@tanstack/react-query",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next-intl",
                               "react",
                               "@/features/auth/stores/use-auth-store",
@@ -4359,7 +4359,7 @@
                             "path": "src/features/review/components/review-detail/book-review-detail/private-overlay.tsx",
                             "type": "ComponentFile",
                             "imports": [
-                              "lucide-react"
+                              "@/shared/components/icons/iconsax"
                             ],
                             "componentName": "PrivateReviewOverlay"
                           },
@@ -4488,7 +4488,7 @@
                         "type": "Component",
                         "imports": [
                           "@hookform/resolvers/zod",
-                          "lucide-react",
+                          "@/shared/components/icons/iconsax",
                           "next/image",
                           "next-intl",
                           "react",
@@ -4587,7 +4587,7 @@
                             "path": "src/features/review/components/review-list/popular-review-list/popular-review-item.tsx",
                             "type": "ComponentFile",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons",
                               "@/features/review/types",
                               "@/shared/components/shadcn/avatar",
                               "@/shared/components/shadcn/badge",
@@ -4620,7 +4620,7 @@
                             "path": "src/features/review/components/review-list/review-feed-list/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons",
                               "next-intl",
                               "swiper/modules",
                               "swiper/react",
@@ -4654,7 +4654,7 @@
                             "path": "src/features/review/components/review-list/review-grid-list/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next-intl",
                               "react",
                               "react-intersection-observer",
@@ -4689,7 +4689,7 @@
                             "path": "src/features/review/components/review-list/review-home-filters/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons",
                               "next-intl",
                               "swiper/modules",
                               "swiper/react",
@@ -4870,7 +4870,7 @@
                             "path": "src/features/user/components/dashboard/user-stats-dashboard/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next-intl",
                               "@/features/user/queries",
                               "@/shared/components/shadcn/card",
@@ -4884,7 +4884,7 @@
                             "path": "src/features/user/components/dashboard/user-stats-dashboard/skeleton.tsx",
                             "type": "ComponentFile",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "@/shared/components/shadcn/card",
                               "@/shared/components/shadcn/skeleton"
                             ],
@@ -4910,7 +4910,7 @@
                             "type": "Component",
                             "imports": [
                               "@vercel/blob/client",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next/image",
                               "next-intl",
                               "react",
@@ -4941,7 +4941,7 @@
                             "imports": [
                               "date-fns",
                               "date-fns/locale",
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next-intl",
                               "@/features/book-sale/components/common/sale-status-badge",
                               "@/features/book-sale/types",
@@ -4994,7 +4994,7 @@
                             "path": "src/features/user/components/wishlist/wishlist-button/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "react",
                               "sonner",
                               "@/features/auth/stores/use-auth-store",
@@ -5018,7 +5018,7 @@
                             "path": "src/features/user/components/wishlist/wishlist-item/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next/image",
                               "next-intl",
                               "@/features/book-sale/components/common/sale-status-badge",
@@ -5044,7 +5044,7 @@
                             "path": "src/features/user/components/wishlist/wishlist-list/index.tsx",
                             "type": "Component",
                             "imports": [
-                              "lucide-react",
+                              "@/shared/components/icons/iconsax",
                               "next-intl",
                               "@/features/user/queries",
                               "@/shared/components/shadcn/button",
@@ -5148,7 +5148,7 @@
                 "path": "src/layouts/common/language-switcher.tsx",
                 "type": "ComponentFile",
                 "imports": [
-                  "lucide-react",
+                  "@/shared/components/icons/iconsax",
                   "next-intl",
                   "@/shared/components/shadcn/button",
                   "@/shared/components/shadcn/dropdown-menu",
@@ -5174,7 +5174,7 @@
                 "type": "ComponentFile",
                 "imports": [
                   "framer-motion",
-                  "lucide-react",
+                  "@/shared/components/icons/iconsax",
                   "@/shared/components/shadcn/button",
                   "@/shared/components/shadcn/separator",
                   "@/shared/config/i18n/routing"
@@ -5193,7 +5193,7 @@
                 "path": "src/layouts/default-layout/default-footer.tsx",
                 "type": "ComponentFile",
                 "imports": [
-                  "lucide-react",
+                  "@/shared/components/icons",
                   "next-intl",
                   "@/layouts/common/logo",
                   "@/shared/components/shadcn/separator",
@@ -5207,7 +5207,7 @@
                 "path": "src/layouts/default-layout/default-header.tsx",
                 "type": "ComponentFile",
                 "imports": [
-                  "lucide-react",
+                  "@/shared/components/icons",
                   "next-intl",
                   "@/features/auth/stores/use-auth-store",
                   "@/features/notification/components/popover-view/notification-popover",
@@ -5240,7 +5240,7 @@
                 "path": "src/layouts/default-layout/mobile-nav-sheet.tsx",
                 "type": "ComponentFile",
                 "imports": [
-                  "lucide-react",
+                  "@/shared/components/icons/iconsax",
                   "next-intl",
                   "react",
                   "@/features/auth/stores/use-auth-store",
@@ -5258,7 +5258,7 @@
                 "path": "src/layouts/default-layout/user-popover.tsx",
                 "type": "ComponentFile",
                 "imports": [
-                  "lucide-react",
+                  "@/shared/components/icons/iconsax",
                   "next-intl",
                   "react",
                   "sonner",
@@ -5326,7 +5326,7 @@
                     "type": "ComponentFile",
                     "imports": [
                       "@tiptap/react",
-                      "lucide-react",
+                      "@/shared/components/icons/iconsax",
                       "react",
                       "@/shared/components/shadcn/button",
                       "@/shared/components/shadcn/popover",
@@ -5352,7 +5352,7 @@
                       "@tiptap/react",
                       "@tiptap/react/menus",
                       "@tiptap/starter-kit",
-                      "lucide-react",
+                      "@/shared/components/icons/iconsax",
                       "react",
                       "tiptap-extension-resize-image",
                       "@/shared/components/shadcn/button",
@@ -5550,7 +5550,7 @@
                     "type": "ComponentFile",
                     "imports": [
                       "@radix-ui/react-checkbox",
-                      "lucide-react",
+                      "@/shared/components/icons",
                       "react",
                       "@/shared/utils/index"
                     ]
@@ -5561,7 +5561,7 @@
                     "type": "ComponentFile",
                     "imports": [
                       "@radix-ui/react-dialog",
-                      "lucide-react",
+                      "@/shared/components/icons/iconsax",
                       "react",
                       "@/shared/utils/cn"
                     ]
@@ -5572,7 +5572,7 @@
                     "type": "ComponentFile",
                     "imports": [
                       "@radix-ui/react-dropdown-menu",
-                      "lucide-react",
+                      "@/shared/components/icons/iconsax",
                       "react",
                       "@/shared/utils/index"
                     ]
@@ -5616,7 +5616,7 @@
                     "imports": [
                       "@radix-ui/react-navigation-menu",
                       "class-variance-authority",
-                      "lucide-react",
+                      "@/shared/components/icons/iconsax",
                       "react",
                       "@/shared/utils/index"
                     ]
@@ -5647,7 +5647,7 @@
                     "type": "ComponentFile",
                     "imports": [
                       "@radix-ui/react-select",
-                      "lucide-react",
+                      "@/shared/components/icons/iconsax",
                       "react",
                       "@/shared/utils/index"
                     ]
@@ -5668,7 +5668,7 @@
                     "type": "ComponentFile",
                     "imports": [
                       "@radix-ui/react-dialog",
-                      "lucide-react",
+                      "@/shared/components/icons/iconsax",
                       "react",
                       "@/shared/utils/index"
                     ]
@@ -5696,7 +5696,7 @@
                     "path": "src/shared/components/shadcn/sonner.tsx",
                     "type": "ComponentFile",
                     "imports": [
-                      "lucide-react",
+                      "@/shared/components/icons/iconsax",
                       "next-themes",
                       "sonner"
                     ]
@@ -5706,7 +5706,7 @@
                     "path": "src/shared/components/shadcn/spinner.tsx",
                     "type": "ComponentFile",
                     "imports": [
-                      "lucide-react",
+                      "@/shared/components/icons/iconsax",
                       "@/shared/utils/index"
                     ]
                   },
@@ -5773,7 +5773,7 @@
                     "path": "src/shared/components/ui/image-uploader.tsx",
                     "type": "ComponentFile",
                     "imports": [
-                      "lucide-react",
+                      "@/shared/components/icons/iconsax",
                       "react",
                       "@/shared/components/shadcn/input",
                       "@/shared/utils/cn"
@@ -5796,7 +5796,7 @@
                     "path": "src/shared/components/ui/not-found-redirect.tsx",
                     "type": "ComponentFile",
                     "imports": [
-                      "lucide-react",
+                      "@/shared/components/icons/iconsax",
                       "react",
                       "@/shared/components/shadcn/button",
                       "@/shared/config/i18n/routing",
@@ -5829,7 +5829,7 @@
                     "type": "ComponentFile",
                     "imports": [
                       "framer-motion",
-                      "lucide-react",
+                      "@/shared/components/icons/iconsax",
                       "react",
                       "@/shared/components/shadcn/button"
                     ],
@@ -5840,7 +5840,7 @@
                     "path": "src/shared/components/ui/share-button.tsx",
                     "type": "ComponentFile",
                     "imports": [
-                      "lucide-react",
+                      "@/shared/components/icons/iconsax",
                       "react",
                       "sonner",
                       "@/shared/components/shadcn/button",
@@ -5855,7 +5855,7 @@
                     "path": "src/shared/components/ui/star-rating.tsx",
                     "type": "ComponentFile",
                     "imports": [
-                      "lucide-react",
+                      "@/shared/components/icons/iconsax",
                       "react",
                       "@/shared/utils"
                     ],
@@ -5866,7 +5866,7 @@
                     "path": "src/shared/components/ui/user-avatar-menu.tsx",
                     "type": "ComponentFile",
                     "imports": [
-                      "lucide-react",
+                      "@/shared/components/icons",
                       "@/features/auth/stores/use-auth-store",
                       "@/shared/components/shadcn/avatar",
                       "@/shared/components/shadcn/dropdown-menu",
@@ -6470,7 +6470,7 @@
                 "imports": [
                   "date-fns",
                   "date-fns/locale",
-                  "lucide-react",
+                  "@/shared/components/icons/iconsax",
                   "next/image",
                   "next-intl",
                   "@/features/auth/stores/use-auth-store",

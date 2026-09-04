@@ -33,24 +33,14 @@ describe("UserAvatarMenu 컴포넌트", () => {
   });
 
   it("showNickname이 true이면 닉네임과 라벨을 렌더링한다", () => {
-    render(
-      <UserAvatarMenu
-        user={mockUser}
-        showNickname
-        label="판매자"
-      />,
-    );
+    render(<UserAvatarMenu user={mockUser} showNickname label="판매자" />);
 
     expect(screen.getByText("작은콩")).toBeInTheDocument();
     expect(screen.getByText("판매자")).toBeInTheDocument();
   });
 
   it("핸들이 없으면 링크 없이 아바타만 렌더링한다", () => {
-    render(
-      <UserAvatarMenu
-        user={{ ...mockUser, handle: null }}
-      />,
-    );
+    render(<UserAvatarMenu user={{ ...mockUser, handle: null }} />);
 
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
     expect(screen.getByText("작은")).toBeInTheDocument();

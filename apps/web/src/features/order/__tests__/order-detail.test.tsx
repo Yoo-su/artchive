@@ -145,7 +145,9 @@ vi.mock("@/features/confirm", () => ({
 const renderWithQueryClient = (ui: React.ReactElement) =>
   render(
     <QueryClientProvider
-      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      client={
+        new QueryClient({ defaultOptions: { queries: { retry: false } } })
+      }
     >
       {ui}
     </QueryClientProvider>,
@@ -172,16 +174,21 @@ describe("OrderDetailCard", () => {
     expect(screen.getByText("ORD-20260827-00101")).toBeInTheDocument();
     expect(screen.getByText("이펙티브 타입스크립트")).toBeInTheDocument();
     expect(screen.getByText(/댄 밴더캄/)).toBeInTheDocument();
-    expect(screen.getByText(/서울특별시 강남구 테헤란로 123/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/서울특별시 강남구 테헤란로 123/),
+    ).toBeInTheDocument();
     expect(screen.getAllByText("25,000원").length).toBeGreaterThan(0);
-    expect(screen.getByText("토스페이먼츠 에스크로 안전결제 보호 중")).toBeInTheDocument();
+    expect(
+      screen.getByText("토스페이먼츠 에스크로 안전결제 보호 중"),
+    ).toBeInTheDocument();
 
     expect(screen.getByText("TS장인")).toBeInTheDocument();
     expect(screen.getAllByText("홍길동").length).toBeGreaterThan(0);
 
-
     // As seller for PAID order, register shipping button should appear
-    expect(screen.getByRole("button", { name: /운송장 등록/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /운송장 등록/i }),
+    ).toBeInTheDocument();
   });
 
   it("shows action buttons for buyer when order is delivered", () => {
@@ -196,7 +203,11 @@ describe("OrderDetailCard", () => {
 
     renderWithQueryClient(<OrderDetailCard order={deliveredOrder} />);
 
-    expect(screen.getByRole("button", { name: /구매확정/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /문제 신고/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /구매확정/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /문제 신고/i }),
+    ).toBeInTheDocument();
   });
 });

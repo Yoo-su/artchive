@@ -1,10 +1,10 @@
 "use client";
 
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
 import { AnimatePresence, type HTMLMotionProps, motion } from "motion/react";
 import * as React from "react";
 
+import { X } from "@/shared/components/icons/iconsax";
 import { useControlledState } from "@/shared/hooks/use-controlled-state";
 import { cn, getStrictContext } from "@/shared/utils/index";
 
@@ -76,7 +76,7 @@ const DialogOverlay = React.forwardRef<
       transition={{ duration: 0.2, ease: "easeOut" }}
       className={cn(
         "fixed inset-0 z-50 bg-black/70 backdrop-blur-xs",
-        className
+        className,
       )}
       {...props}
     />
@@ -96,48 +96,50 @@ type DialogContentProps = React.ComponentPropsWithoutRef<
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
->((
-  { className, children, showCloseButton = true, overlayClassName, ...props },
-  ref,
-) => {
-  return (
-    <DialogPortal>
-      <DialogOverlay className={overlayClassName} />
-      <DialogPrimitive.Content
-        data-slot="dialog-content"
-        asChild
-        forceMount
-        onOpenAutoFocus={props.onOpenAutoFocus}
-        onCloseAutoFocus={props.onCloseAutoFocus}
-        onEscapeKeyDown={props.onEscapeKeyDown}
-        onPointerDownOutside={props.onPointerDownOutside}
-        onInteractOutside={props.onInteractOutside}
-      >
-        <motion.div
-          ref={ref}
-          key="dialog-content"
-          initial={{ opacity: 0, scale: 0.95, y: 12 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: 8 }}
-          transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          className={cn(
-            "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-xl sm:rounded-xl",
-            className
-          )}
-          {...props}
+>(
+  (
+    { className, children, showCloseButton = true, overlayClassName, ...props },
+    ref,
+  ) => {
+    return (
+      <DialogPortal>
+        <DialogOverlay className={overlayClassName} />
+        <DialogPrimitive.Content
+          data-slot="dialog-content"
+          asChild
+          forceMount
+          onOpenAutoFocus={props.onOpenAutoFocus}
+          onCloseAutoFocus={props.onCloseAutoFocus}
+          onEscapeKeyDown={props.onEscapeKeyDown}
+          onPointerDownOutside={props.onPointerDownOutside}
+          onInteractOutside={props.onInteractOutside}
         >
-          {children}
-          {showCloseButton && (
-            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-50 cursor-pointer size-8 flex items-center justify-center">
-              <X className="size-4" aria-hidden="true" />
-              <span className="sr-only">Close</span>
-            </DialogPrimitive.Close>
-          )}
-        </motion.div>
-      </DialogPrimitive.Content>
-    </DialogPortal>
-  );
-});
+          <motion.div
+            ref={ref}
+            key="dialog-content"
+            initial={{ opacity: 0, scale: 0.95, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 8 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            className={cn(
+              "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-xl sm:rounded-xl",
+              className,
+            )}
+            {...props}
+          >
+            {children}
+            {showCloseButton && (
+              <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-50 cursor-pointer size-8 flex items-center justify-center">
+                <X className="size-4" aria-hidden="true" />
+                <span className="sr-only">Close</span>
+              </DialogPrimitive.Close>
+            )}
+          </motion.div>
+        </DialogPrimitive.Content>
+      </DialogPortal>
+    );
+  },
+);
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
 const DialogHeader = ({
@@ -148,7 +150,7 @@ const DialogHeader = ({
     data-slot="dialog-header"
     className={cn(
       "flex flex-col space-y-1.5 text-center sm:text-left",
-      className
+      className,
     )}
     {...props}
   />
@@ -163,7 +165,7 @@ const DialogFooter = ({
     data-slot="dialog-footer"
     className={cn(
       "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
-      className
+      className,
     )}
     {...props}
   />
@@ -179,7 +181,7 @@ const DialogTitle = React.forwardRef<
     data-slot="dialog-title"
     className={cn(
       "text-lg font-semibold leading-none tracking-tight",
-      className
+      className,
     )}
     {...props}
   />

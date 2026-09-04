@@ -1,25 +1,12 @@
 "use client";
 
-import {
-  Order,
-  OrderStatus,
-  TradeCompletionMethod,
-} from "@bookjeok/core";
+import { Order, OrderStatus, TradeCompletionMethod } from "@bookjeok/core";
 import {
   useCancelOrderMutation,
   useCancelSelectionMutation,
   useConfirmPurchaseMutation,
   useMyTradeReviewEligibilityQuery,
 } from "@bookjeok/react-query";
-import {
-  AlertCircle,
-  CheckCircle2,
-  ExternalLink,
-  MessageSquare,
-  RotateCcw,
-  User,
-  XCircle,
-} from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import React, { useEffect, useState } from "react";
@@ -40,6 +27,15 @@ import {
   ShieldSecurityIcon,
   TruckFastIcon,
 } from "@/shared/components/icons";
+import {
+  AlertCircle,
+  CheckCircle2,
+  ExternalLink,
+  MessageSquare,
+  RotateCcw,
+  User,
+  XCircle,
+} from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import {
@@ -87,7 +83,8 @@ export const OrderDetailCard = ({ order }: OrderDetailCardProps) => {
 
   // 결제 만료 타이머 (AWAITING_PAYMENT 일 때)
   useEffect(() => {
-    if (order.status !== OrderStatus.AWAITING_PAYMENT || !order.expiresAt) return;
+    if (order.status !== OrderStatus.AWAITING_PAYMENT || !order.expiresAt)
+      return;
 
     const calculateTimeLeft = () => {
       const difference = new Date(order.expiresAt!).getTime() - Date.now();
@@ -232,7 +229,8 @@ export const OrderDetailCard = ({ order }: OrderDetailCardProps) => {
               <div className="flex gap-4">
                 {/* 도서 커버 */}
                 <div className="relative h-28 w-20 shrink-0 overflow-hidden rounded-md border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 shadow-2xs">
-                  {order.sale?.book?.image || (order.sale?.imageUrls && order.sale.imageUrls[0]) ? (
+                  {order.sale?.book?.image ||
+                  (order.sale?.imageUrls && order.sale.imageUrls[0]) ? (
                     <Image
                       src={
                         (order.sale?.imageUrls && order.sale.imageUrls[0]) ||
@@ -275,7 +273,12 @@ export const OrderDetailCard = ({ order }: OrderDetailCardProps) => {
 
               {order.saleId && (
                 <div className="mt-4 pt-3 border-t border-stone-100 dark:border-stone-800 text-right">
-                  <Button asChild variant="ghost" size="sm" className="text-xs h-7 gap-1 text-stone-600 dark:text-stone-400 hover:text-stone-900">
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs h-7 gap-1 text-stone-600 dark:text-stone-400 hover:text-stone-900"
+                  >
                     <Link href={PATHS.BOOK_SALES_DETAIL(String(order.saleId))}>
                       판매글 보기
                       <ExternalLink className="h-3 w-3" />
@@ -302,7 +305,10 @@ export const OrderDetailCard = ({ order }: OrderDetailCardProps) => {
                     <span className="text-xs font-semibold text-stone-900 dark:text-stone-100">
                       {order.carrier}
                     </span>
-                    <Badge variant="outline" className="border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 text-[10px]">
+                    <Badge
+                      variant="outline"
+                      className="border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 text-[10px]"
+                    >
                       배송 중
                     </Badge>
                   </div>
@@ -366,7 +372,8 @@ export const OrderDetailCard = ({ order }: OrderDetailCardProps) => {
                     </span>
                   </div>
                   <p className="text-stone-500 dark:text-stone-400 leading-relaxed">
-                    [{order.zipCode}] {order.address} {order.addressDetail || ""}
+                    [{order.zipCode}] {order.address}{" "}
+                    {order.addressDetail || ""}
                   </p>
                 </div>
               ) : (
@@ -397,13 +404,17 @@ export const OrderDetailCard = ({ order }: OrderDetailCardProps) => {
               </div>
               <div className="flex justify-between">
                 <span className="text-stone-500">배송비</span>
-                <span className="text-stone-900 dark:text-stone-100 font-medium">무료배송</span>
+                <span className="text-stone-900 dark:text-stone-100 font-medium">
+                  무료배송
+                </span>
               </div>
 
               <Separator className="bg-stone-100 dark:bg-stone-800" />
 
               <div className="flex justify-between items-baseline pt-1">
-                <span className="text-sm font-bold text-stone-900 dark:text-stone-100">총 결제금액</span>
+                <span className="text-sm font-bold text-stone-900 dark:text-stone-100">
+                  총 결제금액
+                </span>
                 <span className="text-lg font-bold text-stone-900 dark:text-stone-100 tabular-nums">
                   {order.amount.toLocaleString()}원
                 </span>
@@ -453,8 +464,15 @@ export const OrderDetailCard = ({ order }: OrderDetailCardProps) => {
                   </div>
                 </div>
                 {order.seller?.handle && (
-                  <Button asChild variant="ghost" size="sm" className="h-6 text-[11px] px-2 text-stone-600 hover:text-stone-900">
-                    <Link href={PATHS.USER_PROFILE(order.seller.handle)}>프로필</Link>
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 text-[11px] px-2 text-stone-600 hover:text-stone-900"
+                  >
+                    <Link href={PATHS.USER_PROFILE(order.seller.handle)}>
+                      프로필
+                    </Link>
                   </Button>
                 )}
               </div>
@@ -487,8 +505,15 @@ export const OrderDetailCard = ({ order }: OrderDetailCardProps) => {
                   </div>
                 </div>
                 {order.buyer?.handle && (
-                  <Button asChild variant="ghost" size="sm" className="h-6 text-[11px] px-2 text-stone-600 hover:text-stone-900">
-                    <Link href={PATHS.USER_PROFILE(order.buyer.handle)}>프로필</Link>
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 text-[11px] px-2 text-stone-600 hover:text-stone-900"
+                  >
+                    <Link href={PATHS.USER_PROFILE(order.buyer.handle)}>
+                      프로필
+                    </Link>
                   </Button>
                 )}
               </div>
@@ -499,7 +524,11 @@ export const OrderDetailCard = ({ order }: OrderDetailCardProps) => {
           <div className="space-y-2 pt-1">
             {/* 구매자: 결제 대기 중 -> 결제하기 */}
             {isBuyer && order.status === OrderStatus.AWAITING_PAYMENT && (
-              <Button asChild size="lg" className="w-full font-bold h-11 rounded-xl bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs">
+              <Button
+                asChild
+                size="lg"
+                className="w-full font-bold h-11 rounded-xl bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs"
+              >
                 <Link href={PATHS.ORDER_PAYMENT(order.id)}>
                   <CardPosIcon className="h-4 w-4 mr-2" />
                   {t("action_pay")} ({order.amount.toLocaleString()}원)
@@ -558,8 +587,9 @@ export const OrderDetailCard = ({ order }: OrderDetailCardProps) => {
             )}
 
             {/* 구매자: 구매확정 완료 -> 거래 후기 작성 / 작성 완료 표시 */}
-            {isBuyer && order.status === OrderStatus.CONFIRMED && (
-              !hasWrittenReview ? (
+            {isBuyer &&
+              order.status === OrderStatus.CONFIRMED &&
+              (!hasWrittenReview ? (
                 <Button
                   size="lg"
                   className="w-full font-bold h-11 rounded-xl bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs cursor-pointer"
@@ -573,8 +603,7 @@ export const OrderDetailCard = ({ order }: OrderDetailCardProps) => {
                   <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                   <span>거래 후기 작성 완료</span>
                 </div>
-              )
-            )}
+              ))}
 
             {/* 채팅방 바로가기 (플로팅 채팅창 열기) */}
             {order.chatRoomId && (

@@ -50,7 +50,7 @@
       "scroll_top": "맨 위로 스크롤",
       "close": "닫기",
       "menu": "메뉴",
-      "user_profile_menu": "{name} 프로필 메뉴",
+      "view_user_profile": "{name}님의 프로필 보기",
       "rating_select": "평점 선택",
       "share": "콘텐츠 공유하기",
       "share_kakao": "카카오톡으로 공유",
@@ -1581,6 +1581,7 @@
         "trade_title": {
           "RESERVED": "거래 예약",
           "COMPLETED": "거래 완료",
+          "SOLD": "판매 완료",
           "OTHER_TRADING": "다른 거래 진행 중",
           "BACK_ON_MARKET": "다시 판매중"
         }

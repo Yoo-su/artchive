@@ -1,6 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslations } from "next-intl";
+
+import { MusicPlayer } from "@/shared/components/componentry/music-player";
 import {
   Disc3,
   Pause,
@@ -11,10 +14,7 @@ import {
   SkipForward,
   Volume2,
   VolumeX,
-} from "lucide-react";
-import { useTranslations } from "next-intl";
-
-import { MusicPlayer } from "@/shared/components/componentry/music-player";
+} from "@/shared/components/icons/iconsax";
 import {
   Dialog,
   DialogContent,
@@ -154,7 +154,7 @@ export function MusicPlayerModal() {
                 title={t("controls.prev")}
                 aria-label={t("controls.prev")}
               >
-                <SkipBack className="h-5 w-5 fill-current" />
+                <SkipBack variant="bold" className="h-5 w-5" />
               </motion.button>
 
               {/* 재생 / 일시정지 메인 버튼 with 아이콘 모핑 & 스프링 탭 */}
@@ -165,21 +165,31 @@ export function MusicPlayerModal() {
                 type="button"
                 onClick={togglePlay}
                 className="flex h-13 w-13 items-center justify-center rounded-full bg-stone-900 text-white shadow-md transition-colors hover:bg-stone-800"
-                aria-label={isPlaying ? t("controls.pause") : t("controls.play")}
+                aria-label={
+                  isPlaying ? t("controls.pause") : t("controls.play")
+                }
               >
                 <AnimatePresence mode="wait">
                   <motion.span
                     key={isPlaying ? "pause" : "play"}
-                    initial={{ scale: 0.5, rotate: isPlaying ? -45 : 45, opacity: 0 }}
+                    initial={{
+                      scale: 0.5,
+                      rotate: isPlaying ? -45 : 45,
+                      opacity: 0,
+                    }}
                     animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                    exit={{ scale: 0.5, rotate: isPlaying ? 45 : -45, opacity: 0 }}
+                    exit={{
+                      scale: 0.5,
+                      rotate: isPlaying ? 45 : -45,
+                      opacity: 0,
+                    }}
                     transition={{ duration: 0.16, ease: "easeOut" }}
                     className="flex items-center justify-center"
                   >
                     {isPlaying ? (
-                      <Pause className="h-6 w-6 fill-current" />
+                      <Pause variant="bold" className="h-6 w-6" />
                     ) : (
-                      <Play className="ml-0.5 h-6 w-6 fill-current" />
+                      <Play variant="bold" className="ml-0.5 h-6 w-6" />
                     )}
                   </motion.span>
                 </AnimatePresence>
@@ -195,7 +205,7 @@ export function MusicPlayerModal() {
                 title={t("controls.next")}
                 aria-label={t("controls.next")}
               >
-                <SkipForward className="h-5 w-5 fill-current" />
+                <SkipForward variant="bold" className="h-5 w-5" />
               </motion.button>
             </div>
 
@@ -207,7 +217,9 @@ export function MusicPlayerModal() {
                 onClick={() => setVolume(volume > 0 ? 0 : 80)}
                 className="text-stone-400 transition-colors hover:text-stone-700 cursor-pointer"
                 title={volume === 0 ? t("controls.unmute") : t("controls.mute")}
-                aria-label={volume === 0 ? t("controls.unmute") : t("controls.mute")}
+                aria-label={
+                  volume === 0 ? t("controls.unmute") : t("controls.mute")
+                }
               >
                 {volume === 0 ? (
                   <VolumeX className="h-4 w-4" aria-hidden="true" />

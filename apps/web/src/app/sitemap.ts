@@ -21,7 +21,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "", changeFrequency: "daily" as const, priority: 1.0 },
     { path: "/book/market", changeFrequency: "hourly" as const, priority: 0.9 },
     { path: "/book/reviews", changeFrequency: "daily" as const, priority: 0.8 },
-    { path: "/book/search", changeFrequency: "monthly" as const, priority: 0.5 },
+    {
+      path: "/book/search",
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    },
     { path: "/insights", changeFrequency: "weekly" as const, priority: 0.3 },
     { path: "/lounge", changeFrequency: "daily" as const, priority: 0.8 },
     { path: "/privacy", changeFrequency: "yearly" as const, priority: 0.3 },
@@ -48,7 +52,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const { reviews } = await getReviews({ page: 1, limit: 50 });
     // 비공개 리뷰는 상세 페이지가 noindex이므로 사이트맵에서 제외
-    const publicReviews = reviews?.filter((review) => review.isPublic !== false);
+    const publicReviews = reviews?.filter(
+      (review) => review.isPublic !== false,
+    );
     publicReviews?.forEach((review) => {
       if (review.book?.isbn) {
         bookIsbns.add(review.book.isbn);

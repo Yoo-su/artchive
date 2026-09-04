@@ -47,7 +47,8 @@ export class TradeCompletionController {
     summary: '거래 상대 지정 (예약중 전환)',
     description:
       '판매자가 구매희망자 한 명을 거래 상대로 지정하고 판매글을 예약중으로 바꿉니다. ' +
-      '다른 채팅방에는 거래 진행 중 안내가 표시됩니다.',
+      '다른 채팅방에는 거래 진행 중 안내가 표시됩니다. 상대는 이 판매글의 ' +
+      '채팅방에 남아 있는 사용자만 지정할 수 있습니다.',
   })
   @ApiResponse({ status: 201, description: '예약 처리된 판매글을 반환합니다.' })
   @ApiParam({ name: 'saleId', description: '판매글 ID' })
@@ -92,7 +93,10 @@ export class TradeCompletionController {
     summary: '직거래 완료 처리',
     description:
       '판매글을 판매완료로 바꾸고 거래 완료 기록을 남깁니다. 거래 상대가 ' +
-      '지정된 경우에만 완료 기록이 생성되며, 그때부터 양측이 후기를 쓸 수 있습니다.',
+      '지정된 경우에만 완료 기록이 생성되며, 그때부터 양측이 후기를 쓸 수 있습니다. ' +
+      '`buyerId`를 생략하면 예약 상대가 자동으로 쓰이고, `withoutCounterparty`를 ' +
+      'true로 보내면 예약 상대가 있어도 상대 없이 판매완료만 합니다. ' +
+      '거래 상대는 이 판매글로 대화한 적이 있는 사용자만 지정할 수 있습니다.',
   })
   @ApiResponse({
     status: 201,

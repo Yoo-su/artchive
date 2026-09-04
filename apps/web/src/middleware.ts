@@ -44,8 +44,13 @@ export default function middleware(request: NextRequest) {
   const hasLocale = routing.locales.some(
     (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
   );
-  
-  const EXCLUDE_PATHS = ["/robots.txt", "/sitemap.xml", "/favicon.ico", "/rss.xml"];
+
+  const EXCLUDE_PATHS = [
+    "/robots.txt",
+    "/sitemap.xml",
+    "/favicon.ico",
+    "/rss.xml",
+  ];
   const isExcluded = EXCLUDE_PATHS.includes(pathname);
 
   // SNS 공유 시 리다이렉션 지연 및 수집 실패를 예방하기 위해, 스크래퍼 봇은 내부 rewrite 처리(200 OK 즉시 서빙)합니다.

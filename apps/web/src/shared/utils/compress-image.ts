@@ -75,7 +75,7 @@ export function validateImageForUpload(
  */
 export async function compressImage(
   file: File,
-  options: CompressImageOptions = {}
+  options: CompressImageOptions = {},
 ): Promise<File> {
   const { maxSizeMB, maxWidthOrHeight, useWebWorker } = {
     ...DEFAULT_OPTIONS,
@@ -123,7 +123,7 @@ export async function compressImage(
  */
 export async function compressImages(
   files: File[],
-  options: CompressImageOptions = {}
+  options: CompressImageOptions = {},
 ): Promise<File[]> {
   return Promise.all(files.map((file) => compressImage(file, options)));
 }

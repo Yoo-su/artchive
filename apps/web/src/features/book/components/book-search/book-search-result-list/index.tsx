@@ -3,12 +3,12 @@
 import { BookInfo } from "@bookjeok/core";
 import { useInfiniteBookSearch } from "@bookjeok/react-query";
 import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
+import { Loader2 } from "@/shared/components/icons/iconsax";
 import { cn } from "@/shared/utils/cn";
 
 import { BookCard } from "../../common/book-card";
@@ -105,10 +105,16 @@ export const BookSearchResultList = ({
     },
   };
 
-  const isTransitioning = isFetching && !isFetchingNextPage && status === "success";
+  const isTransitioning =
+    isFetching && !isFetchingNextPage && status === "success";
 
   return (
-    <div className={cn("transition-opacity duration-300", isTransitioning && "opacity-40 pointer-events-none")}>
+    <div
+      className={cn(
+        "transition-opacity duration-300",
+        isTransitioning && "opacity-40 pointer-events-none",
+      )}
+    >
       <div className="grid gap-x-4 gap-y-6 grid-cols-2 sm:grid-cols-4">
         {data?.pages.map((page, pageIndex: number) => (
           <motion.div

@@ -6,7 +6,11 @@ import { useEffect } from "react";
 
 import { CACHE_TIME } from "@/shared/constants/cache";
 
-export const useReadingLogPrefetch = (year: number, month: number, enabled = true) => {
+export const useReadingLogPrefetch = (
+  year: number,
+  month: number,
+  enabled = true,
+) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -27,14 +31,16 @@ export const useReadingLogPrefetch = (year: number, month: number, enabled = tru
       const targetMonth = date.getMonth() + 1;
 
       queryClient.prefetchQuery({
-        queryKey: readingLogKeys.list({ year: targetYear, month: targetMonth }).queryKey,
+        queryKey: readingLogKeys.list({ year: targetYear, month: targetMonth })
+          .queryKey,
         queryFn: () => getReadingLogs({ year: targetYear, month: targetMonth }),
         staleTime: CACHE_TIME.FIVE_MINUTES,
       });
 
       queryClient.prefetchQuery({
         queryKey: readingLogKeys.stats(targetYear, targetMonth).queryKey,
-        queryFn: () => getReadingLogStats({ year: targetYear, month: targetMonth }),
+        queryFn: () =>
+          getReadingLogStats({ year: targetYear, month: targetMonth }),
         staleTime: CACHE_TIME.FIVE_MINUTES,
       });
     });

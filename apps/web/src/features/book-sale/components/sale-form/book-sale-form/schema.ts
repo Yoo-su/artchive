@@ -34,12 +34,9 @@ export const createSellFormSchema = (t: (key: string) => string) =>
         .nullable()
         .refine((val) => val !== null, t("book_required")),
     })
-    .refine(
-      (data) => Boolean(data.city && data.district),
-      {
-        message: t("district_required"),
-        path: ["district"],
-      },
-    );
+    .refine((data) => Boolean(data.city && data.district), {
+      message: t("district_required"),
+      path: ["district"],
+    });
 
 export type SellFormValues = z.infer<ReturnType<typeof createSellFormSchema>>;

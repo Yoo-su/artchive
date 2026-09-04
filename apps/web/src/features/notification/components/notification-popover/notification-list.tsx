@@ -1,9 +1,9 @@
 import { useNotificationsInfiniteQuery } from "@bookjeok/react-query";
-import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
+import { Loader2 } from "@/shared/components/icons/iconsax";
 import { ScrollArea } from "@/shared/components/shadcn/scroll-area";
 
 import { NotificationItem } from "./notification-item";
@@ -63,4 +63,3 @@ export const NotificationList = ({ onClose }: NotificationListProps) => {
     </ScrollArea>
   );
 };
-

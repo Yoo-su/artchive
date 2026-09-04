@@ -1,8 +1,12 @@
 "use client";
 
-import { BOOK_DOMAINS, BookInfo, CATEGORY_MAP, ReviewFormValues } from "@bookjeok/core";
+import {
+  BOOK_DOMAINS,
+  BookInfo,
+  CATEGORY_MAP,
+  ReviewFormValues,
+} from "@bookjeok/core";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BookOpen, Info, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -16,6 +20,7 @@ import {
   createReviewSchema,
   ReviewSchemaValues,
 } from "@/features/review/schemas";
+import { BookOpen, Info, Loader2 } from "@/shared/components/icons/iconsax";
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import {
@@ -166,7 +171,6 @@ export const ReviewForm = ({
   };
 
   const isProcessing = isSubmitting || isUploading;
-
 
   const currentSubmitLabel =
     submitLabel ||

@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
     const query = searchParams.get("query") || "";
     const displayNum = Number(searchParams.get("display")) || 10;
     const startNum = Number(searchParams.get("start")) || 1;
-    const queryType = (searchParams.get("queryType") as AladinQueryType) || "Keyword";
+    const queryType =
+      (searchParams.get("queryType") as AladinQueryType) || "Keyword";
     const sortParam = searchParams.get("sort") || "sim";
 
     const pageStart = Math.floor((startNum - 1) / Math.max(displayNum, 1)) + 1;

@@ -1,7 +1,8 @@
 "use client";
 
-import { Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+import { Lock } from "@/shared/components/icons/iconsax";
 
 /**
  * 비공개 리뷰 안내 오버레이 컴포넌트
@@ -27,9 +28,7 @@ export const PrivateReviewOverlay = () => {
         <h3 className="text-lg font-semibold text-stone-800 mb-1.5 tracking-tight">
           {t("title")}
         </h3>
-        <p className="text-sm text-stone-400">
-          {t("description")}
-        </p>
+        <p className="text-sm text-stone-400">{t("description")}</p>
       </div>
     </div>
   );
