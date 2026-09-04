@@ -276,6 +276,14 @@ export const ERROR_CODES = {
     code: 'TRADE_006',
     message: '거래 기록이 있는 판매완료 글은 상태를 되돌릴 수 없습니다.',
   },
+  SALE_ALREADY_COMPLETED: {
+    code: 'TRADE_007',
+    message: '이미 거래가 완료된 판매글입니다.',
+  },
+  SALE_COMPLETED_CANNOT_DELETE: {
+    code: 'TRADE_008',
+    message: '거래 기록이 있는 판매글은 삭제할 수 없습니다.',
+  },
   SALE_NOT_RESERVED: {
     code: 'TRADE_005',
     message: '예약중인 판매글이 아닙니다.',

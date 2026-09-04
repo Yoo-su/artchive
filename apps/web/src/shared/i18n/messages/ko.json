@@ -1217,7 +1217,8 @@
         "login_required": "채팅 및 찜하기는 로그인 후 이용 가능합니다",
         "in_trade_cannot_modify": "거래가 진행 중인 판매글은 수정하거나 삭제할 수 없습니다.",
         "in_trade_status_auto": "거래 진행 중에는 상태가 자동으로 관리됩니다.",
-        "completed_status_locked": "거래 기록이 있어 상태를 되돌릴 수 없습니다."
+        "completed_status_locked": "거래 기록이 있어 상태를 되돌릴 수 없습니다.",
+        "completed_cannot_modify": "거래 기록이 있어 수정·삭제할 수 없습니다."
       },
       "location": {
         "title": "거래 희망 장소",

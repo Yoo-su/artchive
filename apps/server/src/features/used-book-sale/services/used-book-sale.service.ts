@@ -476,6 +476,17 @@ export class UsedBookSaleService {
       );
     }
 
+    // 거래 기록이 있는 판매글은 삭제할 수 없다.
+    // trade_completions가 판매글에 CASCADE로 물려 있고 후기는 다시 거기에
+    // 물려 있어서, 삭제하면 받은 후기까지 함께 사라진다. 나쁜 후기를 받은
+    // 글을 지워 평판을 세탁하는 경로가 된다. (운영자는 신고 처리를 위해 예외)
+    if (userRole !== 'ADMIN' && (await this.hasTradeCompletion(saleId))) {
+      throw new BusinessException(
+        'SALE_COMPLETED_CANNOT_DELETE',
+        HttpStatus.CONFLICT,
+      );
+    }
+
     await this.usedBookSaleRepository.remove(sale);
   }
 
