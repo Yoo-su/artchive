@@ -17,7 +17,7 @@
 - 호출 시 Axios 인스턴스를 주입할 필요 없이 순수 파라미터만 전달하여 호출합니다.
 
 ### 3. 도메인 커버리지
-`auth`, `book`, `book-sale`, `chat`, `comment`, `insights`, `llm`, `notification`, `order`, `reading-log`, `review`, `user` 12개 도메인의 API 함수를 제공합니다.
+`auth`, `book`, `book-sale`, `chat`, `comment`, `insights`, `llm`, `notification`, `order`, `reading-log`, `review`, `trade`, `user` 13개 도메인의 API 함수를 제공합니다.
 
 ---
 

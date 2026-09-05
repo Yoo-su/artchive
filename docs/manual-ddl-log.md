@@ -37,7 +37,7 @@ DDL_TARGET_DATABASE_URL=postgres://user:pass@localhost:5432/bookjeok_ddl   pnpm 
 | --- | --- | --- |
 | 2026-09-02 | 채팅 테이블 인덱스 5개 추가 | `e0eed214` |
 | 2026-09-02 | 읽음 워터마크 컬럼 추가·백필, `read_receipts` 드롭 | `778ef588` |
-| (미적용) | 거래 완료(`trade_completions`) 도입, `trade_reviews` 재구성 | 아래 3번 |
+| 2026-09-05 | 거래 완료(`trade_completions`) 도입, `trade_reviews` 재구성 | `f34ba26b` ~ `390b4fcc` |
 
 현재 운영에 남아 있는 채팅 인덱스는 **4개**입니다
 (`idx_read_receipts_message`는 테이블과 함께 사라졌습니다).
@@ -159,7 +159,7 @@ DROP TABLE read_receipts;
 
 ---
 
-## 3. 거래 완료(`trade_completions`) 도입과 `trade_reviews` 재구성 (미적용)
+## 3. 거래 완료(`trade_completions`) 도입과 `trade_reviews` 재구성 (2026-09-05)
 
 > **명명 규칙**: 운영 스키마는 손으로 붙인 이름(`IDX_{테이블}_{컬럼}`, `UQ_`, `PK_`,
 > `FK_`, 컬럼은 camelCase 유지)을 씁니다. 아래 DDL도 그 규칙을 따르고, 인덱스·유니크
@@ -167,10 +167,8 @@ DROP TABLE read_receipts;
 > 않게 했습니다. PK·FK 이름은 TypeORM 데코레이터로 지정할 수 없어 개발 환경과는
 > 다를 수 있습니다(기존 테이블도 이미 그런 상태입니다).
 >
-> **아직 운영에 적용하지 않았습니다.** 아래 SQL은 엔티티 정의에서 직접 옮겨 적은
-> 것으로, 위의 `derive-ddl.ts`로 검증하지 않았습니다(작성 시점에 로컬 Postgres를
-> 띄울 수 없었음). **실행 전에 반드시 스크립트로 한 번 뽑아 대조하세요.**
-> 특히 TypeORM이 만드는 인덱스·제약 이름은 해시 기반이라 손으로 맞히기 어렵습니다.
+> **2026-09-05 운영 DB(Supabase)에 적용 완료되었습니다.**
+> 엔티티 정의 및 derive-ddl.ts 결과를 대조하여 아래 순서대로 실행되었습니다.
 
 ### 배경
 

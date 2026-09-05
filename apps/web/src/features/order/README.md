@@ -1,6 +1,10 @@
-# Frontend Feature: Order (에스크로 결제 · 주문 관리 · 거래 후기)
+# Frontend Feature: Order (에스크로 결제 · 주문 관리)
 
 토스페이먼츠 에스크로 결제 플로우와 주문 관리 UI를 담당합니다. 서버의 [`order` 모듈](../../../../server/src/features/order/README.md)과 짝을 이루며, 데이터 통신은 전부 `@bookjeok/react-query` 훅을 통합니다.
+
+> **거래 후기와 신뢰 지표는 이 모듈에 없습니다.** 후기는 결제가 아니라 "거래가 성사됐다"는
+> 사실(`TradeCompletion`)에 붙습니다 — [`trade/README.md`](../trade/README.md) 참고.
+> 구매확정 시 완료 기록(`TradeCompletion`)의 ID가 연결되며, 후기 작성 및 거래 내역 조회의 후속 플로우는 trade 모듈이 맡습니다.
 
 ---
 
@@ -15,21 +19,15 @@ order/
 │   ├── escrow-info-card.tsx             # 에스크로 안내 카드
 │   ├── modals/
 │   │   ├── shipping-form-modal.tsx      # 판매자 운송장 등록
-│   │   ├── dispute-modal.tsx            # 구매확정 거부(이의 제기)
-│   │   └── trade-review-modal.tsx       # 거래 후기 작성/수정
+│   │   └── dispute-modal.tsx            # 구매확정 거부(이의 제기)
 │   ├── order-detail/
 │   │   ├── order-detail-card.tsx
 │   │   └── order-status-timeline.tsx    # 주문 상태 타임라인
 │   ├── my-purchases/                    # 내 구매 내역 (list / card / skeleton)
-│   ├── my-sales-orders/                 # 내 판매 주문 (list / card / skeleton)
-│   └── trade-review/
-│       ├── trade-review-card.tsx
-│       ├── user-trade-reviews-list.tsx
-│       ├── seller-stats-card.tsx        # 거래 완료 건수 · 긍정 후기 비율
-│       └── seller-trust-badge.tsx       # 프로필/판매글의 신뢰 배지
+│   └── my-sales-orders/                 # 내 판매 주문 (list / card / skeleton)
 ├── utils/
 │   └── order-storage.ts                 # 배송지 스냅샷 임시 저장
-└── __tests__/                           # 7개 테스트 파일
+└── __tests__/                           # 6개 테스트 파일
 ```
 
 ---
@@ -98,26 +96,26 @@ order/
 
 ---
 
-## 거래 후기
+## 거래 후기 및 신뢰 지표
 
-- 구매확정 후 **14일 이내** 작성·수정 가능, 삭제 불가
-- 프리셋 태그(긍정 5종 / 부정 4종) 선택 + 선택적 텍스트
-- `seller-stats-card` / `seller-trust-badge`는 "거래 완료 N건 · 긍정 후기 N%" 팩트 수치만 표시합니다. 별점 환산이나 등급 같은 가공 지표는 쓰지 않습니다.
+거래 후기와 신뢰 지표는 결제와 분리되어 [`features/trade`](../trade/README.md) 모듈로 완전히 이관되었습니다. 구매확정 시 `TradeCompletion`이 생성되며, 주문 화면에서는 해당 `completionId`를 통해 후기 작성 모달(`TradeReviewModal`)로 진입합니다.
 
 ---
 
 ## 테스트
 
-`__tests__/`에 Vitest + Testing Library 기반 7개 파일이 있습니다.
+`__tests__/`에 Vitest + Testing Library 기반 6개 파일이 있습니다.
 
 | 파일 | 대상 |
 |---|---|
 | `payment-flow.test.tsx` | 결제 요청 및 성공/실패 콜백 |
 | `address-input.test.tsx` | 배송지 입력 및 우편번호 연동 |
 | `order-detail.test.tsx` | 상태별 액션 노출 |
-| `my-purchases.test.tsx` / `my-sales-orders.test.tsx` | 목록 렌더링 |
+| `my-purchases.test.tsx` | 구매 주문 목록 렌더링 |
+| `my-sales-orders.test.tsx` | 판매 주문 목록 렌더링 |
 | `shipping-dispute-modals.test.tsx` | 운송장·이의 제기 모달 |
-| `trade-review.test.tsx` | 후기 작성/수정 |
+
+> 후기 관련 테스트(`trade-review.test.tsx`)는 [`features/trade/__tests__`](../trade/__tests__)로 이관되었습니다.
 
 ```bash
 pnpm --filter @bookjeok/web test
