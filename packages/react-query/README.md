@@ -45,7 +45,7 @@ export function BookListComponent() {
 ## 📂 패키지 구조
 
 - `src/features/*`: 도메인별 쿼리(`queries.ts`) 및 뮤테이션(`mutations.ts`) 훅
-  - `auth`, `book`, `book-sale`, `chat`, `comment`, `insights`, `llm`, `notification`, `order`, `reading-log`, `review`, `user`
+  - `auth`, `book`, `book-sale`, `chat`, `comment`, `insights`, `llm`, `notification`, `order`, `reading-log`, `review`, `trade`, `user`
 - `src/index.ts`: 루트 배럴 export
 
 ---

@@ -1,5 +1,12 @@
 # 북적 중고거래 결제 시스템 도입 실행계획 (v2)
 
+> [!NOTE]
+> **2026-09 후속 개편 (Trade 모듈 분리)**:
+> 본 문서는 결제 시스템 도입 초기 설계서입니다. 이후 직거래 후기 지원 및 결제 독립성을 위해 **거래 완료(`TradeCompletion`)와 양방향 거래 후기(`TradeReview`)가 별도의 `trade` 도메인 모듈로 분리**되었습니다.
+> 결제 수명주기는 `order` 모듈이, 직거래/에스크로 완료 후기 및 신뢰 지표는 `trade` 모듈이 담당합니다. 최신 상세 구현은 다음 문서를 참고하세요:
+> - 서버: [`apps/server/src/features/trade/README.md`](../apps/server/src/features/trade/README.md) · [`apps/server/src/features/order/README.md`](../apps/server/src/features/order/README.md)
+> - 웹: [`apps/web/src/features/trade/README.md`](../apps/web/src/features/trade/README.md) · [`apps/web/src/features/order/README.md`](../apps/web/src/features/order/README.md)
+
 ## 1. 개요 및 원칙
 
 북적 서비스에 **토스페이먼츠 에스크로 기반 결제 시스템**을 도입하여, 기존 채팅 직거래 방식에 더해 **택배 거래 + 온라인 결제 + 배송 추적 + 구매확정 + 거래 후기** 플로우를 추가한다.

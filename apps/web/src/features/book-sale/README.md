@@ -21,7 +21,7 @@ book-sale/
 ├── __tests__/                        # queries / mutations
 └── components/
     ├── sale-market/                  # 장터 메인
-    │   ├── market-hero/ (+ live-listing-feed)
+    │   ├── video-hero/               # 영상 기반 시네마틱 히어로
     │   ├── book-sale-filter/         # 지역·가격·거래방식·정렬 필터
     │   ├── book-sale-grid/
     │   ├── book-market/ (+ with-params, popular-book-sale-list)
@@ -40,6 +40,8 @@ book-sale/
     │   └── book-sale-history-list/   # index · item · skeleton
     └── common/
         ├── book-sale-item/           # 합성 컴포넌트 (root/parts/context/skeleton)
+        ├── sale-status-select.tsx    # 상태 변경 드롭다운 셀렉트
+        ├── trade-counterparty-modal.tsx # 거래 상대 지정/완료 모달
         ├── sale-status-badge.tsx     # FOR_SALE · RESERVED · SOLD · WITHDRAWN
         ├── trade-method-badge.tsx    # DIRECT_ONLY · DELIVERY_ONLY · BOTH
         ├── upload-progress-modal.tsx
@@ -91,18 +93,24 @@ upload-progress-modal 로 진행률 표시, 실패 시 개별 재시도
 
 `schema.ts`(Zod)를 React Hook Form의 resolver로 연결합니다. 등록과 수정은 허용 필드가 달라 스키마를 분리했습니다. 거래 방식(`tradeMethod`) 선택은 이후 주문·결제 가능 여부를 결정하므로 등록 폼에서 반드시 지정됩니다.
 
-## 3. 상태 배지
+## 3. 상태 관리 및 잠금 규칙
 
-| SaleStatus | 표시 |
-|---|---|
-| `FOR_SALE` | 판매중 |
-| `RESERVED` | 예약중 (활성 주문 존재) |
-| `SOLD` | 판매완료 (구매확정) |
-| `WITHDRAWN` | 판매취소 |
+| SaleStatus | 표시 | 설명 |
+|---|---|---|
+| `FOR_SALE` | 판매중 | 구매 희망자와 대화 및 거래 가능 |
+| `RESERVED` | 예약중 | 판매자가 직거래 상대를 지정했거나 에스크로 결제 대기 중 |
+| `SOLD` | 판매완료 | 직거래 완료 처리 또는 에스크로 구매확정 완료 |
+| `WITHDRAWN` | 판매취소 | 회원 탈퇴 시 시스템이 자동 전환 (사용자 직접 선택 불가) |
 
-`RESERVED`/`SOLD` 전이는 주문 상태에 의해 서버가 자동으로 수행합니다. 클라이언트에서 임의 변경하지 마세요.
+### 판매글 변경 잠금 정책
 
-## 4. 관련
+- **상태 변경**: 판매자는 판매글 상세 및 내 판매글 목록에서 `SaleStatusSelect`를 통해 수동으로 상태를 전환할 수 있습니다. 예약중/판매완료 전환 시 `TradeCounterpartyModal`이 열려 거래 상대 후보를 선택하도록 유도합니다.
+- **수정/삭제 잠금**:
+  - `hasActiveOrder === true` (에스크로 결제/배송 진행 중): 수정/삭제/상태변경 전체 잠금
+  - `hasTradeCompletion === true` (완료 기록 존재): 거래 후기와 신뢰 지표 왜곡 방지를 위해 수정 불가, 삭제 불가(운영자 예외), 판매완료 상태 되돌리기 불가
 
-- 서버: [`features/used-book-sale`](../../../../server/src/features/used-book-sale/README.md), [`features/order`](../../../../server/src/features/order/README.md)
+## 4. 관련 모듈
+
+- 서버 도메인: [`features/used-book-sale`](../../../../server/src/features/used-book-sale/README.md), [`features/trade`](../../../../server/src/features/trade/README.md), [`features/order`](../../../../server/src/features/order/README.md)
+- 웹 도메인: [`features/trade`](../trade/README.md), [`features/order`](../order/README.md), [`features/chat`](../chat/README.md)
 - 뷰: `book-market-view`, `book-sale-detail-view`, `book-sale-form-view`, `book-sale-edit-view`, `book-sale-history-view`

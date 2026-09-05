@@ -8,7 +8,7 @@
 ## 🚀 주요 기능 (Key Features)
 
 - **🤖 대화형 AI 도서 탐색 (SSE)** — `fetch` + `ReadableStream` 기반 커스텀 SSE 클라이언트로 추천 결과를 조각 단위 렌더링
-- **💳 에스크로 결제** — 토스페이먼츠 SDK 연동, 주문 상태 타임라인, 배송/분쟁/구매확정/거래 후기
+- **💳 에스크로 결제 & 거래 관리** — 토스페이먼츠 SDK 연동, 주문 상태 타임라인, 배송/분쟁/구매확정 및 직거래/택배 거래 완료·후기 관리
 - **💬 실시간 소통** — Socket.IO 1:1 거래 채팅(타이핑 인디케이터·읽음 표시)과 전역 실시간 알림 14종
 - **📖 독서 기록 & 라운지** — 월별 캘린더, 통계, Framer Motion 3D 카드 덱, 공개 피드
 - **✍️ 리치 텍스트 리뷰** — Tiptap 3 에디터, 이미지 업로드·리사이즈, `sanitize-html` 정제 렌더링
@@ -53,27 +53,26 @@ src/
 ├── app/                      # Next.js App Router
 │   ├── [locale]/             # 다국어 라우트
 │   │   ├── (auth)/           # login · signup · callback · verify-email
-│   │   ├── (default)/        # 홈 · lounge · insights · my-page · order · 약관
+│   │   ├── (default)/        # 홈 · lounge · insights · my-page(trades 포함) · order · 약관
 │   │   ├── book/             # search · market · [isbn]/detail · sales · reviews
-│   │   ├── art/[id]/
 │   │   └── share/deck/[handle]/
-│   ├── api/                  # route handlers (upload, revalidate, art, book)
+│   ├── api/                  # route handlers (upload, revalidate, book-detail, book-list)
 │   ├── sitemap.ts · robots.ts · manifest.ts · rss.xml/
 │   ├── not-found.tsx · global-error.tsx
 ├── views/                    # 페이지 단위 조립 뷰 ([feature]-view/)
 ├── features/                 # 도메인별 기능 UI & 상태
 │   ├── auth/                 # 로그인·회원가입·티켓 교환·이메일 인증·가드
 │   ├── book/                 # 검색, 상세, AI 챗(SSE), 최근 본 책
-│   ├── book-sale/            # 판매글 등록/수정/탐색/상세, 지도, 이미지 업로드
-│   ├── order/                # 에스크로 결제, 주문 관리, 거래 후기
-│   ├── chat/                 # 1:1 실시간 채팅
+│   ├── book-sale/            # 판매글 등록/수정/탐색/상세, 지도, 비디오 히어로, 이미지 업로드
+│   ├── order/                # 에스크로 결제, 주문 상세, 배송/분쟁 모달
+│   ├── trade/                # 직거래/택배 거래 완료 내역, 양방향 거래 후기, 신뢰 지표 배지/통계
+│   ├── chat/                 # 1:1 실시간 채팅 및 거래 액션 카드
 │   ├── notification/         # 실시간 알림 (벨 · 팝오버)
 │   ├── reading-log/          # 캘린더·통계·3D 덱·독서 라운지
 │   ├── review/               # Tiptap 리뷰 작성/조회/리액션
 │   ├── comment/              # 댓글 · 좋아요
 │   ├── user/                 # 프로필·통계·위시리스트·탈퇴
 │   ├── insights/             # 서비스 통계 차트
-│   ├── art/                  # KOPIS 공연·전시
 │   ├── intro/                # 홈 히어로 인트로
 │   ├── music/                # 전역 배경음악 플레이어
 │   └── confirm/              # 전역 확인 다이얼로그

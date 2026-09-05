@@ -55,7 +55,7 @@ enum SaleStatus {
 }
 ```
 
-`RESERVED` / `SOLD` 전이는 [`order`](../order/README.md) 모듈이 주문 상태에 따라 자동으로 수행합니다. 활성 주문이 있는 판매글은 사용자가 임의로 상태를 바꾸거나 삭제할 수 없습니다.
+`RESERVED` / `SOLD` 전이는 직거래 시 판매자의 상태 변경(`PATCH /book/sales/:id/status`) 및 [`trade`](../trade/README.md) 모듈의 예약/완료 API, 또는 택배 거래 시 [`order`](../order/README.md) 모듈의 주문 수명주기에 의해 수행됩니다. 활성 주문이 있는 판매글은 사용자가 임의로 상태를 바꾸거나 삭제할 수 없습니다.
 
 `WITHDRAWN`은 회원 탈퇴 시 시스템이 판매글을 숨기려고 쓰는 값이라 사용자 입력으로는 받지 않습니다 (`UpdateSaleStatusDto`의 `USER_SETTABLE_SALE_STATUSES`).
 
