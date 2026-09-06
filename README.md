@@ -453,6 +453,7 @@ bookjeok/
 │
 ├── docs/                         # 운영·설계 문서
 │   ├── used-book-pay-implementation.md
+│   ├── book-data-migration-plan.md
 │   └── manual-ddl-log.md
 ├── .agents/rules/                # 코드베이스 컨벤션 (개발자 & AI 에이전트 공용)
 ├── .github/workflows/            # CI, Azure Container Apps 배포
@@ -617,6 +618,7 @@ pnpm test
 | 문서 | 내용 |
 |---|---|
 | [docs/used-book-pay-implementation.md](docs/used-book-pay-implementation.md) | 에스크로 결제 시스템 설계·상태 머신·엣지 케이스·단계별 실행 계획 |
+| [docs/book-data-migration-plan.md](docs/book-data-migration-plan.md) | 알라딘 API 종료(2026-10-30) 대응 — 표지·서지·검색 탈외부화 계획과 진행 상황 (진행 중) |
 | [docs/manual-ddl-log.md](docs/manual-ddl-log.md) | 운영 DB에 수동 적용한 DDL 이력 (필독) |
 | [.agents/rules/](.agents/rules/) | 코드베이스 컨벤션 — [모노레포/패키지](.agents/rules/01-monorepo-packages.md) · [서버](.agents/rules/02-server-conventions.md) · [프론트엔드](.agents/rules/03-frontend-conventions.md) · [체크리스트](.agents/rules/04-checklist.md) |
 

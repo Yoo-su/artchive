@@ -51,6 +51,7 @@
 
 ### 운영 주의사항
 
+- **[진행 중] 알라딘 Open API가 2026-10-30 종료됩니다.** 도서 표지·서지·검색을 외부 API 의존에서 떼어내는 작업이 진행 중입니다. 도서 데이터 관련 작업 전에 반드시 [docs/book-data-migration-plan.md](docs/book-data-migration-plan.md)를 읽고, 작업 후 해당 문서의 체크박스와 진행 로그를 갱신하세요.
 - 운영 DB는 `synchronize: false`이며 마이그레이션 도구가 없습니다. 엔티티를 바꿨다면 DDL을 수동 적용하고 반드시 [docs/manual-ddl-log.md](docs/manual-ddl-log.md)에 기록하세요.
 - 결제 관련 코드는 `FEATURE_PAYMENT_ENABLED` 플래그 뒤에 있습니다. 플래그는 서버/웹 양쪽 값을 함께 맞춰야 합니다.
 - 새 환경 변수를 추가하면 `.env.example`과 `turbo.json`의 `globalEnv`에 **둘 다** 등록하세요. `globalEnv`에 빠지면 Turbo 캐시가 값 변경을 감지하지 못합니다.
