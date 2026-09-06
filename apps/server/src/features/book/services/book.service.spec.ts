@@ -146,6 +146,54 @@ describe('BookService', () => {
       expect(mockInsertBuilder.execute).toHaveBeenCalled();
       expect(repo.findOneBy).toHaveBeenCalledTimes(1); // Initial find only
     });
+
+    it('저자·발행처가 비어 와도 빈 문자열로 채워 저장한다', async () => {
+      // books는 전 컬럼 NOT NULL이고, 공공 서지에는 저자 표기가 없는 자료가 있다.
+      const isbn = '9791234567890';
+      const repo = module.get(getRepositoryToken(Book));
+
+      mockBookCatalogService.findByIsbn.mockResolvedValue({
+        isbn,
+        title: '저자 없는 자료',
+        discount: '',
+      });
+
+      const mockInsertBuilder = {
+        insert: jest.fn().mockReturnThis(),
+        into: jest.fn().mockReturnThis(),
+        values: jest.fn().mockReturnThis(),
+        orIgnore: jest.fn().mockReturnThis(),
+        execute: jest.fn().mockResolvedValue({}),
+      };
+      (repo.createQueryBuilder as jest.Mock).mockReturnValue(mockInsertBuilder);
+      (repo.findOneBy as jest.Mock).mockResolvedValueOnce(null);
+      (repo.create as jest.Mock).mockImplementation((v: unknown) => v);
+
+      await service.resolveBook(isbn);
+
+      expect(repo.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: '저자 없는 자료',
+          author: '',
+          publisher: '',
+          description: '',
+          image: '',
+        }),
+      );
+    });
+
+    it('제목이 없으면 저장하지 않고 BOOK_NOT_FOUND를 던진다', async () => {
+      const isbn = '9791234567891';
+      const repo = module.get(getRepositoryToken(Book));
+
+      // 공급처가 응답은 했지만 식별 불가능한 레코드인 경우
+      mockBookCatalogService.findByIsbn.mockResolvedValue({ isbn, title: '' });
+      mockBookCatalogService.search.mockResolvedValue({ items: [] });
+      (repo.findOneBy as jest.Mock).mockResolvedValueOnce(null);
+
+      await expect(service.resolveBook(isbn)).rejects.toThrow();
+      expect(repo.create).not.toHaveBeenCalled();
+    });
   });
 
   describe('findPopularBooks', () => {

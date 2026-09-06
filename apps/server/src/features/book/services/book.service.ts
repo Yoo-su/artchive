@@ -54,16 +54,20 @@ export class BookService {
           bookData = found.items[0] ?? null;
         }
 
-        if (!bookData) {
+        // 제목이 없으면 식별할 수 없는 레코드라 저장하지 않는다.
+        // books는 title이 NOT NULL이고, 빈 제목으로 넣어봐야 목록에서 빈칸으로만 보인다.
+        if (!bookData?.title) {
           throw new BusinessException('BOOK_NOT_FOUND', HttpStatus.NOT_FOUND);
         }
 
         // 안전한 데이터 생성 (Concurrency Safe)
+        // 저자·발행처는 공급처에 따라 비어 올 수 있다. books가 전 컬럼 NOT NULL이라
+        // 빈 문자열로 채운다. 공공 서지에는 저자 표기가 없는 자료가 실제로 있다.
         const newBook = this.bookRepository.create({
           isbn: bookData.isbn || isbn,
           title: bookData.title,
-          author: bookData.author,
-          publisher: bookData.publisher,
+          author: bookData.author || '',
+          publisher: bookData.publisher || '',
           description: bookData.description || '',
           image: bookData.image || '',
           discount: String(bookData.discount || ''),
