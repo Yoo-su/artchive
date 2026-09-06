@@ -2,6 +2,10 @@
 
 도서 **마스터 데이터**(`Book` 엔티티)와 외부 도서 API 연동을 담당합니다.
 
+> **외부 도서 API 호출은 이 모듈이 단독으로 담당합니다.** 웹에서 공급처를 직접
+> 부르지 않습니다. 알라딘 종료(2026-10-30) 대응 진행 상황은
+> [docs/book-data-migration-plan.md](../../../../../docs/book-data-migration-plan.md)를 보세요.
+
 > 중고책 판매글은 이 모듈이 아니라 [`used-book-sale`](../used-book-sale/README.md)에 있습니다.
 
 ## 1. 폴더 구조
@@ -12,9 +16,14 @@ book/
 ├── controllers/
 │   ├── book.controller.ts
 │   └── book.controller.spec.ts
+├── providers/                            # 도서 공급처 포트와 어댑터
+│   ├── book-catalog.types.ts             # 포트 인터페이스 + 주입 토큰
+│   ├── aladin-book-catalog.provider.ts   # 알라딘 어댑터 (2026-10-30 종료 예정)
+│   └── local-db-book-catalog.provider.ts # 자체 DB 어댑터 (최후 방어선)
 ├── services/
 │   ├── book.service.ts (+ spec)          # 도서 마스터 조회·동기화·통계
-│   └── aladin-book-search.service.ts     # 알라딘 Open API 연동
+│   ├── book-catalog.service.ts (+ spec)  # 공급처 체인 오케스트레이터
+│   └── aladin-book-search.service.ts     # 알라딘 Open API 호출
 ├── entities/book.entity.ts               # isbn을 PK로 사용
 ├── dtos/book-info.dto.ts
 ├── pipes/book-resolve.pipe.ts            # ISBN → Book 보장 파이프
@@ -27,8 +36,8 @@ book/
 |---|---|:---:|---|
 | GET | `/popular` | ❌ | 조회수 기반 인기 도서 |
 | GET | `/search` | ❌ | DB에 적재된 도서 검색 |
-| GET | `/external/list` | ❌ | 알라딘 도서 목록 검색 (프록시) |
-| GET | `/external/detail` | ❌ | 알라딘 도서 상세 조회 (프록시) |
+| GET | `/external/list` | ❌ | 외부 공급처 도서 목록 검색 (웹 SSR·Expo 공용) |
+| GET | `/external/detail` | ❌ | 외부 공급처 도서 상세 조회 (웹 SSR·Expo 공용) |
 | POST | `/:isbn/view` | ❌ | 도서 조회수 기록 |
 | GET | `/:isbn/stats` | ❌ | 해당 도서의 독서 기록·위시리스트 통계 |
 
@@ -57,7 +66,7 @@ resolveBook(isbn)
   │
   ├─ DB에 있으면 → 그대로 반환
   │
-  └─ 없으면 → 알라딘 API 조회 → Book 생성 → 반환
+  └─ 없으면 → 외부 공급처 조회 → Book 생성 → 반환
 ```
 
 동시 요청에는 **Request Collapsing**을 적용해 같은 ISBN에 대한 외부 API 호출을 한 번으로 합칩니다. 인기 도서에 요청이 몰릴 때 알라딘 호출이 중복되지 않습니다.
@@ -75,14 +84,45 @@ resolveBook(isbn)
 
 `BookViewCountInterceptor`(공용 `BaseViewCountInterceptor` 확장)가 중복 요청을 걸러 `viewCount`를 올립니다. 이 값이 `findPopularBooks`의 기준입니다.
 
-### 알라딘 연동 (`AladinBookSearchService`)
+### 도서 공급처 (`BookCatalogService` + `providers/`)
+
+외부 서지 공급처는 `BookCatalogProvider` 포트 뒤에 있습니다. 네이버·알라딘이
+연달아 종료된 경험 때문에, **공급처를 갈아끼울 때 손대는 곳이 한 군데여야 한다**는
+것이 이 구조의 목적입니다.
+
+```
+BookCatalogService.search() / findByIsbn()
+  └─ 등록 순서대로 공급처 시도
+       ├─ AladinBookCatalogProvider   (~2026-10-30)
+       └─ LocalDbBookCatalogProvider  (최후 방어선)
+```
+
+**체인 순서는 `book.module.ts`의 `BOOK_CATALOG_PROVIDERS` 배열 하나로 정합니다.**
+국립중앙도서관 어댑터가 준비되면 알라딘 앞에 넣고, 종료일 이후 알라딘을 뺍니다.
+
+실패 처리 규칙은 두 방향 모두 지킵니다.
+
+- 공급처가 던지면 로그를 남기고 다음으로 넘어갑니다. 하나가 죽어도 조회가 죽지 않습니다.
+- **전부 던졌을 때만 예외를 전파합니다.** 하나라도 정상 응답했다면 빈 결과는
+  장애가 아니라 "책이 없다"는 사실입니다. 이걸 뒤집으면 장애가 404로 둔갑해
+  ISR 캐시에 24시간 고착됩니다.
+
+자체 DB는 지금 체인의 **마지막**입니다. 1차 검색으로 승격하려면 `title`/`author`
+인덱스가 먼저 필요합니다(현재 인덱스는 PK뿐이라 풀스캔).
+
+#### 알라딘 어댑터 (`AladinBookSearchService`)
 
 | 메서드 | 알라딘 API |
 |---|---|
 | `search` / `searchFormatted` | `ItemSearch.aspx` |
 | `searchDetail` / `searchDetailFormatted` | `ItemLookUp.aspx` |
 
-`ALADIN_TTB_KEY`가 필요합니다. `*Formatted` 계열은 클라이언트에 바로 내려줄 형태로, 나머지는 `Book` 엔티티 생성용으로 씁니다. 표지 이미지 고화질 변환은 `@bookjeok/core`의 `formatAladinCoverImage`가 담당합니다.
+`ALADIN_TTB_KEY`가 필요합니다. 표지 이미지 고화질 변환은 `@bookjeok/core`의
+`formatAladinCoverImage`가 담당합니다.
+
+**벤더 응답 타입(`AladinBookItem`, `AladinSearchResponse`)은 이 서비스 파일 안에만
+둡니다.** 공유 패키지나 웹으로 새어나가면 공급처를 바꿀 때 손댈 곳이 늘어납니다.
+포트 밖으로 나가는 형태는 항상 `@bookjeok/core`의 `BookInfo`로 정규화합니다.
 
 ## 5. 다른 모듈에서의 사용
 

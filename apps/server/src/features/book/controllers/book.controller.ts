@@ -1,3 +1,4 @@
+import { BookSearchField } from '@bookjeok/core';
 import {
   Controller,
   Get,
@@ -21,15 +22,27 @@ import { TrackActivity } from '@/shared/activity/decorators/track-activity.decor
 
 import { BookViewCountInterceptor } from '../interceptors/book-view-count.interceptor';
 import { BookResolvePipe } from '../pipes/book-resolve.pipe';
-import { AladinBookSearchService } from '../services/aladin-book-search.service';
 import { BookService } from '../services/book.service';
+import { BookCatalogService } from '../services/book-catalog.service';
+
+const SEARCH_FIELDS: BookSearchField[] = [
+  'Keyword',
+  'Title',
+  'Author',
+  'Publisher',
+];
+
+/** 쿼리 문자열을 검색 필드로 좁힌다. 모르는 값은 기본값으로 떨어뜨린다. */
+function toBookSearchField(value?: string): BookSearchField {
+  return SEARCH_FIELDS.find((f) => f === value) ?? 'Keyword';
+}
 
 @ApiTags('책 (Book)')
 @Controller('book')
 export class BookController {
   constructor(
     private readonly bookService: BookService,
-    private readonly aladinBookSearchService: AladinBookSearchService,
+    private readonly bookCatalogService: BookCatalogService,
   ) {}
 
   @Get('popular')
@@ -71,12 +84,13 @@ export class BookController {
     return await this.bookService.searchBooks(query);
   }
 
-  // ===== 외부 공공 API 연동 (Expo 등 클라이언트용 프록시) =====
+  // ===== 외부 도서 공급처 연동 (웹 SSR·Expo 공용 단일 진입점) =====
 
   @Get('external/list')
   @ApiOperation({
-    summary: '외부 공공 API: 책 검색',
-    description: '알라딘 책 검색 결과를 정제된 표준 DTO 형태로 반환합니다.',
+    summary: '외부 공급처: 책 검색',
+    description:
+      '등록된 도서 공급처를 순서대로 조회해 정제된 표준 DTO로 반환합니다.',
   })
   @ApiQuery({ name: 'query', description: '검색어' })
   @ApiQuery({
@@ -104,20 +118,20 @@ export class BookController {
     @Query('sort') sort?: string,
     @Query('queryType') queryType?: string,
   ) {
-    return await this.aladinBookSearchService.searchFormatted(
+    return await this.bookCatalogService.search({
       query,
       display,
       start,
-      sort,
-      queryType,
-    );
+      sort: sort === 'date' ? 'date' : 'sim',
+      field: toBookSearchField(queryType),
+    });
   }
 
   @Get('external/detail')
   @ApiOperation({
-    summary: '외부 공공 API: 책 상세조회',
+    summary: '외부 공급처: 책 상세조회',
     description:
-      '알라딘 상세조회(ItemLookUp) 결과를 정제된 표준 DTO 형태로 반환합니다.',
+      '등록된 도서 공급처를 순서대로 조회해 정제된 표준 DTO로 반환합니다.',
   })
   @ApiQuery({ name: 'isbn', description: '책 ISBN' })
   @ApiResponse({
@@ -125,7 +139,17 @@ export class BookController {
     description: '책 상세정보를 반환합니다.',
   })
   async getExternalBookDetail(@Query('isbn') isbn: string) {
-    return await this.aladinBookSearchService.searchDetailFormatted(isbn);
+    const book = await this.bookCatalogService.findByIsbn(isbn);
+    const items = book ? [book] : [];
+
+    // 기존 응답 형태를 유지한다. 클라이언트가 items 배열을 기대하고 있다.
+    return {
+      total: items.length,
+      start: 1,
+      display: 10,
+      lastBuildDate: new Date().toISOString(),
+      items,
+    };
   }
 
   @Get(':isbn/stats')

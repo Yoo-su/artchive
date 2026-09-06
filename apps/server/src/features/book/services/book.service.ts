@@ -7,7 +7,7 @@ import { WishlistService } from '@/features/wishlist/services/wishlist.service';
 import { BusinessException } from '@/shared/exceptions/business.exception';
 
 import { Book } from '../entities/book.entity';
-import { AladinBookSearchService } from './aladin-book-search.service';
+import { BookCatalogService } from './book-catalog.service';
 
 @Injectable()
 export class BookService {
@@ -16,7 +16,7 @@ export class BookService {
     private readonly bookRepository: Repository<Book>,
     private readonly readingLogService: ReadingLogService,
     private readonly wishlistService: WishlistService,
-    private readonly aladinBookSearchService: AladinBookSearchService,
+    private readonly bookCatalogService: BookCatalogService,
   ) {}
 
   // 동일 ISBN에 대해 동시에 진행 중인 resolveBook 작업을 관리하는 Map (Request Collapsing)
@@ -26,7 +26,7 @@ export class BookService {
    * 책 정보를 조회하거나 생성합니다.
    * - Read-heavy 워크로드 최적화를 위해 조회를 우선 시도합니다.
    * - 동시성 이슈(Race Condition) 해결을 위해 `INSERT ... ON CONFLICT DO NOTHING` 패턴을 사용합니다.
-   * - DB에 없을 경우 알라딘 API를 통해 백엔드에서 자체적으로 정보를 확보합니다.
+   * - DB에 없을 경우 등록된 도서 공급처를 통해 백엔드에서 자체적으로 확보합니다.
    */
   async resolveBook(isbn: string): Promise<Book> {
     // 1. 빠른 조회 (Happy Path) - 이미 존재하면 즉시 반환
@@ -44,13 +44,14 @@ export class BookService {
     // 3. 동시 요청 관리를 위해 Promise를 Map에 저장
     const resolveTask = (async () => {
       try {
-        // 외부 API(알라딘)에서 책 정보 상세 조회 (ItemLookUp -> ItemSearch fallback)
-        let bookData = await this.aladinBookSearchService.searchDetail(isbn);
+        // 공급처 체인에서 상세를 찾고, 없으면 ISBN을 검색어로 한 번 더 시도한다.
+        let bookData = await this.bookCatalogService.findByIsbn(isbn);
         if (!bookData) {
-          const books = await this.aladinBookSearchService.search(isbn, 1);
-          if (books && books.length > 0) {
-            bookData = books[0];
-          }
+          const found = await this.bookCatalogService.search({
+            query: isbn,
+            display: 1,
+          });
+          bookData = found.items[0] ?? null;
         }
 
         if (!bookData) {
