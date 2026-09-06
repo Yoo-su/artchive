@@ -11,7 +11,6 @@ const clientEnvSchema = z.object({
 const serverEnvSchema = z.object({
   NAVER_CLIENT_ID: z.string().min(1),
   NAVER_CLIENT_SECRET: z.string().min(1),
-  ALADIN_TTB_KEY: z.string().optional(),
   NODE_ENV: z.enum(["development", "test", "production"]).optional(),
 });
 
@@ -26,7 +25,6 @@ const _clientEnv = {
 const _serverEnv = {
   NAVER_CLIENT_ID: process.env.NAVER_CLIENT_ID,
   NAVER_CLIENT_SECRET: process.env.NAVER_CLIENT_SECRET,
-  ALADIN_TTB_KEY: process.env.ALADIN_TTB_KEY,
   NODE_ENV: process.env.NODE_ENV,
 };
 

@@ -18,7 +18,7 @@ export const revalidate = 86400; // 24시간 (60 * 60 * 24)
 // ISR 활성화용 빈 파라미터 목록
 // - generateStaticParams가 없으면 Next가 Dynamic으로 분류해 revalidate를 무시
 // - 빌드 타임 프리렌더 없이 첫 요청 시 생성 후 ISR 캐시에 등록 (dynamicParams 기본값 true)
-// - 실제 ISBN 목록 미사용: 빌드 시 ALADIN_TTB_KEY 미주입으로 404가 그대로 구워짐
+// - 실제 ISBN 목록 미사용: 빌드 시 백엔드에 닿지 못해 404가 그대로 구워짐
 export function generateStaticParams() {
   return [];
 }

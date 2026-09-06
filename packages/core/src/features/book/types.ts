@@ -1,59 +1,20 @@
 import { ApiResponse } from "../../shared/types/api";
 
 export type BookSortParam = "sim" | "date";
-export type AladinQueryType = "Keyword" | "Title" | "Author" | "Publisher";
+
+/**
+ * 도서 검색 대상 필드. 특정 공급처에 종속되지 않는 중립 타입입니다.
+ * 값의 대소문자는 API 하위호환을 위해 유지하며, 공급처별 파라미터명 변환은
+ * 각 어댑터가 책임집니다.
+ */
+export type BookSearchField = "Keyword" | "Title" | "Author" | "Publisher";
 
 export interface GetBookListParams {
   query: string;
   display?: number;
   start?: number;
   sort?: BookSortParam;
-  queryType?: AladinQueryType;
-}
-
-/**
- * 알라딘 Open API 도서 항목 원본 구조
- */
-export interface AladinBookItem {
-  title: string;
-  link: string;
-  author: string;
-  pubDate: string;
-  description: string;
-  fullDescription?: string;
-  fullDescription2?: string;
-  isbn: string;
-  isbn13: string;
-  itemId: number;
-  priceSales?: number;
-  priceStandard?: number;
-  mallType?: string;
-  stockStatus?: string;
-  mileage?: number;
-  cover: string;
-  categoryId?: number;
-  categoryName?: string;
-  publisher: string;
-  customerReviewRank?: number;
-  bestDuration?: string;
-  bestRank?: number;
-}
-
-/**
- * 알라딘 Open API 검색/조회 응답 원본 구조
- */
-export interface AladinSearchResponse {
-  title: string;
-  link: string;
-  logo?: string;
-  pubDate: string;
-  totalResults: number;
-  startIndex: number;
-  itemsPerPage: number;
-  query?: string;
-  searchCategoryId?: number;
-  searchCategoryName?: string;
-  item: AladinBookItem[];
+  queryType?: BookSearchField;
 }
 
 /**
@@ -70,12 +31,13 @@ export interface BaseBookInfo {
 }
 
 /**
- * 서비스 표준 도서 정보 형태 (알라딘 API 데이터 매핑)
+ * 서비스 표준 도서 정보 형태. 어느 공급처에서 왔든 이 형태로 정규화됩니다.
+ * `link`와 `pubdate`는 공급처에 따라 없을 수 있어 옵셔널입니다.
  */
 export interface BookInfo extends BaseBookInfo {
-  link: string;
+  link?: string;
   discount: string;
-  pubdate: string;
+  pubdate?: string;
 }
 
 /**

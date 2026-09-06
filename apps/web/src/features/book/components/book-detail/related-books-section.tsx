@@ -1,6 +1,6 @@
 "use client";
 
-import { AladinQueryType } from "@bookjeok/core";
+import { BookSearchField } from "@bookjeok/core";
 import { useBookListQuery } from "@bookjeok/react-query";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
@@ -13,7 +13,7 @@ interface RelatedBooksSectionProps {
   title: string;
   query: string;
   currentIsbn: string;
-  queryType?: AladinQueryType;
+  queryType?: BookSearchField;
 }
 
 export const RelatedBooksSection = ({
