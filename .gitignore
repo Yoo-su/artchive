@@ -31,3 +31,8 @@ out
 # Temp
 .temp
 .tmp
+# 표지 마이그레이션 산출물 (docs/book-data-migration-plan.md Phase 0)
+cover-originals/
+covers-manifest-input.jsonl
+cover-survey-report.json
+cover-fetch.log

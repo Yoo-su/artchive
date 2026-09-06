@@ -28,7 +28,7 @@ export const createSellFormSchema = (t: (key: string) => string) =>
           publisher: z.string(),
           image: z.string(),
           description: z.string(),
-          pubdate: z.string(),
+          pubdate: z.string().optional(),
           discount: z.string(),
         })
         .nullable()

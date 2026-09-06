@@ -1,77 +1,37 @@
-import {
-  AladinQueryType,
-  AladinSearchResponse,
-  BookInfo,
-  cleanHtmlText,
-  extractAladinDetailedDescription,
-  formatAladinCoverImage,
-} from "@bookjeok/core";
+import { API_PATHS } from "@bookjeok/core";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 import { config } from "@/shared/config/env";
 
+/**
+ * 도서 목록 조회 프록시.
+ *
+ * 외부 공급처 호출은 백엔드가 전담하므로 여기서는 백엔드로 넘기기만 합니다.
+ * 앱 내부에서 호출하는 곳은 없고 외부 클라이언트 호환을 위해 남겨둔 경로라,
+ * 사용처가 없음이 확인되면 삭제 대상입니다.
+ */
 export async function GET(request: NextRequest) {
   try {
-    // 클라이언트에서 보낸 쿼리 파라미터를 추출합니다.
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get("query") || "";
-    const displayNum = Number(searchParams.get("display")) || 10;
-    const startNum = Number(searchParams.get("start")) || 1;
-    const queryType =
-      (searchParams.get("queryType") as AladinQueryType) || "Keyword";
-    const sortParam = searchParams.get("sort") || "sim";
+    const apiBaseUrl =
+      process.env.API_URL ||
+      config.NEXT_PUBLIC_API_URL ||
+      "http://localhost:8000";
 
-    const pageStart = Math.floor((startNum - 1) / Math.max(displayNum, 1)) + 1;
-    const aladinSort = sortParam === "date" ? "PublishTime" : "Accuracy";
-
-    const response = await axios.get<AladinSearchResponse>(
-      "https://www.aladin.co.kr/ttb/api/ItemSearch.aspx",
-      {
-        params: {
-          ttbkey: config.ALADIN_TTB_KEY || process.env.ALADIN_TTB_KEY,
-          Query: query,
-          QueryType: queryType,
-          SearchTarget: "Book",
-          MaxResults: displayNum,
-          Start: pageStart,
-          Sort: aladinSort,
-          Output: "js",
-          Version: "20131101",
-          Cover: "Big",
-          OptResult: "fulldescription",
-        },
+    const response = await axios.get(`${apiBaseUrl}${API_PATHS.book.list}`, {
+      params: {
+        query: searchParams.get("query") || "",
+        display: searchParams.get("display") || undefined,
+        start: searchParams.get("start") || undefined,
+        sort: searchParams.get("sort") || undefined,
+        queryType: searchParams.get("queryType") || undefined,
       },
-    );
-
-    const aladinData = response.data;
-    const items: BookInfo[] = (aladinData?.item || []).map((item) => ({
-      title: cleanHtmlText(item.title),
-      author: cleanHtmlText(item.author),
-      publisher: cleanHtmlText(item.publisher),
-      description: extractAladinDetailedDescription(item),
-      image: formatAladinCoverImage(item.cover),
-      isbn: item.isbn13 || item.isbn,
-      link: item.link,
-      discount: String(item.priceSales || item.priceStandard || ""),
-      pubdate: item.pubDate,
-    }));
-
-    const data = {
-      total: aladinData?.totalResults || 0,
-      start: aladinData?.startIndex || startNum,
-      display: aladinData?.itemsPerPage || displayNum,
-      lastBuildDate: aladinData?.pubDate || new Date().toISOString(),
-      items,
-    };
-
-    return NextResponse.json({
-      success: true,
-      data,
     });
-  } catch (error) {
-    console.error("책 목록 조회 실패:", error);
 
+    // 백엔드가 이미 `{ success, data }`로 감싸 보내므로 그대로 전달한다.
+    return NextResponse.json(response.data);
+  } catch (error) {
     return NextResponse.json(
       {
         success: false,
