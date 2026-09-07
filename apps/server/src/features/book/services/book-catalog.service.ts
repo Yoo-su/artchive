@@ -2,7 +2,8 @@ import { BookInfo } from '@bookjeok/core';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import {
-  BOOK_CATALOG_PROVIDERS,
+  BOOK_DETAIL_PROVIDERS,
+  BOOK_SEARCH_PROVIDERS,
   BookCatalogProvider,
   BookCatalogSearchParams,
   BookCatalogSearchResult,
@@ -17,6 +18,9 @@ const DEFAULT_START = 1;
  * 등록된 공급처를 순서대로 시도합니다. 한 공급처가 던지면 로그를 남기고 다음으로
  * 넘어가므로, 공급처 하나가 죽어도 조회 전체가 죽지는 않습니다.
  *
+ * **검색과 상세는 체인이 다릅니다.** 같은 공급처라도 경로에 따라 유불리가
+ * 반대라서 그렇습니다. 순서의 근거는 `book.module.ts`에 있습니다.
+ *
  * 컨트롤러와 `BookService`는 이 서비스만 알면 됩니다. 공급처가 바뀔 때
  * 손대는 곳은 `book.module.ts`의 등록 순서 하나입니다.
  */
@@ -25,8 +29,10 @@ export class BookCatalogService {
   private readonly logger = new Logger(BookCatalogService.name);
 
   constructor(
-    @Inject(BOOK_CATALOG_PROVIDERS)
-    private readonly providers: BookCatalogProvider[],
+    @Inject(BOOK_SEARCH_PROVIDERS)
+    private readonly searchProviders: BookCatalogProvider[],
+    @Inject(BOOK_DETAIL_PROVIDERS)
+    private readonly detailProviders: BookCatalogProvider[],
   ) {}
 
   async search(
@@ -41,6 +47,7 @@ export class BookCatalogService {
     };
 
     const result = await this.runChain(
+      this.searchProviders,
       (provider) => provider.search(normalized),
       (value) => value.items.length > 0,
       {
@@ -57,6 +64,7 @@ export class BookCatalogService {
 
   async findByIsbn(isbn: string): Promise<BookInfo | null> {
     return await this.runChain(
+      this.detailProviders,
       (provider) => provider.findByIsbn(isbn),
       (value) => value !== null,
       null,
@@ -67,24 +75,37 @@ export class BookCatalogService {
   /**
    * 공급처를 순서대로 시도하고 처음으로 쓸 만한 결과를 돌려준다.
    *
-   * 모든 공급처가 예외로 끝났을 때만 던진다. 하나라도 정상 응답했다면 그건
-   * 장애가 아니라 "책이 없다"는 사실이므로 빈 결과를 돌려준다. 반대로 전부
-   * 터졌는데 빈 결과를 주면 장애가 "책 없음"으로 둔갑해 잘못된 404가 캐시에
-   * 고착된다.
+   * **빈 결과를 "책 없음"이라는 사실로 인정하려면, 그렇게 판정할 자격이 있는
+   * 공급처가 최소 하나는 정상 응답해야 한다.** 아무도 응답하지 못했다면 그건
+   * 장애이므로 예외를 전파한다. 여기서 빈 결과를 돌려주면 장애가 404로 둔갑해
+   * ISR 캐시에 24시간 고착된다.
+   *
+   * 판정 자격은 **외부 공급처에만** 있다. 자체 DB의 "못 찾음"은 "그런 책이
+   * 없다"가 아니라 "우리가 아직 안 가졌다"일 뿐이기 때문이다. 자체 DB는 거의
+   * 던지지 않으므로, 이걸 판정에 포함하면 외부가 전부 죽어도 늘 "책 없음"이
+   * 되어 위 보호장치가 통째로 무력해진다.
+   *
+   * 외부 공급처가 하나도 등록돼 있지 않은 구성(자체 DB 단독)에서는 자체 DB가
+   * 그 자격을 대신한다. 그 구성에서는 우리가 가진 것이 곧 전부다.
    */
   private async runChain<T>(
+    providers: BookCatalogProvider[],
     call: (provider: BookCatalogProvider) => Promise<T>,
     isUsable: (value: T) => boolean,
     emptyValue: T,
     context: string,
   ): Promise<T> {
     let lastError: Error | null = null;
-    let anyResponded = false;
+    let decided = false;
 
-    for (const provider of this.providers) {
+    const hasExternal = providers.some((p) => p.kind === 'external');
+    const canDecide = (provider: BookCatalogProvider) =>
+      hasExternal ? provider.kind === 'external' : true;
+
+    for (const provider of providers) {
       try {
         const value = await call(provider);
-        anyResponded = true;
+        if (canDecide(provider)) decided = true;
         if (isUsable(value)) return value;
         this.logger.debug(`${provider.name} 결과 없음 — ${context}`);
       } catch (error) {
@@ -96,7 +117,7 @@ export class BookCatalogService {
       }
     }
 
-    if (!anyResponded && lastError !== null) throw lastError;
+    if (!decided && lastError !== null) throw lastError;
 
     return emptyValue;
   }

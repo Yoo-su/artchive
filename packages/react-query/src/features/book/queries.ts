@@ -1,5 +1,5 @@
 "use client";
-import { getBookDetail, getBookList, getBookStats, getBookSummary, getExternalBookDetail, getExternalBookList, getPopularBooks, getPopularKeywords,getSavedBookSummary } from "@bookjeok/api-client";
+import { getBookDetail, getBookList, getBookStats, getBookSummary, getPopularBooks, getPopularKeywords,getSavedBookSummary } from "@bookjeok/api-client";
 import { AiBookSummaryData,bookKeys, BookStats, DEFAULT_DISPLAY, GetBookListParams } from "@bookjeok/core";
 import { keepPreviousData,useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
@@ -30,34 +30,6 @@ export const useBookDetailQuery = (isbn: string) => {
       return response.items?.[0] || null;
     },
     staleTime: 1000 * 60 * 5, // 5분 캐시 유지 (하이드레이션 직후 불필요한 재요청 방지)
-  });
-};
-
-/**
- * 알라딘 책 목록 직접 조회 (Expo 등)
- */
-export const useExternalBookListQuery = (
-  params: GetBookListParams,
-) => {
-  return useQuery({
-    queryKey: [...bookKeys.list(params).queryKey, "external"],
-    queryFn: async () => {
-      const result = await getExternalBookList(params);
-      return result.items || [];
-    },
-  });
-};
-
-/**
- * 알라딘 책 상세 직접 조회 (Expo 등)
- */
-export const useExternalBookDetailQuery = (isbn: string) => {
-  return useQuery({
-    queryKey: [...bookKeys.detail(isbn).queryKey, "external"],
-    queryFn: async () => {
-      const response = await getExternalBookDetail(isbn);
-      return response.items?.[0] || null;
-    },
   });
 };
 

@@ -1,6 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { BOOK_CATALOG_PROVIDERS } from '../providers/book-catalog.types';
+import {
+  BOOK_DETAIL_PROVIDERS,
+  BOOK_SEARCH_PROVIDERS,
+  BookCatalogProviderKind,
+} from '../providers/book-catalog.types';
 import { BookCatalogService } from './book-catalog.service';
 
 const book = (isbn: string) => ({
@@ -16,12 +20,17 @@ const book = (isbn: string) => ({
 /** 목의 메서드를 `jest.Mock` 속성으로 잡아야 unbound-method 규칙에 걸리지 않는다. */
 interface MockProvider {
   name: string;
+  kind: BookCatalogProviderKind;
   search: jest.Mock;
   findByIsbn: jest.Mock;
 }
 
-const makeProvider = (name: string): MockProvider => ({
+const makeProvider = (
+  name: string,
+  kind: BookCatalogProviderKind = 'external',
+): MockProvider => ({
   name,
+  kind,
   search: jest.fn(),
   findByIsbn: jest.fn(),
 });
@@ -38,7 +47,8 @@ describe('BookCatalogService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         BookCatalogService,
-        { provide: BOOK_CATALOG_PROVIDERS, useValue: [primary, fallback] },
+        { provide: BOOK_SEARCH_PROVIDERS, useValue: [primary, fallback] },
+        { provide: BOOK_DETAIL_PROVIDERS, useValue: [primary, fallback] },
       ],
     }).compile();
 
@@ -133,6 +143,121 @@ describe('BookCatalogService', () => {
       fallback.findByIsbn.mockResolvedValue(null);
 
       await expect(service.findByIsbn('없음')).resolves.toBeNull();
+    });
+  });
+
+  describe('경로별 체인 분리', () => {
+    /**
+     * 검색과 상세는 공급처 순서가 반대다. 하나의 배열로 되돌리면 둘 중 하나가
+     * 반드시 손해를 보므로(근거는 `book.module.ts`), 분리 자체를 고정한다.
+     */
+    it('검색과 상세가 서로 다른 체인을 쓴다', async () => {
+      const searchOnly = makeProvider('search-only');
+      const detailOnly = makeProvider('detail-only');
+
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          BookCatalogService,
+          { provide: BOOK_SEARCH_PROVIDERS, useValue: [searchOnly] },
+          { provide: BOOK_DETAIL_PROVIDERS, useValue: [detailOnly] },
+        ],
+      }).compile();
+      const split = module.get(BookCatalogService);
+
+      searchOnly.search.mockResolvedValue({
+        total: 1,
+        start: 1,
+        display: 10,
+        items: [book('1')],
+      });
+      detailOnly.findByIsbn.mockResolvedValue(book('2'));
+
+      await split.search({ query: '데미안' });
+      await split.findByIsbn('2');
+
+      expect(searchOnly.search).toHaveBeenCalled();
+      expect(searchOnly.findByIsbn).not.toHaveBeenCalled();
+      expect(detailOnly.findByIsbn).toHaveBeenCalled();
+      expect(detailOnly.search).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('장애와 "책 없음"의 구분', () => {
+    /**
+     * 자체 DB는 못 찾아도 예외를 던지지 않는다. 그래서 이걸 판정에 포함하면
+     * 외부가 전부 죽어도 "책 없음"이 되어, 장애가 404로 둔갑해 ISR 캐시에
+     * 24시간 고착된다. 자체 DB 어댑터 도입 시점부터 있던 결함이라 회귀를 막는다.
+     */
+    const build = async (providers: MockProvider[]) => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          BookCatalogService,
+          { provide: BOOK_SEARCH_PROVIDERS, useValue: providers },
+          { provide: BOOK_DETAIL_PROVIDERS, useValue: providers },
+        ],
+      }).compile();
+      return module.get<BookCatalogService>(BookCatalogService);
+    };
+
+    it('외부가 전부 죽고 자체 DB가 못 찾으면 예외를 던진다', async () => {
+      const external = makeProvider('external');
+      const localDb = makeProvider('local-db', 'local');
+      external.findByIsbn.mockRejectedValue(new Error('공급처 장애'));
+      localDb.findByIsbn.mockResolvedValue(null); // 자체 DB는 조용히 null
+
+      const svc = await build([external, localDb]);
+
+      await expect(svc.findByIsbn('9788932925554')).rejects.toThrow(
+        '공급처 장애',
+      );
+    });
+
+    it('검색도 마찬가지로 장애를 빈 결과로 감추지 않는다', async () => {
+      const external = makeProvider('external');
+      const localDb = makeProvider('local-db', 'local');
+      external.search.mockRejectedValue(new Error('공급처 장애'));
+      localDb.search.mockResolvedValue({
+        total: 0,
+        start: 1,
+        display: 10,
+        items: [],
+      });
+
+      const svc = await build([external, localDb]);
+
+      await expect(svc.search({ query: '데미안' })).rejects.toThrow(
+        '공급처 장애',
+      );
+    });
+
+    it('외부가 정상 응답했다면 빈 결과는 장애가 아니라 사실이다', async () => {
+      const external = makeProvider('external');
+      const localDb = makeProvider('local-db', 'local');
+      external.findByIsbn.mockResolvedValue(null);
+      localDb.findByIsbn.mockResolvedValue(null);
+
+      const svc = await build([external, localDb]);
+
+      await expect(svc.findByIsbn('없는책')).resolves.toBeNull();
+    });
+
+    it('자체 DB 단독 구성에서는 자체 DB의 "없음"이 사실로 인정된다', async () => {
+      // 알라딘 제거 후 외부 공급처가 없는 구성. 우리가 가진 것이 곧 전부다.
+      const localDb = makeProvider('local-db', 'local');
+      localDb.findByIsbn.mockResolvedValue(null);
+
+      const svc = await build([localDb]);
+
+      await expect(svc.findByIsbn('없는책')).resolves.toBeNull();
+    });
+
+    it('자체 DB 단독 구성에서 그 자체 DB가 죽으면 예외를 던진다', async () => {
+      const localDb = makeProvider('local-db', 'local');
+      localDb.findByIsbn.mockRejectedValue(new Error('DB 장애'));
+
+      const svc = await build([localDb]);
+
+      await expect(svc.findByIsbn('9788932925554')).rejects.toThrow('DB 장애');
     });
   });
 });

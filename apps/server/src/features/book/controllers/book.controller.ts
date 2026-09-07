@@ -70,21 +70,10 @@ export class BookController {
     // 파이프가 도서 존재 보장, 인터셉터가 조회수 처리
   }
 
-  @Get('search')
-  @ApiOperation({
-    summary: '책 검색',
-    description: '책 제목 또는 저자로 책을 검색합니다.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: '검색된 책 목록을 반환합니다.',
-  })
-  @ApiQuery({ name: 'query', description: '검색어 (제목 또는 저자)' })
-  async searchBooks(@Query('query') query: string) {
-    return await this.bookService.searchBooks(query);
-  }
-
-  // ===== 외부 도서 공급처 연동 (웹 SSR·Expo 공용 단일 진입점) =====
+  // ===== 외부 도서 공급처 연동 (공급처 조회의 단일 진입점) =====
+  //
+  // 두 경로는 공급처 순서가 다릅니다. 검색은 외부 우선, 상세는 자체 DB 우선.
+  // 근거는 `book.module.ts`의 체인 등록부에 있습니다.
 
   @Get('external/list')
   @ApiOperation({
