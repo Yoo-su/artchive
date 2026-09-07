@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { AladinBookSearchService } from '../services/aladin-book-search.service';
 import {
   BookCatalogProvider,
+  BookCatalogProviderKind,
   BookCatalogSearchParams,
   BookCatalogSearchResult,
 } from './book-catalog.types';
@@ -16,6 +17,7 @@ import {
 @Injectable()
 export class AladinBookCatalogProvider implements BookCatalogProvider {
   readonly name = 'aladin';
+  readonly kind: BookCatalogProviderKind = 'external';
 
   constructor(private readonly aladin: AladinBookSearchService) {}
 

@@ -10,9 +10,21 @@ import { BookInfo, BookSearchField, BookSortParam } from '@bookjeok/core';
  * 구현체는 **공급처 고유 응답 구조를 밖으로 내보내지 않습니다.** 반환값은 항상
  * `@bookjeok/core`의 `BookInfo`로 정규화합니다.
  */
+/**
+ * 공급처의 성격. **빈 결과를 어떻게 해석할지가 이 값으로 갈립니다.**
+ *
+ * - `external` — 바깥 세계. 이쪽의 "없음"은 "그런 책이 없다"는 사실이다.
+ * - `local` — 우리 데이터. 이쪽의 "없음"은 "우리가 아직 안 가졌다"일 뿐,
+ *   책이 존재하지 않는다는 근거가 되지 못한다.
+ */
+export type BookCatalogProviderKind = 'external' | 'local';
+
 export interface BookCatalogProvider {
   /** 로그와 장애 추적에 쓰는 공급처 이름. */
   readonly name: string;
+
+  /** 빈 결과의 해석에 쓰입니다. `BookCatalogProviderKind` 설명 참조. */
+  readonly kind: BookCatalogProviderKind;
 
   search(params: BookCatalogSearchParams): Promise<BookCatalogSearchResult>;
 

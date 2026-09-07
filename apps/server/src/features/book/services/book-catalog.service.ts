@@ -75,10 +75,18 @@ export class BookCatalogService {
   /**
    * 공급처를 순서대로 시도하고 처음으로 쓸 만한 결과를 돌려준다.
    *
-   * 모든 공급처가 예외로 끝났을 때만 던진다. 하나라도 정상 응답했다면 그건
-   * 장애가 아니라 "책이 없다"는 사실이므로 빈 결과를 돌려준다. 반대로 전부
-   * 터졌는데 빈 결과를 주면 장애가 "책 없음"으로 둔갑해 잘못된 404가 캐시에
-   * 고착된다.
+   * **빈 결과를 "책 없음"이라는 사실로 인정하려면, 그렇게 판정할 자격이 있는
+   * 공급처가 최소 하나는 정상 응답해야 한다.** 아무도 응답하지 못했다면 그건
+   * 장애이므로 예외를 전파한다. 여기서 빈 결과를 돌려주면 장애가 404로 둔갑해
+   * ISR 캐시에 24시간 고착된다.
+   *
+   * 판정 자격은 **외부 공급처에만** 있다. 자체 DB의 "못 찾음"은 "그런 책이
+   * 없다"가 아니라 "우리가 아직 안 가졌다"일 뿐이기 때문이다. 자체 DB는 거의
+   * 던지지 않으므로, 이걸 판정에 포함하면 외부가 전부 죽어도 늘 "책 없음"이
+   * 되어 위 보호장치가 통째로 무력해진다.
+   *
+   * 외부 공급처가 하나도 등록돼 있지 않은 구성(자체 DB 단독)에서는 자체 DB가
+   * 그 자격을 대신한다. 그 구성에서는 우리가 가진 것이 곧 전부다.
    */
   private async runChain<T>(
     providers: BookCatalogProvider[],
@@ -88,12 +96,16 @@ export class BookCatalogService {
     context: string,
   ): Promise<T> {
     let lastError: Error | null = null;
-    let anyResponded = false;
+    let decided = false;
+
+    const hasExternal = providers.some((p) => p.kind === 'external');
+    const canDecide = (provider: BookCatalogProvider) =>
+      hasExternal ? provider.kind === 'external' : true;
 
     for (const provider of providers) {
       try {
         const value = await call(provider);
-        anyResponded = true;
+        if (canDecide(provider)) decided = true;
         if (isUsable(value)) return value;
         this.logger.debug(`${provider.name} 결과 없음 — ${context}`);
       } catch (error) {
@@ -105,7 +117,7 @@ export class BookCatalogService {
       }
     }
 
-    if (!anyResponded && lastError !== null) throw lastError;
+    if (!decided && lastError !== null) throw lastError;
 
     return emptyValue;
   }
