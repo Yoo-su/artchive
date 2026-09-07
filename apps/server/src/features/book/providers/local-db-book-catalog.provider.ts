@@ -1,4 +1,4 @@
-import { BookInfo } from '@bookjeok/core';
+import { BookInfo, BookSearchField } from '@bookjeok/core';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,19 +11,76 @@ import {
   BookCatalogSearchResult,
 } from './book-catalog.types';
 
+/** 검색 대상이 될 수 있는 `books` 컬럼. */
+export type BookSearchColumn = 'title' | 'author' | 'publisher';
+
+const COLUMNS_BY_FIELD: Record<BookSearchField, readonly BookSearchColumn[]> = {
+  Title: ['title'],
+  Author: ['author'],
+  Publisher: ['publisher'],
+  // 통합 검색. 배열 순서가 곧 관련도 우선순위다. relevanceCaseSql 참조.
+  Keyword: ['title', 'author', 'publisher'],
+};
+
+/**
+ * 검색 필드에 따라 조회할 컬럼을 반환합니다.
+ * 이 값을 무시하면 출판사 검색(도서 상세의 같은 출판사 책, 홈 출판사 슬라이더)이
+ * 자체 DB에서 항상 0건이 됩니다.
+ * @param field 검색 필드
+ * @returns 조회 대상 컬럼 목록 (우선순위 순)
+ */
+export function searchColumnsFor(
+  field: BookSearchField,
+): readonly BookSearchColumn[] {
+  return COLUMNS_BY_FIELD[field] ?? COLUMNS_BY_FIELD.Keyword;
+}
+
+/**
+ * 검색어의 %와 _가 ILIKE 와일드카드로 동작하지 않도록 이스케이프합니다.
+ * Postgres의 LIKE 기본 이스케이프 문자가 백슬래시라 별도 ESCAPE 절은 필요 없습니다.
+ * @param value 사용자 검색어
+ * @returns 이스케이프된 검색어
+ */
+export function escapeLike(value: string): string {
+  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
+}
+
+/**
+ * 관련도 정렬용 CASE 식을 만듭니다. 값이 낮을수록 상위입니다.
+ * 컬럼 우선순위 안에서 완전일치, 접두일치, 부분일치 순으로 순위를 매깁니다.
+ * 알라딘의 Sort=Accuracy를 대신하는 부분입니다.
+ * @param alias 테이블 별칭
+ * @param columns 우선순위 순으로 정렬된 검색 대상 컬럼
+ * @returns ORDER BY에 넣을 CASE 식
+ */
+export function relevanceCaseSql(
+  alias: string,
+  columns: readonly BookSearchColumn[],
+): string {
+  const branches: string[] = [];
+  let rank = 0;
+
+  for (const column of columns) {
+    branches.push(`WHEN ${alias}.${column} ILIKE :exact THEN ${rank++}`);
+    branches.push(`WHEN ${alias}.${column} ILIKE :prefix THEN ${rank++}`);
+    branches.push(`WHEN ${alias}.${column} ILIKE :like THEN ${rank++}`);
+  }
+
+  return `CASE ${branches.join(' ')} ELSE ${rank} END`;
+}
+
 /**
  * 자체 DB 공급처 어댑터.
  *
  * 이미 적재된 `books`를 공급처처럼 다룹니다. 외부 공급처가 죽어도 우리가 가진
  * 도서는 계속 찾을 수 있게 하는 최후 방어선입니다.
  *
- * **상세 체인에서는 1순위**입니다(ISBN이 PK라 인덱스 단건 조회).
- * **검색 체인에서는 마지막**입니다 — `title`/`author`에 인덱스가 없어 풀스캔이라,
- * 승격은 인덱스 도입 이후에 판단합니다. 순서의 근거는 `book.module.ts`에 있습니다.
+ * 상세 체인에서는 1순위입니다. ISBN이 PK라 인덱스 단건 조회입니다.
+ * 검색 체인에서는 마지막입니다. title/author 인덱스가 없어 풀스캔이므로 승격은
+ * 인덱스 도입 이후에 판단합니다. 순서는 book.module.ts에서 정합니다.
  *
- * `kind`가 `local`인 이유는 이 어댑터의 "못 찾음"이 "그런 책이 없다"가 아니라
- * "우리가 아직 안 가졌다"이기 때문입니다. `BookCatalogService`가 장애와
- * 책 없음을 구분할 때 이 값을 씁니다.
+ * kind가 local인 이유는 이 어댑터의 결과 없음이 도서의 부재가 아니라 미확보를
+ * 뜻하기 때문입니다. BookCatalogService가 장애와 도서 없음을 구분할 때 씁니다.
  */
 @Injectable()
 export class LocalDbBookCatalogProvider implements BookCatalogProvider {
@@ -35,17 +92,38 @@ export class LocalDbBookCatalogProvider implements BookCatalogProvider {
     private readonly bookRepository: Repository<Book>,
   ) {}
 
+  /**
+   * 자체 DB에서 도서를 검색합니다.
+   *
+   * params.sort는 아직 사용하지 않습니다. 출간일순 정렬에는 출간일이 필요한데
+   * books에 해당 컬럼이 없고, createdAt은 적재 시각이라 대신 쓸 수 없습니다.
+   * 그래서 정렬 요청과 무관하게 관련도순으로 반환합니다.
+   * @param params 검색 조건
+   * @returns 정규화된 검색 결과
+   */
   async search(
     params: BookCatalogSearchParams,
   ): Promise<BookCatalogSearchResult> {
-    const { query, display, start } = params;
+    const { query, display, start, field } = params;
     if (!query) {
       return { total: 0, start, display, items: [] };
     }
 
+    const columns = searchColumnsFor(field);
+    const escaped = escapeLike(query);
+
     const [books, total] = await this.bookRepository
       .createQueryBuilder('book')
-      .where('book.title ILIKE :q OR book.author ILIKE :q', { q: `%${query}%` })
+      .where(columns.map((c) => `book.${c} ILIKE :like`).join(' OR '), {
+        like: `%${escaped}%`,
+        prefix: `${escaped}%`,
+        exact: escaped,
+      })
+      // 정렬이 없으면 순서가 보장되지 않아 OFFSET 페이지네이션에서 중복과 누락이
+      // 생긴다. isbn까지 걸어 순서를 확정한다.
+      .orderBy(relevanceCaseSql('book', columns), 'ASC')
+      .addOrderBy('book.viewCount', 'DESC')
+      .addOrderBy('book.isbn', 'ASC')
       .skip(Math.max(start - 1, 0))
       .take(display)
       .getManyAndCount();
