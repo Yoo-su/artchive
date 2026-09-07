@@ -23,9 +23,7 @@ export const API_PATHS = {
   },
   book: {
     list: "/book/external/list",
-    externalList: "/book/external/list",
     detail: "/book/external/detail",
-    externalDetail: "/book/external/detail",
     sales: "/book/sales",
     sale: "/book/sale",
     mySales: "/user/my-sales",

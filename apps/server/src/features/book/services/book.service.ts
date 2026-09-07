@@ -164,24 +164,6 @@ export class BookService {
   }
 
   /**
-   * 책 제목 또는 저자로 책을 검색합니다.
-   * @param query - 검색어
-   */
-  async searchBooks(query: string): Promise<Book[]> {
-    if (!query) {
-      return [];
-    }
-
-    return await this.bookRepository
-      .createQueryBuilder('book')
-      .where('book.title LIKE :query OR book.author LIKE :query', {
-        query: `%${query}%`,
-      })
-      .take(20)
-      .getMany();
-  }
-
-  /**
    * 특정 책의 통계 정보를 조회합니다 (읽은 유저 수, 위시리스트 유저 수).
    * @param isbn - 책 ISBN
    */

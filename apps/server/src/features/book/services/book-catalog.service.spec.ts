@@ -1,6 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { BOOK_CATALOG_PROVIDERS } from '../providers/book-catalog.types';
+import {
+  BOOK_DETAIL_PROVIDERS,
+  BOOK_SEARCH_PROVIDERS,
+} from '../providers/book-catalog.types';
 import { BookCatalogService } from './book-catalog.service';
 
 const book = (isbn: string) => ({
@@ -38,7 +41,8 @@ describe('BookCatalogService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         BookCatalogService,
-        { provide: BOOK_CATALOG_PROVIDERS, useValue: [primary, fallback] },
+        { provide: BOOK_SEARCH_PROVIDERS, useValue: [primary, fallback] },
+        { provide: BOOK_DETAIL_PROVIDERS, useValue: [primary, fallback] },
       ],
     }).compile();
 
@@ -133,6 +137,42 @@ describe('BookCatalogService', () => {
       fallback.findByIsbn.mockResolvedValue(null);
 
       await expect(service.findByIsbn('없음')).resolves.toBeNull();
+    });
+  });
+
+  describe('경로별 체인 분리', () => {
+    /**
+     * 검색과 상세는 공급처 순서가 반대다. 하나의 배열로 되돌리면 둘 중 하나가
+     * 반드시 손해를 보므로(근거는 `book.module.ts`), 분리 자체를 고정한다.
+     */
+    it('검색과 상세가 서로 다른 체인을 쓴다', async () => {
+      const searchOnly = makeProvider('search-only');
+      const detailOnly = makeProvider('detail-only');
+
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          BookCatalogService,
+          { provide: BOOK_SEARCH_PROVIDERS, useValue: [searchOnly] },
+          { provide: BOOK_DETAIL_PROVIDERS, useValue: [detailOnly] },
+        ],
+      }).compile();
+      const split = module.get(BookCatalogService);
+
+      searchOnly.search.mockResolvedValue({
+        total: 1,
+        start: 1,
+        display: 10,
+        items: [book('1')],
+      });
+      detailOnly.findByIsbn.mockResolvedValue(book('2'));
+
+      await split.search({ query: '데미안' });
+      await split.findByIsbn('2');
+
+      expect(searchOnly.search).toHaveBeenCalled();
+      expect(searchOnly.findByIsbn).not.toHaveBeenCalled();
+      expect(detailOnly.findByIsbn).toHaveBeenCalled();
+      expect(detailOnly.search).not.toHaveBeenCalled();
     });
   });
 });

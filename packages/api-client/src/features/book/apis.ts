@@ -39,48 +39,12 @@ export const getBookList = async (
 };
 
 /**
- * 알라딘 책 검색결과를 직접 조회합니다. (Expo 등 외부 연동용)
- */
-export const getExternalBookList = async (
-  params: GetBookListParams,
-): Promise<GetBookListSuccessResponse> => {
-  const displayParam = (params.display ?? DEFAULT_DISPLAY).toString();
-  const startParam = (params.start ?? DEFAULT_START).toString();
-  const sortParam = params.sort ?? DEFAULT_SORT;
-
-  const { data } = await publicApiClient.get(API_PATHS.book.externalList, {
-    params: {
-      query: params.query,
-      display: displayParam,
-      start: startParam,
-      sort: sortParam,
-      queryType: params.queryType,
-    },
-  });
-
-  return data;
-};
-
-/**
  * 책 상세정보를 조회합니다.
  */
 export const getBookDetail = async (
   isbn: string,
 ): Promise<GetBookDetailSuccessResponse> => {
   const { data } = await publicApiClient.get(API_PATHS.book.detail, {
-    params: { isbn },
-  });
-
-  return data;
-};
-
-/**
- * 알라딘 책 상세정보를 직접 조회합니다. (Expo 등 외부 연동용)
- */
-export const getExternalBookDetail = async (
-  isbn: string,
-): Promise<GetBookDetailSuccessResponse> => {
-  const { data } = await publicApiClient.get(API_PATHS.book.externalDetail, {
     params: { isbn },
   });
 

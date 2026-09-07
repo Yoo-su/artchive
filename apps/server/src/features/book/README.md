@@ -35,9 +35,8 @@ book/
 | 메서드 | 경로 (`/book/...`) | 인증 | 설명 |
 |---|---|:---:|---|
 | GET | `/popular` | ❌ | 조회수 기반 인기 도서 |
-| GET | `/search` | ❌ | DB에 적재된 도서 검색 |
-| GET | `/external/list` | ❌ | 외부 공급처 도서 목록 검색 (웹 SSR·Expo 공용) |
-| GET | `/external/detail` | ❌ | 외부 공급처 도서 상세 조회 (웹 SSR·Expo 공용) |
+| GET | `/external/list` | ❌ | 도서 목록 검색 (검색 체인) |
+| GET | `/external/detail` | ❌ | 도서 상세 조회 (상세 체인) |
 | POST | `/:isbn/view` | ❌ | 도서 조회수 기록 |
 | GET | `/:isbn/stats` | ❌ | 해당 도서의 독서 기록·위시리스트 통계 |
 
@@ -90,15 +89,29 @@ resolveBook(isbn)
 연달아 종료된 경험 때문에, **공급처를 갈아끼울 때 손대는 곳이 한 군데여야 한다**는
 것이 이 구조의 목적입니다.
 
+**검색과 상세는 체인이 다릅니다.** 같은 공급처라도 경로에 따라 유불리가 반대라
+경로를 나눠 두었습니다.
+
 ```
-BookCatalogService.search() / findByIsbn()
-  └─ 등록 순서대로 공급처 시도
-       ├─ AladinBookCatalogProvider   (~2026-10-30)
-       └─ LocalDbBookCatalogProvider  (최후 방어선)
+BookCatalogService.search()      BOOK_SEARCH_PROVIDERS
+  ├─ AladinBookCatalogProvider   (~2026-10-30)
+  └─ LocalDbBookCatalogProvider  (방어선)
+
+BookCatalogService.findByIsbn()  BOOK_DETAIL_PROVIDERS
+  ├─ LocalDbBookCatalogProvider  (PK 단건 조회)
+  └─ AladinBookCatalogProvider   (자체 DB에 없는 첫 방문 ISBN만)
 ```
 
-**체인 순서는 `book.module.ts`의 `BOOK_CATALOG_PROVIDERS` 배열 하나로 정합니다.**
-국립중앙도서관 어댑터가 준비되면 알라딘 앞에 넣고, 종료일 이후 알라딘을 뺍니다.
+| | 자체 DB 쿼리 | 인덱스 | 그래서 |
+|---|---|---|---|
+| 검색 | `title/author ILIKE '%q%'` | 없음 | 풀스캔. 게다가 결과가 한 건이라도 나오면 체인이 멈춰 신간이 사라진다 → **외부 우선** |
+| 상세 | `findOneBy({ isbn })` | PK | 인덱스 단건. 상세 진입 시 `BookResolvePipe`가 이미 적재해 둔 책을 외부에 다시 묻는 낭비가 없어진다 → **자체 DB 우선** |
+
+검색 체인에서 자체 DB를 1차로 올리는 것은 `title`/`author` 인덱스 도입 이후에
+다시 판단합니다.
+
+**체인 순서는 `book.module.ts`의 두 배열로만 정합니다.** 공급처가 또 바뀌어도
+손대는 곳은 거기 하나입니다.
 
 실패 처리 규칙은 두 방향 모두 지킵니다.
 
@@ -107,15 +120,12 @@ BookCatalogService.search() / findByIsbn()
   장애가 아니라 "책이 없다"는 사실입니다. 이걸 뒤집으면 장애가 404로 둔갑해
   ISR 캐시에 24시간 고착됩니다.
 
-자체 DB는 지금 체인의 **마지막**입니다. 1차 검색으로 승격하려면 `title`/`author`
-인덱스가 먼저 필요합니다(현재 인덱스는 PK뿐이라 풀스캔).
-
 #### 알라딘 어댑터 (`AladinBookSearchService`)
 
 | 메서드 | 알라딘 API |
 |---|---|
-| `search` / `searchFormatted` | `ItemSearch.aspx` |
-| `searchDetail` / `searchDetailFormatted` | `ItemLookUp.aspx` |
+| `searchFormatted` | `ItemSearch.aspx` |
+| `searchDetailFormatted` | `ItemLookUp.aspx` |
 
 `ALADIN_TTB_KEY`가 필요합니다. 표지 이미지 고화질 변환은 `@bookjeok/core`의
 `formatAladinCoverImage`가 담당합니다.

@@ -2,7 +2,8 @@ import { BookInfo } from '@bookjeok/core';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import {
-  BOOK_CATALOG_PROVIDERS,
+  BOOK_DETAIL_PROVIDERS,
+  BOOK_SEARCH_PROVIDERS,
   BookCatalogProvider,
   BookCatalogSearchParams,
   BookCatalogSearchResult,
@@ -17,6 +18,9 @@ const DEFAULT_START = 1;
  * 등록된 공급처를 순서대로 시도합니다. 한 공급처가 던지면 로그를 남기고 다음으로
  * 넘어가므로, 공급처 하나가 죽어도 조회 전체가 죽지는 않습니다.
  *
+ * **검색과 상세는 체인이 다릅니다.** 같은 공급처라도 경로에 따라 유불리가
+ * 반대라서 그렇습니다. 순서의 근거는 `book.module.ts`에 있습니다.
+ *
  * 컨트롤러와 `BookService`는 이 서비스만 알면 됩니다. 공급처가 바뀔 때
  * 손대는 곳은 `book.module.ts`의 등록 순서 하나입니다.
  */
@@ -25,8 +29,10 @@ export class BookCatalogService {
   private readonly logger = new Logger(BookCatalogService.name);
 
   constructor(
-    @Inject(BOOK_CATALOG_PROVIDERS)
-    private readonly providers: BookCatalogProvider[],
+    @Inject(BOOK_SEARCH_PROVIDERS)
+    private readonly searchProviders: BookCatalogProvider[],
+    @Inject(BOOK_DETAIL_PROVIDERS)
+    private readonly detailProviders: BookCatalogProvider[],
   ) {}
 
   async search(
@@ -41,6 +47,7 @@ export class BookCatalogService {
     };
 
     const result = await this.runChain(
+      this.searchProviders,
       (provider) => provider.search(normalized),
       (value) => value.items.length > 0,
       {
@@ -57,6 +64,7 @@ export class BookCatalogService {
 
   async findByIsbn(isbn: string): Promise<BookInfo | null> {
     return await this.runChain(
+      this.detailProviders,
       (provider) => provider.findByIsbn(isbn),
       (value) => value !== null,
       null,
@@ -73,6 +81,7 @@ export class BookCatalogService {
    * 고착된다.
    */
   private async runChain<T>(
+    providers: BookCatalogProvider[],
     call: (provider: BookCatalogProvider) => Promise<T>,
     isUsable: (value: T) => boolean,
     emptyValue: T,
@@ -81,7 +90,7 @@ export class BookCatalogService {
     let lastError: Error | null = null;
     let anyResponded = false;
 
-    for (const provider of this.providers) {
+    for (const provider of providers) {
       try {
         const value = await call(provider);
         anyResponded = true;

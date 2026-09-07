@@ -1,6 +1,6 @@
 # 도서 데이터 탈(脫) 외부 API 마이그레이션 계획
 
-**상태: 진행 중 · 최종 갱신 2026-09-05**
+**상태: 진행 중 · 최종 갱신 2026-09-07**
 
 알라딘 Open API 종료에 대응해 도서 데이터(표지·서지·검색)를 외부 사기업 API
 의존에서 떼어내는 작업의 단일 기준 문서입니다. 여러 세션에 걸쳐 진행되므로
@@ -51,9 +51,9 @@
 
 | 역할 | 현재 | 위험도 | 대응 |
 | --- | --- | --- | --- |
-| ① 표지 이미지 CDN | `books.image` = 알라딘 URL (약 6만 행) | 치명적 | 자체 호스팅 (대안 없음) |
-| ② 서지 데이터 소스 | `resolveBook()` 신규 ISBN 유입 | 낮음 | 국립중앙도서관 ISBN API |
-| ③ 실시간 검색 백엔드 | `/book/external/*` | 중간 | 자체 DB 우선 + 공공 API 폴백 |
+| ① 표지 이미지 CDN | `books.image` = 알라딘 URL (약 6만 행) | 치명적 | 자체 호스팅 (대안 없음) — **Phase 0 완료** |
+| ② 서지 데이터 소스 | `resolveBook()` 신규 ISBN 유입 | 낮음 | **미정** (아래 6장) |
+| ③ 실시간 검색 백엔드 | `/book/external/list` | 중간 | **미정** (아래 6장) |
 
 ②는 이미 6만 건이 DB에 스냅샷으로 적재돼 있어 알라딘이 죽어도 기존 도서는
 멀쩡합니다. 아픈 곳은 신규 ISBN 유입 경로 하나뿐입니다.
@@ -82,11 +82,15 @@
 2. **DB에는 벤더 도메인 URL을 저장하지 않는다.** `books.image`에는 항상 자사
    도메인 URL을 넣고, 실제 스토리지는 그 뒤에서 교체 가능하게 둔다.
    이번 사고의 근본 원인이 "남의 도메인이 6만 행에 문자열로 박혀 있던 것"이다.
-3. **외부 도서 API 호출은 서버로 일원화한다.** 현재 웹에서 알라딘을 직접
-   호출하는 2곳을 없앤다.
-4. **주 서지 공급처는 국립중앙도서관 ISBN 서지정보 API로 한다.**
-5. **카카오는 폴백으로만 쓴다.** 단독 의존 금지.
-6. **표지 원본 확보와 DB 컷오버를 분리한다.** 원본만 먼저 확보해 두고
+3. **외부 도서 API 호출은 서버로 일원화한다.** (2026-09-05 완료 — 웹의 직접
+   호출 2곳 제거)
+4. **공급처는 포트 뒤에 둔다.** 컨트롤러·서비스는 `BookCatalogProvider`에만
+   의존하고, 체인 등록은 `book.module.ts` 한 곳에서만 한다. 다음에 또 끊겨도
+   어댑터 하나만 갈아끼우면 되게 한다.
+5. **검색과 상세는 체인을 따로 둔다.** 같은 공급처라도 경로에 따라 유불리가
+   반대다. 근거는 `book.module.ts`의 등록부 주석에 있다.
+6. **카카오를 쓰더라도 주 공급처로는 쓰지 않는다.** 단독 의존 금지.
+7. **표지 원본 확보와 DB 컷오버를 분리한다.** 원본만 먼저 확보해 두고
    가공·도메인·컷오버는 시간을 두고 결정한다.
 
 ## 3. 미결 결정
@@ -98,49 +102,81 @@
 | D1 | 최종 스토리지 | Phase 2 | **Cloudflare R2 유력.** 근거는 아래 7-c(과거 Cloudinary 사고와 과금 모델 비교) |
 | D2 | 표지용 자사 도메인 (`cdn.<도메인>` vs `/api/cover/...` 프록시) | Phase 2 | D1과 함께 결정 |
 | D3 | 표지 가공 스펙 (WebP 품질/크기, 썸네일 단수) | Phase 2 | 원본을 보관하므로 언제든 재가공 가능 |
-| D4 | `description` 품질 저하 대응 | Phase 1 | 국중 API는 책소개를 본문이 아니라 URL로 제공. ⓐ URL 추가 fetch ⓑ 기존 Gemini로 보강 ⓒ 신규 도서는 소개 없이 감수 |
 | D5 | 도서관 정보나루 도입 여부 | Phase 3 이후 | 표지 소스로는 부적합. 대출 통계는 `findPopularBooks()` 보강에 유용 |
 | D6 | `books.imageSourceUrl` 컬럼 추가 여부 | Phase 2 | 추가 권장. 롤백이 SQL 한 줄이 됨. 단 운영 DDL 수동 적용 대상 |
-| D7 | 국중 `TITLE_URL` 화질이 쓸 만한가 | Phase 1 실측 | 신규 도서 표지의 상한을 결정. 불충분하면 카카오 thumbnail 폴백 검토 (7-b 참조) |
-| D8 | 국중에서 `Keyword` 검색을 무엇으로 보낼 것인가 | Phase 1 | 국중에는 통합 키워드 검색이 없음. 아래 6-d 참조. 호출 제한 실측이 선행되어야 함 |
+| **D9** | **신규 ISBN 서지·검색을 무엇으로 받을 것인가** | **Phase 1 · 최우선** | 국중 폐기로 비게 된 자리. 알라딘 종료(2026-10-30) 전에 답이 있어야 함. 근거는 아래 6장 |
 
 ---
 
 ## 4. 알라딘 결합 지점 전수 조사
 
-Phase 4에서 이 목록이 전부 정리되면 작업 완료입니다.
+**2026-09-07 재조사.** Phase 4에서 이 목록이 전부 정리되면 작업 완료입니다.
 
-### 서버
+### 알라딘으로 나가는 문 — 3개
 
-- `apps/server/src/features/book/services/aladin-book-search.service.ts` — 전체 (6개 메서드: `search`, `searchDetail`, `searchFormatted`, `searchDetailFormatted`, `searchRaw`, `searchDetailRaw`)
-- `apps/server/src/features/book/services/book.service.ts:47` — `resolveBook()`의 외부 조회 (ItemLookUp → ItemSearch 폴백)
-- `apps/server/src/features/book/controllers/book.controller.ts:76,116` — `GET /book/external/list`, `GET /book/external/detail`
-- `apps/server/src/features/book/book.module.ts` — provider 등록
+모든 호출이 `BookCatalogService` 한 곳을 거칩니다.
 
-### 웹 (서버 일원화 대상)
+| 진입점 | 위치 | 체인 |
+| --- | --- | --- |
+| `GET /book/external/list` | `book.controller.ts` | 검색 체인 — **알라딘 우선** |
+| `GET /book/external/detail` | `book.controller.ts` | 상세 체인 — 자체 DB 우선 |
+| `resolveBook()` | `book.service.ts` | 상세 체인 → 못 찾으면 검색 체인 |
 
-- `apps/web/src/app/api/book-list/route.ts:29` — 알라딘 직접 호출
-- `apps/web/src/features/book/apis/server.ts:55,132` — 알라딘 직접 호출
+`resolveBook()`은 `BookResolvePipe`를 통해 판매글 등록·리뷰 작성·독서기록 추가·
+위시리스트 추가·조회수 기록 앞단에 붙어 있습니다. **여기가 막히면 등록 자체가
+실패**하므로 검색 품질 저하보다 심각도가 높습니다.
 
-### 공유 패키지
+### 화면별 데이터 출처
 
-- `packages/core/src/shared/utils/cover-image.ts` — `formatAladinCoverImage`, `extractAladinDetailedDescription`
-- `packages/core/src/features/book/types.ts` — 알라딘 응답 타입
-- `packages/api-client/src/features/book/apis.ts`
-- `packages/react-query/src/features/book/queries.ts`
+알라딘을 타는 화면:
+
+| 화면 | 코드 |
+| --- | --- |
+| 도서 검색 결과 목록 | `book-search/book-search-result-list/index.tsx` |
+| 책 선택 모달 (판매글·리뷰·독서기록 작성 입구) | `common/book-search-modal/index.tsx` |
+| 홈 출판사 슬라이더 | `book-slider/main-book-slider.tsx` + `(default)/page.tsx` |
+| 상세 하단 연관 도서 | `book-detail/related-books-section.tsx` |
+
+**자체 DB(`books`)를 타는 화면 — 알라딘과 무관:** 도서 상세, 중고책
+판매글(목록·상세·마켓), 도서 리뷰(목록·상세), 독서기록 라운지, 위시리스트,
+인기책, AI 검색(`match_books()`), 책 통계. 전부 `books` 조인입니다.
+
+> 서비스에서 책을 보여주는 화면의 대부분은 이미 자체 DB입니다. 알라딘이 남은
+> 곳은 **"우리 DB에 아직 없는 책을 찾는" 경로 넷**뿐입니다.
+
+### 남은 코드 결합 (Phase 4 정리 대상)
+
+- `apps/server/src/features/book/services/aladin-book-search.service.ts` — 전체
+  (`searchFormatted`, `searchDetailFormatted`)
+- `apps/server/src/features/book/providers/aladin-book-catalog.provider.ts` — 어댑터
+- `apps/server/src/features/book/book.module.ts` — 두 체인의 등록부
+- `packages/core/src/shared/utils/cover-image.ts` — `formatAladinCoverImage`,
+  `extractAladinDetailedDescription`
 
 ### 프론트 표시
 
-- `apps/web/src/features/book/components/common/book-card.tsx:74` — 렌더 시점에 `formatAladinCoverImage` 호출
-- `apps/web/src/features/book/components/book-detail/book-description.tsx:28,33` — 알라딘 출처 표기
-- `apps/web/src/features/book/components/book-detail/book-actions.tsx:46` — 알라딘 구매 링크
-- `apps/web/next.config.ts:56-63` — `remotePatterns`의 `image.aladin.co.kr`
+- `book-card.tsx:74`, `ai-book-recommend-slider.tsx:58` — 렌더 시점에
+  `formatAladinCoverImage` 호출
+- `book-detail/book-description.tsx:28,33` — 알라딘 출처 표기
+- `book-detail/book-actions.tsx:46` — 알라딘 구매 링크. 상세가 자체 DB를 타면
+  `link`가 없어 버튼이 나오지 않습니다(의도된 결과)
+- `apps/web/next.config.ts` — `remotePatterns`의 `image.aladin.co.kr`
 
 ### 데이터
 
 - `books.image` — 약 6만 행 전부 `image.aladin.co.kr`
-- `books.discount` — 알라딘 판매가. 종료 후 갱신 불가. 국중 `PRE_PRICE`(정가)로
-  의미를 바꾸는 편이 중고 거래 기준가로는 오히려 적절
+- `books.discount` — 알라딘 판매가. 종료 후 갱신 불가
+
+### 2026-09-07에 정리 완료
+
+| 대상 | 처리 |
+| --- | --- |
+| 도서 상세의 공급처 순서 | 자체 DB 우선으로 전환 (체인 분리) |
+| `AladinBookSearchService.search()` / `searchDetail()` | 호출처 0 — 삭제 |
+| `GET /book/search` + `BookService.searchBooks()` | 호출처 0 — 삭제 |
+| `apps/web/src/app/api/book-list/route.ts` | 호출처 0 — 삭제 |
+| `getExternalBookList/Detail`, `useExternalBook*Query` | 호출처 0 — 삭제 |
+| `API_PATHS.book.externalList` / `externalDetail` | 위 함수 전용 별칭 — 삭제 |
 
 ---
 
@@ -242,8 +278,7 @@ DB를 건드리지 않는 순수 수집 단계입니다. 이 단계가 끝나면
 | 저장 위치 | `apps/server/cover-originals/` (ISBN 끝 2자리 100개 샤드) |
 
 **수집 실패 4건 (영구 손실 · 복구 불가).** `cover500`·`cover200` 모두 404로,
-알라딘 CDN에서 원본이 사라진 건입니다. Phase 1에서 국중 `TITLE_URL`로 채울
-후보입니다.
+알라딘 CDN에서 원본이 사라진 건입니다. 새 공급처의 표지로 채울 후보입니다.
 
 | ISBN / 코드 | 비고 |
 | --- | --- |
@@ -287,166 +322,120 @@ DB를 건드리지 않는 순수 수집 단계입니다. 이 단계가 끝나면
 → 계획서의 "더 큰 변형 탐색" 항목은 이것으로 종결. `cover500`이 상한.
 
 **3. 10자리 `isbn` 192건은 실제 ISBN이 아니다.** `5000004597`, `5000051472` 같은
-알라딘 내부 상품코드입니다. **국중 API로 조회가 불가능하므로** Phase 1에서 별도
-처리 대상으로 분류해야 합니다.
+알라딘 내부 상품코드입니다. **실제 ISBN이 아니라 어느 공급처로도 조회가
+불가능하므로** 별도 처리 대상으로 분류해야 합니다.
 
 ### 주의
 
 - 표지 이미지 재호스팅은 저작권상 회색지대입니다(권리자는 출판사). 국내
   독서·중고서점 서비스에서 널리 이뤄지는 관행이고 실질 리스크는 낮다고
   판단했으나, 알고 진행하는 것으로 합의된 사항입니다.
-- 표지가 없는 도서(빈 `image`)는 이 단계에서 채우려 하지 마세요. Phase 1에서
-  국중 `TITLE_URL`로 별도 처리합니다.
+- 표지가 없는 도서(빈 `image`)는 이 단계에서 채우려 하지 마세요. 새 공급처가
+  정해진 뒤 별도 처리합니다.
 
 ---
 
-## 6. Phase 1 — Provider 추상화 · 서버 일원화 · 국중 어댑터
+## 6. Phase 1 — 공급처 추상화 · 서버 일원화 · 대체 공급처
 
 **목표: 알라딘이 끊겨도 검색과 신규 도서 등록이 살아 있을 것. 2026-10-30 이전 배포.**
 
-알라딘이 끊기면 `/book/external/list`, `/book/external/detail`, `resolveBook()`이
-모두 500을 뱉습니다. 심각도가 표지보다 높습니다(표지는 깨진 이미지로 끝나지만
-이쪽은 기능 자체가 죽음).
+알라딘이 끊기면 `/book/external/list`와 `resolveBook()`이 죽습니다. 표지보다
+심각합니다. 표지는 깨진 이미지로 끝나지만 이쪽은 **판매글·리뷰 등록 기능 자체가
+죽습니다.**
 
-### 무엇을 무엇으로 대체하는가 (혼동 방지)
+### 완료된 것
 
-알라딘은 세 가지 역할을 겸했고, **역할마다 대체 수단이 다릅니다.**
-
-| 알라딘의 역할 | 대체 수단 | 상태 |
-| --- | --- | --- |
-| ① 표지 이미지 CDN | **자체 호스팅** | ✅ 완료 — 국중과 무관 |
-| ② 서지 데이터(ISBN→책 정보) | 국립중앙도서관 | 인증키 대기 |
-| ③ 검색(키워드→책 목록) | 국립중앙도서관 | 인증키 대기 |
-
-**①은 국중이 대체하는 것이 아닙니다.** Phase 0에서 이미 끝났습니다. 국중이
-맡을 범위는 ②③뿐입니다.
-
-#### 필드 단위 대응표
-
-| `books` 필드 | 알라딘 | 국중 | 판정 |
-| --- | --- | --- | --- |
-| `isbn` | `isbn13` | `EA_ISBN` | 대체 가능 |
-| `title` | `title` | 본표제 | 대체 가능 |
-| `author` | `author` | 저자 | 대체 가능 |
-| `publisher` | `publisher` | 발행처 | 대체 가능 |
-| `image` | `cover` | `TITLE_URL` | 있으나 **자체 확보분을 쓰므로 불필요** |
-| `discount` | 판매가 | `PRE_PRICE`(정가) | **의미가 다름** — 중고 기준가로는 정가가 오히려 적절 |
-| `description` | 본문 | `BOOK_INTRODUCTION_URL` | **본문이 아니라 URL** → 미결 D4 |
-| `link` | 상품 페이지 | 없음 | **대응물 없음** — `BookInfo.link` 옵셔널화로 대응 완료 |
-| 검색 | 키워드 | 제목·저자·발행처·ISBN | 대체 가능 |
-
-#### 국중으로 해결되지 않는 것
-
-1. **책소개 본문** — URL만 제공. 별도 fetch 필요 (미결 D4).
-2. **구매 링크** — 대응물 없음. `BookActions`가 이미 `link` 부재를 처리하므로
-   버튼이 사라질 뿐 장애는 없습니다.
-3. **알라딘 내부 코드 192건** — `5000051472` 같은 10자리 값은 ISBN이 아니라
-   알라딘 상품코드라 **국중 조회가 원천적으로 불가능**합니다.
-4. **검색 정확도 정렬** — 알라딘의 `Accuracy` 같은 개념이 약합니다. 실사용에서
-   얼마나 아픈지는 실측 전까지 알 수 없습니다.
-
-#### 카카오의 위치
-
-**카카오는 예정된 작업이 아닙니다.** 구현된 것이 없고 공급처 체인에도 없습니다.
-
-위 4번(검색 품질)이 실사용에 못 미칠 때 꺼내는 **조건부 카드**이며, 그 판단은
-국중 커버리지 실측 이후에 합니다. 실측 결과가 쓸 만하면 카카오는 도입하지
-않습니다. 「확정된 결정」 5번은 "카카오를 쓴다"가 아니라 **"쓰더라도 주 공급처로는
-쓰지 않는다"** 는 제약입니다.
-
-#### 아직 모르는 것
-
-기능 자체가 국중으로 된다는 것은 확실합니다. **커버리지와 검색 품질은
-실측 전까지 알 수 없습니다.** 인증키 도착 후 첫 작업이 이 실측이며, 결과에 따라
-D4와 카카오 도입 여부가 갈립니다.
-
-### 국립중앙도서관 ISBN 서지정보 API
-
-출처: [사양](https://www.nl.go.kr/NL/contents/N31101030500.do) · [공공데이터포털](https://www.data.go.kr/data/3078982/openapi.do)
-
-```
-GET https://www.nl.go.kr/seoji/SearchApi.do
-  cert_key      인증키 (필수)
-  result_style  json | xml (필수)
-  page_no       1부터 (필수)
-  page_size     쪽당 건수 (필수)
-```
-
-검색 조건: 제목(본표제), 저자, 발행처, ISBN/세트ISBN, 발행예정일, 납본유무 등
-
-활용할 응답 필드:
-
-| 필드 | 매핑 |
-| --- | --- |
-| `TITLE_URL` | 표지 이미지 URL |
-| `PRE_PRICE` | 예정가격 → `books.discount` |
-| `BOOK_INTRODUCTION_URL` | 책소개 (본문이 아니라 **URL**) |
-| `BOOK_TB_CNT_URL` | 목차 (URL) |
-| `BOOK_SUMMARY_URL` | 책요약 (URL) |
-
-장점: 무료, 폐업 리스크 없음, ISBN 발급 시점 등록이라 **신간 커버리지가 상용
-API보다 오히려 빠름**.
-
-약점(정직하게): 책소개가 URL이라 별도 fetch 필요(→ D4), 검색 정확도 정렬이
-상용만 못함, `TITLE_URL` 화질이 `cover500`에 못 미칠 수 있음. 일일 호출 제한은
-문서에 명시가 없어 **실측으로 확인 필요**.
-
-### 설계
-
-```
-BookCatalogProvider (포트)
-  ├─ search(query, opts): BookSummary[]
-  └─ findByIsbn(isbn): BookDetail | null
-
-어댑터 체이닝: LocalDb → NationalLibrary → (Kakao, 폴백)
-```
-
-- 컨트롤러·서비스는 포트에만 의존한다. 다음번에 또 공급처가 바뀌어도 어댑터
-  하나만 추가하면 되도록 한다.
-- 응답 정규화 타입은 `packages/core`에 둔다 (Contract-First: `.agents/rules/01-monorepo-packages.md`).
-
-### 체크리스트
-
-- [ ] 국중 API 인증키 발급 — **국립중앙도서관 자체 사이트**에서 신청
-      (도서관 서비스 > Open API > 인증키 신청/관리, `/NL/contents/N31101020000.do`).
-      공공데이터포털이 아니라 국중 사이트입니다. **담당자 승인 단계가 있어
-      즉시 발급이 아니므로 미리 신청해 둘 것.** 문의: 디지털정보기획과 02-590-0548
-- [ ] 실호출로 응답 형태·필드 존재율·호출 제한 실측 (샘플 50 ISBN)
-  - [ ] 우리 DB 상위 인기 도서 ISBN으로 커버리지 확인 — 이게 실사용 품질의 지표
-- [x] 정규화 타입 정리 — 기존 `BookInfo`를 표준으로 확정 (`link`·`pubdate` 옵셔널화, `BookSearchField` 중립화)
+- [x] 정규화 타입 정리 — `BookInfo`를 표준으로 확정 (`link`·`pubdate` 옵셔널화,
+      `BookSearchField` 중립화)
 - [x] `BookCatalogProvider` 포트 정의 — `providers/book-catalog.types.ts`
-- [ ] `NationalLibraryBookProvider` 어댑터 구현 ← **인증키 도착 후 남은 유일한 작업**
-- [x] `LocalDbBookCatalogProvider` 구현 — 체인 마지막(최후 방어선)에 배치
-- [x] 체이닝 오케스트레이터 구현 — `BookCatalogService`. 순서는 `book.module.ts` 한 곳에서 결정
-  - [x] 알라딘 어댑터(`AladinBookCatalogProvider`)로 기존 동작 보존
-- [x] `resolveBook()`을 포트 의존으로 교체
-- [x] `/book/external/list`, `/book/external/detail`을 포트 의존으로 교체
-- [x] **웹 직접 호출 제거 완료** (2026-09-05)
-  - [x] `apps/web/src/features/book/apis/server.ts` — 백엔드 `/book/external/*` 경유로 전환.
-        인메모리·React 캐시와 "items 부재는 장애" 방어 로직은 그대로 유지
-  - [x] `apps/web/src/app/api/book-list/route.ts` — 백엔드 프록시로 전환.
-        앱 내부 호출처가 없어 삭제 후보이나 외부 클라이언트 호환을 위해 남김
-  - [x] 벤더 타입 격리 — `AladinBookItem`·`AladinSearchResponse`를 `packages/core`에서
-        제거해 서버 어댑터 안으로 한정. `AladinQueryType` → **`BookSearchField`**로 중립화
-  - [x] `BookInfo.link`·`pubdate` 옵셔널화 — 국중은 `link` 대응물이 없음
-        (`BookActions`는 이미 옵셔널 처리돼 UI 변경 없음)
-  - [x] 죽은 코드 제거 — `searchRaw()`/`searchDetailRaw()` (호출처 없음)
-  - [x] 웹 env에서 `ALADIN_TTB_KEY` 제거 (웹은 더 이상 공급처를 부르지 않음)
-  - [x] 검증 — 타입체크(core·server·web) / 테스트 서버 198 + 웹 239 / 린트 9개 전부 통과
-- [ ] `KakaoBookProvider` (선택, 폴백용)
-- [ ] 환경변수 등록: `NL_SEOJI_CERT_KEY` (+ 카카오 검색 시 REST 키.
-      기존 `KAKAO_CLIENT_ID`는 **로그인용이라 다름**)
-  - [ ] `.env.example`
-  - [ ] `turbo.json`의 `globalEnv` — 빠뜨리면 Turbo 캐시가 값 변경을 감지 못함
-- [x] 테스트 — 기존 spec 2개를 포트 기준으로 갱신 + `book-catalog.service.spec.ts` 신규 7건 (체인 폴백·전체 실패·빈 결과 구분)
-- [x] `apps/server/src/features/book/README.md` 갱신
+- [x] `AladinBookCatalogProvider`·`LocalDbBookCatalogProvider` 구현
+- [x] 체이닝 오케스트레이터 `BookCatalogService` — 실패 처리 규칙 포함
+      (전부 던졌을 때만 전파. 장애를 "책 없음"으로 둔갑시키지 않음)
+- [x] `resolveBook()`·`/book/external/*`를 포트 의존으로 교체
+- [x] **웹 직접 호출 제거** (2026-09-05) — 벤더 타입을 서버 어댑터 안으로 격리
+- [x] `resolveBook()` NOT NULL 폴백 방어 (아래 6-b)
+- [x] **검색·상세 체인 분리** (2026-09-07 — 아래)
+
+### 검색·상세 체인 분리 (2026-09-07)
+
+하나의 공급처 배열을 검색과 상세가 공유하고 있었습니다. 그런데 **경로에 따라
+자체 DB의 유불리가 정반대**라 한쪽은 반드시 손해를 봅니다.
+
+| | 자체 DB 쿼리 | 인덱스 | 결론 |
+| --- | --- | --- | --- |
+| 검색 | `title/author ILIKE '%q%'` | 없음 | 5만 행 풀스캔. 게다가 체인은 결과가 한 건이라도 나오면 멈추므로 자체 DB를 앞에 두면 **신간이 검색에서 사라짐** → 알라딘 우선 유지 |
+| 상세 | `findOneBy({ isbn })` | **PK** | 인덱스 단건 → **자체 DB 우선** |
+
+상세를 자체 DB 우선으로 돌린 이유가 하나 더 있습니다. 상세 페이지에 들어오면
+`POST /book/:isbn/view`가 `BookResolvePipe`를 태워 그 책을 `books`에 적재합니다.
+즉 외부를 먼저 부르면 **방금 우리가 저장한 책을 외부에 다시 물어보는** 꼴이었고,
+HTTP 왕복만큼 상세가 느렸습니다.
+
+토큰은 `BOOK_SEARCH_PROVIDERS`·`BOOK_DETAIL_PROVIDERS` 둘이며, 순서는 여전히
+`book.module.ts` 한 곳에서만 정합니다.
+
+**감수한 것:** 자체 DB에는 `link` 컬럼이 없어 상세의 알라딘 구매 버튼이 나오지
+않습니다. 어차피 종료와 함께 사라질 값이라 앞당겨 받아들였습니다. 그리고 DB에
+저장된 옛 `description`이 그대로 노출되므로 **HTML 엔티티 잔류분(6-c)이 화면에
+보입니다.** 6-c의 DB 정리가 이제 화면에 직접 영향을 주는 과제가 되었습니다.
+
+### 국립중앙도서관 — 검토했으나 채택하지 않음 (2026-09-07)
+
+**결정 완료. 다시 논쟁하지 마세요.**
+
+계획 수립 당시 ②③의 답으로 국중 ISBN 서지정보 API를 지목했으나, 구현 착수 전에
+철회했습니다. 사유:
+
+1. **서지 상세정보 결측이 많다.** 책소개·목차 등이 비어 있는 레코드 비율이
+   서비스에 쓸 수 없는 수준이라는 판단.
+2. **표지(`TITLE_URL`) 결측도 마찬가지.** 신규 도서 표지의 상한이 되어야 할
+   값인데 아예 없는 경우가 보고됨.
+3. **책소개가 본문이 아니라 URL.** 렌더에 별도 fetch가 필요.
+4. **통합 키워드 검색과 관련도 정렬이 없다.** 알라딘 `QueryType=Keyword`·
+   `Accuracy`에 대응물이 없어 검색 UX를 자체 재정렬로 메워야 함.
+5. **인증키가 즉시 발급이 아니다.** 담당자 승인 단계가 있어 종료일까지의 일정
+   위험이 있음.
+
+> **정직하게 남깁니다.** 1·2는 우리가 직접 측정한 수치가 아니라 외부 보고에
+> 근거한 판단입니다. 인증키를 받지 못해 실측에 이르지 못했습니다. 나중에 국중을
+> 다시 검토할 사람은 이 점을 알고 시작하세요. 실측 표본으로는 7-d의 한국 ISBN
+> 1,106건이 여전히 최적입니다.
+
+국중을 전제로 작성돼 있던 절(구 6장 어댑터 설계, 6-d 검색 방식, 미결 D4·D7·D8)은
+이 판단과 함께 삭제했습니다. **국중 구현 코드는 애초에 존재한 적이 없습니다.**
+남아 있던 것은 주석 3곳과 README 한 줄뿐이었고 함께 정리했습니다.
+
+### 남은 것 — 미결 D9 (최우선)
+
+국중이 빠지면서 ②③의 자리가 비었습니다. 알라딘 종료까지 **답이 반드시 있어야
+하는 유일한 항목**입니다.
+
+무엇을 채워야 하는지는 좁혀져 있습니다. 4장 재조사 결과, 알라딘이 남은 곳은
+"우리 DB에 아직 없는 책을 찾는" 경로뿐입니다.
+
+| 필요 | 자체 DB로 되나 | 비고 |
+| --- | --- | --- |
+| ② `resolveBook()`의 신규 ISBN 서지 | ❌ | 막히면 판매글·리뷰 등록이 실패. **가장 치명적** |
+| ③ 키워드 검색에서 DB에 없는 책 | ❌ | 검색 페이지 + 책 선택 모달 |
+
+- [ ] **D9 결정** — ②③를 무엇으로 받을 것인가
+- [ ] 결정된 공급처의 어댑터 구현 (`BookCatalogProvider` 구현체 하나)
+- [ ] 환경변수 등록 — `.env.example` + `turbo.json`의 `globalEnv`
+      (빠뜨리면 Turbo 캐시가 값 변경을 감지하지 못함)
+- [ ] 커버리지 실측 — **인기 도서가 아니라 최근 등록된 판매글의 ISBN으로**
+      (실사용 분포에 가까움). 통과하지 못하면 그 공급처 단독으로는 갈 수 없음
 - [ ] 알라딘 어댑터는 이 시점에 **삭제하지 말고** 폴백으로 남겨둔다 (10/30까지 유효)
+
+제약으로 남아 있는 것은 「확정된 결정」 6번뿐입니다 — **카카오를 쓰더라도 주
+공급처로는 쓰지 않습니다.** 사기업 API 종료를 세 번째로 반복하지 않기 위한
+제약이며, 폐기 대상이 아닙니다.
 
 ---
 
-## 6-b. 국중 전환 전 사전 점검 결과 (2026-09-06)
+## 6-b. 공급처 전환 전 사전 점검 결과 (2026-09-06)
 
-공급처를 국중으로 바꿨을 때 터질 곳을 코드에서 훑은 결과입니다.
+알라딘 말고 다른 공급처로 바꿨을 때 터질 곳을 코드에서 훑은 결과입니다.
+**공급처가 무엇이든 해당되는 내용**이라 국중 폐기 후에도 그대로 유효합니다.
 
 ### 처리 완료
 
@@ -461,25 +450,25 @@ BookCatalogProvider (포트)
   레코드를 넣어봐야 목록에 빈칸으로만 보입니다.
 - 두 경우 모두 `book.service.spec.ts`에 테스트로 고정했습니다.
 
-### 키 도착 직후 최우선
+### 새 공급처를 붙이면 가장 먼저 확인할 것
 
 **`BookResolvePipe` 실패 = 등록 실패.** 파이프가 판매글 생성·리뷰 작성·위시리스트
-추가 앞단에 붙어 있어, 국중에서 책을 못 찾으면 등록 자체가 실패합니다. 검색 품질
+추가 앞단에 붙어 있어, 공급처가 책을 못 찾으면 등록 자체가 실패합니다. 검색 품질
 저하보다 이쪽이 훨씬 치명적입니다.
 
 → 커버리지 실측은 인기 도서가 아니라 **최근 등록된 판매글의 ISBN**으로 하세요.
-실사용 분포에 가깝습니다. 여기서 통과하지 못하면 국중 단독으로는 갈 수 없습니다.
+실사용 분포에 가깝습니다. 여기서 통과하지 못하면 그 공급처 단독으로는 갈 수 없습니다.
 
 ### Phase 2에 묶을 것
 
 **표지 URL을 그대로 DB에 저장** — `resolveBook()`의 `image: bookData.image`가
-그 지점입니다. 국중으로 바꾸면 국중 URL이 하루 100건씩 쌓입니다(7-b 참조).
-또한 `next.config.ts`의 `remotePatterns`에 국중 이미지 호스트가 없어, 임시로라도
-국중 URL을 쓰면 next/image가 전부 막습니다.
+그 지점입니다. 공급처를 바꾸면 그 공급처의 URL이 하루 100건씩 쌓입니다(7-b 참조).
+또한 새 호스트가 `next.config.ts`의 `remotePatterns`에 없으면, 임시로라도 그 URL을
+쓰는 순간 next/image가 전부 막습니다.
 
 ### Phase 4로 미룸
 
-`book-card.tsx:74`의 `formatAladinCoverImage` 호출. 국중·자체 도메인 URL은
+`book-card.tsx:74`의 `formatAladinCoverImage` 호출. 알라딘 외 호스트나 자체 도메인 URL은
 치환 정규식에 걸리지 않아 그대로 통과하므로 당장 깨지지 않습니다.
 
 ### 문제가 아닌 것 — 신규 도서 임베딩 미생성 (의도됨)
@@ -501,8 +490,8 @@ BookCatalogProvider (포트)
 ### `discount` 의미 변경은 오히려 개선
 
 `recent-sale-card.tsx`가 할인율을 계산할 때 기준이 알라딘 *판매가*였습니다. 중고
-판매가를 타 서점 판매가와 비교해 "N% OFF"를 띄우는 건 부정확했고, 국중
-`PRE_PRICE`(정가) 기준이 정상입니다.
+판매가를 타 서점 판매가와 비교해 "N% OFF"를 띄우는 건 부정확했고, **정가** 기준이
+정상입니다. 공급처가 정가를 준다면 의미가 오히려 바로잡힙니다.
 
 ## 6-c. HTML 엔티티 잔류 (2026-09-06)
 
@@ -552,59 +541,6 @@ BookCatalogProvider (포트)
       (약 600행. 전체의 1% 미만이라 급하지 않으며, Phase 2 컷오버 때 같은 배치에
       묶는 편이 효율적입니다)
 
-## 6-d. 국중 검색 방식의 차이 (어댑터 설계에 반영 필요)
-
-국중 API는 페이지네이션은 정상 지원하지만 **검색 방식이 상용 API와 다릅니다.**
-어댑터를 쓰기 전에 반드시 읽으세요.
-
-### 되는 것 — 페이지네이션
-
-```
-page_no     현재 쪽번호
-page_size   쪽당 출력 건수
-TOTAL_COUNT (응답) 전체 건수
-```
-
-무한 스크롤을 포함해 기존 방식 그대로 됩니다.
-
-### 안 되는 것 1 — 통합 키워드 검색이 없다
-
-필드를 지정해 검색합니다. 알라딘의 `QueryType=Keyword`(전 필드 통합)에 해당하는
-파라미터가 없습니다.
-
-```
-title      본표제
-author     저자
-publisher  발행처명
-```
-
-### 안 되는 것 2 — 관련도 정렬이 없다
-
-```
-sort      PUBLISH_PREDATE | INPUT_DATE | INDEX_TITLE | INDEX_PUBLISHER
-order_by  ASC | DESC
-```
-
-발행예정일·입력일·제목순·발행처순뿐입니다. **전부 기계적 정렬이고 관련도 랭킹이
-없습니다.** 알라딘의 `Accuracy`에 대응하는 것이 아예 없습니다.
-
-### 어댑터 설계 (D8)
-
-`Title`·`Author`·`Publisher`는 그대로 매핑됩니다. **`Keyword`를 무엇으로 보낼지가
-결정 사항입니다.**
-
-| 안 | 방식 | 대가 |
-| --- | --- | --- |
-| ⓐ | `title`로만 질의 | 단순하나 저자명 검색("김영하")이 안 됨 |
-| **ⓑ** | **`title`·`author` 두 번 질의 후 ISBN으로 병합** | **UX 보존. 요청 2배** |
-| ⓒ | 질의어 모양으로 필드 추정 | 휴리스틱이라 오판 가능 |
-
-**ⓑ + 자체 재정렬을 권합니다.** 관련도 정렬이 없으므로 결과 순서는 우리가
-매겨야 합니다(제목 완전일치 → 접두일치 → 부분일치).
-
-단 **국중 호출 제한 실측이 선행되어야 합니다.** 제한이 문서에 없어 요청을 2배로
-늘려도 되는지 알 수 없습니다.
-
 ## 7. Phase 2 — 표지 파이프라인 · 자체 도메인 · DB 컷오버
 
 **데드라인 없음(가역). 다만 알라딘 CDN 수명이 불확실하므로 10/30 이전 권장.**
@@ -617,7 +553,7 @@ order_by  ASC | DESC
 - [ ] Phase 0 원본에서 가공: WebP 500px(상세) + 200px(목록/카드) 생성
 - [ ] 자사 도메인 배치 — `books.image`에 들어갈 형태 확정
       (예: `https://cdn.<도메인>/covers/{isbn}.webp`)
-- [ ] 표지 없는 도서 처리: 국중 `TITLE_URL`로 보완 → 그래도 없으면 플레이스홀더
+- [ ] 표지 없는 도서 처리: 새 공급처의 표지로 보완 → 그래도 없으면 플레이스홀더
 - [ ] (D6 채택 시) `books.imageSourceUrl` 컬럼 추가
   - [ ] `apps/server/scripts/derive-ddl.ts`로 DDL 도출 (손으로 쓰지 말 것)
   - [ ] 운영 적용 후 **`docs/manual-ddl-log.md`에 반드시 기록**
@@ -652,9 +588,9 @@ DB의 70% 규모입니다.
 ### 문제
 
 현재 `resolveBook()`은 공급처가 준 표지 URL을 그대로 `books.image`에 넣습니다.
-이 흐름이 남으면 **국중 URL이 하루 100건씩 쌓입니다.** Phase 2에서 기존 6만 건을
-자체 도메인으로 바꿔놔도 구멍이 계속 새는 셈이고, 국중이 언젠가 바뀌면 지금 겪는
-일을 처음부터 다시 겪습니다.
+이 흐름이 남으면 **새 공급처의 URL이 하루 100건씩 쌓입니다.** Phase 2에서 기존
+6만 건을 자체 도메인으로 바꿔놔도 구멍이 계속 새는 셈이고, 그 공급처가 언젠가
+바뀌면 지금 겪는 일을 처음부터 다시 겪습니다.
 
 「확정된 결정」 2번(**DB에는 자체 도메인 URL만**)은 일회성 마이그레이션 규칙이
 아니라 **상시 규칙**이어야 합니다.
@@ -684,13 +620,12 @@ DB의 70% 규모입니다.
 
 ### 감수할 손실
 
-알라딘 `cover500`은 종료 후 얻을 수 없습니다. **국중 `TITLE_URL`의 화질이 곧
-신규 도서 표지의 상한**이며, 그 화질이 어느 정도인지는 인증키 도착 후에야
-측정할 수 있습니다(`cover.nl.go.kr` 호스트 존재는 확인, URL 패턴·해상도는 미확인).
+알라딘 `cover500`은 종료 후 얻을 수 없습니다. **새 공급처가 주는 표지 화질이 곧
+신규 도서 표지의 상한**이 되며, 그 화질은 공급처를 정한 뒤에야 측정할 수 있습니다.
 
 기존 56,656건은 고화질로 확보했으므로 **서비스의 대부분은 안전하고, 신규 유입분만
-화질이 떨어질 수 있습니다.** 국중 화질이 쓸 수 없는 수준이면 그때 카카오
-thumbnail을 표지 폴백으로 검토합니다(실측 후 판단).
+화질이 떨어질 수 있습니다.** 표지 화질은 D9(공급처 선정)의 평가 항목에
+반드시 포함하세요.
 
 ## 7-c. 스토리지 결정 근거 — 과거 Cloudinary 사고 (D1)
 
@@ -777,14 +712,13 @@ transformation으로 계수됩니다.**
 
 거래나 사용자 데이터에 얽힌 것은 사실상 없습니다.
 
-### 이것이 최고의 국중 커버리지 테스트 셋이다
+### 이것이 공급처 커버리지의 최적 테스트 셋이다 (D9)
 
 **한국 ISBN 1,106건은 알라딘이 못 찾은 책들입니다.** 인기 도서로 커버리지를 재면
-국중도 당연히 갖고 있어 통과하기 쉽지만, 이 표본에서 높은 회수율이 나온다면
-**국중이 상용 API보다 나은 영역이 실재한다는 강력한 증거**입니다. 반대로 국중도
-못 찾으면 카카오까지 검토해야 한다는 신호입니다.
+어느 공급처든 갖고 있어 통과하기 쉽습니다. 반면 이 표본에서 높은 회수율이 나온다면
+**그 공급처가 알라딘보다 나은 영역이 실재한다는 강력한 증거**입니다.
 
-- [ ] 인증키 도착 후 **이 1,106건으로 국중 커버리지 실측**
+- [ ] D9 후보가 정해지면 **이 1,106건으로 커버리지 실측**
 - [ ] 회수 가능한 건은 표지를 확보해 자체 스토리지로 이전
 - [ ] 회수 불가한 건은 플레이스홀더로 확정
 - [ ] 정리 완료 후 `next.config.ts`의 `res.cloudinary.com` 제거 (Phase 4)
@@ -806,8 +740,11 @@ Vercel Blob을 씁니다. 이미 죽은 의존성입니다.
 
 외부 API 호출을 전체 트래픽의 몇 %로 떨어뜨리는 단계입니다.
 
-현재 `BookService.searchBooks()`가 `title LIKE :query OR author LIKE :query`
-(`%query%`)라 6만 행 풀스캔입니다. 인덱스가 안 먹는 형태입니다.
+자체 DB 검색은 `LocalDbBookCatalogProvider.search()`가 담당하며
+`title/author ILIKE '%query%'`라 6만 행 풀스캔입니다. 인덱스가 안 먹는 형태입니다.
+
+> 같은 쿼리를 쓰던 `BookService.searchBooks()`와 `GET /book/search`는 호출처가
+> 없어 2026-09-07에 삭제했습니다. 이제 손댈 곳은 어댑터 하나입니다.
 
 ### 체크리스트
 
@@ -824,12 +761,13 @@ Vercel Blob을 씁니다. 이미 죽은 의존성입니다.
       깔려 있는 `pg_trgm`으로 간다.
 
 - [x] `books` 인덱스 현황 확인 — **PK(`isbn`) 하나뿐.** `title`/`author`
-      인덱스가 없어 현재 `searchBooks()`의 `LIKE '%query%'`는 58,376행 풀스캔이
-      확정적이다.
+      인덱스가 없어 어댑터의 `ILIKE '%query%'`는 58,376행 풀스캔이 확정적이다.
 - [ ] `title`, `author`에 GIN 인덱스 설계
 - [ ] DDL은 `derive-ddl.ts`로 도출 → 적용 → `docs/manual-ddl-log.md` 기록
-- [ ] `searchBooks()` 재작성 + 전후 실행계획/응답시간 비교
-- [ ] 검색 파이프라인 순서 조정: **자체 DB 1차 → 미스일 때만 외부 API**
+- [ ] `LocalDbBookCatalogProvider.search()` 재작성 + 전후 실행계획/응답시간 비교
+- [ ] 검색 체인 순서 조정: 자체 DB를 `BOOK_SEARCH_PROVIDERS` 앞으로 승격
+      (`book.module.ts` 한 줄). **인덱스 도입 전에는 하지 말 것** — 근거는
+      6장 「검색·상세 체인 분리」
 - [ ] (선택, D5) 정보나루 대출 통계로 `findPopularBooks()` 보강
 
 ---
@@ -880,10 +818,17 @@ Phase 2에서 수집 로직(URL → 스토리지 → DB 갱신)이 다시 필요
 
 **2026-10-30 이후 착수.** 그 전까지 알라딘은 유효한 폴백이므로 성급히 지우지 마세요.
 
-- [ ] `aladin-book-search.service.ts` 삭제
+> **표지 때문에 기다리는 것이 아닙니다.** 표지 원본은 Phase 0에서 이미 확보했습니다.
+> 알라딘을 남겨 두는 이유는 오직 **검색과 신규 ISBN 서지(D9)** 하나뿐이며,
+> D9의 답이 먼저 배포되면 그 시점에 앞당겨 지워도 됩니다.
+
+- [ ] `aladin-book-search.service.ts` + `aladin-book-catalog.provider.ts` 삭제
+- [ ] `book.module.ts`의 두 체인에서 알라딘 어댑터 제거
 - [ ] `packages/core`의 `formatAladinCoverImage`, `extractAladinDetailedDescription` 정리
-      (`book-card.tsx:74`가 렌더 시점에 호출 중 — 제거 시 호출부 동시 수정)
-- [ ] 알라딘 응답 타입 정리 (`packages/core/src/features/book/types.ts`)
+      (`book-card.tsx:74`와 `ai-book-recommend-slider.tsx:58`이 렌더 시점에 호출 중
+      — 제거 시 호출부 동시 수정)
+- [x] 알라딘 응답 타입 정리 — `packages/core`에서 제거 완료 (2026-09-05).
+      벤더 타입은 서버 어댑터 파일 안에만 있습니다
 - [ ] `next.config.ts`에서 `image.aladin.co.kr` 제거
 - [ ] 구매 링크/출처 표기 교체 (`book-actions.tsx:46`, `book-description.tsx:28,33`)
       — i18n 키 `aladin_buy_link`, `aladin_source_credit`도 함께
@@ -970,4 +915,8 @@ curl -s https://bookjeok.com/ko/book/9788932925554/detail | grep -c "바움가�
 | 2026-09-05 | 0 | 표지 수집 스크립트 2개를 저장소에서 제거 (공개 저장소 · 수집 완료) | 로컬 `~/bookjeok-migration-scripts/`에 보관 |
 | 2026-09-05 | 1 | **Provider 포트·체이닝 도입** — 알라딘/자체DB 어댑터, 컨트롤러·resolveBook 전환 | 서버 테스트 205건·린트·타입체크 통과 |
 | 2026-09-05 | 3(사전) | Supabase 확장 가용성 조사 | `pg_bigm` 없음, **`pgroonga` 사용 가능**, `pg_trgm` 기설치. `books` 인덱스는 PK뿐 |
+| 2026-09-07 | 1 | **알라딘 결합 지점 재조사** (4장 전면 갱신) | 알라딘이 남은 곳은 검색 4개 화면뿐. 판매글·리뷰·라운지는 전부 `books` 조인으로 확인 |
+| 2026-09-07 | 1 | **국중 폐기 결정** — 관련 절·주석·README 정리, 미결 D4·D7·D8 삭제, **D9 신설** | 구현 코드는 애초에 없었음(주석 3곳뿐). ②③ 공급처는 미정 상태로 되돌림 |
+| 2026-09-07 | 1 | **검색·상세 체인 분리** — `BOOK_SEARCH_PROVIDERS` / `BOOK_DETAIL_PROVIDERS` | 상세가 자체 DB 우선(PK 조회)으로 전환. 검색은 인덱스 부재로 알라딘 우선 유지 |
+| 2026-09-07 | — | 죽은 코드 제거 — 알라딘 `search`/`searchDetail`, `GET /book/search`+`searchBooks()`, `/api/book-list`, `useExternalBook*Query`, 경로 별칭 | 서버 208건·웹 249건·린트 9개 전부 통과 |
 
