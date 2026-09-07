@@ -38,6 +38,7 @@ DDL_TARGET_DATABASE_URL=postgres://user:pass@localhost:5432/bookjeok_ddl   pnpm 
 | 2026-09-02 | 채팅 테이블 인덱스 5개 추가 | `e0eed214` |
 | 2026-09-02 | 읽음 워터마크 컬럼 추가·백필, `read_receipts` 드롭 | `778ef588` |
 | 2026-09-05 | 거래 완료(`trade_completions`) 도입, `trade_reviews` 재구성 | `f34ba26b` ~ `390b4fcc` |
+| 2026-09-07 | `books` 검색용 pg_trgm GIN 인덱스 3개 추가 | (미커밋) |
 
 현재 운영에 남아 있는 채팅 인덱스는 **4개**입니다
 (`idx_read_receipts_message`는 테이블과 함께 사라졌습니다).
@@ -328,3 +329,94 @@ COMMIT;
 삭제를 지원하지 않고, 남아 있어도 쓰지 않으면 해가 없습니다.
 
 설계 설명은 `apps/server/src/features/trade/README.md`에 있습니다.
+
+---
+
+## 4. `books` 검색용 pg_trgm GIN 인덱스 3개 (2026-09-07)
+
+### 배경
+
+알라딘 Open API 종료(2026-10-30)에 대비해 도서 검색을 자체 DB로 옮기는 작업입니다
+(`docs/book-data-migration-plan.md` Phase 3). `books`에는 PK(`isbn`) 말고 인덱스가
+없어서 `LocalDbBookCatalogProvider.search()`의 `ILIKE '%query%'`가 58,550행
+전체(274MB)를 매번 훑고 있었습니다.
+
+### 사전 측정
+
+`apps/server/scripts/measure-book-search.ts`(읽기 전용)로 실측했습니다.
+검색어는 `search_keywords`의 실제 사용자 검색어를 썼습니다.
+
+| 항목 | 값 |
+| --- | --- |
+| 도서 수 / 테이블 크기 | 58,550행 / 274MB |
+| 기존 인덱스 | PK 하나 (1,816kB) |
+| `pg_trgm` | **1.6 설치돼 있음** |
+| `pgroonga` | 3.2.5 사용 가능하나 미설치 |
+| 2글자 이하 검색 비중 | **8.3%** (217건 중 18건) |
+
+`pgroonga` 대신 `pg_trgm`을 고른 이유는 두 가지입니다. 이미 설치돼 있어 확장
+도입 결정이 필요 없고, `pg_trgm`의 약점(2글자 부분일치는 패턴에서 트라이그램을
+뽑을 수 없어 인덱스가 걸리지 않음)이 닿는 범위가 8.3%뿐이었습니다. 그 8.3%는
+느려지지 않고 그대로 남으므로 손해 보는 검색이 없습니다.
+
+### 실행한 SQL
+
+```sql
+BEGIN;
+
+CREATE INDEX "IDX_books_title_trgm"     ON books USING gin (title     gin_trgm_ops);
+CREATE INDEX "IDX_books_author_trgm"    ON books USING gin (author    gin_trgm_ops);
+CREATE INDEX "IDX_books_publisher_trgm" ON books USING gin (publisher gin_trgm_ops);
+
+COMMIT;
+```
+
+```sql
+ANALYZE books;
+```
+
+`publisher`까지 거는 이유는 어댑터가 통합 검색(`Keyword`)에서 제목·저자·출판사
+셋을 함께 보기 때문입니다. 58,550행이라 몇 초 만에 끝나고, 그동안 `books` 쓰기가
+잠깁니다. 이 테이블 쓰기는 하루 100건 수준이라 영향이 없습니다.
+
+### 확인
+
+```sql
+SELECT c.relname AS index_name,
+       pg_size_pretty(pg_relation_size(c.oid)) AS size
+FROM pg_class c
+JOIN pg_index i ON i.indexrelid = c.oid
+JOIN pg_class t ON t.oid = i.indrelid
+WHERE t.relname = 'books'
+ORDER BY pg_relation_size(c.oid) DESC;
+```
+
+> `pg_indexes`의 `indexname`을 `::regclass`로 바로 캐스팅하면 안 됩니다.
+> 따옴표 없는 식별자로 파싱되면서 대문자가 소문자로 접혀
+> `relation "idx_books_title_trgm" does not exist`가 납니다. 위처럼 `pg_class`의
+> OID로 재세요.
+
+PK 포함 4개 행이 나오면 정상입니다. 인덱스 총량은 1,816kB에서 **24MB**가 됐습니다.
+
+### 결과
+
+같은 측정 스크립트를 다시 돌린 값입니다.
+
+| 구간 | 목록(전 → 후) | 카운트(전 → 후) | 체감(전 → 후) |
+| --- | --- | --- | --- |
+| 3글자 이상 (91.7%) | 158.5ms → **0.1ms** | 236.5ms → **0.2ms** | 628ms → **29ms** |
+| 2글자 이하 (8.3%) | 152.0ms → 149.8ms | 225.2ms → 228.0ms | 변화 없음 |
+
+실행 계획이 `Seq Scan`에서 `Bitmap Heap Scan + Bitmap Index Scan`으로 바뀌었습니다.
+2글자 검색이 `Seq Scan`으로 남는 것은 `pg_trgm`의 알려진 한계이며 예상된 결과입니다.
+
+### 되돌리기
+
+```sql
+DROP INDEX IF EXISTS "IDX_books_title_trgm";
+DROP INDEX IF EXISTS "IDX_books_author_trgm";
+DROP INDEX IF EXISTS "IDX_books_publisher_trgm";
+```
+
+인덱스만 지우는 것이라 데이터 손실이 없습니다. 되돌리면 검색이 다시 풀스캔으로
+돌아갈 뿐입니다.

@@ -35,4 +35,5 @@ out
 cover-originals/
 covers-manifest-input.jsonl
 cover-survey-report.json
+book-search-report.json
 cover-fetch.log

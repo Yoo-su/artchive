@@ -211,8 +211,7 @@ async function main() {
     report.duplication = dup;
   });
 
-  // 7. ISBN 형식. 13자리가 아닌 값은 실제 ISBN이 아니라 알라딘 내부
-  //    상품코드라, 다른 공급처로는 조회가 되지 않는다.
+  // 7. ISBN 형식. 13자리가 아닌 값은 알라딘 내부 상품코드라 다른 공급처로 조회되지 않는다.
   await step('7. ISBN 길이 분포', async () => {
     const isbnShapes = await q(`
       SELECT length(isbn) AS isbn_length, COUNT(*)::int AS count

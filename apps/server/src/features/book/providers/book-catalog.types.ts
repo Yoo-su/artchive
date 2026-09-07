@@ -7,15 +7,13 @@ import { BookInfo, BookSearchField, BookSortParam } from '@bookjeok/core';
  * 네이버·알라딘이 연달아 종료된 경험 때문에, 공급처가 또 끊겨도 어댑터
  * 하나만 추가하면 되도록 하는 것이 목적입니다.
  *
- * 구현체는 **공급처 고유 응답 구조를 밖으로 내보내지 않습니다.** 반환값은 항상
- * `@bookjeok/core`의 `BookInfo`로 정규화합니다.
+ * 구현체는 공급처 고유의 응답 구조를 밖으로 내보내지 않습니다. 반환값은 항상
+ * @bookjeok/core의 BookInfo로 정규화합니다.
  */
 /**
- * 공급처의 성격. **빈 결과를 어떻게 해석할지가 이 값으로 갈립니다.**
- *
- * - `external` — 바깥 세계. 이쪽의 "없음"은 "그런 책이 없다"는 사실이다.
- * - `local` — 우리 데이터. 이쪽의 "없음"은 "우리가 아직 안 가졌다"일 뿐,
- *   책이 존재하지 않는다는 근거가 되지 못한다.
+ * 공급처의 성격. 빈 결과를 어떻게 해석할지가 이 값으로 갈립니다.
+ * - external: 외부 공급처. 결과가 없으면 그런 도서가 없다는 뜻입니다.
+ * - local: 자체 DB. 결과가 없어도 아직 확보하지 못했다는 뜻일 뿐입니다.
  */
 export type BookCatalogProviderKind = 'external' | 'local';
 
@@ -23,7 +21,7 @@ export interface BookCatalogProvider {
   /** 로그와 장애 추적에 쓰는 공급처 이름. */
   readonly name: string;
 
-  /** 빈 결과의 해석에 쓰입니다. `BookCatalogProviderKind` 설명 참조. */
+  /** 빈 결과 해석에 사용합니다. BookCatalogProviderKind를 참고하세요. */
   readonly kind: BookCatalogProviderKind;
 
   search(params: BookCatalogSearchParams): Promise<BookCatalogSearchResult>;
@@ -53,10 +51,8 @@ export interface BookCatalogSearchResult {
 export const BOOK_SEARCH_PROVIDERS = Symbol('BOOK_SEARCH_PROVIDERS');
 
 /**
- * 상세(ISBN 단건) 공급처 체인 주입 토큰.
- *
- * **검색과 순서가 다릅니다.** 상세는 ISBN이 PK라 자체 DB 조회가 인덱스 단건이고,
- * 검색은 인덱스가 없어 풀스캔입니다. 하나의 체인으로 묶으면 둘 중 하나가
- * 반드시 손해를 보므로 경로를 나눕니다. 근거는 `book.module.ts`에 적어 둡니다.
+ * 상세(ISBN 단건) 공급처 체인 주입 토큰. 검색 체인과 순서가 다릅니다.
+ * 상세는 ISBN이 PK라 자체 DB 조회가 인덱스 단건이지만 검색은 풀스캔이라,
+ * 한 체인으로 묶으면 둘 중 하나가 손해를 봅니다. 순서는 book.module.ts에서 정합니다.
  */
 export const BOOK_DETAIL_PROVIDERS = Symbol('BOOK_DETAIL_PROVIDERS');

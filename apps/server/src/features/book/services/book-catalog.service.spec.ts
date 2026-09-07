@@ -147,10 +147,7 @@ describe('BookCatalogService', () => {
   });
 
   describe('경로별 체인 분리', () => {
-    /**
-     * 검색과 상세는 공급처 순서가 반대다. 하나의 배열로 되돌리면 둘 중 하나가
-     * 반드시 손해를 보므로(근거는 `book.module.ts`), 분리 자체를 고정한다.
-     */
+    /** 검색과 상세는 순서가 반대라, 한 배열로 되돌리면 둘 중 하나가 손해를 본다. */
     it('검색과 상세가 서로 다른 체인을 쓴다', async () => {
       const searchOnly = makeProvider('search-only');
       const detailOnly = makeProvider('detail-only');
@@ -183,11 +180,7 @@ describe('BookCatalogService', () => {
   });
 
   describe('장애와 "책 없음"의 구분', () => {
-    /**
-     * 자체 DB는 못 찾아도 예외를 던지지 않는다. 그래서 이걸 판정에 포함하면
-     * 외부가 전부 죽어도 "책 없음"이 되어, 장애가 404로 둔갑해 ISR 캐시에
-     * 24시간 고착된다. 자체 DB 어댑터 도입 시점부터 있던 결함이라 회귀를 막는다.
-     */
+    /** 자체 DB는 못 찾아도 예외를 던지지 않아, 판정에 넣으면 장애가 404로 둔갑한다. */
     const build = async (providers: MockProvider[]) => {
       const module: TestingModule = await Test.createTestingModule({
         providers: [

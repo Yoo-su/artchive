@@ -783,9 +783,20 @@ Vercel Blob을 씁니다. 이미 죽은 의존성입니다.
 
 - [x] `books` 인덱스 현황 확인 — **PK(`isbn`) 하나뿐.** `title`/`author`
       인덱스가 없어 어댑터의 `ILIKE '%query%'`는 58,376행 풀스캔이 확정적이다.
-- [ ] `title`, `author`에 GIN 인덱스 설계
-- [ ] DDL은 `derive-ddl.ts`로 도출 → 적용 → `docs/manual-ddl-log.md` 기록
-- [ ] `LocalDbBookCatalogProvider.search()` 재작성 + 전후 실행계획/응답시간 비교
+- [x] **인덱스 설계·적용 완료** (2026-09-07) — `title`·`author`·`publisher`에
+      pg_trgm GIN 인덱스 3개. `docs/manual-ddl-log.md` 4번 항목에 기록
+  - `pgroonga`가 아니라 `pg_trgm`을 고른 근거: 이미 설치돼 있어 확장 도입 결정이
+    필요 없고, 약점(2글자 부분일치)이 닿는 범위가 실측 8.3%뿐
+  - 결과: 3글자 이상(91.7%)이 체감 628ms → 29ms. 2글자는 변화 없음(예상된 한계)
+  - 2글자 검색이 늘거나 실제로 불편해지면 그때 `pgroonga`를 재검토
+- [x] `LocalDbBookCatalogProvider.search()` 재작성 (2026-09-07)
+  - `field`를 반영해 `Title`/`Author`/`Publisher`/`Keyword`를 구분. 이전에는
+    `field`를 무시해 출판사 검색이 항상 0건이었음
+  - 관련도 정렬(완전일치 → 접두일치 → 부분일치) + `isbn` tie-breaker.
+    정렬이 없어 OFFSET 무한 스크롤에서 중복·누락이 생기던 문제를 함께 해결
+  - 검색어의 `%`·`_` 이스케이프 추가
+- [ ] 실사용 쿼리 형태로 재측정 — 측정 스크립트는 아직 옛 쿼리(정렬 없음,
+      2컬럼)를 잰다. 새 어댑터는 정렬 때문에 조기 종료가 없어 값이 달라질 수 있음
 - [ ] 검색 체인 순서 조정: 자체 DB를 `BOOK_SEARCH_PROVIDERS` 앞으로 승격
       (`book.module.ts` 한 줄). **인덱스 도입 전에는 하지 말 것** — 근거는
       6장 「검색·상세 체인 분리」
@@ -941,4 +952,7 @@ curl -s https://bookjeok.com/ko/book/9788932925554/detail | grep -c "바움가�
 | 2026-09-07 | 1 | **검색·상세 체인 분리** — `BOOK_SEARCH_PROVIDERS` / `BOOK_DETAIL_PROVIDERS` | 상세가 자체 DB 우선(PK 조회)으로 전환. 검색은 인덱스 부재로 알라딘 우선 유지 |
 | 2026-09-07 | — | 죽은 코드 제거 — 알라딘 `search`/`searchDetail`, `GET /book/search`+`searchBooks()`, `/api/book-list`, `useExternalBook*Query`, 경로 별칭 | 서버 208건·웹 249건·린트 9개 전부 통과 |
 | 2026-09-07 | 1 | **장애/책없음 구분 결함 수정** — 포트에 `kind` 추가, 판정 자격을 외부 공급처로 한정 | 자체 DB 도입 이후 줄곧 무력했던 보호장치 복구. 회귀 테스트 5건 추가, 서버 213건 통과 |
+| 2026-09-07 | 3 | **검색 성능 실측** — `measure-book-search.ts`(읽기 전용) 작성·실행 | 58,550행/274MB, 인덱스는 PK뿐. 모든 검색이 풀스캔(카운트 ~230ms 고정). 2글자 검색 비중 8.3% |
+| 2026-09-07 | 3 | **pg_trgm GIN 인덱스 3개 적용** (운영 DDL, `manual-ddl-log.md` 4번) | 3글자 이상 체감 628ms → 29ms. 인덱스 총량 1.8MB → 24MB |
+| 2026-09-07 | 3 | 자체 DB 어댑터 재작성 — `field` 반영, 관련도 정렬, LIKE 이스케이프 | 출판사 검색 0건 문제와 무한 스크롤 중복·누락 해결. 서버 222건 통과 |
 
