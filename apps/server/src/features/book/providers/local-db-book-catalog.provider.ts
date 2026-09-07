@@ -76,8 +76,9 @@ export function relevanceCaseSql(
  * 도서는 계속 찾을 수 있게 하는 최후 방어선입니다.
  *
  * 상세 체인에서는 1순위입니다. ISBN이 PK라 인덱스 단건 조회입니다.
- * 검색 체인에서는 마지막입니다. title/author 인덱스가 없어 풀스캔이므로 승격은
- * 인덱스 도입 이후에 판단합니다. 순서는 book.module.ts에서 정합니다.
+ * 검색 체인에서는 아직 마지막입니다. 성능 때문이 아니라(title·author·publisher에
+ * pg_trgm GIN 인덱스가 있습니다) 여기에 신간이 없기 때문입니다. 신간을 미리
+ * 적재하는 스케줄러가 생기면 앞으로 옮깁니다. 순서는 book.module.ts에서 정합니다.
  *
  * kind가 local인 이유는 이 어댑터의 결과 없음이 도서의 부재가 아니라 미확보를
  * 뜻하기 때문입니다. BookCatalogService가 장애와 도서 없음을 구분할 때 씁니다.

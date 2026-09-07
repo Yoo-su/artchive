@@ -1,19 +1,21 @@
 /**
  * 자체 DB 도서 검색 성능 측정 스크립트. (읽기 전용)
  *
- * `docs/book-data-migration-plan.md` Phase 3의 선행 측정입니다. 알라딘 종료로
- * 자체 DB를 검색 경로로 올려야 하는데, `books`에는 PK(isbn) 말고 인덱스가
- * 없어 `LocalDbBookCatalogProvider.search()`의 `ILIKE '%q%'`가 풀스캔입니다.
+ * `docs/book-data-migration-plan.md` Phase 3의 측정 도구입니다. 알라딘 종료로
+ * 자체 DB를 검색 경로로 올려야 해서, 그 경로가 감당 가능한지를 잽니다.
  *
- * 인덱스를 고르기 전에 재는 것이 목적입니다. 무엇을 설치할지가 아래 두 가지로
- * 갈리기 때문입니다.
- * - pg_trgm: 이미 설치돼 있어 인덱스 생성만 하면 됩니다. 다만 3-gram이라
- *   '%한강%' 같은 2글자 부분일치는 패턴에서 트라이그램을 뽑을 수 없어
- *   인덱스가 걸리지 않습니다.
- * - pgroonga: CJK에 맞고 짧은 질의도 처리하지만 확장 설치가 필요합니다.
+ * 처음에는 인덱스 선택(pg_trgm vs pgroonga)의 근거를 뽑으려고 만들었습니다.
+ * 그 결정은 2026-09-07에 끝났습니다. 2글자 이하 검색 비중이 8.3%뿐이라
+ * 이미 설치돼 있던 pg_trgm으로 갔고, title·author·publisher에 GIN 인덱스
+ * 3개를 넣었습니다(`docs/manual-ddl-log.md` 4번).
  *
- * 실제 검색어의 길이 분포와 길이 그룹별 실측 시간이 결정 근거이며,
- * 이 스크립트는 그 둘을 뽑습니다.
+ * 지금은 인덱스 적용 이후의 재측정에 씁니다. 다만 여기 박혀 있는 쿼리는
+ * 여전히 옛 어댑터 형태(정렬 없음, 2컬럼)라 현행 어댑터와 다릅니다. 현행은
+ * 관련도 정렬 때문에 조기 종료가 없어 값이 더 나올 수 있습니다. 실사용 형태로
+ * 재측정하려면 쿼리를 어댑터에 맞춰 고친 뒤 돌리세요.
+ *
+ * 2글자 부분일치가 인덱스를 타지 못하는 것은 3-gram의 알려진 한계이며 예상된
+ * 결과입니다. 그 비중이 눈에 띄게 늘면 그때 pgroonga를 재검토합니다.
  *
  * 운영 DB를 향해 도는 스크립트라 트랜잭션을 READ ONLY로 열어 쓰기를 DB
  * 수준에서 차단합니다. SELECT와 EXPLAIN 외에는 아무것도 하지 않으며,
@@ -221,7 +223,7 @@ async function main() {
     const ratio = all > 0 ? (short / all) * 100 : 0;
     console.log(`\n  → 2글자 이하 검색이 전체 검색의 ${ratio.toFixed(1)}%`);
     console.log(
-      '    이 비율이 높으면 pg_trgm을 깔아도 그만큼은 계속 풀스캔으로 남습니다.',
+      '    pg_trgm GIN 인덱스가 있어도 이 비율만큼은 계속 풀스캔으로 남습니다.',
     );
 
     const dist = await q(`
@@ -243,7 +245,7 @@ async function main() {
   });
 
   // 4. 실측 — 인기 검색어에 짧은 검색어를 섞어 길이 그룹별로 본다.
-  await step('4. 현재 쿼리 실측 (인덱스 없는 상태)', async () => {
+  await step('4. 현재 쿼리 실측', async () => {
     const popular = await q(`
       SELECT keyword FROM search_keywords
       ORDER BY "searchCount" DESC NULLS LAST
