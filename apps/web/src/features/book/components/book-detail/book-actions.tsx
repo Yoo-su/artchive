@@ -4,8 +4,6 @@ import { useBookStatsQuery } from "@bookjeok/react-query";
 import { useTranslations } from "next-intl";
 
 import { WishlistButton } from "@/features/user/components/wishlist/wishlist-button";
-import { ExternalLink } from "@/shared/components/icons/iconsax";
-import { Button } from "@/shared/components/shadcn/button";
 import {
   Tooltip,
   TooltipContent,
@@ -15,10 +13,9 @@ import {
 
 interface BookActionsProps {
   isbn: string;
-  link?: string;
 }
 
-export const BookActions = ({ isbn, link }: BookActionsProps) => {
+export const BookActions = ({ isbn }: BookActionsProps) => {
   const t = useTranslations("book.detail");
   const { data: stats, isLoading } = useBookStatsQuery(isbn);
 
@@ -30,24 +27,6 @@ export const BookActions = ({ isbn, link }: BookActionsProps) => {
           id={isbn}
           className="w-full sm:w-auto border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 px-8 rounded-md shrink-0"
         />
-
-        {link && (
-          <Button
-            asChild
-            variant="outline"
-            className="w-full sm:w-auto h-11 px-6 border-stone-300 text-stone-700 hover:bg-stone-100 hover:text-stone-900 font-medium text-sm shrink-0"
-          >
-            <a
-              href={link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2"
-            >
-              <span>{t("aladin_buy_link")}</span>
-              <ExternalLink className="w-4 h-4 text-stone-400" />
-            </a>
-          </Button>
-        )}
 
         {/* 데스크톱용 구분 세로선 */}
         <div className="hidden sm:block h-6 w-px bg-stone-200" />
