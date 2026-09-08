@@ -39,7 +39,8 @@ DDL_TARGET_DATABASE_URL=postgres://user:pass@localhost:5432/bookjeok_ddl   pnpm 
 | 2026-09-02 | 읽음 워터마크 컬럼 추가·백필, `read_receipts` 드롭 | `778ef588` |
 | 2026-09-05 | 거래 완료(`trade_completions`) 도입, `trade_reviews` 재구성 | `f34ba26b` ~ `390b4fcc` |
 | 2026-09-07 | `books` 검색용 pg_trgm GIN 인덱스 3개 추가 | (미커밋) |
-| 2026-09-08 | `books.pubDate` 컬럼 추가 (출간일) | (미커밋) |
+| 2026-09-08 | `books.pubDate` 컬럼 추가 (출간일) | `026abfd5` |
+| 2026-09-09 | 위 컬럼 값 채움 + `books.discount` 판매가 → 정가 (DDL 아님, 데이터 반영) | (스크립트) |
 
 현재 운영에 남아 있는 채팅 인덱스는 **4개**입니다
 (`idx_read_receipts_message`는 테이블과 함께 사라졌습니다).
@@ -474,11 +475,16 @@ pubDate?: Date | null;
 TypeORM이 만드는 SELECT에 `"pubDate"`가 들어가 도서 조회가 전부 실패합니다
 (`column does not exist`). `synchronize: false`라 자동 생성되지도 않습니다.
 
-### 값 채우기
+### 값 채우기 — **2026-09-09 완료**
 
 `~/bookjeok-migration-scripts/harvest-aladin.mjs`가 알라딘에서 정가·출간일·결측
 설명을 수확하고, `apply-harvest.mjs`가 반영합니다. 반영은 기본이 dry-run이며
 `--apply`를 붙였을 때만 씁니다.
+
+수확은 2026-09-08(58,707건 조회), 반영은 2026-09-09에 끝났습니다.
+**57,183행 갱신 / 12.5분**, `pubDate` 커버리지 **99.5%**(57,182 / 57,458).
+같은 순회에서 `discount`가 판매가에서 **정가**로 바뀌었습니다(55,318행).
+상세 수치와 검증 내역은 `docs/book-data-migration-plan.md` 7-f에 있습니다.
 
 ### 되돌리기
 
@@ -486,5 +492,9 @@ TypeORM이 만드는 SELECT에 `"pubDate"`가 들어가 도서 조회가 전부 
 ALTER TABLE books DROP COLUMN "pubDate";
 ```
 
-수확 전이라면 데이터 손실이 없습니다. 수확 후라면 다시 받을 수 없으므로
-(알라딘 종료 이후) 신중히 판단하세요.
+**값을 채운 뒤이므로 이 DDL은 이제 데이터 손실입니다.** 알라딘 종료 이후에는
+출간일을 다시 받을 방법이 없습니다. 컬럼을 지우지 말고, 값만 비우려면
+`UPDATE books SET "pubDate" = NULL`을 쓰세요.
+
+`discount`를 판매가로 되돌리려면 `~/bookjeok-harvest/harvest.jsonl`의 각 줄에
+반영 전 값이 `dbDiscount`로 보존돼 있습니다.

@@ -20,6 +20,15 @@ const nextConfig: NextConfig = {
       : undefined,
   images: {
     remotePatterns: [
+      /**
+       * 표지 자체 호스팅(Cloudflare R2). `books.image`가 이 호스트로 넘어가기 전에
+       * 먼저 배포되어 있어야 한다. 순서가 뒤바뀌면 next/image가 표지를 전부 막는다.
+       */
+      {
+        protocol: "https",
+        hostname: "cdn.bookjeok.com",
+        pathname: "/covers/**",
+      },
       {
         protocol: "https",
         hostname: "*.blob.vercel-storage.com",
