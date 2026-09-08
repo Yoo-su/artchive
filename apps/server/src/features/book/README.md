@@ -18,12 +18,10 @@ book/
 │   └── book.controller.spec.ts
 ├── providers/                            # 도서 공급처 포트와 어댑터
 │   ├── book-catalog.types.ts             # 포트 인터페이스 + 주입 토큰
-│   ├── aladin-book-catalog.provider.ts   # 알라딘 어댑터 (2026-10-30 종료 예정)
-│   └── local-db-book-catalog.provider.ts # 자체 DB 어댑터 (최후 방어선)
+│   └── local-db-book-catalog.provider.ts # 자체 DB 어댑터 (현재 유일한 공급처)
 ├── services/
 │   ├── book.service.ts (+ spec)          # 도서 마스터 조회·동기화·통계
-│   ├── book-catalog.service.ts (+ spec)  # 공급처 체인 오케스트레이터
-│   └── aladin-book-search.service.ts     # 알라딘 Open API 호출
+│   └── book-catalog.service.ts (+ spec)  # 공급처 체인 오케스트레이터
 ├── entities/book.entity.ts               # isbn을 PK로 사용
 ├── dtos/book-info.dto.ts
 ├── pipes/book-resolve.pipe.ts            # ISBN → Book 보장 파이프
@@ -56,19 +54,25 @@ ISBN을 PK로 쓰기 때문에 리뷰·독서 기록·판매글·위시리스트
 
 ## 4. 핵심 로직
 
-### `resolveBook(isbn)` — 도서 지연 동기화
+### `resolveBook(isbn)` — 도서 조회 보장
 
-북적에는 사전 적재된 전체 도서 카탈로그가 없습니다. 사용자가 처음 다루는 도서는 **그 시점에** 마스터 레코드를 만듭니다.
+서비스 레이어에 도달했을 때 그 도서가 `books`에 존재함을 보장합니다.
 
 ```
 resolveBook(isbn)
   │
   ├─ DB에 있으면 → 그대로 반환
   │
-  └─ 없으면 → 외부 공급처 조회 → Book 생성 → 반환
+  └─ 없으면 → BOOK_NOT_FOUND (404)
 ```
 
-동시 요청에는 **Request Collapsing**을 적용해 같은 ISBN에 대한 외부 API 호출을 한 번으로 합칩니다. 인기 도서에 요청이 몰릴 때 알라딘 호출이 중복되지 않습니다.
+**2026-09-08 이전에는 없는 도서를 외부 공급처에서 받아와 만들었습니다.** 알라딘
+어댑터를 제거하면서 그 분기가 사실상 사라졌습니다. 체인에 외부 공급처가 없으면
+자체 DB가 못 찾은 것이 곧 "없는 책"이 되기 때문입니다.
+
+> 이름과 코드의 생성 분기(Request Collapsing, NOT NULL 폴백 등)는 아직 남아
+> 있습니다. 외부 INSERT 전용 코드라 지금은 죽은 경로이며, Phase 4에서
+> 정리합니다. 자세한 목록은 마이그레이션 계획서를 보세요.
 
 ### `BookResolvePipe`
 
@@ -89,28 +93,33 @@ resolveBook(isbn)
 연달아 종료된 경험 때문에, **공급처를 갈아끼울 때 손대는 곳이 한 군데여야 한다**는
 것이 이 구조의 목적입니다.
 
-**검색과 상세는 체인이 다릅니다.** 같은 공급처라도 경로에 따라 유불리가 반대라
-경로를 나눠 두었습니다.
+**2026-09-08에 알라딘 어댑터를 제거했습니다. 두 체인 모두 자체 DB 단독입니다.**
 
 ```
 BookCatalogService.search()      BOOK_SEARCH_PROVIDERS
-  ├─ AladinBookCatalogProvider   (~2026-10-30)
-  └─ LocalDbBookCatalogProvider  (방어선)
+  └─ LocalDbBookCatalogProvider
 
 BookCatalogService.findByIsbn()  BOOK_DETAIL_PROVIDERS
-  ├─ LocalDbBookCatalogProvider  (PK 단건 조회)
-  └─ AladinBookCatalogProvider   (자체 DB에 없는 첫 방문 ISBN만)
+  └─ LocalDbBookCatalogProvider
 ```
 
-| | 자체 DB 쿼리 | 인덱스 | 그래서 |
-|---|---|---|---|
-| 검색 | `title/author/publisher ILIKE '%q%'` | pg_trgm GIN 3개 | 속도는 해결됐다(628ms → 29ms). 다만 결과가 한 건이라도 나오면 체인이 멈추는데 자체 DB에 신간이 없어, 앞에 두면 신간이 사라진다 → **아직 외부 우선** |
-| 상세 | `findOneBy({ isbn })` | PK | 인덱스 단건. 상세 진입 시 `BookResolvePipe`가 이미 적재해 둔 책을 외부에 다시 묻는 낭비가 없어진다 → **자체 DB 우선** |
+외부 공급처를 런타임 경로에 두지 않는 것이 방침입니다. 신규 도서는 서버가
+아니라 **운영자가 주기적으로 돌리는 스크립트**로 확보합니다.
 
-검색 체인에서 자체 DB를 1차로 올리지 못하는 이유는 **성능이 아니라 신간 부재**
-하나입니다. 인덱스는 2026-09-07에 적용했고(`docs/manual-ddl-log.md` 4번), 어댑터도
-`field` 반영·관련도 정렬까지 갖췄습니다. 남은 전제는 신간을 미리 적재하는
-스케줄러이며, **그것과 함께 배포될 때 순서를 `[자체DB, …]`로 뒤집습니다.**
+검색 품질은 `title`·`author`·`publisher`의 pg_trgm GIN 인덱스
+(`docs/manual-ddl-log.md` 4번)와 어댑터의 관련도 정렬이 담당합니다. 3글자 이상
+검색은 29ms입니다.
+
+**이 변경으로 크롤러발 신규 도서 유입이 멈췄습니다.** 상세 페이지의 연관 도서
+섹션이 우리 DB에 없는 도서로 가는 링크를 만들고 그것이 재귀해 무한 크롤 공간이
+되어 있었는데, 자체 DB만 보면 우리가 가진 책만 링크하므로 그 공간이 닫힙니다.
+`resolveBook()`도 모르는 ISBN에 `BOOK_NOT_FOUND`를 던지고 행을 만들지 않습니다.
+
+**감수한 것:** DB에 없는 책은 등록할 수 없습니다. 판매글·리뷰를 쓰려는 도서가
+자체 DB에 없으면 실패합니다.
+
+체인은 여전히 배열이라, 공급처를 다시 붙일 일이 생기면 `book.module.ts`의
+배열에 어댑터를 추가하기만 하면 됩니다. 포트를 둔 이유가 그것입니다.
 
 **체인 순서는 `book.module.ts`의 두 배열로만 정합니다.** 공급처가 또 바뀌어도
 손대는 곳은 거기 하나입니다.
@@ -133,22 +142,8 @@ BookCatalogService.findByIsbn()  BOOK_DETAIL_PROVIDERS
 전부 죽어도 늘 "책 없음"이 되어 위 보호장치가 통째로 무력해집니다. 실제로 자체 DB
 어댑터를 도입한 시점부터 그 상태였고 2026-09-07에 고쳤습니다.
 
-외부 공급처가 하나도 등록되지 않은 구성(알라딘 제거 후 자체 DB 단독)에서는 자체
-DB가 그 자격을 대신합니다. 그 구성에서는 우리가 가진 것이 곧 전부이기 때문입니다.
-
-#### 알라딘 어댑터 (`AladinBookSearchService`)
-
-| 메서드 | 알라딘 API |
-|---|---|
-| `searchFormatted` | `ItemSearch.aspx` |
-| `searchDetailFormatted` | `ItemLookUp.aspx` |
-
-`ALADIN_TTB_KEY`가 필요합니다. 표지 이미지 고화질 변환은 `@bookjeok/core`의
-`formatAladinCoverImage`가 담당합니다.
-
-**벤더 응답 타입(`AladinBookItem`, `AladinSearchResponse`)은 이 서비스 파일 안에만
-둡니다.** 공유 패키지나 웹으로 새어나가면 공급처를 바꿀 때 손댈 곳이 늘어납니다.
-포트 밖으로 나가는 형태는 항상 `@bookjeok/core`의 `BookInfo`로 정규화합니다.
+**현재 구성이 바로 그 경우입니다.** 외부 공급처가 하나도 없으므로 자체 DB가
+판정 자격을 대신합니다. 우리가 가진 것이 곧 전부이기 때문입니다.
 
 ## 5. 다른 모듈에서의 사용
 
