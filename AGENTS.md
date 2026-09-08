@@ -59,7 +59,7 @@
     - `packages/core`의 `formatAladinCoverImage` — 알라딘 URL이 DB에 없으므로 이제 사실상 no-op입니다(알라딘 외 URL은 정규식에 걸리지 않고 그대로 통과).
     - `apps/web/next.config.ts`의 `remotePatterns` 중 `image.aladin.co.kr` — 운영 페이지에서 알라딘 이미지 요청이 0건임을 확인했습니다.
   - **`.env.example`의 `ALADIN_TTB_KEY`는 아직 지우지 마세요.** 서버는 안 쓰지만 10/30 직전 표지 델타 재수집과 서지 수확 스크립트가 씁니다. **신규 발급이 불가능한 마지막 키**입니다.
-- **마이그레이션 스크립트는 저장소 밖(`~/bookjeok-migration-scripts/`)에 있습니다.** 이 저장소는 공개이고 외부 CDN을 대량으로 긁는 코드가 포함돼 있어 의도적으로 뺐습니다. 되돌려 넣지 마세요. 임시로 `apps/server/scripts/`에 복사해 실행했다면 실행 후 반드시 지우고 `git status`로 확인하세요.
+- **마이그레이션 스크립트와 산출물은 저장소 밖 `~/bookjeok-migration/` 한 곳에 있습니다.** 그 폴더의 `README.md`가 파일별 정체와 삭제 가능 시점을 관리합니다. 이 저장소는 공개이고 외부 CDN을 대량으로 긁는 코드가 포함돼 있어 의도적으로 뺐습니다. 되돌려 넣지 마세요. 임시로 `apps/server/scripts/`에 복사해 실행했다면 실행 후 반드시 지우고 `git status`로 확인하세요.
 - **운영 DB를 조회할 때는 반드시 읽기 전용 트랜잭션으로 여세요.** 접속 문자열은 `apps/server/.env.prod.local`에 있습니다(gitignore, 권한 600). 참고 구현은 `apps/server/scripts/survey-book-covers.ts`입니다. 직접 연결(`db.<ref>.supabase.co`)은 IPv6 전용이라 쓸 수 없고 Supabase 풀러로 접속합니다. **접속 문자열 자체를 대화나 로그에 남기지 마세요.**
 - **`apps/admin`은 초기 세팅만 된 미사용 앱입니다.** 소스 13개에 배포 워크플로도 없습니다. 코드 점검·개선 대상에서 제외하세요.
 - 운영 DB는 `synchronize: false`이며 마이그레이션 도구가 없습니다. 엔티티를 바꿨다면 DDL을 수동 적용하고 반드시 [docs/manual-ddl-log.md](docs/manual-ddl-log.md)에 기록하세요.

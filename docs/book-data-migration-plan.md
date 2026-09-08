@@ -16,18 +16,21 @@
 
 ## 현재 상태와 다음 작업 (2026-09-09 기준)
 
-**알라딘 종료까지 51일.** 되돌릴 수 없는 항목부터 처리합니다.
+**알라딘 종료까지 51일.** 2026-09-09로 **비가역 항목이 전부 해소됐습니다** —
+표지 원본이 맥·Google Drive·R2 세 곳에 있고, 정가·출간일도 알라딘이 살아 있는
+동안 걷어 왔습니다. 이제 남은 것은 전부 되돌릴 수 있는 작업이며, 기준은
+"놓쳤을 때 영구 손실"이 아니라 **"10/30에 무엇이 멈추는가"** 입니다.
 
 | 순서 | 할 일 | 성격 | 참조 |
 | --- | --- | --- | --- |
-| **1** | 아카이브 `~/bookjeok-covers-20260907.tar`(4.7GB)를 Google Drive에 업로드 | **비가역.** 아카이브는 만들었고 아직 맥 한 곳에만 있음 | Phase 0 체크리스트 |
-| **2** | D9 결정 — 신규 ISBN 서지·검색 공급처 | **기한.** 미정이면 10/30에 등록 기능 정지 | 6장, 6-d |
-| 3 | 카카오 어댑터 구현 (D9가 카카오로 정해질 경우) | 가역 | 6-d |
-| 4 | 신간 미러링 스케줄러 + 0건 폴백 → 검색 체인을 `[자체DB, 카카오]`로 | 가역. **3과 함께 배포해야 함** | 6-d 「검색 경로 설계」 |
-| **5** | 신규 도서 표지 상시 파이프라인 | 가역. 없으면 컷오버해 놓은 것이 다시 샙니다 | 7-b |
-| 6 | 10/30 직전 표지 델타 재수집 (약 13분) | **기한** | Phase 0 체크리스트 |
-| 7 | 알라딘 코드 전면 제거 | 2~6 완료 후 언제든 | Phase 4 |
+| **1** | D9 결정 — 신규 ISBN 서지·검색 공급처 | **기한.** 미정이면 10/30에 등록 기능 정지 | 6장, 6-d |
+| 2 | 카카오 어댑터 구현 (D9가 카카오로 정해질 경우) | 가역 | 6-d |
+| 3 | 신간 미러링 스케줄러 + 0건 폴백 → 검색 체인을 `[자체DB, 카카오]`로 | 가역. **2와 함께 배포해야 함** | 6-d 「검색 경로 설계」 |
+| **4** | 신규 도서 표지 상시 파이프라인 | 가역. 없으면 컷오버해 놓은 것이 다시 샙니다 | 7-b |
+| 5 | 10/30 직전 표지 델타 재수집 (약 13분) | **기한** | Phase 0 체크리스트 · `~/bookjeok-migration/README.md` |
+| 6 | 알라딘 코드 전면 제거 | 1~5 완료 후 언제든 | Phase 4 |
 | ~~—~~ | ~~R2 업로드 → `books.image` 컷오버~~ | **2026-09-09 완료** | Phase 2, 7-c |
+| ~~—~~ | ~~표지 원본 아카이브 Drive 백업~~ | **2026-09-09 완료.** 비가역 항목 전부 해소 | Phase 0 |
 
 **Phase 2가 끝났습니다.** 표지·정가·출간일 모두 알라딘에서 떼어냈습니다.
 남은 위험은 표지가 아니라 **신규 ISBN 유입 경로(D9)** 하나입니다.
@@ -35,13 +38,13 @@
 표지 상시 파이프라인(7-b)의 우선순위가 올라간 이유는, 지금 `resolveBook()`이
 새 도서를 만들 때 공급처가 준 표지 URL을 그대로 넣기 때문입니다. 컷오버로
 6만 행을 정리해 놨어도 **그 경로가 남아 있는 한 벤더 URL이 다시 쌓입니다.**
-업로드 로직은 `~/bookjeok-r2/upload-r2.mjs`에 있으니 그대로 재사용하면 됩니다.
+업로드 로직은 `~/bookjeok-migration/scripts/upload-r2.mjs`에 있으니 그대로 재사용하면 됩니다.
 
 ### 끝난 것
 
 - Phase 0 표지 원본 수집 — 델타 1회차까지 **56,850건 / 4.48GB**.
   아카이브 생성 완료, **Drive 업로드만 남음**
-- **표지 변환 완료** (2026-09-08) — 56,850건 / 3.11GB, 실패 0. `~/bookjeok-cover-dist/`
+- **표지 변환 완료** (2026-09-08) — 56,850건 / 3.11GB, 실패 0
 - **정가·출간일 수확 완료** (2026-09-08) — 58,707건 조회 / found 57,198
 - **정가·출간일 운영 DB 반영 완료** (2026-09-09) — 57,183행. 아래 7-f
 - Cloudinary 1,249건 알라딘 회수 가능성 전량 실측 — 회수 14건뿐(1.1%). 7-d
@@ -290,11 +293,10 @@ DB를 건드리지 않는 순수 수집 단계입니다. 이 단계가 끝나면
       - 항목 56,956개. `cover-originals/`(매니페스트 포함) + `covers-manifest-input.jsonl` + `cover-fetch.log`
       - SHA-256: `96a931a23dbe8d1e7e0957e68ec28b5b7258eea9a8d865fa6aad1d45a8a60cf1`
         (`~/bookjeok-covers-20260907.tar.sha256`에도 저장)
-- [ ] **아카이브를 Google Drive에 업로드** ← 남은 유일한 비가역 항목
-      - 업로드 후 바이트 크기를 대조하고, 가능하면 내려받아 위 체크섬까지 확인합니다.
-      - 이것이 끝나야 맥 디스크 단일 장애점이 사라집니다.
-  - 현재 맥의 `apps/server/cover-originals/` 한 곳에만 있습니다. 이 디스크가
-    죽으면 10/30 이후 다시 구할 방법이 없습니다.
+- [x] **아카이브를 Google Drive에 업로드** (2026-09-09) — **비가역 항목 전부 해소.**
+      맥 디스크 단일 장애점이 사라졌습니다. 이후 로컬 `cover-originals/`를 지우고
+      tar 하나만 남겼습니다(8-b). 지우기 전에 tar 안의 이미지 56,850장이 원본
+      폴더와 일치하는 것과 SHA-256이 기록값과 맞는 것을 확인했습니다.
   - 방법: **하나의 아카이브로 묶어 Google Drive에 올립니다.** 사용자가 Google
     AI Pro 구독 중이라 2TB 중 4.7GB(0.2%)로 여유가 충분합니다.
   - 5만 개가 넘는 파일을 그대로 동기화하면 매우 느리고 잘 깨집니다. 반드시
@@ -315,9 +317,8 @@ DB를 건드리지 않는 순수 수집 단계입니다. 이 단계가 끝나면
     (하루 약 84건, 아래 7-b 참조). 09-05 58,376행 → 09-07 58,552행.
   - 10/30까지 약 4,500건이 추가될 것으로 보이며, 초당 6건 기준 **약 13분**이면
     받습니다. 이미 확보한 56,652건은 매니페스트로 건너뜁니다.
-  - 수집 스크립트는 저장소에서 제거했고 `~/bookjeok-migration-scripts/`에
-    사본이 있습니다(8-b 참조). 7-b의 상시 파이프라인이 먼저 만들어지면
-    그것으로 대신해도 됩니다.
+  - 절차는 `~/bookjeok-migration/README.md`의 「10/30 직전 델타 재수집 절차」에
+    있습니다. 7-b의 상시 파이프라인이 먼저 만들어지면 그것으로 대신해도 됩니다.
 - [x] 진행 로그에 결과 기록
 
 ### Phase 0 조사 결과 (2026-09-05 실측)
@@ -843,7 +844,7 @@ SELECT COUNT(DISTINCT publisher) FROM books;
       컷오버는 반드시 `cover-dist/manifest.jsonl`의 `format`을 보고 만드세요.
 - [x] **Cloudflare 계정 결제수단 등록 · R2 활성화 · 버킷 `bookjeok-covers` 생성** (2026-09-09)
 - [x] **`cdn.bookjeok.com` 커스텀 도메인 연결** — Proxied. `r2.dev` 퍼블릭 URL은 끈 채로 둠
-- [x] 업로드 스크립트 작성 — `~/bookjeok-r2/upload-r2.mjs` (이어받기·매니페스트 대조)
+- [x] 업로드 스크립트 작성 — `scripts/upload-r2.mjs` (이어받기·매니페스트 대조)
 - [x] **소량(100건) 선행 업로드 후 공개 URL 검증** — webp·jpg 모두 HTTP 200, content-type 정확
 - [x] **전량 업로드 완료** (2026-09-09) — **56,850건 / 12.8분 / 74건/s, 실패 0**
       (1건이 R2 일시 오류로 실패했으나 재실행으로 회수)
@@ -851,9 +852,9 @@ SELECT COUNT(DISTINCT publisher) FROM books;
       `noimg` 플레이스홀더 474 + 수집 이후 신규 148. 5개 참조 테이블 전부 0행이라
       사용자 데이터 손실 없음. 플레이스홀더 이미지 도입 대신 삭제를 택했습니다
 - [x] ~~(D6) `books.imageSourceUrl` 컬럼~~ — **채택하지 않음.** 컷오버 전 값을
-      `~/bookjeok-r2/image-backup.jsonl`에 전량 덤프해 두어 롤백 경로가 이미
+      `~/bookjeok-migration/data/image-backup.jsonl`에 전량 덤프해 두어 롤백 경로가 이미
       있습니다. 운영 DDL을 한 번 덜 치는 쪽을 골랐습니다
-- [x] **컷오버 스크립트 작성** — `~/bookjeok-r2/cutover-image.mjs`.
+- [x] **컷오버 스크립트 작성** — `scripts/cutover-image.mjs`.
       dry-run 기본, 배치 트랜잭션, 재실행 안전, 반영 전 값 자동 백업
 - [x] **`next.config.ts`의 `remotePatterns`에 `cdn.bookjeok.com` 추가 후 배포**
       (PR #544, 커밋 `ab250199`) — DB 변경보다 먼저 배포했습니다
@@ -861,7 +862,7 @@ SELECT COUNT(DISTINCT publisher) FROM books;
       410×506으로 정상 렌더링되는 것을 확인
 - [x] **전량 컷오버 완료** (2026-09-09) — **56,736행 / 0.8분 / 1,223행/s**
 - [x] **검증 완료** — 아래 「컷오버 검증 결과」
-- [x] **롤백 절차** — `~/bookjeok-r2/image-backup.jsonl`의 `image` 값으로 UPDATE.
+- [x] **롤백 절차** — `~/bookjeok-migration/data/image-backup.jsonl`의 `image` 값으로 UPDATE.
       알라딘 URL은 경로를 ISBN으로 유추할 수 없어 이 파일이 유일한 복원 경로입니다.
       **컷오버가 안정화될 때까지 지우지 마세요**
 
@@ -1177,7 +1178,7 @@ mozjpeg 재인코딩도 검토했으나 **q90은 원본보다 큰 파일을 만�
 transformation으로 계수돼 무료 한도를 2배 초과한 것이 과거 Cloudinary 사고의
 원인**이었습니다(7-c). 맥에서 변환하고 완성된 파일만 올립니다.
 
-변환 스크립트는 `~/bookjeok-migration-scripts/`에 둡니다(8-b).
+변환 스크립트는 `~/bookjeok-migration/scripts/convert-covers.mjs`입니다(8-b).
 
 ## 7-f. 정가·출간일 수확 반영 (2026-09-09 완료)
 
@@ -1186,7 +1187,7 @@ transformation으로 계수돼 무료 한도를 2배 초과한 것이 과거 Clo
 표지 컷오버보다 먼저 처리했습니다.
 
 수확 자체는 2026-09-08에 `harvest-aladin.mjs`로 끝나 있었고
-(`~/bookjeok-harvest/harvest.jsonl`), 이번에 `apply-harvest.mjs --apply`로
+(`~/bookjeok-migration/data/harvest.jsonl`), 이번에 `apply-harvest.mjs --apply`로
 반영만 했습니다.
 
 ### 반영 결과
@@ -1325,76 +1326,61 @@ transformation으로 계수돼 무료 한도를 2배 초과한 것이 과거 Clo
 | `apps/server/.env.prod.local` | **운영 DB 자격증명.** 최우선 삭제 |
 | Supabase DB 비밀번호 로테이션 | 작업 중 평문으로 오갔음 |
 
-### 산출물 (Phase 2 업로드 완료 후)
+### 산출물 — 2026-09-09에 통합 정리 완료
 
-| 대상 | 처리 |
-| --- | --- |
-| `apps/server/cover-originals/` (5~6GB) | 스토리지 업로드·검증 후 아카이브 또는 삭제 |
-| `apps/server/covers-manifest-input.jsonl` | 삭제 |
-| `apps/server/cover-fetch.log` | 삭제 |
-| `apps/server/cover-survey-report.json` | 수치는 이 문서에 남아 있으므로 삭제 가능 |
-| `.gitignore`의 표지 마이그레이션 블록 | 산출물 삭제 후 함께 제거 |
+**저장소에는 마이그레이션 산출물이 더 이상 없습니다.** 전에는 `apps/server/` 아래
+4개, 홈에 7개 폴더로 흩어져 있던 것을 **`~/bookjeok-migration/` 한 곳으로
+합쳤습니다.** 무엇이 왜 있는지는 그 폴더의 `README.md`에 있습니다 —
+경로·용도·삭제 가능 시점을 그쪽에서 관리하니 여기에 두 벌로 적지 않습니다.
 
-### 일회성 스크립트
-
-저장소 밖(`~/bookjeok-migration-scripts/`)에 보관 중인 것들입니다. 표지
-재호스팅이 저작권상 회색지대인데다 외부 CDN을 대량으로 긁는 코드라, **공개
-저장소인 이 레포에 되돌리지 마세요.** 임시로 `apps/server/scripts/`에 복사해
-실행했다면 실행 후 반드시 지우고 `git status`로 확인하세요.
-
-| 스크립트 | 상태 |
-| --- | --- |
-| `export-cover-targets.ts` | **저장소에서 제거** (2026-09-05). 델타 재수집에 계속 씁니다 |
-| `fetch-cover-originals.ts` | **저장소에서 제거** (2026-09-05). 매니페스트의 성공분을 건너뛰므로 그대로 재실행하면 델타만 받습니다 |
-| `probe-cloudinary-books.mjs` | Cloudinary 1,249건 공급처 회수 가능성 실측 (2026-09-07 작성). **제목 대조 로직이 들어 있어 D9 후보 검증에 그대로 재사용합니다** |
-| `convert-covers.mjs` | 원본 → 배포용 변환 (7-e). WebP q85 + 4:4:4 원본 폴백. 중단·재개 가능. 원본을 읽기만 하고 고치지 않습니다 |
-| `quality-probe.mjs` | 변환 스펙 실측용. q값별 용량·PSNR 비교. D3 재검토 시 다시 씁니다 |
-
-R2 관련 도구는 `~/bookjeok-r2/`에 따로 두었습니다. 자격증명(`.env`)과 같은 폴더에
-있어야 다루기 쉽고, `@aws-sdk/client-s3`·`pg` 의존성이 저장소에 없기 때문입니다.
-
-| 파일 | 내용 |
-| --- | --- |
-| `.env` | **R2 자격증명.** 권한 600. 8-b의 「반드시 삭제」 대상 |
-| `upload-r2.mjs` | 변환본 → R2 업로드. 이어받기·재시도 가능. 신규 도서 표지 파이프라인(7-b)이 이 로직을 재사용합니다 |
-| `cutover-image.mjs` | `books.image` 컷오버. dry-run 기본, 반영 전 값을 백업 |
-| `uploaded.jsonl` | 업로드 성공 기록 56,850줄. 컷오버의 입력 |
-| `image-backup.jsonl` | **컷오버 전 `books.image` 원본값.** 알라딘 URL은 ISBN으로 복원할 수 없어 이 파일이 유일한 롤백 경로입니다. 컷오버 안정화 전까지 지우지 마세요 |
-
-`convert-covers.mjs`는 외부에 요청하지 않아 공개해도 문제될 것이 없지만,
-`sharp` 의존성이 저장소에 없어 밖에 둡니다. 실행 환경은 이렇습니다.
-
-```bash
-mkdir -p ~/cover-convert && cd ~/cover-convert
-npm init -y && npm install sharp
-cp ~/bookjeok-migration-scripts/convert-covers.mjs .
-OUT_DIR=./cover-dist node convert-covers.mjs
+```
+~/bookjeok-migration/
+├── README.md    ← 파일별 정체와 삭제 가능 시점
+├── scripts/     일회성 스크립트 9개
+├── data/        산출 데이터 (수확·업로드기록·롤백백업 등)
+├── secrets/     R2 자격증명
+└── archive/     표지 원본 tar 4.7GB (Google Drive에도 사본)
 ```
 
-> npm 공유 캐시에 root 소유 파일이 있어 설치가 막히면 `--cache <임시경로>`를
-> 붙이세요. 권한 자체를 고치려면 `sudo chown -R 501:20 ~/.npm`이 필요합니다.
+정리하면서 지운 것과 회수한 디스크:
 
-산출 데이터 (같은 폴더):
+| 대상 | 크기 | 근거 |
+| --- | --- | --- |
+| `apps/server/cover-originals/` | 4.6GB | tar에 56,850장 전부 포함 확인 + SHA-256 일치 + Drive 사본 |
+| `~/bookjeok-cover-dist/` (변환본) | 3.0GB | R2에 전량 업로드 완료. 원본에서 재생성 가능 |
+| `~/cover-convert/` | 19MB | `convert-covers.mjs`가 완전 중복. node_modules는 통합본으로 대체 |
+| `apps/server/cover-fetch.log` · `cover-survey-report.json` | 28KB | 수치가 이 문서에 남아 있음 |
 
-| 파일 | 내용 |
+**아직 지우면 안 되는 것 둘:**
+
+- `~/bookjeok-migration/data/image-backup.jsonl` — 컷오버 롤백의 **유일한** 경로.
+  알라딘 URL은 경로를 ISBN으로 유추할 수 없습니다.
+- `~/bookjeok-migration/archive/*.tar` — 표지 원본. 10/30 이후 재취득 불가.
+
+### 저장소에 남긴 스크립트
+
+| 파일 | 판단 |
 | --- | --- |
-| `cloudinary-probe.jsonl` | 1,249건 알라딘 조회 원본 결과 (제목 유사도 포함) |
-| `cover-dist/manifest.jsonl` | 변환 결과 기록. ISBN별 포맷·크기·PSNR·폴백 사유. **R2 업로드와 DB 컷오버의 입력** |
-| `d9-coverage-testset.jsonl` | **알라딘이 못 찾은 1,235건.** D9 공급처 커버리지 실측용 (한국 ISBN 1,100 / 해외 119 / 기타 16) |
-| `scripts/measure-book-search.ts` | **Phase 3 검증까지 유지.** 인덱스 전후 비교와 향후 재측정에 씁니다. 자체 DB만 읽습니다 |
-| `scripts/survey-book-covers.ts` | **컷오버 검증까지 유지 후 삭제.** `books.image` 호스트 분포를 다시 찍어 알라딘 잔존 0건을 확인하는 데 씁니다. 자체 DB만 읽고 외부에 요청하지 않습니다 |
+| `apps/server/scripts/derive-ddl.ts` | 상시 유지. 마이그레이션과 무관한 일반 도구 |
+| `apps/server/scripts/measure-book-search.ts` | **Phase 3 검증까지 유지.** 자체 DB만 읽습니다 |
+| `apps/server/scripts/survey-book-covers.ts` | **역할 종료.** 컷오버 검증(알라딘 잔존 0건)에 쓰려던 것인데 2026-09-09에 그 검증이 끝났습니다. Phase 4에서 삭제하세요 |
 
-앞의 두 스크립트는 **이 저장소가 공개**여서 제거했습니다. 표지 재호스팅은 저작권상
-회색지대인데, 알라딘 CDN에 대량 요청을 보내는 코드를 공개 저장소에 두는 것은
-별개의 문제입니다. 수집은 이미 끝났고 종료일 이후 재사용도 불가능해 저장소에 남길
-실익이 없습니다.
+`.gitignore`의 표지 마이그레이션 블록은 **남겨 뒀습니다.** 10/30 델타 재수집 때
+`apps/server/`에 `cover-originals/`가 다시 생기기 때문입니다. 그 작업까지 끝나면
+블록도 함께 제거하세요.
+
+### 저장소에 되돌리지 말 것
+
+수집 스크립트 2개(`export-cover-targets.ts`·`fetch-cover-originals.ts`)는
+**이 저장소가 공개**여서 제거했습니다. 표지 재호스팅은 저작권상 회색지대인데,
+알라딘 CDN에 대량 요청을 보내는 코드를 공개 저장소에 두는 것은 별개의 문제입니다.
+
+델타 재수집 때는 ts-node가 필요해 `apps/server/scripts/`로 **복사해서** 돌려야
+합니다. 절차는 `~/bookjeok-migration/README.md`의 「10/30 직전 델타 재수집 절차」에
+있습니다. **실행 후 반드시 지우고 `git status`로 확인하세요.**
 
 > 두 파일은 커밋 `3c59013a`의 이력에는 남아 있습니다. 이력까지 지우려면 rebase와
 > force push가 필요하며, 되돌릴 수 없으므로 별도 판단이 필요합니다.
-
-Phase 2에서 수집 로직(URL → 스토리지 → DB 갱신)이 다시 필요해지면 그때 상시
-파이프라인(7-b)의 일부로 새로 작성합니다. 일회성 스크립트를 되살리는 것보다
-그편이 맞습니다.
 
 ## 9. Phase 4 — 알라딘 잔재 정리
 
@@ -1521,8 +1507,7 @@ Postgres가 인덱스가 있어도 Seq Scan을 택합니다(`reading_logs`엔 `(
 | | 맥 | 윈도우 |
 | --- | --- | --- |
 | `apps/server/.env.prod.local` (운영 DB 접속) | **있음** | 없음 |
-| 표지 원본 `cover-originals/` 4.47GB | **있음** | 없음 |
-| 제거한 수집 스크립트 사본 `~/bookjeok-migration-scripts/` | **있음** | 없음 |
+| 마이그레이션 작업 폴더 `~/bookjeok-migration/` (스크립트·데이터·자격증명·표지 원본 tar) | **있음** | 없음 |
 | 셸 | zsh/bash | PowerShell + Git Bash |
 
 **운영 DB를 향한 스크립트는 맥에서 돌리는 것이 기본입니다.** 윈도우에서 돌리려면
@@ -1578,8 +1563,7 @@ curl -s https://bookjeok.com/ko/book/9788932925554/detail | grep -c "바움가�
 
 | 대상 | 위치 |
 | --- | --- |
-| 표지 원본 4.47GB | `apps/server/cover-originals/` |
-| 제거한 수집 스크립트 2개 | `~/bookjeok-migration-scripts/` |
+| 스크립트·데이터·자격증명·표지 원본 tar | `~/bookjeok-migration/` (그 폴더의 `README.md` 참조) |
 
 > **표지 원본은 아직 맥 한 곳에만 있습니다.** 다시 구할 수 없는 데이터이며,
 > Phase 0 체크리스트의 "두 곳 이상 보관"이 이 프로젝트에 남은 유일한 비가역
@@ -1645,3 +1629,5 @@ curl -s https://bookjeok.com/ko/book/9788932925554/detail | grep -c "바움가�
 | 2026-09-09 | 2 | **표지 전량 R2 업로드** — `upload-r2.mjs` | 56,850건 / 12.8분 / 74건/s. 실패 0(1건 재시도 회수). 3.11GB, 무료 10GB의 31% |
 | 2026-09-09 | 2 | 표지 없는 622건 운영 DB에서 삭제 (noimg 474 + 신규 148) | 5개 참조 테이블 전부 0행 확인 후 실행. `reading_logs.isbn`에 FK 제약이 없는 스키마 드리프트 발견 |
 | 2026-09-09 | **2** | **`books.image` 컷오버 완료** — 알라딘 → `cdn.bookjeok.com` | **56,736행 / 0.8분. 알라딘 호스트 잔존 0건.** 무작위 60건 전부 200. Phase 2 종료 |
+| 2026-09-09 | 0 | **아카이브 Google Drive 업로드 완료** | **프로젝트에 남아 있던 마지막 비가역 항목 해소.** 이후 모든 작업은 되돌릴 수 있음 |
+| 2026-09-09 | — | **산출물 통합 정리** — 11곳에 흩어져 있던 것을 `~/bookjeok-migration/` 하나로 | 디스크 7GB 회수. 폴더별 README로 정체·삭제시점 관리. 저장소에는 산출물 0개 |
