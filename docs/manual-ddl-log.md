@@ -39,6 +39,7 @@ DDL_TARGET_DATABASE_URL=postgres://user:pass@localhost:5432/bookjeok_ddl   pnpm 
 | 2026-09-02 | 읽음 워터마크 컬럼 추가·백필, `read_receipts` 드롭 | `778ef588` |
 | 2026-09-05 | 거래 완료(`trade_completions`) 도입, `trade_reviews` 재구성 | `f34ba26b` ~ `390b4fcc` |
 | 2026-09-07 | `books` 검색용 pg_trgm GIN 인덱스 3개 추가 | (미커밋) |
+| 2026-09-08 | `books.pubDate` 컬럼 추가 (출간일) | (미커밋) |
 
 현재 운영에 남아 있는 채팅 인덱스는 **4개**입니다
 (`idx_read_receipts_message`는 테이블과 함께 사라졌습니다).
@@ -420,3 +421,70 @@ DROP INDEX IF EXISTS "IDX_books_publisher_trgm";
 
 인덱스만 지우는 것이라 데이터 손실이 없습니다. 되돌리면 검색이 다시 풀스캔으로
 돌아갈 뿐입니다.
+
+## 5. `books.pubDate` 컬럼 추가 (2026-09-08)
+
+### 배경
+
+최초 스키마를 네이버 책 검색 API 기준으로 만들면서 출간일 필드가 빠졌습니다.
+그래서 `LocalDbBookCatalogProvider.search()`가 출간일순 정렬을 구현하지 못하고
+있었습니다. `createdAt`은 우리가 적재한 시각이라 대신 쓸 수 없습니다.
+
+알라딘 API가 2026-10-30에 종료되므로 **출간일을 받아올 수 있는 마지막 기회**라,
+정가 수확(아래)과 함께 전량을 걷어오기로 하고 컬럼을 먼저 추가했습니다.
+
+같은 순회에서 `discount`의 의미도 바꿉니다. 지금은 알라딘 *판매가*가 들어 있는데
+벤더 프로모션이라 갱신이 끊기면 썩습니다. **정가**는 판(edition)의 속성이라
+갱신이 필요 없습니다. 중고 판매글의 "N% OFF"도 정가 기준이 맞습니다.
+
+### 적용한 DDL
+
+```sql
+ALTER TABLE books ADD COLUMN "pubDate" date;
+```
+
+nullable 컬럼 추가는 Postgres에서 테이블 재작성이 없는 메타데이터 변경이라
+운영 중에 적용해도 락이 걸리지 않습니다.
+
+`date`를 쓴 이유는 알라딘 `pubDate`가 날짜 단위(`2024-03-15`)이고 시간대 개념이
+없기 때문입니다. `timestamptz`로 두면 없는 정밀도를 흉내내게 됩니다.
+
+nullable인 이유는 공급처가 주지 않는 도서가 있고, 알라딘에 아예 없는 도서
+(Cloudinary 잔재 1,235건 등)는 영영 채울 수 없기 때문입니다.
+
+> **이 문서의 다른 항목과 달리 `derive-ddl.ts`로 뽑지 않고 손으로 썼습니다.**
+> 그 스크립트는 운영과 같은 스키마의 로컬 DB가 필요한데 작업 머신에 로컬
+> Postgres가 없습니다. 이번 건은 인덱스도 제약도 없는 nullable 컬럼 하나라
+> TypeORM이 만들 이름과 어긋날 여지가 없어 예외로 두었습니다. **제약이나
+> 인덱스가 붙는 DDL에는 이 예외를 적용하지 마세요.**
+
+### 엔티티
+
+```ts
+@Column({ type: 'date', nullable: true })
+pubDate?: Date | null;
+```
+
+옵셔널(`?`)로 선언한 이유는 `findPopularBooks()`처럼 raw 결과를 `Book[]`로
+캐스팅하는 코드가 있어서입니다. 필수로 두면 그 지점들이 전부 타입 에러가 납니다.
+
+### 배포 순서 주의
+
+**DDL을 배포보다 먼저 적용해야 합니다.** 엔티티에 컬럼이 있는데 DB에 없으면
+TypeORM이 만드는 SELECT에 `"pubDate"`가 들어가 도서 조회가 전부 실패합니다
+(`column does not exist`). `synchronize: false`라 자동 생성되지도 않습니다.
+
+### 값 채우기
+
+`~/bookjeok-migration-scripts/harvest-aladin.mjs`가 알라딘에서 정가·출간일·결측
+설명을 수확하고, `apply-harvest.mjs`가 반영합니다. 반영은 기본이 dry-run이며
+`--apply`를 붙였을 때만 씁니다.
+
+### 되돌리기
+
+```sql
+ALTER TABLE books DROP COLUMN "pubDate";
+```
+
+수확 전이라면 데이터 손실이 없습니다. 수확 후라면 다시 받을 수 없으므로
+(알라딘 종료 이후) 신중히 판단하세요.
