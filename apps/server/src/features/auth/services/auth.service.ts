@@ -1,12 +1,7 @@
 import * as crypto from 'node:crypto';
 
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -15,20 +10,47 @@ import { Cache } from 'cache-manager';
 import { User } from '@/features/user/entities/user.entity';
 import { UserService } from '@/features/user/services/user.service';
 import { NicknameGenerator } from '@/features/user/utils/nickname-generator';
+import { BusinessException } from '@/shared/exceptions';
 import { MailService } from '@/shared/mail/mail.service';
 
 import { TOKEN_EXPIRY } from '../auth.constants';
 import { JwtPayload } from '../types/jwt-payload.type';
 
+/**
+ * 계정이 없을 때도 비교 비용을 치르기 위한 더미 해시.
+ * 값 자체는 의미가 없고, bcrypt 비교 시간을 맞추는 용도다.
+ */
+const DUMMY_PASSWORD_HASH =
+  '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy';
+
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+  private readonly jwtSecret: string;
+  private readonly jwtRefreshSecret: string;
+
   constructor(
     private configService: ConfigService,
     private userService: UserService,
     private jwtService: JwtService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly mailService: MailService,
-  ) {}
+  ) {
+    // 설정 누락은 요청이 아니라 기동 시점에 드러나야 한다. 요청 중에 던지면
+    // 로그인 시도 전까지 배포가 멀쩡해 보인다.
+    const jwtSecret = this.configService.get<string>('JWT_SECRET');
+    const jwtRefreshSecret =
+      this.configService.get<string>('JWT_REFRESH_SECRET');
+
+    if (!jwtSecret || !jwtRefreshSecret) {
+      throw new Error(
+        'JWT_SECRET 또는 JWT_REFRESH_SECRET이 설정되지 않았습니다.',
+      );
+    }
+
+    this.jwtSecret = jwtSecret;
+    this.jwtRefreshSecret = jwtRefreshSecret;
+  }
 
   /**
    * 소셜 로그인 정보를 검증하고 유저를 생성하거나 반환합니다.
@@ -117,16 +139,6 @@ export class AuthService {
     role: 'USER' | 'ADMIN',
     tokenVersion: number = 0,
   ) {
-    const jwtSecret = this.configService.get<string>('JWT_SECRET');
-    const jwtRefreshSecret =
-      this.configService.get<string>('JWT_REFRESH_SECRET');
-
-    if (!jwtSecret || !jwtRefreshSecret) {
-      throw new Error(
-        'JWT_SECRET or JWT_REFRESH_SECRET is not configured properly',
-      );
-    }
-
     const accessPayload: JwtPayload = {
       sub: userId,
       nickname: userNickname,
@@ -141,11 +153,11 @@ export class AuthService {
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(accessPayload, {
-        secret: jwtSecret,
+        secret: this.jwtSecret,
         expiresIn: TOKEN_EXPIRY.ACCESS_TOKEN,
       }),
       this.jwtService.signAsync(refreshPayload, {
-        secret: jwtRefreshSecret,
+        secret: this.jwtRefreshSecret,
         expiresIn: TOKEN_EXPIRY.REFRESH_TOKEN,
       }),
     ]);
@@ -153,11 +165,12 @@ export class AuthService {
   }
 
   /**
-   * 소셜 로그인 성공 후 토큰과 유저 정보를 반환합니다.
+   * 인증에 성공한 유저에게 세션(토큰 쌍)을 발급합니다.
+   * 소셜 로그인과 이메일 로그인이 함께 씁니다.
    * @param user 유저 엔티티
    * @returns 토큰과 유저 정보
    */
-  async socialLogin(user: User) {
+  private async issueSession(user: User) {
     const { accessToken, refreshToken } = await this.getTokens(
       user.id,
       user.nickname,
@@ -181,7 +194,7 @@ export class AuthService {
       accessToken,
       refreshToken,
       user: loggedInUser,
-    } = await this.socialLogin(user);
+    } = await this.issueSession(user);
 
     const safeUser = {
       id: loggedInUser.id,
@@ -213,7 +226,10 @@ export class AuthService {
    */
   async exchangeTicket(ticket: string) {
     if (!ticket) {
-      throw new UnauthorizedException('INVALID_OR_EXPIRED_TICKET');
+      throw new BusinessException(
+        'INVALID_OR_EXPIRED_TICKET',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     const cacheKey = `auth_ticket:${ticket}`;
@@ -224,7 +240,10 @@ export class AuthService {
     }>(cacheKey);
 
     if (!payload) {
-      throw new UnauthorizedException('INVALID_OR_EXPIRED_TICKET');
+      throw new BusinessException(
+        'INVALID_OR_EXPIRED_TICKET',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     // 1회용 소모 (재사용 방지를 위해 즉시 삭제)
@@ -277,14 +296,17 @@ export class AuthService {
     // 1. 이메일 중복 체크
     const existingEmail = await this.userService.findByEmail(email);
     if (existingEmail) {
-      throw new ConflictException('EMAIL_ALREADY_EXISTS');
+      throw new BusinessException('EMAIL_ALREADY_EXISTS', HttpStatus.CONFLICT);
     }
 
     // 2. 닉네임 중복 체크
     const isNicknameAvailable =
       await this.userService.checkNicknameAvailability(nickname);
     if (!isNicknameAvailable) {
-      throw new ConflictException('NICKNAME_ALREADY_EXISTS');
+      throw new BusinessException(
+        'NICKNAME_ALREADY_EXISTS',
+        HttpStatus.CONFLICT,
+      );
     }
 
     // 3. 비밀번호 해싱
@@ -309,12 +331,7 @@ export class AuthService {
     // 6. 인증 메일 비동기 발송
     this.mailService
       .sendVerificationEmail(email, nickname, verificationToken)
-      .catch((err) =>
-        this.userService['logger'].error(
-          'Failed to send signup verification email:',
-          err,
-        ),
-      );
+      .catch((err) => this.logger.error('회원가입 인증 메일 발송 실패:', err));
 
     return newUser;
   }
@@ -357,24 +374,38 @@ export class AuthService {
   async login(loginDto: { email: string; password: string }) {
     const { email, password } = loginDto;
 
-    // 1. 이메일로 유저 찾기
     const user = await this.userService.findByEmail(email);
-    if (!user) {
-      throw new UnauthorizedException('INVALID_CREDENTIALS');
+
+    // 1. 계정이 없어도 해시 비교를 한 번 돌린다. 곧바로 던지면 응답 시간
+    //    차이만으로 가입된 이메일인지 알아낼 수 있다.
+    if (!user?.password) {
+      await bcrypt.compare(password, DUMMY_PASSWORD_HASH);
+
+      // 소셜 계정은 비밀번호 로그인 자체가 불가능하므로 안내가 필요하다.
+      // (이 경우에만 계정 존재가 드러나지만, 대안이 "로그인 불가"뿐이다)
+      if (user && !user.password) {
+        throw new BusinessException(
+          'SOCIAL_LOGIN_USER',
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
+      throw new BusinessException(
+        'INVALID_CREDENTIALS',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
-    // 2. 소셜 로그인 유저인지 확인 (비밀번호가 없는 경우)
-    if (!user.password) {
-      throw new UnauthorizedException('SOCIAL_LOGIN_USER');
-    }
-
-    // 3. 비밀번호 검증
+    // 2. 비밀번호 검증
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('INVALID_CREDENTIALS');
+      throw new BusinessException(
+        'INVALID_CREDENTIALS',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
-    // 4. 토큰 발급
-    return await this.socialLogin(user);
+    // 3. 토큰 발급
+    return await this.issueSession(user);
   }
 }

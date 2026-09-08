@@ -1,9 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 import { UserService } from '@/features/user/services/user.service';
+import { BusinessException } from '@/shared/exceptions';
 
 import { JwtPayload } from '../types/jwt-payload.type';
 
@@ -25,7 +26,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   async validate(payload: JwtPayload) {
     const user = await this.userService.findById(payload.sub);
     if (!user || user.deletedAt) {
-      throw new UnauthorizedException('User not found or deactivated.');
+      throw new BusinessException('AUTH_UNAUTHORIZED', HttpStatus.UNAUTHORIZED);
     }
 
     // 발급 시점의 tokenVersion과 현재 DB의 tokenVersion이 다르면(로그아웃 또는 무효화된 토큰) 거부
@@ -33,7 +34,10 @@ export class JwtRefreshStrategy extends PassportStrategy(
       payload.tokenVersion !== undefined &&
       user.tokenVersion !== payload.tokenVersion
     ) {
-      throw new UnauthorizedException('Token has been revoked or logged out.');
+      throw new BusinessException(
+        'AUTH_TOKEN_EXPIRED',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     return user;

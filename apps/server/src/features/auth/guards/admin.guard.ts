@@ -1,11 +1,12 @@
 import {
   CanActivate,
   ExecutionContext,
-  ForbiddenException,
+  HttpStatus,
   Injectable,
 } from '@nestjs/common';
 
 import { User } from '@/features/user/entities/user.entity';
+import { BusinessException } from '@/shared/exceptions';
 
 @Injectable()
 export class AdminGuard implements CanActivate {
@@ -14,7 +15,7 @@ export class AdminGuard implements CanActivate {
     const user = request.user as User;
 
     if (!user || user.role !== 'ADMIN') {
-      throw new ForbiddenException('Admin access only.');
+      throw new BusinessException('AUTH_FORBIDDEN', HttpStatus.FORBIDDEN);
     }
 
     return true;
