@@ -19,6 +19,10 @@ import {
 import { BusinessException } from '@/shared/exceptions/business.exception';
 import { MailService } from '@/shared/mail/mail.service';
 
+import {
+  PUBLIC_PROFILE_READING_LOG_LIMIT,
+  PUBLIC_PROFILE_RECENT_ITEM_COUNT,
+} from '../constants';
 import { User } from '../entities/user.entity';
 
 @Injectable()
@@ -307,25 +311,29 @@ export class UserService implements OnModuleInit {
     ];
 
     // 1. 사용자 기본 정보 조회 (핸들 -> 닉네임 -> ID 순서로 시도)
-    let user = await this.userRepository.findOne({
-      where: { handle: decodedHandle },
+    // 세 조건을 OR로 한 번에 던진다. 순차 조회는 없는 사용자일 때 매번 세 번
+    // 왕복했고, 그 경로가 곧 404 응답 경로다.
+    const numericId = /^\d+$/.test(decodedHandle)
+      ? Number(decodedHandle)
+      : null;
+
+    const candidates = await this.userRepository.find({
+      where:
+        numericId !== null
+          ? [
+              { handle: decodedHandle },
+              { nickname: decodedHandle },
+              { id: numericId },
+            ]
+          : [{ handle: decodedHandle }, { nickname: decodedHandle }],
       select: selectFields,
     });
 
-    if (!user) {
-      user = await this.userRepository.findOne({
-        where: { nickname: decodedHandle },
-        select: selectFields,
-      });
-    }
-
-    // Fallback: 숫자로만 된 문자열이면 ID로 조회 시도
-    if (!user && !isNaN(Number(decodedHandle))) {
-      user = await this.userRepository.findOne({
-        where: { id: Number(decodedHandle) },
-        select: selectFields,
-      });
-    }
+    // 우선순위는 기존과 같다: 핸들 > 닉네임 > ID
+    const user =
+      candidates.find((c) => c.handle === decodedHandle) ??
+      candidates.find((c) => c.nickname === decodedHandle) ??
+      candidates.find((c) => c.id === numericId);
 
     if (!user || user.deletedAt) {
       throw new BusinessException('USER_NOT_FOUND', HttpStatus.NOT_FOUND);
@@ -348,15 +356,17 @@ export class UserService implements OnModuleInit {
       where: { user: { id: userId } },
       relations: ['book'],
       order: { createdAt: 'DESC' },
-      take: 3,
+      take: PUBLIC_PROFILE_RECENT_ITEM_COUNT,
     });
 
     // 4. 최근 판매글 3개 조회 (판매 중인 것만)
+    // 상태 필터가 없으면 내려둔 글(WITHDRAWN)까지 남의 프로필에 뜬다.
+    // 바로 위 salesCount도 FOR_SALE만 세므로 기준을 맞춘다.
     const recentSales = await this.usedBookSaleRepository.find({
-      where: { user: { id: userId } },
+      where: { user: { id: userId }, status: SaleStatus.FOR_SALE },
       relations: ['book'],
       order: { createdAt: 'DESC' },
-      take: 3,
+      take: PUBLIC_PROFILE_RECENT_ITEM_COUNT,
     });
 
     const readingLogs = user.isReadingLogPublic
@@ -395,22 +405,20 @@ export class UserService implements OnModuleInit {
   }
 
   /**
-   * ID로 공개 프로필을 조회합니다.
-   * @deprecated 핸들 기반 조회로 마이그레이션 중, getPublicProfileByHandle 사용 권장
+   * 공개 프로필에 실을 독서기록을 조회합니다.
+   *
+   * 상한이 없으면 기록이 많은 유저 프로필 한 번에 전체 행 + 도서 조인이
+   * 딸려 나옵니다. 프로필은 최근 것만 보여주므로 여기서 잘라냅니다.
    */
-  async getPublicProfile(userId: number) {
-    return this.getPublicProfileByHandle(userId.toString());
-  }
-
   private async getPublicReadingLogs(userId: number) {
-    const logs = await this.dataSource.getRepository(ReadingLog).find({
+    return await this.dataSource.getRepository(ReadingLog).find({
       where: {
         user: { id: userId },
       },
       relations: ['book'],
       order: { date: 'DESC' },
+      take: PUBLIC_PROFILE_READING_LOG_LIMIT,
     });
-    return logs;
   }
 
   /**
@@ -461,29 +469,38 @@ export class UserService implements OnModuleInit {
    */
   async getUserStats(userId: number) {
     // 1. 판매글 통계
-    const sales = await this.usedBookSaleRepository.find({
-      where: { user: { id: userId } },
-      select: ['status'],
-    });
+    // 상태별 개수는 DB에서 집계한다. 예전에는 전 행을 메모리로 가져와 셌는데,
+    // 판매글이 많은 유저일수록 그대로 비용이 늘었다.
+    const [salesStatusRows, chatRoomCount, reviewsCount] = await Promise.all([
+      this.usedBookSaleRepository
+        .createQueryBuilder('sale')
+        .select('sale.status', 'status')
+        .addSelect('COUNT(*)', 'count')
+        // userId는 엔티티 프로퍼티가 아니라 관계의 조인 컬럼이다. 따옴표를
+        // 빼면 Postgres가 소문자로 접어 userid를 찾다가 실패한다.
+        .where('sale."userId" = :userId', { userId })
+        .groupBy('sale.status')
+        .getRawMany<{ status: SaleStatus; count: string }>(),
 
-    const salesCount = sales.length;
-    const salesStatusCounts = sales.reduce(
-      (acc, sale) => {
-        acc[sale.status] = (acc[sale.status] || 0) + 1;
-        return acc;
-      },
-      {} as Record<SaleStatus, number>,
-    );
+      // 2. 채팅방 통계 (활성화된 채팅방 수)
+      this.chatParticipantRepository.count({
+        where: { user: { id: userId }, isActive: true },
+      }),
 
-    // 2. 채팅방 통계 (활성화된 채팅방 수)
-    const chatRoomCount = await this.chatParticipantRepository.count({
-      where: { user: { id: userId }, isActive: true },
-    });
+      // 3. 리뷰 통계
+      this.reviewRepository.count({
+        where: { user: { id: userId } },
+      }),
+    ]);
 
-    // 3. 리뷰 통계
-    const reviewsCount = await this.reviewRepository.count({
-      where: { user: { id: userId } },
-    });
+    const salesStatusCounts = {} as Record<SaleStatus, number>;
+    let salesCount = 0;
+
+    for (const row of salesStatusRows) {
+      const count = Number(row.count);
+      salesStatusCounts[row.status] = count;
+      salesCount += count;
+    }
 
     return {
       salesCount,
