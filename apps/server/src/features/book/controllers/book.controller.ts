@@ -21,7 +21,6 @@ import { ActivityType } from '@/shared/activity/activity-type.enum';
 import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 
 import { BookViewCountInterceptor } from '../interceptors/book-view-count.interceptor';
-import { BookResolvePipe } from '../pipes/book-resolve.pipe';
 import { BookService } from '../services/book.service';
 import { BookCatalogService } from '../services/book-catalog.service';
 
@@ -66,8 +65,16 @@ export class BookController {
   })
   @ApiResponse({ status: 204, description: '조회수가 기록되었습니다.' })
   @ApiParam({ name: 'isbn', description: '책 ISBN' })
-  recordBookView(@Param('isbn', BookResolvePipe) _isbn: string): void {
-    // 파이프가 도서 존재 보장, 인터셉터가 조회수 처리
+  recordBookView(@Param('isbn') _isbn: string): void {
+    // 인터셉터가 전부 처리한다. 여기서 할 일이 없다.
+    //
+    // BookResolvePipe를 일부러 붙이지 않는다. 그 파이프는 books를 참조하는 행을
+    // 만들기 전에 외래키 위반을 막는 가드인데, 이 경로는 viewCount를 올릴 뿐
+    // 참조 행을 만들지 않는다. 없는 ISBN이면 increment가 0행으로 끝난다.
+    //
+    // 붙여두면 손해만 있었다. 인터셉터가 next.handle() 앞에서 24시간 캐시를
+    // 확인하지만 핸들러는 항상 호출되므로, 캐시에 걸린 재방문에도 파이프의
+    // findOneBy가 매번 실행됐다. 캐시가 UPDATE만 막고 SELECT는 못 막던 셈이다.
   }
 
   // ===== 도서 공급처 연동 (공급처 조회의 단일 진입점) =====
