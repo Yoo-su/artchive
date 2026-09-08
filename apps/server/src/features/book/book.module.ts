@@ -1,4 +1,3 @@
-import { HttpModule } from '@nestjs/axios';
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -19,12 +18,7 @@ import { BookCatalogService } from './services/book-catalog.service';
 
 @Global()
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Book]),
-    HttpModule,
-    ReadingLogModule,
-    WishlistModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Book]), ReadingLogModule, WishlistModule],
   controllers: [BookController],
   providers: [
     BookService,

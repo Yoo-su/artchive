@@ -71,7 +71,8 @@ export class BookController {
   }
 
   // ===== 도서 공급처 연동 (공급처 조회의 단일 진입점) =====
-  // 검색은 외부 공급처 우선, 상세는 자체 DB 우선이다. 순서는 book.module.ts에서 정한다.
+  // 2026-09-08 알라딘 제거 이후 두 체인 모두 자체 DB 단독이다.
+  // 경로 이름의 external은 이력이며, 체인 구성은 book.module.ts에서 정한다.
 
   @Get('external/list')
   @ApiOperation({

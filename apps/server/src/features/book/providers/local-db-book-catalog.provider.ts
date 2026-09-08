@@ -76,9 +76,9 @@ export function relevanceCaseSql(
  * 도서는 계속 찾을 수 있게 하는 최후 방어선입니다.
  *
  * 상세 체인에서는 1순위입니다. ISBN이 PK라 인덱스 단건 조회입니다.
- * 검색 체인에서는 아직 마지막입니다. 성능 때문이 아니라(title·author·publisher에
- * pg_trgm GIN 인덱스가 있습니다) 여기에 신간이 없기 때문입니다. 신간을 미리
- * 적재하는 스케줄러가 생기면 앞으로 옮깁니다. 순서는 book.module.ts에서 정합니다.
+ * 2026-09-08에 알라딘 어댑터를 제거해 **두 체인의 유일한 공급처**가 되었습니다.
+ * 검색 품질은 title·author·publisher의 pg_trgm GIN 인덱스와 아래 관련도 정렬이
+ * 담당합니다. 체인 구성은 book.module.ts에서 정합니다.
  *
  * kind가 local인 이유는 이 어댑터의 결과 없음이 도서의 부재가 아니라 미확보를
  * 뜻하기 때문입니다. BookCatalogService가 장애와 도서 없음을 구분할 때 씁니다.
@@ -96,9 +96,10 @@ export class LocalDbBookCatalogProvider implements BookCatalogProvider {
   /**
    * 자체 DB에서 도서를 검색합니다.
    *
-   * params.sort는 아직 사용하지 않습니다. 출간일순 정렬에는 출간일이 필요한데
-   * books에 해당 컬럼이 없고, createdAt은 적재 시각이라 대신 쓸 수 없습니다.
-   * 그래서 정렬 요청과 무관하게 관련도순으로 반환합니다.
+   * params.sort는 아직 사용하지 않습니다. `books.pubDate`를 2026-09-08에
+   * 추가했지만 값이 아직 비어 있어(수확 스크립트가 채우는 중) 출간일순 정렬을
+   * 켤 수 없습니다. 값이 채워지면 sort='date'를 pubDate DESC로 연결하세요.
+   * createdAt은 적재 시각이라 대신 쓸 수 없습니다.
    * @param params 검색 조건
    * @returns 정규화된 검색 결과
    */
@@ -106,12 +107,15 @@ export class LocalDbBookCatalogProvider implements BookCatalogProvider {
     params: BookCatalogSearchParams,
   ): Promise<BookCatalogSearchResult> {
     const { query, display, start, field } = params;
-    if (!query) {
+    // 공백만 있는 검색어를 통과시키면 ILIKE '% %'가 되어 공백이 든 모든 도서가
+    // 매칭된다(실측 57,577행 / 카운트에만 3초). 빈 문자열 검사로는 못 막는다.
+    const trimmed = query?.trim() ?? '';
+    if (!trimmed) {
       return { total: 0, start, display, items: [] };
     }
 
     const columns = searchColumnsFor(field);
-    const escaped = escapeLike(query);
+    const escaped = escapeLike(trimmed);
 
     const [books, total] = await this.bookRepository
       .createQueryBuilder('book')

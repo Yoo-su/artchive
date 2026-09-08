@@ -7,7 +7,6 @@ import { WishlistService } from '@/features/wishlist/services/wishlist.service';
 import { BusinessException } from '@/shared/exceptions/business.exception';
 
 import { Book } from '../entities/book.entity';
-import { BookCatalogService } from './book-catalog.service';
 
 @Injectable()
 export class BookService {
@@ -16,84 +15,35 @@ export class BookService {
     private readonly bookRepository: Repository<Book>,
     private readonly readingLogService: ReadingLogService,
     private readonly wishlistService: WishlistService,
-    private readonly bookCatalogService: BookCatalogService,
   ) {}
 
-  // 동일 ISBN에 대해 동시에 진행 중인 resolveBook 작업을 관리하는 Map (Request Collapsing)
-  private resolveTasks = new Map<string, Promise<Book>>();
-
   /**
-   * 책 정보를 조회하거나 생성합니다.
-   * - Read-heavy 워크로드 최적화를 위해 조회를 우선 시도합니다.
-   * - 동시성 이슈(Race Condition) 해결을 위해 `INSERT ... ON CONFLICT DO NOTHING` 패턴을 사용합니다.
-   * - DB에 없을 경우 등록된 도서 공급처를 통해 백엔드에서 자체적으로 확보합니다.
+   * ISBN이 `books`에 존재함을 보장하고 그 도서를 반환합니다.
+   *
+   * `BookResolvePipe`가 판매글·리뷰·독서기록·위시리스트 등록 앞단에서 호출해,
+   * 서비스 레이어에 도달했을 때는 항상 유효한 도서가 있음을 보장합니다. 여기서
+   * 막지 않으면 각 서비스가 `books`를 참조하는 행을 만들다 외래키 위반으로 500이
+   * 나고, `reading_logs`처럼 FK가 없는 테이블에서는 고아 행이 조용히 생깁니다.
+   *
+   * 2026-09-08 이전에는 없는 도서를 외부 공급처에서 받아와 만들었습니다. 공급처
+   * 체인에서 알라딘을 제거하면서 그 경로가 사라졌습니다. 지금은 우리가 가진 것이
+   * 곧 전부이고, 신규 도서는 운영자가 주기적으로 돌리는 스크립트로 확보합니다.
+   *
+   * 공급처 포트(`BookCatalogService`)는 여기서 쓰지 않습니다. 그쪽은 정규화된
+   * `BookInfo`를 돌려주는 "발견" 경로이고, 이 메서드는 우리 마스터 레코드를
+   * 확인하는 경로입니다. 나중에 지연 생성을 되살리려면 이 함수에 분기를 다시
+   * 넣으면 됩니다.
+   *
+   * @param isbn 조회할 도서의 ISBN
+   * @returns 해당 도서
+   * @throws BOOK_NOT_FOUND 자체 DB에 없을 때
    */
   async resolveBook(isbn: string): Promise<Book> {
-    // 1. 빠른 조회 (Happy Path) - 이미 존재하면 즉시 반환
-    const existingBook = await this.bookRepository.findOneBy({ isbn });
-    if (existingBook) {
-      return existingBook;
+    const book = await this.bookRepository.findOneBy({ isbn });
+    if (!book) {
+      throw new BusinessException('BOOK_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
-
-    // 2. 진행 중인 동일 작업이 있는지 확인 (Request Collapsing)
-    const existingTask = this.resolveTasks.get(isbn);
-    if (existingTask) {
-      return existingTask;
-    }
-
-    // 3. 동시 요청 관리를 위해 Promise를 Map에 저장
-    const resolveTask = (async () => {
-      try {
-        // 공급처 체인에서 상세를 찾고, 없으면 ISBN을 검색어로 한 번 더 시도한다.
-        let bookData = await this.bookCatalogService.findByIsbn(isbn);
-        if (!bookData) {
-          const found = await this.bookCatalogService.search({
-            query: isbn,
-            display: 1,
-          });
-          bookData = found.items[0] ?? null;
-        }
-
-        // 제목이 없으면 식별할 수 없는 레코드라 저장하지 않는다.
-        // books는 title이 NOT NULL이고, 빈 제목으로 넣어봐야 목록에서 빈칸으로만 보인다.
-        if (!bookData?.title) {
-          throw new BusinessException('BOOK_NOT_FOUND', HttpStatus.NOT_FOUND);
-        }
-
-        // 안전한 데이터 생성 (Concurrency Safe)
-        // 저자·발행처는 공급처에 따라 비어 올 수 있다. books가 전 컬럼 NOT NULL이라
-        // 빈 문자열로 채운다. 공공 서지에는 저자 표기가 없는 자료가 실제로 있다.
-        const newBook = this.bookRepository.create({
-          isbn: bookData.isbn || isbn,
-          title: bookData.title,
-          author: bookData.author || '',
-          publisher: bookData.publisher || '',
-          description: bookData.description || '',
-          image: bookData.image || '',
-          discount: String(bookData.discount || ''),
-          viewCount: 0,
-        });
-
-        await this.bookRepository
-          .createQueryBuilder()
-          .insert()
-          .into(Book)
-          .values(newBook)
-          .orIgnore() // 중복 발생 시 DB 레벨에서 무시
-          .execute();
-
-        // 불필요한 추가 조회 없이 생성된 객체를 반환 (최적화)
-        // Note: createdAt/updatedAt은 DB 기본값으로 채워지지만,
-        // Sync 시점의 호출자에겐 데이터의 존재 여부가 더 중요하므로 성능을 위해 추가 조회를 지양합니다.
-        return newBook;
-      } finally {
-        // 작업 완료 후 Map에서 제거
-        this.resolveTasks.delete(isbn);
-      }
-    })();
-
-    this.resolveTasks.set(isbn, resolveTask);
-    return resolveTask;
+    return book;
   }
 
   /**
@@ -105,26 +55,57 @@ export class BookService {
 
   /**
    * 인기 도서 목록을 조회합니다.
-   * - 인기도 = (책 조회수 * 1) + (독서기록 수 * 10) + (위시리스트 수 * 8) + (리뷰 수 * 5)
+   *
+   * 인기도 = 조회수 + (독서기록 × 10) + (위시리스트 × 8) + (리뷰 × 5)
+   *
+   * 활동 테이블 셋을 각각 GROUP BY로 먼저 압축한 뒤 LEFT JOIN합니다. 예전에는
+   * ORDER BY 안에서 상관 서브쿼리 3개를 돌렸는데, 그러면 후보 행마다 세 테이블을
+   * 다시 스캔합니다. 운영 실측에서 후보 14,236행 × 3 = 42,708회 스캔에 4.9초가
+   * 걸렸습니다. 지금 형태는 각 테이블을 한 번씩만 읽습니다.
+   *
+   * 활동 테이블이 도서 수(5만+)보다 훨씬 작아(수십~수백 행) 압축 결과도 작습니다.
+   * 그래서 조인 비용이 사실상 없습니다.
+   *
+   * @returns 인기도 상위 10권
    */
   async findPopularBooks(): Promise<Book[]> {
-    // 각 연관 테이블의 누적 개수를 구하는 서브쿼리 정의
-    const readingLogCountSubQuery = `SELECT COUNT(*) FROM reading_logs log WHERE log."isbn" = book.isbn`;
-    const reviewCountSubQuery = `SELECT COUNT(*) FROM reviews review WHERE review."isbn" = book.isbn`;
-    const wishlistCountSubQuery = `SELECT COUNT(*) FROM wishlists wish WHERE wish."isbn" = book.isbn`;
-
     const rawResults = await this.bookRepository
       .createQueryBuilder('book')
-      // 조회수가 1 이상이거나, 독서기록/리뷰/찜 중 하나라도 활동이 있는 도서로 대상을 압축 (성능 최적화 및 초기 데이터 안전성 확보)
-      .where(
-        `book.viewCount > 0 
-         OR EXISTS (SELECT 1 FROM reading_logs log WHERE log."isbn" = book.isbn) 
-         OR EXISTS (SELECT 1 FROM wishlists wish WHERE wish."isbn" = book.isbn) 
-         OR EXISTS (SELECT 1 FROM reviews review WHERE review."isbn" = book.isbn)`,
+      .leftJoin(
+        (qb) =>
+          qb
+            .select('log.isbn', 'isbn')
+            .addSelect('COUNT(*)', 'cnt')
+            .from('reading_logs', 'log')
+            .groupBy('log.isbn'),
+        'rl',
+        'rl.isbn = book.isbn',
       )
-      .addSelect(`(${readingLogCountSubQuery})`, 'readingLogCount')
-      .addSelect(`(${reviewCountSubQuery})`, 'reviewCount')
-      .addSelect(`(${wishlistCountSubQuery})`, 'wishlistCount')
+      .leftJoin(
+        (qb) =>
+          qb
+            .select('wish.isbn', 'isbn')
+            .addSelect('COUNT(*)', 'cnt')
+            .from('wishlists', 'wish')
+            .where('wish.isbn IS NOT NULL')
+            .groupBy('wish.isbn'),
+        'wl',
+        'wl.isbn = book.isbn',
+      )
+      .leftJoin(
+        (qb) =>
+          qb
+            .select('review.isbn', 'isbn')
+            .addSelect('COUNT(*)', 'cnt')
+            .from('reviews', 'review')
+            .groupBy('review.isbn'),
+        'rv',
+        'rv.isbn = book.isbn',
+      )
+      // 활동이 전혀 없고 조회수도 0인 도서는 순위에 오를 수 없다.
+      .where(
+        'book.viewCount > 0 OR rl.isbn IS NOT NULL OR wl.isbn IS NOT NULL OR rv.isbn IS NOT NULL',
+      )
       .select([
         'book.isbn AS isbn',
         'book.title AS title',
@@ -133,18 +114,22 @@ export class BookService {
         'book.discount AS discount',
         'book.description AS description',
         'book.image AS image',
+        'book.pubDate AS "pubDate"',
         'COALESCE(book.viewCount, 0) AS "viewCount"',
         'book.createdAt AS "createdAt"',
         'book.updatedAt AS "updatedAt"',
       ])
-      .orderBy(
-        `COALESCE(book.viewCount, 0) * 1 
-         + (${readingLogCountSubQuery}) * 10 
-         + (${wishlistCountSubQuery}) * 8 
-         + (${reviewCountSubQuery}) * 5`,
-        'DESC',
+      .addSelect(
+        `COALESCE(book."viewCount", 0)
+         + COALESCE(rl.cnt, 0) * 10
+         + COALESCE(wl.cnt, 0) * 8
+         + COALESCE(rv.cnt, 0) * 5`,
+        'popularity',
       )
+      .orderBy('popularity', 'DESC')
       .addOrderBy('"viewCount"', 'DESC')
+      // 동점일 때 순서가 흔들리지 않도록 고정한다.
+      .addOrderBy('book.isbn', 'ASC')
       .limit(10)
       .getRawMany();
 
@@ -156,6 +141,7 @@ export class BookService {
       discount: raw.discount,
       description: raw.description,
       image: raw.image,
+      pubDate: raw.pubDate ?? null,
       viewCount: Number(raw.viewCount) || 0,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,

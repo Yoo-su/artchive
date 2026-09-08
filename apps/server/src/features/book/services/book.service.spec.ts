@@ -6,16 +6,10 @@ import { WishlistService } from '@/features/wishlist/services/wishlist.service';
 
 import { Book } from '../entities/book.entity';
 import { BookService } from './book.service';
-import { BookCatalogService } from './book-catalog.service';
 
 describe('BookService', () => {
   let service: BookService;
   let module: TestingModule;
-
-  const mockBookCatalogService = {
-    search: jest.fn(),
-    findByIsbn: jest.fn(),
-  };
 
   const mockReadingLogService = {
     countUniqueReaders: jest.fn(),
@@ -60,10 +54,6 @@ describe('BookService', () => {
           provide: WishlistService,
           useValue: mockWishlistService,
         },
-        {
-          provide: BookCatalogService,
-          useValue: mockBookCatalogService,
-        },
       ],
     }).compile();
 
@@ -71,138 +61,57 @@ describe('BookService', () => {
   });
 
   describe('resolveBook', () => {
-    it('should return existing book if found initially', async () => {
-      const isbn = '123';
-      const existingBook = { isbn: '123', title: 'Existing' };
-
+    it('자체 DB에 있으면 그 도서를 반환한다', async () => {
+      const isbn = '9788932925554';
+      const existing = { isbn, title: '바움가트너' } as Book;
       const repo = module.get(getRepositoryToken(Book));
-      (repo.findOneBy as jest.Mock).mockResolvedValue(existingBook);
-
-      const result = await service.resolveBook(isbn);
-      expect(result).toEqual(existingBook);
-      // createQueryBuilder should not be called if found initially
-      expect(repo.createQueryBuilder).not.toHaveBeenCalled();
-    });
-
-    it('should create new book using INSERT IGNORE if not found', async () => {
-      const isbn = '456';
-      const newBook = { isbn: '456', title: 'New' };
-
-      const repo = module.get(getRepositoryToken(Book));
-      mockBookCatalogService.findByIsbn.mockResolvedValue(newBook);
-
-      // Mock query builder for insert
-      const mockInsertBuilder = {
-        insert: jest.fn().mockReturnThis(),
-        into: jest.fn().mockReturnThis(),
-        values: jest.fn().mockReturnThis(),
-        orIgnore: jest.fn().mockReturnThis(),
-        execute: jest.fn().mockResolvedValue({}),
-      };
-      (repo.createQueryBuilder as jest.Mock).mockReturnValue(mockInsertBuilder);
-
-      // 1. Initial find: null
-      (repo.findOneBy as jest.Mock).mockResolvedValueOnce(null);
-      (repo.create as jest.Mock).mockReturnValue(newBook);
+      repo.findOneBy.mockResolvedValue(existing);
 
       const result = await service.resolveBook(isbn);
 
-      expect(result).toEqual(newBook);
-      expect(repo.findOneBy).toHaveBeenCalledTimes(1);
-      expect(repo.create).toHaveBeenCalled();
-      expect(mockBookCatalogService.findByIsbn).toHaveBeenCalledWith(isbn);
-      expect(mockInsertBuilder.insert).toHaveBeenCalled();
-      expect(mockInsertBuilder.orIgnore).toHaveBeenCalled();
-      expect(mockInsertBuilder.execute).toHaveBeenCalled();
+      expect(result).toEqual(existing);
+      expect(repo.findOneBy).toHaveBeenCalledWith({ isbn });
     });
 
-    it('should return existing book if INSERT IGNORE was ignored (concurrent creation)', async () => {
-      const isbn = '789';
-      const existingBook = { isbn: '789', title: 'Concurrent' };
-
+    it('자체 DB에 없으면 BOOK_NOT_FOUND를 던진다', async () => {
       const repo = module.get(getRepositoryToken(Book));
-      mockBookCatalogService.findByIsbn.mockResolvedValue(existingBook);
+      repo.findOneBy.mockResolvedValue(null);
 
-      // Mock query builder for insert
-      const mockInsertBuilder = {
-        insert: jest.fn().mockReturnThis(),
-        into: jest.fn().mockReturnThis(),
-        values: jest.fn().mockReturnThis(),
-        orIgnore: jest.fn().mockReturnThis(),
-        // Simulate insert being ignored (e.g., 0 affected rows)
-        execute: jest.fn().mockResolvedValue({ raw: [], affected: 0 }),
-      };
-      (repo.createQueryBuilder as jest.Mock).mockReturnValue(mockInsertBuilder);
-
-      // 1. Initial find: null
-      (repo.findOneBy as jest.Mock).mockResolvedValueOnce(null);
-      (repo.create as jest.Mock).mockReturnValue(existingBook);
-
-      const result = await service.resolveBook(isbn);
-
-      expect(result).toEqual(existingBook);
-      expect(mockInsertBuilder.insert).toHaveBeenCalled();
-      expect(mockInsertBuilder.orIgnore).toHaveBeenCalled();
-      expect(mockInsertBuilder.execute).toHaveBeenCalled();
-      expect(repo.findOneBy).toHaveBeenCalledTimes(1); // Initial find only
-    });
-
-    it('저자·발행처가 비어 와도 빈 문자열로 채워 저장한다', async () => {
-      // books는 전 컬럼 NOT NULL이고, 공공 서지에는 저자 표기가 없는 자료가 있다.
-      const isbn = '9791234567890';
-      const repo = module.get(getRepositoryToken(Book));
-
-      mockBookCatalogService.findByIsbn.mockResolvedValue({
-        isbn,
-        title: '저자 없는 자료',
-        discount: '',
+      await expect(service.resolveBook('9999999999999')).rejects.toMatchObject({
+        errorCode: 'BOOK_NOT_FOUND',
       });
-
-      const mockInsertBuilder = {
-        insert: jest.fn().mockReturnThis(),
-        into: jest.fn().mockReturnThis(),
-        values: jest.fn().mockReturnThis(),
-        orIgnore: jest.fn().mockReturnThis(),
-        execute: jest.fn().mockResolvedValue({}),
-      };
-      (repo.createQueryBuilder as jest.Mock).mockReturnValue(mockInsertBuilder);
-      (repo.findOneBy as jest.Mock).mockResolvedValueOnce(null);
-      (repo.create as jest.Mock).mockImplementation((v: unknown) => v);
-
-      await service.resolveBook(isbn);
-
-      expect(repo.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: '저자 없는 자료',
-          author: '',
-          publisher: '',
-          description: '',
-          image: '',
-        }),
-      );
     });
 
-    it('제목이 없으면 저장하지 않고 BOOK_NOT_FOUND를 던진다', async () => {
-      const isbn = '9791234567891';
+    it('조회는 정확히 한 번만 한다', async () => {
+      // 예전에는 서비스가 한 번, 공급처 체인이 또 한 번 같은 findOneBy를 돌렸다.
       const repo = module.get(getRepositoryToken(Book));
+      repo.findOneBy.mockResolvedValue({ isbn: '1' } as Book);
 
-      // 공급처가 응답은 했지만 식별 불가능한 레코드인 경우
-      mockBookCatalogService.findByIsbn.mockResolvedValue({ isbn, title: '' });
-      mockBookCatalogService.search.mockResolvedValue({ items: [] });
-      (repo.findOneBy as jest.Mock).mockResolvedValueOnce(null);
+      await service.resolveBook('1');
 
-      await expect(service.resolveBook(isbn)).rejects.toThrow();
+      expect(repo.findOneBy).toHaveBeenCalledTimes(1);
+    });
+
+    it('없는 도서를 저장하지 않는다', async () => {
+      // 외부 공급처가 사라졌으므로 이 경로에서 INSERT가 일어나면 안 된다.
+      const repo = module.get(getRepositoryToken(Book));
+      repo.findOneBy.mockResolvedValue(null);
+
+      await expect(service.resolveBook('9999999999999')).rejects.toThrow();
+
       expect(repo.create).not.toHaveBeenCalled();
+      expect(repo.save).not.toHaveBeenCalled();
     });
   });
 
   describe('findPopularBooks', () => {
-    it('should execute query builder with subqueries', async () => {
+    it('활동 테이블을 미리 집계해 조인한다', async () => {
       const repo = module.get(getRepositoryToken(Book));
-      const mockQueryBuilder = {
+      const qb = {
+        leftJoin: jest.fn().mockReturnThis(),
         where: jest.fn().mockReturnThis(),
-        addSelect: jest.fn().mockReturnThis(),
         select: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
         orderBy: jest.fn().mockReturnThis(),
         addOrderBy: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
@@ -211,23 +120,45 @@ describe('BookService', () => {
             isbn: '1',
             title: 'Pop',
             viewCount: 10,
-            readingLogCount: 5,
-            reviewCount: 5,
-            wishlistCount: 5,
+            pubDate: '2024-01-01',
             createdAt: new Date(),
             updatedAt: new Date(),
           },
         ]),
       };
-      (repo.createQueryBuilder as jest.Mock).mockReturnValue(mockQueryBuilder);
+      (repo.createQueryBuilder as jest.Mock).mockReturnValue(qb);
 
       const result = await service.findPopularBooks();
 
       expect(repo.createQueryBuilder).toHaveBeenCalledWith('book');
-      // Subqueries are now string arguments, so we check if addSelect was called 3 times
-      expect(mockQueryBuilder.addSelect).toHaveBeenCalledTimes(3);
-      expect(result).toHaveLength(1);
-      expect(result[0].isbn).toBe('1');
+      // 상관 서브쿼리 대신 집계 조인 3개를 쓴다. 이게 4.9초 병목을 없앤 지점이라
+      // 다시 서브쿼리로 돌아가면 이 테스트가 깨진다.
+      expect(qb.leftJoin).toHaveBeenCalledTimes(3);
+      expect(qb.limit).toHaveBeenCalledWith(10);
+      expect(result[0].viewCount).toBe(10);
+      expect(result[0].pubDate).toBe('2024-01-01');
+    });
+
+    it('viewCount가 없어도 0으로 채운다', async () => {
+      const repo = module.get(getRepositoryToken(Book));
+      const qb = {
+        leftJoin: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        addOrderBy: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        getRawMany: jest
+          .fn()
+          .mockResolvedValue([{ isbn: '1', title: 'X', viewCount: null }]),
+      };
+      (repo.createQueryBuilder as jest.Mock).mockReturnValue(qb);
+
+      const result = await service.findPopularBooks();
+
+      expect(result[0].viewCount).toBe(0);
+      expect(result[0].pubDate).toBeNull();
     });
   });
 
