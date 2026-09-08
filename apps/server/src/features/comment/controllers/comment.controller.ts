@@ -22,9 +22,9 @@ import { ActivityType } from '@/shared/activity/activity-type.enum';
 import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 import { IdempotencyInterceptor } from '@/shared/interceptors/idempotency.interceptor';
 
-import { CreateCommentDto } from '../dto/create-comment.dto';
-import { GetCommentsDto } from '../dto/get-comments.dto';
-import { UpdateCommentDto } from '../dto/update-comment.dto';
+import { CreateCommentDto } from '../dtos/create-comment.dto';
+import { GetCommentsDto } from '../dtos/get-comments.dto';
+import { UpdateCommentDto } from '../dtos/update-comment.dto';
 import { CommentService } from '../services/comment.service';
 
 @ApiTags('댓글 (Comment)')

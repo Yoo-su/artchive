@@ -1,5 +1,7 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+
+import { BusinessException } from '@/shared/exceptions';
 
 interface CacheEntry {
   vector: number[];
@@ -8,6 +10,7 @@ interface CacheEntry {
 
 @Injectable()
 export class EmbeddingService {
+  private readonly logger = new Logger(EmbeddingService.name);
   private readonly apiKey: string;
 
   /** 쿼리 임베딩 캐시 (TTL 5분, 최대 500개) */
@@ -36,8 +39,10 @@ export class EmbeddingService {
    */
   async generateQueryEmbedding(query: string): Promise<number[]> {
     if (!this.apiKey) {
-      throw new InternalServerErrorException(
-        'GEMINI_API_KEY가 설정되지 않았습니다.',
+      this.logger.error('GEMINI_API_KEY가 설정되지 않았습니다.');
+      throw new BusinessException(
+        'EXTERNAL_API_ERROR',
+        HttpStatus.SERVICE_UNAVAILABLE,
       );
     }
 
@@ -69,7 +74,7 @@ export class EmbeddingService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Gemini Embedding API Error Response:', errorText);
+        this.logger.error(`Gemini 임베딩 API 오류 응답: ${errorText}`);
         throw new Error(
           `Gemini API HTTP Error ${response.status}: ${errorText}`,
         );
@@ -85,7 +90,7 @@ export class EmbeddingService {
       }
 
       if (rawVector.length !== 768) {
-        console.warn(
+        this.logger.warn(
           `임베딩 벡터 차원이 768이 아닌 ${rawVector.length}입니다.`,
         );
       }
@@ -107,9 +112,14 @@ export class EmbeddingService {
 
       return normalized;
     } catch (error) {
-      console.error('Embedding Generation Failed:', error);
-      throw new InternalServerErrorException(
-        '검색어 임베딩 처리 중 오류가 발생했습니다.',
+      this.logger.error(
+        `검색어 임베딩 생성 실패: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+      throw new BusinessException(
+        'EXTERNAL_API_ERROR',
+        HttpStatus.SERVICE_UNAVAILABLE,
       );
     }
   }

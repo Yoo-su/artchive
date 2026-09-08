@@ -4,16 +4,13 @@ import {
   Schema,
   SchemaType,
 } from '@google/generative-ai';
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-} from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { BookService } from '@/features/book/services/book.service';
+import { BusinessException } from '@/shared/exceptions';
 
 import { MODEL_NAME } from '../constants/llm-model';
 import { BookSummaryResponseDto } from '../dtos/book-summary-response.dto';
@@ -225,8 +222,9 @@ export class LlmService {
         return fallbackSummary;
       }
 
-      throw new InternalServerErrorException(
-        '도서 요약 및 분석을 생성하는 중 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
+      throw new BusinessException(
+        'EXTERNAL_API_ERROR',
+        HttpStatus.SERVICE_UNAVAILABLE,
       );
     }
   }

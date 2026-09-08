@@ -3,7 +3,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 
 import { NotificationType } from '@/features/notification/entities/notification.entity';
 import { NotificationService } from '@/features/notification/services/notification.service';
-import { ReviewResponseDto } from '@/features/review/dto/review-response.dto';
+import { ReviewResponseDto } from '@/features/review/dtos/review-response.dto';
 
 @Injectable()
 export class ReviewNotificationListener {

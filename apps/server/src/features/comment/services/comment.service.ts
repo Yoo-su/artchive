@@ -9,9 +9,9 @@ import { BookService } from '@/features/book/services/book.service';
 import { ReviewService } from '@/features/review/services/review.service';
 import { BusinessException } from '@/shared/exceptions';
 
-import { CreateCommentDto } from '../dto/create-comment.dto';
-import { GetCommentsDto } from '../dto/get-comments.dto';
-import { UpdateCommentDto } from '../dto/update-comment.dto';
+import { CreateCommentDto } from '../dtos/create-comment.dto';
+import { GetCommentsDto } from '../dtos/get-comments.dto';
+import { UpdateCommentDto } from '../dtos/update-comment.dto';
 import { Comment, CommentTargetType } from '../entities/comment.entity';
 import { CommentLike } from '../entities/comment-like.entity';
 
@@ -273,8 +273,36 @@ export class CommentService {
    * 좋아요를 토글합니다.
    * 이미 좋아요한 경우 취소, 아닌 경우 추가합니다.
    */
-  @Transactional()
   async toggleLike(commentId: number, userId: number) {
+    const isLiked = await this.persistLikeToggle(commentId, userId);
+
+    // 커밋된 뒤에 읽고 발행한다. 트랜잭션 안에서 하면 롤백된 좋아요에 대한
+    // 알림이 남고, 아직 커밋되지 않은 likeCount를 읽어 보낸다.
+    const updatedComment = await this.commentRepository.findOne({
+      where: { id: commentId },
+      relations: ['user'],
+    });
+
+    if (updatedComment) {
+      this.eventEmitter.emit('comment.liked', {
+        comment: updatedComment,
+        actorId: userId,
+        isLiked,
+      });
+    }
+
+    return { ...updatedComment, isLiked };
+  }
+
+  /**
+   * 좋아요 토글의 상태 변경만 트랜잭션 안에서 수행합니다.
+   * @returns 좋아요가 추가되었으면 true, 취소되었으면 false
+   */
+  @Transactional()
+  private async persistLikeToggle(
+    commentId: number,
+    userId: number,
+  ): Promise<boolean> {
     await this.findCommentOrThrow(commentId);
 
     let isLiked = false;
@@ -308,26 +336,7 @@ export class CommentService {
       isLiked = true;
     }
 
-    // 업데이트된 댓글 반환
-    const updatedComment = await this.commentRepository.findOne({
-      where: { id: commentId },
-      relations: ['user'],
-    });
-
-    const result = {
-      ...updatedComment,
-      isLiked,
-    };
-
-    if (updatedComment) {
-      this.eventEmitter.emit('comment.liked', {
-        comment: updatedComment,
-        actorId: userId,
-        isLiked,
-      });
-    }
-
-    return result;
+    return isLiked;
   }
 
   /**

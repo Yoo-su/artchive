@@ -1,4 +1,3 @@
-import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -21,7 +20,20 @@ describe('OrderSchedulerService', () => {
     getTrackingInfo: jest.Mock;
   };
   let mockEventEmitter: { emit: jest.Mock };
-  let mockConfigService: { get: jest.Mock };
+  const originalPaymentFlag = process.env.FEATURE_PAYMENT_ENABLED;
+
+  // 스케줄러는 결제 플래그가 꺼져 있으면 전부 조기 반환한다.
+  beforeAll(() => {
+    process.env.FEATURE_PAYMENT_ENABLED = 'true';
+  });
+
+  afterAll(() => {
+    if (originalPaymentFlag === undefined) {
+      delete process.env.FEATURE_PAYMENT_ENABLED;
+    } else {
+      process.env.FEATURE_PAYMENT_ENABLED = originalPaymentFlag;
+    }
+  });
 
   const mockOrder = (overrides?: Partial<Order>): Order =>
     ({
@@ -58,10 +70,6 @@ describe('OrderSchedulerService', () => {
     mockEventEmitter = {
       emit: jest.fn(),
     };
-    mockConfigService = {
-      get: jest.fn().mockReturnValue('true'),
-    };
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         OrderSchedulerService,
@@ -80,10 +88,6 @@ describe('OrderSchedulerService', () => {
         {
           provide: EventEmitter2,
           useValue: mockEventEmitter,
-        },
-        {
-          provide: ConfigService,
-          useValue: mockConfigService,
         },
       ],
     }).compile();

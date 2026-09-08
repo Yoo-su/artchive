@@ -145,7 +145,7 @@ describe('TossPaymentsService', () => {
       );
 
       const result = await service.confirmEscrowPurchase('test_payment_key');
-      expect(result.status).toBe('CONFIRMED');
+      expect(result).toMatchObject({ status: 'CONFIRMED' });
     });
 
     it('구매거부 API 호출 시 정상 응답을 반환한다', async () => {
@@ -157,7 +157,7 @@ describe('TossPaymentsService', () => {
         'test_payment_key',
         '도서 파손',
       );
-      expect(result.status).toBe('REJECTED');
+      expect(result).toMatchObject({ status: 'REJECTED' });
     });
   });
 

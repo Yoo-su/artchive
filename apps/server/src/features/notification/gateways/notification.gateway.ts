@@ -1,4 +1,4 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
   OnGatewayConnection,
@@ -8,12 +8,10 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-import { JwtPayload } from '@/features/auth/types/jwt-payload.type';
-import { SocketAuthGuard } from '@/features/chat/guards/socket-auth.guard'; // Reusing existing guard
 import { Notification } from '@/features/notification/entities/notification.entity';
 import { UserService } from '@/features/user/services/user.service';
+import { authenticateSocket } from '@/shared/websocket/authenticate-socket';
 
-@UseGuards(SocketAuthGuard)
 @WebSocketGateway({
   cors: {
     origin: process.env.CLIENT_DOMAIN ?? 'http://localhost:3000',
@@ -42,18 +40,11 @@ export class NotificationGateway
    */
   async handleConnection(client: Socket) {
     try {
-      const token =
-        client.handshake.auth?.token ||
-        client.handshake.headers.authorization?.split(' ')[1];
-
-      if (!token) return client.disconnect();
-
-      const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
-        secret: process.env.JWT_SECRET,
-      });
-
-      const user = await this.userService.findById(payload.sub);
-      if (!user) return client.disconnect();
+      const user = await authenticateSocket(
+        client,
+        this.jwtService,
+        this.userService,
+      );
 
       client.data.user = user;
 

@@ -6,8 +6,6 @@ import { Transactional, TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterTypeOrm } from '@nestjs-cls/transactional-adapter-typeorm';
 import { Brackets, EntityManager, In, Repository } from 'typeorm';
 
-import { Book } from '@/features/book/entities/book.entity';
-import { BookService } from '@/features/book/services/book.service';
 import { Review } from '@/features/review/entities/review.entity';
 import {
   ReviewReaction,
@@ -17,14 +15,14 @@ import { Tag } from '@/features/review/entities/tag.entity';
 import { BusinessException } from '@/shared/exceptions';
 
 import { POPULAR_REVIEW_MONTHS } from '../constants';
-import { CreateReviewDto } from '../dto/create-review.dto';
-import { GetReviewsQueryDto } from '../dto/get-reviews-query.dto';
+import { CreateReviewDto } from '../dtos/create-review.dto';
+import { GetReviewsQueryDto } from '../dtos/get-reviews-query.dto';
 import {
   GetReviewsResponseDto,
   ReviewFeedDto,
   ReviewResponseDto,
-} from '../dto/review-response.dto';
-import { UpdateReviewDto } from '../dto/update-review.dto';
+} from '../dtos/review-response.dto';
+import { UpdateReviewDto } from '../dtos/update-review.dto';
 import { ReviewImageHelper } from '../helpers/review-image.helper';
 
 @Injectable()
@@ -32,20 +30,20 @@ export class ReviewService {
   constructor(
     @InjectRepository(Review)
     private reviewsRepository: Repository<Review>,
-    @InjectRepository(Book)
-    private booksRepository: Repository<Book>,
     @InjectRepository(ReviewReaction)
     private reviewReactionsRepository: Repository<ReviewReaction>,
-    @InjectRepository(Tag)
-    private tagsRepository: Repository<Tag>,
     private reviewImageHelper: ReviewImageHelper,
     private readonly txHost: TransactionHost<TransactionalAdapterTypeOrm>,
-    private readonly bookService: BookService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
   /**
-   * 리뷰를 생성합니다. 책 정보가 없으면 새로 생성합니다.
+   * 리뷰를 생성합니다.
+   *
+   * 도서는 여기서 만들지 않습니다. 앞단의 `BookResolvePipe`가 ISBN이 `books`에
+   * 있는지 확인하고, 없으면 404로 끊습니다. (2026-09-08 공급처 체인에서
+   * 알라딘을 제거하면서 지연 생성 경로가 사라졌습니다)
+   *
    * @param createReviewDto 리뷰 생성 DTO
    * @param userId 작성자 ID
    * @returns 생성된 리뷰
@@ -162,15 +160,17 @@ export class ReviewService {
 
     // 키워드 검색
     if (search) {
+      // ILIKE를 쓴다. Postgres의 LIKE는 대소문자를 가려서 영문 제목·작가명이
+      // 입력 표기와 정확히 같을 때만 검색된다.
       qb.andWhere(
         new Brackets((subQb) => {
           const searchParam = { search: `%${search}%` };
           subQb
-            .where('review.title LIKE :search', searchParam)
-            .orWhere('review.content LIKE :search', searchParam)
-            .orWhere('tags.name LIKE :search', searchParam)
-            .orWhere('book.title LIKE :search', searchParam)
-            .orWhere('user.nickname LIKE :search', searchParam);
+            .where('review.title ILIKE :search', searchParam)
+            .orWhere('review.content ILIKE :search', searchParam)
+            .orWhere('tags.name ILIKE :search', searchParam)
+            .orWhere('book.title ILIKE :search', searchParam)
+            .orWhere('user.nickname ILIKE :search', searchParam);
         }),
       );
     }
@@ -379,7 +379,7 @@ export class ReviewService {
 
   /**
    * 인기 리뷰를 조회합니다.
-   * 최근 2주 내 참여도(조회수+리액션+댓글) 높은 순으로 6개 반환
+   * 최근 POPULAR_REVIEW_MONTHS개월 내 참여도(조회수+리액션+댓글) 높은 순으로 6개 반환
    */
   async findPopular(): Promise<ReviewResponseDto[]> {
     // 1. 참여도가 높은 리뷰 ID 목록 조회
@@ -396,13 +396,14 @@ export class ReviewService {
   }
 
   /**
-   * 최근 1년간의 참여도(조회수, 리액션, 댓글)를 점수화하여 인기 리뷰 ID를 조회합니다.
+   * 최근 POPULAR_REVIEW_MONTHS개월간의 참여도(조회수, 리액션, 댓글)를
+   * 점수화하여 인기 리뷰 ID를 조회합니다.
    */
   private async getPopularReviewIdsWithScores(
     limit: number,
   ): Promise<{ id: number; score: number }[]> {
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - POPULAR_REVIEW_MONTHS);
+    const since = new Date();
+    since.setMonth(since.getMonth() - POPULAR_REVIEW_MONTHS);
 
     return await this.reviewsRepository
       .createQueryBuilder('review')
@@ -434,7 +435,7 @@ export class ReviewService {
           COALESCE(comment_counts.count, 0) * 5)`,
         'score',
       )
-      .where('review."createdAt" >= :threeMonthsAgo', { threeMonthsAgo })
+      .where('review."createdAt" >= :since', { since })
       .andWhere('review."isPublic" = :isPublic', { isPublic: true })
       .orderBy('score', 'DESC')
       .limit(limit)
@@ -595,8 +596,32 @@ export class ReviewService {
    * @param userId 유저 ID
    * @param type 리액션 타입
    */
-  @Transactional()
   async toggleReaction(id: number, userId: number, type: ReviewReactionType) {
+    const isAdded = await this.persistReactionToggle(id, userId, type);
+
+    // 커밋된 뒤에 읽고 발행한다. 트랜잭션 안에서 하면 롤백된 리액션에 대한
+    // 알림이 남고, 아직 커밋되지 않은 reactionCount를 읽어 보낸다.
+    const result = await this.findOne(id);
+
+    this.eventEmitter.emit('review.reacted', {
+      review: result,
+      actorId: userId,
+      isAdded,
+    });
+
+    return result;
+  }
+
+  /**
+   * 리액션 토글의 상태 변경만 트랜잭션 안에서 수행합니다.
+   * @returns 리액션이 추가/유지되었으면 true, 취소되었으면 false
+   */
+  @Transactional()
+  private async persistReactionToggle(
+    id: number,
+    userId: number,
+    type: ReviewReactionType,
+  ): Promise<boolean> {
     let isAdded = true;
     const manager = this.txHost.tx;
 
@@ -650,17 +675,7 @@ export class ReviewService {
       isAdded = true;
     }
 
-    const result = await this.findOne(id);
-
-    if (result) {
-      this.eventEmitter.emit('review.reacted', {
-        review: result,
-        actorId: userId,
-        isAdded,
-      });
-    }
-
-    return result;
+    return isAdded;
   }
 
   /**
@@ -670,15 +685,35 @@ export class ReviewService {
    * @param userId 요청한 유저 ID
    * @returns 수정된 리뷰
    */
-  @Transactional()
   async update(
     id: number,
     updateReviewDto: UpdateReviewDto,
     userId: number,
   ): Promise<ReviewResponseDto> {
+    const { saved, removedImages } = await this.persistUpdate(
+      id,
+      updateReviewDto,
+      userId,
+    );
+
+    // 스토리지 삭제는 되돌릴 수 없으므로 커밋된 뒤에 한다. 트랜잭션 안에서
+    // 지우면 이후 롤백된 리뷰가 이미지 없는 상태로 남는다.
+    if (removedImages.length > 0) {
+      await this.reviewImageHelper.deleteImages(removedImages);
+    }
+
+    return saved;
+  }
+
+  @Transactional()
+  private async persistUpdate(
+    id: number,
+    updateReviewDto: UpdateReviewDto,
+    userId: number,
+  ): Promise<{ saved: ReviewResponseDto; removedImages: string[] }> {
     const manager = this.txHost.tx;
 
-    const review = await this.reviewsRepository.findOne({
+    const review = await manager.findOne(Review, {
       where: { id },
       relations: ['user', 'book', 'tagEntities'],
     });
@@ -714,14 +749,13 @@ export class ReviewService {
 
     const savedReview = await manager.save(Review, review);
 
-    if (removedImages.length > 0) {
-      await this.reviewImageHelper.deleteImages(removedImages);
-    }
-
     return {
-      ...savedReview,
-      tags: savedReview.tagEntities?.map((t) => t.name) || [],
-    } as ReviewResponseDto;
+      saved: {
+        ...savedReview,
+        tags: savedReview.tagEntities?.map((t) => t.name) || [],
+      } as ReviewResponseDto,
+      removedImages,
+    };
   }
 
   /**
@@ -735,7 +769,26 @@ export class ReviewService {
     userId: number,
     userRole?: string,
   ): Promise<ReviewResponseDto> {
-    const review = await this.reviewsRepository.findOne({
+    const { deleted, images } = await this.persistRemove(id, userId, userRole);
+
+    // 스토리지 삭제는 커밋 뒤에. 먼저 지웠다가 삭제가 롤백되면 본문은 남고
+    // 이미지만 사라진 리뷰가 된다.
+    if (images.length > 0) {
+      await this.reviewImageHelper.deleteImages(images);
+    }
+
+    return deleted;
+  }
+
+  @Transactional()
+  private async persistRemove(
+    id: number,
+    userId: number,
+    userRole?: string,
+  ): Promise<{ deleted: ReviewResponseDto; images: string[] }> {
+    const manager = this.txHost.tx;
+
+    const review = await manager.findOne(Review, {
       where: { id },
       relations: ['user', 'book', 'tagEntities'],
     });
@@ -753,15 +806,11 @@ export class ReviewService {
     // 삭제 전 태그 정보 백업 (반환용)
     const tags = review.tagEntities?.map((t) => t.name) || [];
 
-    const deletedReview = await this.reviewsRepository.remove(review);
-
-    if (images.length > 0) {
-      await this.reviewImageHelper.deleteImages(images);
-    }
+    const deletedReview = await manager.remove(Review, review);
 
     return {
-      ...deletedReview,
-      tags,
-    } as ReviewResponseDto;
+      deleted: { ...deletedReview, tags } as ReviewResponseDto,
+      images,
+    };
   }
 }
