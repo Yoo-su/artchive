@@ -1,5 +1,9 @@
+import { Repository } from 'typeorm';
+
+import { Book } from '../entities/book.entity';
 import {
   escapeLike,
+  LocalDbBookCatalogProvider,
   relevanceCaseSql,
   searchColumnsFor,
 } from './local-db-book-catalog.provider';
@@ -69,6 +73,97 @@ describe('LocalDbBookCatalogProvider 검색 규칙', () => {
 
     it('테이블 별칭을 그대로 반영한다', () => {
       expect(relevanceCaseSql('b', ['title'])).toContain('b.title');
+    });
+  });
+
+  describe('정렬 순서', () => {
+    /**
+     * 흔한 키워드는 대부분 하나의 관련도 버킷에 뭉치므로(운영 실측: "사랑" 제목
+     * 부분일치만 791건) 두 번째 정렬 키가 사실상 체감 순서를 결정합니다.
+     * 전에 쓰던 viewCount는 도서의 75%가 0이고 나머지도 크롤러 흔적이라
+     * 스테디셀러가 오히려 바닥에 깔렸습니다. 그 회귀를 막습니다.
+     */
+    function searchWithSpy() {
+      const qb = {
+        where: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        addOrderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+      };
+      const repo = {
+        createQueryBuilder: jest.fn().mockReturnValue(qb),
+      } as unknown as Repository<Book>;
+
+      return { qb, provider: new LocalDbBookCatalogProvider(repo) };
+    }
+
+    it('관련도 다음은 판매지수로 가른다', async () => {
+      const { qb, provider } = searchWithSpy();
+
+      await provider.search({
+        query: '사랑',
+        display: 10,
+        start: 1,
+        field: 'Keyword',
+        sort: 'sim',
+      });
+
+      expect(qb.addOrderBy).toHaveBeenNthCalledWith(
+        1,
+        'book.salesPoint',
+        'DESC',
+        'NULLS LAST',
+      );
+    });
+
+    it('viewCount로는 정렬하지 않는다', async () => {
+      const { qb, provider } = searchWithSpy();
+
+      await provider.search({
+        query: '사랑',
+        display: 10,
+        start: 1,
+        field: 'Keyword',
+        sort: 'sim',
+      });
+
+      const keys = [
+        ...qb.orderBy.mock.calls.flat(),
+        ...qb.addOrderBy.mock.calls.flat(),
+      ];
+      expect(keys).not.toContain('book.viewCount');
+    });
+
+    /** 정렬이 흔들리면 OFFSET 페이지네이션에서 중복과 누락이 생긴다. */
+    it('isbn으로 순서를 확정한다', async () => {
+      const { qb, provider } = searchWithSpy();
+
+      await provider.search({
+        query: '사랑',
+        display: 10,
+        start: 1,
+        field: 'Keyword',
+        sort: 'sim',
+      });
+
+      expect(qb.addOrderBy).toHaveBeenLastCalledWith('book.isbn', 'ASC');
+    });
+
+    it('공백뿐인 검색어는 질의하지 않는다', async () => {
+      const { qb, provider } = searchWithSpy();
+
+      const result = await provider.search({
+        query: '   ',
+        display: 10,
+        start: 1,
+        field: 'Keyword',
+        sort: 'sim',
+      });
+
+      expect(result.total).toBe(0);
+      expect(qb.getManyAndCount).not.toHaveBeenCalled();
     });
   });
 });

@@ -42,6 +42,23 @@ export class Book {
   @Column({ type: 'date', nullable: true })
   pubDate?: Date | null;
 
+  /**
+   * 알라딘 판매지수. 국내 도서 시장의 사실상 표준 인기도 지표입니다.
+   *
+   * 이 값이 없을 때 검색은 `viewCount`로 동점을 갈랐는데, 도서의 75%가 0회이고
+   * 값이 있는 것도 대부분 크롤러 흔적이라 사실상 난수였습니다. 실측에서 스테디셀러가
+   * 오히려 바닥에 깔렸습니다(`docs/book-data-migration-plan.md` 8-c).
+   *
+   * 알라딘 종료(2026-10-30) 후에는 갱신할 수 없는 스냅샷입니다. 그래도 스테디셀러의
+   * 순위는 잘 변하지 않아 신호가 아예 없는 것보다 낫습니다. 지속 가능한 대체재는
+   * 도서관 정보나루 대출 통계입니다(미결 D5).
+   *
+   * 0은 "판매 실적 없음"이라는 알라딘의 실제 값이고, NULL은 "수확하지 못함"입니다.
+   * 둘은 다른 뜻이라 nullable로 둡니다.
+   */
+  @Column({ type: 'int', nullable: true })
+  salesPoint?: number | null;
+
   @Column({ type: 'text' })
   description: string;
 

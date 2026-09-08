@@ -102,9 +102,12 @@ export class BookService {
         'rv',
         'rv.isbn = book.isbn',
       )
-      // 활동이 전혀 없고 조회수도 0인 도서는 순위에 오를 수 없다.
+      // 사용자 활동도 없고 판매 실적도 없는 도서는 순위에 오를 수 없다.
+      // viewCount를 조건에서 뺀 이유는 그 값이 대부분 크롤러 흔적이기 때문이다.
+      // 대신 salesPoint를 넣지 않으면 도서의 75%(viewCount 0)가 후보에서 통째로
+      // 빠진다.
       .where(
-        'book.viewCount > 0 OR rl.isbn IS NOT NULL OR wl.isbn IS NOT NULL OR rv.isbn IS NOT NULL',
+        'book.salesPoint > 0 OR rl.isbn IS NOT NULL OR wl.isbn IS NOT NULL OR rv.isbn IS NOT NULL',
       )
       .select([
         'book.isbn AS isbn',
@@ -115,19 +118,27 @@ export class BookService {
         'book.description AS description',
         'book.image AS image',
         'book.pubDate AS "pubDate"',
+        'book.salesPoint AS "salesPoint"',
         'COALESCE(book.viewCount, 0) AS "viewCount"',
         'book.createdAt AS "createdAt"',
         'book.updatedAt AS "updatedAt"',
       ])
+      // 우리 사용자의 활동을 시장 인기도보다 위에 둔다. 여기는 독서 커뮤니티라
+      // 누가 실제로 읽고 담고 쓴 책이 곧 인기책이다.
+      //
+      // 판매지수는 0~6만 범위라 그대로 더하면 활동 신호를 완전히 덮어버린다.
+      // 자연로그를 씌우면 0~11로 눌려서, 최다 판매 도서 한 권이 독서기록 한 건과
+      // 비슷한 무게가 된다. 활동이 있는 도서가 140종뿐인 현재 분포에서, 나머지
+      // 5만여 권의 순서를 판매지수가 가른다.
       .addSelect(
-        `COALESCE(book."viewCount", 0)
-         + COALESCE(rl.cnt, 0) * 10
+        `COALESCE(rl.cnt, 0) * 10
          + COALESCE(wl.cnt, 0) * 8
-         + COALESCE(rv.cnt, 0) * 5`,
+         + COALESCE(rv.cnt, 0) * 5
+         + LN(COALESCE(book."salesPoint", 0) + 1)`,
         'popularity',
       )
       .orderBy('popularity', 'DESC')
-      .addOrderBy('"viewCount"', 'DESC')
+      .addOrderBy('book.salesPoint', 'DESC', 'NULLS LAST')
       // 동점일 때 순서가 흔들리지 않도록 고정한다.
       .addOrderBy('book.isbn', 'ASC')
       .limit(10)
@@ -142,6 +153,7 @@ export class BookService {
       description: raw.description,
       image: raw.image,
       pubDate: raw.pubDate ?? null,
+      salesPoint: raw.salesPoint ?? null,
       viewCount: Number(raw.viewCount) || 0,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,

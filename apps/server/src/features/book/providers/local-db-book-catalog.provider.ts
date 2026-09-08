@@ -96,10 +96,9 @@ export class LocalDbBookCatalogProvider implements BookCatalogProvider {
   /**
    * 자체 DB에서 도서를 검색합니다.
    *
-   * params.sort는 아직 사용하지 않습니다. `books.pubDate`를 2026-09-08에
-   * 추가했지만 값이 아직 비어 있어(수확 스크립트가 채우는 중) 출간일순 정렬을
-   * 켤 수 없습니다. 값이 채워지면 sort='date'를 pubDate DESC로 연결하세요.
-   * createdAt은 적재 시각이라 대신 쓸 수 없습니다.
+   * params.sort는 아직 사용하지 않습니다. `books.pubDate`는 2026-09-09에 값이
+   * 채워졌으므로(커버리지 99.5%) 이제 sort='date'를 `pubDate DESC NULLS LAST`로
+   * 연결할 수 있습니다. createdAt은 적재 시각이라 대신 쓸 수 없습니다.
    * @param params 검색 조건
    * @returns 정규화된 검색 결과
    */
@@ -127,7 +126,11 @@ export class LocalDbBookCatalogProvider implements BookCatalogProvider {
       // 정렬이 없으면 순서가 보장되지 않아 OFFSET 페이지네이션에서 중복과 누락이
       // 생긴다. isbn까지 걸어 순서를 확정한다.
       .orderBy(relevanceCaseSql('book', columns), 'ASC')
-      .addOrderBy('book.viewCount', 'DESC')
+      // 같은 관련도 안에서는 판매지수로 가른다. 흔한 키워드는 대부분 한 버킷에
+      // 뭉치므로("사랑" 제목 부분일치만 791건) 이 두 번째 키가 사실상 체감 순서를
+      // 결정한다. 전에 쓰던 viewCount는 도서의 75%가 0이고 나머지도 크롤러 흔적이라
+      // 스테디셀러가 오히려 바닥에 깔렸다. NULLS LAST로 미수확분을 뒤로 보낸다.
+      .addOrderBy('book.salesPoint', 'DESC', 'NULLS LAST')
       .addOrderBy('book.isbn', 'ASC')
       .skip(Math.max(start - 1, 0))
       .take(display)
