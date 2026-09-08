@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "@/shared/components/shadcn/select";
 import { compressImage } from "@/shared/utils/compress-image";
+import { API_ERROR_CODES, getErrorCode } from "@/shared/utils/error-handler";
 import { getProfileImageUrl } from "@/shared/utils/profile-image";
 
 // 프로필 이미지 업로드 최대 용량 (20MB)
@@ -298,15 +299,13 @@ export const ProfileEditModal = ({ trigger }: ProfileEditModalProps) => {
 
       setOpen(false);
     } catch (error: unknown) {
-      if (
-        error instanceof Error &&
-        error.message.includes("NICKNAME_ALREADY_EXISTS")
-      ) {
+      // 서버는 사용자에게 보여줄 한국어 문장을 message로 내려주므로
+      // 분기는 code로 한다. (문구로 분기하던 기존 코드는 동작하지 않았다)
+      const code = getErrorCode(error);
+
+      if (code === API_ERROR_CODES.NICKNAME_ALREADY_EXISTS) {
         toast.error(t("nickname_taken"));
-      } else if (
-        error instanceof Error &&
-        error.message.includes("EMAIL_ALREADY_EXISTS")
-      ) {
+      } else if (code === API_ERROR_CODES.EMAIL_ALREADY_EXISTS) {
         toast.error(t("email_already_exists"));
       } else {
         toast.error(t("save_error"));

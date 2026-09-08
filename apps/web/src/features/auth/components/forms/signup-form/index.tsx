@@ -28,7 +28,11 @@ import {
 } from "@/shared/components/shadcn/select";
 import { Link, useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
-import { getErrorMessage } from "@/shared/utils/error-handler";
+import {
+  API_ERROR_CODES,
+  getErrorCode,
+  getErrorMessage,
+} from "@/shared/utils/error-handler";
 
 export const SignupForm = () => {
   const t = useTranslations("auth.signup");
@@ -55,10 +59,10 @@ export const SignupForm = () => {
     },
     onError: (error) => {
       if (axios.isAxiosError(error) && error.response?.status === 409) {
-        const message = getErrorMessage(error, "");
-        if (message === "EMAIL_ALREADY_EXISTS") {
+        const code = getErrorCode(error);
+        if (code === API_ERROR_CODES.EMAIL_ALREADY_EXISTS) {
           form.setError("email", { message: t("error.email_exists") });
-        } else if (message === "NICKNAME_ALREADY_EXISTS") {
+        } else if (code === API_ERROR_CODES.NICKNAME_ALREADY_EXISTS) {
           form.setError("nickname", {
             message: t("error.nickname_exists"),
           });
