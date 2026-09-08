@@ -19,7 +19,7 @@
   - `saveMessage`: 받은 메시지를 데이터베이스에 저장합니다.
   - `markMessagesAsRead`: 특정 채팅방을 읽음 처리합니다. 읽은 메시지를 건별로 기록하지 않고 `ChatParticipant.lastReadMessageId` 워터마크를 UPDATE 한 번으로 올립니다.
   - `getOpponentLastReadMessageId`: 상대방 참여자의 워터마크를 반환합니다. 내가 보낸 메시지의 읽음 표시 초기값입니다.
-- **`guards/socket-auth.guard.ts`**: 웹소켓 연결 요청이 들어올 때, 클라이언트가 보낸 JWT를 검증하여 인가된 사용자인지 확인하는 가드입니다. 유효하지 않은 사용자의 연결은 차단합니다.
+- 소켓 연결 인증은 `shared/websocket/authenticate-socket.ts`가 담당합니다. 핸드셰이크의 JWT를 검증하고 탈퇴 계정을 걸러내며, 게이트웨이의 `handleConnection`이 호출합니다. (NestJS 가드는 `@SubscribeMessage` 핸들러에만 걸리고 연결 시점에는 동작하지 않아 가드로 둘 수 없습니다)
 - **`entities/`**: 채팅 관련 데이터베이스 테이블 스키마를 정의합니다.
   - `chat-room.entity.ts`: 채팅방 정보를 담는 엔티티. `UsedBookSale`과 관계를 맺습니다.
   - `chat-participant.entity.ts`: 어떤 `User`가 어떤 `ChatRoom`에 참여하고 있는지 나타내는 중간 테이블 엔티티. 읽음 워터마크(`lastReadMessageId`)도 여기에 있습니다.

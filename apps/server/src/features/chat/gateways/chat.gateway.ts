@@ -12,11 +12,13 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-import { JwtPayload } from '@/features/auth/types/jwt-payload.type';
 import { User } from '@/features/user/entities/user.entity';
 import { UserService } from '@/features/user/services/user.service';
+import { authenticateSocket } from '@/shared/websocket/authenticate-socket';
 
 import { ChatMessage } from '../entities/chat-message.entity';
+import { ChatRoom } from '../entities/chat-room.entity';
+import { ChatService } from '../services/chat.service';
 
 /** 상관 ID 최대 길이 (UUID 기준 여유값) */
 const MAX_CLIENT_MESSAGE_ID_LENGTH = 64;
@@ -29,8 +31,6 @@ const isValidClientMessageId = (value: unknown): value is string =>
   typeof value === 'string' &&
   value.length > 0 &&
   value.length <= MAX_CLIENT_MESSAGE_ID_LENGTH;
-import { ChatRoom } from '../entities/chat-room.entity';
-import { ChatService } from '../services/chat.service';
 
 @WebSocketGateway({
   cors: {
@@ -56,22 +56,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: Socket) {
     try {
-      const token =
-        client.handshake.auth?.token ||
-        client.handshake.headers.authorization?.split(' ')[1];
-
-      if (!token) {
-        throw new Error('인증 토큰이 없습니다.');
-      }
-
-      const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
-        secret: process.env.JWT_SECRET,
-      });
-
-      const user = await this.userService.findById(payload.sub);
-      if (!user) {
-        throw new Error(`ID가 ${payload.sub}인 사용자를 찾을 수 없습니다.`);
-      }
+      const user = await authenticateSocket(
+        client,
+        this.jwtService,
+        this.userService,
+      );
 
       client.data.user = user;
 
@@ -171,6 +160,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  /**
+   * 클라이언트가 요청한 채팅방 중 실제 참여 중인 방에만 소켓을 참여시킵니다.
+   *
+   * 소켓 룸에 들어가면 그 방의 모든 브로드캐스트를 받으므로, 요청받은 ID를
+   * 그대로 join하면 남의 1:1 대화를 그대로 수신할 수 있습니다. 참여자인 방만
+   * 남기고 나머지는 조용히 버립니다.
+   */
   @SubscribeMessage('joinRooms')
   async handleJoinRooms(
     @MessageBody() roomIds: number[],
@@ -181,12 +177,31 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         '유효하지 않은 roomIds입니다. 숫자 배열이어야 합니다.',
       );
     }
-    const roomIdsAsStrings = roomIds.map(String);
-    await client.join(roomIdsAsStrings);
-    this.logger.log(
-      `Client ${client.id} joined rooms: [${roomIdsAsStrings.join(', ')}]`,
+
+    const user = client.data.user as User;
+    const requestedIds = roomIds.filter((roomId): roomId is number =>
+      Number.isInteger(roomId),
     );
-    return { status: 'ok', joinedRooms: roomIds };
+
+    const joinedRooms = await this.chatService.filterJoinableRoomIds(
+      requestedIds,
+      user.id,
+    );
+
+    if (joinedRooms.length > 0) {
+      await client.join(joinedRooms.map(String));
+    }
+
+    if (joinedRooms.length < requestedIds.length) {
+      this.logger.warn(
+        `User ${user.id} requested ${requestedIds.length} rooms but is a participant of ${joinedRooms.length}`,
+      );
+    }
+
+    this.logger.log(
+      `Client ${client.id} joined rooms: [${joinedRooms.join(', ')}]`,
+    );
+    return { status: 'ok', joinedRooms };
   }
 
   @SubscribeMessage('leaveRoom')
@@ -216,18 +231,32 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  /**
+   * 입력중 표시를 방에 브로드캐스트합니다.
+   *
+   * `client.to(room)`은 보낸 사람이 그 방에 없어도 방 전체에 전달되므로,
+   * joinRooms를 통과해 실제로 참여한 방인지 소켓의 룸 목록으로 확인합니다.
+   */
+  private emitTyping(client: Socket, roomId: number, isTyping: boolean): void {
+    if (!client.rooms.has(String(roomId))) {
+      return;
+    }
+
+    const user = client.data.user as User;
+    // 수신 측의 방 구분을 위해 roomId 동봉
+    client.to(String(roomId)).emit('typing', {
+      roomId,
+      nickname: user.nickname,
+      isTyping,
+    });
+  }
+
   @SubscribeMessage('startTyping')
   handleStartTyping(
     @MessageBody() data: { roomId: number },
     @ConnectedSocket() client: Socket,
   ) {
-    const user = client.data.user as User;
-    // 수신 측의 방 구분을 위해 roomId 동봉
-    client.to(String(data.roomId)).emit('typing', {
-      roomId: data.roomId,
-      nickname: user.nickname,
-      isTyping: true,
-    });
+    this.emitTyping(client, data.roomId, true);
   }
 
   @SubscribeMessage('stopTyping')
@@ -235,12 +264,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { roomId: number },
     @ConnectedSocket() client: Socket,
   ) {
-    const user = client.data.user as User;
-    client.to(String(data.roomId)).emit('typing', {
-      roomId: data.roomId,
-      nickname: user.nickname,
-      isTyping: false,
-    });
+    this.emitTyping(client, data.roomId, false);
   }
 
   @SubscribeMessage('markAsRead')

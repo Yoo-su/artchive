@@ -50,6 +50,7 @@ describe('ChatService', () => {
       findOne: jest.fn(),
       findOneBy: jest.fn(),
       save: jest.fn(),
+      update: jest.fn(),
     };
 
     // 워터마크 읽음 처리에서 쓰는 쿼리 빌더들
@@ -263,7 +264,20 @@ describe('ChatService', () => {
 
   describe('saveMessage', () => {
     it('참여자가 아니면 메시지를 보낼 수 없습니다', async () => {
-      (chatParticipantRepo.findOne as jest.Mock).mockResolvedValue(null);
+      (chatParticipantRepo.find as jest.Mock).mockResolvedValue([
+        { user: { id: 2 }, isActive: true },
+      ]);
+
+      await expect(
+        service.saveMessage('hello', 1, { id: 1 } as User),
+      ).rejects.toThrow(BusinessException);
+    });
+
+    it('방을 나간 참여자는 메시지를 보낼 수 없습니다', async () => {
+      (chatParticipantRepo.find as jest.Mock).mockResolvedValue([
+        { user: { id: 1 }, isActive: false },
+        { user: { id: 2 }, isActive: true },
+      ]);
 
       await expect(
         service.saveMessage('hello', 1, { id: 1 } as User),
@@ -274,7 +288,6 @@ describe('ChatService', () => {
       const user = { id: 1 } as User;
       const room = { id: 1, updatedAt: new Date() };
 
-      (chatParticipantRepo.findOne as jest.Mock).mockResolvedValue({ id: 1 });
       (chatParticipantRepo.find as jest.Mock).mockResolvedValue([
         { user: { id: 1 }, isActive: true },
         { user: { id: 2 }, isActive: true },
@@ -288,7 +301,10 @@ describe('ChatService', () => {
 
       await service.saveMessage('hi', 1, user);
 
-      expect(chatRoomRepo.save).toHaveBeenCalledWith(room);
+      expect(chatRoomRepo.update).toHaveBeenCalledWith(
+        1,
+        expect.objectContaining({ updatedAt: expect.any(Date) }),
+      );
       expect(chatMessageRepo.save).toHaveBeenCalled();
     });
 

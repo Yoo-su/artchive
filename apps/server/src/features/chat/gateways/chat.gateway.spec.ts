@@ -10,10 +10,16 @@ import { ChatGateway } from './chat.gateway';
 
 describe('ChatGateway', () => {
   let gateway: ChatGateway;
-  let chatService: { saveMessage: jest.Mock };
+  let chatService: {
+    saveMessage: jest.Mock;
+    filterJoinableRoomIds: jest.Mock;
+  };
 
   beforeEach(async () => {
-    chatService = { saveMessage: jest.fn() };
+    chatService = {
+      saveMessage: jest.fn(),
+      filterJoinableRoomIds: jest.fn(),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -95,6 +101,80 @@ describe('ChatGateway', () => {
       );
 
       expect(emit).toHaveBeenCalledWith('newMessage', savedMessage);
+    });
+  });
+  describe('handleJoinRooms', () => {
+    const user = { id: 10 };
+
+    it('참여자인 방에만 소켓을 조인시킨다', async () => {
+      const join = jest.fn();
+      const client = { id: 'sock-1', data: { user }, join, rooms: new Set() };
+      chatService.filterJoinableRoomIds.mockResolvedValue([3]);
+
+      const result = await gateway.handleJoinRooms([3, 99], client as never);
+
+      expect(chatService.filterJoinableRoomIds).toHaveBeenCalledWith(
+        [3, 99],
+        10,
+      );
+      expect(join).toHaveBeenCalledWith(['3']);
+      expect(result).toEqual({ status: 'ok', joinedRooms: [3] });
+    });
+
+    it('참여 중인 방이 하나도 없으면 조인하지 않는다', async () => {
+      const join = jest.fn();
+      const client = { id: 'sock-1', data: { user }, join, rooms: new Set() };
+      chatService.filterJoinableRoomIds.mockResolvedValue([]);
+
+      const result = await gateway.handleJoinRooms([99], client as never);
+
+      expect(join).not.toHaveBeenCalled();
+      expect(result).toEqual({ status: 'ok', joinedRooms: [] });
+    });
+
+    it('정수가 아닌 방 ID는 조회 전에 걸러낸다', async () => {
+      const client = {
+        id: 'sock-1',
+        data: { user },
+        join: jest.fn(),
+        rooms: new Set(),
+      };
+      chatService.filterJoinableRoomIds.mockResolvedValue([]);
+
+      await gateway.handleJoinRooms(
+        [3, '4' as never, 1.5, NaN],
+        client as never,
+      );
+
+      expect(chatService.filterJoinableRoomIds).toHaveBeenCalledWith([3], 10);
+    });
+  });
+
+  describe('handleStartTyping', () => {
+    const user = { id: 10, nickname: '홍길동' };
+
+    it('참여하지 않은 방에는 입력중 표시를 보내지 않는다', () => {
+      const to = jest.fn();
+      const client = { data: { user }, rooms: new Set<string>(), to };
+
+      gateway.handleStartTyping({ roomId: 7 }, client as never);
+
+      expect(to).not.toHaveBeenCalled();
+    });
+
+    it('참여한 방에는 입력중 표시를 보낸다', () => {
+      const emit = jest.fn();
+      const to = jest.fn().mockReturnValue({ emit });
+      const client = { data: { user }, rooms: new Set(['7']), to };
+
+      gateway.handleStartTyping({ roomId: 7 }, client as never);
+
+      expect(to).toHaveBeenCalledWith('7');
+      expect(emit).toHaveBeenCalledWith('typing', {
+        roomId: 7,
+        nickname: '홍길동',
+        isTyping: true,
+      });
     });
   });
 });

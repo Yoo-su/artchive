@@ -12,6 +12,7 @@ import {
 } from '@/features/used-book-sale/entities/used-book-sale.entity';
 import { UsedBookSaleService } from '@/features/used-book-sale/services/used-book-sale.service';
 import { User } from '@/features/user/entities/user.entity';
+import { isPaymentEnabled } from '@/shared/config/feature-flags';
 import { BusinessException } from '@/shared/exceptions/business.exception';
 
 import { ChatMessage, ChatMessageType } from '../entities/chat-message.entity';
@@ -406,28 +407,31 @@ export class ChatService {
     sender: User,
     imageUrls?: string[],
   ): Promise<ChatMessage> {
-    // 참여자 검증: 활성 상태인 참여자만 메시지 전송 가능
-    const participant = await this.chatParticipantRepository.findOne({
-      where: {
-        chatRoom: { id: roomId },
-        user: { id: sender.id },
-        isActive: true,
-      },
-    });
+    // 이미지 개수는 DB를 보기 전에 거른다. 초과 요청이면 조회 자체가 낭비다.
+    const hasImages = Boolean(imageUrls?.length);
 
-    if (!participant) {
-      throw new BusinessException('CHAT_FORBIDDEN', HttpStatus.FORBIDDEN);
+    if (hasImages && imageUrls && imageUrls.length > MAX_CHAT_IMAGES) {
+      throw new BusinessException(
+        'CHAT_IMAGE_LIMIT_EXCEEDED',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
-    // 상대방 검증: 상대방 참여자가 비활성화(isActive = false) 또는 탈퇴(deletedAt is not null) 상태인 경우 메시지 전송 불가
-    const otherParticipants = await this.chatParticipantRepository.find({
-      where: {
-        chatRoom: { id: roomId },
-      },
+    // 참여자 전원을 한 번에 읽어 보낸이 자격과 상대 상태를 함께 판단한다.
+    // 예전에는 보낸이 조회와 전체 참여자 조회를 따로 돌려 메시지마다 왕복이
+    // 하나 더 있었다.
+    const participants = await this.chatParticipantRepository.find({
+      where: { chatRoom: { id: roomId } },
       relations: ['user'],
     });
 
-    const hasWithdrawnParticipant = otherParticipants.some(
+    const me = participants.find((p) => p.user.id === sender.id);
+    if (!me?.isActive) {
+      throw new BusinessException('CHAT_FORBIDDEN', HttpStatus.FORBIDDEN);
+    }
+
+    // 상대방이 방을 나갔거나(isActive = false) 탈퇴한 경우 전송 불가
+    const hasWithdrawnParticipant = participants.some(
       (p) => p.user.id !== sender.id && (!p.isActive || p.user.deletedAt),
     );
 
@@ -442,17 +446,8 @@ export class ChatService {
     if (!chatRoom)
       throw new BusinessException('CHAT_ROOM_NOT_FOUND', HttpStatus.NOT_FOUND);
 
-    chatRoom.updatedAt = new Date();
-    await this.chatRoomRepository.save(chatRoom);
-
-    const hasImages = Boolean(imageUrls?.length);
-
-    if (hasImages && imageUrls!.length > MAX_CHAT_IMAGES) {
-      throw new BusinessException(
-        'CHAT_IMAGE_LIMIT_EXCEEDED',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    // 방 목록 정렬 기준이므로 갱신은 필요하다. 엔티티 저장 대신 컬럼만 친다.
+    await this.chatRoomRepository.update(roomId, { updatedAt: new Date() });
 
     const message = this.chatMessageRepository.create({
       content,
@@ -536,14 +531,42 @@ export class ChatService {
   }
 
   /**
+   * 주어진 방 중 해당 유저가 활성 참여자인 방 ID만 골라 돌려줍니다.
+   *
+   * 소켓 룸 참여는 그 방의 모든 브로드캐스트(새 메시지·읽음·입력중)를 받는다는
+   * 뜻이므로, 메시지 전송과 같은 수준의 참여자 검증을 통과해야 합니다.
+   * 방 개수만큼 조회하지 않도록 한 번에 확인합니다.
+   *
+   * @param roomIds 클라이언트가 참여를 요청한 방 ID 목록
+   * @param userId 요청한 사용자 ID
+   * @returns 참여가 허용된 방 ID 목록
+   */
+  async filterJoinableRoomIds(
+    roomIds: number[],
+    userId: number,
+  ): Promise<number[]> {
+    if (roomIds.length === 0) return [];
+
+    const participants = await this.chatParticipantRepository.find({
+      where: {
+        chatRoom: { id: In(roomIds) },
+        user: { id: userId },
+        isActive: true,
+      },
+      relations: ['chatRoom'],
+    });
+
+    return participants.map((participant) => participant.chatRoom.id);
+  }
+
+  /**
    * 채팅방 나가기
    * @param roomId - 나갈 채팅방 ID
    * @param userId - 나가는 사용자 ID
    */
   async leaveRoom(roomId: number, userId: number) {
     // 1. 활성 거래 여부 검증 (결제 기능 활성화 시 진행 중인 거래가 있는 경우 나가기 불가)
-    const isPaymentEnabled = process.env.FEATURE_PAYMENT_ENABLED === 'true';
-    if (isPaymentEnabled) {
+    if (isPaymentEnabled()) {
       const activeOrder = await this.orderRepository.findOne({
         where: {
           chatRoomId: roomId,
