@@ -477,7 +477,7 @@ TypeORM이 만드는 SELECT에 `"pubDate"`가 들어가 도서 조회가 전부 
 
 ### 값 채우기 — **2026-09-09 완료**
 
-`~/bookjeok-migration-scripts/harvest-aladin.mjs`가 알라딘에서 정가·출간일·결측
+`~/bookjeok-migration/scripts/harvest-aladin.mjs`가 알라딘에서 정가·출간일·결측
 설명을 수확하고, `apply-harvest.mjs`가 반영합니다. 반영은 기본이 dry-run이며
 `--apply`를 붙였을 때만 씁니다.
 
@@ -496,5 +496,5 @@ ALTER TABLE books DROP COLUMN "pubDate";
 출간일을 다시 받을 방법이 없습니다. 컬럼을 지우지 말고, 값만 비우려면
 `UPDATE books SET "pubDate" = NULL`을 쓰세요.
 
-`discount`를 판매가로 되돌리려면 `~/bookjeok-harvest/harvest.jsonl`의 각 줄에
+`discount`를 판매가로 되돌리려면 `~/bookjeok-migration/data/harvest.jsonl`의 각 줄에
 반영 전 값이 `dbDiscount`로 보존돼 있습니다.
