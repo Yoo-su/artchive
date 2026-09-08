@@ -42,6 +42,7 @@ DDL_TARGET_DATABASE_URL=postgres://user:pass@localhost:5432/bookjeok_ddl   pnpm 
 | 2026-09-08 | `books.pubDate` 컬럼 추가 (출간일) | `026abfd5` |
 | 2026-09-09 | 위 컬럼 값 채움 + `books.discount` 판매가 → 정가 (DDL 아님, 데이터 반영) | (스크립트) |
 | 2026-09-09 | `books.salesPoint` 컬럼 추가 (알라딘 판매지수) | (미커밋) |
+| 2026-09-09 | `reading_logs.isbn` 외래키 추가 (누락돼 있던 제약) | (미커밋) |
 
 현재 운영에 남아 있는 채팅 인덱스는 **4개**입니다
 (`idx_read_receipts_message`는 테이블과 함께 사라졌습니다).
@@ -582,3 +583,88 @@ ALTER TABLE books DROP COLUMN "salesPoint";
 **알라딘 종료 이후에는 다시 받을 수 없습니다.** 컬럼을 지우지 말고, 값만 비우려면
 `UPDATE books SET "salesPoint" = NULL`을 쓰세요. 수확 JSONL
 (`~/bookjeok-migration/data/harvest-v2/harvest.jsonl`)에서 언제든 다시 채울 수 있습니다.
+
+## 7. `reading_logs.isbn` 외래키 추가 (2026-09-09)
+
+### 배경
+
+`books`를 참조하는 컬럼 다섯 중 **`reading_logs`만 외래키가 없었습니다.**
+
+| 테이블 | isbn NULL 허용 | 삭제 규칙 |
+| --- | --- | --- |
+| `ai_book_summaries` | NO | CASCADE |
+| `reviews` | YES | NO ACTION |
+| `used_book_sales` | YES | SET NULL |
+| `wishlists` | YES | CASCADE |
+| **`reading_logs`** | **NO** | **제약 없음** ← |
+
+엔티티는 `onDelete: 'SET NULL'`로 선언돼 있었는데 `isbn` 컬럼이 NOT NULL이라
+**성립할 수 없는 조합**이었습니다. 운영에 제약이 아예 없어서 그 모순이 드러나지
+않고 있었습니다.
+
+2026-09-09에 표지 없는 도서 622건을 지울 때 참조 여부를 **사람이 손으로 세서**
+확인해야 했습니다. 제약이 있었으면 DB가 막아줬을 일입니다.
+
+### 삭제 규칙을 NO ACTION으로 정한 이유
+
+독서기록은 사용자가 직접 남긴 기록이라 도서 행이 사라진다고 조용히 끊기거나
+사라지면 안 됩니다. `reviews`와 같은 규칙이며, `isbn`을 NOT NULL로 둔 현재
+설계와도 모순이 없습니다.
+
+`SET NULL`로 가려면 컬럼을 nullable로 바꾸는 DDL이 추가로 필요하고, `book`
+관계가 `eager: true`라 서버·웹 양쪽에 null 처리를 넣어야 합니다. 얻는 것에 비해
+작업이 큽니다.
+
+### 적용한 DDL
+
+```sql
+-- 고아 행이 있으면 실패한다. 적용 직전에 0건임을 확인했다(49행 중 0건).
+ALTER TABLE reading_logs
+  ADD CONSTRAINT "FK_reading_logs_isbn"
+  FOREIGN KEY (isbn) REFERENCES books(isbn)
+  ON DELETE NO ACTION ON UPDATE NO ACTION
+  NOT VALID;
+
+ALTER TABLE reading_logs VALIDATE CONSTRAINT "FK_reading_logs_isbn";
+```
+
+`NOT VALID`로 먼저 걸고 검증을 분리한 이유는 `ADD CONSTRAINT`가 참조 대상인
+`books`(56,836행)에도 락을 잡기 때문입니다. `reading_logs`가 49행뿐이라 실익은
+작지만, **운영 DB에 외래키를 거는 기본 절차로 둡니다.** 큰 테이블에서는 이 차이가
+장애와 무장애를 가릅니다.
+
+적용 후 `pg_constraint.convalidated = true`를 확인했습니다.
+
+### 엔티티
+
+```ts
+@ManyToOne(() => Book)
+@JoinColumn({ name: 'isbn' })
+book: Book;
+```
+
+`onDelete` 옵션을 제거해 기본값(NO ACTION)이 되게 했습니다. 선언과 운영 스키마가
+이제 일치합니다.
+
+> **개발 DB 주의.** 개발 환경은 `synchronize: true`라 이 변경으로 FK를 다시
+> 만들려 합니다. `reading_logs`에 `books`에 없는 isbn이 남아 있으면 제약 생성이
+> 실패해 서버가 뜨지 않습니다. 아래로 확인하고 정리한 뒤 띄우세요.
+>
+> ```sql
+> SELECT r.isbn FROM reading_logs r
+> WHERE NOT EXISTS (SELECT 1 FROM books b WHERE b.isbn = r.isbn);
+> ```
+
+### 배포 순서
+
+**DDL이 먼저입니다.** 다만 이번 건은 코드가 먼저 나가도 깨지지 않습니다.
+제약은 DB 차원의 방어일 뿐이고 쿼리 모양이 바뀌지 않기 때문입니다.
+
+### 되돌리기
+
+```sql
+ALTER TABLE reading_logs DROP CONSTRAINT "FK_reading_logs_isbn";
+```
+
+데이터 손실이 없습니다. 되돌리면 도서 삭제 시 독서기록이 다시 조용히 고아가
+될 수 있는 상태로 돌아갈 뿐입니다.

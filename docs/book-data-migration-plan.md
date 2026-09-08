@@ -1584,6 +1584,19 @@ Postgres가 인덱스가 있어도 Seq Scan을 택합니다(`reading_logs`엔 `(
 - [ ] `trade-review.service.ts` — `getSellerStats`가 리뷰 전량을 메모리에 올려
       JS로 집계합니다. 현재 76건이라 문제없으나 리뷰가 늘면 바뀝니다
 
+### 스키마 드리프트 — `reading_logs.isbn` FK 누락 (2026-09-09 해소)
+
+622건 삭제 작업 중 발견했습니다. `books`를 참조하는 컬럼 다섯 중 `reading_logs`만
+외래키가 없었고, 엔티티는 `onDelete: 'SET NULL'`인데 컬럼이 NOT NULL이라 애초에
+성립할 수 없는 선언이었습니다.
+
+`NO ACTION`으로 제약을 걸고 엔티티 선언을 실제와 맞췄습니다. 상세와 근거는
+`docs/manual-ddl-log.md` 7번에 있습니다.
+
+**엔티티 선언과 운영 스키마가 어긋날 수 있다는 것이 요점입니다.** `synchronize: false`
+운영에서는 데코레이터가 무엇을 선언하든 DB에 반영되지 않습니다. 나머지 관계는
+이번에 전수 확인했고 어긋난 곳이 없었습니다.
+
 ### 아직 점검하지 않은 영역
 
 - 웹 도서 기능 (`apps/web/src/features/book`)

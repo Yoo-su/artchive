@@ -30,7 +30,16 @@ export class ReadingLog {
   @Column()
   isbn: string;
 
-  @ManyToOne(() => Book, { eager: true, onDelete: 'SET NULL' })
+  /**
+   * 도서 삭제를 막습니다(NO ACTION). 독서기록은 사용자가 직접 남긴 기록이라
+   * 도서 행이 사라진다고 조용히 끊기면 안 됩니다.
+   *
+   * 전에는 `onDelete: 'SET NULL'`로 선언돼 있었는데 위 `isbn`이 NOT NULL이라
+   * 성립할 수 없는 조합이었고, 운영에는 FK 자체가 없어 그 모순이 드러나지
+   * 않았습니다. 2026-09-09에 제약을 걸면서 선언을 실제와 맞췄습니다
+   * (`docs/manual-ddl-log.md` 7번). `reviews`와 같은 규칙입니다.
+   */
+  @ManyToOne(() => Book)
   @JoinColumn({ name: 'isbn' })
   book: Book;
 
