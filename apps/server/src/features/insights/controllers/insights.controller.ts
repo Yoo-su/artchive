@@ -4,8 +4,8 @@ import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   InsightsResponseDto,
   LocationSalesDto,
-} from './dto/insights-response.dto';
-import { InsightsService } from './insights.service';
+} from '../dtos/insights-response.dto';
+import { InsightsService } from '../services/insights.service';
 
 @ApiTags('insights')
 @Controller('insights')

@@ -71,22 +71,26 @@ export class NotificationService {
       .createQueryBuilder('notification')
       .leftJoinAndSelect('notification.actor', 'actor')
       .where('notification.recipientId = :userId', { userId })
-      .orderBy('notification.createdAt', 'DESC')
-      .take(limit + 1); // +1 to check if there is a next page
+      // 커서가 id 기준이므로 정렬도 id로 맞춘다. createdAt으로 정렬하면
+      // 동시각에 만들어진 알림들의 순서와 커서 비교 기준이 어긋난다.
+      .orderBy('notification.id', 'DESC')
+      .take(limit + 1); // 다음 페이지 존재 여부 판별용 초과 조회
 
     if (cursor) {
       query.andWhere('notification.id < :cursor', { cursor });
     }
 
     const items = await query.getMany();
-    let nextCursor: number | null = null;
 
-    if (items.length > limit) {
-      const nextItem = items.pop();
-      if (nextItem) {
-        nextCursor = nextItem.id;
-      }
+    // 초과 조회분은 버리고, 커서는 "이번 페이지의 마지막 항목"으로 잡는다.
+    // 버린 항목을 커서로 쓰면 다음 페이지가 그 항목을 건너뛰어 사라진다.
+    const hasNextPage = items.length > limit;
+    if (hasNextPage) {
+      items.pop();
     }
+
+    const nextCursor =
+      hasNextPage && items.length > 0 ? items[items.length - 1].id : null;
 
     return {
       items,

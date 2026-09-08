@@ -15,8 +15,8 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { User } from '@/features/user/entities/user.entity';
 
-import { GetNotificationsQueryDto } from '../dto/get-notifications-query.dto';
-import { GetNotificationsResponseDto } from '../dto/notification-response.dto';
+import { GetNotificationsQueryDto } from '../dtos/get-notifications-query.dto';
+import { GetNotificationsResponseDto } from '../dtos/notification-response.dto';
 import { NotificationService } from '../services/notification.service';
 
 @ApiTags('알림 (Notification)')

@@ -17,7 +17,7 @@ comment/
 ├── listeners/
 │   ├── comment-notification.listener.ts  # comment.created · comment.liked
 │   └── comment-cleanup.listener.ts       # user.withdrawn
-└── dto/
+└── dtos/
     ├── create-comment.dto.ts
     ├── update-comment.dto.ts
     └── get-comments.dto.ts

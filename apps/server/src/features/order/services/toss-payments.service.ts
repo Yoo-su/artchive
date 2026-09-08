@@ -19,7 +19,7 @@ export interface TossPaymentResponse {
     cancelReason: string;
     canceledAt: string;
   }>;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface TossEscrowShippingResponse {
@@ -29,7 +29,7 @@ export interface TossEscrowShippingResponse {
     company: string;
     trackingNumber: string;
   };
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 @Injectable()
@@ -120,7 +120,7 @@ export class TossPaymentsService {
    * 토스페이먼츠 에스크로 구매확정 API 호출
    * POST https://api.tosspayments.com/v1/payments/{paymentKey}/escrow/complete
    */
-  async confirmEscrowPurchase(paymentKey: string): Promise<any> {
+  async confirmEscrowPurchase(paymentKey: string): Promise<unknown> {
     try {
       const response = await lastValueFrom(
         this.httpService.post(
@@ -142,7 +142,7 @@ export class TossPaymentsService {
   async rejectEscrowPurchase(
     paymentKey: string,
     rejectReason: string,
-  ): Promise<any> {
+  ): Promise<unknown> {
     try {
       const response = await lastValueFrom(
         this.httpService.post(

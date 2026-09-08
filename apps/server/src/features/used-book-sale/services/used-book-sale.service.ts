@@ -2,15 +2,13 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cache } from 'cache-manager';
-import { DataSource, In, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { Book } from '@/features/book/entities/book.entity';
-import { BookService } from '@/features/book/services/book.service';
 import { ACTIVE_ORDER_STATUSES } from '@/features/order/constants';
 import { Order } from '@/features/order/entities/order.entity';
 import { TradeCompletion } from '@/features/trade/entities/trade-completion.entity';
 import { User } from '@/features/user/entities/user.entity';
-import { UserService } from '@/features/user/services/user.service';
 import { BusinessException } from '@/shared/exceptions';
 
 import { POPULAR_SALE_MONTHS } from '../constants';
@@ -27,6 +25,28 @@ import {
   encodeCursor,
 } from '../utils/sale-query.builder';
 
+/**
+ * 판매글 목록 응답에 싣는 컬럼.
+ * 검색 목록과 ISBN별 목록이 같은 화면 카드를 그리므로 한 곳에서 정의한다.
+ */
+const SALE_LIST_SELECT = [
+  'sale.id',
+  'sale.title',
+  'sale.price',
+  'sale.status',
+  'sale.createdAt',
+  'sale.updatedAt',
+  'sale.imageUrls',
+  'sale.city',
+  'sale.district',
+  'sale.viewCount',
+  'user.id',
+  'user.handle',
+  'user.nickname',
+  'user.profileImageUrl',
+  'book',
+];
+
 @Injectable()
 export class UsedBookSaleService {
   // 인기 판매글 및 지역 목록 캐시 키/TTL
@@ -41,9 +61,6 @@ export class UsedBookSaleService {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(TradeCompletion)
     private readonly tradeCompletionRepository: Repository<TradeCompletion>,
-    private readonly bookService: BookService,
-    private readonly userService: UserService,
-    private readonly dataSource: DataSource,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
@@ -180,7 +197,7 @@ export class UsedBookSaleService {
 
   /**
    * 인기 판매글을 조회합니다.
-   * 최근 1년 내 조회수 높은 순으로 6개 반환 (결과 캐싱)
+   * 최근 POPULAR_SALE_MONTHS개월 내 조회수 높은 순으로 6개 반환 (결과 캐싱)
    */
   async findPopularSales(): Promise<UsedBookSale[]> {
     // 1. 캐시 확인
@@ -209,17 +226,17 @@ export class UsedBookSaleService {
   }
 
   /**
-   * 최근 1년간 조회수가 가장 높은 판매 중인 글 ID를 조회합니다.
+   * 최근 POPULAR_SALE_MONTHS개월 내 조회수가 가장 높은 판매 중인 글 ID를 조회합니다.
    */
   private async getPopularSaleIds(limit: number): Promise<{ id: number }[]> {
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - POPULAR_SALE_MONTHS);
+    const since = new Date();
+    since.setMonth(since.getMonth() - POPULAR_SALE_MONTHS);
 
     return await this.usedBookSaleRepository
       .createQueryBuilder('sale')
       .select('sale.id', 'id')
       .where('sale.status = :status', { status: SaleStatus.FOR_SALE })
-      .andWhere('sale.createdAt >= :threeMonthsAgo', { threeMonthsAgo })
+      .andWhere('sale.createdAt >= :since', { since })
       .orderBy('sale.viewCount', 'DESC')
       .limit(limit)
       .getRawMany();
@@ -343,23 +360,7 @@ export class UsedBookSaleService {
       .createQueryBuilder('sale')
       .leftJoinAndSelect('sale.user', 'user')
       .leftJoinAndSelect('sale.book', 'book')
-      .select([
-        'sale.id',
-        'sale.title',
-        'sale.price',
-        'sale.status',
-        'sale.createdAt',
-        'sale.updatedAt',
-        'sale.imageUrls',
-        'sale.city',
-        'sale.district',
-        'sale.viewCount',
-        'user.id',
-        'user.handle',
-        'user.nickname',
-        'user.profileImageUrl',
-        'book',
-      ]);
+      .select(SALE_LIST_SELECT);
   }
 
   /**
@@ -374,23 +375,7 @@ export class UsedBookSaleService {
       .andWhere('sale.status = :status', { status: SaleStatus.FOR_SALE })
       .leftJoinAndSelect('sale.user', 'user')
       .leftJoinAndSelect('sale.book', 'book')
-      .select([
-        'sale.id',
-        'sale.title',
-        'sale.price',
-        'sale.status',
-        'sale.createdAt',
-        'sale.updatedAt',
-        'sale.imageUrls',
-        'sale.city',
-        'sale.district',
-        'sale.viewCount',
-        'user.id',
-        'user.handle',
-        'user.nickname',
-        'user.profileImageUrl',
-        'book',
-      ])
+      .select(SALE_LIST_SELECT)
       .orderBy('sale.createdAt', 'DESC')
       .skip((page - 1) * limit)
       .take(limit + 1); // limit + 1개를 조회하여 다음 페이지 존재 여부 판별

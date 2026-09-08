@@ -1,4 +1,7 @@
+import { HttpStatus } from '@nestjs/common';
 import { SelectQueryBuilder } from 'typeorm';
+
+import { BusinessException } from '@/shared/exceptions';
 
 import {
   BookSaleSortBy,
@@ -14,8 +17,10 @@ export const applyCommonFilters = (
   const { search, city, district, minPrice, maxPrice, status } = queryDto;
 
   if (search) {
+    // ILIKE를 쓴다. Postgres의 LIKE는 대소문자를 가려서 "Clean Code"로 등록된
+    // 판매글이 "clean code" 검색에 걸리지 않는다.
     queryBuilder.andWhere(
-      '(sale.title LIKE :search OR sale.content LIKE :search OR book.title LIKE :search OR book.author LIKE :search)',
+      '(sale.title ILIKE :search OR sale.content ILIKE :search OR book.title ILIKE :search OR book.author ILIKE :search)',
       { search: `%${search}%` },
     );
   }
@@ -90,11 +95,23 @@ export interface CursorData {
 }
 
 export const decodeCursor = (cursor: string): CursorData => {
+  // 커서는 클라이언트가 그대로 되돌려주는 값이라 조작되거나 낡을 수 있다.
+  // 평범한 Error를 던지면 전역 필터가 500으로 처리하므로 400으로 내린다.
   try {
     const json = Buffer.from(cursor, 'base64').toString('utf-8');
-    return JSON.parse(json) as CursorData;
+    const parsed = JSON.parse(json) as CursorData;
+
+    if (
+      typeof parsed?.id !== 'number' ||
+      !Number.isInteger(parsed.id) ||
+      (typeof parsed.value !== 'number' && typeof parsed.value !== 'string')
+    ) {
+      throw new Error('malformed cursor payload');
+    }
+
+    return parsed;
   } catch {
-    throw new Error('Invalid cursor format');
+    throw new BusinessException('SALE_INVALID_CURSOR', HttpStatus.BAD_REQUEST);
   }
 };
 

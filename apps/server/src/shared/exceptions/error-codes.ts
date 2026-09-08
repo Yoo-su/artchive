@@ -18,10 +18,6 @@ export const ERROR_CODES = {
   // ============================================
   // 인증 관련 에러 (AUTH)
   // ============================================
-  AUTH_INVALID_TOKEN: {
-    code: 'AUTH_001',
-    message: '유효하지 않은 토큰입니다.',
-  },
   AUTH_TOKEN_EXPIRED: {
     code: 'AUTH_002',
     message: '토큰이 만료되었습니다.',
@@ -63,6 +59,18 @@ export const ERROR_CODES = {
     message:
       '이메일 인증이 완료되지 않은 계정입니다. 이메일 인증 후 이용해주세요.',
   },
+  INVALID_CREDENTIALS: {
+    code: 'AUTH_012',
+    message: '이메일 또는 비밀번호가 올바르지 않습니다.',
+  },
+  SOCIAL_LOGIN_USER: {
+    code: 'AUTH_013',
+    message: '소셜 로그인으로 가입된 계정입니다. 소셜 로그인을 이용해주세요.',
+  },
+  INVALID_OR_EXPIRED_TICKET: {
+    code: 'AUTH_014',
+    message: '만료되었거나 이미 사용된 인증 요청입니다. 다시 로그인해주세요.',
+  },
 
   // ============================================
   // 사용자 관련 에러 (USER)
@@ -70,10 +78,6 @@ export const ERROR_CODES = {
   USER_NOT_FOUND: {
     code: 'USER_001',
     message: '사용자를 찾을 수 없습니다.',
-  },
-  USER_ALREADY_EXISTS: {
-    code: 'USER_002',
-    message: '이미 존재하는 사용자입니다.',
   },
   NICKNAME_ALREADY_EXISTS: {
     code: 'USER_003',
@@ -123,6 +127,10 @@ export const ERROR_CODES = {
   SALE_IN_TRADE_CANNOT_CHANGE_STATUS: {
     code: 'SALE_007',
     message: '진행 중인 거래가 있어 판매글 상태를 수동으로 변경할 수 없습니다.',
+  },
+  SALE_INVALID_CURSOR: {
+    code: 'SALE_008',
+    message: '잘못된 페이지 커서입니다. 목록을 새로고침해주세요.',
   },
 
   // ============================================
@@ -344,6 +352,10 @@ export const ERROR_CODES = {
   EXTERNAL_API_ERROR: {
     code: 'INTERNAL_002',
     message: '외부 서비스 연동 중 오류가 발생했습니다.',
+  },
+  REQUEST_IN_PROGRESS: {
+    code: 'INTERNAL_003',
+    message: '동일한 요청이 처리 중입니다. 잠시 후 다시 시도해주세요.',
   },
 } as const;
 

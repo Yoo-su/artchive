@@ -19,8 +19,8 @@ import {
   LOUNGE_POPULAR_COUNT,
   LOUNGE_POPULAR_DAYS,
 } from '../constants';
-import { CreateReadingLogDto } from '../dto/create-reading-log.dto';
-import { UpdateReadingLogDto } from '../dto/update-reading-log.dto';
+import { CreateReadingLogDto } from '../dtos/create-reading-log.dto';
+import { UpdateReadingLogDto } from '../dtos/update-reading-log.dto';
 import { ReadingLog } from '../entities/reading-log.entity';
 
 interface FeedGroupAccumulator {

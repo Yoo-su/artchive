@@ -2,14 +2,19 @@ import {
   CallHandler,
   ExecutionContext,
   Injectable,
+  Logger,
   NestInterceptor,
 } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Injectable()
 export abstract class BaseViewCountInterceptor implements NestInterceptor {
+  // 로그에 추상 클래스명이 아니라 실제 인터셉터명이 찍히도록 한다.
+  private readonly logger = new Logger(this.constructor.name);
+
   constructor(protected cacheManager: Cache) {}
 
   /**
@@ -36,30 +41,53 @@ export abstract class BaseViewCountInterceptor implements NestInterceptor {
    */
   protected abstract incrementCount(id: number | string): Promise<void>;
 
-  async intercept(
-    context: ExecutionContext,
-    next: CallHandler,
-  ): Promise<Observable<unknown>> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const request = context.switchToHttp().getRequest<Request>();
     const id = this.getResourceId(request);
+    const ip = this.resolveClientIp(request);
 
-    // x-forwarded-for 헤더를 먼저 확인하여 실제 클라이언트 IP를 가져옵니다.
-    const ip =
-      request.headers['x-forwarded-for']?.toString().split(',')[0] ||
-      request.ip ||
-      request.socket?.remoteAddress;
+    // 핸들러가 성공한 뒤에만 센다. 앞에서 올리면 404·403으로 끝난 요청까지
+    // 조회수에 잡힌다.
+    return next.handle().pipe(
+      tap(() => {
+        if (!id || !ip) return;
+        void this.recordView(id, ip);
+      }),
+    );
+  }
 
-    if (id && ip) {
-      const cacheKey = `${this.cachePrefix}:${id}:${ip}`;
+  /**
+   * 24시간 중복 방지를 확인하고 조회수를 올립니다.
+   * 조회수 집계 실패가 본 응답을 막아서는 안 되므로 예외를 삼킵니다.
+   */
+  private async recordView(id: string | number, ip: string): Promise<void> {
+    const cacheKey = `${this.cachePrefix}:${id}:${ip}`;
+
+    try {
       const isViewed = await this.cacheManager.get(cacheKey);
+      if (isViewed) return;
 
-      if (!isViewed) {
-        await this.incrementCount(id);
-        // 24시간 TTL (밀리초 단위)
-        await this.cacheManager.set(cacheKey, '1', 24 * 60 * 60 * 1000);
-      }
+      await this.incrementCount(id);
+      // 24시간 TTL (밀리초 단위)
+      await this.cacheManager.set(cacheKey, '1', 24 * 60 * 60 * 1000);
+    } catch (error: unknown) {
+      this.logger.warn(
+        `조회수 기록 실패 (${cacheKey}): ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
     }
+  }
 
-    return next.handle();
+  /**
+   * 신뢰할 수 있는 클라이언트 IP를 구합니다.
+   *
+   * `x-forwarded-for`는 클라이언트가 마음대로 지어낼 수 있어, 그대로 믿으면
+   * 헤더만 바꿔가며 조회수를 무한히 올릴 수 있습니다. Express의 `trust proxy`
+   * 설정을 거친 `request.ip`를 먼저 쓰고, 그것이 없을 때만 소켓 주소로
+   * 내려갑니다.
+   */
+  private resolveClientIp(request: Request): string | undefined {
+    return request.ip || request.socket?.remoteAddress || undefined;
   }
 }

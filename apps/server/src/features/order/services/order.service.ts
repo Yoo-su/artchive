@@ -3,7 +3,13 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional, TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterTypeOrm } from '@nestjs-cls/transactional-adapter-typeorm';
-import { In, OptimisticLockVersionMismatchError, Repository } from 'typeorm';
+import {
+  EntityManager,
+  FindOptionsWhere,
+  In,
+  OptimisticLockVersionMismatchError,
+  Repository,
+} from 'typeorm';
 
 import { ChatParticipant } from '@/features/chat/entities/chat-participant.entity';
 import { TradeCompletionService } from '@/features/trade/services/trade-completion.service';
@@ -46,6 +52,14 @@ interface PersistedOrder {
   event: PendingOrderEvent;
 }
 
+/** 주문 목록 페이지 응답 */
+export interface OrderListResult {
+  orders: Order[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 @Injectable()
 export class OrderService {
   private readonly logger = new Logger(OrderService.name);
@@ -53,13 +67,35 @@ export class OrderService {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
-    @InjectRepository(UsedBookSale)
-    private readonly saleRepository: Repository<UsedBookSale>,
     private readonly txHost: TransactionHost<TransactionalAdapterTypeOrm>,
     private readonly tossPaymentsService: TossPaymentsService,
     private readonly tradeCompletionService: TradeCompletionService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
+
+  /**
+   * 주문을 저장하고 낙관적 락 충돌만 도메인 예외로 바꿔 던집니다.
+   *
+   * 상태 전이 메서드마다 같은 try/catch를 두면 한 곳만 고쳐지고 나머지가
+   * 남습니다. `@VersionColumn`을 가진 엔티티는 Order뿐이므로 이 저장 지점이
+   * 낙관적 락 충돌이 발생할 수 있는 유일한 자리입니다.
+   */
+  private async saveOrder(
+    manager: EntityManager,
+    order: Order,
+  ): Promise<Order> {
+    try {
+      return await manager.save(Order, order);
+    } catch (error) {
+      if (error instanceof OptimisticLockVersionMismatchError) {
+        throw new BusinessException(
+          'ORDER_CONCURRENT_MODIFICATION',
+          HttpStatus.CONFLICT,
+        );
+      }
+      throw error;
+    }
+  }
 
   /**
    * 판매자가 특정 구매자를 선택하여 주문을 생성합니다.
@@ -184,33 +220,23 @@ export class OrderService {
       expiresAt,
     });
 
-    try {
-      const savedOrder = await manager.save(Order, order);
-      sale.status = SaleStatus.RESERVED;
-      await manager.save(UsedBookSale, sale);
+    const savedOrder = await this.saveOrder(manager, order);
+    sale.status = SaleStatus.RESERVED;
+    await manager.save(UsedBookSale, sale);
 
-      const event: PendingOrderEvent = {
-        name: 'order.buyer_selected',
-        payload: {
-          orderId: savedOrder.id,
-          saleId: savedOrder.saleId,
-          buyerId: savedOrder.buyerId,
-          sellerId: savedOrder.sellerId,
-          amount: savedOrder.amount,
-          chatRoomId: savedOrder.chatRoomId,
-        },
-      };
+    const event: PendingOrderEvent = {
+      name: 'order.buyer_selected',
+      payload: {
+        orderId: savedOrder.id,
+        saleId: savedOrder.saleId,
+        buyerId: savedOrder.buyerId,
+        sellerId: savedOrder.sellerId,
+        amount: savedOrder.amount,
+        chatRoomId: savedOrder.chatRoomId,
+      },
+    };
 
-      return { order: savedOrder, event };
-    } catch (error) {
-      if (error instanceof OptimisticLockVersionMismatchError) {
-        throw new BusinessException(
-          'ORDER_CONCURRENT_MODIFICATION',
-          HttpStatus.CONFLICT,
-        );
-      }
-      throw error;
-    }
+    return { order: savedOrder, event };
   }
 
   /**
@@ -257,60 +283,99 @@ export class OrderService {
     order.cancelledAt = new Date();
     order.cancelReason = '판매자 선택 취소';
 
-    try {
-      const savedOrder = await manager.save(Order, order);
-      if (order.sale) {
-        order.sale.status = SaleStatus.FOR_SALE;
-        await manager.save(UsedBookSale, order.sale);
-      }
-
-      const event: PendingOrderEvent = {
-        name: 'order.cancelled',
-        payload: {
-          orderId: savedOrder.id,
-          saleId: order.saleId,
-          buyerId: order.buyerId,
-          sellerId: order.sellerId,
-          chatRoomId: order.chatRoomId,
-          reason: '판매자 선택 취소',
-        },
-      };
-
-      return { order: savedOrder, event };
-    } catch (error) {
-      if (error instanceof OptimisticLockVersionMismatchError) {
-        throw new BusinessException(
-          'ORDER_CONCURRENT_MODIFICATION',
-          HttpStatus.CONFLICT,
-        );
-      }
-      throw error;
+    const savedOrder = await this.saveOrder(manager, order);
+    if (order.sale) {
+      order.sale.status = SaleStatus.FOR_SALE;
+      await manager.save(UsedBookSale, order.sale);
     }
+
+    const event: PendingOrderEvent = {
+      name: 'order.cancelled',
+      payload: {
+        orderId: savedOrder.id,
+        saleId: order.saleId,
+        buyerId: order.buyerId,
+        sellerId: order.sellerId,
+        chatRoomId: order.chatRoomId,
+        reason: '판매자 선택 취소',
+      },
+    };
+
+    return { order: savedOrder, event };
   }
 
   /**
    * 결제 완료 및 배송지 스냅샷을 저장합니다.
    * 금액 위변조 및 만료 여부를 검증하고 토스페이먼츠 승인 후 PAID 상태로 전이합니다.
+   *
+   * 보상 트랜잭션(자동 환불)은 트랜잭션 **밖**에서 잡습니다. 안쪽에서 잡으면
+   * `manager.save`까지만 덮여서, 저장은 성공했는데 커밋이 실패한 경우 토스
+   * 승인만 살아남고 주문은 없는 상태가 됩니다.
    */
   async confirmPayment(
     orderId: string,
     buyerId: number,
     dto: ConfirmPaymentDto,
   ): Promise<Order> {
-    const { order, event } = await this.persistConfirmPayment(
-      orderId,
-      buyerId,
-      dto,
-    );
-    this.eventEmitter.emit(event.name, event.payload);
-    return order;
+    let paymentApproved = false;
+    let persisted: PersistedOrder;
+
+    // 보상 대상은 "저장 실패"뿐이다. 이벤트 발행까지 try에 넣으면 리스너가
+    // 던졌을 때 이미 성사된 결제를 환불해 버린다.
+    try {
+      persisted = await this.persistConfirmPayment(
+        orderId,
+        buyerId,
+        dto,
+        () => {
+          paymentApproved = true;
+        },
+      );
+    } catch (error) {
+      if (paymentApproved) {
+        await this.refundApprovedPayment(orderId, dto);
+      }
+      throw error;
+    }
+
+    this.eventEmitter.emit(persisted.event.name, persisted.event.payload);
+    return persisted.order;
   }
 
+  /**
+   * 승인은 됐지만 주문을 남기지 못한 결제를 되돌립니다.
+   * 환불까지 실패하면 수동 처리가 필요하므로 결제 키를 로그에 남깁니다.
+   */
+  private async refundApprovedPayment(
+    orderId: string,
+    dto: ConfirmPaymentDto,
+  ): Promise<void> {
+    try {
+      await this.tossPaymentsService.cancelPayment(
+        dto.paymentKey,
+        '주문 저장 처리 중 시스템 오류로 인한 자동 취소',
+        dto.amount,
+      );
+      this.logger.warn(
+        `주문 ID ${orderId} 저장 실패로 결제를 자동 취소했습니다 (paymentKey: ${dto.paymentKey})`,
+      );
+    } catch (compensationError) {
+      this.logger.error(
+        `주문 ID ${orderId} 결제 승인 후 자동 환불 실패, 수동 처리 필요 (paymentKey: ${dto.paymentKey}): ${(compensationError as Error).message}`,
+      );
+    }
+  }
+
+  /**
+   * @param onPaymentApproved 토스 승인이 끝난 직후 호출됩니다. 이 시점 이후로
+   *   실패하면 호출자가 보상 트랜잭션(환불)을 돌려야 합니다.
+   */
   @Transactional()
   private async persistConfirmPayment(
     orderId: string,
     buyerId: number,
     dto: ConfirmPaymentDto,
+    onPaymentApproved: () => void,
   ): Promise<PersistedOrder> {
     const manager = this.txHost.tx;
 
@@ -363,6 +428,7 @@ export class OrderService {
       order.id,
       dto.amount,
     );
+    onPaymentApproved();
 
     order.status = OrderStatus.PAID;
     order.paymentKey = dto.paymentKey;
@@ -373,47 +439,21 @@ export class OrderService {
     order.addressDetail = dto.addressDetail || null;
     order.paidAt = new Date();
 
-    try {
-      const savedOrder = await manager.save(Order, order);
+    const savedOrder = await this.saveOrder(manager, order);
 
-      const event: PendingOrderEvent = {
-        name: 'order.payment_completed',
-        payload: {
-          orderId: savedOrder.id,
-          saleId: order.saleId,
-          buyerId: order.buyerId,
-          sellerId: order.sellerId,
-          amount: savedOrder.amount,
-          chatRoomId: order.chatRoomId,
-        },
-      };
+    const event: PendingOrderEvent = {
+      name: 'order.payment_completed',
+      payload: {
+        orderId: savedOrder.id,
+        saleId: order.saleId,
+        buyerId: order.buyerId,
+        sellerId: order.sellerId,
+        amount: savedOrder.amount,
+        chatRoomId: order.chatRoomId,
+      },
+    };
 
-      return { order: savedOrder, event };
-    } catch (error) {
-      // DB 저장 실패 시 이미 승인된 토스 결제에 대해 자동 환불(보상 트랜잭션) 수행
-      try {
-        await this.tossPaymentsService.cancelPayment(
-          dto.paymentKey,
-          '주문 저장 처리 중 시스템 오류로 인한 자동 취소',
-          dto.amount,
-        );
-        this.logger.warn(
-          `주문 ID ${order.id} DB 저장 실패로 인한 결제 자동 취소(보상 트랜잭션) 완료 (paymentKey: ${dto.paymentKey})`,
-        );
-      } catch (compensationError) {
-        this.logger.error(
-          `주문 ID ${order.id} 결제 승인 후 DB 실패에 따른 자동 환불(보상 트랜잭션) 실패 (paymentKey: ${dto.paymentKey}): ${(compensationError as Error).message}`,
-        );
-      }
-
-      if (error instanceof OptimisticLockVersionMismatchError) {
-        throw new BusinessException(
-          'ORDER_CONCURRENT_MODIFICATION',
-          HttpStatus.CONFLICT,
-        );
-      }
-      throw error;
-    }
+    return { order: savedOrder, event };
   }
 
   /**
@@ -474,32 +514,22 @@ export class OrderService {
     order.trackingNumber = dto.trackingNumber;
     order.shippedAt = new Date();
 
-    try {
-      const savedOrder = await manager.save(Order, order);
+    const savedOrder = await this.saveOrder(manager, order);
 
-      const event: PendingOrderEvent = {
-        name: 'order.shipping_started',
-        payload: {
-          orderId: savedOrder.id,
-          saleId: order.saleId,
-          buyerId: order.buyerId,
-          sellerId: order.sellerId,
-          carrier: savedOrder.carrier,
-          trackingNumber: savedOrder.trackingNumber,
-          chatRoomId: order.chatRoomId,
-        },
-      };
+    const event: PendingOrderEvent = {
+      name: 'order.shipping_started',
+      payload: {
+        orderId: savedOrder.id,
+        saleId: order.saleId,
+        buyerId: order.buyerId,
+        sellerId: order.sellerId,
+        carrier: savedOrder.carrier,
+        trackingNumber: savedOrder.trackingNumber,
+        chatRoomId: order.chatRoomId,
+      },
+    };
 
-      return { order: savedOrder, event };
-    } catch (error) {
-      if (error instanceof OptimisticLockVersionMismatchError) {
-        throw new BusinessException(
-          'ORDER_CONCURRENT_MODIFICATION',
-          HttpStatus.CONFLICT,
-        );
-      }
-      throw error;
-    }
+    return { order: savedOrder, event };
   }
 
   /**
@@ -533,30 +563,20 @@ export class OrderService {
     order.status = OrderStatus.DELIVERED;
     order.deliveredAt = new Date();
 
-    try {
-      const savedOrder = await manager.save(Order, order);
+    const savedOrder = await this.saveOrder(manager, order);
 
-      const event: PendingOrderEvent = {
-        name: 'order.delivery_completed',
-        payload: {
-          orderId: savedOrder.id,
-          saleId: order.saleId,
-          buyerId: order.buyerId,
-          sellerId: order.sellerId,
-          chatRoomId: order.chatRoomId,
-        },
-      };
+    const event: PendingOrderEvent = {
+      name: 'order.delivery_completed',
+      payload: {
+        orderId: savedOrder.id,
+        saleId: order.saleId,
+        buyerId: order.buyerId,
+        sellerId: order.sellerId,
+        chatRoomId: order.chatRoomId,
+      },
+    };
 
-      return { order: savedOrder, event };
-    } catch (error) {
-      if (error instanceof OptimisticLockVersionMismatchError) {
-        throw new BusinessException(
-          'ORDER_CONCURRENT_MODIFICATION',
-          HttpStatus.CONFLICT,
-        );
-      }
-      throw error;
-    }
+    return { order: savedOrder, event };
   }
 
   /**
@@ -610,37 +630,27 @@ export class OrderService {
     order.status = OrderStatus.CONFIRMED;
     order.confirmedAt = new Date();
 
-    try {
-      const savedOrder = await manager.save(Order, order);
-      if (order.sale) {
-        order.sale.status = SaleStatus.SOLD;
-        order.sale.reservedForUserId = null;
-        await manager.save(UsedBookSale, order.sale);
-      }
-
-      await this.recordCompletion(savedOrder);
-
-      const event: PendingOrderEvent = {
-        name: 'order.confirmed',
-        payload: {
-          orderId: savedOrder.id,
-          saleId: order.saleId,
-          buyerId: order.buyerId,
-          sellerId: order.sellerId,
-          chatRoomId: order.chatRoomId,
-        },
-      };
-
-      return { order: savedOrder, event };
-    } catch (error) {
-      if (error instanceof OptimisticLockVersionMismatchError) {
-        throw new BusinessException(
-          'ORDER_CONCURRENT_MODIFICATION',
-          HttpStatus.CONFLICT,
-        );
-      }
-      throw error;
+    const savedOrder = await this.saveOrder(manager, order);
+    if (order.sale) {
+      order.sale.status = SaleStatus.SOLD;
+      order.sale.reservedForUserId = null;
+      await manager.save(UsedBookSale, order.sale);
     }
+
+    await this.recordCompletion(savedOrder);
+
+    const event: PendingOrderEvent = {
+      name: 'order.confirmed',
+      payload: {
+        orderId: savedOrder.id,
+        saleId: order.saleId,
+        buyerId: order.buyerId,
+        sellerId: order.sellerId,
+        chatRoomId: order.chatRoomId,
+      },
+    };
+
+    return { order: savedOrder, event };
   }
 
   /**
@@ -699,31 +709,21 @@ export class OrderService {
     order.disputeReason = dto.disputeReason;
     order.disputedAt = new Date();
 
-    try {
-      const savedOrder = await manager.save(Order, order);
+    const savedOrder = await this.saveOrder(manager, order);
 
-      const event: PendingOrderEvent = {
-        name: 'order.disputed',
-        payload: {
-          orderId: savedOrder.id,
-          saleId: order.saleId,
-          buyerId: order.buyerId,
-          sellerId: order.sellerId,
-          chatRoomId: order.chatRoomId,
-          disputeReason: savedOrder.disputeReason,
-        },
-      };
+    const event: PendingOrderEvent = {
+      name: 'order.disputed',
+      payload: {
+        orderId: savedOrder.id,
+        saleId: order.saleId,
+        buyerId: order.buyerId,
+        sellerId: order.sellerId,
+        chatRoomId: order.chatRoomId,
+        disputeReason: savedOrder.disputeReason,
+      },
+    };
 
-      return { order: savedOrder, event };
-    } catch (error) {
-      if (error instanceof OptimisticLockVersionMismatchError) {
-        throw new BusinessException(
-          'ORDER_CONCURRENT_MODIFICATION',
-          HttpStatus.CONFLICT,
-        );
-      }
-      throw error;
-    }
+    return { order: savedOrder, event };
   }
 
   /**
@@ -801,35 +801,25 @@ export class OrderService {
     order.cancelledAt = new Date();
     order.cancelReason = dto?.cancelReason || '주문 취소';
 
-    try {
-      const savedOrder = await manager.save(Order, order);
-      if (order.sale) {
-        order.sale.status = SaleStatus.FOR_SALE;
-        await manager.save(UsedBookSale, order.sale);
-      }
-
-      const event: PendingOrderEvent = {
-        name: 'order.cancelled',
-        payload: {
-          orderId: savedOrder.id,
-          saleId: order.saleId,
-          buyerId: order.buyerId,
-          sellerId: order.sellerId,
-          chatRoomId: order.chatRoomId,
-          reason: savedOrder.cancelReason,
-        },
-      };
-
-      return { order: savedOrder, event };
-    } catch (error) {
-      if (error instanceof OptimisticLockVersionMismatchError) {
-        throw new BusinessException(
-          'ORDER_CONCURRENT_MODIFICATION',
-          HttpStatus.CONFLICT,
-        );
-      }
-      throw error;
+    const savedOrder = await this.saveOrder(manager, order);
+    if (order.sale) {
+      order.sale.status = SaleStatus.FOR_SALE;
+      await manager.save(UsedBookSale, order.sale);
     }
+
+    const event: PendingOrderEvent = {
+      name: 'order.cancelled',
+      payload: {
+        orderId: savedOrder.id,
+        saleId: order.saleId,
+        buyerId: order.buyerId,
+        sellerId: order.sellerId,
+        chatRoomId: order.chatRoomId,
+        reason: savedOrder.cancelReason,
+      },
+    };
+
+    return { order: savedOrder, event };
   }
 
   /**
@@ -880,22 +870,12 @@ export class OrderService {
     order.cancelledAt = new Date();
     order.cancelReason = reason;
 
-    try {
-      const savedOrder = await manager.save(Order, order);
-      if (order.sale) {
-        order.sale.status = SaleStatus.FOR_SALE;
-        await manager.save(UsedBookSale, order.sale);
-      }
-      return savedOrder;
-    } catch (error) {
-      if (error instanceof OptimisticLockVersionMismatchError) {
-        throw new BusinessException(
-          'ORDER_CONCURRENT_MODIFICATION',
-          HttpStatus.CONFLICT,
-        );
-      }
-      throw error;
+    const savedOrder = await this.saveOrder(manager, order);
+    if (order.sale) {
+      order.sale.status = SaleStatus.FOR_SALE;
+      await manager.save(UsedBookSale, order.sale);
     }
+    return savedOrder;
   }
 
   /**
@@ -932,26 +912,16 @@ export class OrderService {
     order.status = OrderStatus.CONFIRMED;
     order.confirmedAt = new Date();
 
-    try {
-      const savedOrder = await manager.save(Order, order);
-      if (order.sale) {
-        order.sale.status = SaleStatus.SOLD;
-        order.sale.reservedForUserId = null;
-        await manager.save(UsedBookSale, order.sale);
-      }
-
-      await this.recordCompletion(savedOrder);
-
-      return savedOrder;
-    } catch (error) {
-      if (error instanceof OptimisticLockVersionMismatchError) {
-        throw new BusinessException(
-          'ORDER_CONCURRENT_MODIFICATION',
-          HttpStatus.CONFLICT,
-        );
-      }
-      throw error;
+    const savedOrder = await this.saveOrder(manager, order);
+    if (order.sale) {
+      order.sale.status = SaleStatus.SOLD;
+      order.sale.reservedForUserId = null;
+      await manager.save(UsedBookSale, order.sale);
     }
+
+    await this.recordCompletion(savedOrder);
+
+    return savedOrder;
   }
 
   /**
@@ -1030,24 +1000,9 @@ export class OrderService {
   async getMyPurchases(
     buyerId: number,
     query: QueryOrderDto,
-  ): Promise<{ orders: Order[]; total: number; page: number; limit: number }> {
-    const { page = 1, limit = 10, status } = query;
-    const skip = (page - 1) * limit;
-
-    const where: any = { buyerId };
-    if (status) {
-      where.status = status;
-    }
-
-    const [orders, total] = await this.orderRepository.findAndCount({
-      where,
-      relations: ['sale', 'sale.book', 'seller'],
-      order: { createdAt: 'DESC' },
-      skip,
-      take: limit,
-    });
-
-    return { orders, total, page, limit };
+  ): Promise<OrderListResult> {
+    // 구매 목록에는 상대인 판매자를 붙인다.
+    return await this.findOrderPage({ buyerId }, ['seller'], query);
   }
 
   /**
@@ -1056,20 +1011,35 @@ export class OrderService {
   async getMySales(
     sellerId: number,
     query: QueryOrderDto,
-  ): Promise<{ orders: Order[]; total: number; page: number; limit: number }> {
-    const { page = 1, limit = 10, status } = query;
-    const skip = (page - 1) * limit;
+  ): Promise<OrderListResult> {
+    // 판매 목록에는 상대인 구매자를 붙인다.
+    return await this.findOrderPage({ sellerId }, ['buyer'], query);
+  }
 
-    const where: any = { sellerId };
+  /**
+   * 주문 목록을 페이지 단위로 조회합니다.
+   * 구매/판매 목록은 참여자 조건과 함께 붙일 상대 관계만 다릅니다.
+   *
+   * @param participant 내가 구매자인지 판매자인지 지정하는 조건
+   * @param counterpartyRelations 목록에 함께 실을 상대 관계
+   */
+  private async findOrderPage(
+    participant: Pick<FindOptionsWhere<Order>, 'buyerId' | 'sellerId'>,
+    counterpartyRelations: string[],
+    query: QueryOrderDto,
+  ): Promise<OrderListResult> {
+    const { page = 1, limit = 10, status } = query;
+
+    const where: FindOptionsWhere<Order> = { ...participant };
     if (status) {
       where.status = status;
     }
 
     const [orders, total] = await this.orderRepository.findAndCount({
       where,
-      relations: ['sale', 'sale.book', 'buyer'],
+      relations: ['sale', 'sale.book', ...counterpartyRelations],
       order: { createdAt: 'DESC' },
-      skip,
+      skip: (page - 1) * limit,
       take: limit,
     });
 

@@ -28,14 +28,14 @@ import { InvalidateCache } from '@/shared/cache/decorators/invalidate-cache.deco
 import { SmartCache } from '@/shared/cache/decorators/smart-cache.decorator';
 import { IdempotencyInterceptor } from '@/shared/interceptors/idempotency.interceptor';
 
-import { CreateReviewDto } from '../dto/create-review.dto';
-import { GetReviewsQueryDto } from '../dto/get-reviews-query.dto';
+import { CreateReviewDto } from '../dtos/create-review.dto';
+import { GetReviewsQueryDto } from '../dtos/get-reviews-query.dto';
 import {
   GetReviewsResponseDto,
   ReviewFeedDto,
   ReviewResponseDto,
-} from '../dto/review-response.dto';
-import { UpdateReviewDto } from '../dto/update-review.dto';
+} from '../dtos/review-response.dto';
+import { UpdateReviewDto } from '../dtos/update-review.dto';
 import { ViewCountInterceptor } from '../interceptors/view-count.interceptor';
 import { ReviewService } from '../services/review.service';
 

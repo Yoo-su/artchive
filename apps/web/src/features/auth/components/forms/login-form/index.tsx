@@ -22,7 +22,7 @@ import { Input } from "@/shared/components/shadcn/input";
 import { config } from "@/shared/config/env";
 import { Link, useRouter } from "@/shared/config/i18n/routing";
 import { PATHS } from "@/shared/constants/paths";
-import { getErrorMessage } from "@/shared/utils/error-handler";
+import { API_ERROR_CODES, getErrorCode } from "@/shared/utils/error-handler";
 
 export const LoginForm = () => {
   const t = useTranslations("auth.login");
@@ -133,8 +133,7 @@ function EmailLoginForm() {
     },
     onError: (error) => {
       if (axios.isAxiosError(error) && error.response?.status === 401) {
-        const message = getErrorMessage(error, "");
-        if (message === "SOCIAL_LOGIN_USER") {
+        if (getErrorCode(error) === API_ERROR_CODES.SOCIAL_LOGIN_USER) {
           form.setError("root", {
             message: t("error.social_login_user"),
           });

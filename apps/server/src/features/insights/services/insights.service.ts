@@ -20,7 +20,7 @@ import {
   LOCATION_STATS_LIMIT,
   POPULAR_TAGS_LIMIT,
   PRICE_RANGES,
-} from './constants';
+} from '../constants';
 import {
   ActivityTrendStat,
   CategoryStat,
@@ -29,7 +29,7 @@ import {
   PopularTagStat,
   PriceRangeStat,
   ReactionStat,
-} from './dto/insights-response.dto';
+} from '../dtos/insights-response.dto';
 
 @Injectable()
 export class InsightsService {

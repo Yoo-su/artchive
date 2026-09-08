@@ -27,8 +27,8 @@ import { ActivityType } from '@/shared/activity/activity-type.enum';
 import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
 import { IdempotencyInterceptor } from '@/shared/interceptors/idempotency.interceptor';
 
-import { CreateReadingLogDto } from '../dto/create-reading-log.dto';
-import { UpdateReadingLogDto } from '../dto/update-reading-log.dto';
+import { CreateReadingLogDto } from '../dtos/create-reading-log.dto';
+import { UpdateReadingLogDto } from '../dtos/update-reading-log.dto';
 import { UpdateReadingLogSettingsDto } from '../dtos/update-reading-log-settings.dto';
 import { ReadingLogService } from '../services/reading-log.service';
 

@@ -12,7 +12,6 @@ import { ChatMessage } from './entities/chat-message.entity';
 import { ChatParticipant } from './entities/chat-participant.entity';
 import { ChatRoom } from './entities/chat-room.entity';
 import { ChatGateway } from './gateways/chat.gateway';
-import { SocketAuthGuard } from './guards/socket-auth.guard';
 import { ChatCleanupListener } from './listeners/chat-cleanup.listener';
 import { ChatService } from './services/chat.service';
 
@@ -24,7 +23,7 @@ import { ChatService } from './services/chat.service';
     BookModule,
     UsedBookSaleModule,
   ],
-  providers: [ChatGateway, ChatService, SocketAuthGuard, ChatCleanupListener],
+  providers: [ChatGateway, ChatService, ChatCleanupListener],
   controllers: [ChatController],
   exports: [ChatService, ChatGateway],
 })

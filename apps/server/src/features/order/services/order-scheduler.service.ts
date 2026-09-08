@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, IsNull, LessThanOrEqual, Not, Repository } from 'typeorm';
+
+import { isPaymentEnabled } from '@/shared/config/feature-flags';
 
 import { Order, OrderStatus } from '../entities/order.entity';
 import { DeliveryTrackerService } from './delivery-tracker.service';
@@ -19,15 +20,7 @@ export class OrderSchedulerService {
     private readonly orderService: OrderService,
     private readonly deliveryTrackerService: DeliveryTrackerService,
     private readonly eventEmitter: EventEmitter2,
-    private readonly configService: ConfigService,
   ) {}
-
-  private isPaymentEnabled(): boolean {
-    return (
-      this.configService.get<string>('FEATURE_PAYMENT_ENABLED') === 'true' ||
-      process.env.FEATURE_PAYMENT_ENABLED === 'true'
-    );
-  }
 
   /**
    * 24시간 동안 미결제된 주문을 자동으로 취소합니다. (5분 주기)
@@ -35,7 +28,7 @@ export class OrderSchedulerService {
    */
   @Cron(CronExpression.EVERY_5_MINUTES)
   async handleExpiredOrders(): Promise<number> {
-    if (!this.isPaymentEnabled()) {
+    if (!isPaymentEnabled()) {
       return 0;
     }
 
@@ -89,7 +82,7 @@ export class OrderSchedulerService {
    */
   @Cron(CronExpression.EVERY_5_MINUTES)
   async handleUnshippedOrders(): Promise<number> {
-    if (!this.isPaymentEnabled()) {
+    if (!isPaymentEnabled()) {
       return 0;
     }
 
@@ -143,7 +136,7 @@ export class OrderSchedulerService {
    */
   @Cron(CronExpression.EVERY_5_MINUTES)
   async handleAutoConfirm(): Promise<number> {
-    if (!this.isPaymentEnabled()) {
+    if (!isPaymentEnabled()) {
       return 0;
     }
 
@@ -194,7 +187,7 @@ export class OrderSchedulerService {
    */
   @Cron(CronExpression.EVERY_5_MINUTES)
   async handleExpiredDisputes(): Promise<number> {
-    if (!this.isPaymentEnabled()) {
+    if (!isPaymentEnabled()) {
       return 0;
     }
 
@@ -246,7 +239,7 @@ export class OrderSchedulerService {
    */
   @Cron('*/30 * * * *')
   async pollDeliveryStatus(): Promise<number> {
-    if (!this.isPaymentEnabled()) {
+    if (!isPaymentEnabled()) {
       return 0;
     }
 
@@ -306,7 +299,7 @@ export class OrderSchedulerService {
     autoConfirmWarnings: number;
     shippingDeadlineWarnings: number;
   }> {
-    if (!this.isPaymentEnabled()) {
+    if (!isPaymentEnabled()) {
       return { autoConfirmWarnings: 0, shippingDeadlineWarnings: 0 };
     }
 

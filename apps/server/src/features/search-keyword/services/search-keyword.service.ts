@@ -56,12 +56,12 @@ export class SearchKeywordService {
   async findPopularKeywords(
     limit = 10,
   ): Promise<{ keyword: string; searchCount: number }[]> {
-    const threeDaysAgo = new Date();
-    threeDaysAgo.setDate(threeDaysAgo.getDate() - POPULAR_KEYWORD_DAYS);
+    const since = new Date();
+    since.setDate(since.getDate() - POPULAR_KEYWORD_DAYS);
 
     const keywords = await this.searchKeywordRepository.find({
       where: {
-        lastSearchedAt: MoreThanOrEqual(threeDaysAgo),
+        lastSearchedAt: MoreThanOrEqual(since),
         searchCount: MoreThanOrEqual(1),
       },
       order: {
