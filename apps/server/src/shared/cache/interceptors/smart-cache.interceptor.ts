@@ -74,11 +74,10 @@ export class SmartCacheInterceptor implements NestInterceptor {
     strategy: string,
     request: Request & { user?: { id: number | string } },
   ): string {
-    const ip =
-      (request.headers['x-forwarded-for'] as string)?.split(',')[0] ||
-      request.ip ||
-      request.socket?.remoteAddress ||
-      'unknown_ip';
+    // x-forwarded-for를 직접 읽지 않는다. 클라이언트가 지어낼 수 있어
+    // 캐시 키를 마음대로 가를 수 있다. main.ts의 trust proxy 설정을 거친
+    // request.ip를 쓴다.
+    const ip = request.ip || request.socket?.remoteAddress || 'unknown_ip';
 
     const userId = request.user?.id ? String(request.user.id) : 'guest';
     const query = JSON.stringify(request.query || {});

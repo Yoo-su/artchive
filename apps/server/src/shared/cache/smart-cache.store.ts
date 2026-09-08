@@ -1,9 +1,11 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 
 @Injectable()
 export class SmartCacheStore {
+  private readonly logger = new Logger(SmartCacheStore.name);
+
   // prefix별로 캐시 키 목록을 인메모리에 저장하여 쉽게 삭제할 수 있도록 합니다.
   private prefixKeyMap: Map<string, Set<string>> = new Map();
 
@@ -32,10 +34,11 @@ export class SmartCacheStore {
     if (!keys || keys.size === 0) return;
 
     const deletionPromises = Array.from(keys).map((key) =>
-      this.cacheManager.del(key).catch((err) => {
-        console.error(
-          `Failed to delete cache key ${key} for prefix ${prefix}:`,
-          err,
+      this.cacheManager.del(key).catch((error: unknown) => {
+        this.logger.error(
+          `캐시 키 삭제 실패 (prefix: ${prefix}, key: ${key}): ${
+            error instanceof Error ? error.message : String(error)
+          }`,
         );
       }),
     );
