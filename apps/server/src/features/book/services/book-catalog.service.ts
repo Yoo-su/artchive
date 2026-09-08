@@ -11,6 +11,30 @@ import {
 
 const DEFAULT_DISPLAY = 10;
 const DEFAULT_START = 1;
+/**
+ * 공개 엔드포인트라 클라이언트 값을 그대로 믿을 수 없다.
+ * 음수는 Postgres에서 `LIMIT must not be negative`로 500을 내고,
+ * 상한이 없으면 한 요청이 수만 행을 힙에 올린다.
+ */
+const MAX_DISPLAY = 100;
+
+/**
+ * 숫자 파라미터를 허용 범위 안으로 가둔다.
+ * @param raw 클라이언트가 보낸 값
+ * @param fallback 값이 없거나 숫자가 아닐 때 쓸 기본값
+ * @param min 하한
+ * @param max 상한
+ */
+function clamp(
+  raw: unknown,
+  fallback: number,
+  min: number,
+  max: number,
+): number {
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n === 0) return fallback;
+  return Math.min(Math.max(Math.trunc(n), min), max);
+}
 
 /**
  * 도서 서지 조회의 단일 진입점.
@@ -40,8 +64,8 @@ export class BookCatalogService {
   ): Promise<BookCatalogSearchResult & { lastBuildDate: string }> {
     const normalized: BookCatalogSearchParams = {
       query: params.query,
-      display: Number(params.display) || DEFAULT_DISPLAY,
-      start: Number(params.start) || DEFAULT_START,
+      display: clamp(params.display, DEFAULT_DISPLAY, 1, MAX_DISPLAY),
+      start: clamp(params.start, DEFAULT_START, 1, Number.MAX_SAFE_INTEGER),
       sort: params.sort ?? 'sim',
       field: params.field ?? 'Keyword',
     };

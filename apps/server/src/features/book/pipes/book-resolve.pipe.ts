@@ -3,9 +3,15 @@ import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
 import { BookService } from '../services/book.service';
 
 /**
- * 전송받은 데이터에 도서 식별자(ISBN)가 포함되어 있을 경우,
- * 해당 도서가 DB에 존재하는지 확인하고 없으면 외부 API를 통해 생성(Sync)하는 파이프입니다.
- * 이를 통해 서비스 레이어에서는 항상 유효한 도서 데이터가 DB에 있음을 보장받을 수 있습니다.
+ * 요청에 도서 식별자(ISBN)가 있으면 그 도서가 `books`에 존재하는지 확인하는 파이프입니다.
+ * 서비스 레이어는 항상 유효한 도서가 DB에 있음을 보장받습니다.
+ *
+ * 없으면 `resolveBook()`이 BOOK_NOT_FOUND(404)를 던집니다. 이 가드가 없으면 각
+ * 서비스가 `books`를 참조하는 행을 만들다 외래키 위반으로 500을 내고,
+ * `reading_logs`처럼 FK가 없는 테이블에서는 고아 행이 생깁니다.
+ *
+ * 2026-09-08 이전에는 없는 도서를 외부 API로 받아와 생성했습니다. 공급처 체인에서
+ * 알라딘을 제거하면서 그 동작은 사라졌고, 지금은 순수한 입력 검증입니다.
  */
 @Injectable()
 export class BookResolvePipe implements PipeTransform {

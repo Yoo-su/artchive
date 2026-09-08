@@ -30,25 +30,25 @@ book/
 
 ## 2. API 엔드포인트
 
-| 메서드 | 경로 (`/book/...`) | 인증 | 설명 |
-|---|---|:---:|---|
-| GET | `/popular` | ❌ | 조회수 기반 인기 도서 |
-| GET | `/external/list` | ❌ | 도서 목록 검색 (검색 체인) |
-| GET | `/external/detail` | ❌ | 도서 상세 조회 (상세 체인) |
-| POST | `/:isbn/view` | ❌ | 도서 조회수 기록 |
-| GET | `/:isbn/stats` | ❌ | 해당 도서의 독서 기록·위시리스트 통계 |
+| 메서드 | 경로 (`/book/...`) | 인증 | 설명                                  |
+| ------ | ------------------ | :--: | ------------------------------------- |
+| GET    | `/popular`         |  ❌  | 조회수 기반 인기 도서                 |
+| GET    | `/external/list`   |  ❌  | 도서 목록 검색 (검색 체인)            |
+| GET    | `/external/detail` |  ❌  | 도서 상세 조회 (상세 체인)            |
+| POST   | `/:isbn/view`      |  ❌  | 도서 조회수 기록                      |
+| GET    | `/:isbn/stats`     |  ❌  | 해당 도서의 독서 기록·위시리스트 통계 |
 
 ## 3. 엔티티 — `Book` (`isbn` PK)
 
-| 컬럼 | 타입 | 설명 |
-|---|---|---|
-| `isbn` | `string` | Primary Key |
-| `title`, `author`, `publisher` | `string` | 서지 정보 |
-| `discount` | `string` | 가격 정보 (기본 `''`) |
-| `description` | `text` | 소개 |
-| `image` | `string` | 표지 URL |
-| `viewCount` | `number` | 조회수 (인기 도서 산정) |
-| `createdAt` / `updatedAt` | `timestamptz` | |
+| 컬럼                           | 타입          | 설명                    |
+| ------------------------------ | ------------- | ----------------------- |
+| `isbn`                         | `string`      | Primary Key             |
+| `title`, `author`, `publisher` | `string`      | 서지 정보               |
+| `discount`                     | `string`      | 가격 정보 (기본 `''`)   |
+| `description`                  | `text`        | 소개                    |
+| `image`                        | `string`      | 표지 URL                |
+| `viewCount`                    | `number`      | 조회수 (인기 도서 산정) |
+| `createdAt` / `updatedAt`      | `timestamptz` |                         |
 
 ISBN을 PK로 쓰기 때문에 리뷰·독서 기록·판매글·위시리스트가 모두 자연스럽게 같은 도서를 참조합니다.
 
@@ -133,10 +133,10 @@ BookCatalogService.findByIsbn()  BOOK_DETAIL_PROVIDERS
 
 판정 자격은 `BookCatalogProvider.kind`로 정합니다.
 
-| `kind` | "못 찾음"의 의미 | 판정 자격 |
-|---|---|---|
-| `external` | 그런 책이 없다 | ✅ |
-| `local` | **우리가 아직 안 가졌다** | ❌ |
+| `kind`     | "못 찾음"의 의미          | 판정 자격 |
+| ---------- | ------------------------- | --------- |
+| `external` | 그런 책이 없다            | ✅        |
+| `local`    | **우리가 아직 안 가졌다** | ❌        |
 
 자체 DB는 못 찾아도 예외를 던지지 않습니다. 그래서 이걸 판정에 포함하면 외부가
 전부 죽어도 늘 "책 없음"이 되어 위 보호장치가 통째로 무력해집니다. 실제로 자체 DB

@@ -51,9 +51,20 @@
 
 ### 운영 주의사항
 
-- **[진행 중] 알라딘 Open API가 2026-10-30 종료됩니다.** 도서 표지·서지·검색을 외부 API 의존에서 떼어내는 작업이 진행 중입니다. 도서 데이터 관련 작업 전에 반드시 [docs/book-data-migration-plan.md](docs/book-data-migration-plan.md)를 읽고, 작업 후 해당 문서의 체크박스와 진행 로그를 갱신하세요.
+- **[진행 중] 알라딘 Open API가 2026-10-30 종료됩니다.** 도서 표지·서지·검색을 외부 API 의존에서 떼어내는 작업이 진행 중입니다. 도서 데이터 관련 작업 전에 반드시 [docs/book-data-migration-plan.md](docs/book-data-migration-plan.md)를 읽고, 작업 후 해당 문서의 체크박스와 진행 로그를 갱신하세요. 그 문서의 **9-c에는 이미 검토하고 기각한 제안들**이 근거와 함께 있습니다. 코드 점검·리팩터링 전에 먼저 보세요.
+- **2026-09-08에 공급처 체인에서 알라딘 어댑터를 제거했습니다.** 검색·상세 모두 자체 DB 단독이며, 외부 공급처를 런타임 경로에 두지 않는 것이 방침입니다. 신규 도서는 서버가 아니라 운영자가 주기적으로 돌리는 스크립트로 확보합니다. `resolveBook()`은 "찾거나 404"인 가드일 뿐 더는 도서를 생성하지 않습니다.
+- **⚠ 아래 셋은 죽은 코드처럼 보이지만 지우면 표지 56,984장이 깨집니다.** R2 컷오버(`books.image`를 자사 도메인으로 교체)가 끝나기 전까지 **의도적으로 남긴 것**입니다.
+  - `packages/core`의 `formatAladinCoverImage` — DB에 `cover200` URL이 15,293건 남아 있어 렌더 시점에 `cover500`으로 올려줍니다. 지우면 화질이 떨어집니다.
+  - `apps/web/next.config.ts`의 `remotePatterns` 중 `image.aladin.co.kr` — 지우면 next/image가 모든 표지를 차단합니다.
+  - `.env.example`의 `ALADIN_TTB_KEY` — 서버는 안 쓰지만 수확·표지 스크립트가 씁니다. **신규 발급이 불가능한 마지막 키**입니다.
+- **마이그레이션 스크립트는 저장소 밖(`~/bookjeok-migration-scripts/`)에 있습니다.** 이 저장소는 공개이고 외부 CDN을 대량으로 긁는 코드가 포함돼 있어 의도적으로 뺐습니다. 되돌려 넣지 마세요. 임시로 `apps/server/scripts/`에 복사해 실행했다면 실행 후 반드시 지우고 `git status`로 확인하세요.
+- **운영 DB를 조회할 때는 반드시 읽기 전용 트랜잭션으로 여세요.** 접속 문자열은 `apps/server/.env.prod.local`에 있습니다(gitignore, 권한 600). 참고 구현은 `apps/server/scripts/survey-book-covers.ts`입니다. 직접 연결(`db.<ref>.supabase.co`)은 IPv6 전용이라 쓸 수 없고 Supabase 풀러로 접속합니다. **접속 문자열 자체를 대화나 로그에 남기지 마세요.**
+- **`apps/admin`은 초기 세팅만 된 미사용 앱입니다.** 소스 13개에 배포 워크플로도 없습니다. 코드 점검·개선 대상에서 제외하세요.
 - 운영 DB는 `synchronize: false`이며 마이그레이션 도구가 없습니다. 엔티티를 바꿨다면 DDL을 수동 적용하고 반드시 [docs/manual-ddl-log.md](docs/manual-ddl-log.md)에 기록하세요.
-- 결제 관련 코드는 `FEATURE_PAYMENT_ENABLED` 플래그 뒤에 있습니다. 플래그는 서버/웹 양쪽 값을 함께 맞춰야 합니다.
+- 결제 관련 코드는 `FEATURE_PAYMENT_ENABLED` 플래그 뒤에 **꺼져 있습니다.** 플래그는 서버/웹 양쪽 값을 함께 맞춰야 합니다. 지금은 주문·결제가 동작하지 않으므로 개선 우선순위에서 제외하되, **켜기 전에 반드시** `docs/book-data-migration-plan.md` 9-c의 「결제 활성화 전 점검 항목」을 처리하세요(예약/예약취소의 활성 주문 검증 누락 등 4건).
+- **도서 임베딩을 신규 생성하지 않는 것은 의도된 상태입니다.** 비용과 Supabase 무료 티어 한계 때문에 일괄 생성만 하고 상시 생성은 두지 않았습니다. 결함으로 보고 고치려 들지 마세요.
+- **로컬에 Postgres도 docker도 없습니다.** 서버를 띄운 통합 검증이 불가능하고, `derive-ddl.ts`도 운영과 같은 스키마의 로컬 DB가 필요해 현재 실행할 수 없습니다.
+- **`packages/core`를 수정하면 웹 테스트 전에 반드시 재빌드하세요.** 웹은 `dist`를 참조합니다: `pnpm build --filter=@bookjeok/core` (힙 부족 시 `NODE_OPTIONS="--max-old-space-size=8192"`).
 - 새 환경 변수를 추가하면 `.env.example`과 `turbo.json`의 `globalEnv`에 **둘 다** 등록하세요. `globalEnv`에 빠지면 Turbo 캐시가 값 변경을 감지하지 못합니다.
 
 ### 문서 갱신 규칙
