@@ -18,7 +18,7 @@ review/
 │   └── review.controller.ts
 ├── services/
 │   └── review.service.ts
-├── dto/
+├── dtos/
 │   ├── create-review.dto.ts
 │   ├── update-review.dto.ts
 │   ├── get-reviews-query.dto.ts

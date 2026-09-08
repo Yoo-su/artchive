@@ -218,7 +218,7 @@
 
 Socket.IO 게이트웨이 2종(채팅 / 알림)을 운영합니다.
 
-- **채팅** — 판매글별 1:1 채팅방, 이미지 전송, 타이핑 인디케이터, **읽음 워터마크**(참가자별 `lastReadMessageId`) 기반 안 읽은 개수 계산, 핸드셰이크 단계 JWT 검증(`SocketAuthGuard`)
+- **채팅** — 판매글별 1:1 채팅방, 이미지 전송, 타이핑 인디케이터, **읽음 워터마크**(참가자별 `lastReadMessageId`) 기반 안 읽은 개수 계산, 핸드셰이크 단계 JWT 검증(`authenticateSocket`)
 - **알림** — 리뷰 리액션·리뷰 댓글·댓글 좋아요에 더해 중고거래 11종을 포함한 **14종 알림 타입**을 실시간 푸시. 도메인 서비스는 `EventEmitter` 이벤트만 발행하고, 리스너가 알림 생성·채팅 시스템 메시지·메일 발송을 비동기로 처리합니다.
 - **메일** — Resend로 회원가입 이메일 인증 링크와 채팅방 개설 알림을 발송합니다(`chat.room_created` 이벤트 → `MailEventListener`, `async: true`).
 
@@ -470,7 +470,7 @@ bookjeok/
 - **JWT Silent Refresh** — Axios 인터셉터를 통한 Access Token 만료 감지 및 자동 갱신
 - **`tokenVersion` 기반 즉시 무효화** — 로그아웃 또는 비정상 세션 감지 시 `user.tokenVersion`을 증가시켜 Refresh Token을 즉시 무효화
 - **이메일 인증 게이트** — `EmailVerifiedGuard`로 중고거래 진입 경로를 인증 회원으로 제한(사기·어뷰징 방어)
-- **소켓 인증** — `SocketAuthGuard`가 WebSocket 핸드셰이크 단계에서 JWT를 검증
+- **소켓 인증** — `shared/websocket/authenticate-socket.ts`가 WebSocket 핸드셰이크 단계에서 JWT를 검증하고 탈퇴 계정을 차단. 방 참여(`joinRooms`)는 별도로 참여자 여부를 확인
 - **Rate Limiting** — 전역 Throttler(60초 / 120회) 위에 로그인·회원가입·티켓 교환·AI 검색은 개별 제한 적용
 - **입력 검증** — 전역 `ValidationPipe({ whitelist, forbidNonWhitelisted })`로 정의되지 않은 필드 차단
 - **XSS 방어** — 리뷰 본문은 `sanitize-html`로 정제 후 렌더링

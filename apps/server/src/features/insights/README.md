@@ -4,8 +4,8 @@
 
 ## 1. 주요 파일 및 역할
 
-- **`insights.controller.ts`**: `/insights` 경로의 API 엔드포인트를 정의합니다.
-- **`insights.service.ts`**: 인사이트 관련 비즈니스 로직을 처리합니다.
+- **`controllers/insights.controller.ts`**: `/insights` 경로의 API 엔드포인트를 정의합니다.
+- **`services/insights.service.ts`**: 인사이트 관련 비즈니스 로직을 처리합니다.
   - `getInsights`: 전체 인사이트 데이터를 한 번에 조회합니다.
   - `getLocationStats`: 지역별 거래 현황을 조회합니다.
   - `getCategoryStats`: 카테고리별 리뷰 수를 조회합니다.
@@ -16,7 +16,7 @@
   - `getSummary`: 요약 통계(전체 판매글, 리뷰, 리액션, 태그 수)를 조회합니다.
   - `getLocationSales`: 특정 지역의 최근 판매글 5개를 조회합니다.
 - **`constants.ts`**: 인사이트 관련 상수(가격 구간, 활동 추이 일수 등)를 정의합니다.
-- **`dto/insights-response.dto.ts`**: 인사이트 응답 DTO를 정의합니다.
+- **`dtos/insights-response.dto.ts`**: 인사이트 응답 DTO를 정의합니다.
 
 ## 2. API 엔드포인트
 

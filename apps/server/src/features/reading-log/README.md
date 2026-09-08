@@ -14,7 +14,7 @@ reading-log/
 ├── services/reading-log.service.ts
 ├── entities/reading-log.entity.ts
 ├── listeners/reading-log-cleanup.listener.ts   # user.withdrawn
-├── dto/
+├── dtos/
 │   ├── create-reading-log.dto.ts
 │   └── update-reading-log.dto.ts
 └── dtos/

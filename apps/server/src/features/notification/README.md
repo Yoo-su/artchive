@@ -14,7 +14,7 @@ notification/
 │   └── notification.gateway.spec.ts
 ├── entities/notification.entity.ts    # Notification, NotificationType
 ├── listeners/notification-cleanup.listener.ts  # user.withdrawn
-└── dto/
+└── dtos/
     ├── get-notifications-query.dto.ts
     └── notification-response.dto.ts
 ```
