@@ -1,4 +1,12 @@
-import { API_PATHS, Comment, CreateCommentParams, GetCommentsParams, GetCommentsResponse, GetMyCommentsResponse, UpdateCommentParams } from "@bookjeok/core";
+import {
+  API_PATHS,
+  Comment,
+  CreateCommentParams,
+  GetCommentsParams,
+  GetCommentsResponse,
+  GetMyCommentsResponse,
+  UpdateCommentParams,
+} from "@bookjeok/core";
 
 import { privateApiClient, publicApiClient } from "../../client";
 
@@ -22,8 +30,14 @@ export const createComment = async (
   params: CreateCommentParams,
   options?: { idempotencyKey?: string },
 ): Promise<Comment> => {
-  const config = options?.idempotencyKey ? { headers: { 'x-idempotency-key': options.idempotencyKey } } : undefined;
-  const { data } = await privateApiClient.post<Comment>(API_PATHS.comment.base, params, config);
+  const config = options?.idempotencyKey
+    ? { headers: { "x-idempotency-key": options.idempotencyKey } }
+    : undefined;
+  const { data } = await privateApiClient.post<Comment>(
+    API_PATHS.comment.base,
+    params,
+    config,
+  );
   return data;
 };
 
@@ -44,9 +58,7 @@ export const updateComment = async (
 /**
  * 댓글을 삭제합니다.
  */
-export const deleteComment = async (
-  id: number,
-): Promise<void> => {
+export const deleteComment = async (id: number): Promise<void> => {
   await privateApiClient.delete(API_PATHS.comment.detail(id));
 };
 
@@ -65,9 +77,7 @@ export const toggleCommentLike = async (
 /**
  * 내 좋아요 상태를 조회합니다.
  */
-export const getMyLikeStatus = async (
-  id: number,
-): Promise<boolean> => {
+export const getMyLikeStatus = async (id: number): Promise<boolean> => {
   const { data } = await privateApiClient.get<{ isLiked: boolean }>(
     API_PATHS.comment.like(id),
   );

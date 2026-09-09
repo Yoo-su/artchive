@@ -12,9 +12,9 @@ health/
 
 ## API
 
-| 메서드 | 경로 | 설명 |
-|---|---|---|
-| GET | `/health` | 서버 및 DB 연결 상태 확인 |
+| 메서드 | 경로      | 설명                      |
+| ------ | --------- | ------------------------- |
+| GET    | `/health` | 서버 및 DB 연결 상태 확인 |
 
 DB는 `TypeOrmHealthIndicator.pingCheck('database', { timeout: 3000 })`로 검사합니다.
 

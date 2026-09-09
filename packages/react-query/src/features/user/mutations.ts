@@ -1,6 +1,17 @@
 "use client";
-import { addToWishlist, removeFromWishlist, toggleWishlist, updateProfile, withdraw } from "@bookjeok/api-client";
-import { PublicUserProfile, UpdateUserProfileParams, userKeys, WishlistItem } from "@bookjeok/core";
+import {
+  addToWishlist,
+  removeFromWishlist,
+  toggleWishlist,
+  updateProfile,
+  withdraw,
+} from "@bookjeok/api-client";
+import {
+  PublicUserProfile,
+  UpdateUserProfileParams,
+  userKeys,
+  WishlistItem,
+} from "@bookjeok/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 /**
@@ -17,7 +28,10 @@ export const useToggleWishlistMutation = () => {
       queryClient.invalidateQueries({ queryKey: userKeys.wishlist.queryKey });
       // 특정 아이템의 찜 상태 무효화
       queryClient.invalidateQueries({
-        queryKey: userKeys.wishlistCheck(variables.isbn ? "BOOK" : "SALE", (variables.isbn || variables.saleId)!).queryKey,
+        queryKey: userKeys.wishlistCheck(
+          variables.isbn ? "BOOK" : "SALE",
+          (variables.isbn || variables.saleId)!,
+        ).queryKey,
       });
     },
   });
@@ -26,7 +40,10 @@ export const useToggleWishlistMutation = () => {
 /**
  * 회원 탈퇴 뮤테이션
  */
-export const useWithdrawMutation = (options?: { onSuccess?: () => void; onError?: (error: unknown) => void }) => {
+export const useWithdrawMutation = (options?: {
+  onSuccess?: () => void;
+  onError?: (error: unknown) => void;
+}) => {
   return useMutation({
     mutationFn: () => withdraw(),
     onSuccess: () => {
@@ -39,15 +56,20 @@ export const useWithdrawMutation = (options?: { onSuccess?: () => void; onError?
 /**
  * 위시리스트 추가 뮤테이션
  */
-export const useAddToWishlistMutation = (options?: { onSuccess?: (data: WishlistItem) => void; onError?: (error: unknown) => void }) => {
+export const useAddToWishlistMutation = (options?: {
+  onSuccess?: (data: WishlistItem) => void;
+  onError?: (error: unknown) => void;
+}) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: { type: "BOOK" | "SALE"; id: string | number }) => 
+    mutationFn: (params: { type: "BOOK" | "SALE"; id: string | number }) =>
       addToWishlist(params.type, params.id),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: userKeys.wishlist.queryKey });
-      queryClient.invalidateQueries({ queryKey: userKeys.wishlistCheck(variables.type, variables.id).queryKey });
+      queryClient.invalidateQueries({
+        queryKey: userKeys.wishlistCheck(variables.type, variables.id).queryKey,
+      });
       options?.onSuccess?.(data);
     },
     onError: options?.onError,
@@ -57,15 +79,20 @@ export const useAddToWishlistMutation = (options?: { onSuccess?: (data: Wishlist
 /**
  * 위시리스트 제거 뮤테이션
  */
-export const useRemoveFromWishlistMutation = (options?: { onSuccess?: () => void; onError?: (error: unknown) => void }) => {
+export const useRemoveFromWishlistMutation = (options?: {
+  onSuccess?: () => void;
+  onError?: (error: unknown) => void;
+}) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: { type: "BOOK" | "SALE"; id: string | number }) => 
+    mutationFn: (params: { type: "BOOK" | "SALE"; id: string | number }) =>
       removeFromWishlist(params.type, params.id),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: userKeys.wishlist.queryKey });
-      queryClient.invalidateQueries({ queryKey: userKeys.wishlistCheck(variables.type, variables.id).queryKey });
+      queryClient.invalidateQueries({
+        queryKey: userKeys.wishlistCheck(variables.type, variables.id).queryKey,
+      });
       options?.onSuccess?.();
     },
     onError: options?.onError,
@@ -75,16 +102,31 @@ export const useRemoveFromWishlistMutation = (options?: { onSuccess?: () => void
 /**
  * 사용자 프로필 수정 뮤테이션
  */
-export const useUpdateUserMutation = (options?: { onSuccess?: (data: PublicUserProfile & { email: string; isReadingLogPublic: boolean }) => void; onError?: (error: unknown) => void }) => {
+export const useUpdateUserMutation = (options?: {
+  onSuccess?: (
+    data: PublicUserProfile & { email: string; isReadingLogPublic: boolean },
+  ) => void;
+  onError?: (error: unknown) => void;
+}) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (params: UpdateUserProfileParams) => updateProfile(params),
     onSuccess: (data) => {
-      queryClient.setQueryData(userKeys.me.queryKey, (old: PublicUserProfile & { email: string; isReadingLogPublic: boolean } | undefined) => {
-        if (!old) return data;
-        return { ...old, ...data };
-      });
+      queryClient.setQueryData(
+        userKeys.me.queryKey,
+        (
+          old:
+            | (PublicUserProfile & {
+                email: string;
+                isReadingLogPublic: boolean;
+              })
+            | undefined,
+        ) => {
+          if (!old) return data;
+          return { ...old, ...data };
+        },
+      );
       // 닉네임·프로필 이미지는 공개 프로필에도 실리므로 함께 무효화
       queryClient.invalidateQueries({
         queryKey: userKeys.publicProfile(data.handle).queryKey,

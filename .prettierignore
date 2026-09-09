@@ -1,0 +1,14 @@
+# 생성물. 도구가 다시 만들므로 포맷 대상이 아니다.
+**/dist/
+**/.next/
+**/coverage/
+**/build/
+pnpm-lock.yaml
+apps/web/next-env.d.ts
+apps/web/docs/component-tree.json
+
+# 외부에서 설치된 스킬 문서. 우리가 쓴 것이 아니라 손대면 갱신 때 충돌한다.
+.agents/skills/
+
+# 아이콘 매핑 산출물.
+apps/web/src/shared/components/icons/iconsax/MAPPING.md

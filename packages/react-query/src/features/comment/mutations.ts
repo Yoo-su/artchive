@@ -1,7 +1,22 @@
 "use client";
-import { createComment, deleteComment, toggleCommentLike, updateComment } from "@bookjeok/api-client";
-import { Comment, commentKeys, CommentTargetType, CreateCommentParams, UpdateCommentParams } from "@bookjeok/core";
-import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  createComment,
+  deleteComment,
+  toggleCommentLike,
+  updateComment,
+} from "@bookjeok/api-client";
+import {
+  Comment,
+  commentKeys,
+  CommentTargetType,
+  CreateCommentParams,
+  UpdateCommentParams,
+} from "@bookjeok/core";
+import {
+  QueryClient,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 /**
  * 댓글이 추가·수정·삭제되면 해당 타겟의 댓글 목록 전체를 무효화합니다.
@@ -26,13 +41,21 @@ const invalidateCommentList = (
 export const useCreateCommentMutation = (
   targetType: CommentTargetType,
   targetId: string,
-  options?: { onSuccess?: (data: Comment) => void; onError?: (error: unknown) => void }
+  options?: {
+    onSuccess?: (data: Comment) => void;
+    onError?: (error: unknown) => void;
+  },
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ content, idempotencyKey }: { content: string, idempotencyKey?: string }) =>
-      createComment({ content, targetType, targetId }, { idempotencyKey }),
+    mutationFn: ({
+      content,
+      idempotencyKey,
+    }: {
+      content: string;
+      idempotencyKey?: string;
+    }) => createComment({ content, targetType, targetId }, { idempotencyKey }),
     onSuccess: (data) => {
       invalidateCommentList(queryClient, targetType, targetId);
       options?.onSuccess?.(data);
@@ -47,7 +70,10 @@ export const useCreateCommentMutation = (
 export const useUpdateCommentMutation = (
   targetType: CommentTargetType,
   targetId: string,
-  options?: { onSuccess?: (data: Comment) => void; onError?: (error: unknown) => void }
+  options?: {
+    onSuccess?: (data: Comment) => void;
+    onError?: (error: unknown) => void;
+  },
 ) => {
   const queryClient = useQueryClient();
 
@@ -68,7 +94,7 @@ export const useUpdateCommentMutation = (
 export const useDeleteCommentMutation = (
   targetType: CommentTargetType,
   targetId: string,
-  options?: { onSuccess?: () => void; onError?: (error: unknown) => void }
+  options?: { onSuccess?: () => void; onError?: (error: unknown) => void },
 ) => {
   const queryClient = useQueryClient();
 
@@ -89,7 +115,7 @@ export const useToggleCommentLikeMutation = (
   targetType: CommentTargetType,
   targetId: string,
   page: number,
-  options?: { onError?: (error: unknown) => void }
+  options?: { onError?: (error: unknown) => void },
 ) => {
   const queryClient = useQueryClient();
   const queryKey = commentKeys.list(targetType, targetId, page).queryKey;

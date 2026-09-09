@@ -29,10 +29,10 @@ search/
 
 ## API 엔드포인트
 
-| 메서드 | 경로 | 인증 | Rate Limit | 설명 |
-|---|---|---|:---:|---|
-| POST | `/search/ai` | 🔒 JWT | 10회/분 | 추천 결과를 한 번에 반환 |
-| POST | `/search/ai/stream` | 🔒 JWT | 10회/분 | SSE로 단계별 스트리밍 |
+| 메서드 | 경로                | 인증   | Rate Limit | 설명                     |
+| ------ | ------------------- | ------ | :--------: | ------------------------ |
+| POST   | `/search/ai`        | 🔒 JWT |  10회/분   | 추천 결과를 한 번에 반환 |
+| POST   | `/search/ai/stream` | 🔒 JWT |  10회/분   | SSE로 단계별 스트리밍    |
 
 두 엔드포인트 모두 **회원 전용**입니다. LLM 호출 비용이 발생하므로 엔드포인트 단위 Throttler를 별도로 적용했습니다.
 
@@ -77,13 +77,13 @@ search/
 
 `SseStreamWriter`가 아래 이벤트를 순서대로 내보냅니다.
 
-| `type` | 페이로드 | 시점 |
-|---|---|---|
+| `type`      | 페이로드  | 시점                           |
+| ----------- | --------- | ------------------------------ |
 | `searching` | `message` | 의도 분류 완료, 벡터 검색 시작 |
-| `books` | `books[]` | 후보 도서 카드 확정 |
-| `text` | `chunk` | 추천 문구를 조각 단위로 전송 |
-| `error` | `message` | 파이프라인 실패 |
-| `done` | — | 스트림 종료 |
+| `books`     | `books[]` | 후보 도서 카드 확정            |
+| `text`      | `chunk`   | 추천 문구를 조각 단위로 전송   |
+| `error`     | `message` | 파이프라인 실패                |
+| `done`      | —         | 스트림 종료                    |
 
 웹에서는 `apps/web/src/features/book/utils/sse-chat-client.ts`가 이 이벤트를 파싱합니다.
 
@@ -97,12 +97,12 @@ search/
 
 ## 관련 환경 변수
 
-| 변수 | 기본값 | 설명 |
-|---|---|---|
-| `GEMINI_API_KEY` | — | 필수 |
-| `GEMINI_MODEL_NAME` | 코드 기본값 | 의도 분류·합성에 쓸 Gemini 모델 |
-| `AI_SIMILARITY_THRESHOLD` | `0.35` | 최소 코사인 유사도 (높을수록 엄격) |
-| `AI_CANDIDATE_POOL_SIZE` | `30` | pgvector 원시 후보 풀 크기 |
+| 변수                      | 기본값      | 설명                               |
+| ------------------------- | ----------- | ---------------------------------- |
+| `GEMINI_API_KEY`          | —           | 필수                               |
+| `GEMINI_MODEL_NAME`       | 코드 기본값 | 의도 분류·합성에 쓸 Gemini 모델    |
+| `AI_SIMILARITY_THRESHOLD` | `0.35`      | 최소 코사인 유사도 (높을수록 엄격) |
+| `AI_CANDIDATE_POOL_SIZE`  | `30`        | pgvector 원시 후보 풀 크기         |
 
 ## 사전 준비 (DB)
 

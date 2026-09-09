@@ -33,16 +33,16 @@ DDL_TARGET_DATABASE_URL=postgres://user:pass@localhost:5432/bookjeok_ddl   pnpm 
 
 ## 적용 이력
 
-| 날짜 | 내용 | 관련 커밋 |
-| --- | --- | --- |
-| 2026-09-02 | 채팅 테이블 인덱스 5개 추가 | `e0eed214` |
-| 2026-09-02 | 읽음 워터마크 컬럼 추가·백필, `read_receipts` 드롭 | `778ef588` |
-| 2026-09-05 | 거래 완료(`trade_completions`) 도입, `trade_reviews` 재구성 | `f34ba26b` ~ `390b4fcc` |
-| 2026-09-07 | `books` 검색용 pg_trgm GIN 인덱스 3개 추가 | (미커밋) |
-| 2026-09-08 | `books.pubDate` 컬럼 추가 (출간일) | `026abfd5` |
-| 2026-09-09 | 위 컬럼 값 채움 + `books.discount` 판매가 → 정가 (DDL 아님, 데이터 반영) | (스크립트) |
-| 2026-09-09 | `books.salesPoint` 컬럼 추가 (알라딘 판매지수) | (미커밋) |
-| 2026-09-09 | `reading_logs.isbn` 외래키 추가 (누락돼 있던 제약) | (미커밋) |
+| 날짜       | 내용                                                                     | 관련 커밋               |
+| ---------- | ------------------------------------------------------------------------ | ----------------------- |
+| 2026-09-02 | 채팅 테이블 인덱스 5개 추가                                              | `e0eed214`              |
+| 2026-09-02 | 읽음 워터마크 컬럼 추가·백필, `read_receipts` 드롭                       | `778ef588`              |
+| 2026-09-05 | 거래 완료(`trade_completions`) 도입, `trade_reviews` 재구성              | `f34ba26b` ~ `390b4fcc` |
+| 2026-09-07 | `books` 검색용 pg_trgm GIN 인덱스 3개 추가                               | (미커밋)                |
+| 2026-09-08 | `books.pubDate` 컬럼 추가 (출간일)                                       | `026abfd5`              |
+| 2026-09-09 | 위 컬럼 값 채움 + `books.discount` 판매가 → 정가 (DDL 아님, 데이터 반영) | (스크립트)              |
+| 2026-09-09 | `books.salesPoint` 컬럼 추가 (알라딘 판매지수)                           | (미커밋)                |
+| 2026-09-09 | `reading_logs.isbn` 외래키 추가 (누락돼 있던 제약)                       | (미커밋)                |
 
 현재 운영에 남아 있는 채팅 인덱스는 **4개**입니다
 (`idx_read_receipts_message`는 테이블과 함께 사라졌습니다).
@@ -57,13 +57,13 @@ DDL_TARGET_DATABASE_URL=postgres://user:pass@localhost:5432/bookjeok_ddl   pnpm 
 자동으로 만들지 않으므로 `chatRoomId`, `senderId`, `messageId` 모두 인덱스가 없는 상태였고,
 아래 쿼리들이 전부 테이블 전체를 훑고 있었습니다.
 
-| 쿼리 | 위치 |
-| --- | --- |
-| 방별 마지막 메시지 (`DISTINCT ON`) | `ChatService.getChatRooms` |
-| 방별 안 읽음 개수 집계 | `ChatService.getChatRooms`, `markMessagesAsRead` |
-| 메시지 커서 페이지네이션 | `ChatService.getChatMessages` |
-| 메시지 전송 시 상대방 참여 상태 확인 | `ChatService.saveMessage` |
-| 판매글 단위 방 조회 | `ChatService.resolveChatRoom`, `notifyOtherBuyersTrading` |
+| 쿼리                                 | 위치                                                      |
+| ------------------------------------ | --------------------------------------------------------- |
+| 방별 마지막 메시지 (`DISTINCT ON`)   | `ChatService.getChatRooms`                                |
+| 방별 안 읽음 개수 집계               | `ChatService.getChatRooms`, `markMessagesAsRead`          |
+| 메시지 커서 페이지네이션             | `ChatService.getChatMessages`                             |
+| 메시지 전송 시 상대방 참여 상태 확인 | `ChatService.saveMessage`                                 |
+| 판매글 단위 방 조회                  | `ChatService.resolveChatRoom`, `notifyOtherBuyersTrading` |
 
 `chat_participants`와 `read_receipts`에는 `@Unique`가 만든 인덱스가 있지만
 각각 `(userId, chatRoomId)`, `(userId, messageId)` 순서라 **선행 컬럼이 userId**입니다.
@@ -350,13 +350,13 @@ COMMIT;
 `apps/server/scripts/measure-book-search.ts`(읽기 전용)로 실측했습니다.
 검색어는 `search_keywords`의 실제 사용자 검색어를 썼습니다.
 
-| 항목 | 값 |
-| --- | --- |
-| 도서 수 / 테이블 크기 | 58,550행 / 274MB |
-| 기존 인덱스 | PK 하나 (1,816kB) |
-| `pg_trgm` | **1.6 설치돼 있음** |
-| `pgroonga` | 3.2.5 사용 가능하나 미설치 |
-| 2글자 이하 검색 비중 | **8.3%** (217건 중 18건) |
+| 항목                  | 값                         |
+| --------------------- | -------------------------- |
+| 도서 수 / 테이블 크기 | 58,550행 / 274MB           |
+| 기존 인덱스           | PK 하나 (1,816kB)          |
+| `pg_trgm`             | **1.6 설치돼 있음**        |
+| `pgroonga`            | 3.2.5 사용 가능하나 미설치 |
+| 2글자 이하 검색 비중  | **8.3%** (217건 중 18건)   |
 
 `pgroonga` 대신 `pg_trgm`을 고른 이유는 두 가지입니다. 이미 설치돼 있어 확장
 도입 결정이 필요 없고, `pg_trgm`의 약점(2글자 부분일치는 패턴에서 트라이그램을
@@ -406,10 +406,10 @@ PK 포함 4개 행이 나오면 정상입니다. 인덱스 총량은 1,816kB에�
 
 같은 측정 스크립트를 다시 돌린 값입니다.
 
-| 구간 | 목록(전 → 후) | 카운트(전 → 후) | 체감(전 → 후) |
-| --- | --- | --- | --- |
+| 구간               | 목록(전 → 후)       | 카운트(전 → 후)     | 체감(전 → 후)    |
+| ------------------ | ------------------- | ------------------- | ---------------- |
 | 3글자 이상 (91.7%) | 158.5ms → **0.1ms** | 236.5ms → **0.2ms** | 628ms → **29ms** |
-| 2글자 이하 (8.3%) | 152.0ms → 149.8ms | 225.2ms → 228.0ms | 변화 없음 |
+| 2글자 이하 (8.3%)  | 152.0ms → 149.8ms   | 225.2ms → 228.0ms   | 변화 없음        |
 
 실행 계획이 `Seq Scan`에서 `Bitmap Heap Scan + Bitmap Index Scan`으로 바뀌었습니다.
 2글자 검색이 `Seq Scan`으로 남는 것은 `pg_trgm`의 알려진 한계이며 예상된 결과입니다.
@@ -512,10 +512,10 @@ ALTER TABLE books DROP COLUMN "pubDate";
 버킷에 뭉치므로("사랑" 제목 부분일치만 791건) **`viewCount`가 사실상 체감 순서를
 결정**하고 있었습니다. 그런데 그 값은 신호가 아닙니다.
 
-| 항목 | 값 |
-| --- | --- |
-| `viewCount` 0인 도서 | **43,001 / 56,836 (75.7%)** |
-| 평균 · 최대 | 0.60 · 381 |
+| 항목                  | 값                                                                  |
+| --------------------- | ------------------------------------------------------------------- |
+| `viewCount` 0인 도서  | **43,001 / 56,836 (75.7%)**                                         |
+| 평균 · 최대           | 0.60 · 381                                                          |
 | 참여 신호가 있는 도서 | 독서기록 37 · 위시리스트 32 · 리뷰 71 · 판매글 27 (**전체의 0.1%**) |
 
 값이 있는 것도 대부분 크롤러가 연관도서 링크를 타고 다닌 흔적입니다
@@ -525,11 +525,11 @@ ALTER TABLE books DROP COLUMN "pubDate";
 "사랑" 접두일치 251건을 전량 조회해 대조한 결과는 아래와 같습니다.
 **현재 랭킹이 인기도와 음의 상관**이었습니다.
 
-| 현재 상위 | 판매지수 | | 판매지수 상위 | 조회수 |
-| --- | --- | --- | --- | --- |
-| 사랑이 있는 곳에 신이 있다 | 30 | | 사랑해 사랑해 사랑해 | 1 |
-| 사랑의 메신저 | 27 | | 사랑의 기술 (에리히 프롬) | 1 |
-| 사랑에 관하여 | 121 | | 사랑을 무게로 안 느끼게 (박완서) | 0 |
+| 현재 상위                  | 판매지수 |     | 판매지수 상위                    | 조회수 |
+| -------------------------- | -------- | --- | -------------------------------- | ------ |
+| 사랑이 있는 곳에 신이 있다 | 30       |     | 사랑해 사랑해 사랑해             | 1      |
+| 사랑의 메신저              | 27       |     | 사랑의 기술 (에리히 프롬)        | 1      |
+| 사랑에 관하여              | 121      |     | 사랑을 무게로 안 느끼게 (박완서) | 0      |
 
 알라딘 `ItemLookUp`이 `salesPoint`를 주고 **2026-10-30 이후에는 받을 수 없으므로**,
 정가·출간일과 같은 이유로 지금 컬럼을 만들고 수확했습니다.
@@ -590,13 +590,13 @@ ALTER TABLE books DROP COLUMN "salesPoint";
 
 `books`를 참조하는 컬럼 다섯 중 **`reading_logs`만 외래키가 없었습니다.**
 
-| 테이블 | isbn NULL 허용 | 삭제 규칙 |
-| --- | --- | --- |
-| `ai_book_summaries` | NO | CASCADE |
-| `reviews` | YES | NO ACTION |
-| `used_book_sales` | YES | SET NULL |
-| `wishlists` | YES | CASCADE |
-| **`reading_logs`** | **NO** | **제약 없음** ← |
+| 테이블              | isbn NULL 허용 | 삭제 규칙       |
+| ------------------- | -------------- | --------------- |
+| `ai_book_summaries` | NO             | CASCADE         |
+| `reviews`           | YES            | NO ACTION       |
+| `used_book_sales`   | YES            | SET NULL        |
+| `wishlists`         | YES            | CASCADE         |
+| **`reading_logs`**  | **NO**         | **제약 없음** ← |
 
 엔티티는 `onDelete: 'SET NULL'`로 선언돼 있었는데 `isbn` 컬럼이 NOT NULL이라
 **성립할 수 없는 조합**이었습니다. 운영에 제약이 아예 없어서 그 모순이 드러나지

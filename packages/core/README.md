@@ -7,15 +7,18 @@
 ## 📦 구성 요소
 
 ### 1. 도메인 타입 (`src/features/*/types.ts`)
+
 - **14개 핵심 도메인 완비**: `auth`, `book`, `book-sale`, `chat`, `comment`, `insights`, `intro`, `llm`, `notification`, `order`, `reading-log`, `review`, `trade`, `user`
 - **단일 진실 공급원(SSOT)**: 모든 요청 파라미터(`Params`), 응답 구조(`Response`), 공용 엔티티 모양 정의
 
 ### 2. 상수 및 쿼리 키 (`src/shared/constants`, `src/features/*/constants.ts`)
+
 - **API Paths (`API_PATHS`)**: 백엔드 REST API 엔드포인트 경로 상수
 - **Query Key Factories (`bookKeys`, `reviewKeys`, `orderKeys`, `tradeKeys` 등)**: `@lukemorales/query-key-factory` 기반 React Query 캐시 키 표준화
 - **도메인 Enum**: `OrderStatus`, `SaleStatus`, `TradeMethod`, `TradeReviewTag`, `NotificationType` 등 서버 enum과 1:1 대응
 
 ### 3. 순수 유틸리티 (`src/shared/utils`)
+
 - **Format**: `formatPrice` (통화 포맷팅), `formatAladinCoverImage` (도서 표지 고화질화)
 - **Date**: `getSimpleDate`, `formatPostDate` (상대 시간 포맷팅)
 
@@ -24,7 +27,12 @@
 ## 🚀 사용법
 
 ```typescript
-import { formatPrice, bookKeys, type UsedBookSale, API_PATHS } from "@bookjeok/core";
+import {
+  formatPrice,
+  bookKeys,
+  type UsedBookSale,
+  API_PATHS,
+} from "@bookjeok/core";
 
 const formatted = formatPrice(15000); // ₩15,000
 ```

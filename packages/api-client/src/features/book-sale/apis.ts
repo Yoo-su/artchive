@@ -46,9 +46,13 @@ export const getMyBookSales = async (): Promise<GetMyBookSalesResponse> => {
 /**
  * 중고책 판매글의 상태를 변경합니다.
  */
-export const updateBookSaleStatus = async (
-  { saleId, status }: { saleId: number; status: SaleStatus },
-): Promise<CommonBookSaleResponse> => {
+export const updateBookSaleStatus = async ({
+  saleId,
+  status,
+}: {
+  saleId: number;
+  status: SaleStatus;
+}): Promise<CommonBookSaleResponse> => {
   const { data } = await privateApiClient.patch<CommonBookSaleResponse>(
     API_PATHS.book.saleStatus(saleId),
     { status },
@@ -59,9 +63,7 @@ export const updateBookSaleStatus = async (
 /**
  * 특정 판매글의 상세 정보를 조회합니다.
  */
-export const getBookSaleDetail = async (
-  saleId: string,
-) => {
+export const getBookSaleDetail = async (saleId: string) => {
   const { data } = await publicApiClient.get<UsedBookSale>(
     API_PATHS.book.saleDetail(saleId),
   );
@@ -83,9 +85,13 @@ export const getSaleForEdit = async (
 /**
  * 관련 판매글 목록을 페이지네이션으로 조회합니다.
  */
-export const getRelatedSales = async (
-  { isbn, page, limit, city, district }: GetRelatedSalesParams,
-): Promise<GetRelatedSalesResponse> => {
+export const getRelatedSales = async ({
+  isbn,
+  page,
+  limit,
+  city,
+  district,
+}: GetRelatedSalesParams): Promise<GetRelatedSalesResponse> => {
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
@@ -103,9 +109,13 @@ export const getRelatedSales = async (
 /**
  * 중고책 판매글을 수정합니다.
  */
-export const updateBookSale = async (
-  { saleId, payload }: { saleId: number; payload: UpdateBookSaleParams },
-) => {
+export const updateBookSale = async ({
+  saleId,
+  payload,
+}: {
+  saleId: number;
+  payload: UpdateBookSaleParams;
+}) => {
   const { data } = await privateApiClient.patch<CommonBookSaleResponse>(
     API_PATHS.book.updateSale(saleId),
     payload,
@@ -172,18 +182,17 @@ export const getBookSales = async (
 /**
  * 중고책 판매글 상세페이지 조회수를 기록합니다.
  */
-export const recordSaleView = async (
-  saleId: number,
-): Promise<void> => {
+export const recordSaleView = async (saleId: number): Promise<void> => {
   await publicApiClient.post(API_PATHS.book.recordSaleView(saleId));
 };
 
 /**
  * 현재 활성화된 중고책 판매글 지역(시/도, 시/군/구) 목록을 조회합니다.
  */
-export const getAvailableRegions = async (): Promise<GetAvailableRegionsResponse> => {
-  const { data } = await publicApiClient.get<GetAvailableRegionsResponse>(
-    API_PATHS.book.regions,
-  );
-  return data;
-};
+export const getAvailableRegions =
+  async (): Promise<GetAvailableRegionsResponse> => {
+    const { data } = await publicApiClient.get<GetAvailableRegionsResponse>(
+      API_PATHS.book.regions,
+    );
+    return data;
+  };

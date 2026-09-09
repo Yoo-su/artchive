@@ -102,4 +102,3 @@ export interface MarkAsReadPayload {
 export interface LeaveRoomPayload {
   roomId: number;
 }
-

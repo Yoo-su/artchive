@@ -121,5 +121,3 @@ export type AiSearchSseEvent =
   | { type: "text"; chunk: string }
   | { type: "done" }
   | { type: "error"; message: string };
-
-

@@ -1,7 +1,14 @@
 "use client";
 
 import { InsightsResponse } from "@bookjeok/core";
-import { BookOpen, Hash, Heart, Loader2, ShoppingBag, TrendingUp } from "lucide-react";
+import {
+  BookOpen,
+  Hash,
+  Heart,
+  Loader2,
+  ShoppingBag,
+  TrendingUp,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { AdminLayout } from "../../layouts/admin-layout";
@@ -10,7 +17,6 @@ import { api } from "../../libs/api";
 export default function DashboardPage() {
   const [data, setData] = useState<InsightsResponse | null>(null);
   const [loading, setLoading] = useState(true);
-
 
   useEffect(() => {
     async function fetchInsights() {
@@ -45,10 +51,30 @@ export default function DashboardPage() {
   };
 
   const statCards = [
-    { title: "등록된 중고 도서", value: `${summary.totalSales.toLocaleString()}건`, desc: "누적 중고 장터 매물", icon: ShoppingBag },
-    { title: "작성된 독서 리뷰", value: `${summary.totalReviews.toLocaleString()}건`, desc: "사용자 누적 감상평", icon: BookOpen },
-    { title: "누적 공감 반응", value: `${summary.totalReactions.toLocaleString()}개`, desc: "리뷰/글 피드백 리액션", icon: Heart },
-    { title: "등록된 해시태그", value: `${summary.totalTags.toLocaleString()}개`, desc: "리뷰 분류용 태그 수", icon: Hash },
+    {
+      title: "등록된 중고 도서",
+      value: `${summary.totalSales.toLocaleString()}건`,
+      desc: "누적 중고 장터 매물",
+      icon: ShoppingBag,
+    },
+    {
+      title: "작성된 독서 리뷰",
+      value: `${summary.totalReviews.toLocaleString()}건`,
+      desc: "사용자 누적 감상평",
+      icon: BookOpen,
+    },
+    {
+      title: "누적 공감 반응",
+      value: `${summary.totalReactions.toLocaleString()}개`,
+      desc: "리뷰/글 피드백 리액션",
+      icon: Heart,
+    },
+    {
+      title: "등록된 해시태그",
+      value: `${summary.totalTags.toLocaleString()}개`,
+      desc: "리뷰 분류용 태그 수",
+      icon: Hash,
+    },
   ];
 
   return (
@@ -107,7 +133,10 @@ export default function DashboardPage() {
             <div className="divide-y divide-neutral-100 dark:divide-neutral-900">
               {data?.popularTags && data.popularTags.length > 0 ? (
                 data.popularTags.slice(0, 5).map((tag, idx) => (
-                  <div key={idx} className="flex items-center justify-between py-3 text-xs">
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between py-3 text-xs"
+                  >
                     <span className="font-medium text-neutral-800 dark:text-neutral-200">
                       #{tag.name}
                     </span>
@@ -140,14 +169,18 @@ export default function DashboardPage() {
                 className="flex items-center justify-between border border-neutral-200 dark:border-neutral-800 hover:border-neutral-950 dark:hover:border-neutral-50 p-4 text-xs font-medium tracking-wider uppercase transition-all duration-300"
               >
                 도서 리뷰 모니터링 및 블라인드
-                <span className="text-[10px] font-mono text-neutral-400">&rarr;</span>
+                <span className="text-[10px] font-mono text-neutral-400">
+                  &rarr;
+                </span>
               </a>
               <a
                 href="/dashboard/sales"
                 className="flex items-center justify-between border border-neutral-200 dark:border-neutral-800 hover:border-neutral-950 dark:hover:border-neutral-50 p-4 text-xs font-medium tracking-wider uppercase transition-all duration-300"
               >
                 중고마켓 사기/스팸 게시물 처리
-                <span className="text-[10px] font-mono text-neutral-400">&rarr;</span>
+                <span className="text-[10px] font-mono text-neutral-400">
+                  &rarr;
+                </span>
               </a>
             </div>
           </div>

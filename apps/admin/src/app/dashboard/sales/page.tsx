@@ -8,7 +8,6 @@ import { AdminLayout } from "../../../layouts/admin-layout";
 import { api } from "../../../libs/api";
 import { requestRevalidate } from "../../../libs/revalidate";
 
-
 export default function SalesModerationPage() {
   const [sales, setSales] = useState<UsedBookSale[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +18,9 @@ export default function SalesModerationPage() {
     try {
       const response = await api.get("/book/sales?limit=50");
       // ResponseWrapper 형식 지원
-      const fetchedData = response.data.data ? response.data.data : response.data;
+      const fetchedData = response.data.data
+        ? response.data.data
+        : response.data;
       setSales(fetchedData.sales || []);
     } catch (err) {
       console.error("Failed to fetch sales", err);
@@ -33,7 +34,11 @@ export default function SalesModerationPage() {
   }, []);
 
   const handleDelete = async (id: number) => {
-    if (!confirm("정말 이 판매글을 삭제하시겠습니까? 사기/스팸 글로 의심되는 경우에만 삭제 조치 하십시오.")) {
+    if (
+      !confirm(
+        "정말 이 판매글을 삭제하시겠습니까? 사기/스팸 글로 의심되는 경우에만 삭제 조치 하십시오.",
+      )
+    ) {
       return;
     }
     setDeletingId(id);
@@ -103,7 +108,8 @@ export default function SalesModerationPage() {
               Used Book Market Moderation
             </h3>
             <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-1.5 font-light tracking-wider">
-              중고 서적 장터 게시글 실시간 모니터링 및 부적절한 거래글(사기/스팸) 블라인드
+              중고 서적 장터 게시글 실시간 모니터링 및 부적절한
+              거래글(사기/스팸) 블라인드
             </p>
           </div>
           <span className="text-[10px] tracking-widest text-neutral-400 dark:text-neutral-500 font-mono">

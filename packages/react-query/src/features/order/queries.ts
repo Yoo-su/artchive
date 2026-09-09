@@ -6,10 +6,7 @@ import {
   getMySales,
   getOrder,
 } from "@bookjeok/api-client";
-import {
-  orderKeys,
-  QueryOrderParams,
-} from "@bookjeok/core";
+import { orderKeys, QueryOrderParams } from "@bookjeok/core";
 import { useQuery } from "@tanstack/react-query";
 
 /**

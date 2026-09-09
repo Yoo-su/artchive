@@ -1,4 +1,8 @@
-import { API_PATHS, GetNotificationsParams, NotificationResponse } from "@bookjeok/core";
+import {
+  API_PATHS,
+  GetNotificationsParams,
+  NotificationResponse,
+} from "@bookjeok/core";
 
 import { privateApiClient } from "../../client";
 
@@ -18,9 +22,7 @@ export const getNotifications = async (
 /**
  * 특정 알림을 읽음 처리합니다.
  */
-export const markNotificationAsRead = async (
-  id: number,
-): Promise<void> => {
+export const markNotificationAsRead = async (id: number): Promise<void> => {
   await privateApiClient.patch(API_PATHS.notification.read(id));
 };
 
@@ -43,8 +45,6 @@ export const getUnreadNotificationCount = async (): Promise<number> => {
 /**
  * 특정 알림을 삭제합니다.
  */
-export const deleteNotification = async (
-  id: number,
-): Promise<void> => {
+export const deleteNotification = async (id: number): Promise<void> => {
   await privateApiClient.delete(API_PATHS.notification.base + `/${id}`);
 };

@@ -28,17 +28,39 @@ export const MAPPING = [
   { name: "ChevronDown", icon: "arrow-down-02", alias: ["ChevronDownIcon"] },
   { name: "ChevronLeft", icon: "arrow-left-02" },
   { name: "ChevronRight", icon: "arrow-right-02", alias: ["ChevronRightIcon"] },
-  { name: "ArrowUpRight", icon: "export-arrow-01", note: "iconsax free에 대각선 화살표가 없어 '외부로 나가는 화살표'로 대체" },
+  {
+    name: "ArrowUpRight",
+    icon: "export-arrow-01",
+    note: "iconsax free에 대각선 화살표가 없어 '외부로 나가는 화살표'로 대체",
+  },
   { name: "ExternalLink", icon: "export-circle-01" },
 
   // ── 기본 조작 ────────────────────────────────────────────────
   { name: "Plus", icon: "add" },
   { name: "Minus", icon: "minus" },
-  { name: "Check", derive: { from: "tick-square", paths: [1], scale: 1.3 }, alias: ["CheckIcon"], note: "tick-square에서 체크 표시만 추출 (테두리 없는 체크가 free 세트에 없음)" },
-  { name: "X", derive: { from: "close-circle", paths: [1, 2], scale: 1.6 }, alias: ["XIcon"], note: "close-circle에서 X만 추출" },
+  {
+    name: "Check",
+    derive: { from: "tick-square", paths: [1], scale: 1.3 },
+    alias: ["CheckIcon"],
+    note: "tick-square에서 체크 표시만 추출 (테두리 없는 체크가 free 세트에 없음)",
+  },
+  {
+    name: "X",
+    derive: { from: "close-circle", paths: [1, 2], scale: 1.6 },
+    alias: ["XIcon"],
+    note: "close-circle에서 X만 추출",
+  },
   { name: "Search", icon: "search-normal" },
-  { name: "Menu", icon: "textalign-justifycenter", note: "iconsax의 'menu'는 2x2 점 격자라 햄버거 형태인 textalign-justifycenter를 사용" },
-  { name: "MoreVertical", icon: "3-dots-more", note: "iconsax free에 세로 점 3개가 없어 가로 버전 사용" },
+  {
+    name: "Menu",
+    icon: "textalign-justifycenter",
+    note: "iconsax의 'menu'는 2x2 점 격자라 햄버거 형태인 textalign-justifycenter를 사용",
+  },
+  {
+    name: "MoreVertical",
+    icon: "3-dots-more",
+    note: "iconsax free에 세로 점 3개가 없어 가로 버전 사용",
+  },
   { name: "Trash2", icon: "trash" },
   { name: "Edit", icon: "edit" },
   { name: "Pencil", icon: "edit-2", alias: ["PenLine"] },
@@ -48,13 +70,22 @@ export const MAPPING = [
   { name: "LogOut", icon: "logout-01" },
   { name: "Share2", icon: "share" },
   { name: "Send", icon: "send-2" },
-  { name: "CircleIcon", icon: "record", bold: true, note: "라디오 버튼 점 — bold로 채움" },
+  {
+    name: "CircleIcon",
+    icon: "record",
+    bold: true,
+    note: "라디오 버튼 점 — bold로 채움",
+  },
 
   // ── 새로고침 / 반복 ──────────────────────────────────────────
   { name: "RefreshCw", icon: "refresh-right" },
   { name: "RefreshCcw", icon: "refresh-left" },
   { name: "RotateCcw", icon: "rotate-left" },
-  { name: "Repeat", icon: "repeat-arrow", note: "'repeat'은 outline 스타일이 없어 repeat-arrow 사용" },
+  {
+    name: "Repeat",
+    icon: "repeat-arrow",
+    note: "'repeat'은 outline 스타일이 없어 repeat-arrow 사용",
+  },
   { name: "Repeat1", icon: "repeate-one" },
   { name: "History", icon: "timer" },
 
@@ -82,7 +113,11 @@ export const MAPPING = [
   { name: "DollarSign", icon: "dollar-circle" },
   { name: "BarChart3", icon: "chart-2" },
   { name: "TrendingUp", icon: "trend-up" },
-  { name: "Handshake", icon: "arrow-swap-01", note: "iconsax free에 악수 아이콘이 없음 — 직거래(교환) 맥락에 맞는 교환 화살표로 대체" },
+  {
+    name: "Handshake",
+    icon: "arrow-swap-01",
+    note: "iconsax free에 악수 아이콘이 없음 — 직거래(교환) 맥락에 맞는 교환 화살표로 대체",
+  },
   { name: "Sparkles", icon: "magic-star" },
   { name: "Lightbulb", icon: "lamp-on" },
   { name: "Languages", icon: "translate" },
@@ -98,7 +133,11 @@ export const MAPPING = [
   { name: "MessageSquare", icon: "message-square" },
   { name: "MessageSquareText", icon: "message-text" },
   { name: "MessageSquareX", icon: "message-remove" },
-  { name: "MessageSquareDashed", icon: "message-bubble", note: "점선 말풍선이 없어 일반 말풍선으로 대체" },
+  {
+    name: "MessageSquareDashed",
+    icon: "message-bubble",
+    note: "점선 말풍선이 없어 일반 말풍선으로 대체",
+  },
   { name: "MessagesSquare", icon: "messages-2" },
 
   // ── 미디어 ───────────────────────────────────────────────────
@@ -130,9 +169,17 @@ export const MAPPING = [
   { name: "CardPos", icon: "card-pos", alias: ["CardPosIcon"] },
   { name: "CopySuccess", icon: "copy-success", alias: ["CopySuccessIcon"] },
   { name: "DocumentCopy", icon: "document-copy", alias: ["DocumentCopyIcon"] },
-  { name: "QuoteUpCircle", icon: "quote-up-circle", alias: ["QuoteUpCircleIcon"] },
+  {
+    name: "QuoteUpCircle",
+    icon: "quote-up-circle",
+    alias: ["QuoteUpCircleIcon"],
+  },
   { name: "TruckFast", icon: "truck-fast", alias: ["TruckFastIcon"] },
-  { name: "ShieldSecurity", icon: "shield-security", alias: ["ShieldSecurityIcon"] },
+  {
+    name: "ShieldSecurity",
+    icon: "shield-security",
+    alias: ["ShieldSecurityIcon"],
+  },
 ];
 
 /** iconsax free 세트에 대응이 없어 iconsax 그리드(24px)에 맞춰 직접 그린 아이콘. */

@@ -47,48 +47,48 @@ OrderScheduler     ──emit──▶ order.*_warning                          
 
 ## 3. 알림 타입 (14종)
 
-| 분류 | 타입 |
-|---|---|
-| 커뮤니티 | `REVIEW_REACTION`, `REVIEW_COMMENT`, `COMMENT_LIKE` |
+| 분류      | 타입                                                                            |
+| --------- | ------------------------------------------------------------------------------- |
+| 커뮤니티  | `REVIEW_REACTION`, `REVIEW_COMMENT`, `COMMENT_LIKE`                             |
 | 거래 진행 | `BUYER_SELECTED`, `OTHER_BUYER_TRADING`, `PAYMENT_COMPLETED`, `PAYMENT_EXPIRED` |
-| 배송 | `SHIPPING_STARTED`, `DELIVERY_COMPLETED`, `SHIPPING_DEADLINE_IMMINENT` |
-| 확정·취소 | `AUTO_CONFIRM_IMMINENT`, `PURCHASE_CONFIRMED`, `ORDER_CANCELLED` |
-| 후기 | `TRADE_REVIEW_RECEIVED` |
+| 배송      | `SHIPPING_STARTED`, `DELIVERY_COMPLETED`, `SHIPPING_DEADLINE_IMMINENT`          |
+| 확정·취소 | `AUTO_CONFIRM_IMMINENT`, `PURCHASE_CONFIRMED`, `ORDER_CANCELLED`                |
+| 후기      | `TRADE_REVIEW_RECEIVED`                                                         |
 
 ## 4. API 엔드포인트
 
 전 구간 JWT 인증이 필요합니다.
 
-| 메서드 | 경로 | 설명 |
-|---|---|---|
-| GET | `/notifications` | 내 알림 목록 (커서 페이지네이션, 기본 20건) |
-| GET | `/notifications/unread-count` | 안 읽은 알림 수 |
-| PATCH | `/notifications/read-all` | 전체 읽음 처리 |
-| PATCH | `/notifications/:id/read` | 개별 읽음 처리 |
-| DELETE | `/notifications/:id` | 알림 삭제 |
+| 메서드 | 경로                          | 설명                                        |
+| ------ | ----------------------------- | ------------------------------------------- |
+| GET    | `/notifications`              | 내 알림 목록 (커서 페이지네이션, 기본 20건) |
+| GET    | `/notifications/unread-count` | 안 읽은 알림 수                             |
+| PATCH  | `/notifications/read-all`     | 전체 읽음 처리                              |
+| PATCH  | `/notifications/:id/read`     | 개별 읽음 처리                              |
+| DELETE | `/notifications/:id`          | 알림 삭제                                   |
 
 ## 5. 엔티티 — `Notification`
 
-| 컬럼 | 타입 | 설명 |
-|---|---|---|
-| `id` | `number` | PK |
-| `recipientId` | `number` | 수신자 |
-| `actorId` | `number` | 알림 유발자 |
-| `type` | `enum` | `NotificationType` |
-| `metadata` | `jsonb` | 문구 구성에 필요한 동적 데이터 (책 제목, 주문번호 등) |
-| `isRead` | `boolean` | 읽음 여부 |
-| `createdAt` | `Date` | 생성일 |
+| 컬럼          | 타입      | 설명                                                  |
+| ------------- | --------- | ----------------------------------------------------- |
+| `id`          | `number`  | PK                                                    |
+| `recipientId` | `number`  | 수신자                                                |
+| `actorId`     | `number`  | 알림 유발자                                           |
+| `type`        | `enum`    | `NotificationType`                                    |
+| `metadata`    | `jsonb`   | 문구 구성에 필요한 동적 데이터 (책 제목, 주문번호 등) |
+| `isRead`      | `boolean` | 읽음 여부                                             |
+| `createdAt`   | `Date`    | 생성일                                                |
 
 문구를 완성하는 데 필요한 값은 `metadata`에 **스냅샷으로** 담습니다. 원본 리소스가 삭제돼도 알림이 깨지지 않습니다.
 
 ## 6. 실시간 푸시 (Socket.IO)
 
-| 항목 | 값 |
-|---|---|
-| Namespace | `notification` |
-| 룸 | `user:{userId}` — 연결 시 JWT로 식별해 자동 join |
-| 이벤트 | `newNotification` |
-| 페이로드 | 알림 응답 객체 |
+| 항목      | 값                                               |
+| --------- | ------------------------------------------------ |
+| Namespace | `notification`                                   |
+| 룸        | `user:{userId}` — 연결 시 JWT로 식별해 자동 join |
+| 이벤트    | `newNotification`                                |
+| 페이로드  | 알림 응답 객체                                   |
 
 수신자 전용 룸으로만 emit하므로 다른 사용자에게 알림이 새지 않습니다. 인증되지 않은 소켓은 연결 단계에서 끊깁니다.
 

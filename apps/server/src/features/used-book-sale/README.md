@@ -29,20 +29,20 @@ used-book-sale/
 
 ## API 엔드포인트
 
-| 메서드 | 경로                     | 인증 | 설명                 |
-| ------ | ------------------------ | ---- | -------------------- |
-| POST   | `/book/sale`             | 🔒   | 판매글 생성          |
-| GET    | `/book/sales`            | -    | 판매글 검색          |
-| GET    | `/book/sales/recent`     | -    | 최근 판매글          |
-| GET    | `/book/sales/popular`    | -    | 인기 판매글          |
+| 메서드 | 경로                     | 인증 | 설명                             |
+| ------ | ------------------------ | ---- | -------------------------------- |
+| POST   | `/book/sale`             | 🔒   | 판매글 생성                      |
+| GET    | `/book/sales`            | -    | 판매글 검색                      |
+| GET    | `/book/sales/recent`     | -    | 최근 판매글                      |
+| GET    | `/book/sales/popular`    | -    | 인기 판매글                      |
 | GET    | `/book/sales/regions`    | -    | 등록된 지역(시/도·시/군/구) 목록 |
-| GET    | `/book/sales/:id`        | -    | 판매글 상세          |
-| GET    | `/book/sales/:id/edit`   | 🔒   | 수정용 조회 (본인만) |
-| PATCH  | `/book/sales/:id`        | 🔒   | 판매글 수정          |
-| PATCH  | `/book/sales/:id/status` | 🔒   | 상태 변경            |
-| DELETE | `/book/sales/:id`        | 🔒   | 판매글 삭제          |
-| POST   | `/book/sales/:id/view`   | -    | 판매글 조회수 기록   |
-| GET    | `/book/:isbn/sales`      | -    | ISBN별 판매글        |
+| GET    | `/book/sales/:id`        | -    | 판매글 상세                      |
+| GET    | `/book/sales/:id/edit`   | 🔒   | 수정용 조회 (본인만)             |
+| PATCH  | `/book/sales/:id`        | 🔒   | 판매글 수정                      |
+| PATCH  | `/book/sales/:id/status` | 🔒   | 상태 변경                        |
+| DELETE | `/book/sales/:id`        | 🔒   | 판매글 삭제                      |
+| POST   | `/book/sales/:id/view`   | -    | 판매글 조회수 기록               |
+| GET    | `/book/:isbn/sales`      | -    | ISBN별 판매글                    |
 
 ## SaleStatus Enum
 
@@ -63,10 +63,10 @@ enum SaleStatus {
 
 수정·삭제·상태 변경을 막는 근거는 두 가지입니다. **화면에서만 잠그지 않고 서비스에서도 같은 규칙을 강제합니다.** (버튼이 비활성이어도 API는 직접 호출됩니다.)
 
-| 조건 | 수정 | 삭제 | 상태 변경 | 에러 |
-| --- | --- | --- | --- | --- |
-| 활성 주문 존재 | ✗ | ✗ | ✗ | `SALE_IN_TRADE_CANNOT_*` |
-| 거래 완료 기록 존재 | ✗ | ✗ (운영자 예외) | 판매완료 되돌리기만 ✗ | `SALE_COMPLETED_CANNOT_*` |
+| 조건                | 수정 | 삭제            | 상태 변경             | 에러                      |
+| ------------------- | ---- | --------------- | --------------------- | ------------------------- |
+| 활성 주문 존재      | ✗    | ✗               | ✗                     | `SALE_IN_TRADE_CANNOT_*`  |
+| 거래 완료 기록 존재 | ✗    | ✗ (운영자 예외) | 판매완료 되돌리기만 ✗ | `SALE_COMPLETED_CANNOT_*` |
 
 거래 완료 기록이 있는 글을 잠그는 이유는 [`trade` 모듈 문서](../trade/README.md)에 있습니다. 요약하면 후기가 판매글에 CASCADE로 매달려 있어서, 글을 지우거나 내용을 바꿔치기하면 받은 후기가 사라지거나 다른 물건의 후기가 됩니다.
 
@@ -78,9 +78,9 @@ enum SaleStatus {
 
 ```typescript
 enum TradeMethod {
-  DIRECT_ONLY = 'DIRECT_ONLY',     // 직거래만 (결제 없음, 채팅 중계)
+  DIRECT_ONLY = 'DIRECT_ONLY', // 직거래만 (결제 없음, 채팅 중계)
   DELIVERY_ONLY = 'DELIVERY_ONLY', // 택배만 (에스크로 결제)
-  BOTH = 'BOTH',                   // 둘 다 가능
+  BOTH = 'BOTH', // 둘 다 가능
 }
 ```
 
@@ -115,8 +115,8 @@ enum TradeMethod {
 
 ## 이벤트
 
-| 이벤트 | 리스너 | 동작 |
-|---|---|---|
+| 이벤트           | 리스너                        | 동작                    |
+| ---------------- | ----------------------------- | ----------------------- |
 | `user.withdrawn` | `UsedBookSaleCleanupListener` | 탈퇴 회원의 판매글 정리 |
 
 ## 모듈 의존성

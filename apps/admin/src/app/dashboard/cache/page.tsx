@@ -1,7 +1,13 @@
 "use client";
 
 import { getErrorMessage } from "@bookjeok/api-client";
-import { AlertTriangle, CheckCircle, Loader2, RefreshCw, Send } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle,
+  Loader2,
+  RefreshCw,
+  Send,
+} from "lucide-react";
 import { useState } from "react";
 
 import { AdminLayout } from "../../../layouts/admin-layout";
@@ -17,21 +23,85 @@ interface ISRPage {
 export default function CacheControlPage() {
   const [customPath, setCustomPath] = useState("");
   const [loadingPath, setLoadingPath] = useState<string | null>(null);
-  const [status, setStatus] = useState<{ path: string; success: boolean; msg: string } | null>(null);
+  const [status, setStatus] = useState<{
+    path: string;
+    success: boolean;
+    msg: string;
+  } | null>(null);
 
   const isrPages: ISRPage[] = [
-    { name: "메인 홈 (ko)", path: "/ko", revalidateTime: "1시간", description: "베스트셀러, 실시간 인기 도서 노출" },
-    { name: "메인 홈 (en)", path: "/en", revalidateTime: "1시간", description: "영문 메인 홈 화면" },
-    { name: "독서 라운지 (ko)", path: "/ko/lounge", revalidateTime: "1시간", description: "최신 독서 피드 및 열성 독서가" },
-    { name: "독서 라운지 (en)", path: "/en/lounge", revalidateTime: "1시간", description: "영문 독서 라운지" },
-    { name: "중고 장터 목록 (ko)", path: "/ko/book/market", revalidateTime: "1시간", description: "최근 등록 매물 및 인기 판매글" },
-    { name: "중고 장터 목록 (en)", path: "/en/book/market", revalidateTime: "1시간", description: "영문 중고 거래 목록" },
-    { name: "도서 리뷰 목록 (ko)", path: "/ko/book/reviews", revalidateTime: "1시간", description: "독자 리뷰 피드 및 실시간 목록" },
-    { name: "도서 리뷰 목록 (en)", path: "/en/book/reviews", revalidateTime: "1시간", description: "영문 도서 리뷰 피드" },
-    { name: "도서 검색 페이지 (ko)", path: "/ko/book/search", revalidateTime: "1시간", description: "통합 도서 검색 결과" },
-    { name: "도서 검색 페이지 (en)", path: "/en/book/search", revalidateTime: "1시간", description: "영문 통합 도서 검색" },
-    { name: "서비스 인사이트 (ko)", path: "/ko/insights", revalidateTime: "6시간", description: "서비스 누적 분석 및 차트 현황" },
-    { name: "서비스 인사이트 (en)", path: "/en/insights", revalidateTime: "6시간", description: "영문 서비스 분석 현황" },
+    {
+      name: "메인 홈 (ko)",
+      path: "/ko",
+      revalidateTime: "1시간",
+      description: "베스트셀러, 실시간 인기 도서 노출",
+    },
+    {
+      name: "메인 홈 (en)",
+      path: "/en",
+      revalidateTime: "1시간",
+      description: "영문 메인 홈 화면",
+    },
+    {
+      name: "독서 라운지 (ko)",
+      path: "/ko/lounge",
+      revalidateTime: "1시간",
+      description: "최신 독서 피드 및 열성 독서가",
+    },
+    {
+      name: "독서 라운지 (en)",
+      path: "/en/lounge",
+      revalidateTime: "1시간",
+      description: "영문 독서 라운지",
+    },
+    {
+      name: "중고 장터 목록 (ko)",
+      path: "/ko/book/market",
+      revalidateTime: "1시간",
+      description: "최근 등록 매물 및 인기 판매글",
+    },
+    {
+      name: "중고 장터 목록 (en)",
+      path: "/en/book/market",
+      revalidateTime: "1시간",
+      description: "영문 중고 거래 목록",
+    },
+    {
+      name: "도서 리뷰 목록 (ko)",
+      path: "/ko/book/reviews",
+      revalidateTime: "1시간",
+      description: "독자 리뷰 피드 및 실시간 목록",
+    },
+    {
+      name: "도서 리뷰 목록 (en)",
+      path: "/en/book/reviews",
+      revalidateTime: "1시간",
+      description: "영문 도서 리뷰 피드",
+    },
+    {
+      name: "도서 검색 페이지 (ko)",
+      path: "/ko/book/search",
+      revalidateTime: "1시간",
+      description: "통합 도서 검색 결과",
+    },
+    {
+      name: "도서 검색 페이지 (en)",
+      path: "/en/book/search",
+      revalidateTime: "1시간",
+      description: "영문 통합 도서 검색",
+    },
+    {
+      name: "서비스 인사이트 (ko)",
+      path: "/ko/insights",
+      revalidateTime: "6시간",
+      description: "서비스 누적 분석 및 차트 현황",
+    },
+    {
+      name: "서비스 인사이트 (en)",
+      path: "/en/insights",
+      revalidateTime: "6시간",
+      description: "영문 서비스 분석 현황",
+    },
   ];
 
   const handleRevalidate = async (path: string) => {
@@ -67,11 +137,12 @@ export default function CacheControlPage() {
     }
   };
 
-
   const handleCustomSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!customPath.startsWith("/")) {
-      alert("경로는 반드시 '/'로 시작해야 합니다. (예: /ko/book/9788937460753/detail)");
+      alert(
+        "경로는 반드시 '/'로 시작해야 합니다. (예: /ko/book/9788937460753/detail)",
+      );
       return;
     }
     handleRevalidate(customPath);
@@ -86,7 +157,8 @@ export default function CacheControlPage() {
             ISR Cache Invalidation / 캐시 즉시 비우기
           </h3>
           <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-1.5 font-light tracking-wider">
-            Vercel Edge 네트워크와 Next.js 서버의 페이지 단위 ISR 캐시를 실시간으로 강제 파괴하고 다시 로드합니다.
+            Vercel Edge 네트워크와 Next.js 서버의 페이지 단위 ISR 캐시를
+            실시간으로 강제 파괴하고 다시 로드합니다.
           </p>
         </div>
 
@@ -138,9 +210,14 @@ export default function CacheControlPage() {
                   </thead>
                   <tbody className="divide-y divide-neutral-100 dark:divide-neutral-950 text-xs">
                     {isrPages.map((page, idx) => (
-                      <tr key={idx} className="hover:bg-neutral-50/50 dark:hover:bg-neutral-900/10 transition-colors">
+                      <tr
+                        key={idx}
+                        className="hover:bg-neutral-50/50 dark:hover:bg-neutral-900/10 transition-colors"
+                      >
                         <td className="py-4 px-5">
-                          <div className="font-semibold text-neutral-800 dark:text-neutral-200">{page.name}</div>
+                          <div className="font-semibold text-neutral-800 dark:text-neutral-200">
+                            {page.name}
+                          </div>
                           <div className="text-[10px] text-neutral-400 dark:text-neutral-500 font-light mt-0.5">
                             {page.description}
                           </div>
@@ -196,9 +273,18 @@ export default function CacheControlPage() {
                     className="w-full border border-neutral-200 dark:border-neutral-800 bg-transparent py-2.5 px-3 text-xs outline-none transition-colors focus:border-neutral-900 dark:focus:border-neutral-50 text-neutral-900 dark:text-neutral-50 placeholder-neutral-300 dark:placeholder-neutral-700"
                   />
                   <p className="text-[9px] text-neutral-400 dark:text-neutral-600 font-light leading-relaxed">
-                    * 국문 도서 상세: <code className="font-mono bg-neutral-50 dark:bg-neutral-900 px-1 py-0.5">/ko/book/[ISBN]/detail</code><br />
-                    * 국문 리뷰 상세: <code className="font-mono bg-neutral-50 dark:bg-neutral-900 px-1 py-0.5">/ko/book/reviews/[ID]</code><br />
-                    * 국문 중고 상세: <code className="font-mono bg-neutral-50 dark:bg-neutral-900 px-1 py-0.5">/ko/book/sales/[ID]</code>
+                    * 국문 도서 상세:{" "}
+                    <code className="font-mono bg-neutral-50 dark:bg-neutral-900 px-1 py-0.5">
+                      /ko/book/[ISBN]/detail
+                    </code>
+                    <br />* 국문 리뷰 상세:{" "}
+                    <code className="font-mono bg-neutral-50 dark:bg-neutral-900 px-1 py-0.5">
+                      /ko/book/reviews/[ID]
+                    </code>
+                    <br />* 국문 중고 상세:{" "}
+                    <code className="font-mono bg-neutral-50 dark:bg-neutral-900 px-1 py-0.5">
+                      /ko/book/sales/[ID]
+                    </code>
                   </p>
                 </div>
 

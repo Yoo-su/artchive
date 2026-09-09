@@ -19,9 +19,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 /**
  * 독서 기록 설정 수정 뮤테이션
  */
-export const useUpdateReadingLogSettingsMutation = (
-  options?: { onSuccess?: () => void; onError?: (error: unknown) => void },
-) => {
+export const useUpdateReadingLogSettingsMutation = (options?: {
+  onSuccess?: () => void;
+  onError?: (error: unknown) => void;
+}) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -40,7 +41,8 @@ export const useUpdateReadingLogSettingsMutation = (
 
       queryClient.setQueryData<{ isReadingLogPublic: boolean }>(
         readingLogKeys.settings.queryKey,
-        (old) => (old ? { ...old, isReadingLogPublic } : { isReadingLogPublic }),
+        (old) =>
+          old ? { ...old, isReadingLogPublic } : { isReadingLogPublic },
       );
 
       if (previousUser) {
@@ -79,12 +81,10 @@ export const useUpdateReadingLogSettingsMutation = (
 /**
  * 독서 기록 생성 뮤테이션
  */
-export const useCreateReadingLogMutation = (
-  options?: {
-    onSuccess?: (data: ReadingLog) => void;
-    onError?: (error: unknown) => void;
-  },
-) => {
+export const useCreateReadingLogMutation = (options?: {
+  onSuccess?: (data: ReadingLog) => void;
+  onError?: (error: unknown) => void;
+}) => {
   const queryClient = useQueryClient();
 
   return useMutation<
@@ -101,7 +101,7 @@ export const useCreateReadingLogMutation = (
       }),
     onSuccess: (data) => {
       if (data.date) {
-        const [yearStr, monthStr] = data.date.split('-');
+        const [yearStr, monthStr] = data.date.split("-");
         const year = parseInt(yearStr, 10);
         const month = parseInt(monthStr, 10);
 
@@ -124,20 +124,17 @@ export const useCreateReadingLogMutation = (
 /**
  * 독서 기록 수정 뮤테이션
  */
-export const useUpdateReadingLogMutation = (
-  options?: {
-    onSuccess?: (data: ReadingLog) => void;
-    onError?: (error: unknown) => void;
-  },
-) => {
+export const useUpdateReadingLogMutation = (options?: {
+  onSuccess?: (data: ReadingLog) => void;
+  onError?: (error: unknown) => void;
+}) => {
   const queryClient = useQueryClient();
 
   return useMutation<ReadingLog, Error, UpdateReadingLogParams>({
-    mutationFn: (params: UpdateReadingLogParams) =>
-      updateReadingLog(params),
+    mutationFn: (params: UpdateReadingLogParams) => updateReadingLog(params),
     onSuccess: (data) => {
       if (data.date) {
-        const [yearStr, monthStr] = data.date.split('-');
+        const [yearStr, monthStr] = data.date.split("-");
         const year = parseInt(yearStr, 10);
         const month = parseInt(monthStr, 10);
 
@@ -161,9 +158,10 @@ export const useUpdateReadingLogMutation = (
 /**
  * 독서 기록 삭제 뮤테이션
  */
-export const useDeleteReadingLogMutation = (
-  options?: { onSuccess?: () => void; onError?: (error: unknown) => void },
-) => {
+export const useDeleteReadingLogMutation = (options?: {
+  onSuccess?: () => void;
+  onError?: (error: unknown) => void;
+}) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -171,7 +169,7 @@ export const useDeleteReadingLogMutation = (
       deleteReadingLog(params.id),
     onSuccess: (_, variables) => {
       if (variables.date) {
-        const [yearStr, monthStr] = variables.date.split('-');
+        const [yearStr, monthStr] = variables.date.split("-");
         const year = parseInt(yearStr, 10);
         const month = parseInt(monthStr, 10);
 

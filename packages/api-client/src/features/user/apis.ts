@@ -1,4 +1,9 @@
-import { API_PATHS, PublicUserProfile, UserStats, WishlistItem } from "@bookjeok/core";
+import {
+  API_PATHS,
+  PublicUserProfile,
+  UserStats,
+  WishlistItem,
+} from "@bookjeok/core";
 
 import { privateApiClient, publicApiClient } from "../../client";
 
@@ -18,16 +23,19 @@ export const getPublicUserProfile = async (
  * 내 찜 목록을 조회합니다.
  */
 export const getMyWishlist = async (): Promise<WishlistItem[]> => {
-  const { data } = await privateApiClient.get<WishlistItem[]>(API_PATHS.user.wishlist);
+  const { data } = await privateApiClient.get<WishlistItem[]>(
+    API_PATHS.user.wishlist,
+  );
   return data;
 };
 
 /**
  * 특정 대상(도서 또는 판매글)을 찜하거나 취소합니다.
  */
-export const toggleWishlist = async (
-  payload: { isbn?: string; saleId?: number },
-): Promise<{ added: boolean }> => {
+export const toggleWishlist = async (payload: {
+  isbn?: string;
+  saleId?: number;
+}): Promise<{ added: boolean }> => {
   const { data } = await privateApiClient.post<{ added: boolean }>(
     API_PATHS.user.wishlist,
     payload,
@@ -72,9 +80,12 @@ export const getMyProfile = async (): Promise<
 /**
  * 내 프로필 정보를 수정합니다.
  */
-export const updateProfile = async (
-  params: { nickname?: string; profileImageUrl?: string },
-): Promise<PublicUserProfile & { email: string; isReadingLogPublic: boolean }> => {
+export const updateProfile = async (params: {
+  nickname?: string;
+  profileImageUrl?: string;
+}): Promise<
+  PublicUserProfile & { email: string; isReadingLogPublic: boolean }
+> => {
   const { data } = await privateApiClient.patch<
     PublicUserProfile & { email: string; isReadingLogPublic: boolean }
   >(API_PATHS.user.base, params);
@@ -102,10 +113,13 @@ export const addToWishlist = async (
   type: "BOOK" | "SALE",
   id: string | number,
 ): Promise<WishlistItem> => {
-  const { data } = await privateApiClient.post<WishlistItem>(API_PATHS.user.wishlist, {
-    type,
-    id: String(id),
-  });
+  const { data } = await privateApiClient.post<WishlistItem>(
+    API_PATHS.user.wishlist,
+    {
+      type,
+      id: String(id),
+    },
+  );
   return data;
 };
 

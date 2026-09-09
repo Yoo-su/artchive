@@ -1,7 +1,11 @@
 "use client";
 import { getChatMessages, getMyChatRooms } from "@bookjeok/api-client";
 import { CACHE_TIME, chatKeys, ChatRoom } from "@bookjeok/core";
-import { useInfiniteQuery, useQuery, UseQueryOptions } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQuery,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 
 /**
  * 내 채팅방 목록 조회

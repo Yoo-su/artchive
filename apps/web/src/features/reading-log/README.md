@@ -43,12 +43,12 @@ reading-log/
 
 이 기능은 성격이 다른 두 화면을 함께 담고 있습니다.
 
-| | 개인 독서 기록 | 독서 라운지 |
-|---|---|---|
-| 라우트 | `/my-page/reading-log` | `/lounge` |
-| 접근 | 본인만 | 공개 |
-| 구성 | calendar-view · list-view · stats-view · deck-view | lounge-feed/* |
-| 데이터 | `/reading-logs`, `/reading-logs/stats` | `/reading-logs/lounge/*` |
+|        | 개인 독서 기록                                     | 독서 라운지              |
+| ------ | -------------------------------------------------- | ------------------------ |
+| 라우트 | `/my-page/reading-log`                             | `/lounge`                |
+| 접근   | 본인만                                             | 공개                     |
+| 구성   | calendar-view · list-view · stats-view · deck-view | lounge-feed/\*           |
+| 데이터 | `/reading-logs`, `/reading-logs/stats`             | `/reading-logs/lounge/*` |
 
 라운지 공개 여부는 `/reading-logs/settings`로 사용자가 직접 제어합니다.
 

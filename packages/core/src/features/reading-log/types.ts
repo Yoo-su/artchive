@@ -39,7 +39,6 @@ export interface ReadingLogSettings {
   isReadingLogPublic: boolean;
 }
 
-
 /** 라운지 피드에서 한 명의 독자를 나타내는 타입 */
 export interface LoungeReader {
   userId: number;
@@ -70,7 +69,10 @@ export interface LoungePopularBook {
   isbn: string;
   book: BookInfo;
   readerCount: number;
-  recentReaders: Pick<LoungeReader, "nickname" | "handle" | "profileImageUrl">[];
+  recentReaders: Pick<
+    LoungeReader,
+    "nickname" | "handle" | "profileImageUrl"
+  >[];
 }
 
 /** 라운지 인기 도서 API 응답 */

@@ -23,9 +23,9 @@ insights/
 
 ## 2. 데이터
 
-| 컴포넌트 | 엔드포인트 |
-|---|---|
-| 대부분의 차트·목록 | `GET /insights` |
+| 컴포넌트           | 엔드포인트                     |
+| ------------------ | ------------------------------ |
+| 대부분의 차트·목록 | `GET /insights`                |
 | `location-heatmap` | `GET /insights/location-sales` |
 
 `activity-trend-chart`는 최근 30일간의 일별 판매글 수·리뷰 수를 보여줍니다. 서버가 `used_book_sales`와 `reviews` 테이블에서 직접 집계합니다.

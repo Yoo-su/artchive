@@ -22,9 +22,9 @@ intro/
 ```typescript
 export const SCENES = [
   { id: "record", accentClass: "text-stone-900" },
-  { id: "used",   accentClass: "text-slate-900" },
+  { id: "used", accentClass: "text-slate-900" },
   { id: "review", accentClass: "text-zinc-900" },
-  { id: "logo",   accentClass: "text-neogulip-primary" },
+  { id: "logo", accentClass: "text-neogulip-primary" },
 ] as const;
 ```
 

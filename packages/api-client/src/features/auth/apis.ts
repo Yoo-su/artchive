@@ -1,23 +1,28 @@
-import { API_PATHS, EmailLoginParams, EmailSignupParams, LoginResponse, User } from "@bookjeok/core";
+import {
+  API_PATHS,
+  EmailLoginParams,
+  EmailSignupParams,
+  LoginResponse,
+  User,
+} from "@bookjeok/core";
 
 import { privateApiClient, publicApiClient } from "../../client";
 
 /**
  * 이메일 회원가입을 요청합니다.
  */
-export const emailSignup = async (
-  params: EmailSignupParams,
-) => {
-  const { data } = await publicApiClient.post<User>(API_PATHS.auth.emailRegister, params);
+export const emailSignup = async (params: EmailSignupParams) => {
+  const { data } = await publicApiClient.post<User>(
+    API_PATHS.auth.emailRegister,
+    params,
+  );
   return data;
 };
 
 /**
  * 이메일 로그인을 요청합니다.
  */
-export const emailLogin = async (
-  params: EmailLoginParams,
-) => {
+export const emailLogin = async (params: EmailLoginParams) => {
   const { data } = await publicApiClient.post<LoginResponse>(
     API_PATHS.auth.emailLogin,
     params,
@@ -60,9 +65,10 @@ export const getUserProfile = async () => {
  * 이메일 인증 메일 재발송을 요청합니다.
  */
 export const sendVerificationEmail = async () => {
-  const { data } = await privateApiClient.post<{ success: boolean; message: string }>(
-    API_PATHS.auth.sendVerificationEmail,
-  );
+  const { data } = await privateApiClient.post<{
+    success: boolean;
+    message: string;
+  }>(API_PATHS.auth.sendVerificationEmail);
   return data;
 };
 
@@ -77,4 +83,3 @@ export const verifyEmail = async (token: string) => {
   }>(API_PATHS.auth.verifyEmail, { token });
   return data;
 };
-

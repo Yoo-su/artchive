@@ -35,10 +35,10 @@ export const parseSafeISO = (dateString: string): Date => {
 export const formatPostDate = (dateString: string): string => {
   const date = parseSafeISO(dateString);
   const now = new Date();
-  
+
   // 에포크 밀리초 차이 계산
   const diffInMs = now.getTime() - date.getTime();
-  
+
   // 서버-클라이언트 오차 등으로 인해 미래 시간으로 잡히는 경우 방어 (최소 0)
   const safeDiffInMs = Math.max(0, diffInMs);
   const diffInDays = safeDiffInMs / (1000 * 60 * 60 * 24);

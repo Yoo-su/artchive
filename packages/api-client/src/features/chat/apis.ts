@@ -5,9 +5,7 @@ import { privateApiClient } from "../../client";
 /**
  * 특정 판매글에 대한 채팅방을 찾거나 생성합니다.
  */
-export const findOrCreateRoom = async (
-  saleId: number,
-): Promise<ChatRoom> => {
+export const findOrCreateRoom = async (saleId: number): Promise<ChatRoom> => {
   const { data } = await privateApiClient.post<ChatRoom>(API_PATHS.chat.rooms, {
     saleId,
   });
@@ -41,9 +39,7 @@ export const getChatMessages = async (
 /**
  * 특정 채팅방의 메시지를 모두 읽음으로 처리합니다.
  */
-export const markMessagesAsRead = async (
-  roomId: number,
-) => {
+export const markMessagesAsRead = async (roomId: number) => {
   const { data } = await privateApiClient.patch(API_PATHS.chat.read(roomId));
   return data;
 };

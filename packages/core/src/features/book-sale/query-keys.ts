@@ -1,6 +1,9 @@
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 
-import { SearchBookSalesParams, UseInfiniteRelatedSalesQueryProps } from "./types";
+import {
+  SearchBookSalesParams,
+  UseInfiniteRelatedSalesQueryProps,
+} from "./types";
 
 /**
  * 중고책 판매 관련 쿼리 키 팩토리

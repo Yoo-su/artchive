@@ -16,6 +16,7 @@ apps/admin           → Next.js 15 App Router (react-query, api-client, core에
 ```
 
 **의존성 흐름은 단방향**: `core → api-client → react-query → web/admin`.
+
 - 역방향 import 절대 금지.
 - `apps/server`와 `apps/web` 간 직접 cross-app import 절대 금지 (`packages/core`를 통해 인터페이스/상수 공유).
 - `apps/admin` 또한 독립된 axios 생성/하드코딩을 지양하고 `@bookjeok/core`의 `API_PATHS` 및 API 함수를 사용할 것.
@@ -35,7 +36,9 @@ apps/admin           → Next.js 15 App Router (react-query, api-client, core에
 ## 3. `@bookjeok/core` 규칙
 
 ### 3-1. API 경로 상수 (`shared/constants/apis.ts`)
+
 - **규칙**: 하드코딩된 API URL 문자열 절대 금지. 항상 `API_PATHS.domain.action` 사용.
+
 ```typescript
 export const API_PATHS = {
   book: {
@@ -52,11 +55,14 @@ export const API_PATHS = {
 ```
 
 ### 3-2. 타입 & DTO 파라미터 (`features/[feature]/types.ts`)
+
 - enum은 단일 진실 공급원(SSOT)으로서 `core`에서 정의.
 - 요청 파라미터는 `Create[Domain]Params`, `Update[Domain]Params` 네이밍 사용.
 
 ### 3-3. 쿼리 키 팩토리 (`features/[feature]/query-keys.ts`)
+
 - `@lukemorales/query-key-factory` 사용. 인라인 문자열 배열(예: `['books', id]`) 사용 절대 금지.
+
 ```typescript
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 
@@ -72,6 +78,7 @@ export const bookSaleKeys = createQueryKeys("bookSale", {
 ```
 
 ### 3-4. export 등록 (`packages/core/src/index.ts`)
+
 - 새 feature 추가 시 `constants`, `query-keys`, `types`를 루트 `index.ts`에 반드시 export.
 
 ---
@@ -79,6 +86,7 @@ export const bookSaleKeys = createQueryKeys("bookSale", {
 ## 4. `@bookjeok/api-client` 규칙
 
 **파일**: `packages/api-client/src/features/[feature]/apis.ts`
+
 - 인증 필요: `privateApiClient`, 공개 API: `publicApiClient`.
 - 모든 API 함수는 `Promise<ResponseType>`을 반환하고 `.data`를 추출하여 반환.
 - API 경로는 항상 `API_PATHS` 참조.
