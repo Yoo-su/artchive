@@ -1,14 +1,31 @@
 "use client";
-import { getBookDetail, getBookList, getBookStats, getBookSummary, getPopularBooks, getPopularKeywords,getSavedBookSummary } from "@bookjeok/api-client";
-import { AiBookSummaryData,bookKeys, BookStats, DEFAULT_DISPLAY, GetBookListParams } from "@bookjeok/core";
-import { keepPreviousData,useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import {
+  getBookDetail,
+  getBookList,
+  getBookStats,
+  getBookSummary,
+  getPopularBooks,
+  getPopularKeywords,
+  getSavedBookSummary,
+} from "@bookjeok/api-client";
+import {
+  AiBookSummaryData,
+  bookKeys,
+  BookStats,
+  DEFAULT_DISPLAY,
+  GetBookListParams,
+} from "@bookjeok/core";
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+} from "@tanstack/react-query";
 
 /**
  * 책 목록 조회
  */
-export const useBookListQuery = (
-  params: GetBookListParams,
-) => {
+export const useBookListQuery = (params: GetBookListParams) => {
   return useQuery({
     queryKey: bookKeys.list(params).queryKey,
     queryFn: async () => {
@@ -36,9 +53,7 @@ export const useBookDetailQuery = (isbn: string) => {
 /**
  * 책 검색 (무한 스크롤)
  */
-export const useInfiniteBookSearch = (
-  query: string,
-) => {
+export const useInfiniteBookSearch = (query: string) => {
   return useInfiniteQuery({
     queryKey: bookKeys.search(query).queryKey,
     queryFn: async ({ pageParam = 1 }) => {
@@ -77,9 +92,7 @@ export const usePopularBooksQuery = () => {
 /**
  * LLM 책 요약 조회 (저장된 정보 조회)
  */
-export const useBookSummaryQuery = (
-  isbn: string,
-) => {
+export const useBookSummaryQuery = (isbn: string) => {
   return useQuery({
     queryKey: bookKeys.summary(isbn).queryKey,
     queryFn: async () => {
@@ -97,12 +110,10 @@ export const useBookSummaryQuery = (
   });
 };
 
-export const useGenerateBookSummaryMutation = (
-  options?: {
-    onSuccess?: (data: AiBookSummaryData) => void;
-    onError?: (error: unknown) => void;
-  },
-) => {
+export const useGenerateBookSummaryMutation = (options?: {
+  onSuccess?: (data: AiBookSummaryData) => void;
+  onError?: (error: unknown) => void;
+}) => {
   return useMutation({
     mutationFn: async ({
       title,
@@ -126,9 +137,7 @@ export const useGenerateBookSummaryMutation = (
 /**
  * 인기 검색어 목록
  */
-export const usePopularKeywordsQuery = (
-  staleTime?: number,
-) => {
+export const usePopularKeywordsQuery = (staleTime?: number) => {
   return useQuery({
     queryKey: bookKeys.popularKeywords.queryKey,
     queryFn: () => getPopularKeywords(),

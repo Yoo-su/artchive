@@ -11,13 +11,16 @@ import { AxiosError } from "axios";
  */
 export const getErrorMessage = (
   error: unknown,
-  fallbackMessage: string = "오류가 발생했습니다. 다시 시도해주세요."
+  fallbackMessage: string = "오류가 발생했습니다. 다시 시도해주세요.",
 ): string => {
   if (error instanceof AxiosError) {
     const data = error.response?.data;
     if (data) {
       // 1. { success: false, error: { message: "..." } } 형태 (NestJS GlobalExceptionFilter)
-      if (typeof data.error?.message === "string" && data.error.message.trim()) {
+      if (
+        typeof data.error?.message === "string" &&
+        data.error.message.trim()
+      ) {
         return data.error.message;
       }
       // 2. { message: "..." } 또는 { message: ["..."] } 형태
@@ -71,7 +74,7 @@ export const handleApiError = (
   options?: {
     onShowError?: (message: string) => void;
     context?: string;
-  }
+  },
 ) => {
   let message = "오류가 발생했습니다. 다시 시도해주세요.";
 
@@ -114,4 +117,3 @@ export const handleApiError = (
 
   return message;
 };
-

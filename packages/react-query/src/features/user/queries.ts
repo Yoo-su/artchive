@@ -1,5 +1,11 @@
 "use client";
-import { checkWishlistStatus, getMyProfile, getMyWishlist, getPublicUserProfile, getUserStats } from "@bookjeok/api-client";
+import {
+  checkWishlistStatus,
+  getMyProfile,
+  getMyWishlist,
+  getPublicUserProfile,
+  getUserStats,
+} from "@bookjeok/api-client";
 import { userKeys } from "@bookjeok/core";
 import { useQuery } from "@tanstack/react-query";
 

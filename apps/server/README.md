@@ -7,12 +7,14 @@
 ## 🚀 주요 기능 (Key Features)
 
 ### 1. 인증 및 보안 (Auth & Security)
+
 - **JWT 이중 토큰 인증:** Access Token 및 Refresh Token 발급/검증 (`POST /auth/refresh`).
 - **1회용 인증 티켓 교환 (OAuth Ticket Exchange):** 소셜 로그인 콜백 시 JWT를 브라우저 URL에 노출하지 않고 60초 일회용 티켓을 발급하여 `POST /auth/exchange`로 교환.
 - **`tokenVersion` 기반 즉시 무효화:** 사용자 로그아웃 또는 계정 보안 이벤트 시 DB `tokenVersion`을 증가시켜 이전 Refresh Token을 즉시 만료.
 - **Rate Limiting:** `@nestjs/throttler`를 활용한 무차별 대입 공격(Brute-Force) 방어.
 
 ### 2. 도서 검색 및 RAG 기반 AI 도서 추천 (Search & LLM)
+
 - **자체 도서 카탈로그 & RAG 검색:** 오프라인 파이프라인으로 적재된 자체 도서 DB 및 pg_trgm 전문 검색.
 - **3단계 RAG 파이프라인:**
   1. 의도 분류 (Gemini Flash Function Calling)
@@ -22,12 +24,14 @@
 - **AI 도서 3단 요약:** Gemini 모델을 통한 도서별 서사 분석 및 DB 캐싱.
 
 ### 3. 중고 도서 장터, 결제/거래 및 실시간 채팅 (Market, Order, Trade & Chat)
+
 - **중고 거래 CRUD:** 트랜잭션을 통한 도서 메타데이터 매핑 및 위치(지오코딩) 기반 판매글 관리, 상태 전이 및 잠금 규칙.
 - **에스크로 주문 & 배송 관리 (`order`):** 토스페이먼츠 에스크로 결제 승인, 운송장 등록 및 배송 추적, 자동 취소/환불/확정 스케줄러.
 - **거래 완료 및 후기 (`trade`):** 직거래/에스크로 거래 완료 기록(`TradeCompletion`), 양방향 거래 후기(`TradeReview`), 신뢰 지표 집계.
 - **Socket.IO 실시간 채팅:** 판매글별 1:1 채팅방 생성, 실시간 메시지 전송, 읽음 처리, 타이핑 상태 표시, 거래 시스템 메시지.
 
 ### 4. 독서 기록, 커뮤니티, 인사이트 (Reading Log, Review, Insights)
+
 - **독서 캘린더 & 통계:** 월별 독서 기록 조회 및 사용자 독서 통계 집계.
 - **리뷰 & 리액션:** Tiptap 리치 텍스트 리뷰 CRUD(서버 측 `sanitize-html` 정제) 및 리액션(공감/인사이트/응원) 집계.
 - **인사이트 대시보드:** 지역별/카테고리별 거래량, 가격 분포, 인기 태그 통계 연산.

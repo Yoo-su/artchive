@@ -20,7 +20,10 @@ const OUT_DIR = join(ROOT, "src/shared/components/icons/iconsax");
 const manifest = require("iconsax/manifest.json");
 const dataDir = dirname(require.resolve("iconsax/manifest.json")) + "/data";
 const data = Object.fromEntries(
-  readdirSync(dataDir).map((f) => [f.replace(".json", ""), require(join(dataDir, f))]),
+  readdirSync(dataDir).map((f) => [
+    f.replace(".json", ""),
+    require(join(dataDir, f)),
+  ]),
 );
 
 const rawSvg = (icon, style) => {
@@ -31,13 +34,20 @@ const rawSvg = (icon, style) => {
   return svg;
 };
 
-const kebab = (s) => s.replace(/([a-z0-9])([A-Z])/g, "$1-$2").replace(/([A-Z])(\d)/g, "$1-$2").toLowerCase();
+const kebab = (s) =>
+  s
+    .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+    .replace(/([A-Z])(\d)/g, "$1-$2")
+    .toLowerCase();
 
 /** SVG 속성을 JSX 형태로 바꾸고, 하드코딩된 흰색을 currentColor로 정규화한다. */
 const toJsx = (body, uid) =>
   body
     .replace(/(stroke|fill)="white"/g, '$1="currentColor"')
-    .replace(/\b(stroke|fill|clip|fill-rule|clip-rule)-(\w)/g, (_, a, b) => `${a}${b.toUpperCase()}`)
+    .replace(
+      /\b(stroke|fill|clip|fill-rule|clip-rule)-(\w)/g,
+      (_, a, b) => `${a}${b.toUpperCase()}`,
+    )
     .replace(/-(\w)/g, (m, c) => (/^[a-z]$/.test(c) ? m : m)) // 경로 데이터는 건드리지 않는다
     .replace(/stroke-width/g, "strokeWidth")
     .replace(/stroke-linecap/g, "strokeLinecap")
@@ -64,7 +74,8 @@ const inner = (svg) => {
     .replace(/<\/svg>\s*$/, "")
     .trim();
 
-  const trivialClip = /<clipPath id="([^"]+)">\s*<rect[^>]*width="24"[^>]*height="24"[^>]*\/>\s*<\/clipPath>/g;
+  const trivialClip =
+    /<clipPath id="([^"]+)">\s*<rect[^>]*width="24"[^>]*height="24"[^>]*\/>\s*<\/clipPath>/g;
   const trivialIds = [...body.matchAll(trivialClip)].map((m) => m[1]);
   if (trivialIds.length) {
     body = body.replace(/<defs>[\s\S]*?<\/defs>/g, "");
@@ -81,19 +92,27 @@ const inner = (svg) => {
 
 /** 컨테이너 도형을 뺀 나머지 path만 뽑아 가운데 기준으로 확대한다. */
 const derive = ({ from, paths, scale }, style = "outline") => {
-  const all = [...rawSvg(from, style).matchAll(/<path\s[^>]*\/>/g)].map((m) => m[0]);
+  const all = [...rawSvg(from, style).matchAll(/<path\s[^>]*\/>/g)].map(
+    (m) => m[0],
+  );
   const picked = paths.map((i) => all[i]);
-  if (picked.some((p) => !p)) throw new Error(`'${from}'에서 path ${paths}를 찾지 못했습니다`);
+  if (picked.some((p) => !p))
+    throw new Error(`'${from}'에서 path ${paths}를 찾지 못했습니다`);
   return `<g transform="translate(12 12) scale(${scale}) translate(-12 -12)">${picked.join("")}</g>`;
 };
 
 const componentSource = ({ name, aliases, note, source, outline, bold }) => {
-  const doc = ["/**", ` * ${source}`, ...(note ? [` * ${note}`] : []), " */"].join("\n");
+  const doc = [
+    "/**",
+    ` * ${source}`,
+    ...(note ? [` * ${note}`] : []),
+    " */",
+  ].join("\n");
   const varied = Boolean(bold);
   return `${doc}
 export const ${name} = ({
   className,
-  size = 24,${varied ? "\n  variant = \"outline\"," : ""}
+  size = 24,${varied ? '\n  variant = "outline",' : ""}
   ...props
 }: IconProps) => (
   <svg
@@ -144,7 +163,15 @@ for (const entry of MAPPING) {
     ? `iconsax · ${entry.derive.from} (outline, 일부 path 추출)`
     : `iconsax · ${icon} (outline${needsBold ? " + bold" : ""})`;
 
-  files.push({ file: kebab(name), name, aliases: alias, source, note, outline, bold });
+  files.push({
+    file: kebab(name),
+    name,
+    aliases: alias,
+    source,
+    note,
+    outline,
+    bold,
+  });
   report.push({ name, aliases: alias ?? [], source, note: note ?? "" });
 }
 
@@ -158,7 +185,12 @@ for (const { name, alias, note, body } of CUSTOM) {
     outline: body.trim(),
     bold: null,
   });
-  report.push({ name, aliases: alias ?? [], source: "custom", note: note ?? "" });
+  report.push({
+    name,
+    aliases: alias ?? [],
+    source: "custom",
+    note: note ?? "",
+  });
 }
 
 for (const f of files) {
@@ -175,7 +207,10 @@ writeFileSync(
     files
       .slice()
       .sort((a, b) => a.file.localeCompare(b.file))
-      .map((f) => `export { ${[f.name, ...(f.aliases ?? [])].join(", ")} } from "./${f.file}";`)
+      .map(
+        (f) =>
+          `export { ${[f.name, ...(f.aliases ?? [])].join(", ")} } from "./${f.file}";`,
+      )
       .join("\n") +
     "\n",
 );
@@ -186,9 +221,14 @@ writeFileSync(
     `\`scripts/iconsax/mapping.mjs\`에서 생성됩니다. 아이콘을 추가하려면 매핑 테이블에 한 줄 넣고 \`pnpm --filter @bookjeok/web icons:gen\`을 실행하세요.\n\n` +
     `| 컴포넌트 | 별칭 | 출처 | 비고 |\n| --- | --- | --- | --- |\n` +
     report
-      .map((r) => `| \`${r.name}\` | ${r.aliases.map((a) => `\`${a}\``).join(", ") || "—"} | ${r.source} | ${r.note || "—"} |`)
+      .map(
+        (r) =>
+          `| \`${r.name}\` | ${r.aliases.map((a) => `\`${a}\``).join(", ") || "—"} | ${r.source} | ${r.note || "—"} |`,
+      )
       .join("\n") +
     "\n",
 );
 
-console.log(`생성 완료: ${files.length}개 컴포넌트 → src/shared/components/icons/iconsax/`);
+console.log(
+  `생성 완료: ${files.length}개 컴포넌트 → src/shared/components/icons/iconsax/`,
+);

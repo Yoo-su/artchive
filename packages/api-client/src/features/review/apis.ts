@@ -46,26 +46,26 @@ export const updateReview = async (
  * 리뷰를 삭제합니다.
  */
 export const deleteReview = async (id: number) => {
-  const { data } = await privateApiClient.delete<Review>(API_PATHS.review.detail(id));
+  const { data } = await privateApiClient.delete<Review>(
+    API_PATHS.review.detail(id),
+  );
   return data;
 };
 
 /**
  * 리뷰 목록을 조회합니다.
  */
-export const getReviews = async (
-  {
-    page = 1,
-    limit = 10,
-    isbn,
-    tag,
-    search,
-    category,
-    userId,
-    excludeId,
-    cursorId,
-  }: GetReviewsParams,
-) => {
+export const getReviews = async ({
+  page = 1,
+  limit = 10,
+  isbn,
+  tag,
+  search,
+  category,
+  userId,
+  excludeId,
+  cursorId,
+}: GetReviewsParams) => {
   const params = new URLSearchParams();
   params.append("page", page.toString());
   params.append("limit", limit.toString());
@@ -87,7 +87,9 @@ export const getReviews = async (
  * 리뷰 피드(카테고리별 최신 리뷰)를 조회합니다.
  */
 export const getReviewFeeds = async () => {
-  const { data } = await publicApiClient.get<ReviewFeed[]>(API_PATHS.review.feeds);
+  const { data } = await publicApiClient.get<ReviewFeed[]>(
+    API_PATHS.review.feeds,
+  );
   return data;
 };
 
@@ -95,7 +97,9 @@ export const getReviewFeeds = async () => {
  * 인기 리뷰를 조회합니다.
  */
 export const getPopularReviews = async () => {
-  const { data } = await publicApiClient.get<Review[]>(API_PATHS.review.popular);
+  const { data } = await publicApiClient.get<Review[]>(
+    API_PATHS.review.popular,
+  );
   return data;
 };
 
@@ -103,7 +107,9 @@ export const getPopularReviews = async () => {
  * 리뷰 상세 정보를 조회합니다.
  */
 export const getReview = async (id: number) => {
-  const { data } = await publicApiClient.get<Review>(API_PATHS.review.detail(id));
+  const { data } = await publicApiClient.get<Review>(
+    API_PATHS.review.detail(id),
+  );
   return data;
 };
 
@@ -112,7 +118,9 @@ export const getReview = async (id: number) => {
  * 비공개 리뷰의 경우 작성자 본인만 원본 내용을 조회할 수 있습니다.
  */
 export const getReviewAuthenticated = async (id: number) => {
-  const { data } = await privateApiClient.get<Review>(API_PATHS.review.detail(id));
+  const { data } = await privateApiClient.get<Review>(
+    API_PATHS.review.detail(id),
+  );
   return data;
 };
 
@@ -120,26 +128,26 @@ export const getReviewAuthenticated = async (id: number) => {
  * 수정을 위한 리뷰 조회 (본인 리뷰만 조회 가능)
  */
 export const getReviewForEdit = async (id: number) => {
-  const { data } = await privateApiClient.get<Review>(API_PATHS.review.edit(id));
+  const { data } = await privateApiClient.get<Review>(
+    API_PATHS.review.edit(id),
+  );
   return data;
 };
 
 /**
  * 추천 리뷰(복합 로직)를 조회합니다.
  */
-export const getRecommendedReviews = async (
-  id: number,
-) => {
-  const { data } = await publicApiClient.get<Review[]>(API_PATHS.review.recommend(id));
+export const getRecommendedReviews = async (id: number) => {
+  const { data } = await publicApiClient.get<Review[]>(
+    API_PATHS.review.recommend(id),
+  );
   return data;
 };
 
 /**
  * 나의 리액션 정보를 조회합니다.
  */
-export const getMyReviewReaction = async (
-  id: number,
-) => {
+export const getMyReviewReaction = async (id: number) => {
   const { data } = await privateApiClient.get<ReviewReactionType | null>(
     API_PATHS.review.myReaction(id),
   );
@@ -162,8 +170,6 @@ export const toggleReviewReaction = async (
 /**
  * 리뷰 상세페이지 조회수를 기록합니다.
  */
-export const recordReviewView = async (
-  id: number,
-): Promise<void> => {
+export const recordReviewView = async (id: number): Promise<void> => {
   await publicApiClient.post(API_PATHS.review.recordView(id));
 };

@@ -14,16 +14,20 @@ import {
 
 import { privateApiClient, publicApiClient } from "../../client";
 
-
 /**
  * 독서 기록 목록을 조회합니다.
  */
-export const getReadingLogs = async (
-  params?: { year?: number; month?: number; limit?: number },
-): Promise<ReadingLog[]> => {
-  const { data } = await privateApiClient.get<ReadingLog[]>(API_PATHS.readingLog.base, {
-    params,
-  });
+export const getReadingLogs = async (params?: {
+  year?: number;
+  month?: number;
+  limit?: number;
+}): Promise<ReadingLog[]> => {
+  const { data } = await privateApiClient.get<ReadingLog[]>(
+    API_PATHS.readingLog.base,
+    {
+      params,
+    },
+  );
   return data;
 };
 
@@ -49,11 +53,13 @@ export const createReadingLog = async (
   payload: CreateReadingLogParams,
   options?: { idempotencyKey?: string },
 ): Promise<ReadingLog> => {
-  const config = options?.idempotencyKey ? { headers: { 'x-idempotency-key': options.idempotencyKey } } : undefined;
+  const config = options?.idempotencyKey
+    ? { headers: { "x-idempotency-key": options.idempotencyKey } }
+    : undefined;
   const response = await privateApiClient.post<ReadingLog>(
     API_PATHS.readingLog.base,
     payload,
-    config
+    config,
   );
   return response.data;
 };
@@ -61,9 +67,10 @@ export const createReadingLog = async (
 /**
  * 독서 기록을 수정합니다.
  */
-export const updateReadingLog = async (
-  { id, memo }: UpdateReadingLogParams,
-): Promise<ReadingLog> => {
+export const updateReadingLog = async ({
+  id,
+  memo,
+}: UpdateReadingLogParams): Promise<ReadingLog> => {
   const response = await privateApiClient.patch<ReadingLog>(
     API_PATHS.readingLog.detail(id),
     { memo },
@@ -74,18 +81,17 @@ export const updateReadingLog = async (
 /**
  * 독서 기록을 삭제합니다.
  */
-export const deleteReadingLog = async (
-  id: string,
-): Promise<void> => {
+export const deleteReadingLog = async (id: string): Promise<void> => {
   await privateApiClient.delete(API_PATHS.readingLog.detail(id));
 };
 
 /**
  * 독서 기록 통계를 조회합니다.
  */
-export const getReadingLogStats = async (
-  params: { year: number; month: number },
-): Promise<ReadingLogStats> => {
+export const getReadingLogStats = async (params: {
+  year: number;
+  month: number;
+}): Promise<ReadingLogStats> => {
   const response = await privateApiClient.get<ReadingLogStats>(
     API_PATHS.readingLog.stats,
     { params },
@@ -118,7 +124,6 @@ export const updateReadingLogSettings = async (
   return response.data;
 };
 
-
 /**
  * 라운지 피드를 조회합니다. (공개 API - 인증 불필요)
  * 모든 공개 사용자의 독서 기록을 책 단위로 그룹화하여 반환합니다.
@@ -149,12 +154,13 @@ export const getLoungePopular = async (): Promise<LoungePopularResponse> => {
 /**
  * 라운지 열성 독서가 목록을 조회합니다. (공개 API - 인증 불필요)
  */
-export const getLoungeActiveReaders = async (): Promise<ActiveReadersResponse> => {
-  const { data } = await publicApiClient.get<ActiveReadersResponse>(
-    API_PATHS.readingLog.loungeActiveReaders,
-  );
-  return data;
-};
+export const getLoungeActiveReaders =
+  async (): Promise<ActiveReadersResponse> => {
+    const { data } = await publicApiClient.get<ActiveReadersResponse>(
+      API_PATHS.readingLog.loungeActiveReaders,
+    );
+    return data;
+  };
 
 /**
  * 특정 도서의 전체 독자 목록을 조회합니다. (공개 API - 인증 불필요)

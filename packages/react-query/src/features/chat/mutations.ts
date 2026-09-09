@@ -15,10 +15,12 @@ export const useMarkRoomAsReadMutation = () => {
   return useMutation({
     mutationFn: (roomId: number) => markMessagesAsRead(roomId),
     onMutate: (roomId) => {
-      queryClient.setQueryData<ChatRoom[]>(chatKeys.rooms.queryKey, (oldRooms) =>
-        oldRooms?.map((room) =>
-          room.id === roomId ? { ...room, unreadCount: 0 } : room,
-        ),
+      queryClient.setQueryData<ChatRoom[]>(
+        chatKeys.rooms.queryKey,
+        (oldRooms) =>
+          oldRooms?.map((room) =>
+            room.id === roomId ? { ...room, unreadCount: 0 } : room,
+          ),
       );
     },
     onError: (error) => {

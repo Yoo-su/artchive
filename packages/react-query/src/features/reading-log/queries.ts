@@ -30,10 +30,7 @@ export const useReadingLogsQuery = (
 /**
  * 월별 독서 통계 조회
  */
-export const useReadingLogStatsQuery = (
-  year: number,
-  month: number,
-) => {
+export const useReadingLogStatsQuery = (year: number, month: number) => {
   return useQuery({
     queryKey: readingLogKeys.stats(year, month).queryKey,
     queryFn: () => getReadingLogStats({ year, month }),
@@ -72,8 +69,7 @@ export const useReadingLogsInfiniteQuery = (options?: {
 export const useLoungeFeedInfiniteQuery = () => {
   return useInfiniteQuery({
     queryKey: readingLogKeys.loungeFeed.queryKey,
-    queryFn: ({ pageParam }) =>
-      getLoungeFeed(pageParam as string | null),
+    queryFn: ({ pageParam }) => getLoungeFeed(pageParam as string | null),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     staleTime: 60 * 1000, // 1분 (공개 피드이므로 적절한 staleTime)

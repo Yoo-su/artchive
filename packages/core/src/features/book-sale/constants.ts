@@ -25,5 +25,9 @@ export const DEFAULT_SORT_OPTION: SortOption = "createdAt_DESC";
 
 // 런타임 검증용 Set
 export const VALID_SORT_BY: ReadonlySet<string> = new Set(VALID_SORT_BY_LIST);
-export const VALID_SORT_ORDER: ReadonlySet<string> = new Set(VALID_SORT_ORDER_LIST);
-export const VALID_SALE_STATUSES: ReadonlySet<string> = new Set(VALID_SALE_STATUSES_LIST);
+export const VALID_SORT_ORDER: ReadonlySet<string> = new Set(
+  VALID_SORT_ORDER_LIST,
+);
+export const VALID_SALE_STATUSES: ReadonlySet<string> = new Set(
+  VALID_SALE_STATUSES_LIST,
+);

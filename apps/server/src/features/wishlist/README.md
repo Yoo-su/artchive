@@ -17,12 +17,12 @@ wishlist/
 
 전 구간 JWT 인증이 필요합니다.
 
-| 메서드 | 경로 | 설명 |
-|---|---|---|
-| POST | `/user/wishlist` | 도서 또는 판매글 추가 |
-| DELETE | `/user/wishlist?type=&id=` | 항목 제거 |
-| GET | `/user/wishlist` | 내 위시리스트 조회 |
-| GET | `/user/wishlist/check` | 특정 항목의 담김 여부 확인 |
+| 메서드 | 경로                       | 설명                       |
+| ------ | -------------------------- | -------------------------- |
+| POST   | `/user/wishlist`           | 도서 또는 판매글 추가      |
+| DELETE | `/user/wishlist?type=&id=` | 항목 제거                  |
+| GET    | `/user/wishlist`           | 내 위시리스트 조회         |
+| GET    | `/user/wishlist/check`     | 특정 항목의 담김 여부 확인 |
 
 `type`은 `BOOK` 또는 `SALE`입니다.
 

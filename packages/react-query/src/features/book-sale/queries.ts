@@ -25,9 +25,7 @@ import {
 /**
  * 판매글 검색 (무한 스크롤)
  */
-export const useInfiniteBookSalesQuery = (
-  params: SearchBookSalesParams,
-) => {
+export const useInfiniteBookSalesQuery = (params: SearchBookSalesParams) => {
   return useInfiniteQuery({
     queryKey: bookSaleKeys.marketSales(params).queryKey,
     queryFn: ({ pageParam }) =>
@@ -54,9 +52,7 @@ export const useMyBookSalesQuery = () => {
 /**
  * 판매글 상세 조회
  */
-export const useBookSaleDetailQuery = (
-  saleId: string,
-) => {
+export const useBookSaleDetailQuery = (saleId: string) => {
   return useQuery({
     queryKey: bookSaleKeys.saleDetail(saleId).queryKey,
     queryFn: () => getBookSaleDetail(saleId),
@@ -67,9 +63,7 @@ export const useBookSaleDetailQuery = (
 /**
  * 수정용 판매글 조회 (본인 글만 조회 가능)
  */
-export const useBookSaleForEditQuery = (
-  saleId: string,
-) => {
+export const useBookSaleForEditQuery = (saleId: string) => {
   return useQuery({
     queryKey: bookSaleKeys.saleForEdit(saleId).queryKey,
     queryFn: () => getSaleForEdit(saleId),

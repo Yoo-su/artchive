@@ -61,12 +61,12 @@ async create() { ... }
 
 ### `keyStrategy`
 
-| 값 | 캐시 키 스코프 |
-|---|---|
-| `global` | 전체 사용자 공유 |
-| `ip` | 요청 IP별 |
-| `user` | 인증 사용자별 |
-| `ip+user` | 두 값 조합 |
+| 값        | 캐시 키 스코프   |
+| --------- | ---------------- |
+| `global`  | 전체 사용자 공유 |
+| `ip`      | 요청 IP별        |
+| `user`    | 인증 사용자별    |
+| `ip+user` | 두 값 조합       |
 
 `ttl`은 밀리초입니다(cache-manager 3.x 기준).
 
@@ -103,11 +103,11 @@ throw new BusinessException('SALE_NOT_FOUND', HttpStatus.NOT_FOUND);
 
 ## `interceptors/`
 
-| 파일 | 역할 |
-|---|---|
-| `transform.interceptor.ts` | 성공 응답을 공통 봉투로 감쌈 |
-| `logging.interceptor.ts` | 메서드·경로·소요시간 로깅 |
-| `idempotency.interceptor.ts` | `x-idempotency-key` 기반 중복 요청 차단 |
+| 파일                             | 역할                                             |
+| -------------------------------- | ------------------------------------------------ |
+| `transform.interceptor.ts`       | 성공 응답을 공통 봉투로 감쌈                     |
+| `logging.interceptor.ts`         | 메서드·경로·소요시간 로깅                        |
+| `idempotency.interceptor.ts`     | `x-idempotency-key` 기반 중복 요청 차단          |
 | `base-view-count.interceptor.ts` | 조회수 인터셉터 공통 베이스 (리뷰·판매글이 확장) |
 
 ### 멱등성 인터셉터
@@ -152,10 +152,10 @@ mail/
 └── listeners/mail-event.listener.ts
 ```
 
-| 용도 | 트리거 |
-|---|---|
+| 용도                      | 트리거                                      |
+| ------------------------- | ------------------------------------------- |
 | 회원가입 이메일 인증 링크 | `AuthService` / `UserService`에서 직접 호출 |
-| 채팅방 개설 알림 | `chat.room_created` 이벤트 (`async: true`) |
+| 채팅방 개설 알림          | `chat.room_created` 이벤트 (`async: true`)  |
 
 발신 주소는 `RESEND_FROM_EMAIL`이며 미설정 시 `북적 <onboarding@resend.dev>`를 사용합니다. 메일 발송은 이벤트 리스너에서 비동기로 처리해 채팅방 생성 응답을 지연시키지 않습니다.
 

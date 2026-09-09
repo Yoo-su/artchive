@@ -50,7 +50,6 @@ export default function LoginPage() {
     }
   };
 
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-white dark:bg-neutral-950 px-4">
       <div className="w-full max-w-sm space-y-8">

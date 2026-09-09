@@ -18,19 +18,23 @@ import {
 } from "@bookjeok/core";
 
 import { privateApiClient, publicApiClient } from "../../client";
+import {
+  IdempotencyOptions,
+  withIdempotencyKey,
+} from "../../utils/idempotency";
 
 /**
  * 판매자가 구매희망자 한 명을 거래 상대로 지정하고 판매글을 예약중으로 바꿉니다.
  * 결제 없이 진행되는 직거래 흐름입니다.
  */
-export const reserveSaleForBuyer = async ({
-  saleId,
-  buyerId,
-  chatRoomId,
-}: ReserveSaleParams): Promise<UsedBookSale> => {
+export const reserveSaleForBuyer = async (
+  { saleId, buyerId, chatRoomId }: ReserveSaleParams,
+  options?: IdempotencyOptions,
+): Promise<UsedBookSale> => {
   const { data } = await privateApiClient.post<UsedBookSale>(
     API_PATHS.trade.reservation(saleId),
     { buyerId, chatRoomId },
+    withIdempotencyKey(options),
   );
   return data;
 };
@@ -40,9 +44,11 @@ export const reserveSaleForBuyer = async ({
  */
 export const cancelSaleReservation = async (
   saleId: number,
+  options?: IdempotencyOptions,
 ): Promise<UsedBookSale> => {
   const { data } = await privateApiClient.delete<UsedBookSale>(
     API_PATHS.trade.reservation(saleId),
+    withIdempotencyKey(options),
   );
   return data;
 };
@@ -51,15 +57,14 @@ export const cancelSaleReservation = async (
  * 직거래를 완료 처리합니다. 거래 상대가 있으면 완료 기록이 남아
  * 양쪽 모두 후기를 쓸 수 있습니다.
  */
-export const completeDirectTrade = async ({
-  saleId,
-  buyerId,
-  chatRoomId,
-  withoutCounterparty,
-}: CompleteTradeParams): Promise<CompleteTradeResult> => {
+export const completeDirectTrade = async (
+  { saleId, buyerId, chatRoomId, withoutCounterparty }: CompleteTradeParams,
+  options?: IdempotencyOptions,
+): Promise<CompleteTradeResult> => {
   const { data } = await privateApiClient.post<CompleteTradeResult>(
     API_PATHS.trade.completion(saleId),
     { buyerId, chatRoomId, withoutCounterparty },
+    withIdempotencyKey(options),
   );
   return data;
 };

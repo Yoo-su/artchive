@@ -14,7 +14,6 @@ import {
 
 import { privateApiClient, publicApiClient } from "../../client";
 
-
 /**
  * 책 검색결과를 조회합니다.
  */
@@ -54,9 +53,7 @@ export const getBookDetail = async (
 /**
  * 책 상세페이지 조회수를 기록합니다.
  */
-export const recordBookView = async (
-  isbn: string,
-): Promise<void> => {
+export const recordBookView = async (isbn: string): Promise<void> => {
   await publicApiClient.post(API_PATHS.book.recordView(isbn));
 };
 
@@ -76,7 +73,9 @@ export const getPopularBooks = async (): Promise<BaseBookInfo[]> => {
 export const getSavedBookSummary = async (
   isbn: string,
 ): Promise<AiBookSummaryData | null> => {
-  const { data } = await publicApiClient.get<AiBookSummaryData | null>(API_PATHS.llm.getSummary(isbn));
+  const { data } = await publicApiClient.get<AiBookSummaryData | null>(
+    API_PATHS.llm.getSummary(isbn),
+  );
   return data;
 };
 
@@ -90,13 +89,16 @@ export const getBookSummary = async (
   isbn?: string,
   publisher?: string,
 ): Promise<AiBookSummaryData> => {
-  const { data } = await privateApiClient.post<AiBookSummaryData>(API_PATHS.llm.summary, {
-    title,
-    author,
-    description,
-    isbn,
-    publisher,
-  });
+  const { data } = await privateApiClient.post<AiBookSummaryData>(
+    API_PATHS.llm.summary,
+    {
+      title,
+      author,
+      description,
+      isbn,
+      publisher,
+    },
+  );
   return data;
 };
 
@@ -106,9 +108,7 @@ export const getBookSummary = async (
  * 검색어를 기록합니다.
  */
 
-export const recordSearchKeyword = async (
-  keyword: string,
-): Promise<void> => {
+export const recordSearchKeyword = async (keyword: string): Promise<void> => {
   await publicApiClient.post(API_PATHS.searchKeyword.record, { keyword });
 };
 
@@ -125,9 +125,9 @@ export const getPopularKeywords = async (): Promise<PopularKeyword[]> => {
 /**
  * 책 통계 정보를 조회합니다 (읽은 유저 수, 위시리스트 유저 수).
  */
-export const getBookStats = async (
-  isbn: string,
-): Promise<BookStats> => {
-  const { data } = await publicApiClient.get<BookStats>(API_PATHS.book.stats(isbn));
+export const getBookStats = async (isbn: string): Promise<BookStats> => {
+  const { data } = await publicApiClient.get<BookStats>(
+    API_PATHS.book.stats(isbn),
+  );
   return data;
 };

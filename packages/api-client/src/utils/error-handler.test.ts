@@ -1,16 +1,9 @@
 import { AxiosError, AxiosHeaders, AxiosResponse } from "axios";
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  getErrorCode,
-  getErrorMessage,
-  handleApiError,
-} from "./error-handler";
+import { getErrorCode, getErrorMessage, handleApiError } from "./error-handler";
 
-const createMockAxiosError = (
-  status: number,
-  data: any
-): AxiosError => {
+const createMockAxiosError = (status: number, data: any): AxiosError => {
   const headers = new AxiosHeaders();
   const response: AxiosResponse = {
     data,
@@ -25,7 +18,7 @@ const createMockAxiosError = (
     "ERR_BAD_RESPONSE",
     { headers } as any,
     {},
-    response
+    response,
   );
   return error;
 };
@@ -72,8 +65,12 @@ describe("error-handler utils", () => {
     });
 
     it("알 수 없는 형태의 에러 발생 시 fallbackMessage를 반환해야 한다", () => {
-      expect(getErrorMessage(null, "커스텀 기본 에러")).toBe("커스텀 기본 에러");
-      expect(getErrorMessage({})).toBe("오류가 발생했습니다. 다시 시도해주세요.");
+      expect(getErrorMessage(null, "커스텀 기본 에러")).toBe(
+        "커스텀 기본 에러",
+      );
+      expect(getErrorMessage({})).toBe(
+        "오류가 발생했습니다. 다시 시도해주세요.",
+      );
     });
   });
 

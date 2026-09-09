@@ -77,7 +77,8 @@ export const API_PATHS = {
     loungeFeed: "/reading-logs/lounge",
     loungePopular: "/reading-logs/lounge/popular",
     loungeActiveReaders: "/reading-logs/lounge/active-readers",
-    loungeBookReaders: (isbn: string) => `/reading-logs/lounge/book/${isbn}/readers`,
+    loungeBookReaders: (isbn: string) =>
+      `/reading-logs/lounge/book/${isbn}/readers`,
   },
   review: {
     base: "/reviews",
@@ -100,7 +101,8 @@ export const API_PATHS = {
   },
   order: {
     base: "/orders",
-    cancelSelection: (orderNumber: string) => `/orders/${orderNumber}/selection`,
+    cancelSelection: (orderNumber: string) =>
+      `/orders/${orderNumber}/selection`,
     pay: (orderNumber: string) => `/orders/${orderNumber}/pay`,
     ship: (orderNumber: string) => `/orders/${orderNumber}/ship`,
     confirm: (orderNumber: string) => `/orders/${orderNumber}/confirm`,
@@ -116,7 +118,8 @@ export const API_PATHS = {
     completion: (saleId: number) => `/trades/sales/${saleId}/completion`,
     candidates: (saleId: number) => `/trades/sales/${saleId}/candidates`,
     myCompletions: "/trades/completions/my",
-    completionByRoom: (roomId: number) => `/trades/completions/by-room/${roomId}`,
+    completionByRoom: (roomId: number) =>
+      `/trades/completions/by-room/${roomId}`,
     completionDetail: (completionId: number) =>
       `/trades/completions/${completionId}`,
   },
@@ -129,4 +132,3 @@ export const API_PATHS = {
       `/trade-reviews/eligibility/${completionId}`,
   },
 };
-

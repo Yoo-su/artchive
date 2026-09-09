@@ -36,16 +36,16 @@
 
 ## 한눈에 보기
 
-| | |
-|---|---|
-| **서비스** | https://bookjeok.com |
-| **구성** | Turborepo 모노레포 — 앱 3개(web / server / admin), 공용 패키지 3개(core / api-client / react-query) |
-| **프론트엔드** | Next.js 15 App Router + React 19, 한국어/영어 다국어, ISR + On-Demand Revalidation |
-| **백엔드** | NestJS 11 + TypeORM + PostgreSQL(pgvector, cube/earthdistance) |
-| **AI** | Google Gemini — Function Calling 의도 분류 → pgvector 벡터 검색 → RAG 리랭킹 |
-| **실시간** | Socket.IO 채팅·알림 게이트웨이, SSE 기반 AI 추천 스트리밍 |
-| **결제** | 토스페이먼츠 에스크로 + Delivery Tracker 배송 추적 + 스케줄러 기반 자동 확정/환불 |
-| **인프라** | Vercel(web) · Azure Container Apps(server) · Supabase PostgreSQL |
+|                |                                                                                                     |
+| -------------- | --------------------------------------------------------------------------------------------------- |
+| **서비스**     | https://bookjeok.com                                                                                |
+| **구성**       | Turborepo 모노레포 — 앱 3개(web / server / admin), 공용 패키지 3개(core / api-client / react-query) |
+| **프론트엔드** | Next.js 15 App Router + React 19, 한국어/영어 다국어, ISR + On-Demand Revalidation                  |
+| **백엔드**     | NestJS 11 + TypeORM + PostgreSQL(pgvector, cube/earthdistance)                                      |
+| **AI**         | Google Gemini — Function Calling 의도 분류 → pgvector 벡터 검색 → RAG 리랭킹                        |
+| **실시간**     | Socket.IO 채팅·알림 게이트웨이, SSE 기반 AI 추천 스트리밍                                           |
+| **결제**       | 토스페이먼츠 에스크로 + Delivery Tracker 배송 추적 + 스케줄러 기반 자동 확정/환불                   |
+| **인프라**     | Vercel(web) · Azure Container Apps(server) · Supabase PostgreSQL                                    |
 
 ---
 
@@ -260,71 +260,71 @@ KOPIS(공연예술통합전산망) 공공 API를 프록시하여 공연·전시 
 
 ### Monorepo & Tooling
 
-| 항목 | 기술 |
-|---|---|
-| 빌드 오케스트레이션 | Turborepo 2.7 (태스크 그래프 + 캐시) |
-| 패키지 매니저 | pnpm 10 Workspaces (`overrides`로 React 19 / axios / TanStack Query 버전 단일화) |
-| 언어 | TypeScript 5 (`tsconfig.base.json` 공유) |
-| 린트·포맷 | ESLint 9 Flat Config, Prettier 3, `eslint-plugin-simple-import-sort` |
-| 런타임 | Node.js 22.x |
+| 항목                | 기술                                                                             |
+| ------------------- | -------------------------------------------------------------------------------- |
+| 빌드 오케스트레이션 | Turborepo 2.7 (태스크 그래프 + 캐시)                                             |
+| 패키지 매니저       | pnpm 10 Workspaces (`overrides`로 React 19 / axios / TanStack Query 버전 단일화) |
+| 언어                | TypeScript 5 (`tsconfig.base.json` 공유)                                         |
+| 린트·포맷           | ESLint 9 Flat Config, Prettier 3, `eslint-plugin-simple-import-sort`             |
+| 런타임              | Node.js 22.x                                                                     |
 
 ### Frontend — `apps/web`
 
-| 항목 | 기술 |
-|---|---|
-| 프레임워크 | Next.js 15 (App Router, RSC, SSG/ISR, Route Handlers, Server Actions) · React 19 |
-| 서버 상태 | TanStack Query v5 + `@lukemorales/query-key-factory` (쿼리 키 팩토리) |
-| 클라이언트 상태 | Zustand v5 (음악 플레이어, 확인 모달, 최근 본 책 등) |
-| 스타일링 | Tailwind CSS v4(`@tailwindcss/postcss`), `tailwind-merge`, `class-variance-authority`, `tw-animate-css`, `@tailwindcss/typography` |
-| UI 컴포넌트 | Radix UI (shadcn/ui 패턴) + Lucide React |
-| 애니메이션 | Framer Motion / `motion`, GSAP, Swiper |
-| 에디터 | Tiptap 3 (StarterKit, Image + resize, Link, Highlight, TextAlign, Color, Underline, Placeholder, BubbleMenu) |
-| 폼 & 검증 | React Hook Form + Zod 4 + `@hookform/resolvers` |
-| 차트 | ApexCharts / `react-apexcharts` |
-| 지도·주소 | `react-kakao-maps-sdk`, `react-daum-postcode` |
-| 결제 | `@tosspayments/tosspayments-sdk` v2 |
-| 실시간 | `socket.io-client`, 커스텀 SSE 클라이언트 |
-| 다국어 | `next-intl` 4 (ko/en) |
-| 테마 | `next-themes` (다크 모드) |
-| 이미지 | `browser-image-compression`, `@vercel/blob` |
-| 마크다운·정제 | `react-markdown` + `remark-gfm`, `sanitize-html` |
-| 토스트·UX | `sonner`, `react-intersection-observer` |
-| 계측 | `@vercel/analytics`, `@vercel/speed-insights`, GA4, Microsoft Clarity, AdSense |
-| 테스트·문서 | Vitest 4 + Testing Library + jsdom, Storybook 8, `@next/bundle-analyzer` |
+| 항목            | 기술                                                                                                                               |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| 프레임워크      | Next.js 15 (App Router, RSC, SSG/ISR, Route Handlers, Server Actions) · React 19                                                   |
+| 서버 상태       | TanStack Query v5 + `@lukemorales/query-key-factory` (쿼리 키 팩토리)                                                              |
+| 클라이언트 상태 | Zustand v5 (음악 플레이어, 확인 모달, 최근 본 책 등)                                                                               |
+| 스타일링        | Tailwind CSS v4(`@tailwindcss/postcss`), `tailwind-merge`, `class-variance-authority`, `tw-animate-css`, `@tailwindcss/typography` |
+| UI 컴포넌트     | Radix UI (shadcn/ui 패턴) + Lucide React                                                                                           |
+| 애니메이션      | Framer Motion / `motion`, GSAP, Swiper                                                                                             |
+| 에디터          | Tiptap 3 (StarterKit, Image + resize, Link, Highlight, TextAlign, Color, Underline, Placeholder, BubbleMenu)                       |
+| 폼 & 검증       | React Hook Form + Zod 4 + `@hookform/resolvers`                                                                                    |
+| 차트            | ApexCharts / `react-apexcharts`                                                                                                    |
+| 지도·주소       | `react-kakao-maps-sdk`, `react-daum-postcode`                                                                                      |
+| 결제            | `@tosspayments/tosspayments-sdk` v2                                                                                                |
+| 실시간          | `socket.io-client`, 커스텀 SSE 클라이언트                                                                                          |
+| 다국어          | `next-intl` 4 (ko/en)                                                                                                              |
+| 테마            | `next-themes` (다크 모드)                                                                                                          |
+| 이미지          | `browser-image-compression`, `@vercel/blob`                                                                                        |
+| 마크다운·정제   | `react-markdown` + `remark-gfm`, `sanitize-html`                                                                                   |
+| 토스트·UX       | `sonner`, `react-intersection-observer`                                                                                            |
+| 계측            | `@vercel/analytics`, `@vercel/speed-insights`, GA4, Microsoft Clarity, AdSense                                                     |
+| 테스트·문서     | Vitest 4 + Testing Library + jsdom, Storybook 8, `@next/bundle-analyzer`                                                           |
 
 ### Backend — `apps/server`
 
-| 항목 | 기술 |
-|---|---|
-| 프레임워크 | NestJS 11 (Express 플랫폼) |
-| ORM / DB | TypeORM 0.3 · PostgreSQL(`pgvector`, `cube`, `earthdistance`) · `pg` |
-| 트랜잭션 | `nestjs-cls` + `@nestjs-cls/transactional` (TypeORM 어댑터) — 선언적 CLS 트랜잭션 |
-| 인증 | Passport (JWT / JWT-Refresh / Naver / Kakao), `@nestjs/jwt`, bcrypt |
-| 실시간 | `@nestjs/websockets` + `@nestjs/platform-socket.io`, Socket.IO 4 |
-| AI | `@google/generative-ai` (Gemini Flash, `gemini-embedding-001`) |
-| 캐싱 | `@nestjs/cache-manager` + `cache-manager` 7 위에 자체 SmartCache 레이어 |
-| 스케줄링 | `@nestjs/schedule` (Cron) |
-| 이벤트 | `@nestjs/event-emitter` (도메인 이벤트 · 탈퇴 정리 · 알림 팬아웃) |
-| 검증 | `class-validator`, `class-transformer`, 전역 `ValidationPipe(whitelist)` |
-| 보안 | `helmet`, `@nestjs/throttler`, `cookie-parser`, CORS 오리진 화이트리스트 |
-| 성능 | `compression`, TypeORM 커넥션 풀(max 40) |
-| 외부 통신 | `@nestjs/axios`, `fast-xml-parser`(KOPIS/알라딘 XML) |
-| 메일 | Resend |
-| 스토리지 | `@vercel/blob` |
-| API 문서 | `@nestjs/swagger` — `/api`에서 OpenAPI 문서 제공 |
-| 헬스체크 | `@nestjs/terminus` — `GET /health` |
-| 테스트 | Jest 29 + ts-jest, Supertest |
+| 항목       | 기술                                                                              |
+| ---------- | --------------------------------------------------------------------------------- |
+| 프레임워크 | NestJS 11 (Express 플랫폼)                                                        |
+| ORM / DB   | TypeORM 0.3 · PostgreSQL(`pgvector`, `cube`, `earthdistance`) · `pg`              |
+| 트랜잭션   | `nestjs-cls` + `@nestjs-cls/transactional` (TypeORM 어댑터) — 선언적 CLS 트랜잭션 |
+| 인증       | Passport (JWT / JWT-Refresh / Naver / Kakao), `@nestjs/jwt`, bcrypt               |
+| 실시간     | `@nestjs/websockets` + `@nestjs/platform-socket.io`, Socket.IO 4                  |
+| AI         | `@google/generative-ai` (Gemini Flash, `gemini-embedding-001`)                    |
+| 캐싱       | `@nestjs/cache-manager` + `cache-manager` 7 위에 자체 SmartCache 레이어           |
+| 스케줄링   | `@nestjs/schedule` (Cron)                                                         |
+| 이벤트     | `@nestjs/event-emitter` (도메인 이벤트 · 탈퇴 정리 · 알림 팬아웃)                 |
+| 검증       | `class-validator`, `class-transformer`, 전역 `ValidationPipe(whitelist)`          |
+| 보안       | `helmet`, `@nestjs/throttler`, `cookie-parser`, CORS 오리진 화이트리스트          |
+| 성능       | `compression`, TypeORM 커넥션 풀(max 40)                                          |
+| 외부 통신  | `@nestjs/axios`, `fast-xml-parser`(KOPIS/알라딘 XML)                              |
+| 메일       | Resend                                                                            |
+| 스토리지   | `@vercel/blob`                                                                    |
+| API 문서   | `@nestjs/swagger` — `/api`에서 OpenAPI 문서 제공                                  |
+| 헬스체크   | `@nestjs/terminus` — `GET /health`                                                |
+| 테스트     | Jest 29 + ts-jest, Supertest                                                      |
 
 ### Infrastructure
 
-| 항목 | 기술 |
-|---|---|
-| 프론트엔드 호스팅 | Vercel (ISR + On-Demand Revalidation) |
-| 백엔드 호스팅 | Azure Container Apps + Azure Container Registry (Docker) |
-| 데이터베이스 | Supabase PostgreSQL |
-| CI | GitHub Actions (`lint` → `test` → `build`), GitLab CI (Docker 이미지 빌드/푸시) |
-| CD | GitHub Actions → ACR 이미지 푸시 → Container Apps 배포 |
-| 로컬 개발 | Docker Compose (PostgreSQL + pgvector) |
+| 항목              | 기술                                                                            |
+| ----------------- | ------------------------------------------------------------------------------- |
+| 프론트엔드 호스팅 | Vercel (ISR + On-Demand Revalidation)                                           |
+| 백엔드 호스팅     | Azure Container Apps + Azure Container Registry (Docker)                        |
+| 데이터베이스      | Supabase PostgreSQL                                                             |
+| CI                | GitHub Actions (`lint` → `test` → `build`), GitLab CI (Docker 이미지 빌드/푸시) |
+| CD                | GitHub Actions → ACR 이미지 푸시 → Container Apps 배포                          |
+| 로컬 개발         | Docker Compose (PostgreSQL + pgvector)                                          |
 
 ---
 
@@ -382,20 +382,20 @@ KOPIS(공연예술통합전산망) 공공 API를 프록시하여 공연·전시 
 
 ## 외부 서비스 연동
 
-| 서비스 | 용도 | 사용 위치 |
-|---|---|---|
-| **네이버 도서 검색 API** | 도서 메타데이터 검색 | `server: book` |
-| **알라딘 Open API (TTB)** | 도서 상세·표지 고화질 보정 | `server: book`, `core: formatAladinCoverImage` |
-| **네이버 / 카카오 OAuth** | 소셜 로그인 | `server: auth` (Passport 전략) |
-| **Google Gemini** | 의도 분류·RAG 합성(Flash), 임베딩(`gemini-embedding-001`) | `server: llm, search` |
-| **토스페이먼츠** | 에스크로 결제 승인·취소·웹훅 | `server: order`, `web: order` |
-| **Delivery Tracker** | 택배 배송 상태 조회 및 30분 주기 폴링 | `server: order` |
-| **Resend** | 회원가입 이메일 인증 링크, 채팅 개설 알림 메일 | `server: shared/mail` |
-| **Vercel Blob** | 리뷰·판매글·프로필 이미지 업로드/삭제 | `web: /api/upload`, `server` |
-| **카카오 맵 SDK** | 거래 위치 지도, 지오코딩 | `web: shared/components/map` |
-| **다음 우편번호** | 배송지 주소 입력 | `web: order/address-input` |
-| **KOPIS 공공 API** | 공연·전시 정보 | `server: art` |
-| **GA4 · Microsoft Clarity · AdSense** | 트래픽 분석, 행동 분석, 광고 | `web: shared/components/analytics, ads` |
+| 서비스                                | 용도                                                      | 사용 위치                                      |
+| ------------------------------------- | --------------------------------------------------------- | ---------------------------------------------- |
+| **네이버 도서 검색 API**              | 도서 메타데이터 검색                                      | `server: book`                                 |
+| **알라딘 Open API (TTB)**             | 도서 상세·표지 고화질 보정                                | `server: book`, `core: formatAladinCoverImage` |
+| **네이버 / 카카오 OAuth**             | 소셜 로그인                                               | `server: auth` (Passport 전략)                 |
+| **Google Gemini**                     | 의도 분류·RAG 합성(Flash), 임베딩(`gemini-embedding-001`) | `server: llm, search`                          |
+| **토스페이먼츠**                      | 에스크로 결제 승인·취소·웹훅                              | `server: order`, `web: order`                  |
+| **Delivery Tracker**                  | 택배 배송 상태 조회 및 30분 주기 폴링                     | `server: order`                                |
+| **Resend**                            | 회원가입 이메일 인증 링크, 채팅 개설 알림 메일            | `server: shared/mail`                          |
+| **Vercel Blob**                       | 리뷰·판매글·프로필 이미지 업로드/삭제                     | `web: /api/upload`, `server`                   |
+| **카카오 맵 SDK**                     | 거래 위치 지도, 지오코딩                                  | `web: shared/components/map`                   |
+| **다음 우편번호**                     | 배송지 주소 입력                                          | `web: order/address-input`                     |
+| **KOPIS 공공 API**                    | 공연·전시 정보                                            | `server: art`                                  |
+| **GA4 · Microsoft Clarity · AdSense** | 트래픽 분석, 행동 분석, 광고                              | `web: shared/components/analytics, ads`        |
 
 ---
 
@@ -403,11 +403,11 @@ KOPIS(공연예술통합전산망) 공공 API를 프록시하여 공연·전시 
 
 Monorepo `packages/` 디렉토리에 도메인 모델과 통신 클라이언트를 집약하여 플랫폼 전반의 코드 재사용성을 극대화했습니다.
 
-| Package | Role |
-|---|---|
-| [`@bookjeok/core`](packages/core) | 데이터 모델 인터페이스, API 경로 상수(`API_PATHS`), 포맷터, 쿼리 키 팩토리 (런타임 0B 순수 TS 계약) |
-| [`@bookjeok/api-client`](packages/api-client) | Axios 클라이언트(`publicApiClient`, `privateApiClient`), 토큰 인터셉터, API 호출 모듈 |
-| [`@bookjeok/react-query`](packages/react-query) | TanStack Query 쿼리/뮤테이션 훅과 캐시 무효화 규칙 |
+| Package                                         | Role                                                                                                |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| [`@bookjeok/core`](packages/core)               | 데이터 모델 인터페이스, API 경로 상수(`API_PATHS`), 포맷터, 쿼리 키 팩토리 (런타임 0B 순수 TS 계약) |
+| [`@bookjeok/api-client`](packages/api-client)   | Axios 클라이언트(`publicApiClient`, `privateApiClient`), 토큰 인터셉터, API 호출 모듈               |
+| [`@bookjeok/react-query`](packages/react-query) | TanStack Query 쿼리/뮤테이션 훅과 캐시 무효화 규칙                                                  |
 
 ---
 
@@ -482,14 +482,14 @@ bookjeok/
 
 ## Testing & Quality
 
-| 항목 | 현황 |
-|---|---|
-| 서버 단위 테스트 | Jest — 21개 spec (주문 서비스·스케줄러·토스 연동·채팅 게이트웨이·가드 등) |
-| 웹 테스트 | Vitest 4 + Testing Library — 41개 테스트 파일 (결제 플로우, 주문 상세, 배송/분쟁 모달, 거래 후기 등) |
-| 컴포넌트 문서 | Storybook 8 — 11개 스토리 |
-| 타입 안전성 | `tsc --noEmit` 게이트 (server / web / admin) |
-| 정적 분석 | ESLint 9 Flat Config + Prettier |
-| CI | GitHub Actions에서 `pnpm turbo lint test` → `pnpm turbo build` |
+| 항목             | 현황                                                                                                 |
+| ---------------- | ---------------------------------------------------------------------------------------------------- |
+| 서버 단위 테스트 | Jest — 21개 spec (주문 서비스·스케줄러·토스 연동·채팅 게이트웨이·가드 등)                            |
+| 웹 테스트        | Vitest 4 + Testing Library — 41개 테스트 파일 (결제 플로우, 주문 상세, 배송/분쟁 모달, 거래 후기 등) |
+| 컴포넌트 문서    | Storybook 8 — 11개 스토리                                                                            |
+| 타입 안전성      | `tsc --noEmit` 게이트 (server / web / admin)                                                         |
+| 정적 분석        | ESLint 9 Flat Config + Prettier                                                                      |
+| CI               | GitHub Actions에서 `pnpm turbo lint test` → `pnpm turbo build`                                       |
 
 ```bash
 pnpm lint
@@ -501,12 +501,12 @@ pnpm build
 
 ## Deployment
 
-| 대상 | 방식 |
-|---|---|
-| **apps/web** | Vercel — ISR 정적 재검증 + `/api/revalidate` 온디맨드 갱신 |
-| **apps/server** | GitHub Actions가 `apps/server/Dockerfile`을 모노레포 루트 컨텍스트로 빌드 → Azure Container Registry 푸시 → Azure Container Apps 배포 (`main`/`develop` push 또는 수동 트리거) |
-| **DB** | Supabase PostgreSQL. 운영은 `synchronize: false`이며 **마이그레이션 도구 없이 DDL을 수동 적용**합니다 — 반드시 [docs/manual-ddl-log.md](docs/manual-ddl-log.md)에 기록 |
-| **컨테이너 이미지** | GitLab CI에서도 web/server 이미지를 빌드해 GitLab Container Registry에 푸시 |
+| 대상                | 방식                                                                                                                                                                           |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **apps/web**        | Vercel — ISR 정적 재검증 + `/api/revalidate` 온디맨드 갱신                                                                                                                     |
+| **apps/server**     | GitHub Actions가 `apps/server/Dockerfile`을 모노레포 루트 컨텍스트로 빌드 → Azure Container Registry 푸시 → Azure Container Apps 배포 (`main`/`develop` push 또는 수동 트리거) |
+| **DB**              | Supabase PostgreSQL. 운영은 `synchronize: false`이며 **마이그레이션 도구 없이 DDL을 수동 적용**합니다 — 반드시 [docs/manual-ddl-log.md](docs/manual-ddl-log.md)에 기록         |
+| **컨테이너 이미지** | GitLab CI에서도 web/server 이미지를 빌드해 GitLab Container Registry에 푸시                                                                                                    |
 
 > 서버는 Azure 환경에서 Supabase IPv6 `ENETUNREACH`를 피하기 위해 `main.ts`에서 `dns.setDefaultResultOrder("ipv4first")`를 강제합니다.
 
@@ -563,31 +563,31 @@ pnpm test
 
 전체 목록과 설명은 [.env.example](.env.example)에 있습니다. 주요 항목:
 
-| 변수 | 필수 | 설명 |
-|---|:---:|---|
-| `DATABASE_URL` | ✅ | PostgreSQL 연결 문자열 |
-| `JWT_SECRET` / `JWT_REFRESH_SECRET` | ✅ | 액세스/리프레시 토큰 서명 키 |
-| `CLIENT_DOMAIN` | ✅ | CORS 및 소셜 로그인 리다이렉트 대상 |
-| `NAVER_CLIENT_ID` / `_SECRET` / `_CALLBACK_URL` | ✅ | 네이버 로그인 & 도서 검색 |
-| `KAKAO_CLIENT_ID` / `_SECRET` / `_CALLBACK_URL` | ✅ | 카카오 로그인 |
-| `ALADIN_TTB_KEY` | ✅ | 알라딘 Open API |
-| `GEMINI_API_KEY` | ✅ | Google Gemini |
-| `GEMINI_MODEL_NAME` | | 사용할 Gemini 모델명 |
-| `AI_SIMILARITY_THRESHOLD` / `AI_CANDIDATE_POOL_SIZE` | | RAG 벡터 검색 튜닝 (기본 0.35 / 30) |
-| `RESEND_API_KEY` / `RESEND_FROM_EMAIL` | ✅ | 이메일 인증·알림 발송 |
-| `BLOB_READ_WRITE_TOKEN` | ✅ | Vercel Blob 이미지 업로드 |
-| `TOSS_PAYMENTS_SECRET_KEY` / `_CLIENT_KEY` | | 토스페이먼츠 에스크로 |
-| `DELIVERY_TRACKER_BASE_URL` | | 배송 추적 API 엔드포인트 |
-| `FEATURE_PAYMENT_ENABLED` | | 서버 측 결제 기능 플래그 |
-| `NEXT_PUBLIC_API_URL` | ✅ | 웹에서 바라볼 백엔드 주소 |
-| `NEXT_PUBLIC_KAKAO_APP_KEY` | ✅ | 카카오 맵 JS SDK 키 |
-| `NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY` | | 결제 위젯 클라이언트 키 |
-| `NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED` | | 웹 측 결제 기능 플래그 |
-| `USER_WEB_URL` | | 관리자 포털 서버가 갱신 요청을 보낼 사용자 웹 주소 (서버 전용) |
-| `REVALIDATE_TOKEN` | | On-Demand ISR 갱신 시크릿 (서버 전용, 폴백 없음) |
-| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | | Google Analytics |
-| `NEXT_PUBLIC_CLARITY_PROJECT_ID` | | Microsoft Clarity |
-| `NEXT_PUBLIC_GOOGLE_ADSENSE_ID` | | Google AdSense |
+| 변수                                                 | 필수 | 설명                                                           |
+| ---------------------------------------------------- | :--: | -------------------------------------------------------------- |
+| `DATABASE_URL`                                       |  ✅  | PostgreSQL 연결 문자열                                         |
+| `JWT_SECRET` / `JWT_REFRESH_SECRET`                  |  ✅  | 액세스/리프레시 토큰 서명 키                                   |
+| `CLIENT_DOMAIN`                                      |  ✅  | CORS 및 소셜 로그인 리다이렉트 대상                            |
+| `NAVER_CLIENT_ID` / `_SECRET` / `_CALLBACK_URL`      |  ✅  | 네이버 로그인 & 도서 검색                                      |
+| `KAKAO_CLIENT_ID` / `_SECRET` / `_CALLBACK_URL`      |  ✅  | 카카오 로그인                                                  |
+| `ALADIN_TTB_KEY`                                     |  ✅  | 알라딘 Open API                                                |
+| `GEMINI_API_KEY`                                     |  ✅  | Google Gemini                                                  |
+| `GEMINI_MODEL_NAME`                                  |      | 사용할 Gemini 모델명                                           |
+| `AI_SIMILARITY_THRESHOLD` / `AI_CANDIDATE_POOL_SIZE` |      | RAG 벡터 검색 튜닝 (기본 0.35 / 30)                            |
+| `RESEND_API_KEY` / `RESEND_FROM_EMAIL`               |  ✅  | 이메일 인증·알림 발송                                          |
+| `BLOB_READ_WRITE_TOKEN`                              |  ✅  | Vercel Blob 이미지 업로드                                      |
+| `TOSS_PAYMENTS_SECRET_KEY` / `_CLIENT_KEY`           |      | 토스페이먼츠 에스크로                                          |
+| `DELIVERY_TRACKER_BASE_URL`                          |      | 배송 추적 API 엔드포인트                                       |
+| `FEATURE_PAYMENT_ENABLED`                            |      | 서버 측 결제 기능 플래그                                       |
+| `NEXT_PUBLIC_API_URL`                                |  ✅  | 웹에서 바라볼 백엔드 주소                                      |
+| `NEXT_PUBLIC_KAKAO_APP_KEY`                          |  ✅  | 카카오 맵 JS SDK 키                                            |
+| `NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY`               |      | 결제 위젯 클라이언트 키                                        |
+| `NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED`                |      | 웹 측 결제 기능 플래그                                         |
+| `USER_WEB_URL`                                       |      | 관리자 포털 서버가 갱신 요청을 보낼 사용자 웹 주소 (서버 전용) |
+| `REVALIDATE_TOKEN`                                   |      | On-Demand ISR 갱신 시크릿 (서버 전용, 폴백 없음)               |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID`                      |      | Google Analytics                                               |
+| `NEXT_PUBLIC_CLARITY_PROJECT_ID`                     |      | Microsoft Clarity                                              |
+| `NEXT_PUBLIC_GOOGLE_ADSENSE_ID`                      |      | Google AdSense                                                 |
 
 ---
 
@@ -595,14 +595,14 @@ pnpm test
 
 ### 앱 · 패키지
 
-| 문서 | 내용 |
-|---|---|
-| [apps/web/README.md](apps/web/README.md) | 웹 프론트엔드 개요 및 개발 원칙 |
-| [apps/web/docs/ARCHITECTURE.md](apps/web/docs/ARCHITECTURE.md) | 컴포넌트 문맥 기반 그룹화 규칙, i18n 구조 |
-| [apps/web/docs/CACHING.md](apps/web/docs/CACHING.md) | 캐시 4개 층의 책임, 서버 시드 쿼리 대장, 재검증 범위 규칙 |
-| [apps/server/README.md](apps/server/README.md) | 백엔드 개요, 모듈 구조, 개발 원칙 |
-| [apps/admin/README.md](apps/admin/README.md) | 관리자 포털 기능 |
-| [core](packages/core/README.md) · [api-client](packages/api-client/README.md) · [react-query](packages/react-query/README.md) | 공용 패키지 사용법 |
+| 문서                                                                                                                          | 내용                                                      |
+| ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| [apps/web/README.md](apps/web/README.md)                                                                                      | 웹 프론트엔드 개요 및 개발 원칙                           |
+| [apps/web/docs/ARCHITECTURE.md](apps/web/docs/ARCHITECTURE.md)                                                                | 컴포넌트 문맥 기반 그룹화 규칙, i18n 구조                 |
+| [apps/web/docs/CACHING.md](apps/web/docs/CACHING.md)                                                                          | 캐시 4개 층의 책임, 서버 시드 쿼리 대장, 재검증 범위 규칙 |
+| [apps/server/README.md](apps/server/README.md)                                                                                | 백엔드 개요, 모듈 구조, 개발 원칙                         |
+| [apps/admin/README.md](apps/admin/README.md)                                                                                  | 관리자 포털 기능                                          |
+| [core](packages/core/README.md) · [api-client](packages/api-client/README.md) · [react-query](packages/react-query/README.md) | 공용 패키지 사용법                                        |
 
 ### 도메인 기능 문서
 
@@ -615,12 +615,12 @@ pnpm test
 
 ### 설계 · 운영
 
-| 문서 | 내용 |
-|---|---|
-| [docs/used-book-pay-implementation.md](docs/used-book-pay-implementation.md) | 에스크로 결제 시스템 설계·상태 머신·엣지 케이스·단계별 실행 계획 |
-| [docs/book-data-migration-plan.md](docs/book-data-migration-plan.md) | 알라딘 API 종료(2026-10-30) 대응 — 표지·서지·검색 탈외부화 계획과 진행 상황 (진행 중) |
-| [docs/manual-ddl-log.md](docs/manual-ddl-log.md) | 운영 DB에 수동 적용한 DDL 이력 (필독) |
-| [.agents/rules/](.agents/rules/) | 코드베이스 컨벤션 — [모노레포/패키지](.agents/rules/01-monorepo-packages.md) · [서버](.agents/rules/02-server-conventions.md) · [프론트엔드](.agents/rules/03-frontend-conventions.md) · [체크리스트](.agents/rules/04-checklist.md) |
+| 문서                                                                         | 내용                                                                                                                                                                                                                                 |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [docs/used-book-pay-implementation.md](docs/used-book-pay-implementation.md) | 에스크로 결제 시스템 설계·상태 머신·엣지 케이스·단계별 실행 계획                                                                                                                                                                     |
+| [docs/book-data-migration-plan.md](docs/book-data-migration-plan.md)         | 알라딘 API 종료(2026-10-30) 대응 — 표지·서지·검색 탈외부화 계획과 진행 상황 (진행 중)                                                                                                                                                |
+| [docs/manual-ddl-log.md](docs/manual-ddl-log.md)                             | 운영 DB에 수동 적용한 DDL 이력 (필독)                                                                                                                                                                                                |
+| [.agents/rules/](.agents/rules/)                                             | 코드베이스 컨벤션 — [모노레포/패키지](.agents/rules/01-monorepo-packages.md) · [서버](.agents/rules/02-server-conventions.md) · [프론트엔드](.agents/rules/03-frontend-conventions.md) · [체크리스트](.agents/rules/04-checklist.md) |
 
 ---
 

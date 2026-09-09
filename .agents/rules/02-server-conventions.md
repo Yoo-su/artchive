@@ -9,24 +9,24 @@
 **디렉토리**: `apps/server/src/features/[feature]/entities/`
 
 ```typescript
-@Entity({ name: 'used_book_sales' })
+@Entity({ name: "used_book_sales" })
 export class UsedBookSale {
   @PrimaryGeneratedColumn()
   id: number;
 
   // timestamp 컬럼: 무조건 timestamptz 사용
-  @CreateDateColumn({ type: 'timestamptz' })
+  @CreateDateColumn({ type: "timestamptz" })
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamptz' })
+  @UpdateDateColumn({ type: "timestamptz" })
   updatedAt: Date;
 
   // 동시성 제어가 필요한 경우 낙관적 락 적용
   @VersionColumn({ default: 1 })
   version: number;
 
-  @ManyToOne(() => User, (user) => user.usedBookSales, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @ManyToOne(() => User, (user) => user.usedBookSales, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "userId" })
   user: User;
 }
 ```
@@ -46,14 +46,14 @@ export class UsedBookSale {
 - 코어 파라미터 타입 일치를 위해 `implements [CoreParamsInterface]` 적용 권장.
 
 ```typescript
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty } from 'class-validator';
-import { CreateBookSaleParams } from '@bookjeok/core';
+import { ApiProperty } from "@nestjs/swagger";
+import { IsString, IsNotEmpty } from "class-validator";
+import { CreateBookSaleParams } from "@bookjeok/core";
 
 export class CreateBookSaleDto implements CreateBookSaleParams {
   @IsString()
   @IsNotEmpty()
-  @ApiProperty({ description: '판매글 제목', example: '클린 코드 판매합니다' })
+  @ApiProperty({ description: "판매글 제목", example: "클린 코드 판매합니다" })
   title: string;
 }
 ```
@@ -92,11 +92,11 @@ export class OrderService {
 - 에러 코드 키는 `[DOMAIN]_[DESCRIPTION]` 형식 유지.
 
 ```typescript
-import { HttpStatus } from '@nestjs/common';
-import { BusinessException } from '@/shared/exceptions/business.exception';
+import { HttpStatus } from "@nestjs/common";
+import { BusinessException } from "@/shared/exceptions/business.exception";
 
 // 올바른 예:
-throw new BusinessException('SALE_NOT_FOUND', HttpStatus.NOT_FOUND);
+throw new BusinessException("SALE_NOT_FOUND", HttpStatus.NOT_FOUND);
 ```
 
 ---

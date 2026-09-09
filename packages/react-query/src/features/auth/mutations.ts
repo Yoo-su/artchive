@@ -25,7 +25,11 @@ export const useEmailSignupMutation = (
  * 이메일 로그인 뮤테이션
  */
 export const useEmailLoginMutation = (
-  options?: UseMutationOptions<{ accessToken: string; refreshToken: string; user: User }, Error, EmailLoginParams>,
+  options?: UseMutationOptions<
+    { accessToken: string; refreshToken: string; user: User },
+    Error,
+    EmailLoginParams
+  >,
 ) => {
   return useMutation({
     mutationFn: (params: EmailLoginParams) => emailLogin(params),
@@ -37,7 +41,11 @@ export const useEmailLoginMutation = (
  * 이메일 인증 메일 재발송 뮤테이션
  */
 export const useSendVerificationEmailMutation = (
-  options?: UseMutationOptions<{ success: boolean; message: string }, Error, void>,
+  options?: UseMutationOptions<
+    { success: boolean; message: string },
+    Error,
+    void
+  >,
 ) => {
   return useMutation({
     mutationFn: () => sendVerificationEmail(),

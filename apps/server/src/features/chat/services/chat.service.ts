@@ -73,7 +73,10 @@ export class ChatService {
     if (!sale) {
       throw new BusinessException('SALE_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
-    if (sale.status === SaleStatus.WITHDRAWN) {
+    // 탈퇴 회원의 판매글은 상태로만 판별할 수 없다. 탈퇴 정리는 활성 판매글만
+    // WITHDRAWN으로 내리고 판매 완료(SOLD) 건은 그대로 두기 때문이다.
+    // 판매자를 직접 보지 않으면 그 SOLD 글에 유령 채팅방이 생긴다.
+    if (sale.status === SaleStatus.WITHDRAWN || sale.user.deletedAt) {
       throw new BusinessException(
         'SALE_ALREADY_WITHDRAWN',
         HttpStatus.BAD_REQUEST,

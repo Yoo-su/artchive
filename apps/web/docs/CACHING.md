@@ -4,12 +4,12 @@
 
 ## 층과 책임
 
-| 층 | 위치 | TTL | 책임 |
-| --- | --- | --- | --- |
-| 모듈 레벨 Map | 서버 프로세스 | 10분 | 알라딘 호출 중복 제거 (`features/book/apis/server.ts`) |
-| ISR Full Route Cache | Next 서버 | 5분~24시간 | 차가운 트래픽·크롤러용 HTML. `dehydrate()` 결과가 여기 구워짐 |
-| Router Cache | 브라우저 | 서버 액션이 무효화 | SPA 재진입 시 재사용되는 RSC 페이로드 |
-| TanStack Query | 브라우저 | 기본 1분 | **상호작용 중인 사용자의 신선도** |
+| 층                   | 위치          | TTL                | 책임                                                          |
+| -------------------- | ------------- | ------------------ | ------------------------------------------------------------- |
+| 모듈 레벨 Map        | 서버 프로세스 | 10분               | 알라딘 호출 중복 제거 (`features/book/apis/server.ts`)        |
+| ISR Full Route Cache | Next 서버     | 5분~24시간         | 차가운 트래픽·크롤러용 HTML. `dehydrate()` 결과가 여기 구워짐 |
+| Router Cache         | 브라우저      | 서버 액션이 무효화 | SPA 재진입 시 재사용되는 RSC 페이로드                         |
+| TanStack Query       | 브라우저      | 기본 1분           | **상호작용 중인 사용자의 신선도**                             |
 
 핵심 원칙 하나:
 
@@ -38,25 +38,25 @@ refetchOnWindowFocus: false,
 
 서버가 구워서 클라이언트로 넘기는 캐시 항목의 전부입니다. **이 목록 밖의 쿼리는 ISR과 얽히지 않습니다.**
 
-| 시드 키 | 굽는 라우트 | ISR TTL | staleTime |
-| --- | --- | --- | --- |
-| `bookSale.recentSales(25)` | `/` | 1시간 | 전역 (마켓 히어로만 60초 + 폴링) |
-| `book.popularBooks` | `/` | 1시간 | 전역 |
-| `review.list({page:1,limit:5})` | `/` | 1시간 | 전역 |
-| `book.list(출판사, 18)` | `/` | 1시간 | 5분 |
-| `readingLog.loungePopular` | `/` · `/lounge` | 1시간 | 5분 |
-| `readingLog.loungeActiveReaders` | `/lounge` | 1시간 | 5분 |
-| `insights.all` | `/insights` | 6시간 | 전역 |
-| `bookSale.popularSales` | `/book/market` | 1시간 | 전역 |
-| `bookSale.marketSales({})` | `/book/market` | 1시간 | 전역 |
-| `review.popular` | `/book/reviews` | 1시간 | 전역 |
-| `review.feeds()` | `/book/reviews` | 1시간 | 전역 |
-| `book.popularKeywords` | `/book/search` | 1시간 | 호출부 지정 |
-| `user.publicProfile(handle)` | `/users/[handle]` | 10분 | 전역 |
-| `book.detail(isbn)` | `/book/[isbn]/detail` | 24시간 | 5분 |
-| `book.summary(isbn)` | `/book/[isbn]/detail` | 24시간 | Infinity (불변) |
-| `review.detail(id)` | `/book/reviews/[id]` | 1시간 | 전역 |
-| `bookSale.saleDetail(id)` | `/book/sales/[id]` | 5분 | 전역 |
+| 시드 키                          | 굽는 라우트           | ISR TTL | staleTime                        |
+| -------------------------------- | --------------------- | ------- | -------------------------------- |
+| `bookSale.recentSales(25)`       | `/`                   | 1시간   | 전역 (마켓 히어로만 60초 + 폴링) |
+| `book.popularBooks`              | `/`                   | 1시간   | 전역                             |
+| `review.list({page:1,limit:5})`  | `/`                   | 1시간   | 전역                             |
+| `book.list(출판사, 18)`          | `/`                   | 1시간   | 5분                              |
+| `readingLog.loungePopular`       | `/` · `/lounge`       | 1시간   | 5분                              |
+| `readingLog.loungeActiveReaders` | `/lounge`             | 1시간   | 5분                              |
+| `insights.all`                   | `/insights`           | 6시간   | 전역                             |
+| `bookSale.popularSales`          | `/book/market`        | 1시간   | 전역                             |
+| `bookSale.marketSales({})`       | `/book/market`        | 1시간   | 전역                             |
+| `review.popular`                 | `/book/reviews`       | 1시간   | 전역                             |
+| `review.feeds()`                 | `/book/reviews`       | 1시간   | 전역                             |
+| `book.popularKeywords`           | `/book/search`        | 1시간   | 호출부 지정                      |
+| `user.publicProfile(handle)`     | `/users/[handle]`     | 10분    | 전역                             |
+| `book.detail(isbn)`              | `/book/[isbn]/detail` | 24시간  | 5분                              |
+| `book.summary(isbn)`             | `/book/[isbn]/detail` | 24시간  | Infinity (불변)                  |
+| `review.detail(id)`              | `/book/reviews/[id]`  | 1시간   | 전역                             |
+| `bookSale.saleDetail(id)`        | `/book/sales/[id]`    | 5분     | 전역                             |
 
 `readingLog.loungePopular`는 두 라우트가 각각 독립된 시각에 굽습니다. 방문 순서에 따라 더 최신 스냅샷이 이깁니다 (`hydrate()`는 `dataUpdatedAt`이 더 클 때만 덮어씀).
 

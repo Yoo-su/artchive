@@ -22,27 +22,27 @@
 
 ## 🛠️ 기술 스택 (Tech Stack)
 
-| 구분 | 기술 스택 |
-| :--- | :--- |
-| **Framework** | Next.js 15 (App Router, RSC, ISR, Route Handlers, Server Actions), React 19 |
-| **Language** | TypeScript 5 |
-| **Server State** | TanStack Query v5 (`@bookjeok/react-query`), `@lukemorales/query-key-factory` |
-| **Client State** | Zustand v5 |
-| **API Client** | `@bookjeok/api-client`, `@bookjeok/core` |
-| **Styling** | Tailwind CSS v4, `tailwind-merge`, `class-variance-authority`, `@tailwindcss/typography` |
-| **UI** | Radix UI (shadcn/ui 패턴), Lucide React, `sonner` |
-| **Animation** | Framer Motion / `motion`, GSAP, Swiper |
-| **Editor** | Tiptap 3 (Image+resize, Link, Highlight, TextAlign, Color, Underline, BubbleMenu) |
-| **Form** | React Hook Form + Zod 4 |
-| **Chart** | ApexCharts (`react-apexcharts`) |
-| **Map / Address** | `react-kakao-maps-sdk`, `react-daum-postcode` |
-| **Payment** | `@tosspayments/tosspayments-sdk` v2 |
-| **Realtime** | `socket.io-client`, 커스텀 SSE 클라이언트 |
-| **i18n / Theme** | `next-intl` 4, `next-themes` |
-| **Media** | `browser-image-compression`, `@vercel/blob` |
-| **Security** | `sanitize-html` |
-| **Analytics** | Vercel Analytics/Speed Insights, GA4, Microsoft Clarity, AdSense |
-| **Test / Docs** | Vitest 4 + Testing Library + jsdom, Storybook 8, `@next/bundle-analyzer` |
+| 구분              | 기술 스택                                                                                |
+| :---------------- | :--------------------------------------------------------------------------------------- |
+| **Framework**     | Next.js 15 (App Router, RSC, ISR, Route Handlers, Server Actions), React 19              |
+| **Language**      | TypeScript 5                                                                             |
+| **Server State**  | TanStack Query v5 (`@bookjeok/react-query`), `@lukemorales/query-key-factory`            |
+| **Client State**  | Zustand v5                                                                               |
+| **API Client**    | `@bookjeok/api-client`, `@bookjeok/core`                                                 |
+| **Styling**       | Tailwind CSS v4, `tailwind-merge`, `class-variance-authority`, `@tailwindcss/typography` |
+| **UI**            | Radix UI (shadcn/ui 패턴), Lucide React, `sonner`                                        |
+| **Animation**     | Framer Motion / `motion`, GSAP, Swiper                                                   |
+| **Editor**        | Tiptap 3 (Image+resize, Link, Highlight, TextAlign, Color, Underline, BubbleMenu)        |
+| **Form**          | React Hook Form + Zod 4                                                                  |
+| **Chart**         | ApexCharts (`react-apexcharts`)                                                          |
+| **Map / Address** | `react-kakao-maps-sdk`, `react-daum-postcode`                                            |
+| **Payment**       | `@tosspayments/tosspayments-sdk` v2                                                      |
+| **Realtime**      | `socket.io-client`, 커스텀 SSE 클라이언트                                                |
+| **i18n / Theme**  | `next-intl` 4, `next-themes`                                                             |
+| **Media**         | `browser-image-compression`, `@vercel/blob`                                              |
+| **Security**      | `sanitize-html`                                                                          |
+| **Analytics**     | Vercel Analytics/Speed Insights, GA4, Microsoft Clarity, AdSense                         |
+| **Test / Docs**   | Vitest 4 + Testing Library + jsdom, Storybook 8, `@next/bundle-analyzer`                 |
 
 ---
 
@@ -122,14 +122,14 @@ ANALYZE=true pnpm build:web   # 번들 분석
 
 ### 필요한 환경 변수
 
-| 변수 | 설명 |
-|---|---|
-| `NEXT_PUBLIC_API_URL` | 백엔드 주소 |
-| `NEXT_PUBLIC_KAKAO_APP_KEY` | 카카오 맵 SDK (없으면 지도 미표시) |
-| `NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY` | 결제 위젯 |
-| `NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED` | 결제 UI 노출 플래그 (서버 플래그와 동일 값) |
-| `REVALIDATE_TOKEN` | 온디맨드 ISR 갱신 시크릿 (서버 전용, 미설정 시 503) |
-| `BLOB_READ_WRITE_TOKEN` | Vercel Blob 업로드 (서버 사이드) |
-| `NEXT_PUBLIC_GA_MEASUREMENT_ID` · `NEXT_PUBLIC_CLARITY_PROJECT_ID` · `NEXT_PUBLIC_GOOGLE_ADSENSE_ID` | 계측·광고 (선택) |
+| 변수                                                                                                 | 설명                                                |
+| ---------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `NEXT_PUBLIC_API_URL`                                                                                | 백엔드 주소                                         |
+| `NEXT_PUBLIC_KAKAO_APP_KEY`                                                                          | 카카오 맵 SDK (없으면 지도 미표시)                  |
+| `NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY`                                                               | 결제 위젯                                           |
+| `NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED`                                                                | 결제 UI 노출 플래그 (서버 플래그와 동일 값)         |
+| `REVALIDATE_TOKEN`                                                                                   | 온디맨드 ISR 갱신 시크릿 (서버 전용, 미설정 시 503) |
+| `BLOB_READ_WRITE_TOKEN`                                                                              | Vercel Blob 업로드 (서버 사이드)                    |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` · `NEXT_PUBLIC_CLARITY_PROJECT_ID` · `NEXT_PUBLIC_GOOGLE_ADSENSE_ID` | 계측·광고 (선택)                                    |
 
 전체 목록은 루트 [.env.example](../../.env.example)에 있습니다.

@@ -27,19 +27,19 @@ auth/
 
 ## 2. API 엔드포인트
 
-| 메서드 | 경로 (`/auth/...`) | Rate Limit | 설명 |
-|---|---|---|---|
-| POST | `/signup` | 5회/분 | 이메일 회원가입 |
-| POST | `/login` | 5회/분 | 이메일 로그인 |
-| GET | `/naver` | - | 네이버 로그인 시작 |
-| GET | `/naver/callback` | - | 네이버 콜백 → 티켓 발급 후 리다이렉트 |
-| GET | `/kakao` | - | 카카오 로그인 시작 |
-| GET | `/kakao/callback` | - | 카카오 콜백 → 티켓 발급 후 리다이렉트 |
-| POST | `/exchange` | 20회/분 | 1회용 티켓 → 토큰 교환 |
-| POST | `/refresh` | 20회/분 | Access Token 재발급 (Refresh Token 필요) |
-| POST | `/logout` | - | 로그아웃 (`tokenVersion` 증가) |
-| POST | `/send-verification-email` | 3회/분 | 인증 메일 발송 (Resend) |
-| POST | `/verify-email` | 10회/분 | 인증 링크 토큰 검증 |
+| 메서드 | 경로 (`/auth/...`)         | Rate Limit | 설명                                     |
+| ------ | -------------------------- | ---------- | ---------------------------------------- |
+| POST   | `/signup`                  | 5회/분     | 이메일 회원가입                          |
+| POST   | `/login`                   | 5회/분     | 이메일 로그인                            |
+| GET    | `/naver`                   | -          | 네이버 로그인 시작                       |
+| GET    | `/naver/callback`          | -          | 네이버 콜백 → 티켓 발급 후 리다이렉트    |
+| GET    | `/kakao`                   | -          | 카카오 로그인 시작                       |
+| GET    | `/kakao/callback`          | -          | 카카오 콜백 → 티켓 발급 후 리다이렉트    |
+| POST   | `/exchange`                | 20회/분    | 1회용 티켓 → 토큰 교환                   |
+| POST   | `/refresh`                 | 20회/분    | Access Token 재발급 (Refresh Token 필요) |
+| POST   | `/logout`                  | -          | 로그아웃 (`tokenVersion` 증가)           |
+| POST   | `/send-verification-email` | 3회/분     | 인증 메일 발송 (Resend)                  |
+| POST   | `/verify-email`            | 10회/분    | 인증 링크 토큰 검증                      |
 
 전역 Throttler(60초/120회) 위에 위 엔드포인트들은 개별 제한을 추가로 적용합니다.
 
@@ -103,23 +103,23 @@ POST /auth/send-verification-email  →  Resend로 인증 링크 발송
 
 `EmailVerifiedGuard`는 `isEmailVerified !== true`인 요청을 `EMAIL_NOT_VERIFIED` 403으로 차단합니다. 적용 대상은 **중고거래 진입 경로**입니다.
 
-| 적용 지점 | 모듈 |
-|---|---|
-| 판매글 작성 | `used-book-sale` |
-| 거래 채팅 개설 | `chat` |
-| 구매자 지정 · 결제 | `order` |
+| 적용 지점          | 모듈             |
+| ------------------ | ---------------- |
+| 판매글 작성        | `used-book-sale` |
+| 거래 채팅 개설     | `chat`           |
+| 구매자 지정 · 결제 | `order`          |
 
 사기·어뷰징 계정이 거래에 진입하지 못하게 하는 것이 목적입니다.
 
 ## 6. 가드
 
-| 가드 | 용도 |
-|---|---|
-| `AuthGuard('jwt')` | 일반 인증 필요 라우트 |
-| `AuthGuard('jwt-refresh')` | `/auth/refresh` 전용 |
-| `EmailVerifiedGuard` | 이메일 인증 완료 회원만 |
-| `AdminGuard` | 관리자 포털 전용 API |
-| `OptionalJwtAuthGuard` | 비로그인도 허용하되 로그인 시 사용자 정보를 주입 (리뷰 상세의 "내 리액션" 등) |
+| 가드                       | 용도                                                                          |
+| -------------------------- | ----------------------------------------------------------------------------- |
+| `AuthGuard('jwt')`         | 일반 인증 필요 라우트                                                         |
+| `AuthGuard('jwt-refresh')` | `/auth/refresh` 전용                                                          |
+| `EmailVerifiedGuard`       | 이메일 인증 완료 회원만                                                       |
+| `AdminGuard`               | 관리자 포털 전용 API                                                          |
+| `OptionalJwtAuthGuard`     | 비로그인도 허용하되 로그인 시 사용자 정보를 주입 (리뷰 상세의 "내 리액션" 등) |
 
 ## 7. 관련 환경 변수
 

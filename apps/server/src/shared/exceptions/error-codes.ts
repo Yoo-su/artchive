@@ -71,6 +71,10 @@ export const ERROR_CODES = {
     code: 'AUTH_014',
     message: '만료되었거나 이미 사용된 인증 요청입니다. 다시 로그인해주세요.',
   },
+  WITHDRAWN_USER: {
+    code: 'AUTH_015',
+    message: '탈퇴한 계정입니다. 새로 가입해주세요.',
+  },
 
   // ============================================
   // 사용자 관련 에러 (USER)

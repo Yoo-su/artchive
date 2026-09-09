@@ -8,7 +8,6 @@ import { AdminLayout } from "../../../layouts/admin-layout";
 import { api } from "../../../libs/api";
 import { requestRevalidate } from "../../../libs/revalidate";
 
-
 export default function ReviewsModerationPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +18,9 @@ export default function ReviewsModerationPage() {
     try {
       const response = await api.get("/reviews?limit=50");
       // ResponseWrapper 형식 지원
-      const fetchedData = response.data.data ? response.data.data : response.data;
+      const fetchedData = response.data.data
+        ? response.data.data
+        : response.data;
       setReviews(fetchedData.reviews || []);
     } catch (err) {
       console.error("Failed to fetch reviews", err);
@@ -33,7 +34,11 @@ export default function ReviewsModerationPage() {
   }, []);
 
   const handleDelete = async (id: number) => {
-    if (!confirm("정말 이 리뷰를 완전히 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+    if (
+      !confirm(
+        "정말 이 리뷰를 완전히 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+      )
+    ) {
       return;
     }
     setDeletingId(id);
@@ -99,7 +104,9 @@ export default function ReviewsModerationPage() {
                   <tr className="border-b border-neutral-200 dark:border-neutral-900 text-[10px] tracking-widest uppercase font-semibold text-neutral-400 dark:text-neutral-500 font-mono">
                     <th className="py-4 px-6 font-medium">카테고리</th>
                     <th className="py-4 px-6 font-medium">도서 정보</th>
-                    <th className="py-4 px-6 font-medium">리뷰 제목 / 내용 요약</th>
+                    <th className="py-4 px-6 font-medium">
+                      리뷰 제목 / 내용 요약
+                    </th>
                     <th className="py-4 px-6 font-medium">작성자</th>
                     <th className="py-4 px-6 font-medium">등록일</th>
                     <th className="py-4 px-6 font-medium text-right">관리</th>

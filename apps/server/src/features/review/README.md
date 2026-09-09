@@ -36,20 +36,20 @@ review/
 
 ## API 엔드포인트
 
-| 메서드 | 경로 | 인증 | 설명 |
-|---|---|:---:|---|
-| POST | `/reviews` | 🔒 | 리뷰 작성 |
-| GET | `/reviews` | - | 리뷰 목록 (카테고리·공개 여부·정렬 필터) |
-| GET | `/reviews/feeds` | - | 홈 피드용 요약 목록 |
-| GET | `/reviews/popular` | - | 최근 `POPULAR_REVIEW_MONTHS`개월 인기 리뷰 |
-| GET | `/reviews/:id` | 선택 | 리뷰 상세 (로그인 시 내 리액션 포함) |
-| GET | `/reviews/:id/edit` | 🔒 | 수정용 조회 (작성자만) |
-| POST | `/reviews/:id/view` | - | 조회수 증가 |
-| GET | `/reviews/:id/recommend` | - | 연관 추천 리뷰 |
-| POST | `/reviews/:id/reactions` | 🔒 | 리액션 토글 |
-| GET | `/reviews/:id/reaction` | 🔒 | 내 리액션 조회 |
-| PATCH | `/reviews/:id` | 🔒 | 리뷰 수정 |
-| DELETE | `/reviews/:id` | 🔒 | 리뷰 삭제 |
+| 메서드 | 경로                     | 인증 | 설명                                       |
+| ------ | ------------------------ | :--: | ------------------------------------------ |
+| POST   | `/reviews`               |  🔒  | 리뷰 작성                                  |
+| GET    | `/reviews`               |  -   | 리뷰 목록 (카테고리·공개 여부·정렬 필터)   |
+| GET    | `/reviews/feeds`         |  -   | 홈 피드용 요약 목록                        |
+| GET    | `/reviews/popular`       |  -   | 최근 `POPULAR_REVIEW_MONTHS`개월 인기 리뷰 |
+| GET    | `/reviews/:id`           | 선택 | 리뷰 상세 (로그인 시 내 리액션 포함)       |
+| GET    | `/reviews/:id/edit`      |  🔒  | 수정용 조회 (작성자만)                     |
+| POST   | `/reviews/:id/view`      |  -   | 조회수 증가                                |
+| GET    | `/reviews/:id/recommend` |  -   | 연관 추천 리뷰                             |
+| POST   | `/reviews/:id/reactions` |  🔒  | 리액션 토글                                |
+| GET    | `/reviews/:id/reaction`  |  🔒  | 내 리액션 조회                             |
+| PATCH  | `/reviews/:id`           |  🔒  | 리뷰 수정                                  |
+| DELETE | `/reviews/:id`           |  🔒  | 리뷰 삭제                                  |
 
 ---
 
@@ -57,15 +57,15 @@ review/
 
 ### `Review` (`reviews`)
 
-| 컬럼 | 설명 |
-|---|---|
-| `title`, `content` | 제목, Tiptap이 생성한 HTML 본문 |
-| `category` | 리뷰 분류 |
-| `rating` | 별점 (float) |
-| `isPublic` | 공개/비공개 |
-| `viewCount`, `reactionCount` | 비정규화 카운터 |
-| `userId`, `isbn` | 작성자, 대상 도서 |
-| `tagEntities` | `review_tags` 조인 테이블을 통한 `Tag` 다대다 |
+| 컬럼                         | 설명                                          |
+| ---------------------------- | --------------------------------------------- |
+| `title`, `content`           | 제목, Tiptap이 생성한 HTML 본문               |
+| `category`                   | 리뷰 분류                                     |
+| `rating`                     | 별점 (float)                                  |
+| `isPublic`                   | 공개/비공개                                   |
+| `viewCount`, `reactionCount` | 비정규화 카운터                               |
+| `userId`, `isbn`             | 작성자, 대상 도서                             |
+| `tagEntities`                | `review_tags` 조인 테이블을 통한 `Tag` 다대다 |
 
 복합 인덱스 `(category, isPublic, createdAt, id)` — 목록 조회의 필터 + 정렬 + 커서 조건을 한 인덱스로 처리합니다.
 
@@ -73,9 +73,9 @@ review/
 
 ```typescript
 enum ReviewReactionType {
-  EMPATHY,    // 공감
-  INSIGHT,    // 인사이트
-  CHEER,      // 응원
+  EMPATHY, // 공감
+  INSIGHT, // 인사이트
+  CHEER, // 응원
 }
 ```
 
@@ -103,10 +103,10 @@ Tiptap 본문에서 이미지 URL을 추출해, 수정·삭제 시 더 이상 �
 
 ### 이벤트
 
-| 이벤트 | 리스너 | 동작 |
-|---|---|---|
+| 이벤트           | 리스너                       | 동작                                   |
+| ---------------- | ---------------------------- | -------------------------------------- |
 | `review.reacted` | `ReviewNotificationListener` | 리뷰 작성자에게 `REVIEW_REACTION` 알림 |
-| `user.withdrawn` | `ReviewCleanupListener` | 탈퇴 회원의 리뷰·리액션 정리 |
+| `user.withdrawn` | `ReviewCleanupListener`      | 탈퇴 회원의 리뷰·리액션 정리           |
 
 ---
 

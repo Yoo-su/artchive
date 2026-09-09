@@ -48,13 +48,13 @@ useNotificationSocket ──▶ queryClient 캐시 갱신
 
 서버 `NotificationType`과 1:1로 대응하며, `utils/index.ts`가 타입별 문구·아이콘·이동 경로를 매핑합니다.
 
-| 분류 | 타입 |
-|---|---|
-| 커뮤니티 | `REVIEW_REACTION`, `REVIEW_COMMENT`, `COMMENT_LIKE` |
+| 분류      | 타입                                                                            |
+| --------- | ------------------------------------------------------------------------------- |
+| 커뮤니티  | `REVIEW_REACTION`, `REVIEW_COMMENT`, `COMMENT_LIKE`                             |
 | 거래 진행 | `BUYER_SELECTED`, `OTHER_BUYER_TRADING`, `PAYMENT_COMPLETED`, `PAYMENT_EXPIRED` |
-| 배송 | `SHIPPING_STARTED`, `DELIVERY_COMPLETED`, `SHIPPING_DEADLINE_IMMINENT` |
-| 확정·취소 | `AUTO_CONFIRM_IMMINENT`, `PURCHASE_CONFIRMED`, `ORDER_CANCELLED` |
-| 후기 | `TRADE_REVIEW_RECEIVED` |
+| 배송      | `SHIPPING_STARTED`, `DELIVERY_COMPLETED`, `SHIPPING_DEADLINE_IMMINENT`          |
+| 확정·취소 | `AUTO_CONFIRM_IMMINENT`, `PURCHASE_CONFIRMED`, `ORDER_CANCELLED`                |
+| 후기      | `TRADE_REVIEW_RECEIVED`                                                         |
 
 새 알림 타입을 추가할 때는 서버 enum → `@bookjeok/core` 타입 → `utils/index.ts` 매핑 순으로 함께 갱신해야 합니다. 매핑이 빠지면 알림은 도착하지만 문구와 링크가 비어 보입니다.
 
@@ -64,11 +64,11 @@ useNotificationSocket ──▶ queryClient 캐시 갱신
 
 `use-notification-actions`가 제공합니다.
 
-| 액션 | 엔드포인트 |
-|---|---|
-| 개별 읽음 | `PATCH /notifications/:id/read` |
-| 전체 읽음 | `PATCH /notifications/read-all` |
-| 삭제 | `DELETE /notifications/:id` |
+| 액션         | 엔드포인트                        |
+| ------------ | --------------------------------- |
+| 개별 읽음    | `PATCH /notifications/:id/read`   |
+| 전체 읽음    | `PATCH /notifications/read-all`   |
+| 삭제         | `DELETE /notifications/:id`       |
 | 안 읽은 개수 | `GET /notifications/unread-count` |
 
 읽음 처리는 옵티미스틱 업데이트로 배지를 즉시 반영한 뒤 서버 응답으로 정합성을 맞춥니다.

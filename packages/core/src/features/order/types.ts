@@ -125,7 +125,3 @@ export interface GetOrdersResponse {
   page: number;
   limit: number;
 }
-
-
-
-

@@ -4,6 +4,7 @@
 > **2026-09 후속 개편 (Trade 모듈 분리)**:
 > 본 문서는 결제 시스템 도입 초기 설계서입니다. 이후 직거래 후기 지원 및 결제 독립성을 위해 **거래 완료(`TradeCompletion`)와 양방향 거래 후기(`TradeReview`)가 별도의 `trade` 도메인 모듈로 분리**되었습니다.
 > 결제 수명주기는 `order` 모듈이, 직거래/에스크로 완료 후기 및 신뢰 지표는 `trade` 모듈이 담당합니다. 최신 상세 구현은 다음 문서를 참고하세요:
+>
 > - 서버: [`apps/server/src/features/trade/README.md`](../apps/server/src/features/trade/README.md) · [`apps/server/src/features/order/README.md`](../apps/server/src/features/order/README.md)
 > - 웹: [`apps/web/src/features/trade/README.md`](../apps/web/src/features/trade/README.md) · [`apps/web/src/features/order/README.md`](../apps/web/src/features/order/README.md)
 
@@ -12,6 +13,7 @@
 북적 서비스에 **토스페이먼츠 에스크로 기반 결제 시스템**을 도입하여, 기존 채팅 직거래 방식에 더해 **택배 거래 + 온라인 결제 + 배송 추적 + 구매확정 + 거래 후기** 플로우를 추가한다.
 
 ### 핵심 원칙
+
 1. **코드베이스 컨벤션 준수**: 모든 작업은 반드시 `.agents/rules/codebase-conventions.md`에 정의된 패턴(경로 상수, 에러 코드, Contract-First, 쿼리 키 팩토리, shadcn UI 재사용 등)을 엄격히 따른다.
 2. **사전 리서치 강제**: 매 Phase 시작 시 관련 기존 코드를 먼저 읽고 현재 구현 패턴과 컨벤션을 확인한 뒤 코드를 작성한다.
 3. **독립적 Phase 실행**: 한 번에 전체를 몰아치지 않고, 1개 Phase 단위로 작업 및 검증 게이트를 통과한 후 다음으로 진행한다.
@@ -24,31 +26,32 @@
 
 ## 2. 도메인 규칙 & 결정 사항 요약
 
-| 항목 | 결정 사항 |
-|---|---|
-| **이메일 인증** | 판매글 작성, 채팅 시작, 구매자 지정, 결제 시 `isEmailVerified === true` 필수 (`EMAIL_NOT_VERIFIED` 403 차단) |
-| **거래 방식** | 판매글 작성 시 `DIRECT_ONLY`(직거래만), `DELIVERY_ONLY`(택배만), `BOTH`(둘 다 가능) 선택 |
-| **결제 시스템** | 토스페이먼츠 에스크로 REST API 연동 |
-| **구매자 선택** | 채팅방 내에서 판매자가 거래 상대로 선택하여 Order 생성 |
-| **타 구매희망자** | 타 채팅방에는 "다른 구매자와 거래 진행 중" 상태 알림 |
-| **결제 전 취소** | 판매자 선택 취소 가능, 24시간 미결제 시 자동 만료 |
-| **결제 후 취소** | 배송 전 양측 취소 가능, 결제 후 3일 미배송 시 자동 환불 |
-| **배송 중 취소** | 배송 중(`SHIPPED`) 취소 불가 |
-| **배송 추적** | Delivery Tracker API 연동 + 크론 폴링 |
-| **구매확정** | 배송완료 후 구매자 직접 확정 or 2일 후 자동 확정 |
-| **분쟁 처리** | 구매확정 거부 시 `DISPUTED` 전환, 7일 미해결 시 자동 환불 |
-| **결제 금액** | `UsedBookSale.price` 고정 (금액 협상 없음) |
-| **배송지 입력** | 결제 시 카카오 우편번호로 입력받아 Order에 스냅샷 저장 |
-| **거래 후기** | `TradeReview` 엔티티, 구매자→판매자 단방향, 프리셋 태그 + 선택적 텍스트 |
-| **후기 조건** | 구매확정 후 14일 이내 작성/수정 가능 (삭제 불가), 프로필에 항상 공개 |
-| **신뢰 지표** | "거래 완료 N건 · 긍정 후기 N%" 팩트 기반 수치 |
-| **알림** | 거래 단계별 11종 알림 이벤트 및 채팅방 시스템 메시지 발송 |
+| 항목              | 결정 사항                                                                                                    |
+| ----------------- | ------------------------------------------------------------------------------------------------------------ |
+| **이메일 인증**   | 판매글 작성, 채팅 시작, 구매자 지정, 결제 시 `isEmailVerified === true` 필수 (`EMAIL_NOT_VERIFIED` 403 차단) |
+| **거래 방식**     | 판매글 작성 시 `DIRECT_ONLY`(직거래만), `DELIVERY_ONLY`(택배만), `BOTH`(둘 다 가능) 선택                     |
+| **결제 시스템**   | 토스페이먼츠 에스크로 REST API 연동                                                                          |
+| **구매자 선택**   | 채팅방 내에서 판매자가 거래 상대로 선택하여 Order 생성                                                       |
+| **타 구매희망자** | 타 채팅방에는 "다른 구매자와 거래 진행 중" 상태 알림                                                         |
+| **결제 전 취소**  | 판매자 선택 취소 가능, 24시간 미결제 시 자동 만료                                                            |
+| **결제 후 취소**  | 배송 전 양측 취소 가능, 결제 후 3일 미배송 시 자동 환불                                                      |
+| **배송 중 취소**  | 배송 중(`SHIPPED`) 취소 불가                                                                                 |
+| **배송 추적**     | Delivery Tracker API 연동 + 크론 폴링                                                                        |
+| **구매확정**      | 배송완료 후 구매자 직접 확정 or 2일 후 자동 확정                                                             |
+| **분쟁 처리**     | 구매확정 거부 시 `DISPUTED` 전환, 7일 미해결 시 자동 환불                                                    |
+| **결제 금액**     | `UsedBookSale.price` 고정 (금액 협상 없음)                                                                   |
+| **배송지 입력**   | 결제 시 카카오 우편번호로 입력받아 Order에 스냅샷 저장                                                       |
+| **거래 후기**     | `TradeReview` 엔티티, 구매자→판매자 단방향, 프리셋 태그 + 선택적 텍스트                                      |
+| **후기 조건**     | 구매확정 후 14일 이내 작성/수정 가능 (삭제 불가), 프로필에 항상 공개                                         |
+| **신뢰 지표**     | "거래 완료 N건 · 긍정 후기 N%" 팩트 기반 수치                                                                |
+| **알림**          | 거래 단계별 11종 알림 이벤트 및 채팅방 시스템 메시지 발송                                                    |
 
 ---
 
 ## 3. 상태 머신 명세
 
 ### 3-1. OrderStatus 전이도
+
 ```mermaid
 stateDiagram-v2
     [*] --> AWAITING_PAYMENT : 판매자가 구매자 선택
@@ -66,6 +69,7 @@ stateDiagram-v2
 ```
 
 ### 3-2. SaleStatus 연동 규칙
+
 - **Order 생성 시 (`AWAITING_PAYMENT`)**: `UsedBookSale.status` → `RESERVED`
 - **주문 취소/만료 시 (`CANCELLED`)**: `UsedBookSale.status` → `FOR_SALE`
 - **구매 확정 시 (`CONFIRMED`)**: `UsedBookSale.status` → `SOLD`
@@ -77,17 +81,20 @@ stateDiagram-v2
 > 아래 10가지 엣지 케이스는 돈과 실물이 오가는 중고거래의 무결성을 위해 반드시 서버/클라이언트 양측에서 철저히 방어되어야 한다.
 
 ### 1) 거래 진행 중 채팅방 나가기 방어
+
 - **정책**: 활성 거래(`AWAITING_PAYMENT`, `PAID`, `SHIPPED`, `DELIVERED`, `DISPUTED`)가 존재하는 채팅방은 참여자가 임의로 나갈 수 없다.
 - **백엔드**: `ChatService.leaveRoom` 시 해당 방에 미완료 Order가 존재하면 `CHAT_CANNOT_LEAVE_DURING_TRADE` (400 Bad Request) 예외 발생.
 - **프론트엔드**: 활성 거래 상태 시 나가기 버튼 비활성화 또는 클릭 시 "거래 진행 중 나가기 불가" 모달 안내.
 - **예외(결제 전)**: `AWAITING_PAYMENT` 상태에서는 판매자가 "구매자 지정 취소"를 하거나, 구매자가 "거래 취소 확인"을 거쳐 Order를 `CANCELLED` 처리한 후에만 나가기 허용.
 
 ### 2) 비활성/탈퇴 참여자에 대한 구매자 지정 방어
+
 - **정책**: 구매희망자가 이미 채팅방을 나갔거나(`isActive = false`) 탈퇴한 회원(`deletedAt != null`)인 경우, 판매자가 해당 사용자를 구매자로 지정할 수 없다.
 - **백엔드**: `OrderService.selectBuyer` 시 구매자 참가자의 `isActive === true` 및 `deletedAt === null` 검증 (`CHAT_PARTICIPANT_INACTIVE` 400 예외).
 - **프론트엔드**: 상대방이 나간 방에서는 "구매자 선택하기" 버튼을 비활성화하고 "상대방이 대화방을 나갔습니다" 배너 표시.
 
 ### 3) 거래 진행 중 판매글 수정 / 삭제 / 상태 임의 변경 방어
+
 - **정책**: 활성 주문(`AWAITING_PAYMENT` ~ `DISPUTED`)이 걸려있는 판매글은 가격 수정, 게시글 삭제, 수동 상태 변경(`SOLD` 등)이 불가하다.
 - **백엔드**:
   - `UsedBookSaleService.updateSale`: 활성 주문 존재 시 수정 차단 (`SALE_IN_TRADE_CANNOT_UPDATE` 409 Conflict).
@@ -96,31 +103,38 @@ stateDiagram-v2
 - **프론트엔드**: 마이페이지 판매글 관리에서 거래 중인 글은 "수정/삭제" 버튼 비활성화 및 툴팁 안내.
 
 ### 4) 거래 진행 중 회원 탈퇴(계정 삭제) 방어
+
 - **정책**: 자신이 판매자 또는 구매자로 참여 중인 활성 주문이 남아있는 회원은 탈퇴할 수 없다.
 - **백엔드**: `UserService.deleteUser` 시 활성 주문 존재 여부 확인 후 `USER_IN_TRADE_CANNOT_WITHDRAW` (400 Bad Request) 발생.
 - **프론트엔드**: 회원 탈퇴 페이지/모달에서 "진행 중인 거래 완료 또는 취소 후 탈퇴 가능" 안내.
 
 ### 5) 취소된 주문 이력 보존 및 활성 주문 단일 조회 보장
+
 - **정책**: 취소된 주문(`CANCELLED`)은 감사/이력용으로 DB에 영구 보존되며, 판매글은 `FOR_SALE`로 복귀하여 재거래가 가능하다.
 - **백엔드/프론트엔드**: 채팅방 상단 배너 및 주문 조회 API(`getActiveOrderByRoom`)는 반드시 **현재 활성 주문(`status NOT IN ('CANCELLED', 'CONFIRMED')`)** 1건만 반환하도록 필터링하여, 과거 취소된 주문 데이터가 화면에 잔존하지 않도록 보장.
 
 ### 6) 결제창 방치 후 뒤늦은 결제 시도 (만료/취소 경합 방어)
+
 - **정책**: 구매자가 결제창을 띄워둔 사이 판매자가 지정을 취소했거나 24시간 만료된 경우 결제가 승인되어서는 안 된다.
 - **백엔드**: `OrderService.confirmPayment` 실행 시, 토스 결제 승인 API 호출 직전에 **Order가 `AWAITING_PAYMENT` 상태인지 + `expiresAt`이 지나지 않았는지** 트랜잭션 내에서 최종 재검증. 불일치 시 토스 승인 API를 호출하지 않고 에러 반환.
 
 ### 7) 직거래(`DIRECT_ONLY`) 판매글에서의 온라인 주문 생성 차단
+
 - **정책**: 직거래 전용 판매글에 대해 비정상 API 호출로 Order를 생성할 수 없다.
 - **백엔드**: `OrderService.selectBuyer`에서 `sale.tradeMethod === 'DIRECT_ONLY'`인 경우 `ORDER_DIRECT_ONLY_NOT_ALLOWED` (400 Bad Request) 차단.
 
 ### 8) 토스 결제 승인 후 DB 저장 실패 시 보상 트랜잭션 (자동 환불 방어)
+
 - **정책**: 토스페이먼츠 결제 승인(과금)이 완료된 직후 DB 저장 단계에서 낙관적 락 충돌이나 서버 오류가 발생할 경우, 결제를 즉시 자동 취소(보상 트랜잭션)하여 결제와 DB 간 금액 불일치를 방지한다.
 - **백엔드**: `OrderService.confirmPayment`에서 `tossPaymentsService.confirmPayment` 호출 후 `manager.save` 실패 시 `catch` 블록에서 `tossPaymentsService.cancelPayment`를 호출하여 승인 자동 취소.
 
 ### 9) 모바일 결제 리디렉션 시 배송지 스냅샷 유실 방어
+
 - **정책**: 모바일 환경에서 앱카드/간편결제 앱 전환 후 결제 완료 콜백 리디렉션 시 브라우저 세션이 초기화되더라도 배송지 스냅샷이 유실되지 않아야 한다.
 - **프론트엔드**: `order-storage.ts`에서 `sessionStorage` 단독 저장 대신 `localStorage` fallback(24시간 TTL 자동 만료)을 병행 적용하여 새 세션/새 탭 리디렉션 시에도 배송지 데이터를 안전하게 복원.
 
 ### 10) 이메일 미인증 회원의 중고거래 진입 차단 (Email Verification Guard)
+
 - **정책**: 이메일 인증이 완료되지 않은 계정(`isEmailVerified === false`)은 허위 매물 및 피싱 방지를 위해 중고거래 핵심 기능(판매글 작성, 채팅방 개설, 구매자 지정, 결제)을 수행할 수 없다.
 - **백엔드**:
   - `EmailVerifiedGuard`를 `POST /used-book-sales`, `PATCH /used-book-sales/:id`, `POST /chats/room`에 적용하여 403 Forbidden (`EMAIL_NOT_VERIFIED`) 차단.
@@ -130,6 +144,7 @@ stateDiagram-v2
   - 판매글 작성 폼 상단 안내 배너 + 비활성화, 판매글 상세 "채팅하기" 클릭 시 인증 유도 팝업, 채팅방 상단 거래 배너 및 결제 페이지에서 미인증 사용자에게 [인증 메일 재발송] 액션 제공.
 
 ### 11) PG사 승인 전 안전 배포 및 Feature Flag 제어 (Pre-PG Launch Policy)
+
 - **정책**: PG사 승인 및 사업자 등록 전 프로덕션/스테이징 배포 시 결제 코드는 유실 없이 병합·배포하되, 런타임에서 일반 사용자의 결제 기능 접근을 원천 차단하고 기존 직거래 채팅 중계 기능만 100% 정상 작동하도록 격리한다.
 - **환경변수 플래그**:
   - 백엔드: `FEATURE_PAYMENT_ENABLED=false` (PG 승인 완료 시 `true` 전환)
@@ -153,9 +168,11 @@ stateDiagram-v2
 ---
 
 ### Phase 0: 스키마 & 인프라 기반 작업
+
 > 후속 비즈니스 로직의 토대가 되는 DB 스키마 업데이트 및 패키지 설정
 
 #### 작업 명세:
+
 1. **타임존 정비**:
    - `ChatRoom`, `ChatMessage`의 `@CreateDateColumn()`, `@UpdateDateColumn()`에 `{ type: 'timestamptz' }` 명시 확인 및 적용.
 2. **ChatMessage 엔티티 확장**:
@@ -179,6 +196,7 @@ stateDiagram-v2
    - 환경변수 템플릿(`.env.example`)에 토스 키 추가.
 
 #### 검증 게이트:
+
 ```bash
 cmd.exe /c "pnpm --filter @bookjeok/core build"
 cmd.exe /c "pnpm --filter @bookjeok/server exec tsc --noEmit"
@@ -188,9 +206,11 @@ cmd.exe /c "pnpm --filter @bookjeok/server test"
 ---
 
 ### Phase 1: Core Order 서비스 (백엔드)
+
 > 주문 상태 전이 로직, 동시성 안전 처리, TDD 기반 단위 테스트 작성
 
 #### 작업 명세:
+
 1. **에러 코드 등록 (`apps/server/src/shared/exceptions/error-codes.ts`)**:
    - `ORDER_NOT_FOUND`, `ORDER_INVALID_STATUS`, `ORDER_CONCURRENT_MODIFICATION`, `ORDER_AMOUNT_MISMATCH`, `ORDER_FORBIDDEN` 등 등록.
 2. **Order 모듈 및 DTO 구성**:
@@ -212,6 +232,7 @@ cmd.exe /c "pnpm --filter @bookjeok/server test"
    - 정상 플로우 및 15개 이상의 엣지 케이스(동시 요청, 금액 불일치, 비인가 사용자, 배송 중 취소 불가, 승인 후 DB 실패 시 보상 트랜잭션 등) 테스트 작성 및 통과.
 
 #### 검증 게이트:
+
 ```bash
 cmd.exe /c "pnpm --filter @bookjeok/server exec tsc --noEmit"
 cmd.exe /c "pnpm --filter @bookjeok/server test"
@@ -220,9 +241,11 @@ cmd.exe /c "pnpm --filter @bookjeok/server test"
 ---
 
 ### Phase 2: 토스페이먼츠 에스크로 연동 (백엔드)
+
 > 토스페이먼츠 에스크로 승인, 배송등록, 구매확정, 취소 REST API 연동 및 웹훅 처리
 
 #### 작업 명세:
+
 1. **TossPaymentsService 구현 (`apps/server/src/features/order/services/toss-payments.service.ts`)**:
    - Basic Auth (Secret Key base64 인코딩) 기반 Axios 통신 모듈.
    - `confirmEscrowPayment`: 에스크로 결제 승인 API 호출.
@@ -238,6 +261,7 @@ cmd.exe /c "pnpm --filter @bookjeok/server test"
 4. **Mock 기반 TossPaymentsService 단위 테스트 작성**.
 
 #### 검증 게이트:
+
 ```bash
 cmd.exe /c "pnpm --filter @bookjeok/server exec tsc --noEmit"
 cmd.exe /c "pnpm --filter @bookjeok/server test"
@@ -246,9 +270,11 @@ cmd.exe /c "pnpm --filter @bookjeok/server test"
 ---
 
 ### Phase 3: 배송 추적 & 스케줄러 자동화 (백엔드)
+
 > Delivery Tracker 연동 및 크론 잡 기반 자동 만료/확정/환불 처리
 
 #### 작업 명세:
+
 1. **DeliveryTrackerService 구현**:
    - 한국 주요 택배사(CJ대한통운, 롯데, 한진, 로젠, 우체국 등) 배송 상태 조회 API.
    - 배송 완료 여부 판별 유틸.
@@ -262,6 +288,7 @@ cmd.exe /c "pnpm --filter @bookjeok/server test"
 3. **스케줄러 단위 테스트 작성**.
 
 #### 검증 게이트:
+
 ```bash
 cmd.exe /c "pnpm --filter @bookjeok/server exec tsc --noEmit"
 cmd.exe /c "pnpm --filter @bookjeok/server test"
@@ -270,9 +297,11 @@ cmd.exe /c "pnpm --filter @bookjeok/server test"
 ---
 
 ### Phase 4: 거래 후기 시스템 (백엔드)
+
 > 구매확정 후 판매자에 대한 평가 및 태그 기반 통계 집계
 
 #### 작업 명세:
+
 1. **에러 코드 등록**:
    - `TRADE_REVIEW_ALREADY_EXISTS`, `TRADE_REVIEW_EXPIRED`(14일 초과), `TRADE_REVIEW_FORBIDDEN` 등.
 2. **TradeReviewService 구현**:
@@ -285,6 +314,7 @@ cmd.exe /c "pnpm --filter @bookjeok/server test"
 4. **TradeReviewService 단위 테스트 작성**.
 
 #### 검증 게이트:
+
 ```bash
 cmd.exe /c "pnpm --filter @bookjeok/server exec tsc --noEmit"
 cmd.exe /c "pnpm --filter @bookjeok/server test"
@@ -293,9 +323,11 @@ cmd.exe /c "pnpm --filter @bookjeok/server test"
 ---
 
 ### Phase 5: 알림 및 채팅 시스템 메시지 통합 (백엔드)
+
 > 거래 상태 변경에 따른 11종 알림 발행 및 채팅방 시스템 메시지 전송
 
 #### 작업 명세:
+
 1. **NotificationType 확장**:
    - `BUYER_SELECTED`, `OTHER_BUYER_TRADING`, `PAYMENT_COMPLETED`, `PAYMENT_EXPIRED`, `SHIPPING_STARTED`, `DELIVERY_COMPLETED`, `AUTO_CONFIRM_IMMINENT`, `PURCHASE_CONFIRMED`, `ORDER_CANCELLED`, `SHIPPING_DEADLINE_IMMINENT`, `TRADE_REVIEW_RECEIVED`.
 2. **알림 전략 및 이벤트 리스너 구현**:
@@ -306,6 +338,7 @@ cmd.exe /c "pnpm --filter @bookjeok/server test"
 4. **알림 및 채팅 발송 단위 테스트 작성**.
 
 #### 검증 게이트:
+
 ```bash
 cmd.exe /c "pnpm --filter @bookjeok/server exec tsc --noEmit"
 cmd.exe /c "pnpm --filter @bookjeok/server test"
@@ -314,9 +347,11 @@ cmd.exe /c "pnpm --filter @bookjeok/server test"
 ---
 
 ### Phase 6: 공유 패키지 계약 (Contract) 업데이트
+
 > `@bookjeok/core`, `@bookjeok/api-client`, `@bookjeok/react-query` 동기화
 
 #### 작업 명세:
+
 1. **`@bookjeok/core`**:
    - `packages/core/src/features/order/types.ts`: `OrderStatus`, `TradeMethod`, `TradeReviewTag`, `Order`(`id: string` PK), `TradeReview`(`orderId: string`), `SellerTradeStats`, 요청/응답 인터페이스 (모든 식별자는 `orderId: string` 기준).
    - `packages/core/src/features/book-sale/types.ts`: `UsedBookSale` 및 `CreateBookSaleParams`에 `tradeMethod` 필드 추가.
@@ -334,6 +369,7 @@ cmd.exe /c "pnpm --filter @bookjeok/server test"
    - `packages/react-query/src/index.ts`: export 등록.
 
 #### 검증 게이트:
+
 ```bash
 cmd.exe /c "pnpm --filter @bookjeok/core build"
 cmd.exe /c "pnpm --filter @bookjeok/api-client build"
@@ -344,9 +380,11 @@ cmd.exe /c "pnpm --filter @bookjeok/web exec tsc --noEmit"
 ---
 
 ### Phase 7: 채팅 UI 거래 기능 (프론트엔드)
+
 > 채팅방 상단 거래 상태 배너, 시스템 메시지 카드, 구매자 선택 UI, 판매글 거래방식 선택
 
 #### 작업 명세:
+
 1. **경로 상수 등록 (`apps/web/src/shared/constants/paths.ts`)**:
    - `ORDER_PAYMENT`, `ORDER_DETAIL`, `MY_PURCHASES`, `MY_SALES_ORDERS` 등 라우트 상수 등록.
 2. **거래 상태 배너 (`TradeStatusBanner`)**:
@@ -359,6 +397,7 @@ cmd.exe /c "pnpm --filter @bookjeok/web exec tsc --noEmit"
    - 거래 방식(`tradeMethod`: 직거래만/택배만/둘 다) 라디오/선택 컴포넌트 추가 및 상세 화면 뱃지 표시.
 
 #### 검증 게이트:
+
 ```bash
 cmd.exe /c "pnpm --filter @bookjeok/web exec tsc --noEmit"
 cmd.exe /c "pnpm --filter @bookjeok/web test"
@@ -367,9 +406,11 @@ cmd.exe /c "pnpm --filter @bookjeok/web test"
 ---
 
 ### Phase 8: 결제 플로우 UI (프론트엔드)
+
 > 카카오 주소 입력, 주문서 페이지, 토스 SDK 결제창 연동, 결과 페이지
 
 #### 작업 명세:
+
 1. **배송지 입력 폼 (`AddressInput`) 및 스토리지 관리 (`order-storage.ts`)**:
    - `react-daum-postcode` 연동 우편번호/기본주소 검색 + 상세주소 및 수령인 정보 입력.
    - 모바일 외부 리디렉션 대응 `sessionStorage` + `localStorage` (24h TTL) 배송지 스냅샷 유실 방어.
@@ -381,6 +422,7 @@ cmd.exe /c "pnpm --filter @bookjeok/web test"
    - `fail/page.tsx`: 에러 메시지 표시 및 재시도 안내.
 
 #### 검증 게이트:
+
 ```bash
 cmd.exe /c "pnpm --filter @bookjeok/web exec tsc --noEmit"
 cmd.exe /c "pnpm --filter @bookjeok/web test"
@@ -389,9 +431,11 @@ cmd.exe /c "pnpm --filter @bookjeok/web test"
 ---
 
 ### Phase 9: 주문 관리 UI (프론트엔드)
+
 > 내 구매/판매 주문 목록, 주문 상세, 운송장 등록 및 분쟁 제기 모달
 
 #### 작업 명세:
+
 1. **내 주문 목록 페이지**:
    - `/my-page/purchases`: 구매 내역 카드 목록, 상태별 탭 필터.
    - `/my-page/sales-orders`: 판매 주문 내역 카드 목록, 배송지 확인 및 송장 입력 진입점.
@@ -404,6 +448,7 @@ cmd.exe /c "pnpm --filter @bookjeok/web test"
    - `DisputeModal`: 구매확정 거부 사유 입력.
 
 #### 검증 게이트:
+
 ```bash
 cmd.exe /c "pnpm --filter @bookjeok/web exec tsc --noEmit"
 cmd.exe /c "pnpm --filter @bookjeok/web test"
@@ -412,9 +457,11 @@ cmd.exe /c "pnpm --filter @bookjeok/web test"
 ---
 
 ### Phase 10: 거래 후기 UI (프론트엔드)
+
 > 후기 작성 폼, 프로필 거래 후기 탭, 판매자 신뢰 지표 표시
 
 #### 작업 명세:
+
 1. **거래 후기 작성 폼/모달 (`TradeReviewForm`)**:
    - 프리셋 태그(긍정/부정) 선택 칩 + 한 줄 텍스트 입력 textarea.
    - 구매확정 완료 시 자동 노출 또는 주문 상세에서 진입.
@@ -425,6 +472,7 @@ cmd.exe /c "pnpm --filter @bookjeok/web test"
    - 판매자 프로필 요약 카드에 거래 통계 신뢰 지표 추가.
 
 #### 검증 게이트:
+
 ```bash
 cmd.exe /c "pnpm --filter @bookjeok/web exec tsc --noEmit"
 cmd.exe /c "pnpm --filter @bookjeok/web test"
@@ -433,9 +481,11 @@ cmd.exe /c "pnpm --filter @bookjeok/web test"
 ---
 
 ### Phase 11: E2E 통합 검증 & 회귀 테스트
+
 > 전체 10대 핵심 시나리오 E2E 테스트 및 직거래 기능 회귀 검증
 
 #### 검증 시나리오:
+
 1. 정상 택배 거래 플로우 (글작성 → 채팅 → 구매자선택 → 결제 → 송장입력 → 배송완료 → 구매확정 → 후기).
 2. 24시간 미결제 자동 만료 → 판매글 `FOR_SALE` 복귀.
 3. 3일 미배송 자동 취소 및 환불.
@@ -446,6 +496,7 @@ cmd.exe /c "pnpm --filter @bookjeok/web test"
 8. 금액 위변조 및 동시 결제 시도 시 차단 검증.
 
 #### 최종 통합 검증 게이트:
+
 ```bash
 cmd.exe /c "pnpm --filter @bookjeok/core build"
 cmd.exe /c "pnpm --filter @bookjeok/api-client build"
@@ -458,9 +509,11 @@ cmd.exe /c "pnpm --filter @bookjeok/web test"
 ---
 
 ### Phase 12: 안전 배포 & 점진적 롤아웃 (Feature Flagging)
+
 > PG사 승인/사업자 등록 전 코드는 병합 및 배포하되 결제 접근은 완벽히 격리·차단
 
 #### 작업 명세:
+
 1. **환경변수 플래그 추가**:
    - `FEATURE_PAYMENT_ENABLED=false` (서버)
    - `NEXT_PUBLIC_FEATURE_PAYMENT_ENABLED=false` (웹)
@@ -478,4 +531,3 @@ cmd.exe /c "pnpm --filter @bookjeok/web test"
 4. **동작 검증**:
    - `FEATURE_PAYMENT_ENABLED=false` 환경에서 기존 직거래 등록, 채팅 중계, 방 나가기 플로우 100% 정상 작동 확인.
    - 모노레포 전체 패키지 빌드(`pnpm build`) 100% 성공 검증.
-

@@ -25,58 +25,58 @@ reading-log/
 
 ### 개인 독서 기록 (`/reading-logs`) — 전 구간 인증 필요
 
-| 메서드 | 경로 | 설명 |
-|---|---|---|
-| POST | `/` | 독서 기록 생성 |
-| GET | `/` | 월별 독서 기록 조회 (캘린더용) |
-| GET | `/list` | 커서 기반 목록 조회 (무한 스크롤) |
-| GET | `/stats` | 월간·연간 독서 통계 |
-| GET | `/settings` | 라운지 공개 설정 조회 |
-| PATCH | `/settings` | 라운지 공개 설정 변경 |
-| PATCH | `/:id` | 기록 수정 |
-| DELETE | `/:id` | 기록 삭제 |
+| 메서드 | 경로        | 설명                              |
+| ------ | ----------- | --------------------------------- |
+| POST   | `/`         | 독서 기록 생성                    |
+| GET    | `/`         | 월별 독서 기록 조회 (캘린더용)    |
+| GET    | `/list`     | 커서 기반 목록 조회 (무한 스크롤) |
+| GET    | `/stats`    | 월간·연간 독서 통계               |
+| GET    | `/settings` | 라운지 공개 설정 조회             |
+| PATCH  | `/settings` | 라운지 공개 설정 변경             |
+| PATCH  | `/:id`      | 기록 수정                         |
+| DELETE | `/:id`      | 기록 삭제                         |
 
 ### 독서 라운지 (`/reading-logs/lounge`) — 공개
 
-| 메서드 | 경로 | 설명 |
-|---|---|---|
-| GET | `/` | 라운지 피드 (커서 페이지네이션) |
-| GET | `/popular` | 최근 `LOUNGE_POPULAR_DAYS`일 기준 인기 도서 |
-| GET | `/active-readers` | 활동 중인 독자 목록 |
-| GET | `/book/:isbn/readers` | 특정 도서를 읽은 독자 목록 |
+| 메서드 | 경로                  | 설명                                        |
+| ------ | --------------------- | ------------------------------------------- |
+| GET    | `/`                   | 라운지 피드 (커서 페이지네이션)             |
+| GET    | `/popular`            | 최근 `LOUNGE_POPULAR_DAYS`일 기준 인기 도서 |
+| GET    | `/active-readers`     | 활동 중인 독자 목록                         |
+| GET    | `/book/:isbn/readers` | 특정 도서를 읽은 독자 목록                  |
 
 ## 3. 엔티티 — `ReadingLog` (`reading_logs`)
 
-| 컬럼 | 타입 | 설명 |
-|---|---|---|
-| `id` | `uuid` | PK |
-| `userId` | `number` | 작성자 (`onDelete: CASCADE`) |
-| `isbn` | `string` | 도서 ISBN |
-| `book` | `Book` | `eager` 관계 (`onDelete: SET NULL`) |
-| `date` | `date` | 독서 날짜 (`YYYY-MM-DD`) |
-| `memo` | `varchar(100)` | 한줄 메모 |
-| `createdAt` / `updatedAt` | `timestamptz` | |
+| 컬럼                      | 타입           | 설명                                |
+| ------------------------- | -------------- | ----------------------------------- |
+| `id`                      | `uuid`         | PK                                  |
+| `userId`                  | `number`       | 작성자 (`onDelete: CASCADE`)        |
+| `isbn`                    | `string`       | 도서 ISBN                           |
+| `book`                    | `Book`         | `eager` 관계 (`onDelete: SET NULL`) |
+| `date`                    | `date`         | 독서 날짜 (`YYYY-MM-DD`)            |
+| `memo`                    | `varchar(100)` | 한줄 메모                           |
+| `createdAt` / `updatedAt` | `timestamptz`  |                                     |
 
 > 도서 제목·표지·저자는 **컬럼으로 복제하지 않고** `Book` 관계로 조회합니다(`eager: true`). 도서 메타데이터가 갱신되면 과거 기록에도 자동 반영됩니다.
 
 ### 인덱스
 
-| 인덱스 | 용도 |
-|---|---|
-| `(isbn, date)` | 라운지 피드 — ISBN 그룹화 + 최신순 |
-| `(date)` | 라운지 인기작 — 최근 N일 스캔 |
-| `(userId, date)` | 개인 기록 조회 |
+| 인덱스           | 용도                               |
+| ---------------- | ---------------------------------- |
+| `(isbn, date)`   | 라운지 피드 — ISBN 그룹화 + 최신순 |
+| `(date)`         | 라운지 인기작 — 최근 N일 스캔      |
+| `(userId, date)` | 개인 기록 조회                     |
 
 세 인덱스 모두 실제 조회 경로에 맞춰 추가한 것입니다. 쿼리를 바꿀 때 함께 검토하세요.
 
 ## 4. 상수 (`constants.ts`)
 
-| 상수 | 값 | 용도 |
-|---|---|---|
-| `LOUNGE_PAGE_SIZE` | 20 | 피드 페이지 크기 |
-| `LOUNGE_MAX_READERS` | 5 | 도서별 노출 독자 수 |
-| `LOUNGE_POPULAR_COUNT` | 10 | 인기 도서 개수 |
-| `LOUNGE_POPULAR_DAYS` | 365 | 인기 집계 기간(일) |
+| 상수                   | 값  | 용도                |
+| ---------------------- | --- | ------------------- |
+| `LOUNGE_PAGE_SIZE`     | 20  | 피드 페이지 크기    |
+| `LOUNGE_MAX_READERS`   | 5   | 도서별 노출 독자 수 |
+| `LOUNGE_POPULAR_COUNT` | 10  | 인기 도서 개수      |
+| `LOUNGE_POPULAR_DAYS`  | 365 | 인기 집계 기간(일)  |
 
 ## 5. 핵심 로직
 
