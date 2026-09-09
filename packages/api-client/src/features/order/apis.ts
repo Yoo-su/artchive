@@ -11,21 +11,22 @@ import {
 } from "@bookjeok/core";
 
 import { privateApiClient, publicApiClient } from "../../client";
+import {
+  IdempotencyOptions,
+  withIdempotencyKey,
+} from "../../utils/idempotency";
 
 /**
  * 판매자가 구매자를 선택하여 주문을 생성합니다.
  */
 export const selectBuyer = async (
   params: CreateOrderParams,
-  options?: { idempotencyKey?: string },
+  options?: IdempotencyOptions,
 ): Promise<Order> => {
-  const config = options?.idempotencyKey
-    ? { headers: { "x-idempotency-key": options.idempotencyKey } }
-    : undefined;
   const { data } = await privateApiClient.post<Order>(
     API_PATHS.order.base,
     params,
-    config,
+    withIdempotencyKey(options),
   );
   return data;
 };
@@ -33,9 +34,13 @@ export const selectBuyer = async (
 /**
  * 결제 전 단계에서 판매자가 구매자 지정을 취소합니다.
  */
-export const cancelSelection = async (orderId: string): Promise<Order> => {
+export const cancelSelection = async (
+  orderId: string,
+  options?: IdempotencyOptions,
+): Promise<Order> => {
   const { data } = await privateApiClient.delete<Order>(
     API_PATHS.order.cancelSelection(orderId),
+    withIdempotencyKey(options),
   );
   return data;
 };
@@ -46,10 +51,12 @@ export const cancelSelection = async (orderId: string): Promise<Order> => {
 export const confirmPayment = async (
   orderId: string,
   params: ConfirmPaymentParams,
+  options?: IdempotencyOptions,
 ): Promise<Order> => {
   const { data } = await privateApiClient.post<Order>(
     API_PATHS.order.pay(orderId),
     params,
+    withIdempotencyKey(options),
   );
   return data;
 };
@@ -60,10 +67,12 @@ export const confirmPayment = async (
 export const registerShipping = async (
   orderId: string,
   params: RegisterShippingParams,
+  options?: IdempotencyOptions,
 ): Promise<Order> => {
   const { data } = await privateApiClient.post<Order>(
     API_PATHS.order.ship(orderId),
     params,
+    withIdempotencyKey(options),
   );
   return data;
 };
@@ -71,9 +80,14 @@ export const registerShipping = async (
 /**
  * 구매자가 배송 완료 후 구매를 확정합니다.
  */
-export const confirmPurchase = async (orderId: string): Promise<Order> => {
+export const confirmPurchase = async (
+  orderId: string,
+  options?: IdempotencyOptions,
+): Promise<Order> => {
   const { data } = await privateApiClient.post<Order>(
     API_PATHS.order.confirm(orderId),
+    undefined,
+    withIdempotencyKey(options),
   );
   return data;
 };
@@ -84,10 +98,12 @@ export const confirmPurchase = async (orderId: string): Promise<Order> => {
 export const disputeOrder = async (
   orderId: string,
   params: DisputeOrderParams,
+  options?: IdempotencyOptions,
 ): Promise<Order> => {
   const { data } = await privateApiClient.post<Order>(
     API_PATHS.order.dispute(orderId),
     params,
+    withIdempotencyKey(options),
   );
   return data;
 };
@@ -98,10 +114,12 @@ export const disputeOrder = async (
 export const cancelOrder = async (
   orderId: string,
   params?: CancelOrderParams,
+  options?: IdempotencyOptions,
 ): Promise<Order> => {
   const { data } = await privateApiClient.post<Order>(
     API_PATHS.order.cancel(orderId),
     params,
+    withIdempotencyKey(options),
   );
   return data;
 };

@@ -73,7 +73,15 @@ export class AuthService {
       socialLoginDto;
     const user = await this.userService.findByProviderId(provider, providerId);
 
-    if (user && !user.deletedAt) {
+    // 탈퇴 계정이면 여기서 끊는다. 지금은 withdraw()가 providerId를
+    // `deleted_{id}_{ts}`로 덮어써 위 조회가 탈퇴 계정을 찾지 못하지만,
+    // 그 익명화에 기대면 아래 신규 생성 경로로 흘러 (provider, providerId)
+    // 유니크 제약을 때린다. 조건이 아니라 분기로 막아 둔다.
+    if (user?.deletedAt) {
+      throw new BusinessException('WITHDRAWN_USER', HttpStatus.UNAUTHORIZED);
+    }
+
+    if (user) {
       return user;
     }
 

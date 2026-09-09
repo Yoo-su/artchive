@@ -70,6 +70,19 @@ export function relevanceCaseSql(
 }
 
 /**
+ * 아직 오지 않은 출간일을 뒤로 미는 정렬 키입니다.
+ *
+ * `books`에는 예약 판매 도서의 미래 출간일이 22건 있습니다(최대 2030-12-31).
+ * 그냥 pubDate DESC로 두면 신간순 1페이지를 이것들이 통째로 차지합니다.
+ * 걸러내지 않고 뒤로만 미는 이유는 예약 판매도 정상 도서라 검색 결과에서
+ * 사라지면 안 되기 때문입니다.
+ *
+ * NULLS LAST를 빼면 pubDate가 없는 276건이 Postgres 기본값(DESC → NULLS FIRST)
+ * 때문에 맨 앞으로 올라옵니다.
+ */
+const PUBLISHED_FIRST_SQL = 'book."pubDate" <= CURRENT_DATE';
+
+/**
  * 자체 DB 공급처 어댑터.
  *
  * 이미 적재된 `books`를 공급처처럼 다룹니다. 외부 공급처가 죽어도 우리가 가진
@@ -95,7 +108,7 @@ export class LocalDbBookCatalogProvider implements BookCatalogProvider {
 
   /**
    * 자체 DB에서 도서를 검색합니다.
-   * - sort='date': 출간일 최신순 (pubDate DESC NULLS LAST)
+   * - sort='date': 출간일 최신순 (예약 판매분은 뒤로, pubDate DESC NULLS LAST)
    * - sort='sim' (기본): 관련도 순 (완전/접두/부분일치) -> 판매지수(salesPoint) 순
    * @param params 검색 조건
    * @returns 정규화된 검색 결과
@@ -123,7 +136,8 @@ export class LocalDbBookCatalogProvider implements BookCatalogProvider {
       });
 
     if (sort === 'date') {
-      qb.orderBy('book.pubDate', 'DESC', 'NULLS LAST')
+      qb.orderBy(PUBLISHED_FIRST_SQL, 'DESC', 'NULLS LAST')
+        .addOrderBy('book.pubDate', 'DESC', 'NULLS LAST')
         .addOrderBy('book.salesPoint', 'DESC', 'NULLS LAST')
         .addOrderBy('book.isbn', 'ASC');
     } else {

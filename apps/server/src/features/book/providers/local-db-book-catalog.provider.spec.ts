@@ -147,18 +147,25 @@ describe('LocalDbBookCatalogProvider 검색 규칙', () => {
         sort: 'date',
       });
 
+      // 예약 판매 도서(미래 출간일)가 1페이지를 차지하지 않도록 먼저 가른다.
       expect(qb.orderBy).toHaveBeenCalledWith(
-        'book.pubDate',
+        'book."pubDate" <= CURRENT_DATE',
         'DESC',
         'NULLS LAST',
       );
       expect(qb.addOrderBy).toHaveBeenNthCalledWith(
         1,
+        'book.pubDate',
+        'DESC',
+        'NULLS LAST',
+      );
+      expect(qb.addOrderBy).toHaveBeenNthCalledWith(
+        2,
         'book.salesPoint',
         'DESC',
         'NULLS LAST',
       );
-      expect(qb.addOrderBy).toHaveBeenNthCalledWith(2, 'book.isbn', 'ASC');
+      expect(qb.addOrderBy).toHaveBeenNthCalledWith(3, 'book.isbn', 'ASC');
     });
 
     /** 정렬이 흔들리면 OFFSET 페이지네이션에서 중복과 누락이 생긴다. */

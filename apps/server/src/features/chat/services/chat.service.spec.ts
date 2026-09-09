@@ -152,6 +152,19 @@ describe('ChatService', () => {
       );
     });
 
+    it('탈퇴 회원의 판매 완료(SOLD) 판매글도 채팅방을 열 수 없어야 합니다', async () => {
+      // 탈퇴 정리는 활성 판매글만 WITHDRAWN으로 내린다. SOLD는 그대로 남으므로
+      // 상태만 보면 이 경로가 열린다.
+      (usedBookSaleService.findSaleById as jest.Mock).mockResolvedValue({
+        user: { id: 2, isEmailVerified: true, deletedAt: new Date() },
+        status: SaleStatus.SOLD,
+      });
+
+      await expect(service.getChatRoom(1, 1)).rejects.toThrow(
+        BusinessException,
+      );
+    });
+
     it('판매자가 이메일 미인증 상태인 경우 EMAIL_NOT_VERIFIED 예외를 던져야 합니다', async () => {
       (usedBookSaleService.findSaleById as jest.Mock).mockResolvedValue({
         user: { id: 2, isEmailVerified: false },

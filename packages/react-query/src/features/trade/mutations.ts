@@ -24,6 +24,8 @@ import {
 } from "@bookjeok/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { useIdempotencyKeys } from "../../shared/use-idempotency-keys";
+
 /**
  * 판매글 상태·채팅방 배너·내 판매글 목록이 모두 바뀌므로 함께 비운다.
  */
@@ -44,10 +46,15 @@ export const useReserveSaleMutation = (options?: {
   onError?: (error: Error) => void;
 }) => {
   const queryClient = useQueryClient();
+  const { issue, release } = useIdempotencyKeys();
 
   return useMutation({
-    mutationFn: (params: ReserveSaleParams) => reserveSaleForBuyer(params),
-    onSuccess: (data) => {
+    mutationFn: (params: ReserveSaleParams) =>
+      reserveSaleForBuyer(params, {
+        idempotencyKey: issue(String(params.saleId)),
+      }),
+    onSuccess: (data, variables) => {
+      release(String(variables.saleId));
       options?.onSuccess?.(data);
     },
     onError: (error) => {
@@ -67,10 +74,13 @@ export const useCancelSaleReservationMutation = (options?: {
   onError?: (error: Error) => void;
 }) => {
   const queryClient = useQueryClient();
+  const { issue, release } = useIdempotencyKeys();
 
   return useMutation({
-    mutationFn: (saleId: number) => cancelSaleReservation(saleId),
-    onSuccess: (data) => {
+    mutationFn: (saleId: number) =>
+      cancelSaleReservation(saleId, { idempotencyKey: issue(String(saleId)) }),
+    onSuccess: (data, saleId) => {
+      release(String(saleId));
       options?.onSuccess?.(data);
     },
     onError: (error) => {
@@ -90,10 +100,15 @@ export const useCompleteDirectTradeMutation = (options?: {
   onError?: (error: Error) => void;
 }) => {
   const queryClient = useQueryClient();
+  const { issue, release } = useIdempotencyKeys();
 
   return useMutation({
-    mutationFn: (params: CompleteTradeParams) => completeDirectTrade(params),
-    onSuccess: (data) => {
+    mutationFn: (params: CompleteTradeParams) =>
+      completeDirectTrade(params, {
+        idempotencyKey: issue(String(params.saleId)),
+      }),
+    onSuccess: (data, variables) => {
+      release(String(variables.saleId));
       options?.onSuccess?.(data);
     },
     onError: (error) => {
