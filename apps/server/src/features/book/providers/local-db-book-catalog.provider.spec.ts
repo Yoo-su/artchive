@@ -136,6 +136,31 @@ describe('LocalDbBookCatalogProvider 검색 규칙', () => {
       expect(keys).not.toContain('book.viewCount');
     });
 
+    it('sort="date"일 때는 출간일(pubDate) 최신순으로 정렬한다', async () => {
+      const { qb, provider } = searchWithSpy();
+
+      await provider.search({
+        query: '사랑',
+        display: 10,
+        start: 1,
+        field: 'Keyword',
+        sort: 'date',
+      });
+
+      expect(qb.orderBy).toHaveBeenCalledWith(
+        'book.pubDate',
+        'DESC',
+        'NULLS LAST',
+      );
+      expect(qb.addOrderBy).toHaveBeenNthCalledWith(
+        1,
+        'book.salesPoint',
+        'DESC',
+        'NULLS LAST',
+      );
+      expect(qb.addOrderBy).toHaveBeenNthCalledWith(2, 'book.isbn', 'ASC');
+    });
+
     /** 정렬이 흔들리면 OFFSET 페이지네이션에서 중복과 누락이 생긴다. */
     it('isbn으로 순서를 확정한다', async () => {
       const { qb, provider } = searchWithSpy();

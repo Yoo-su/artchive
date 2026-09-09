@@ -8,6 +8,7 @@ import {
   Post,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -17,6 +18,7 @@ import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { User } from '@/features/user/entities/user.entity';
 import { ActivityType } from '@/shared/activity/activity-type.enum';
 import { TrackActivity } from '@/shared/activity/decorators/track-activity.decorator';
+import { IdempotencyInterceptor } from '@/shared/interceptors/idempotency.interceptor';
 
 import { CompleteTradeDto } from '../dtos/complete-trade.dto';
 import { QueryMyCompletionsDto } from '../dtos/query-my-completions.dto';
@@ -39,6 +41,7 @@ export class TradeCompletionController {
 
   @Post('sales/:saleId/reservation')
   @UseGuards(EmailVerifiedGuard)
+  @UseInterceptors(IdempotencyInterceptor)
   @TrackActivity(ActivityType.SALE_STATUS_CHANGE, (req) => ({
     id: req.params.saleId,
     status: 'RESERVED',
@@ -66,6 +69,7 @@ export class TradeCompletionController {
   }
 
   @Delete('sales/:saleId/reservation')
+  @UseInterceptors(IdempotencyInterceptor)
   @TrackActivity(ActivityType.SALE_STATUS_CHANGE, (req) => ({
     id: req.params.saleId,
     status: 'FOR_SALE',
@@ -85,6 +89,7 @@ export class TradeCompletionController {
 
   @Post('sales/:saleId/completion')
   @UseGuards(EmailVerifiedGuard)
+  @UseInterceptors(IdempotencyInterceptor)
   @TrackActivity(ActivityType.SALE_STATUS_CHANGE, (req) => ({
     id: req.params.saleId,
     status: 'SOLD',

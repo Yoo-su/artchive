@@ -95,17 +95,15 @@ export class LocalDbBookCatalogProvider implements BookCatalogProvider {
 
   /**
    * 자체 DB에서 도서를 검색합니다.
-   *
-   * params.sort는 아직 사용하지 않습니다. `books.pubDate`는 2026-09-09에 값이
-   * 채워졌으므로(커버리지 99.5%) 이제 sort='date'를 `pubDate DESC NULLS LAST`로
-   * 연결할 수 있습니다. createdAt은 적재 시각이라 대신 쓸 수 없습니다.
+   * - sort='date': 출간일 최신순 (pubDate DESC NULLS LAST)
+   * - sort='sim' (기본): 관련도 순 (완전/접두/부분일치) -> 판매지수(salesPoint) 순
    * @param params 검색 조건
    * @returns 정규화된 검색 결과
    */
   async search(
     params: BookCatalogSearchParams,
   ): Promise<BookCatalogSearchResult> {
-    const { query, display, start, field } = params;
+    const { query, display, start, field, sort } = params;
     // 공백만 있는 검색어를 통과시키면 ILIKE '% %'가 되어 공백이 든 모든 도서가
     // 매칭된다(실측 57,577행 / 카운트에만 3초). 빈 문자열 검사로는 못 막는다.
     const trimmed = query?.trim() ?? '';
@@ -116,22 +114,25 @@ export class LocalDbBookCatalogProvider implements BookCatalogProvider {
     const columns = searchColumnsFor(field);
     const escaped = escapeLike(trimmed);
 
-    const [books, total] = await this.bookRepository
+    const qb = this.bookRepository
       .createQueryBuilder('book')
       .where(columns.map((c) => `book.${c} ILIKE :like`).join(' OR '), {
         like: `%${escaped}%`,
         prefix: `${escaped}%`,
         exact: escaped,
-      })
-      // 정렬이 없으면 순서가 보장되지 않아 OFFSET 페이지네이션에서 중복과 누락이
-      // 생긴다. isbn까지 걸어 순서를 확정한다.
-      .orderBy(relevanceCaseSql('book', columns), 'ASC')
-      // 같은 관련도 안에서는 판매지수로 가른다. 흔한 키워드는 대부분 한 버킷에
-      // 뭉치므로("사랑" 제목 부분일치만 791건) 이 두 번째 키가 사실상 체감 순서를
-      // 결정한다. 전에 쓰던 viewCount는 도서의 75%가 0이고 나머지도 크롤러 흔적이라
-      // 스테디셀러가 오히려 바닥에 깔렸다. NULLS LAST로 미수확분을 뒤로 보낸다.
-      .addOrderBy('book.salesPoint', 'DESC', 'NULLS LAST')
-      .addOrderBy('book.isbn', 'ASC')
+      });
+
+    if (sort === 'date') {
+      qb.orderBy('book.pubDate', 'DESC', 'NULLS LAST')
+        .addOrderBy('book.salesPoint', 'DESC', 'NULLS LAST')
+        .addOrderBy('book.isbn', 'ASC');
+    } else {
+      qb.orderBy(relevanceCaseSql('book', columns), 'ASC')
+        .addOrderBy('book.salesPoint', 'DESC', 'NULLS LAST')
+        .addOrderBy('book.isbn', 'ASC');
+    }
+
+    const [books, total] = await qb
       .skip(Math.max(start - 1, 0))
       .take(display)
       .getManyAndCount();

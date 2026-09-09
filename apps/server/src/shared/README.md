@@ -86,7 +86,7 @@ exceptions/
 서비스 계층에서는 `HttpException`을 직접 던지지 않고 **항상** `BusinessException`을 사용합니다.
 
 ```typescript
-throw new BusinessException(ERROR_CODES.SALE_NOT_FOUND);
+throw new BusinessException('SALE_NOT_FOUND', HttpStatus.NOT_FOUND);
 ```
 
 `ERROR_CODES`는 도메인 프리픽스로 묶여 있습니다 — `AUTH_xxx`, `USER_xxx`, `BOOK_xxx`, `SALE_xxx`, `ORDER_xxx`, `REVIEW_xxx`, `COMMENT_xxx`, `CHAT_xxx`, `VALIDATION_xxx`, `INTERNAL_xxx`. 각 항목은 `{ code, message }` 형태이며, 프론트는 `code`로 분기하고 `message`를 그대로 노출할 수 있습니다.
@@ -114,11 +114,11 @@ throw new BusinessException(ERROR_CODES.SALE_NOT_FOUND);
 
 `x-idempotency-key` 헤더가 없으면 그대로 통과합니다. 헤더가 있으면:
 
-1. `idempotency:{key}`에 `processing` 락을 10분 TTL로 설정
-2. 이미 `processing`이면 → `409 이미 처리 중인 요청입니다.`
-3. 이미 완료 상태면 → `409 이미 처리 완료된 요청입니다.`
+1. `idempotency:{userId}:{key}`에 `processing` 락을 10분 TTL로 설정
+2. 이미 `processing`이면 → `409 REQUEST_IN_PROGRESS (이미 처리 중인 요청)`
+3. 이미 `completed` 완료 상태면 → **최초 응답 객체를 그대로 캐시에서 반환** (중복 실행 방지 및 안전한 재시도 지원)
 
-결제처럼 재시도가 곧 이중 과금이 되는 경로에 적용합니다. CORS 허용 헤더에 `x-idempotency-key`가 포함되어 있습니다.
+결제·거래 확정 등 재시도가 부작용을 낳는 변경 엔드포인트에 적용합니다. CORS 허용 헤더에 `x-idempotency-key`가 포함되어 있습니다.
 
 ---
 

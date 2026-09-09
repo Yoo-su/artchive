@@ -10,6 +10,7 @@ import {
   Post,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -17,6 +18,7 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { EmailVerifiedGuard } from '@/features/auth/guards/email-verified.guard';
 import { CurrentUser } from '@/features/user/decorators/current-user.decorator';
 import { User } from '@/features/user/entities/user.entity';
+import { IdempotencyInterceptor } from '@/shared/interceptors/idempotency.interceptor';
 
 import { CancelOrderDto } from '../dtos/cancel-order.dto';
 import { ConfirmPaymentDto } from '../dtos/confirm-payment.dto';
@@ -36,6 +38,7 @@ export class OrderController {
 
   @Post()
   @UseGuards(EmailVerifiedGuard)
+  @UseInterceptors(IdempotencyInterceptor)
   @ApiOperation({
     summary: '구매자 선택 및 주문 생성',
     description:
@@ -53,6 +56,7 @@ export class OrderController {
   }
 
   @Delete(':id/selection')
+  @UseInterceptors(IdempotencyInterceptor)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '구매자 선택 취소',
@@ -68,6 +72,7 @@ export class OrderController {
 
   @Post(':id/pay')
   @UseGuards(EmailVerifiedGuard)
+  @UseInterceptors(IdempotencyInterceptor)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '결제 완료 처리',
@@ -87,6 +92,7 @@ export class OrderController {
   }
 
   @Post(':id/ship')
+  @UseInterceptors(IdempotencyInterceptor)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '운송장 등록 (배송 시작)',
@@ -106,6 +112,7 @@ export class OrderController {
   }
 
   @Post(':id/confirm')
+  @UseInterceptors(IdempotencyInterceptor)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '구매확정',
@@ -120,6 +127,7 @@ export class OrderController {
   }
 
   @Post(':id/dispute')
+  @UseInterceptors(IdempotencyInterceptor)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '구매확정 거부 (이의 제기)',
@@ -136,6 +144,7 @@ export class OrderController {
   }
 
   @Post(':id/cancel')
+  @UseInterceptors(IdempotencyInterceptor)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '주문 취소',

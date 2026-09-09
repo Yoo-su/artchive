@@ -6,6 +6,7 @@ import { DataSource, EntityManager, Repository } from 'typeorm';
 
 import { ChatParticipant } from '@/features/chat/entities/chat-participant.entity';
 import { Order, OrderStatus } from '@/features/order/entities/order.entity';
+import { ReadingLog } from '@/features/reading-log/entities/reading-log.entity';
 import { Review } from '@/features/review/entities/review.entity';
 import { TradeCompletion } from '@/features/trade/entities/trade-completion.entity';
 import { UsedBookSale } from '@/features/used-book-sale/entities/used-book-sale.entity';
@@ -65,6 +66,12 @@ describe('UserService', () => {
           useValue: {
             find: jest.fn().mockResolvedValue([]),
             findOne: jest.fn().mockResolvedValue(null),
+          },
+        },
+        {
+          provide: getRepositoryToken(ReadingLog),
+          useValue: {
+            find: jest.fn().mockResolvedValue([]),
           },
         },
         { provide: DataSource, useValue: { query: jest.fn() } },

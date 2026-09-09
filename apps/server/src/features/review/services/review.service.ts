@@ -40,10 +40,6 @@ export class ReviewService {
   /**
    * 리뷰를 생성합니다.
    *
-   * 도서는 여기서 만들지 않습니다. 앞단의 `BookResolvePipe`가 ISBN이 `books`에
-   * 있는지 확인하고, 없으면 404로 끊습니다. (2026-09-08 공급처 체인에서
-   * 알라딘을 제거하면서 지연 생성 경로가 사라졌습니다)
-   *
    * @param createReviewDto 리뷰 생성 DTO
    * @param userId 작성자 ID
    * @returns 생성된 리뷰

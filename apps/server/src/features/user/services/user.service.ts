@@ -40,6 +40,8 @@ export class UserService implements OnModuleInit {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(TradeCompletion)
     private readonly tradeCompletionRepository: Repository<TradeCompletion>,
+    @InjectRepository(ReadingLog)
+    private readonly readingLogRepository: Repository<ReadingLog>,
     private readonly dataSource: DataSource,
     private readonly txHost: TransactionHost<TransactionalAdapterTypeOrm>,
     private readonly eventEmitter: EventEmitter2,
@@ -411,7 +413,7 @@ export class UserService implements OnModuleInit {
    * 딸려 나옵니다. 프로필은 최근 것만 보여주므로 여기서 잘라냅니다.
    */
   private async getPublicReadingLogs(userId: number) {
-    return await this.dataSource.getRepository(ReadingLog).find({
+    return await this.readingLogRepository.find({
       where: {
         user: { id: userId },
       },
