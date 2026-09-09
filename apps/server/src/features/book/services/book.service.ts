@@ -56,15 +56,10 @@ export class BookService {
   /**
    * 인기 도서 목록을 조회합니다.
    *
-   * 인기도 = 조회수 + (독서기록 × 10) + (위시리스트 × 8) + (리뷰 × 5)
+   * 인기도 = (독서기록 × 10) + (위시리스트 × 8) + (리뷰 × 5) + ln(판매지수 + 1)
    *
-   * 활동 테이블 셋을 각각 GROUP BY로 먼저 압축한 뒤 LEFT JOIN합니다. 예전에는
-   * ORDER BY 안에서 상관 서브쿼리 3개를 돌렸는데, 그러면 후보 행마다 세 테이블을
-   * 다시 스캔합니다. 운영 실측에서 후보 14,236행 × 3 = 42,708회 스캔에 4.9초가
-   * 걸렸습니다. 지금 형태는 각 테이블을 한 번씩만 읽습니다.
-   *
-   * 활동 테이블이 도서 수(5만+)보다 훨씬 작아(수십~수백 행) 압축 결과도 작습니다.
-   * 그래서 조인 비용이 사실상 없습니다.
+   * 활동 테이블(독서기록, 위시리스트, 리뷰)을 사전에 집계하여 조인하고,
+   * 사용자 활동 신호와 정규화된 판매지수를 가중 합산하여 상위 도서를 선별합니다.
    *
    * @returns 인기도 상위 10권
    */
@@ -102,9 +97,12 @@ export class BookService {
         'rv',
         'rv.isbn = book.isbn',
       )
-      // 활동이 전혀 없고 조회수도 0인 도서는 순위에 오를 수 없다.
+      // 사용자 활동도 없고 판매 실적도 없는 도서는 순위에 오를 수 없다.
+      // viewCount를 조건에서 뺀 이유는 그 값이 대부분 크롤러 흔적이기 때문이다.
+      // 대신 salesPoint를 넣지 않으면 도서의 75%(viewCount 0)가 후보에서 통째로
+      // 빠진다.
       .where(
-        'book.viewCount > 0 OR rl.isbn IS NOT NULL OR wl.isbn IS NOT NULL OR rv.isbn IS NOT NULL',
+        'book.salesPoint > 0 OR rl.isbn IS NOT NULL OR wl.isbn IS NOT NULL OR rv.isbn IS NOT NULL',
       )
       .select([
         'book.isbn AS isbn',
@@ -115,19 +113,27 @@ export class BookService {
         'book.description AS description',
         'book.image AS image',
         'book.pubDate AS "pubDate"',
+        'book.salesPoint AS "salesPoint"',
         'COALESCE(book.viewCount, 0) AS "viewCount"',
         'book.createdAt AS "createdAt"',
         'book.updatedAt AS "updatedAt"',
       ])
+      // 우리 사용자의 활동을 시장 인기도보다 위에 둔다. 여기는 독서 커뮤니티라
+      // 누가 실제로 읽고 담고 쓴 책이 곧 인기책이다.
+      //
+      // 판매지수는 0~6만 범위라 그대로 더하면 활동 신호를 완전히 덮어버린다.
+      // 자연로그를 씌우면 0~11로 눌려서, 최다 판매 도서 한 권이 독서기록 한 건과
+      // 비슷한 무게가 된다. 활동이 있는 도서가 140종뿐인 현재 분포에서, 나머지
+      // 5만여 권의 순서를 판매지수가 가른다.
       .addSelect(
-        `COALESCE(book."viewCount", 0)
-         + COALESCE(rl.cnt, 0) * 10
+        `COALESCE(rl.cnt, 0) * 10
          + COALESCE(wl.cnt, 0) * 8
-         + COALESCE(rv.cnt, 0) * 5`,
+         + COALESCE(rv.cnt, 0) * 5
+         + LN(COALESCE(book."salesPoint", 0) + 1)`,
         'popularity',
       )
       .orderBy('popularity', 'DESC')
-      .addOrderBy('"viewCount"', 'DESC')
+      .addOrderBy('book.salesPoint', 'DESC', 'NULLS LAST')
       // 동점일 때 순서가 흔들리지 않도록 고정한다.
       .addOrderBy('book.isbn', 'ASC')
       .limit(10)
@@ -142,6 +148,7 @@ export class BookService {
       description: raw.description,
       image: raw.image,
       pubDate: raw.pubDate ?? null,
+      salesPoint: raw.salesPoint ?? null,
       viewCount: Number(raw.viewCount) || 0,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,

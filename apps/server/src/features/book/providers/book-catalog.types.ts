@@ -51,9 +51,7 @@ export interface BookCatalogSearchResult {
 export const BOOK_SEARCH_PROVIDERS = Symbol('BOOK_SEARCH_PROVIDERS');
 
 /**
- * 상세(ISBN 단건) 공급처 체인 주입 토큰. 검색 체인과 순서가 다릅니다.
- * 상세는 자체 DB에 있으면 그것이 정답이지만, 검색은 자체 DB를 앞에 두면 신간이
- * 결과에서 빠집니다. 한 체인으로 묶으면 둘 중 하나가 손해를 봅니다.
- * 순서는 book.module.ts에서 정합니다.
+ * 상세(ISBN 단건) 공급처 체인 주입 토큰.
+ * 등록 및 체인 순서는 `book.module.ts`에서 관리합니다.
  */
 export const BOOK_DETAIL_PROVIDERS = Symbol('BOOK_DETAIL_PROVIDERS');

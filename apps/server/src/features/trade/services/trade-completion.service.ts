@@ -80,6 +80,13 @@ export class TradeCompletionService {
     const manager = this.txHost.tx;
     const sale = await this.loadSellerSale(saleId, sellerId);
 
+    if (await this.hasActiveOrder(saleId)) {
+      throw new BusinessException(
+        'SALE_IN_TRADE_CANNOT_CHANGE_STATUS',
+        HttpStatus.CONFLICT,
+      );
+    }
+
     if (sale.status === SaleStatus.SOLD) {
       throw new BusinessException('SALE_ALREADY_SOLD', HttpStatus.CONFLICT);
     }
@@ -144,6 +151,13 @@ export class TradeCompletionService {
   ): Promise<{ sale: UsedBookSale; previousBuyerId: number | null }> {
     const manager = this.txHost.tx;
     const sale = await this.loadSellerSale(saleId, sellerId);
+
+    if (await this.hasActiveOrder(saleId)) {
+      throw new BusinessException(
+        'SALE_IN_TRADE_CANNOT_CHANGE_STATUS',
+        HttpStatus.CONFLICT,
+      );
+    }
 
     if (sale.status !== SaleStatus.RESERVED) {
       throw new BusinessException('SALE_NOT_RESERVED', HttpStatus.BAD_REQUEST);

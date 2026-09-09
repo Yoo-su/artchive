@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { EntityManager } from 'typeorm';
+import { EntityManager, In } from 'typeorm';
 
 import { SaleStatus, UsedBookSale } from '../entities/used-book-sale.entity';
 
@@ -9,7 +9,8 @@ export class UsedBookSaleCleanupListener {
   private readonly logger = new Logger(UsedBookSaleCleanupListener.name);
 
   /**
-   * 유저 탈퇴 시 해당 유저의 중고책 판매글 상태를 WITHDRAWN(탈퇴숨김)으로 일괄 업데이트합니다.
+   * 유저 탈퇴 시 해당 유저의 활성 판매글(판매중, 예약중)을 WITHDRAWN(탈퇴숨김)으로 업데이트합니다.
+   * 이미 판매 완료(SOLD)된 내역은 구매자의 거래 기록 및 통계 보존을 위해 유지합니다.
    */
   @OnEvent('user.withdrawn')
   async handleUserWithdrawn(event: {
@@ -21,8 +22,14 @@ export class UsedBookSaleCleanupListener {
     try {
       await entityManager.update(
         UsedBookSale,
-        { user: { id: userId } },
-        { status: SaleStatus.WITHDRAWN },
+        {
+          user: { id: userId },
+          status: In([SaleStatus.FOR_SALE, SaleStatus.RESERVED]),
+        },
+        {
+          status: SaleStatus.WITHDRAWN,
+          reservedForUserId: null,
+        },
       );
     } catch (error) {
       this.logger.error(

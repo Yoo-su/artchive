@@ -47,7 +47,8 @@ export class BookController {
   @Get('popular')
   @ApiOperation({
     summary: '인기책 조회',
-    description: '조회수, 판매글, 리뷰 데이터 기반 인기책 목록을 조회합니다.',
+    description:
+      '독서기록, 위시리스트, 리뷰, 판매지수 데이터 기반 인기책 목록을 조회합니다.',
   })
   @ApiResponse({ status: 200, description: '인기책 목록을 반환합니다.' })
   async getPopularBooks() {

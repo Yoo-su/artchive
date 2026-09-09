@@ -41,6 +41,8 @@ DDL_TARGET_DATABASE_URL=postgres://user:pass@localhost:5432/bookjeok_ddl   pnpm 
 | 2026-09-07 | `books` 검색용 pg_trgm GIN 인덱스 3개 추가 | (미커밋) |
 | 2026-09-08 | `books.pubDate` 컬럼 추가 (출간일) | `026abfd5` |
 | 2026-09-09 | 위 컬럼 값 채움 + `books.discount` 판매가 → 정가 (DDL 아님, 데이터 반영) | (스크립트) |
+| 2026-09-09 | `books.salesPoint` 컬럼 추가 (알라딘 판매지수) | (미커밋) |
+| 2026-09-09 | `reading_logs.isbn` 외래키 추가 (누락돼 있던 제약) | (미커밋) |
 
 현재 운영에 남아 있는 채팅 인덱스는 **4개**입니다
 (`idx_read_receipts_message`는 테이블과 함께 사라졌습니다).
@@ -498,3 +500,171 @@ ALTER TABLE books DROP COLUMN "pubDate";
 
 `discount`를 판매가로 되돌리려면 `~/bookjeok-migration/data/harvest.jsonl`의 각 줄에
 반영 전 값이 `dbDiscount`로 보존돼 있습니다.
+
+## 6. `books.salesPoint` 컬럼 추가 (2026-09-09)
+
+### 배경
+
+자체 DB 검색으로 전환한 뒤 "키워드는 맞는데 스테디셀러가 안 나온다"는 문제가
+있었습니다. 원인을 실측했더니 랭킹 알고리즘이 아니라 **인기도 신호의 부재**였습니다.
+
+검색 정렬은 `관련도 버킷 → viewCount DESC → isbn`인데, 흔한 키워드는 대부분 한
+버킷에 뭉치므로("사랑" 제목 부분일치만 791건) **`viewCount`가 사실상 체감 순서를
+결정**하고 있었습니다. 그런데 그 값은 신호가 아닙니다.
+
+| 항목 | 값 |
+| --- | --- |
+| `viewCount` 0인 도서 | **43,001 / 56,836 (75.7%)** |
+| 평균 · 최대 | 0.60 · 381 |
+| 참여 신호가 있는 도서 | 독서기록 37 · 위시리스트 32 · 리뷰 71 · 판매글 27 (**전체의 0.1%**) |
+
+값이 있는 것도 대부분 크롤러가 연관도서 링크를 타고 다닌 흔적입니다
+(`book-data-migration-plan.md` 7-b에서 규명한 경로). 참여 신호로 보정하는 것도
+0.1%에만 닿아 불가능했습니다.
+
+"사랑" 접두일치 251건을 전량 조회해 대조한 결과는 아래와 같습니다.
+**현재 랭킹이 인기도와 음의 상관**이었습니다.
+
+| 현재 상위 | 판매지수 | | 판매지수 상위 | 조회수 |
+| --- | --- | --- | --- | --- |
+| 사랑이 있는 곳에 신이 있다 | 30 | | 사랑해 사랑해 사랑해 | 1 |
+| 사랑의 메신저 | 27 | | 사랑의 기술 (에리히 프롬) | 1 |
+| 사랑에 관하여 | 121 | | 사랑을 무게로 안 느끼게 (박완서) | 0 |
+
+알라딘 `ItemLookUp`이 `salesPoint`를 주고 **2026-10-30 이후에는 받을 수 없으므로**,
+정가·출간일과 같은 이유로 지금 컬럼을 만들고 수확했습니다.
+
+### 적용한 DDL
+
+```sql
+ALTER TABLE books ADD COLUMN "salesPoint" integer;
+```
+
+`pubDate`와 같이 nullable 컬럼 추가라 테이블 재작성이 없는 메타데이터 변경입니다.
+운영 중에 적용해도 락이 걸리지 않습니다.
+
+**nullable인 이유가 pubDate와 다릅니다.** `0`은 "판매 실적 없음"이라는 알라딘의
+**실제 값**이고, `NULL`은 "수확하지 못함"입니다. 둘은 뜻이 달라 구분해야 합니다.
+검색 정렬에서 `NULLS LAST`로 미수확분만 뒤로 보냅니다.
+
+> `pubDate`와 마찬가지로 `derive-ddl.ts`를 쓰지 않고 손으로 썼습니다. 제약도
+> 인덱스도 없는 nullable 컬럼 하나라 TypeORM이 만들 이름과 어긋날 여지가
+> 없습니다. **제약이나 인덱스가 붙는 DDL에는 이 예외를 적용하지 마세요.**
+
+### 엔티티
+
+```ts
+@Column({ type: 'int', nullable: true })
+salesPoint?: number | null;
+```
+
+`pubDate`와 같은 이유로 옵셔널입니다. `findPopularBooks()`가 raw 결과를 `Book[]`로
+캐스팅하고 있어 필수로 두면 그 지점이 타입 에러가 납니다.
+
+### 배포 순서 주의
+
+**DDL을 배포보다 먼저 적용해야 합니다.** 엔티티에 컬럼이 있는데 DB에 없으면
+TypeORM이 만드는 SELECT에 `"salesPoint"`가 들어가 도서 조회가 전부 실패합니다.
+2026-09-09에 DDL을 먼저 적용했습니다.
+
+### 값 채우기
+
+`~/bookjeok-migration/scripts/harvest-aladin.mjs`가 `salesPoint`·`customerReviewRank`·
+`categoryName`을 함께 수확하고, `apply-harvest.mjs`가 `salesPoint`만 DB에
+반영합니다. 나머지 둘은 지금 쓸 데가 없지만 **재수확이 불가능하므로** 수확
+JSONL에는 남겨 둡니다. 나중에 필요해지면 재조회 없이 그 파일에서 채우면 됩니다.
+
+### 되돌리기
+
+```sql
+ALTER TABLE books DROP COLUMN "salesPoint";
+```
+
+**알라딘 종료 이후에는 다시 받을 수 없습니다.** 컬럼을 지우지 말고, 값만 비우려면
+`UPDATE books SET "salesPoint" = NULL`을 쓰세요. 수확 JSONL
+(`~/bookjeok-migration/data/harvest-v2/harvest.jsonl`)에서 언제든 다시 채울 수 있습니다.
+
+## 7. `reading_logs.isbn` 외래키 추가 (2026-09-09)
+
+### 배경
+
+`books`를 참조하는 컬럼 다섯 중 **`reading_logs`만 외래키가 없었습니다.**
+
+| 테이블 | isbn NULL 허용 | 삭제 규칙 |
+| --- | --- | --- |
+| `ai_book_summaries` | NO | CASCADE |
+| `reviews` | YES | NO ACTION |
+| `used_book_sales` | YES | SET NULL |
+| `wishlists` | YES | CASCADE |
+| **`reading_logs`** | **NO** | **제약 없음** ← |
+
+엔티티는 `onDelete: 'SET NULL'`로 선언돼 있었는데 `isbn` 컬럼이 NOT NULL이라
+**성립할 수 없는 조합**이었습니다. 운영에 제약이 아예 없어서 그 모순이 드러나지
+않고 있었습니다.
+
+2026-09-09에 표지 없는 도서 622건을 지울 때 참조 여부를 **사람이 손으로 세서**
+확인해야 했습니다. 제약이 있었으면 DB가 막아줬을 일입니다.
+
+### 삭제 규칙을 NO ACTION으로 정한 이유
+
+독서기록은 사용자가 직접 남긴 기록이라 도서 행이 사라진다고 조용히 끊기거나
+사라지면 안 됩니다. `reviews`와 같은 규칙이며, `isbn`을 NOT NULL로 둔 현재
+설계와도 모순이 없습니다.
+
+`SET NULL`로 가려면 컬럼을 nullable로 바꾸는 DDL이 추가로 필요하고, `book`
+관계가 `eager: true`라 서버·웹 양쪽에 null 처리를 넣어야 합니다. 얻는 것에 비해
+작업이 큽니다.
+
+### 적용한 DDL
+
+```sql
+-- 고아 행이 있으면 실패한다. 적용 직전에 0건임을 확인했다(49행 중 0건).
+ALTER TABLE reading_logs
+  ADD CONSTRAINT "FK_reading_logs_isbn"
+  FOREIGN KEY (isbn) REFERENCES books(isbn)
+  ON DELETE NO ACTION ON UPDATE NO ACTION
+  NOT VALID;
+
+ALTER TABLE reading_logs VALIDATE CONSTRAINT "FK_reading_logs_isbn";
+```
+
+`NOT VALID`로 먼저 걸고 검증을 분리한 이유는 `ADD CONSTRAINT`가 참조 대상인
+`books`(56,836행)에도 락을 잡기 때문입니다. `reading_logs`가 49행뿐이라 실익은
+작지만, **운영 DB에 외래키를 거는 기본 절차로 둡니다.** 큰 테이블에서는 이 차이가
+장애와 무장애를 가릅니다.
+
+적용 후 `pg_constraint.convalidated = true`를 확인했습니다.
+
+### 엔티티
+
+```ts
+@ManyToOne(() => Book)
+@JoinColumn({ name: 'isbn' })
+book: Book;
+```
+
+`onDelete` 옵션을 제거해 기본값(NO ACTION)이 되게 했습니다. 선언과 운영 스키마가
+이제 일치합니다.
+
+> **개발 DB 주의.** 개발 환경은 `synchronize: true`라 이 변경으로 FK를 다시
+> 만들려 합니다. `reading_logs`에 `books`에 없는 isbn이 남아 있으면 제약 생성이
+> 실패해 서버가 뜨지 않습니다. 아래로 확인하고 정리한 뒤 띄우세요.
+>
+> ```sql
+> SELECT r.isbn FROM reading_logs r
+> WHERE NOT EXISTS (SELECT 1 FROM books b WHERE b.isbn = r.isbn);
+> ```
+
+### 배포 순서
+
+**DDL이 먼저입니다.** 다만 이번 건은 코드가 먼저 나가도 깨지지 않습니다.
+제약은 DB 차원의 방어일 뿐이고 쿼리 모양이 바뀌지 않기 때문입니다.
+
+### 되돌리기
+
+```sql
+ALTER TABLE reading_logs DROP CONSTRAINT "FK_reading_logs_isbn";
+```
+
+데이터 손실이 없습니다. 되돌리면 도서 삭제 시 독서기록이 다시 조용히 고아가
+될 수 있는 상태로 돌아갈 뿐입니다.

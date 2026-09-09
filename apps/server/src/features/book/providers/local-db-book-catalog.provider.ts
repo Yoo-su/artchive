@@ -95,18 +95,15 @@ export class LocalDbBookCatalogProvider implements BookCatalogProvider {
 
   /**
    * 자체 DB에서 도서를 검색합니다.
-   *
-   * params.sort는 아직 사용하지 않습니다. `books.pubDate`를 2026-09-08에
-   * 추가했지만 값이 아직 비어 있어(수확 스크립트가 채우는 중) 출간일순 정렬을
-   * 켤 수 없습니다. 값이 채워지면 sort='date'를 pubDate DESC로 연결하세요.
-   * createdAt은 적재 시각이라 대신 쓸 수 없습니다.
+   * - sort='date': 출간일 최신순 (pubDate DESC NULLS LAST)
+   * - sort='sim' (기본): 관련도 순 (완전/접두/부분일치) -> 판매지수(salesPoint) 순
    * @param params 검색 조건
    * @returns 정규화된 검색 결과
    */
   async search(
     params: BookCatalogSearchParams,
   ): Promise<BookCatalogSearchResult> {
-    const { query, display, start, field } = params;
+    const { query, display, start, field, sort } = params;
     // 공백만 있는 검색어를 통과시키면 ILIKE '% %'가 되어 공백이 든 모든 도서가
     // 매칭된다(실측 57,577행 / 카운트에만 3초). 빈 문자열 검사로는 못 막는다.
     const trimmed = query?.trim() ?? '';
@@ -117,18 +114,25 @@ export class LocalDbBookCatalogProvider implements BookCatalogProvider {
     const columns = searchColumnsFor(field);
     const escaped = escapeLike(trimmed);
 
-    const [books, total] = await this.bookRepository
+    const qb = this.bookRepository
       .createQueryBuilder('book')
       .where(columns.map((c) => `book.${c} ILIKE :like`).join(' OR '), {
         like: `%${escaped}%`,
         prefix: `${escaped}%`,
         exact: escaped,
-      })
-      // 정렬이 없으면 순서가 보장되지 않아 OFFSET 페이지네이션에서 중복과 누락이
-      // 생긴다. isbn까지 걸어 순서를 확정한다.
-      .orderBy(relevanceCaseSql('book', columns), 'ASC')
-      .addOrderBy('book.viewCount', 'DESC')
-      .addOrderBy('book.isbn', 'ASC')
+      });
+
+    if (sort === 'date') {
+      qb.orderBy('book.pubDate', 'DESC', 'NULLS LAST')
+        .addOrderBy('book.salesPoint', 'DESC', 'NULLS LAST')
+        .addOrderBy('book.isbn', 'ASC');
+    } else {
+      qb.orderBy(relevanceCaseSql('book', columns), 'ASC')
+        .addOrderBy('book.salesPoint', 'DESC', 'NULLS LAST')
+        .addOrderBy('book.isbn', 'ASC');
+    }
+
+    const [books, total] = await qb
       .skip(Math.max(start - 1, 0))
       .take(display)
       .getManyAndCount();

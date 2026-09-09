@@ -30,7 +30,10 @@ export class ReadingLog {
   @Column()
   isbn: string;
 
-  @ManyToOne(() => Book, { eager: true, onDelete: 'SET NULL' })
+  /**
+   * 도서 삭제 시 독서기록 보존을 위해 삭제를 제한합니다(NO ACTION).
+   */
+  @ManyToOne(() => Book)
   @JoinColumn({ name: 'isbn' })
   book: Book;
 

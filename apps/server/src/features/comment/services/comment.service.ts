@@ -63,7 +63,7 @@ export class CommentService {
 
     // 로그인한 사용자의 좋아요 상태 확인
     let likedCommentIds: Set<number> = new Set();
-    if (userId) {
+    if (userId && comments.length > 0) {
       const likes = await this.commentLikeRepository.find({
         where: comments.map((c) => ({ commentId: c.id, userId })),
         select: ['commentId'],

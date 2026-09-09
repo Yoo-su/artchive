@@ -23,7 +23,6 @@ book/
 │   ├── book.service.ts (+ spec)          # 도서 마스터 조회·동기화·통계
 │   └── book-catalog.service.ts (+ spec)  # 공급처 체인 오케스트레이터
 ├── entities/book.entity.ts               # isbn을 PK로 사용
-├── dtos/book-info.dto.ts
 ├── pipes/book-resolve.pipe.ts            # ISBN → Book 보장 파이프
 └── interceptors/book-view-count.interceptor.ts
 ```
@@ -32,7 +31,7 @@ book/
 
 | 메서드 | 경로 (`/book/...`) | 인증 | 설명                                  |
 | ------ | ------------------ | :--: | ------------------------------------- |
-| GET    | `/popular`         |  ❌  | 조회수 기반 인기 도서                 |
+| GET    | `/popular`         |  ❌  | 활동 및 판매지수 기반 인기 도서       |
 | GET    | `/external/list`   |  ❌  | 도서 목록 검색 (검색 체인)            |
 | GET    | `/external/detail` |  ❌  | 도서 상세 조회 (상세 체인)            |
 | POST   | `/:isbn/view`      |  ❌  | 도서 조회수 기록                      |
@@ -40,15 +39,17 @@ book/
 
 ## 3. 엔티티 — `Book` (`isbn` PK)
 
-| 컬럼                           | 타입          | 설명                    |
-| ------------------------------ | ------------- | ----------------------- |
-| `isbn`                         | `string`      | Primary Key             |
-| `title`, `author`, `publisher` | `string`      | 서지 정보               |
-| `discount`                     | `string`      | 가격 정보 (기본 `''`)   |
-| `description`                  | `text`        | 소개                    |
-| `image`                        | `string`      | 표지 URL                |
-| `viewCount`                    | `number`      | 조회수 (인기 도서 산정) |
-| `createdAt` / `updatedAt`      | `timestamptz` |                         |
+| 컬럼                           | 타입          | 설명                               |
+| ------------------------------ | ------------- | ---------------------------------- |
+| `isbn`                         | `string`      | Primary Key                        |
+| `title`, `author`, `publisher` | `string`      | 서지 정보                          |
+| `discount`                     | `string`      | 가격 정보 (기본 `''`)              |
+| `description`                  | `text`        | 소개                               |
+| `image`                        | `string`      | 표지 URL                           |
+| `pubDate`                      | `string`      | 출판일 (YYYY-MM-DD 형식)           |
+| `salesPoint`                   | `number`      | 알라딘 판매지수 (인기도 산정 반영) |
+| `viewCount`                    | `number`      | 단순 상세 조회수                   |
+| `createdAt` / `updatedAt`      | `timestamptz` |                                    |
 
 ISBN을 PK로 쓰기 때문에 리뷰·독서 기록·판매글·위시리스트가 모두 자연스럽게 같은 도서를 참조합니다.
 
@@ -83,9 +84,10 @@ resolveBook(isbn)
 
 판매글 생성(`POST /book/sale`), 위시리스트 추가 등에서 사용합니다. 덕분에 각 서비스가 "책이 없으면 만들기" 분기를 반복 구현하지 않습니다.
 
-### 조회수
+### 조회수 및 인기도 산정
 
-`BookViewCountInterceptor`(공용 `BaseViewCountInterceptor` 확장)가 중복 요청을 걸러 `viewCount`를 올립니다. 이 값이 `findPopularBooks`의 기준입니다.
+- `BookViewCountInterceptor`(공용 `BaseViewCountInterceptor` 확장)가 중복 요청을 걸러 `viewCount`를 증가시킵니다.
+- `findPopularBooks`는 단순 조회수 대신 사용자 활동 데이터(독서기록, 위시리스트, 리뷰)와 정규화된 판매지수(`ln(salesPoint + 1)`)를 결합하여 인기 도서를 선별합니다.
 
 ### 도서 공급처 (`BookCatalogService` + `providers/`)
 

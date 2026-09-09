@@ -13,7 +13,7 @@
 - **Rate Limiting:** `@nestjs/throttler`를 활용한 무차별 대입 공격(Brute-Force) 방어.
 
 ### 2. 도서 검색 및 RAG 기반 AI 도서 추천 (Search & LLM)
-- **Aladin Open API & 네이버 도서 연동:** 도서 메타데이터 자동 수집 및 캐싱.
+- **자체 도서 카탈로그 & RAG 검색:** 오프라인 파이프라인으로 적재된 자체 도서 DB 및 pg_trgm 전문 검색.
 - **3단계 RAG 파이프라인:**
   1. 의도 분류 (Gemini Flash Function Calling)
   2. `pgvector` 코사인 유사도 벡터 검색 (`gemini-embedding-001` 768차원 임베딩)
@@ -42,7 +42,7 @@ src/
 ├── main.ts             # 엔트리포인트 (helmet, compression, CORS, 전역 필터/인터셉터, ValidationPipe, Swagger)
 ├── features/           # 도메인 모듈 (Controller - Service - Entity - DTO)
 │   ├── auth            # JWT 인증, OAuth, 티켓 교환, 이메일 인증 가드, Throttler
-│   ├── book            # 도서 조회 및 외부 API 연동
+│   ├── book            # 도서 카탈로그 조회 및 상세 정보 제공
 │   ├── used-book-sale  # 중고책 판매글 관리 (거리 검색, 커서 페이지네이션)
 │   ├── order           # 토스페이먼츠 에스크로 주문, 배송 추적, 자동 환불/확정 스케줄러
 │   ├── trade           # 직거래/택배 거래 완료, 양방향 거래 후기, 신뢰 지표 집계

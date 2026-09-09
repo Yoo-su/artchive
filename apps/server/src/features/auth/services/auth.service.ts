@@ -73,7 +73,7 @@ export class AuthService {
       socialLoginDto;
     const user = await this.userService.findByProviderId(provider, providerId);
 
-    if (user) {
+    if (user && !user.deletedAt) {
       return user;
     }
 
@@ -376,14 +376,14 @@ export class AuthService {
 
     const user = await this.userService.findByEmail(email);
 
-    // 1. 계정이 없어도 해시 비교를 한 번 돌린다. 곧바로 던지면 응답 시간
+    // 1. 계정이 없거나 탈퇴한 계정이어도 해시 비교를 한 번 돌린다. 곧바로 던지면 응답 시간
     //    차이만으로 가입된 이메일인지 알아낼 수 있다.
-    if (!user?.password) {
+    if (!user?.password || user.deletedAt) {
       await bcrypt.compare(password, DUMMY_PASSWORD_HASH);
 
       // 소셜 계정은 비밀번호 로그인 자체가 불가능하므로 안내가 필요하다.
       // (이 경우에만 계정 존재가 드러나지만, 대안이 "로그인 불가"뿐이다)
-      if (user && !user.password) {
+      if (user && !user.password && !user.deletedAt) {
         throw new BusinessException(
           'SOCIAL_LOGIN_USER',
           HttpStatus.UNAUTHORIZED,
